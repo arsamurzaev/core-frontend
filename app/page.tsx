@@ -1,29 +1,31 @@
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerScrollArea,
-  DrawerTitle,
-} from "@/shared/ui/drawer";
+import axios from 'axios';
 
-export default function Home() {
-  return (
-    <div>
+export default async function Home() {
+  try {
+    const { data } = await axios.get('http://localhost:4000/catalog/current', {
+      headers: { 'x-forwarded-host': 'lumen.myctlg.ru' },
+    });
+
+    return (
       <main>
-        <Drawer defaultOpen={true}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Заголовок</DrawerTitle>
-              <DrawerDescription>Описание</DrawerDescription>
-            </DrawerHeader>
-            <DrawerScrollArea></DrawerScrollArea>
-            <DrawerFooter></DrawerFooter>
-          </DrawerContent>
-        </Drawer>
+        <code>
+          <pre>{JSON.stringify(data, null, 2)}</pre>
+        </code>
       </main>
-      ;
-    </div>
-  );
+    );
+  } catch (error) {
+    const message = axios.isAxiosError(error)
+      ? error.message
+      : error instanceof Error
+        ? error.message
+        : 'Request failed';
+
+    return (
+      <main>
+        <code>
+          <pre>{JSON.stringify({ error: message }, null, 2)}</pre>
+        </code>
+      </main>
+    );
+  }
 }
