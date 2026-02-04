@@ -1,31 +1,16 @@
-import axios from 'axios';
+import { BackgroundImage } from "@/core/pages/home/_ui/background-image";
+import { Header } from "@/core/widgets/header/ui/header";
+import { ContentContainer } from "@/shared/ui/layout/content-container";
 
-export default async function Home() {
-  try {
-    const { data } = await axios.get('http://localhost:4000/catalog/current', {
-      headers: { 'x-forwarded-host': 'lumen.myctlg.ru' },
-    });
-
-    return (
-      <main>
-        <code>
-          <pre>{JSON.stringify(data, null, 2)}</pre>
-        </code>
-      </main>
-    );
-  } catch (error) {
-    const message = axios.isAxiosError(error)
-      ? error.message
-      : error instanceof Error
-        ? error.message
-        : 'Request failed';
-
-    return (
-      <main>
-        <code>
-          <pre>{JSON.stringify({ error: message }, null, 2)}</pre>
-        </code>
-      </main>
-    );
-  }
+export default function Home() {
+  return (
+    <main>
+      <ContentContainer>
+        <BackgroundImage />
+        <div rel="content" className="px-2.5">
+          <Header />
+        </div>
+      </ContentContainer>
+    </main>
+  );
 }

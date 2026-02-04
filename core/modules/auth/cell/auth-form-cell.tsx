@@ -1,11 +1,15 @@
 "use client";
 import { useCatalogAuthControllerLogin } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
+import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { KreatiLogo } from "@/shared/ui/icons/kreati-logo";
 import { Input } from "@/shared/ui/input";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useRef } from "react";
+import { toast } from "sonner";
 
 interface Props {
   className?: string;
@@ -14,6 +18,8 @@ interface Props {
 export const AuthFormCell: React.FC<Props> = ({ className }) => {
   const loginRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const { refetch: refetchSession } = useSession();
 
   const loginMutation = useCatalogAuthControllerLogin();
 
@@ -24,7 +30,23 @@ export const AuthFormCell: React.FC<Props> = ({ className }) => {
 
     if (!login || !password) return;
 
-    await loginMutation.mutateAsync({ data: { login, password } });
+    const loginPromise = loginMutation
+      .mutateAsync({ data: { login, password } })
+      .then(async (result) => {
+        await refetchSession();
+        return result;
+      });
+
+    return toast.promise(loginPromise, {
+      loading: "Вход...",
+      success: () => {
+        setTimeout(() => {
+          router.replace("/");
+        }, 1000);
+        return "Успешный вход!, Перенаправление...";
+      },
+      error: (err) => `Ошибка входа: ${err.message}`,
+    });
   };
 
   return (
@@ -34,7 +56,7 @@ export const AuthFormCell: React.FC<Props> = ({ className }) => {
         className="flex min-h-svh flex-col justify-between"
       >
         <div className="flex flex-1 items-center justify-center text-center">
-          <div className="flex-1 space-y-[60px]">
+          <div className="flex-1 space-y-15">
             <div className="flex justify-center">
               <KreatiLogo />
             </div>
@@ -45,7 +67,7 @@ export const AuthFormCell: React.FC<Props> = ({ className }) => {
                   вход в административную панель
                 </p>
               </div>
-              <div className="space-y-[30px]">
+              <div className="space-y-7.5">
                 <Input
                   ref={loginRef}
                   required
@@ -63,9 +85,12 @@ export const AuthFormCell: React.FC<Props> = ({ className }) => {
           </div>
         </div>
         <div className="space-y-8 pb-8">
-          <Button size={"full"}>Войти</Button>
+          <Button disabled={loginMutation.isPending} size={"full"}>
+            Войти {loginMutation.isPending && <Loader2 />}{" "}
+          </Button>
         </div>
       </form>
     </ContentContainer>
   );
 };
+

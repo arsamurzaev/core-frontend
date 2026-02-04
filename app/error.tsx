@@ -19,7 +19,10 @@ export default function GlobalError({ error, reset }: ErrorProps) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4">
       <h1 className="text-2xl font-bold">Что-то пошло не так</h1>
-      <p className="text-muted-foreground">Произошла непредвиденная ошибка</p>
+      <p className="text-muted-foreground text-center">
+        Произошла непредвиденная ошибка <br />
+        <span className="text-red-400">{error.message}</span>
+      </p>
       <Button onClick={reset}>Попробовать снова</Button>
     </div>
   );
