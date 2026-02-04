@@ -6,6 +6,7 @@ import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { Button } from "@/shared/ui/button";
+import { confirm } from "@/shared/ui/confirmation";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 import React, { PropsWithChildren } from "react";
@@ -29,10 +30,18 @@ export const Header: React.FC<PropsWithChildren<Props>> = ({ className }) => {
   });
 
   const handleLogout = async () => {
-    return toast.promise(logoutMutation.mutateAsync(), {
-      loading: "Выход из аккаунта...",
-      success: "Вы успешно вышли из аккаунта",
-      error: "Ошибка при выходе из аккаунта",
+    await confirm({
+      title: "Выйти из административной панели?",
+      description: null,
+      confirmText: "Да",
+      cancelText: "Нет",
+      onConfirm: async () => {
+        toast.promise(logoutMutation.mutateAsync(), {
+          loading: "Выход из аккаунта...",
+          success: "Вы успешно вышли из аккаунта",
+          error: (err) => `Ошибка при выходе из аккаунта: ${err.message}`,
+        });
+      },
     });
   };
 

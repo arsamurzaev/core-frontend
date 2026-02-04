@@ -1,5 +1,6 @@
 import { catalogControllerGetCurrent } from "@/shared/api/generated";
 import { AppProvider } from "@/shared/providers/app-provider";
+import { ConfirmationProvider } from "@/shared/ui/confirmation";
 import { Toaster } from "@/shared/ui/sonner";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -31,6 +32,7 @@ export default async function RootLayout({
     <html lang="ru">
       <body className={`${sfProText.className} antialiased min-h-svh`}>
         <AppProvider initialCatalog={data}>{children}</AppProvider>
+        <ConfirmationProvider />
         <Toaster />
       </body>
     </html>
