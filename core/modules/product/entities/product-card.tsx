@@ -1,8 +1,7 @@
 import { ProductWithAttributesDto } from "@/shared/api/generated";
-import {
-  resolveAttributes,
-  toNumberValue,
-} from "@/shared/lib/attributes";
+import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
+import { getTotalPrice } from "@/shared/lib/calculate-price";
+import { isDiscountActive } from "@/shared/lib/is-discount-active";
 import { cn } from "@/shared/lib/utils";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { Badge } from "@/shared/ui/badge";
@@ -11,6 +10,7 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
+  CardSubTitle,
   CardTitle,
 } from "@/shared/ui/card";
 import React from "react";
@@ -30,19 +30,26 @@ export const ProductCard: React.FC<Props> = ({
   actions,
   data,
 }) => {
-  const rawPrice = toNumberValue(data.price) ?? 0;
+  const price = toNumberValue(data.price) ?? 0;
   const {
     description = "",
     subtitle = "",
     currency = "RUB",
+    discountedPrice,
     discount = 0,
-    isVisiblePrice = true,
+    discountStartAt,
+    discountEndAt,
   } = resolveAttributes(data.productAttributes);
 
-  const hasDiscount = discount > 0;
-  const displayPrice = hasDiscount
-    ? Math.max(rawPrice - (rawPrice * discount) / 100, 0)
-    : rawPrice;
+  const hasDiscount = isDiscountActive(discountStartAt, discountEndAt);
+
+  const displayPrice = getTotalPrice({
+    discountedPrice,
+    discountStartAt,
+    discountEndAt,
+    discount,
+    price,
+  });
   const imageUrl = data.media?.[0]?.media?.url || "/not-found-photo.png";
 
   return (
@@ -54,12 +61,13 @@ export const ProductCard: React.FC<Props> = ({
       )}
     >
       <CardContent className={cn("flex-[0_1_160px]", isDetailed && "relative")}>
-        <div className="min-w-[100px]">
+        <div className="min-w-25">
           <AspectRatio ratio={3 / 4}>
             <img
-              src={imageUrl}
+              loading="lazy"
+              src={imageUrl || "/not-found-photo.png"}
               className="h-full w-full object-contain"
-              alt="Product card"
+              alt="карточка товара"
             />
           </AspectRatio>
         </div>
@@ -75,11 +83,11 @@ export const ProductCard: React.FC<Props> = ({
           <CardTitle className={cn("line-clamp-2", isDetailed && "sm:text-lg")}>
             {data.name}
           </CardTitle>
-          <CardTitle
+          <CardSubTitle
             className={cn("line-clamp-1", isDetailed && "sm:text-base")}
           >
             {subtitle}
-          </CardTitle>
+          </CardSubTitle>
           {isDetailed && (
             <p
               className={cn("line-clamp-3 text-xs", isDetailed && "sm:text-sm")}
@@ -109,7 +117,7 @@ export const ProductCard: React.FC<Props> = ({
                     isDetailed && "pl-6 text-sm",
                   )}
                 >
-                  {Intl.NumberFormat("ru").format(rawPrice)} {currency}
+                  {Intl.NumberFormat("ru").format(price)} {currency}
                 </p>
                 <Badge
                   className={cn(
@@ -127,11 +135,10 @@ export const ProductCard: React.FC<Props> = ({
             className={cn(
               "text-base font-bold",
               !hasDiscount && "mt-4",
-              footerAction && !isVisiblePrice && "hidden",
+              footerAction && "hidden",
               !Boolean(displayPrice) && "h-6",
             )}
           >
-            {" "}
             {Boolean(displayPrice) && (
               <>
                 {Intl.NumberFormat("ru").format(displayPrice)}{" "}

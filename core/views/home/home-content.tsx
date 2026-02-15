@@ -1,3 +1,4 @@
+import { PopularProductCarousel } from "@/core/orchestration/popular-product-carousel/ui/popular-product-carousel";
 import { Header } from "@/core/widgets/header/ui/header";
 import { cn } from "@/shared/lib/utils";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
@@ -15,6 +16,7 @@ export const HomeContent: React.FC<Props> = ({ className }) => {
         <BackgroundImage />
         <div rel="content" className="px-2.5 space-y-8">
           <Header />
+          <PopularProductCarousel />
         </div>
       </ContentContainer>
     </main>

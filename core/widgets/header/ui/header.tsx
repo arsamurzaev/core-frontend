@@ -43,7 +43,7 @@ export const Header: React.FC<Props> = ({ className }) => {
 
   return (
     <header className={cn("", className)}>
-      <div className="space-y-6 px-2.5">
+      <div className="space-y-6">
         <div className="-mt-5 flex items-start gap-5">
           <div className="relative">
             <div className="size-27.5 rounded-full border-[0.5px] border-white bg-white shadow-[0_0_6px_0] shadow-black/50 sm:size-35">
@@ -54,7 +54,7 @@ export const Header: React.FC<Props> = ({ className }) => {
               />
             </div>
           </div>
-          <div className="pt-6">
+          <div className="pt-6 flex-1">
             <h1 className="text-[18px] leading-tight font-bold text-black sm:text-2xl">
               {name}
             </h1>
@@ -73,12 +73,11 @@ export const Header: React.FC<Props> = ({ className }) => {
             </p>
           </div>
           {isAuthenticated && (
-            <div className="flex flex-1 justify-end pt-6">
+            <div className="flex pt-6">
               <Button
                 onClick={handleLogout}
                 variant="ghost"
                 className="text-primary h-fit gap-1 text-xs underline"
-                size="icon"
               >
                 Выйти <ArrowRight className="size-3" />
               </Button>
@@ -89,7 +88,7 @@ export const Header: React.FC<Props> = ({ className }) => {
         {isLoading ? (
           <Skeleton className="w-full h-10" />
         ) : isAuthenticated ? (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
             <Button className="col-span-2" size={"lg"}>
               + Добавить позицию
             </Button>

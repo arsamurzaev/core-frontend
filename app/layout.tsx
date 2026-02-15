@@ -14,15 +14,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  drawer,
 }: Readonly<{
   children: React.ReactNode;
+  drawer: React.ReactNode;
 }>) {
   const data = await catalogControllerGetCurrent();
-
-  const {
-    name,
-    config: { about, description },
-  } = data ?? {};
 
   if (!data) {
     notFound();
@@ -31,7 +28,10 @@ export default async function RootLayout({
   return (
     <html lang="ru">
       <body className={`${sfProText.className} antialiased min-h-svh`}>
-        <AppProvider initialCatalog={data}>{children}</AppProvider>
+        <AppProvider initialCatalog={data}>
+          {children}
+          {drawer}
+        </AppProvider>
         <ConfirmationProvider />
         <Toaster />
       </body>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useAuthControllerLogin } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
@@ -37,7 +37,7 @@ const schema = z.object({
 
 type LoginFormValues = z.infer<typeof schema>;
 
-export const LoginPage: React.FC<Props> = ({ className }) => {
+export const LoginContent: React.FC<Props> = ({ className }) => {
   const router = useRouter();
 
   const form = useForm<LoginFormValues>({

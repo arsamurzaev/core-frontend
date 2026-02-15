@@ -1,4 +1,4 @@
-import { HomeContent } from "@/core/pages/home/home-content";
+import { HomeContent } from "@/core/views/home/home-content";
 
 export default function Home() {
   return <HomeContent />;
