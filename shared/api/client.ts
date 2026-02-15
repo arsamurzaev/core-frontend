@@ -13,7 +13,7 @@ const CSRF_COOKIE_NAME = "csrf"; // replace with the real cookie name from DevTo
 const CSRF_HEADER_NAME = "X-CSRF-Token";
 const FORWARDED_HOST_HEADER = "x-forwarded-host";
 const DEV_FORWARDED_HOST =
-  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "lumen.myctlg.ru";
+  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "cloth-catalog.myctlg.ru";
 
 interface ApiError {
   status: number;
@@ -128,9 +128,7 @@ function getForwardedHost(): string | null {
   return null;
 }
 
-function applyForwardedHost(
-  headers: AxiosRequestConfig["headers"],
-): AxiosHeaders {
+function applyForwardedHost(headers: AxiosHeaders | undefined): AxiosHeaders {
   const forwardedHost = getForwardedHost();
   const normalized = AxiosHeaders.from(headers);
 

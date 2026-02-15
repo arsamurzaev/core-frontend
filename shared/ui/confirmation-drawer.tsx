@@ -14,7 +14,11 @@ import {
 } from "@/shared/ui/drawer";
 import { Loader2 } from "lucide-react";
 import * as React from "react";
-import type { DialogProps, WithFadeFromProps, WithoutFadeFromProps } from "vaul";
+import type {
+  DialogProps,
+  WithFadeFromProps,
+  WithoutFadeFromProps,
+} from "vaul";
 
 const DEFAULT_TITLE = "Вы уверены?";
 const DEFAULT_CONFIRM_TEXT = "Да";
@@ -219,16 +223,15 @@ export function ConfirmationDrawer({
       <DrawerContent
         onAnimationEnd={handleCloseAnimationEnd}
         onTransitionEnd={handleCloseAnimationEnd}
-        className={cn(
-          "mx-auto w-full max-w-md rounded-2xl shadow-xl",
-          contentClassName,
-        )}
+        className={cn("mx-auto w-full max-w-md shadow-xl", contentClassName)}
       >
         <div className="flex min-h-0 flex-1 flex-col">
           <DrawerHeader className={cn("space-y-2", headerClassName)}>
             <div className="flex items-center gap-3">
               {icon ? <div className="shrink-0">{icon}</div> : null}
-              <DrawerTitle className={cn("text-lg", titleClassName)}>
+              <DrawerTitle
+                className={cn("text-lg text-center flex-1", titleClassName)}
+              >
                 {title}
               </DrawerTitle>
             </div>

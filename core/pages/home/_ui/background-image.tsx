@@ -9,19 +9,19 @@ interface Props {
 }
 
 export const BackgroundImage: React.FC<Props> = ({ className }) => {
-  const { catalog } = useCatalog();
+  const catalog = useCatalog();
 
   if (!catalog) {
     return null;
   }
 
-  const { bgUrl } = catalog.config;
+  const { bgMedia } = catalog.config;
 
   return (
     <div className={cn(className)}>
       <AspectRatio ratio={4 / 1}>
         <img
-          src={bgUrl || "/default-bg.png"}
+          src={bgMedia?.url || "/default-bg.png"}
           className="size-full object-cover rounded-b-md"
           alt=""
         />

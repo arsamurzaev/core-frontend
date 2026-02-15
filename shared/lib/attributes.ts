@@ -88,7 +88,7 @@ export function parseAttributeValue(
     case ProductAttributeRefDtoDataType.INTEGER:
       return toInt(attr.valueInteger);
     case ProductAttributeRefDtoDataType.DECIMAL:
-      return toInt(attr.valueDecimal);
+      return toNumberValue(attr.valueDecimal ?? null);
     case ProductAttributeRefDtoDataType.BOOLEAN:
       return isBoolean(attr.valueBoolean) ? attr.valueBoolean : null;
     case ProductAttributeRefDtoDataType.DATETIME:
@@ -123,7 +123,7 @@ export function parseAttributeValueFromValueDto(
       case ProductAttributeRefDtoDataType.INTEGER:
         return toInt(attr.valueInteger);
       case ProductAttributeRefDtoDataType.DECIMAL:
-        return toInt(attr.valueDecimal);
+        return toNumberValue(attr.valueDecimal ?? null);
       case ProductAttributeRefDtoDataType.BOOLEAN:
         return isBoolean(attr.valueBoolean) ? attr.valueBoolean : null;
       case ProductAttributeRefDtoDataType.DATETIME:
@@ -136,7 +136,7 @@ export function parseAttributeValueFromValueDto(
 
   if (attr.enumValueId) return attr.enumValueId;
   if (attr.valueInteger !== undefined) return toInt(attr.valueInteger);
-  if (attr.valueDecimal !== undefined) return toInt(attr.valueDecimal);
+  if (attr.valueDecimal !== undefined) return toNumberValue(attr.valueDecimal);
   if (attr.valueBoolean !== undefined) {
     return isBoolean(attr.valueBoolean) ? attr.valueBoolean : null;
   }
@@ -354,17 +354,52 @@ type ResolveOptions<Raw> = {
   parseOptions?: ParseOptions<Raw>;
 };
 
+export type NormalizedAttributeValue = string | number | boolean | undefined;
+
+const normalizeParsedAttributeValue = (
+  value: ParsedAttributeValue,
+): NormalizedAttributeValue => {
+  if (typeof value === "string") return toNonEmptyString(value) ?? undefined;
+  if (typeof value === "number") return toNumberValue(value) ?? undefined;
+  if (typeof value === "boolean") return value;
+  return undefined;
+};
+
+export function resolveAttributes<
+  T extends Record<string, unknown> = Record<string, undefined>,
+>(
+  attrs: ProductAttributeDto[] | null | undefined,
+  resolvers?: undefined,
+  options?: ResolveOptions<ParsedAttribute>,
+): T;
 export function resolveAttributes<
   const R extends Record<string, Resolver<unknown, ParsedAttribute>>,
 >(
   attrs: ProductAttributeDto[] | null | undefined,
   resolvers: R,
   options?: ResolveOptions<ParsedAttribute>,
-): ResolverResult<R> {
-  const result = {} as ResolverResult<R>;
+): ResolverResult<R>;
+export function resolveAttributes(
+  attrs: ProductAttributeDto[] | null | undefined,
+  resolvers?: Record<string, Resolver<unknown, ParsedAttribute>>,
+  options?: ResolveOptions<ParsedAttribute>,
+): Record<string, NormalizedAttributeValue> | Record<string, unknown> {
+  if (!resolvers) {
+    const result: Record<string, NormalizedAttributeValue> = {};
+    if (!attrs) return result;
+    const parsed =
+      options?.parsed ?? parseAttributes(attrs, options?.parseOptions);
+    for (const key of Object.keys(parsed)) {
+      const value = parsed[key]?.value ?? null;
+      result[key] = normalizeParsedAttributeValue(value);
+    }
+    return result;
+  }
+
+  const result: Record<string, unknown> = {};
   for (const key of Object.keys(resolvers)) {
     const resolver = resolvers[key];
-    result[key as keyof R] = resolver.fallback as ResolverResult<R>[keyof R];
+    result[key] = resolver.fallback;
   }
   if (!attrs) return result;
   const parsed =
@@ -374,8 +409,7 @@ export function resolveAttributes<
     const raw = parsed[key] ?? null;
     const value = raw?.value ?? null;
     const mapped = resolver.map ? resolver.map(value, raw) : value;
-    result[key as keyof R] =
-      (mapped ?? resolver.fallback) as ResolverResult<R>[keyof R];
+    result[key] = mapped ?? resolver.fallback;
   }
   return result;
 }

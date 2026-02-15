@@ -1,0 +1,111 @@
+"use client";
+
+import { useAuthControllerLogout } from "@/shared/api/generated";
+import { cn } from "@/shared/lib/utils";
+import { useCatalog } from "@/shared/providers/catalog-provider";
+import { useSession } from "@/shared/providers/session-provider";
+import { Button } from "@/shared/ui/button";
+import { confirm } from "@/shared/ui/confirmation";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { ArrowRight } from "lucide-react";
+import React from "react";
+import { toast } from "sonner";
+
+interface Props {
+  className?: string;
+}
+
+export const Header: React.FC<Props> = ({ className }) => {
+  const {
+    name,
+    config: { about, logoMedia, description },
+  } = useCatalog();
+  const { isAuthenticated, isLoading } = useSession();
+
+  const logoutMutation = useAuthControllerLogout();
+
+  const handleLogout = async () => {
+    const getConfirm = await confirm({
+      title: "Выход",
+      description: "Вы действительно хотите выйти?",
+    });
+
+    if (!getConfirm) {
+      return;
+    }
+
+    toast.promise(logoutMutation.mutateAsync(), {
+      loading: "Выход...",
+      success: () => "Выход выполнен",
+      error: (err) => (err instanceof Error ? err.message : "Ошибка выхода"),
+    });
+  };
+
+  return (
+    <header className={cn("", className)}>
+      <div className="space-y-6 px-2.5">
+        <div className="-mt-5 flex items-start gap-5">
+          <div className="relative">
+            <div className="size-27.5 rounded-full border-[0.5px] border-white bg-white shadow-[0_0_6px_0] shadow-black/50 sm:size-35">
+              <img
+                alt=""
+                src={logoMedia?.url || "/default-avatar.png"}
+                className="h-full w-full rounded-full object-contain"
+              />
+            </div>
+          </div>
+          <div className="pt-6">
+            <h1 className="text-[18px] leading-tight font-bold text-black sm:text-2xl">
+              {name}
+            </h1>
+            <h2 className="text-[12px] leading-tight whitespace-pre-line text-black sm:text-base">
+              {about || (
+                <span className="text-muted">Расскажи, чем занимаешься</span>
+              )}
+            </h2>
+            <p className="text-[10px] whitespace-pre-line sm:text-sm">
+              {description || (
+                <span className="text-muted">
+                  Опиши услуги или товары подробнее. <br />
+                  Укажи свои сильные стороны и добавь график работы.
+                </span>
+              )}
+            </p>
+          </div>
+          {isAuthenticated && (
+            <div className="flex flex-1 justify-end pt-6">
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                className="text-primary h-fit gap-1 text-xs underline"
+                size="icon"
+              >
+                Выйти <ArrowRight className="size-3" />
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {isLoading ? (
+          <Skeleton className="w-full h-10" />
+        ) : isAuthenticated ? (
+          <div className="grid grid-cols-2 gap-2">
+            <Button className="col-span-2" size={"lg"}>
+              + Добавить позицию
+            </Button>
+            <Button size={"sm"} variant={"outline"}>
+              Поделиться каталогом
+            </Button>
+            <Button size={"sm"} variant={"outline"}>
+              Статистика аккаунта
+            </Button>
+          </div>
+        ) : (
+          <Button variant="outline" size="lg" className="w-full">
+            Связаться с нами
+          </Button>
+        )}
+      </div>
+    </header>
+  );
+};

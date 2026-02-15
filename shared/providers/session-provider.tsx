@@ -1,6 +1,11 @@
 "use client";
+import { useQueryClient } from "@tanstack/react-query";
 import { ApiClientError } from "@/shared/api/client";
-import { useAuthControllerMe, type AuthUserDto } from "@/shared/api/generated";
+import {
+  getAuthControllerMeQueryKey,
+  useAuthControllerMe,
+  type AuthUserDto,
+} from "@/shared/api/generated";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import React, {
   PropsWithChildren,
@@ -14,6 +19,11 @@ type SessionStatus = "loading" | "authenticated" | "unauthenticated" | "error";
 
 const CSRF_COOKIE_NAME = "csrf";
 const COOKIE_CHECK_INTERVAL_MS = 30_000;
+const AUTH_MUTATION_KEYS = new Set([
+  "authControllerLogin",
+  "catalogAuthControllerLogin",
+  "authControllerLogout",
+]);
 
 export type SessionValue = {
   user: AuthUserDto | null;
@@ -51,7 +61,13 @@ function isUnauthorized(error: unknown): boolean {
   return false;
 }
 
+function readMutationKey(value: unknown): string | null {
+  if (!Array.isArray(value) || typeof value[0] !== "string") return null;
+  return value[0];
+}
+
 export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const queryClient = useQueryClient();
   const [csrfCookiePresent, setCsrfCookiePresent] = useState<boolean | null>(
     null,
   );
@@ -114,13 +130,33 @@ export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
               ? "authenticated"
               : "unauthenticated";
 
-  const safeRefetch = useCallback(async () => {
+  const syncSession = useCallback(async () => {
     const hasCookie = updateCsrfCookie();
 
-    if (!hasCookie) return Promise.resolve(null);
+    if (!hasCookie) {
+      queryClient.removeQueries({ queryKey: getAuthControllerMeQueryKey() });
+      return null;
+    }
 
+    await queryClient.invalidateQueries({ queryKey: getAuthControllerMeQueryKey() });
     return query.refetch();
-  }, [query.refetch, updateCsrfCookie]);
+  }, [query, queryClient, updateCsrfCookie]);
+
+  useEffect(() => {
+    const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
+      if (event.type !== "updated") return;
+
+      const mutation = event.mutation;
+      if (mutation.state.status !== "success") return;
+
+      const mutationKey = readMutationKey(mutation.options.mutationKey);
+      if (!mutationKey || !AUTH_MUTATION_KEYS.has(mutationKey)) return;
+
+      void syncSession();
+    });
+
+    return unsubscribe;
+  }, [queryClient, syncSession]);
 
   const value = useMemo<SessionValue>(
     () => ({
@@ -129,7 +165,7 @@ export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
       isLoading: csrfCookiePresent === null || (canRequest && query.isLoading),
       isAuthenticated: status === "authenticated",
       error: !canRequest || unauthorized ? null : query.error,
-      refetch: safeRefetch,
+      refetch: syncSession,
     }),
     [
       user,
@@ -138,7 +174,7 @@ export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
       canRequest,
       query.isLoading,
       query.error,
-      safeRefetch,
+      syncSession,
       unauthorized,
     ],
   );

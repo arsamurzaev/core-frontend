@@ -2,15 +2,15 @@
 import { ApiClientError } from "@/shared/api/client";
 import {
   useCatalogControllerGetCurrent,
-  type CatalogDto,
+  type CatalogControllerGetCurrentQueryResult,
 } from "@/shared/api/generated";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import React, { PropsWithChildren, useMemo } from "react";
 
 type CatalogStatus = "loading" | "ready" | "missing" | "error";
 
-export type CatalogValue = {
-  catalog: CatalogDto | null;
+export type CatalogStateValue = {
+  catalog: CatalogControllerGetCurrentQueryResult | undefined;
   status: CatalogStatus;
   isLoading: boolean;
   isReady: boolean;
@@ -20,10 +20,10 @@ export type CatalogValue = {
   refetch: () => Promise<unknown>;
 };
 
-const CatalogContext = createStrictContext<CatalogValue>();
+const CatalogContext = createStrictContext<CatalogStateValue>();
 
 type CatalogProviderProps = PropsWithChildren<{
-  initialCatalog?: CatalogDto | null;
+  initialCatalog?: CatalogControllerGetCurrentQueryResult | null;
 }>;
 
 function isMissingCatalogError(error: unknown): boolean {
@@ -57,7 +57,7 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
   });
 
   const missing = isMissingCatalogError(query.error);
-  const catalog = missing ? null : (query.data ?? null);
+  const catalog = missing ? undefined : query.data;
 
   const status: CatalogStatus = query.isLoading
     ? "loading"
@@ -69,7 +69,7 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
           ? "error"
           : "missing";
 
-  const value = useMemo<CatalogValue>(
+  const value = useMemo<CatalogStateValue>(
     () => ({
       catalog,
       status,
@@ -88,6 +88,14 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
   );
 };
 
-export function useCatalog(): CatalogValue {
+export function useCatalogState(): CatalogStateValue {
   return useStrictContext(CatalogContext);
+}
+
+export function useCatalog(): CatalogControllerGetCurrentQueryResult {
+  const { catalog, status } = useCatalogState();
+  if (!catalog) {
+    throw new Error(`Catalog is not ready. Current status: ${status}`);
+  }
+  return catalog;
 }
