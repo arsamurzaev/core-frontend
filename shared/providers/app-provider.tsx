@@ -1,6 +1,5 @@
 "use client";
 import React, { PropsWithChildren } from "react";
-import { ComposeChildren } from "../lib/react";
 import { type CatalogControllerGetCurrentQueryResult } from "@/shared/api/generated";
 import ReactQueryProvider from "./react-query-provider";
 import { SessionProvider } from "./session-provider";
@@ -15,11 +14,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   initialCatalog,
 }) => {
   return (
-    <ComposeChildren>
-      <ReactQueryProvider />
-      <SessionProvider />
-      <CatalogProvider initialCatalog={initialCatalog} />
-      {children}
-    </ComposeChildren>
+    <ReactQueryProvider>
+      <SessionProvider>
+        <CatalogProvider initialCatalog={initialCatalog}>
+          {children}
+        </CatalogProvider>
+      </SessionProvider>
+    </ReactQueryProvider>
   );
 };

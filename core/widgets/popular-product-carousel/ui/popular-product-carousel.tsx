@@ -1,4 +1,5 @@
 "use client";
+
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { useProductControllerGetPopular } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
@@ -18,16 +19,13 @@ interface Props {
 
 export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
-
   const [count, setCount] = React.useState(0);
   const [current, setCurrent] = React.useState(0);
 
   const { isLoading, data } = useProductControllerGetPopular();
 
   React.useEffect(() => {
-    if (!api || !data) {
-      return;
-    }
+    if (!api || !data) return;
 
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
@@ -49,7 +47,7 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
           {data?.map((product) => (
             <CarouselItem key={product.id}>
               <Link
-                href={`/product/${product.id}`}
+                href={`/product/${product.slug}`}
                 scroll={false}
                 className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
               >
@@ -64,15 +62,16 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
             </CarouselItem>
           ))}
         </CarouselContent>
+
         {Boolean(count) && (
           <ul className="flex justify-center gap-1">
             {Array.from({ length: count }).map((_, index) => (
               <li
+                key={index}
                 className={cn(
                   "bg-primary h-1 w-2 rounded-full transition-all",
                   current === index + 1 && "w-24",
                 )}
-                key={index}
               />
             ))}
           </ul>

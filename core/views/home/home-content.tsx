@@ -1,4 +1,4 @@
-import { PopularProductCarousel } from "@/core/orchestration/popular-product-carousel/ui/popular-product-carousel";
+import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel/ui/popular-product-carousel";
 import { Header } from "@/core/widgets/header/ui/header";
 import { cn } from "@/shared/lib/utils";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
