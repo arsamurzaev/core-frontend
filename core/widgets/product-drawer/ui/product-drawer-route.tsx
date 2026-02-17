@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React from "react";
+import type { ProductWithDetailsDto } from "@/shared/api/generated";
 import { ProductDrawer } from "./product-drawer";
 
 type CloseStrategy = "replace-home" | "back-or-home";
@@ -9,6 +10,7 @@ type CloseStrategy = "replace-home" | "back-or-home";
 interface ProductDrawerRouteProps {
   productSlug: string;
   closeStrategy: CloseStrategy;
+  initialProduct?: ProductWithDetailsDto | null;
 }
 
 function hasSameOriginReferrer(): boolean {
@@ -26,19 +28,15 @@ function hasSameOriginReferrer(): boolean {
 export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   productSlug,
   closeStrategy,
+  initialProduct,
 }) => {
   const router = useRouter();
-  const [mounted, setMounted] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
 
   React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  React.useEffect(() => {
-    if (!mounted || !productSlug) return;
+    if (!productSlug) return;
     setOpen(true);
-  }, [mounted, productSlug]);
+  }, [productSlug]);
 
   const handleCloseRoute = React.useCallback(() => {
     if (closeStrategy === "replace-home") {
@@ -60,7 +58,7 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
     router.replace("/");
   }, [closeStrategy, router]);
 
-  if (!productSlug || !mounted) {
+  if (!productSlug) {
     return null;
   }
 
@@ -68,6 +66,7 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
     <ProductDrawer
       open={open}
       productSlug={productSlug}
+      initialProduct={initialProduct}
       onOpenChange={setOpen}
       onAfterClose={handleCloseRoute}
     />

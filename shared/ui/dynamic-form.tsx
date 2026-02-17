@@ -584,7 +584,9 @@ function normalizeFields<TValues extends FieldValues>(
       field.kind ?? (unwrapped ? inferFieldKind(unwrapped.schema) : "text");
     const required =
       field.required ?? (unwrapped ? !unwrapped.isOptional : false);
-    const schemaDescription = (schema as { description?: string }).description;
+    const schemaDescription = (
+      schema as { description?: string } | undefined
+    )?.description;
     const description = field.description ?? schemaDescription;
     const options =
       field.options ?? (unwrapped ? inferOptions(unwrapped.schema) : undefined);

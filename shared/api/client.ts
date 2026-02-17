@@ -7,11 +7,11 @@ import axios, {
   type AxiosResponse,
 } from "axios";
 
-const API_BASE_URL = "http://localhost:4000"; // local http is typical for dev
+export const API_BASE_URL = "http://localhost:4000"; // local http is typical for dev
 
 const CSRF_COOKIE_NAME = "csrf"; // replace with the real cookie name from DevTools
 const CSRF_HEADER_NAME = "X-CSRF-Token";
-const FORWARDED_HOST_HEADER = "x-forwarded-host";
+export const FORWARDED_HOST_HEADER = "x-forwarded-host";
 const DEV_FORWARDED_HOST =
   process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "cloth-catalog.myctlg.ru";
 
@@ -114,7 +114,7 @@ function isLocalhost(hostname: string): boolean {
   );
 }
 
-function getForwardedHost(): string | null {
+export function getForwardedHost(): string | null {
   const isDev = process.env.NODE_ENV === "development";
 
   if (typeof window !== "undefined") {

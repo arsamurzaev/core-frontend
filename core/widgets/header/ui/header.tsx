@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import { CreateProductDrawer } from "@/core/widgets/create-product-drawer/ui/create-product-drawer";
 import { useAuthControllerLogout } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
@@ -89,9 +90,7 @@ export const Header: React.FC<Props> = ({ className }) => {
           <Skeleton className="w-full h-10" />
         ) : isAuthenticated ? (
           <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
-            <Button className="col-span-2" size={"lg"}>
-              + Добавить позицию
-            </Button>
+            <CreateProductDrawer />
             <Button size={"sm"} variant={"outline"}>
               Поделиться каталогом
             </Button>

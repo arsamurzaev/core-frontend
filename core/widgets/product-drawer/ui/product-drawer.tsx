@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useProductControllerGetBySlug } from "@/shared/api/generated";
+import type { ProductWithDetailsDto } from "@/shared/api/generated";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { getTotalPrice } from "@/shared/lib/calculate-price";
 import { isDiscountActive } from "@/shared/lib/is-discount-active";
@@ -23,6 +24,7 @@ import React from "react";
 interface ProductDrawerProps {
   open: boolean;
   productSlug: string;
+  initialProduct?: ProductWithDetailsDto | null;
   className?: string;
   onOpenChange: (open: boolean) => void;
   onAfterClose?: () => void;
@@ -41,6 +43,7 @@ function formatPrice(value: number): string {
 export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   open,
   productSlug,
+  initialProduct,
   className,
   onOpenChange,
   onAfterClose,
@@ -50,6 +53,8 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
     {
       query: {
         enabled: Boolean(productSlug),
+        initialData: initialProduct ?? undefined,
+        staleTime: 30_000,
       },
     },
   );
