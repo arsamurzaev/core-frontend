@@ -88,7 +88,7 @@ export interface AttributeEnumValueDto {
   displayOrder: number;
   isSystem: boolean;
   /** @nullable */
-  businessId?: string | null;
+  businessId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -219,13 +219,13 @@ export interface MediaVariantDto {
   id: string;
   kind: string;
   /** @nullable */
-  mimeType?: string | null;
+  mimeType: string | null;
   /** @nullable */
-  size?: number | null;
+  size: number | null;
   /** @nullable */
-  width?: number | null;
+  width: number | null;
   /** @nullable */
-  height?: number | null;
+  height: number | null;
   key: string;
   url: string;
 }
@@ -245,11 +245,11 @@ export interface MediaDto {
   originalName: string;
   mimeType: string;
   /** @nullable */
-  size?: number | null;
+  size: number | null;
   /** @nullable */
-  width?: number | null;
+  width: number | null;
   /** @nullable */
-  height?: number | null;
+  height: number | null;
   status: MediaDtoStatus;
   key: string;
   url: string;
@@ -268,30 +268,18 @@ export const CatalogConfigDtoStatus = {
 
 export interface CatalogConfigDto {
   status: CatalogConfigDtoStatus;
+  about: string;
   /** @nullable */
-  about?: string | null;
+  description: string | null;
+  currency: string;
+  logoMedia: MediaDto | null;
+  bgMedia: MediaDto | null;
   /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  currency?: string | null;
-  logoMedia?: MediaDto | null;
-  bgMedia?: MediaDto | null;
-  /** @nullable */
-  note?: string | null;
+  note: string | null;
 }
-
-export type CatalogSettingsDtoProductsDisplayMode = typeof CatalogSettingsDtoProductsDisplayMode[keyof typeof CatalogSettingsDtoProductsDisplayMode];
-
-
-export const CatalogSettingsDtoProductsDisplayMode = {
-  LIST: 'LIST',
-  CATEGORY: 'CATEGORY',
-} as const;
 
 export interface CatalogSettingsDto {
   isActive: boolean;
-  isCommerceEnabled: boolean;
-  productsDisplayMode: CatalogSettingsDtoProductsDisplayMode;
 }
 
 export interface CatalogTypeDto {
@@ -316,8 +304,8 @@ export interface CatalogCurrentDto {
   deleteAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
-  config: CatalogConfigDto;
-  settings: CatalogSettingsDto;
+  config: CatalogConfigDto | null;
+  settings: CatalogSettingsDto | null;
   type: CatalogTypeDto;
 }
 
@@ -339,8 +327,6 @@ export interface UpdateCatalogDtoReq {
   bgMediaId?: string;
   note?: string;
   isActive?: boolean;
-  isCommerceEnabled?: boolean;
-  productsDisplayMode?: string;
 }
 
 export interface CatalogDto {
@@ -358,8 +344,8 @@ export interface CatalogDto {
   deleteAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
-  config: CatalogConfigDto;
-  settings: CatalogSettingsDto;
+  config: CatalogConfigDto | null;
+  settings: CatalogSettingsDto | null;
 }
 
 export interface CreateCatalogDtoReq {
@@ -391,7 +377,7 @@ export interface CategoryDto {
   parentId: string | null;
   position: number;
   name: string;
-  imageMedia?: MediaDto | null;
+  imageMedia: MediaDto | null;
   /** @nullable */
   descriptor: string | null;
   /** @nullable */
@@ -411,7 +397,7 @@ export interface CategoryChildDto {
   parentId: string | null;
   position: number;
   name: string;
-  imageMedia?: MediaDto | null;
+  imageMedia: MediaDto | null;
 }
 
 export interface CategoryWithRelationsDto {
@@ -421,21 +407,21 @@ export interface CategoryWithRelationsDto {
   parentId: string | null;
   position: number;
   name: string;
-  imageMedia?: MediaDto | null;
+  imageMedia: MediaDto | null;
   /** @nullable */
   descriptor: string | null;
   /** @nullable */
   discount: number | null;
   createdAt: string;
   updatedAt: string;
-  parent?: CategoryParentDto | null;
+  parent: CategoryParentDto | null;
   children: CategoryChildDto[];
 }
 
 export interface ProductMediaDto {
   position: number;
   /** @nullable */
-  kind?: string | null;
+  kind: string | null;
   media: MediaDto;
 }
 
@@ -472,7 +458,7 @@ export interface ProductAttributeEnumValueDto {
   displayOrder: number;
   isSystem: boolean;
   /** @nullable */
-  businessId?: string | null;
+  businessId: string | null;
 }
 
 export interface ProductAttributeDto {
@@ -481,17 +467,17 @@ export interface ProductAttributeDto {
   /** @nullable */
   enumValueId: string | null;
   /** @nullable */
-  valueString?: string | null;
+  valueString: string | null;
   /** @nullable */
-  valueInteger?: number | null;
+  valueInteger: number | null;
   /** @nullable */
-  valueDecimal?: string | null;
+  valueDecimal: string | null;
   /** @nullable */
-  valueBoolean?: boolean | null;
+  valueBoolean: boolean | null;
   /** @nullable */
-  valueDateTime?: string | null;
+  valueDateTime: string | null;
   attribute: ProductAttributeRefDto;
-  enumValue?: ProductAttributeEnumValueDto | null;
+  enumValue: ProductAttributeEnumValueDto | null;
 }
 
 export type ProductWithAttributesDtoStatus = typeof ProductWithAttributesDtoStatus[keyof typeof ProductWithAttributesDtoStatus];
@@ -572,7 +558,7 @@ export interface CartItemDto {
   id: string;
   productId: string;
   /** @nullable */
-  variantId?: string | null;
+  variantId: string | null;
   quantity: number;
   product: CartProductShortDto;
   lineTotal: number;
@@ -589,9 +575,9 @@ export interface CartDto {
   id: string;
   catalogId: string;
   /** @nullable */
-  publicKey?: string | null;
+  publicKey: string | null;
   /** @nullable */
-  checkoutAt?: string | null;
+  checkoutAt: string | null;
   items: CartItemDto[];
   totals: CartTotalsDto;
   createdAt: string;
@@ -1026,59 +1012,57 @@ export interface SeoDto {
   entityType: SeoDtoEntityType;
   entityId: string;
   /** @nullable */
-  urlPath?: string | null;
+  urlPath: string | null;
   /** @nullable */
-  canonicalUrl?: string | null;
+  canonicalUrl: string | null;
   /** @nullable */
-  title?: string | null;
+  title: string | null;
   /** @nullable */
-  description?: string | null;
+  description: string | null;
   /** @nullable */
-  keywords?: string | null;
+  keywords: string | null;
   /** @nullable */
-  h1?: string | null;
+  h1: string | null;
   /** @nullable */
-  seoText?: string | null;
+  seoText: string | null;
   /** @nullable */
-  robots?: string | null;
+  robots: string | null;
+  isIndexable: boolean;
+  isFollowable: boolean;
   /** @nullable */
-  isIndexable?: boolean | null;
+  ogTitle: string | null;
   /** @nullable */
-  isFollowable?: boolean | null;
+  ogDescription: string | null;
+  ogMedia: MediaDto | null;
   /** @nullable */
-  ogTitle?: string | null;
+  ogType: string | null;
   /** @nullable */
-  ogDescription?: string | null;
-  ogMedia?: MediaDto | null;
+  ogUrl: string | null;
   /** @nullable */
-  ogType?: string | null;
+  ogSiteName: string | null;
   /** @nullable */
-  ogUrl?: string | null;
+  ogLocale: string | null;
   /** @nullable */
-  ogSiteName?: string | null;
+  twitterCard: string | null;
   /** @nullable */
-  ogLocale?: string | null;
+  twitterTitle: string | null;
   /** @nullable */
-  twitterCard?: string | null;
+  twitterDescription: string | null;
+  twitterMedia: MediaDto | null;
   /** @nullable */
-  twitterTitle?: string | null;
+  twitterSite: string | null;
   /** @nullable */
-  twitterDescription?: string | null;
-  twitterMedia?: MediaDto | null;
+  twitterCreator: string | null;
   /** @nullable */
-  twitterSite?: string | null;
+  hreflang: string | null;
   /** @nullable */
-  twitterCreator?: string | null;
+  structuredData: string | null;
   /** @nullable */
-  hreflang?: string | null;
+  extras: string | null;
   /** @nullable */
-  structuredData?: string | null;
+  sitemapPriority: number | null;
   /** @nullable */
-  extras?: string | null;
-  /** @nullable */
-  sitemapPriority?: number | null;
-  /** @nullable */
-  sitemapChangeFreq?: SeoDtoSitemapChangeFreq;
+  sitemapChangeFreq: SeoDtoSitemapChangeFreq;
   createdAt: string;
   updatedAt: string;
 }

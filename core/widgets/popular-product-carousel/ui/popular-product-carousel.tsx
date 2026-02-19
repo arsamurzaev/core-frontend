@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductCard } from "@/core/modules/product/entities/product-card";
+import { ProductCardWithPlugins } from "@/core/modules/product/entities/product-card-with-plugins";
 import { useProductControllerGetPopular } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -52,7 +52,7 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
                 className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
               >
                 <article>
-                  <ProductCard
+                  <ProductCardWithPlugins
                     data={product}
                     isDetailed
                     className="transition-transform duration-200 hover:-translate-y-0.5"

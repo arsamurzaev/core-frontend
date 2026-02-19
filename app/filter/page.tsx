@@ -1,5 +1,5 @@
-import { FilterContent } from "@/core/views/filter/filter-content";
+import { redirect } from "next/navigation";
 
 export default function FilterPage() {
-  return <FilterContent />;
+  redirect("/");
 }

@@ -17,10 +17,10 @@ interface Props {
 }
 
 export const Header: React.FC<Props> = ({ className }) => {
-  const {
-    name,
-    config: { about, logoMedia, description },
-  } = useCatalog();
+  const { name, config } = useCatalog();
+  const about = config?.about;
+  const logoMedia = config?.logoMedia;
+  const description = config?.description;
   const { isAuthenticated, isLoading } = useSession();
 
   const logoutMutation = useAuthControllerLogout();

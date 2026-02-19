@@ -15,7 +15,7 @@ export const BackgroundImage: React.FC<Props> = ({ className }) => {
     return null;
   }
 
-  const { bgMedia } = catalog.config;
+  const bgMedia = catalog.config?.bgMedia;
 
   return (
     <div className={cn(className)}>

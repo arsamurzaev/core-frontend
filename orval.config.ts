@@ -27,6 +27,16 @@ export default defineConfig({
       // mode: "single", // по умолчанию один файл
     },
   },
+  apiZod: {
+    input,
+    output: {
+      // zod schemas
+      target: "./shared/api/generated/zod/index.ts",
+      client: "zod",
+      clean: true,
+      prettier: true,
+    },
+  },
   apiAxios: {
     input,
     output: {
