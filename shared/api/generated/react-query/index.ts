@@ -86,7 +86,6 @@ export interface AttributeEnumValueDto {
   /** @nullable */
   displayName: string | null;
   displayOrder: number;
-  isSystem: boolean;
   /** @nullable */
   businessId: string | null;
   createdAt: string;
@@ -116,7 +115,6 @@ export interface AttributeDto {
   isFilterable: boolean;
   displayOrder: number;
   isHidden: boolean;
-  isReadOnly: boolean;
   createdAt: string;
   updatedAt: string;
   enumValues?: AttributeEnumValueDto[];
@@ -149,7 +147,6 @@ export interface CreateAttributeDtoReq {
   displayOrder?: number;
   /** Скрытый атрибут не участвует в создании и редактировании товара */
   isHidden?: boolean;
-  isReadOnly?: boolean;
 }
 
 export type UpdateAttributeDtoReqDataType = typeof UpdateAttributeDtoReqDataType[keyof typeof UpdateAttributeDtoReqDataType];
@@ -176,7 +173,6 @@ export interface UpdateAttributeDtoReq {
   displayOrder?: number;
   /** Скрытый атрибут не участвует в создании и редактировании товара */
   isHidden?: boolean;
-  isReadOnly?: boolean;
 }
 
 export interface CreateAttributeEnumDtoReq {
@@ -184,7 +180,6 @@ export interface CreateAttributeEnumDtoReq {
   value?: string;
   displayName?: string;
   displayOrder?: number;
-  isSystem?: boolean;
   /** ID бизнеса для пользовательского значения */
   businessId?: string;
 }
@@ -193,7 +188,6 @@ export interface UpdateAttributeEnumDtoReq {
   value?: string;
   displayName?: string;
   displayOrder?: number;
-  isSystem?: boolean;
   /** ID бизнеса для пользовательского значения */
   businessId?: string;
 }
@@ -280,6 +274,10 @@ export interface CatalogConfigDto {
 
 export interface CatalogSettingsDto {
   isActive: boolean;
+  /** @nullable */
+  googleVerification: string | null;
+  /** @nullable */
+  yandexVerification: string | null;
 }
 
 export interface CatalogTypeDto {
@@ -327,6 +325,10 @@ export interface UpdateCatalogDtoReq {
   bgMediaId?: string;
   note?: string;
   isActive?: boolean;
+  /** @nullable */
+  googleVerification?: string | null;
+  /** @nullable */
+  yandexVerification?: string | null;
 }
 
 export interface CatalogDto {
@@ -447,7 +449,6 @@ export interface ProductAttributeRefDto {
   isFilterable: boolean;
   displayOrder: number;
   isHidden: boolean;
-  isReadOnly: boolean;
 }
 
 export interface ProductAttributeEnumValueDto {
@@ -456,7 +457,6 @@ export interface ProductAttributeEnumValueDto {
   /** @nullable */
   displayName: string | null;
   displayOrder: number;
-  isSystem: boolean;
   /** @nullable */
   businessId: string | null;
 }
@@ -718,8 +718,9 @@ export interface CreateProductDtoReq {
   name: string;
   price: number;
   mediaIds?: string[];
+  isPopular?: boolean;
   status?: string;
-  /** Только видимые атрибуты (isHidden=false) */
+  position?: number;
   attributes?: ProductAttributeValueDto[];
   /** Вариации товара создаются администратором */
   variants?: CreateProductDtoReqVariants;
@@ -752,7 +753,9 @@ export interface UpdateProductDtoReq {
   name?: string;
   price?: number;
   mediaIds?: string[];
+  isPopular?: boolean;
   status?: string;
+  position?: number;
   /** Только видимые атрибуты (isHidden=false) */
   attributes?: ProductAttributeValueDto[];
   variants?: ProductVariantUpdateDtoReq[];

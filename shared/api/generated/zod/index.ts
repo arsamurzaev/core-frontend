@@ -146,7 +146,6 @@ export const AttributeControllerGetByTypeResponseItem = zod.object({
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
   "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({}),
   "enumValues": zod.array(zod.object({
@@ -155,7 +154,6 @@ export const AttributeControllerGetByTypeResponseItem = zod.object({
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -182,7 +180,6 @@ export const AttributeControllerGetByIdResponse = zod.object({
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
   "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({}),
   "enumValues": zod.array(zod.object({
@@ -191,7 +188,6 @@ export const AttributeControllerGetByIdResponse = zod.object({
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -215,8 +211,7 @@ export const AttributeControllerUpdateBody = zod.object({
   "isVariantAttribute": zod.boolean().optional(),
   "isFilterable": zod.boolean().optional(),
   "displayOrder": zod.number().optional(),
-  "isHidden": zod.boolean().optional().describe('Скрытый атрибут не участвует в создании и редактировании товара'),
-  "isReadOnly": zod.boolean().optional()
+  "isHidden": zod.boolean().optional().describe('Скрытый атрибут не участвует в создании и редактировании товара')
 })
 
 export const AttributeControllerUpdateResponse = zod.object({
@@ -230,7 +225,6 @@ export const AttributeControllerUpdateResponse = zod.object({
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
   "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({}),
   "enumValues": zod.array(zod.object({
@@ -239,7 +233,6 @@ export const AttributeControllerUpdateResponse = zod.object({
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -272,8 +265,7 @@ export const AttributeControllerCreateBody = zod.object({
   "isVariantAttribute": zod.boolean().optional(),
   "isFilterable": zod.boolean().optional(),
   "displayOrder": zod.number().optional(),
-  "isHidden": zod.boolean().optional().describe('Скрытый атрибут не участвует в создании и редактировании товара'),
-  "isReadOnly": zod.boolean().optional()
+  "isHidden": zod.boolean().optional().describe('Скрытый атрибут не участвует в создании и редактировании товара')
 })
 
 
@@ -290,7 +282,6 @@ export const AttributeControllerGetEnumValuesResponseItem = zod.object({
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -309,7 +300,6 @@ export const AttributeControllerCreateEnumValueBody = zod.object({
   "value": zod.string().optional().describe('Если не указан, значение будет сгенерировано из displayName'),
   "displayName": zod.string().optional(),
   "displayOrder": zod.number().optional(),
-  "isSystem": zod.boolean().optional(),
   "businessId": zod.string().optional().describe('ID бизнеса для пользовательского значения')
 })
 
@@ -326,7 +316,6 @@ export const AttributeControllerUpdateEnumValueBody = zod.object({
   "value": zod.string().optional(),
   "displayName": zod.string().optional(),
   "displayOrder": zod.number().optional(),
-  "isSystem": zod.boolean().optional(),
   "businessId": zod.string().optional().describe('ID бизнеса для пользовательского значения')
 })
 
@@ -336,7 +325,6 @@ export const AttributeControllerUpdateEnumValueResponse = zod.object({
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -432,7 +420,9 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "note": zod.string().nullable()
 }).nullable(),
   "settings": zod.object({
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "googleVerification": zod.string().nullable(),
+  "yandexVerification": zod.string().nullable()
 }).nullable(),
   "type": zod.object({
   "id": zod.string(),
@@ -449,7 +439,6 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
   "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({}),
   "enumValues": zod.array(zod.object({
@@ -458,7 +447,6 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -485,7 +473,9 @@ export const CatalogControllerUpdateCurrentBody = zod.object({
   "logoMediaId": zod.string().optional(),
   "bgMediaId": zod.string().optional(),
   "note": zod.string().optional(),
-  "isActive": zod.boolean().optional()
+  "isActive": zod.boolean().optional(),
+  "googleVerification": zod.string().nullish(),
+  "yandexVerification": zod.string().nullish()
 })
 
 export const CatalogControllerUpdateCurrentResponse = zod.object({
@@ -549,7 +539,9 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "note": zod.string().nullable()
 }).nullable(),
   "settings": zod.object({
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "googleVerification": zod.string().nullable(),
+  "yandexVerification": zod.string().nullable()
 }).nullable()
 })
 
@@ -618,7 +610,9 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "note": zod.string().nullable()
 }).nullable(),
   "settings": zod.object({
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "googleVerification": zod.string().nullable(),
+  "yandexVerification": zod.string().nullable()
 }).nullable()
 })
 export const CatalogControllerGetAllResponse = zod.array(CatalogControllerGetAllResponseItem)
@@ -706,7 +700,9 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "note": zod.string().nullable()
 }).nullable(),
   "settings": zod.object({
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "googleVerification": zod.string().nullable(),
+  "yandexVerification": zod.string().nullable()
 }).nullable()
 })
 
@@ -732,7 +728,9 @@ export const CatalogControllerUpdateByIdBody = zod.object({
   "logoMediaId": zod.string().optional(),
   "bgMediaId": zod.string().optional(),
   "note": zod.string().optional(),
-  "isActive": zod.boolean().optional()
+  "isActive": zod.boolean().optional(),
+  "googleVerification": zod.string().nullish(),
+  "yandexVerification": zod.string().nullish()
 })
 
 export const CatalogControllerUpdateByIdResponse = zod.object({
@@ -796,7 +794,9 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "note": zod.string().nullable()
 }).nullable(),
   "settings": zod.object({
-  "isActive": zod.boolean()
+  "isActive": zod.boolean(),
+  "googleVerification": zod.string().nullable(),
+  "yandexVerification": zod.string().nullable()
 }).nullable()
 })
 
@@ -1100,15 +1100,13 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 }).nullable()
 }))
@@ -1505,7 +1503,9 @@ export const ProductControllerCreateBody = zod.object({
   "name": zod.string(),
   "price": zod.number(),
   "mediaIds": zod.array(zod.string()).optional(),
+  "isPopular": zod.boolean().optional(),
   "status": zod.string().optional(),
+  "position": zod.number().optional(),
   "attributes": zod.array(zod.object({
   "attributeId": zod.string(),
   "enumValueId": zod.string().optional(),
@@ -1514,7 +1514,7 @@ export const ProductControllerCreateBody = zod.object({
   "valueDecimal": zod.number().optional(),
   "valueBoolean": zod.boolean().optional(),
   "valueDateTime": zod.iso.datetime({}).optional()
-})).optional().describe('Только видимые атрибуты (isHidden=false)'),
+})).optional(),
   "variants": zod.object({
 
 }).optional().describe('Вариации товара создаются администратором')
@@ -1578,15 +1578,13 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 }).nullable()
 })),
@@ -1613,15 +1611,13 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 })
 }))
@@ -1691,15 +1687,13 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 }).nullable()
 })),
@@ -1726,15 +1720,13 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 })
 }))
@@ -1803,15 +1795,13 @@ export const ProductControllerGetByIdResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 }).nullable()
 })),
@@ -1838,15 +1828,13 @@ export const ProductControllerGetByIdResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 })
 }))
@@ -1865,7 +1853,9 @@ export const ProductControllerUpdateBody = zod.object({
   "name": zod.string().optional(),
   "price": zod.number().optional(),
   "mediaIds": zod.array(zod.string()).optional(),
+  "isPopular": zod.boolean().optional(),
   "status": zod.string().optional(),
+  "position": zod.number().optional(),
   "attributes": zod.array(zod.object({
   "attributeId": zod.string(),
   "enumValueId": zod.string().optional(),
@@ -1937,15 +1927,13 @@ export const ProductControllerUpdateResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 }).nullable()
 })),
@@ -2037,15 +2025,13 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 }).nullable()
 })),
@@ -2072,15 +2058,13 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "isVariantAttribute": zod.boolean(),
   "isFilterable": zod.boolean(),
   "displayOrder": zod.number(),
-  "isHidden": zod.boolean(),
-  "isReadOnly": zod.boolean()
+  "isHidden": zod.boolean()
 }),
   "enumValue": zod.object({
   "id": zod.string(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
-  "isSystem": zod.boolean(),
   "businessId": zod.string().nullable()
 })
 }))

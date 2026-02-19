@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useAuthControllerLogin } from "@/shared/api/generated";
+import { AuthControllerLoginBody } from "@/shared/api/generated/zod";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import {
@@ -24,7 +25,7 @@ interface Props {
   className?: string;
 }
 
-const schema = z.object({
+const schema = AuthControllerLoginBody.extend({
   login: z
     .string({ error: "Логин должен быть строкой" })
     .min(3, { error: "Минимум 3 символа" })

@@ -59,7 +59,6 @@ function resolveTypeAttribute(
     isFilterable: true,
     displayOrder: 999,
     isHidden: false,
-    isReadOnly: false,
     createdAt: NOW_ISO,
     updatedAt: NOW_ISO,
     enumValues: fallback.enumValues,
@@ -92,7 +91,6 @@ function buildProductAttribute(
       isFilterable: attribute.isFilterable,
       displayOrder: attribute.displayOrder,
       isHidden: attribute.isHidden,
-      isReadOnly: attribute.isReadOnly,
     },
     enumValue: options.enumValue ?? null,
   };

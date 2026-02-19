@@ -89,14 +89,35 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   const imageUrl = data?.media?.[0]?.media?.url || "/not-found-photo.png";
   const displayName = data?.name ?? "Товар";
   const variantsCount = data?.variants?.length ?? 0;
-  const wasOpenedRef = React.useRef(false);
-  const afterCloseFiredRef = React.useRef(false);
+  const didOpenOnceRef = React.useRef(open);
+  const didNotifyCloseRef = React.useRef(false);
 
   React.useEffect(() => {
     if (!open) return;
-    wasOpenedRef.current = true;
-    afterCloseFiredRef.current = false;
-  }, [open]);
+    didOpenOnceRef.current = true;
+    didNotifyCloseRef.current = false;
+  }, [open, productSlug]);
+
+  const emitAfterCloseOnce = React.useCallback(() => {
+    if (!didOpenOnceRef.current) return;
+    if (didNotifyCloseRef.current) return;
+
+    didNotifyCloseRef.current = true;
+    onAfterClose?.();
+  }, [onAfterClose]);
+
+  React.useEffect(() => {
+    if (open) return;
+    if (!onAfterClose) return;
+
+    const fallbackTimer = window.setTimeout(() => {
+      emitAfterCloseOnce();
+    }, 260);
+
+    return () => {
+      window.clearTimeout(fallbackTimer);
+    };
+  }, [emitAfterCloseOnce, onAfterClose, open]);
 
   const handleCloseAnimationEnd = React.useCallback(
     (
@@ -105,17 +126,12 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
         | React.TransitionEvent<HTMLDivElement>,
     ) => {
       if (event.target !== event.currentTarget) return;
-      if (!wasOpenedRef.current) return;
       if (open) return;
+      if (event.currentTarget.getAttribute("data-state") !== "closed") return;
 
-      const state = event.currentTarget.getAttribute("data-state");
-      if (state && state !== "closed") return;
-      if (afterCloseFiredRef.current) return;
-
-      afterCloseFiredRef.current = true;
-      onAfterClose?.();
+      emitAfterCloseOnce();
     },
-    [open, onAfterClose],
+    [emitAfterCloseOnce, open],
   );
 
   return (

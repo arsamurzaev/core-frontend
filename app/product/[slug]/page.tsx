@@ -1,4 +1,4 @@
-import { HomeContentDeferred } from "@/core/views/home/home-content-deferred";
+import { HomeContent } from "@/core/views/home/home-content";
 import { getProductBySlugServer } from "@/core/widgets/product-drawer/lib/get-product-by-slug.server";
 import { ProductDrawerRoute } from "@/core/widgets/product-drawer/ui/product-drawer-route";
 
@@ -23,10 +23,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <>
       <ProductDrawerRoute
         productSlug={productSlug}
-        closeStrategy="replace-home"
+        closeStrategy="push-home"
         initialProduct={initialProduct}
       />
-      <HomeContentDeferred />
+      <HomeContent />
     </>
   );
 }

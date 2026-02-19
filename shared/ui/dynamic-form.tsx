@@ -997,7 +997,9 @@ function renderDefaultControl<TValues extends FieldValues>(
         placeholder={props.placeholder}
         className={fieldConfig.controlClassName}
         value={field.value == null ? "" : String(field.value)}
-        onChange={(event) => field.onChange(event.target.value)}
+        onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+          field.onChange(event.target.value)
+        }
         onBlur={field.onBlur}
         ref={field.ref as React.Ref<HTMLTextAreaElement>}
         {...textareaProps}

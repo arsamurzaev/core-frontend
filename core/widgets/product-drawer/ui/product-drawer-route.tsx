@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import type { ProductWithDetailsDto } from "@/shared/api/generated";
 import { ProductDrawer } from "./product-drawer";
 
-type CloseStrategy = "replace-home" | "back-or-home";
+type CloseStrategy = "push-home" | "back";
 
 interface ProductDrawerRouteProps {
   productSlug: string;
@@ -13,15 +13,16 @@ interface ProductDrawerRouteProps {
   initialProduct?: ProductWithDetailsDto | null;
 }
 
-function hasSameOriginReferrer(): boolean {
-  if (typeof window === "undefined") return false;
-  const referrer = document.referrer;
-  if (!referrer) return false;
+function getProductSlugFromPath(pathname: string): string | null {
+  if (!pathname.startsWith("/product/")) return null;
+
+  const slug = pathname.slice("/product/".length).split("/")[0] ?? "";
+  if (!slug) return null;
 
   try {
-    return new URL(referrer).origin === window.location.origin;
+    return decodeURIComponent(slug);
   } catch {
-    return false;
+    return slug;
   }
 }
 
@@ -30,32 +31,40 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   closeStrategy,
   initialProduct,
 }) => {
+  const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = React.useState(true);
 
   React.useEffect(() => {
-    if (!productSlug) return;
-    setOpen(true);
-  }, [productSlug]);
+    const currentPath = pathname ?? "";
+    const currentSlug = getProductSlugFromPath(currentPath);
 
-  const handleCloseRoute = React.useCallback(() => {
-    if (closeStrategy === "replace-home") {
-      router.replace("/");
+    if (currentSlug === productSlug) {
+      setOpen(true);
+    }
+  }, [pathname, productSlug]);
+
+  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
+    if (nextOpen) {
+      setOpen(true);
       return;
     }
 
-    if (typeof window === "undefined") {
-      router.replace("/");
-      return;
-    }
+    setOpen(false);
+  }, []);
 
-    const canGoBack = window.history.length > 1 && hasSameOriginReferrer();
-    if (canGoBack) {
+  const handleAfterClose = React.useCallback(() => {
+    if (closeStrategy === "back") {
+      if (typeof window !== "undefined" && window.history.length <= 1) {
+        router.push("/");
+        return;
+      }
+
       router.back();
       return;
     }
 
-    router.replace("/");
+    router.push("/");
   }, [closeStrategy, router]);
 
   if (!productSlug) {
@@ -67,8 +76,8 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
       open={open}
       productSlug={productSlug}
       initialProduct={initialProduct}
-      onOpenChange={setOpen}
-      onAfterClose={handleCloseRoute}
+      onOpenChange={handleOpenChange}
+      onAfterClose={handleAfterClose}
     />
   );
 };

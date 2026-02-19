@@ -1,15 +1,15 @@
 "use client";
 
-import { forwardRef } from "react";
-import type { TextareaAutosizeProps } from "react-textarea-autosize";
+import { forwardRef, type TextareaHTMLAttributes } from "react";
 import { cn } from "../lib/utils";
 import { Textarea } from "./textarea";
 
-interface CharacterLimitedTextareaProps extends Omit<
-  TextareaAutosizeProps,
-  "maxLength"
-> {
+interface CharacterLimitedTextareaProps
+  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "maxLength" | "rows"> {
   maxLength: number;
+  minRows?: number;
+  maxRows?: number;
+  rows?: number;
   showCounter?: boolean;
   className?: string;
   containerClassName?: string;
@@ -28,6 +28,9 @@ export const CharacterLimitedTextarea = forwardRef<
       counterClassName,
       containerClassName,
       value = "",
+      rows,
+      minRows,
+      maxRows,
       ...props
     },
     ref,
@@ -38,6 +41,7 @@ export const CharacterLimitedTextarea = forwardRef<
 
     return (
       <div
+        data-max-rows={maxRows}
         className={cn(
           "border-muted-foreground relative border-b pb-5",
           isLimitReached && "border-red-500 focus-visible:ring-red-500",
@@ -48,6 +52,7 @@ export const CharacterLimitedTextarea = forwardRef<
           ref={ref}
           className={cn(className)}
           maxLength={maxLength}
+          rows={rows ?? minRows}
           value={value}
           {...props}
         />

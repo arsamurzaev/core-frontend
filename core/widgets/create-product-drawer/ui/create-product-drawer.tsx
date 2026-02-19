@@ -8,8 +8,10 @@ import {
 import {
   type AttributeDto,
   AttributeDtoDataType,
+  ProductDtoStatus,
   type ProductAttributeValueDto,
   ProductVariantItemDtoReqStatus,
+  type UploadFromS3DtoReq,
   type UploadQueueStatusDto,
   getProductControllerGetAllQueryKey,
   getProductControllerGetPopularQueryKey,
@@ -19,6 +21,11 @@ import {
   useProductControllerCreate,
   useProductControllerSetVariants,
 } from "@/shared/api/generated";
+import {
+  ProductControllerCreateBody,
+  ProductControllerSetVariantsBody,
+  S3ControllerEnqueueFromS3Body,
+} from "@/shared/api/generated/zod";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { Badge } from "@/shared/ui/badge";
@@ -37,6 +44,7 @@ import { type DynamicFieldConfig, DynamicForm } from "@/shared/ui/dynamic-form";
 import { Input } from "@/shared/ui/input";
 import { Progress } from "@/shared/ui/progress";
 import { Select } from "@/shared/ui/select";
+import { Switch } from "@/shared/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Loader2, Trash2 } from "lucide-react";
@@ -63,10 +71,21 @@ interface VariantItemState {
   stock: string;
 }
 
-const mainFormSchema = z.object({
-  name: z.string(),
-  price: z.string(),
-  status: z.string(),
+const PRODUCT_STATUS_VALUES = [
+  ProductDtoStatus.DRAFT,
+  ProductDtoStatus.ACTIVE,
+  ProductDtoStatus.HIDDEN,
+  ProductDtoStatus.ARCHIVED,
+] as const;
+
+const mainFormSchema = ProductControllerCreateBody.pick({
+  name: true,
+  price: true,
+  status: true,
+}).extend({
+  name: z.string().trim().min(1, { message: "Введите название товара." }),
+  price: z.string().trim().min(1, { message: "Укажите корректную цену." }),
+  status: z.enum(PRODUCT_STATUS_VALUES),
 });
 
 type MainFormValues = z.infer<typeof mainFormSchema>;
@@ -74,7 +93,7 @@ type MainFormValues = z.infer<typeof mainFormSchema>;
 const MAIN_FORM_DEFAULT_VALUES: MainFormValues = {
   name: "",
   price: "",
-  status: "DRAFT",
+  status: ProductDtoStatus.DRAFT,
 };
 
 const attributeFormSchema = z.object({
@@ -84,10 +103,10 @@ const attributeFormSchema = z.object({
 type AttributeFormValues = z.infer<typeof attributeFormSchema>;
 
 const PRODUCT_STATUS_OPTIONS = [
-  { value: "DRAFT", label: "Черновик" },
-  { value: "ACTIVE", label: "Активен" },
-  { value: "HIDDEN", label: "Скрыт" },
-  { value: "ARCHIVED", label: "В архиве" },
+  { value: ProductDtoStatus.DRAFT, label: "Черновик" },
+  { value: ProductDtoStatus.ACTIVE, label: "Активен" },
+  { value: ProductDtoStatus.HIDDEN, label: "Скрыт" },
+  { value: ProductDtoStatus.ARCHIVED, label: "В архиве" },
 ] as const;
 
 const VARIANT_STATUS_FLOW = [
@@ -95,6 +114,16 @@ const VARIANT_STATUS_FLOW = [
   ProductVariantItemDtoReqStatus.OUT_OF_STOCK,
   ProductVariantItemDtoReqStatus.DISABLED,
 ] as const;
+
+const DISCOUNT_ATTRIBUTE_KEYS = new Set([
+  "discount_start_at",
+  "discount_end_at",
+  "discounted_price",
+  "discount",
+  "discountStartAt",
+  "discountEndAt",
+  "discountedPrice",
+]);
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -131,6 +160,29 @@ function extractApiErrorMessage(error: unknown): string {
   }
 
   return "Не удалось выполнить операцию.";
+}
+
+function formatGeneratedZodError(error: z.ZodError, fallback: string): string {
+  const firstIssue = error.issues[0];
+  if (!firstIssue) return fallback;
+
+  const path =
+    firstIssue.path.length > 0 ? firstIssue.path.map(String).join(".") : "";
+  const issueMessage = firstIssue.message?.trim();
+
+  if (!path && issueMessage) {
+    return issueMessage;
+  }
+
+  if (path && issueMessage) {
+    return `${issueMessage} (${path})`;
+  }
+
+  if (path) {
+    return `${fallback} (${path})`;
+  }
+
+  return fallback;
 }
 
 function isQueueDoneStatus(status: string | undefined): boolean {
@@ -479,6 +531,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
   );
 
   const [open, setOpen] = React.useState(false);
+  const [hasDiscount, setHasDiscount] = React.useState(false);
   const mainForm = useForm<MainFormValues>({
     defaultValues: MAIN_FORM_DEFAULT_VALUES,
   });
@@ -507,8 +560,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         attributes.filter(
           (attribute) =>
             !attribute.isVariantAttribute &&
-            !attribute.isHidden &&
-            !attribute.isReadOnly,
+            !attribute.isHidden,
         ),
       ),
     [attributes],
@@ -521,7 +573,6 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
           (attribute) =>
             attribute.isVariantAttribute &&
             !attribute.isHidden &&
-            !attribute.isReadOnly &&
             attribute.dataType === AttributeDtoDataType.ENUM &&
             (attribute.enumValues?.length ?? 0) > 0,
         ),
@@ -535,6 +586,27 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         (attribute) => attribute.id === variantAttributeId,
       ) ?? null,
     [variantAttributes, variantAttributeId],
+  );
+
+  const discountAttributes = React.useMemo(
+    () =>
+      productAttributes.filter((attribute) =>
+        DISCOUNT_ATTRIBUTE_KEYS.has(attribute.key),
+      ),
+    [productAttributes],
+  );
+
+  const baseAttributes = React.useMemo(
+    () =>
+      productAttributes.filter(
+        (attribute) => !DISCOUNT_ATTRIBUTE_KEYS.has(attribute.key),
+      ),
+    [productAttributes],
+  );
+
+  const activeAttributes = React.useMemo(
+    () => (hasDiscount ? [...baseAttributes, ...discountAttributes] : baseAttributes),
+    [baseAttributes, discountAttributes, hasDiscount],
   );
 
   const mainFormFields = React.useMemo<DynamicFieldConfig<MainFormValues>[]>(
@@ -573,8 +645,8 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
   const dynamicFields = React.useMemo<
     DynamicFieldConfig<AttributeFormValues>[]
   >(
-    () => productAttributes.map(buildDynamicAttributeField),
-    [productAttributes],
+    () => activeAttributes.map(buildDynamicAttributeField),
+    [activeAttributes],
   );
 
   React.useEffect(() => {
@@ -608,6 +680,24 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
       return variantAttributes[0]?.id ?? "";
     });
   }, [attributeForm, open, productAttributes, variantAttributes]);
+
+  React.useEffect(() => {
+    if (hasDiscount || discountAttributes.length === 0) return;
+
+    const currentValues = attributeForm.getValues("values");
+    let changed = false;
+    const nextValues = { ...currentValues };
+
+    for (const attribute of discountAttributes) {
+      if (nextValues[attribute.id] === undefined) continue;
+      delete nextValues[attribute.id];
+      changed = true;
+    }
+
+    if (changed) {
+      attributeForm.setValue("values", nextValues);
+    }
+  }, [attributeForm, discountAttributes, hasDiscount]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -648,6 +738,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     setUploadedMediaIds([]);
     setUploadState({ phase: "idle", progress: 0, message: "" });
     setErrorMessage(null);
+    setHasDiscount(false);
   }, [attributeForm, mainForm, productAttributes, variantAttributes]);
 
   const handleOpenChange = React.useCallback(
@@ -740,16 +831,20 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     const mainValues = mainForm.getValues();
     const attributeValues = attributeForm.getValues("values");
 
-    if (!mainValues.name.trim()) {
-      return "Введите название товара.";
+    const parsedMainValues = mainFormSchema.safeParse(mainValues);
+    if (!parsedMainValues.success) {
+      return formatGeneratedZodError(
+        parsedMainValues.error,
+        "Заполните основную информацию о товаре.",
+      );
     }
 
-    const parsedPrice = Number(mainValues.price);
+    const parsedPrice = Number(parsedMainValues.data.price);
     if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
       return "Укажите корректную цену.";
     }
 
-    for (const attribute of productAttributes) {
+    for (const attribute of activeAttributes) {
       const value = attributeValues[attribute.id];
       if (isMissingRequiredValue(attribute, value)) {
         return `Заполните обязательный атрибут "${attribute.displayName}".`;
@@ -796,9 +891,9 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
 
     return null;
   }, [
+    activeAttributes,
     attributeForm,
     mainForm,
-    productAttributes,
     selectedVariantAttribute,
     variantItemsState,
   ]);
@@ -859,11 +954,22 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         message: "Постановка файлов в очередь обработки...",
       });
 
-      const enqueuePayload = {
-        // Backend expects items as array of objects: [{ key }]
-        items: uploadedKeys.map((key) => ({ key })),
-      } as unknown as Parameters<typeof s3ControllerEnqueueFromS3>[0];
-      const queued = await s3ControllerEnqueueFromS3(enqueuePayload);
+      const enqueuePayloadCandidate: UploadFromS3DtoReq = {
+        items: uploadedKeys,
+      };
+      const enqueuePayloadParsed = S3ControllerEnqueueFromS3Body.safeParse(
+        enqueuePayloadCandidate,
+      );
+      if (!enqueuePayloadParsed.success) {
+        throw new Error(
+          formatGeneratedZodError(
+            enqueuePayloadParsed.error,
+            "Некорректные данные для очереди обработки изображений.",
+          ),
+        );
+      }
+
+      const queued = await s3ControllerEnqueueFromS3(enqueuePayloadParsed.data);
 
       if (!queued.jobId) {
         throw new Error("Сервер не вернул jobId для отслеживания обработки.");
@@ -939,21 +1045,33 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
 
       const mainValues = mainForm.getValues();
       const attributeValues = attributeForm.getValues("values");
+      const normalizedPrice = Number(mainValues.price);
 
       const attributesPayload = buildProductAttributePayload(
         productAttributes,
         attributeValues,
       );
 
+      const createPayloadCandidate = {
+        name: mainValues.name.trim(),
+        price: normalizedPrice,
+        status: mainValues.status,
+        mediaIds: mediaIds.length > 0 ? mediaIds : undefined,
+        attributes: attributesPayload.length > 0 ? attributesPayload : undefined,
+      };
+      const createPayloadParsed =
+        ProductControllerCreateBody.safeParse(createPayloadCandidate);
+      if (!createPayloadParsed.success) {
+        throw new Error(
+          formatGeneratedZodError(
+            createPayloadParsed.error,
+            "Форма содержит некорректные данные для создания товара.",
+          ),
+        );
+      }
+
       const createdProduct = await createProduct.mutateAsync({
-        data: {
-          name: mainValues.name.trim(),
-          price: Number(mainValues.price),
-          status: mainValues.status,
-          mediaIds: mediaIds.length > 0 ? mediaIds : undefined,
-          attributes:
-            attributesPayload.length > 0 ? attributesPayload : undefined,
-        },
+        data: createPayloadParsed.data,
       });
 
       if (selectedVariantAttribute) {
@@ -975,12 +1093,25 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
           },
         );
 
+        const variantsPayloadCandidate = {
+          variantAttributeId: selectedVariantAttribute.id,
+          items: variantItems,
+        };
+        const variantsPayloadParsed = ProductControllerSetVariantsBody.safeParse(
+          variantsPayloadCandidate,
+        );
+        if (!variantsPayloadParsed.success) {
+          throw new Error(
+            formatGeneratedZodError(
+              variantsPayloadParsed.error,
+              "Форма содержит некорректные данные вариаций.",
+            ),
+          );
+        }
+
         await setVariants.mutateAsync({
           id: createdProduct.id,
-          data: {
-            variantAttributeId: selectedVariantAttribute.id,
-            items: variantItems,
-          },
+          data: variantsPayloadParsed.data,
         });
       }
 
@@ -1052,7 +1183,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="text-sm font-semibold">Атрибуты товара</h3>
                   <Badge variant="outline">
-                    {productAttributes.length} шт.
+                    {activeAttributes.length} шт.
                   </Badge>
                 </div>
 
@@ -1062,6 +1193,16 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
                   </p>
                 ) : (
                   <div className="space-y-3">
+                    {discountAttributes.length > 0 ? (
+                      <label className="flex items-center justify-between rounded-lg border p-2.5">
+                        <span className="text-sm font-medium">Есть скидка</span>
+                        <Switch
+                          checked={hasDiscount}
+                          onCheckedChange={setHasDiscount}
+                          disabled={isSubmitting}
+                        />
+                      </label>
+                    ) : null}
                     <DynamicForm
                       schema={attributeFormSchema}
                       form={attributeForm}

@@ -23,7 +23,7 @@ export default async function ProductDrawerRoutePage({
   return (
     <ProductDrawerRoute
       productSlug={productSlug}
-      closeStrategy="back-or-home"
+      closeStrategy="back"
       initialProduct={initialProduct}
     />
   );
