@@ -3,7 +3,10 @@ import type {
   ProductWithAttributesDto,
   ProductWithDetailsDto,
 } from "@/shared/api/generated";
-import { getAttributeValueByKey, type ParsedAttributeValue } from "@/shared/lib/attributes";
+import {
+  pickAttributeValues,
+  type ParsedAttributeValue,
+} from "@/shared/lib/attributes";
 import type {
   ProductCardPluginModel,
   ResolvedProductCardPlugin,
@@ -95,10 +98,12 @@ function getAllVariantsSummary(product: ProductCardEntity): string | null {
   return Array.from(variants).join(", ");
 }
 
-function resolveAttributeValue(product: ProductCardEntity, key: string): string | null {
-  const fromAttributes = toTextValue(
-    getAttributeValueByKey(product.productAttributes, key, null),
-  );
+function resolveAttributeValue(
+  product: ProductCardEntity,
+  key: string,
+  valueFromAttributes: ParsedAttributeValue,
+): string | null {
+  const fromAttributes = toTextValue(valueFromAttributes);
 
   if (fromAttributes) {
     return fromAttributes;
@@ -117,6 +122,12 @@ export function buildProductCardPluginModel(
   catalog: CatalogCurrentDto | null | undefined,
   plugin: ResolvedProductCardPlugin,
 ): ProductCardPluginModel {
+  const attributeValuesByKey = pickAttributeValues(
+    product.productAttributes,
+    plugin.attributes.map((attribute) => attribute.key),
+    null,
+  );
+
   const lines = plugin.attributes.map((attribute) => {
     const label = getCatalogAttributeLabel(
       catalog,
@@ -124,7 +135,11 @@ export function buildProductCardPluginModel(
       attribute.fallbackLabel,
     );
     const value =
-      resolveAttributeValue(product, attribute.key) ??
+      resolveAttributeValue(
+        product,
+        attribute.key,
+        attributeValuesByKey[attribute.key] ?? null,
+      ) ??
       attribute.fallbackValue ??
       "Не указан";
 

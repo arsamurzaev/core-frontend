@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import type { ProductWithDetailsDto } from "@/shared/api/generated";
 import { ProductDrawer } from "./product-drawer";
@@ -33,7 +33,10 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
 }) => {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(true);
+  const currentQuery = searchParams.toString();
+  const homeHref = currentQuery ? `/?${currentQuery}` : "/";
 
   React.useEffect(() => {
     const currentPath = pathname ?? "";
@@ -56,7 +59,7 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   const handleAfterClose = React.useCallback(() => {
     if (closeStrategy === "back") {
       if (typeof window !== "undefined" && window.history.length <= 1) {
-        router.push("/");
+        router.push(homeHref);
         return;
       }
 
@@ -64,8 +67,8 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
       return;
     }
 
-    router.push("/");
-  }, [closeStrategy, router]);
+    router.push(homeHref);
+  }, [closeStrategy, homeHref, router]);
 
   if (!productSlug) {
     return null;

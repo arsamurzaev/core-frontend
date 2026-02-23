@@ -1,5 +1,6 @@
-import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel/ui/popular-product-carousel";
+import { Browser } from "@/core/views/home/_ui/browser";
 import { Header } from "@/core/widgets/header/ui/header";
+import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel/ui/popular-product-carousel";
 import { cn } from "@/shared/lib/utils";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
 import React from "react";
@@ -17,6 +18,7 @@ export const HomeContent: React.FC<Props> = ({ className }) => {
         <div rel="content" className="px-2.5 space-y-8">
           <Header />
           <PopularProductCarousel />
+          <Browser />
         </div>
       </ContentContainer>
     </main>

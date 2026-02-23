@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductCardWithPlugins } from "@/core/modules/product/entities/product-card-with-plugins";
+import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { useProductControllerGetPopular } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -10,6 +10,7 @@ import {
   CarouselItem,
 } from "@/shared/ui/carousel";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import React from "react";
 import { PopularProductCarouselSkeleton } from "./skeleton/popular-product-carousel-skeleton";
 
@@ -21,8 +22,10 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
   const [count, setCount] = React.useState(0);
   const [current, setCurrent] = React.useState(0);
+  const searchParams = useSearchParams();
 
   const { isLoading, data } = useProductControllerGetPopular();
+  const currentQuery = searchParams.toString();
 
   React.useEffect(() => {
     if (!api || !data) return;
@@ -47,16 +50,16 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
           {data?.map((product) => (
             <CarouselItem key={product.id}>
               <Link
-                href={`/product/${product.slug}`}
+                href={
+                  currentQuery
+                    ? `/product/${product.slug}?${currentQuery}`
+                    : `/product/${product.slug}`
+                }
                 scroll={false}
                 className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
               >
                 <article>
-                  <ProductCardWithPlugins
-                    data={product}
-                    isDetailed
-                    className="transition-transform duration-200 hover:-translate-y-0.5"
-                  />
+                  <ProductCard data={product} isDetailed />
                 </article>
               </Link>
             </CarouselItem>
