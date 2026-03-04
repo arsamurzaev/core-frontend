@@ -13,7 +13,7 @@ const CSRF_COOKIE_NAME = "csrf"; // replace with the real cookie name from DevTo
 const CSRF_HEADER_NAME = "X-CSRF-Token";
 export const FORWARDED_HOST_HEADER = "x-forwarded-host";
 const DEV_FORWARDED_HOST =
-  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "cafe-catalog.myctlg.ru";
+  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "urban-style.myctlg.ru";
 
 interface ApiError {
   status: number;

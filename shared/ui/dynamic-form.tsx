@@ -36,7 +36,13 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
-import { Select } from "@/shared/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select";
 import { Slider } from "@/shared/ui/slider";
 import { Switch } from "@/shared/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/ui/toggle-group";
@@ -217,6 +223,7 @@ type ZodConstructor = new (...args: never[]) => ZodSchema;
 
 const GRID_FALLBACK_COLUMNS = 1;
 const DEFAULT_TEXTAREA_MAX_LENGTH = 500;
+const EMPTY_SELECT_VALUE = "__dynamic_form_empty__";
 
 type CalendarSingleProps = Omit<
   React.ComponentProps<typeof Calendar>,
@@ -1087,49 +1094,62 @@ function renderDefaultControl<TValues extends FieldValues>(
       options?.length &&
       options.every((option) => typeof option.value === "number");
 
+    const isMultiple = Boolean(fieldConfig.multiple);
+    const rawValue = isMultiple
+      ? Array.isArray(field.value)
+        ? field.value[0]
+        : undefined
+      : field.value;
+
     const value =
-      field.value === undefined || field.value === null
-        ? ""
-        : String(field.value);
+      rawValue === undefined || rawValue === null
+        ? undefined
+        : String(rawValue);
 
     return (
       <Select
-        id={id}
         value={value}
         disabled={disabled || readOnly}
-        aria-invalid={ariaInvalid}
-        aria-describedby={describedBy}
-        multiple={fieldConfig.multiple}
-        className={fieldConfig.controlClassName}
-        onChange={(event) => {
-          if (fieldConfig.multiple) {
-            const selected = Array.from(event.target.selectedOptions).map(
-              (opt) => (hasNumberValues ? Number(opt.value) : opt.value),
-            );
-            field.onChange(selected);
+        onValueChange={(nextValue) => {
+          if (nextValue === EMPTY_SELECT_VALUE) {
+            field.onChange(isMultiple ? [] : undefined);
             return;
           }
-          const next = hasNumberValues
-            ? Number(event.target.value)
-            : event.target.value;
-          field.onChange(next);
+
+          const next = hasNumberValues ? Number(nextValue) : nextValue;
+          field.onChange(isMultiple ? [next] : next);
         }}
-        {...fieldConfig.selectProps}
       >
-        {props.placeholder && !fieldConfig.multiple ? (
-          <option value="" disabled={required}>
-            {props.placeholder}
-          </option>
-        ) : null}
-        {(options ?? []).map((option) => (
-          <option
-            key={String(option.value)}
-            value={String(option.value)}
-            disabled={option.disabled}
-          >
-            {option.label}
-          </option>
-        ))}
+        <SelectTrigger
+          id={id}
+          aria-invalid={ariaInvalid}
+          aria-describedby={describedBy}
+          onBlur={field.onBlur}
+          className={cn("w-full", fieldConfig.controlClassName)}
+        >
+          <SelectValue placeholder={props.placeholder} />
+        </SelectTrigger>
+        <SelectContent
+          position="popper"
+          align="start"
+          sideOffset={4}
+          collisionPadding={8}
+        >
+          {!required && props.placeholder ? (
+            <SelectItem value={EMPTY_SELECT_VALUE}>
+              {props.placeholder}
+            </SelectItem>
+          ) : null}
+          {(options ?? []).map((option) => (
+            <SelectItem
+              key={String(option.value)}
+              value={String(option.value)}
+              disabled={option.disabled}
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
     );
   }

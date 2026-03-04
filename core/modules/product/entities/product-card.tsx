@@ -109,7 +109,7 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
 
 interface ProductCardFooterProps {
   currency: string;
-  discount: number;
+  discount: number | undefined;
   displayPrice: ReturnType<typeof getTotalPrice>;
   footerAction?: React.ReactNode;
   hasDiscount: boolean;
@@ -128,7 +128,6 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
 }) => {
   return (
     <CardFooter
-      onClick={(e) => e.stopPropagation()}
       className={cn(
         "relative flex w-full flex-col items-end justify-center",
         isDetailed && "flex-row flex-wrap justify-end gap-x-3 pt-4",
@@ -161,7 +160,16 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
           </>
         )}
       </div>
-      {footerAction}
+      {footerAction ? (
+        <div
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
+          {footerAction}
+        </div>
+      ) : null}
       <p
         className={cn(
           "text-base font-bold",
@@ -194,12 +202,13 @@ const ProductCardBase: React.FC<Props> = ({
     subtitle = "",
     currency = "RUB",
     discountedPrice,
-    discount = 0,
+    discount = undefined,
     discountStartAt,
     discountEndAt,
   } = resolveAttributes(data.productAttributes);
 
-  const hasDiscount = isDiscountActive(discountStartAt, discountEndAt);
+  const hasDiscount =
+    isDiscountActive(discountStartAt, discountEndAt) && Boolean(discount);
 
   const displayPrice = getTotalPrice({
     discountedPrice,

@@ -173,6 +173,25 @@ export interface UpdateAttributeEnumDtoReq {
   businessId?: string;
 }
 
+export interface BrandDto {
+  id: string;
+  catalogId: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBrandDtoReq {
+  name: string;
+  slug: string;
+}
+
+export interface UpdateBrandDtoReq {
+  name?: string;
+  slug?: string;
+}
+
 export type Role = typeof Role[keyof typeof Role];
 
 
@@ -408,6 +427,12 @@ export interface ProductMediaDto {
   media: MediaDto;
 }
 
+export interface ProductBrandDto {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export type ProductAttributeRefDtoDataType = typeof ProductAttributeRefDtoDataType[keyof typeof ProductAttributeRefDtoDataType];
 
 
@@ -479,6 +504,7 @@ export interface ProductWithAttributesDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductWithAttributesDtoStatus;
   position: number;
@@ -616,6 +642,7 @@ export interface ProductDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductDtoStatus;
   position: number;
@@ -671,6 +698,7 @@ export interface ProductWithDetailsDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductWithDetailsDtoStatus;
   position: number;
@@ -702,6 +730,9 @@ export interface CreateProductDtoReq {
   isPopular?: boolean;
   status?: string;
   position?: number;
+  brandId?: string;
+  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
+  categories?: string[];
   attributes?: ProductAttributeValueDto[];
   /** Вариации товара создаются администратором */
   variants?: CreateProductDtoReqVariants;
@@ -737,6 +768,15 @@ export interface UpdateProductDtoReq {
   isPopular?: boolean;
   status?: string;
   position?: number;
+  /** @nullable */
+  brandId?: string | null;
+  /** ID категории, в которой нужно изменить/установить позицию товара */
+  categoryId?: string;
+  /**
+   * Позиция товара внутри категории (передавать только вместе с categoryId)
+   * @minimum 0
+   */
+  categoryPosition?: number;
   /** Только видимые атрибуты (isHidden=false) */
   attributes?: ProductAttributeValueDto[];
   variants?: ProductVariantUpdateDtoReq[];
@@ -760,6 +800,7 @@ export interface ProductUpdateResponseDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductUpdateResponseDtoStatus;
   position: number;
@@ -811,6 +852,7 @@ export interface ProductVariantsResponseDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductVariantsResponseDtoStatus;
   position: number;
@@ -921,9 +963,12 @@ export interface MultipartAbortDtoReq {
   uploadId: string;
 }
 
-export interface UploadFromS3DtoReq {
-  /** JSON-массив объектов с ключами загруженных файлов */
-  items?: string[];
+export interface UploadFromS3ItemDtoReq {
+  key: string;
+  /** ID записи media (если есть в ответе presign) */
+  mediaId?: string;
+  /** URL файла (если есть в ответе presign) */
+  url?: string;
 }
 
 export interface UploadQueueResponseDto {
@@ -1131,7 +1176,7 @@ export interface UpdateSeoDtoReq {
 
 export type HandoffControllerExchangeParams = {
 /**
- * Handoff-С‚РѕРєРµРЅ
+ * Handoff-токен
  */
 token: string;
 /**
@@ -1179,6 +1224,12 @@ export type CartControllerSsePublicParams = {
  * Ключ доступа для подписки на SSE
  */
 checkoutKey: string;
+};
+
+export type S3ControllerEnqueueFromS3Body = {
+  key: string;
+} | {
+  items: UploadFromS3ItemDtoReq[];
 };
 
 export const getGatewayService = () => {
@@ -1420,6 +1471,71 @@ const attributeControllerRemoveEnumValue = (
  ) => {
       return mutator<OkResponseDto>(
       {url: `/attribute/${attributeId}/enum/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary List brands
+ */
+const brandControllerGetAll = (
+    
+ ) => {
+      return mutator<BrandDto[]>(
+      {url: `/brand`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create brand
+ */
+const brandControllerCreate = (
+    createBrandDtoReq: CreateBrandDtoReq,
+ ) => {
+      return mutator<BrandDto>(
+      {url: `/brand`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createBrandDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Get brand by id
+ */
+const brandControllerGetById = (
+    id: string,
+ ) => {
+      return mutator<BrandDto>(
+      {url: `/brand/${id}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Update brand
+ */
+const brandControllerUpdate = (
+    id: string,
+    updateBrandDtoReq: UpdateBrandDtoReq,
+ ) => {
+      return mutator<BrandDto>(
+      {url: `/brand/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateBrandDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Delete brand
+ */
+const brandControllerRemove = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/brand/${id}`, method: 'DELETE'
     },
       );
     }
@@ -1753,6 +1869,7 @@ const productControllerGetAll = (
     }
   
 /**
+ * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории).
  * @summary Создать товар
  */
 const productControllerCreate = (
@@ -1803,6 +1920,7 @@ const productControllerGetById = (
     }
   
 /**
+ * Для изменения позиции товара в категории передайте categoryId и categoryPosition.
  * @summary Обновить товар
  */
 const productControllerUpdate = (
@@ -1929,15 +2047,16 @@ const s3ControllerAbortMultipart = (
     }
   
 /**
+ * Поддерживаются оба формата тела запроса: key или items.
  * @summary Поставить в очередь обработку загруженных файлов
  */
 const s3ControllerEnqueueFromS3 = (
-    uploadFromS3DtoReq: UploadFromS3DtoReq,
+    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
  ) => {
       return mutator<UploadQueueResponseDto>(
       {url: `/s3/images/queue/complete`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: uploadFromS3DtoReq
+      data: s3ControllerEnqueueFromS3Body
     },
       );
     }
@@ -2044,7 +2163,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerSetVariants,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerSetVariants,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -2063,6 +2182,11 @@ export type AttributeControllerGetEnumValuesResult = NonNullable<Awaited<ReturnT
 export type AttributeControllerCreateEnumValueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['attributeControllerCreateEnumValue']>>>
 export type AttributeControllerUpdateEnumValueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['attributeControllerUpdateEnumValue']>>>
 export type AttributeControllerRemoveEnumValueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['attributeControllerRemoveEnumValue']>>>
+export type BrandControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['brandControllerGetAll']>>>
+export type BrandControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['brandControllerCreate']>>>
+export type BrandControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['brandControllerGetById']>>>
+export type BrandControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['brandControllerUpdate']>>>
+export type BrandControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['brandControllerRemove']>>>
 export type UserControllerRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['userControllerRegister']>>>
 export type CatalogControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrent']>>>
 export type CatalogControllerUpdateCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerUpdateCurrent']>>>

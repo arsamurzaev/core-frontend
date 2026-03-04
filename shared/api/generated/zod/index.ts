@@ -110,7 +110,7 @@ export const CatalogAuthControllerLoginResponse = zod.object({
  * @summary Exchange handoff token and redirect
  */
 export const HandoffControllerExchangeQueryParams = zod.object({
-  "token": zod.string().describe('Handoff-С‚РѕРєРµРЅ'),
+  "token": zod.string().describe('Handoff-токен'),
   "next": zod.string().optional().describe('Переопределение пути редиректа')
 })
 
@@ -340,6 +340,80 @@ export const AttributeControllerRemoveEnumValueParams = zod.object({
 })
 
 export const AttributeControllerRemoveEnumValueResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary List brands
+ */
+export const BrandControllerGetAllResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const BrandControllerGetAllResponse = zod.array(BrandControllerGetAllResponseItem)
+
+
+/**
+ * @summary Create brand
+ */
+export const BrandControllerCreateBody = zod.object({
+  "name": zod.string(),
+  "slug": zod.string()
+})
+
+
+/**
+ * @summary Get brand by id
+ */
+export const BrandControllerGetByIdParams = zod.object({
+  "id": zod.string().describe('ID бренда')
+})
+
+export const BrandControllerGetByIdResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update brand
+ */
+export const BrandControllerUpdateParams = zod.object({
+  "id": zod.string().describe('ID бренда')
+})
+
+export const BrandControllerUpdateBody = zod.object({
+  "name": zod.string().optional(),
+  "slug": zod.string().optional()
+})
+
+export const BrandControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Delete brand
+ */
+export const BrandControllerRemoveParams = zod.object({
+  "id": zod.string().describe('ID бренда')
+})
+
+export const BrandControllerRemoveResponse = zod.object({
   "ok": zod.boolean()
 })
 
@@ -1077,6 +1151,11 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
 }))
 })
 })),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
   "isPopular": zod.boolean(),
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
@@ -1487,6 +1566,11 @@ export const ProductControllerGetAllResponseItem = zod.object({
 }))
 })
 })),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
   "isPopular": zod.boolean(),
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
@@ -1497,6 +1581,7 @@ export const ProductControllerGetAllResponse = zod.array(ProductControllerGetAll
 
 
 /**
+ * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории).
  * @summary Создать товар
  */
 export const ProductControllerCreateBody = zod.object({
@@ -1506,6 +1591,8 @@ export const ProductControllerCreateBody = zod.object({
   "isPopular": zod.boolean().optional(),
   "status": zod.string().optional(),
   "position": zod.number().optional(),
+  "brandId": zod.string().optional(),
+  "categories": zod.array(zod.string()).optional().describe('Список категорий. Товар будет добавлен в начало (position=0) каждой категории.'),
   "attributes": zod.array(zod.object({
   "attributeId": zod.string(),
   "enumValueId": zod.string().optional(),
@@ -1555,6 +1642,11 @@ export const ProductControllerGetPopularResponseItem = zod.object({
 }))
 })
 })),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
   "isPopular": zod.boolean(),
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
@@ -1664,6 +1756,11 @@ export const ProductControllerGetBySlugResponse = zod.object({
 }))
 })
 })),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
   "isPopular": zod.boolean(),
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
@@ -1772,6 +1869,11 @@ export const ProductControllerGetByIdResponse = zod.object({
 }))
 })
 })),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
   "isPopular": zod.boolean(),
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
@@ -1843,11 +1945,16 @@ export const ProductControllerGetByIdResponse = zod.object({
 
 
 /**
+ * Для изменения позиции товара в категории передайте categoryId и categoryPosition.
  * @summary Обновить товар
  */
 export const ProductControllerUpdateParams = zod.object({
   "id": zod.string().describe('ID товара')
 })
+
+export const productControllerUpdateBodyCategoryPositionMin = 0;
+
+
 
 export const ProductControllerUpdateBody = zod.object({
   "name": zod.string().optional(),
@@ -1856,6 +1963,9 @@ export const ProductControllerUpdateBody = zod.object({
   "isPopular": zod.boolean().optional(),
   "status": zod.string().optional(),
   "position": zod.number().optional(),
+  "brandId": zod.string().nullish(),
+  "categoryId": zod.string().optional().describe('ID категории, в которой нужно изменить\/установить позицию товара'),
+  "categoryPosition": zod.number().min(productControllerUpdateBodyCategoryPositionMin).optional().describe('Позиция товара внутри категории (передавать только вместе с categoryId)'),
   "attributes": zod.array(zod.object({
   "attributeId": zod.string(),
   "enumValueId": zod.string().optional(),
@@ -1904,6 +2014,11 @@ export const ProductControllerUpdateResponse = zod.object({
 }))
 })
 })),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
   "isPopular": zod.boolean(),
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
@@ -2002,6 +2117,11 @@ export const ProductControllerSetVariantsResponse = zod.object({
 }))
 })
 })),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
   "isPopular": zod.boolean(),
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
@@ -2142,11 +2262,18 @@ export const S3ControllerAbortMultipartBody = zod.object({
 
 
 /**
+ * Поддерживаются оба формата тела запроса: key или items.
  * @summary Поставить в очередь обработку загруженных файлов
  */
-export const S3ControllerEnqueueFromS3Body = zod.object({
-  "items": zod.array(zod.string()).optional().describe('JSON-массив объектов с ключами загруженных файлов')
-})
+export const S3ControllerEnqueueFromS3Body = zod.union([zod.object({
+  "key": zod.string()
+}),zod.object({
+  "items": zod.array(zod.object({
+  "key": zod.string(),
+  "mediaId": zod.string().optional().describe('ID записи media (если есть в ответе presign)'),
+  "url": zod.string().optional().describe('URL файла (если есть в ответе presign)')
+}))
+})])
 
 
 /**

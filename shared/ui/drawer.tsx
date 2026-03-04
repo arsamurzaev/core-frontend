@@ -8,9 +8,18 @@ import { Drawer as DrawerPrimitive } from "vaul";
  * Root wrappers
  */
 function Drawer({
+  handleOnly = true,
+  scrollLockTimeout = 300,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
-  return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
+  return (
+    <DrawerPrimitive.Root
+      data-slot="drawer"
+      handleOnly={handleOnly}
+      scrollLockTimeout={scrollLockTimeout}
+      {...props}
+    />
+  );
 }
 
 function DrawerTrigger({
@@ -79,6 +88,7 @@ function DrawerScrollArea({
   return (
     <div
       data-slot="drawer-scroll-area"
+      data-vaul-no-drag=""
       className={cn(
         // scrolling
         "min-h-0 flex-1 overflow-auto",

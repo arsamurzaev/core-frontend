@@ -192,6 +192,25 @@ export interface UpdateAttributeEnumDtoReq {
   businessId?: string;
 }
 
+export interface BrandDto {
+  id: string;
+  catalogId: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBrandDtoReq {
+  name: string;
+  slug: string;
+}
+
+export interface UpdateBrandDtoReq {
+  name?: string;
+  slug?: string;
+}
+
 export type Role = typeof Role[keyof typeof Role];
 
 
@@ -427,6 +446,12 @@ export interface ProductMediaDto {
   media: MediaDto;
 }
 
+export interface ProductBrandDto {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export type ProductAttributeRefDtoDataType = typeof ProductAttributeRefDtoDataType[keyof typeof ProductAttributeRefDtoDataType];
 
 
@@ -498,6 +523,7 @@ export interface ProductWithAttributesDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductWithAttributesDtoStatus;
   position: number;
@@ -635,6 +661,7 @@ export interface ProductDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductDtoStatus;
   position: number;
@@ -690,6 +717,7 @@ export interface ProductWithDetailsDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductWithDetailsDtoStatus;
   position: number;
@@ -721,6 +749,9 @@ export interface CreateProductDtoReq {
   isPopular?: boolean;
   status?: string;
   position?: number;
+  brandId?: string;
+  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
+  categories?: string[];
   attributes?: ProductAttributeValueDto[];
   /** Вариации товара создаются администратором */
   variants?: CreateProductDtoReqVariants;
@@ -756,6 +787,15 @@ export interface UpdateProductDtoReq {
   isPopular?: boolean;
   status?: string;
   position?: number;
+  /** @nullable */
+  brandId?: string | null;
+  /** ID категории, в которой нужно изменить/установить позицию товара */
+  categoryId?: string;
+  /**
+   * Позиция товара внутри категории (передавать только вместе с categoryId)
+   * @minimum 0
+   */
+  categoryPosition?: number;
   /** Только видимые атрибуты (isHidden=false) */
   attributes?: ProductAttributeValueDto[];
   variants?: ProductVariantUpdateDtoReq[];
@@ -779,6 +819,7 @@ export interface ProductUpdateResponseDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductUpdateResponseDtoStatus;
   position: number;
@@ -830,6 +871,7 @@ export interface ProductVariantsResponseDto {
   slug: string;
   price: string;
   media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
   isPopular: boolean;
   status: ProductVariantsResponseDtoStatus;
   position: number;
@@ -940,9 +982,12 @@ export interface MultipartAbortDtoReq {
   uploadId: string;
 }
 
-export interface UploadFromS3DtoReq {
-  /** JSON-массив объектов с ключами загруженных файлов */
-  items?: string[];
+export interface UploadFromS3ItemDtoReq {
+  key: string;
+  /** ID записи media (если есть в ответе presign) */
+  mediaId?: string;
+  /** URL файла (если есть в ответе presign) */
+  url?: string;
 }
 
 export interface UploadQueueResponseDto {
@@ -1150,7 +1195,7 @@ export interface UpdateSeoDtoReq {
 
 export type HandoffControllerExchangeParams = {
 /**
- * Handoff-С‚РѕРєРµРЅ
+ * Handoff-токен
  */
 token: string;
 /**
@@ -1198,6 +1243,12 @@ export type CartControllerSsePublicParams = {
  * Ключ доступа для подписки на SSE
  */
 checkoutKey: string;
+};
+
+export type S3ControllerEnqueueFromS3Body = {
+  key: string;
+} | {
+  items: UploadFromS3ItemDtoReq[];
 };
 
 /**
@@ -2549,6 +2600,379 @@ export const useAttributeControllerRemoveEnumValue = <TError = unknown,
         TContext
       > => {
       return useMutation(getAttributeControllerRemoveEnumValueMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary List brands
+ */
+export const brandControllerGetAll = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<BrandDto[]>(
+      {url: `/brand`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getBrandControllerGetAllQueryKey = () => {
+    return [
+    `/brand`
+    ] as const;
+    }
+
+    
+export const getBrandControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof brandControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getBrandControllerGetAllQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof brandControllerGetAll>>> = ({ signal }) => brandControllerGetAll(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type BrandControllerGetAllQueryResult = NonNullable<Awaited<ReturnType<typeof brandControllerGetAll>>>
+export type BrandControllerGetAllQueryError = unknown
+
+
+export function useBrandControllerGetAll<TData = Awaited<ReturnType<typeof brandControllerGetAll>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof brandControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof brandControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBrandControllerGetAll<TData = Awaited<ReturnType<typeof brandControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof brandControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof brandControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBrandControllerGetAll<TData = Awaited<ReturnType<typeof brandControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List brands
+ */
+
+export function useBrandControllerGetAll<TData = Awaited<ReturnType<typeof brandControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getBrandControllerGetAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create brand
+ */
+export const brandControllerCreate = (
+    createBrandDtoReq: CreateBrandDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<BrandDto>(
+      {url: `/brand`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createBrandDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getBrandControllerCreateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brandControllerCreate>>, TError,{data: CreateBrandDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof brandControllerCreate>>, TError,{data: CreateBrandDtoReq}, TContext> => {
+
+const mutationKey = ['brandControllerCreate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof brandControllerCreate>>, {data: CreateBrandDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  brandControllerCreate(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BrandControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof brandControllerCreate>>>
+    export type BrandControllerCreateMutationBody = CreateBrandDtoReq
+    export type BrandControllerCreateMutationError = void
+
+    /**
+ * @summary Create brand
+ */
+export const useBrandControllerCreate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brandControllerCreate>>, TError,{data: CreateBrandDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof brandControllerCreate>>,
+        TError,
+        {data: CreateBrandDtoReq},
+        TContext
+      > => {
+      return useMutation(getBrandControllerCreateMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get brand by id
+ */
+export const brandControllerGetById = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<BrandDto>(
+      {url: `/brand/${id}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getBrandControllerGetByIdQueryKey = (id: string,) => {
+    return [
+    `/brand/${id}`
+    ] as const;
+    }
+
+    
+export const getBrandControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof brandControllerGetById>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getBrandControllerGetByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof brandControllerGetById>>> = ({ signal }) => brandControllerGetById(id, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type BrandControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof brandControllerGetById>>>
+export type BrandControllerGetByIdQueryError = void
+
+
+export function useBrandControllerGetById<TData = Awaited<ReturnType<typeof brandControllerGetById>>, TError = void>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof brandControllerGetById>>,
+          TError,
+          Awaited<ReturnType<typeof brandControllerGetById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBrandControllerGetById<TData = Awaited<ReturnType<typeof brandControllerGetById>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof brandControllerGetById>>,
+          TError,
+          Awaited<ReturnType<typeof brandControllerGetById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBrandControllerGetById<TData = Awaited<ReturnType<typeof brandControllerGetById>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get brand by id
+ */
+
+export function useBrandControllerGetById<TData = Awaited<ReturnType<typeof brandControllerGetById>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getBrandControllerGetByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Update brand
+ */
+export const brandControllerUpdate = (
+    id: string,
+    updateBrandDtoReq: UpdateBrandDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<BrandDto>(
+      {url: `/brand/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateBrandDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getBrandControllerUpdateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brandControllerUpdate>>, TError,{id: string;data: UpdateBrandDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof brandControllerUpdate>>, TError,{id: string;data: UpdateBrandDtoReq}, TContext> => {
+
+const mutationKey = ['brandControllerUpdate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof brandControllerUpdate>>, {id: string;data: UpdateBrandDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  brandControllerUpdate(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BrandControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof brandControllerUpdate>>>
+    export type BrandControllerUpdateMutationBody = UpdateBrandDtoReq
+    export type BrandControllerUpdateMutationError = void
+
+    /**
+ * @summary Update brand
+ */
+export const useBrandControllerUpdate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brandControllerUpdate>>, TError,{id: string;data: UpdateBrandDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof brandControllerUpdate>>,
+        TError,
+        {id: string;data: UpdateBrandDtoReq},
+        TContext
+      > => {
+      return useMutation(getBrandControllerUpdateMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Delete brand
+ */
+export const brandControllerRemove = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/brand/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getBrandControllerRemoveMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brandControllerRemove>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof brandControllerRemove>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['brandControllerRemove'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof brandControllerRemove>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  brandControllerRemove(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BrandControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof brandControllerRemove>>>
+    
+    export type BrandControllerRemoveMutationError = void
+
+    /**
+ * @summary Delete brand
+ */
+export const useBrandControllerRemove = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof brandControllerRemove>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof brandControllerRemove>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getBrandControllerRemoveMutationOptions(options), queryClient);
     }
     
 /**
@@ -4467,6 +4891,7 @@ export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof pro
 
 
 /**
+ * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории).
  * @summary Создать товар
  */
 export const productControllerCreate = (
@@ -4804,6 +5229,7 @@ export function useProductControllerGetById<TData = Awaited<ReturnType<typeof pr
 
 
 /**
+ * Для изменения позиции товара в категории передайте categoryId и categoryPosition.
  * @summary Обновить товар
  */
 export const productControllerUpdate = (
@@ -5380,10 +5806,11 @@ export const useS3ControllerAbortMultipart = <TError = void,
     }
     
 /**
+ * Поддерживаются оба формата тела запроса: key или items.
  * @summary Поставить в очередь обработку загруженных файлов
  */
 export const s3ControllerEnqueueFromS3 = (
-    uploadFromS3DtoReq: UploadFromS3DtoReq,
+    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
  signal?: AbortSignal
 ) => {
       
@@ -5391,7 +5818,7 @@ export const s3ControllerEnqueueFromS3 = (
       return mutator<UploadQueueResponseDto>(
       {url: `/s3/images/queue/complete`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: uploadFromS3DtoReq, signal
+      data: s3ControllerEnqueueFromS3Body, signal
     },
       );
     }
@@ -5399,8 +5826,8 @@ export const s3ControllerEnqueueFromS3 = (
 
 
 export const getS3ControllerEnqueueFromS3MutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: UploadFromS3DtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: UploadFromS3DtoReq}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext> => {
 
 const mutationKey = ['s3ControllerEnqueueFromS3'];
 const {mutation: mutationOptions} = options ?
@@ -5412,7 +5839,7 @@ const {mutation: mutationOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, {data: UploadFromS3DtoReq}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, {data: S3ControllerEnqueueFromS3Body}> = (props) => {
           const {data} = props ?? {};
 
           return  s3ControllerEnqueueFromS3(data,)
@@ -5426,18 +5853,18 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type S3ControllerEnqueueFromS3MutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>>
-    export type S3ControllerEnqueueFromS3MutationBody = UploadFromS3DtoReq
+    export type S3ControllerEnqueueFromS3MutationBody = S3ControllerEnqueueFromS3Body
     export type S3ControllerEnqueueFromS3MutationError = void
 
     /**
  * @summary Поставить в очередь обработку загруженных файлов
  */
 export const useS3ControllerEnqueueFromS3 = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: UploadFromS3DtoReq}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>,
         TError,
-        {data: UploadFromS3DtoReq},
+        {data: S3ControllerEnqueueFromS3Body},
         TContext
       > => {
       return useMutation(getS3ControllerEnqueueFromS3MutationOptions(options), queryClient);

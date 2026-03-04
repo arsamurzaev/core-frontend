@@ -110,6 +110,7 @@ function createBaseProduct(
     name,
     slug,
     price,
+    brand: null,
     media: [
       {
         position: 0,

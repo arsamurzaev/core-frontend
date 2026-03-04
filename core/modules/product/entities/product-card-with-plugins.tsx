@@ -34,6 +34,7 @@ function toProductWithAttributesDto(
     slug: data.slug,
     price: data.price,
     media: data.media,
+    brand: data.brand,
     isPopular: data.isPopular,
     status: data.status,
     position: data.position,

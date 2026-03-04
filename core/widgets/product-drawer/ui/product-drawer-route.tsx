@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import type { ProductWithDetailsDto } from "@/shared/api/generated";
+import { buildHomeHrefWithCatalogQuery } from "@/shared/lib/product-route";
 import { ProductDrawer } from "./product-drawer";
 
 type CloseStrategy = "push-home" | "back";
@@ -35,8 +36,10 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(true);
-  const currentQuery = searchParams.toString();
-  const homeHref = currentQuery ? `/?${currentQuery}` : "/";
+  const homeHref = React.useMemo(
+    () => buildHomeHrefWithCatalogQuery(searchParams),
+    [searchParams],
+  );
 
   React.useEffect(() => {
     const currentPath = pathname ?? "";
