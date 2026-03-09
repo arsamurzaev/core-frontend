@@ -1,4 +1,5 @@
 import { Browser } from "@/core/views/home/_ui/browser";
+import { Footer } from "@/core/widgets/footer/ui/footer";
 import { Header } from "@/core/widgets/header/ui/header";
 import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel/ui/popular-product-carousel";
 import { cn } from "@/shared/lib/utils";
@@ -21,6 +22,7 @@ export const HomeContent: React.FC<Props> = ({ className }) => {
             <PopularProductCarousel />
             <Browser />
           </Suspense>
+          <Footer />
         </div>
       </ContentContainer>
     </main>

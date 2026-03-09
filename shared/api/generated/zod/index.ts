@@ -498,6 +498,12 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
 }).nullable(),
+  "contacts": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
+  "position": zod.number(),
+  "value": zod.string()
+})),
   "type": zod.object({
   "id": zod.string(),
   "code": zod.string(),
@@ -549,7 +555,12 @@ export const CatalogControllerUpdateCurrentBody = zod.object({
   "note": zod.string().optional(),
   "isActive": zod.boolean().optional(),
   "googleVerification": zod.string().nullish(),
-  "yandexVerification": zod.string().nullish()
+  "yandexVerification": zod.string().nullish(),
+  "contacts": zod.array(zod.object({
+  "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']).optional(),
+  "position": zod.number().optional(),
+  "value": zod.string().optional()
+})).optional().describe('Полный набор контактов каталога. При передаче существующие контакты заменяются.')
 })
 
 export const CatalogControllerUpdateCurrentResponse = zod.object({
@@ -804,7 +815,12 @@ export const CatalogControllerUpdateByIdBody = zod.object({
   "note": zod.string().optional(),
   "isActive": zod.boolean().optional(),
   "googleVerification": zod.string().nullish(),
-  "yandexVerification": zod.string().nullish()
+  "yandexVerification": zod.string().nullish(),
+  "contacts": zod.array(zod.object({
+  "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']).optional(),
+  "position": zod.number().optional(),
+  "value": zod.string().optional()
+})).optional().describe('Полный набор контактов каталога. При передаче существующие контакты заменяются.')
 })
 
 export const CatalogControllerUpdateByIdResponse = zod.object({
@@ -1106,14 +1122,14 @@ export const CategoryControllerGetProductsByCategoryParams = zod.object({
   "id": zod.string().describe('ID категории')
 })
 
-export const categoryControllerGetProductsByCategoryQueryLimitDefault = 20;
-export const categoryControllerGetProductsByCategoryQueryLimitMax = 100;
+export const categoryControllerGetProductsByCategoryQueryLimitDefault = 24;
+export const categoryControllerGetProductsByCategoryQueryLimitMax = 50;
 
 
 
 export const CategoryControllerGetProductsByCategoryQueryParams = zod.object({
   "cursor": zod.string().optional().describe('Курсор из предыдущего ответа (opaque)'),
-  "limit": zod.number().min(1).max(categoryControllerGetProductsByCategoryQueryLimitMax).default(categoryControllerGetProductsByCategoryQueryLimitDefault).describe('Размер страницы (1-100)')
+  "limit": zod.number().min(1).max(categoryControllerGetProductsByCategoryQueryLimitMax).default(categoryControllerGetProductsByCategoryQueryLimitDefault).describe('Размер страницы (1-50)')
 })
 
 export const CategoryControllerGetProductsByCategoryResponse = zod.object({
@@ -1605,6 +1621,100 @@ export const ProductControllerCreateBody = zod.object({
   "variants": zod.object({
 
 }).optional().describe('Вариации товара создаются администратором')
+})
+
+
+/**
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed.
+ * @summary Список товаров с фильтрами (бесконечный скролл)
+ */
+export const ProductControllerGetInfiniteQueryParams = zod.object({
+  "attributes": zod.unknown().optional().describe('JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.'),
+  "isDiscount": zod.unknown().optional().describe('Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)'),
+  "isPopular": zod.unknown().optional().describe('Фильтр по популярным товарам (true\/false)'),
+  "searchTerm": zod.unknown().optional().describe('Поиск по названию (contains, insensitive)'),
+  "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
+  "minPrice": zod.unknown().optional().describe('Минимальная цена'),
+  "brands": zod.unknown().optional().describe('ID брендов через запятую'),
+  "categories": zod.unknown().optional().describe('ID категорий через запятую'),
+  "seed": zod.unknown().optional().describe('Seed для детерминированной рандомизации'),
+  "limit": zod.unknown().optional().describe('Размер страницы (1-50), по умолчанию 24'),
+  "cursor": zod.unknown().optional().describe('Курсор из предыдущего ответа (opaque base64)')
+})
+
+export const ProductControllerGetInfiniteResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string(),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string(),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string()
+}))
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+}))
+})),
+  "nextCursor": zod.string().nullable(),
+  "seed": zod.string().nullable().describe('Стабильный seed для детерминированной рандомизации')
 })
 
 

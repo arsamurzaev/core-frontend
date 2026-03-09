@@ -2,6 +2,7 @@
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
+import { Skeleton } from "@/shared/ui/skeleton";
 import {
   Carousel,
   CarouselApi,
@@ -18,6 +19,7 @@ export type CategoryBarItem = {
 interface Props {
   className?: string;
   items: CategoryBarItem[];
+  isLoading?: boolean;
   activeCategoryId?: string | null;
   onCategoryClick?: (item: CategoryBarItem, index: number) => void;
 }
@@ -25,10 +27,15 @@ interface Props {
 export const CategoryBarList: React.FC<Props> = ({
   className,
   items,
+  isLoading = false,
   activeCategoryId,
   onCategoryClick,
 }) => {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
+  const skeletonWidths = React.useMemo(
+    () => ["w-16", "w-24", "w-20", "w-28", "w-[4.5rem]", "w-[5.5rem]"],
+    [],
+  );
 
   const activeIndex = React.useMemo(
     () => items.findIndex((item) => item.id === activeCategoryId),
@@ -42,6 +49,21 @@ export const CategoryBarList: React.FC<Props> = ({
 
     api.scrollTo(activeIndex);
   }, [activeIndex, api]);
+
+  if (isLoading && items.length === 0) {
+    return (
+      <div className={cn("w-full overflow-hidden", className)}>
+        <div className="flex gap-2">
+          {skeletonWidths.map((widthClass, index) => (
+            <Skeleton
+              key={`category-skeleton-${index}`}
+              className={cn("h-9 rounded-full", widthClass)}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return null;
@@ -78,4 +100,3 @@ export const CategoryBarList: React.FC<Props> = ({
     </Carousel>
   );
 };
-

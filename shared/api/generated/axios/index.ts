@@ -280,6 +280,27 @@ export interface CatalogSettingsDto {
   yandexVerification: string | null;
 }
 
+export type CatalogContactDtoType = typeof CatalogContactDtoType[keyof typeof CatalogContactDtoType];
+
+
+export const CatalogContactDtoType = {
+  PHONE: 'PHONE',
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP',
+  MAX: 'MAX',
+  BIP: 'BIP',
+  TELEGRAM: 'TELEGRAM',
+  SMS: 'SMS',
+  MAP: 'MAP',
+} as const;
+
+export interface CatalogContactDto {
+  id: string;
+  type: CatalogContactDtoType;
+  position: number;
+  value: string;
+}
+
 export interface CatalogTypeDto {
   id: string;
   code: string;
@@ -304,7 +325,28 @@ export interface CatalogCurrentDto {
   updatedAt?: string;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
+  contacts: CatalogContactDto[];
   type: CatalogTypeDto;
+}
+
+export type UpdateCatalogContactDtoReqType = typeof UpdateCatalogContactDtoReqType[keyof typeof UpdateCatalogContactDtoReqType];
+
+
+export const UpdateCatalogContactDtoReqType = {
+  PHONE: 'PHONE',
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP',
+  MAX: 'MAX',
+  BIP: 'BIP',
+  TELEGRAM: 'TELEGRAM',
+  SMS: 'SMS',
+  MAP: 'MAP',
+} as const;
+
+export interface UpdateCatalogContactDtoReq {
+  type?: UpdateCatalogContactDtoReqType;
+  position?: number;
+  value?: string;
 }
 
 export interface UpdateCatalogDtoReq {
@@ -329,6 +371,8 @@ export interface UpdateCatalogDtoReq {
   googleVerification?: string | null;
   /** @nullable */
   yandexVerification?: string | null;
+  /** Полный набор контактов каталога. При передаче существующие контакты заменяются. */
+  contacts?: UpdateCatalogContactDtoReq[];
 }
 
 export interface CatalogDto {
@@ -648,6 +692,17 @@ export interface ProductDto {
   position: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProductInfinitePageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * Стабильный seed для детерминированной рандомизации
+   * @nullable
+   */
+  seed: string | null;
 }
 
 export interface VariantAttributeDto {
@@ -1198,9 +1253,9 @@ export type CategoryControllerGetProductsByCategoryParams = {
  */
 cursor?: string;
 /**
- * Размер страницы (1-100)
+ * Размер страницы (1-50)
  * @minimum 1
- * @maximum 100
+ * @maximum 50
  */
 limit?: number;
 };
@@ -1224,6 +1279,53 @@ export type CartControllerSsePublicParams = {
  * Ключ доступа для подписки на SSE
  */
 checkoutKey: string;
+};
+
+export type ProductControllerGetInfiniteParams = {
+/**
+ * JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.
+ */
+attributes?: unknown;
+/**
+ * Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)
+ */
+isDiscount?: unknown;
+/**
+ * Фильтр по популярным товарам (true/false)
+ */
+isPopular?: unknown;
+/**
+ * Поиск по названию (contains, insensitive)
+ */
+searchTerm?: unknown;
+/**
+ * Максимальная цена
+ */
+maxPrice?: unknown;
+/**
+ * Минимальная цена
+ */
+minPrice?: unknown;
+/**
+ * ID брендов через запятую
+ */
+brands?: unknown;
+/**
+ * ID категорий через запятую
+ */
+categories?: unknown;
+/**
+ * Seed для детерминированной рандомизации
+ */
+seed?: unknown;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: unknown;
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: unknown;
 };
 
 export type S3ControllerEnqueueFromS3Body = {
@@ -1884,6 +1986,20 @@ const productControllerCreate = (
     }
   
 /**
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed.
+ * @summary Список товаров с фильтрами (бесконечный скролл)
+ */
+const productControllerGetInfinite = (
+    params?: ProductControllerGetInfiniteParams,
+ ) => {
+      return mutator<ProductInfinitePageDto>(
+      {url: `/product/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
  * @summary Список популярных товаров
  */
 const productControllerGetPopular = (
@@ -2163,7 +2279,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerSetVariants,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerSetVariants,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -2213,6 +2329,7 @@ export type CartControllerRemovePublicItemResult = NonNullable<Awaited<ReturnTyp
 export type CartControllerSsePublicResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSsePublic']>>>
 export type ProductControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetAll']>>>
 export type ProductControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerCreate']>>>
+export type ProductControllerGetInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfinite']>>>
 export type ProductControllerGetPopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopular']>>>
 export type ProductControllerGetBySlugResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetBySlug']>>>
 export type ProductControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetById']>>>

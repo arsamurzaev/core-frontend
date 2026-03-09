@@ -1,5 +1,10 @@
-﻿"use client";
+"use client";
 
+import {
+  PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
+  PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
+  useProductCardViewMode,
+} from "@/core/modules/product/model/use-product-card-view-mode";
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
@@ -15,25 +20,39 @@ interface Props {
   className?: string;
   category: CategoryDto;
   sectionId: string;
+  initiallyActivated?: boolean;
   forceActivation?: boolean;
   allowActivation?: boolean;
   allowLoadMore?: boolean;
 }
 
-export const CATEGORY_PRODUCTS_PAGE_SIZE = 24;
-const SKELETON_ITEMS_COUNT = 4;
+export const CATEGORY_PRODUCTS_PAGE_SIZE = 16;
+const GRID_INITIAL_SKELETON_ITEMS_COUNT = CATEGORY_PRODUCTS_PAGE_SIZE;
+const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 6;
+const GRID_NEXT_PAGE_SKELETON_ITEMS_COUNT = 4;
+const DETAILED_NEXT_PAGE_SKELETON_ITEMS_COUNT = 3;
 
 export const CategoryProducts: React.FC<Props> = ({
   className,
   category,
   sectionId,
+  initiallyActivated = false,
   forceActivation = false,
   allowActivation = true,
   allowLoadMore = true,
 }) => {
+  const { isDetailed } = useProductCardViewMode();
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
   const loadMoreRef = React.useRef<HTMLDivElement | null>(null);
-  const [isActivated, setIsActivated] = React.useState(false);
+  const [isActivated, setIsActivated] = React.useState(initiallyActivated);
+
+  React.useEffect(() => {
+    if (!initiallyActivated || isActivated) {
+      return;
+    }
+
+    setIsActivated(true);
+  }, [initiallyActivated, isActivated]);
 
   React.useEffect(() => {
     if (!forceActivation || isActivated) {
@@ -63,12 +82,15 @@ export const CategoryProducts: React.FC<Props> = ({
       return;
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        setIsActivated(true);
-        observer.disconnect();
-      }
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setIsActivated(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "260px 0px" },
+    );
 
     observer.observe(heading);
 
@@ -77,7 +99,7 @@ export const CategoryProducts: React.FC<Props> = ({
     };
   }, [allowActivation, isActivated]);
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: [
         "category-products-infinite",
@@ -94,9 +116,44 @@ export const CategoryProducts: React.FC<Props> = ({
       enabled: isActivated,
     });
 
+  const hasLoadedFirstPage = React.useMemo(
+    () => Boolean(data?.pages?.length),
+    [data],
+  );
   const products = React.useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
+  );
+  const listClassName = React.useMemo(
+    () =>
+      isDetailed
+        ? PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME
+        : PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
+    [isDetailed],
+  );
+  const initialSkeletonKeys = React.useMemo(
+    () =>
+      Array.from(
+        {
+          length: isDetailed
+            ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
+            : GRID_INITIAL_SKELETON_ITEMS_COUNT,
+        },
+        (_, index) => index,
+      ),
+    [isDetailed],
+  );
+  const nextPageSkeletonKeys = React.useMemo(
+    () =>
+      Array.from(
+        {
+          length: isDetailed
+            ? DETAILED_NEXT_PAGE_SKELETON_ITEMS_COUNT
+            : GRID_NEXT_PAGE_SKELETON_ITEMS_COUNT,
+        },
+        (_, index) => index,
+      ),
+    [isDetailed],
   );
 
   React.useEffect(() => {
@@ -137,30 +194,39 @@ export const CategoryProducts: React.FC<Props> = ({
       <h2 ref={headingRef} className="pl-1 text-left text-xl font-bold">
         {category?.name}
       </h2>
-      <ul
-        className={cn(
-          "grid grid-cols-[repeat(auto-fill,minmax(127px,1fr))] gap-4",
-          //   `min-h-${detailed ? 4 * 318 : 4 * 160}px`,
-          //   detailed && "grid-cols-1",
+      <div style={{ overflowAnchor: "none" }}>
+        {!hasLoadedFirstPage ? (
+          <ul className={listClassName}>
+            {initialSkeletonKeys.map((index) => (
+              <ProductCardSkeleton
+                key={`initial-skeleton-${index}`}
+                isDetailed={isDetailed}
+              />
+            ))}
+          </ul>
+        ) : (
+          <ul className={listClassName}>
+            {products.map(({ productId, product }) => (
+              <article key={productId}>
+                <ProductLink slug={product.slug} className="block h-full">
+                  <ProductCard
+                    data={product}
+                    isDetailed={isDetailed}
+                    className={cn("h-full", isDetailed && "min-h-[160px]")}
+                  />
+                </ProductLink>
+              </article>
+            ))}
+            {isFetchingNextPage &&
+              nextPageSkeletonKeys.map((index) => (
+                <ProductCardSkeleton
+                  key={`next-page-${index}`}
+                  isDetailed={isDetailed}
+                />
+              ))}
+          </ul>
         )}
-      >
-        {isActivated &&
-          isLoading &&
-          Array.from({ length: SKELETON_ITEMS_COUNT }).map((_, index) => (
-            <ProductCardSkeleton key={index} />
-          ))}
-        {products.map(({ productId, product }) => (
-          <article key={productId}>
-            <ProductLink slug={product.slug}>
-              <ProductCard data={product} className="h-full" />
-            </ProductLink>
-          </article>
-        ))}
-        {isFetchingNextPage &&
-          Array.from({ length: SKELETON_ITEMS_COUNT }).map((_, index) => (
-            <ProductCardSkeleton key={`next-page-${index}`} />
-          ))}
-      </ul>
+      </div>
       <div ref={loadMoreRef} aria-hidden className="h-px w-full" />
     </div>
   );

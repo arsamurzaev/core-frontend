@@ -1,6 +1,9 @@
 ﻿"use client";
 
+/* eslint-disable @next/next/no-img-element */
 import { CreateProductDrawer } from "@/core/widgets/create-product-drawer/ui/create-product-drawer";
+import { EditCatalogDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-drawer";
+import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
 import { useAuthControllerLogout } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
@@ -8,7 +11,7 @@ import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Pencil } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
@@ -54,6 +57,18 @@ export const Header: React.FC<Props> = ({ className }) => {
                 className="h-full w-full rounded-full object-contain"
               />
             </div>
+            {isAuthenticated ? (
+              <EditCatalogDrawer
+                trigger={
+                  <Button
+                    size="icon"
+                    className="shadow-custom absolute right-0 bottom-0 h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+                  >
+                    <Pencil className="fill-muted-foreground size-4" />
+                  </Button>
+                }
+              />
+            ) : null}
           </div>
           <div className="pt-6 flex-1">
             <h1 className="text-[18px] leading-tight font-bold text-black sm:text-2xl">
@@ -91,17 +106,20 @@ export const Header: React.FC<Props> = ({ className }) => {
         ) : isAuthenticated ? (
           <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
             <CreateProductDrawer />
-            <Button size={"sm"} variant={"outline"}>
-              Поделиться каталогом
-            </Button>
+            <ShareDrawer
+              mode="share"
+              trigger={
+                <Button size="sm" variant="outline">
+                  Поделиться каталогом
+                </Button>
+              }
+            />
             <Button size={"sm"} variant={"outline"}>
               Статистика аккаунта
             </Button>
           </div>
         ) : (
-          <Button variant="outline" size="lg" className="w-full">
-            Связаться с нами
-          </Button>
+          <ShareDrawer />
         )}
       </div>
     </header>

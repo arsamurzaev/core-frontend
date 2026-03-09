@@ -1,16 +1,32 @@
 "use client";
 import { ApiClientError } from "@/shared/api/client";
 import {
+  type CatalogContactDto,
+  type CatalogContactDtoType,
   useCatalogControllerGetCurrent,
   type CatalogControllerGetCurrentQueryResult,
 } from "@/shared/api/generated";
+import {
+  getPrimaryCatalogContact,
+  getPrimaryCatalogContactValue,
+  groupCatalogContacts,
+  normalizeCatalogContacts,
+  type CatalogContactsByType,
+} from "@/shared/lib/catalog-contacts";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import React, { PropsWithChildren, useMemo } from "react";
 
 type CatalogStatus = "loading" | "ready" | "missing" | "error";
 
+export type CatalogWithContacts = CatalogControllerGetCurrentQueryResult & {
+  contacts: CatalogContactDto[];
+  contactsByType: CatalogContactsByType;
+  getContactByType: (type: CatalogContactDtoType) => CatalogContactDto | undefined;
+  getContactValue: (type: CatalogContactDtoType) => string | undefined;
+};
+
 export type CatalogStateValue = {
-  catalog: CatalogControllerGetCurrentQueryResult | undefined;
+  catalog: CatalogWithContacts | undefined;
   status: CatalogStatus;
   isLoading: boolean;
   isReady: boolean;
@@ -57,7 +73,28 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
   });
 
   const missing = isMissingCatalogError(query.error);
-  const catalog = missing ? undefined : query.data;
+  const rawCatalog = missing ? undefined : query.data;
+  const normalizedContacts = useMemo(
+    () => normalizeCatalogContacts(rawCatalog?.contacts),
+    [rawCatalog?.contacts],
+  );
+  const contactsByType = useMemo(
+    () => groupCatalogContacts(normalizedContacts),
+    [normalizedContacts],
+  );
+  const catalog = useMemo<CatalogWithContacts | undefined>(() => {
+    if (!rawCatalog) {
+      return undefined;
+    }
+
+    return {
+      ...rawCatalog,
+      contacts: normalizedContacts,
+      contactsByType,
+      getContactByType: (type) => getPrimaryCatalogContact(contactsByType, type),
+      getContactValue: (type) => getPrimaryCatalogContactValue(contactsByType, type),
+    };
+  }, [contactsByType, normalizedContacts, rawCatalog]);
 
   const status: CatalogStatus = query.isLoading
     ? "loading"
@@ -92,7 +129,7 @@ export function useCatalogState(): CatalogStateValue {
   return useStrictContext(CatalogContext);
 }
 
-export function useCatalog(): CatalogControllerGetCurrentQueryResult {
+export function useCatalog(): CatalogWithContacts {
   const { catalog, status } = useCatalogState();
   if (!catalog) {
     throw new Error(`Catalog is not ready. Current status: ${status}`);

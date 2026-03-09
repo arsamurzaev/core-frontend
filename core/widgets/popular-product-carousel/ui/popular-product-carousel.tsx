@@ -10,7 +10,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/shared/ui/carousel";
-import React from "react";
+import React, { Suspense } from "react";
 import { PopularProductCarouselSkeleton } from "./skeleton/popular-product-carousel-skeleton";
 
 interface Props {
@@ -39,6 +39,9 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
     return <PopularProductCarouselSkeleton />;
   }
 
+  if (!isLoading && !data?.length) {
+    return null;
+  }
   return (
     <section className="space-y-8">
       <h2 className="text-2xl font-bold">Популярное</h2>
@@ -47,20 +50,22 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
           {data?.map((product) => (
             <CarouselItem key={product.id}>
               <article>
-                <ProductLink
-                  slug={product.slug}
-                  className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
-                >
-                  <ProductCard data={product} isDetailed />
-                </ProductLink>
+                <Suspense>
+                  <ProductLink
+                    slug={product.slug}
+                    className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
+                  >
+                    <ProductCard data={product} isDetailed />
+                  </ProductLink>
+                </Suspense>
               </article>
             </CarouselItem>
           ))}
         </CarouselContent>
 
-        {Boolean(count) && (
-          <ul className="flex justify-center gap-1">
-            {Array.from({ length: count }).map((_, index) => (
+        <ul className="flex justify-center gap-1 min-h-1">
+          {Boolean(count) &&
+            Array.from({ length: count }).map((_, index) => (
               <li
                 key={index}
                 className={cn(
@@ -69,8 +74,7 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
                 )}
               />
             ))}
-          </ul>
-        )}
+        </ul>
       </Carousel>
     </section>
   );

@@ -11,7 +11,7 @@ export const PopularProductCarouselSkeleton: React.FC<Props> = ({
 }) => {
   return (
     <div className={cn("space-y-8", className)}>
-      <Skeleton className="h-8" />
+      <Skeleton className="h-8 w-48" />
       <div className="space-y-3">
         <Skeleton className="h-55" />
         <div className="flex justify-center gap-1">

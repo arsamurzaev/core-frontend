@@ -299,6 +299,27 @@ export interface CatalogSettingsDto {
   yandexVerification: string | null;
 }
 
+export type CatalogContactDtoType = typeof CatalogContactDtoType[keyof typeof CatalogContactDtoType];
+
+
+export const CatalogContactDtoType = {
+  PHONE: 'PHONE',
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP',
+  MAX: 'MAX',
+  BIP: 'BIP',
+  TELEGRAM: 'TELEGRAM',
+  SMS: 'SMS',
+  MAP: 'MAP',
+} as const;
+
+export interface CatalogContactDto {
+  id: string;
+  type: CatalogContactDtoType;
+  position: number;
+  value: string;
+}
+
 export interface CatalogTypeDto {
   id: string;
   code: string;
@@ -323,7 +344,28 @@ export interface CatalogCurrentDto {
   updatedAt?: string;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
+  contacts: CatalogContactDto[];
   type: CatalogTypeDto;
+}
+
+export type UpdateCatalogContactDtoReqType = typeof UpdateCatalogContactDtoReqType[keyof typeof UpdateCatalogContactDtoReqType];
+
+
+export const UpdateCatalogContactDtoReqType = {
+  PHONE: 'PHONE',
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP',
+  MAX: 'MAX',
+  BIP: 'BIP',
+  TELEGRAM: 'TELEGRAM',
+  SMS: 'SMS',
+  MAP: 'MAP',
+} as const;
+
+export interface UpdateCatalogContactDtoReq {
+  type?: UpdateCatalogContactDtoReqType;
+  position?: number;
+  value?: string;
 }
 
 export interface UpdateCatalogDtoReq {
@@ -348,6 +390,8 @@ export interface UpdateCatalogDtoReq {
   googleVerification?: string | null;
   /** @nullable */
   yandexVerification?: string | null;
+  /** Полный набор контактов каталога. При передаче существующие контакты заменяются. */
+  contacts?: UpdateCatalogContactDtoReq[];
 }
 
 export interface CatalogDto {
@@ -667,6 +711,17 @@ export interface ProductDto {
   position: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProductInfinitePageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * Стабильный seed для детерминированной рандомизации
+   * @nullable
+   */
+  seed: string | null;
 }
 
 export interface VariantAttributeDto {
@@ -1217,9 +1272,9 @@ export type CategoryControllerGetProductsByCategoryParams = {
  */
 cursor?: string;
 /**
- * Размер страницы (1-100)
+ * Размер страницы (1-50)
  * @minimum 1
- * @maximum 100
+ * @maximum 50
  */
 limit?: number;
 };
@@ -1243,6 +1298,53 @@ export type CartControllerSsePublicParams = {
  * Ключ доступа для подписки на SSE
  */
 checkoutKey: string;
+};
+
+export type ProductControllerGetInfiniteParams = {
+/**
+ * JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.
+ */
+attributes?: unknown;
+/**
+ * Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)
+ */
+isDiscount?: unknown;
+/**
+ * Фильтр по популярным товарам (true/false)
+ */
+isPopular?: unknown;
+/**
+ * Поиск по названию (contains, insensitive)
+ */
+searchTerm?: unknown;
+/**
+ * Максимальная цена
+ */
+maxPrice?: unknown;
+/**
+ * Минимальная цена
+ */
+minPrice?: unknown;
+/**
+ * ID брендов через запятую
+ */
+brands?: unknown;
+/**
+ * ID категорий через запятую
+ */
+categories?: unknown;
+/**
+ * Seed для детерминированной рандомизации
+ */
+seed?: unknown;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: unknown;
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: unknown;
 };
 
 export type S3ControllerEnqueueFromS3Body = {
@@ -4955,6 +5057,99 @@ export const useProductControllerCreate = <TError = unknown,
       return useMutation(getProductControllerCreateMutationOptions(options), queryClient);
     }
     
+/**
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed.
+ * @summary Список товаров с фильтрами (бесконечный скролл)
+ */
+export const productControllerGetInfinite = (
+    params?: ProductControllerGetInfiniteParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductInfinitePageDto>(
+      {url: `/product/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetInfiniteQueryKey = (params?: ProductControllerGetInfiniteParams,) => {
+    return [
+    `/product/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfinite>>> = ({ signal }) => productControllerGetInfinite(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetInfinite>>>
+export type ProductControllerGetInfiniteQueryError = unknown
+
+
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params: undefined |  ProductControllerGetInfiniteParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список товаров с фильтрами (бесконечный скролл)
+ */
+
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetInfiniteQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
 /**
  * @summary Список популярных товаров
  */
