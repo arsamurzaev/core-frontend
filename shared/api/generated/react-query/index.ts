@@ -230,6 +230,7 @@ export interface CreateUserDtoReq {
 
 export interface MediaVariantDto {
   id: string;
+  /** Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail. */
   kind: string;
   /** @nullable */
   mimeType: string | null;
@@ -240,6 +241,7 @@ export interface MediaVariantDto {
   /** @nullable */
   height: number | null;
   key: string;
+  /** Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind. */
   url: string;
 }
 
@@ -265,7 +267,9 @@ export interface MediaDto {
   height: number | null;
   status: MediaDtoStatus;
   key: string;
+  /** Основной URL медиа. Для адаптивной выдачи используйте variants по назначению. */
   url: string;
+  /** Доступные варианты изображения. Обычно используются роли: thumb для корзины/миниатюр, card для карточек в списках, detail для страницы товара. */
   variants: MediaVariantDto[];
 }
 
@@ -853,6 +857,8 @@ export interface UpdateProductDtoReq {
   categoryPosition?: number;
   /** Только видимые атрибуты (isHidden=false) */
   attributes?: ProductAttributeValueDto[];
+  /** ID атрибутов товара, которые нужно удалить при редактировании */
+  removeAttributeIds?: string[];
   variants?: ProductVariantUpdateDtoReq[];
 }
 
@@ -3981,6 +3987,7 @@ export const useCategoryControllerRemove = <TError = void,
     }
     
 /**
+ * Для media.variants внутри product.media возвращается только variant с назначением card.
  * @summary List category products (infinite)
  */
 export const categoryControllerGetProductsByCategory = (
@@ -4902,6 +4909,7 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
 
 
 /**
+ * В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 export const productControllerGetAll = (
@@ -5058,7 +5066,7 @@ export const useProductControllerCreate = <TError = unknown,
     }
     
 /**
- * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed.
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
  * @summary Список товаров с фильтрами (бесконечный скролл)
  */
 export const productControllerGetInfinite = (
@@ -5151,6 +5159,7 @@ export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeo
 
 
 /**
+ * В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 export const productControllerGetPopular = (
@@ -5242,6 +5251,7 @@ export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof
 
 
 /**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по slug
  */
 export const productControllerGetBySlug = (
@@ -5333,6 +5343,7 @@ export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof 
 
 
 /**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по id
  */
 export const productControllerGetById = (
@@ -5424,7 +5435,7 @@ export function useProductControllerGetById<TData = Awaited<ReturnType<typeof pr
 
 
 /**
- * Для изменения позиции товара в категории передайте categoryId и categoryPosition.
+ * Для изменения позиции товара в категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Обновить товар
  */
 export const productControllerUpdate = (
@@ -5552,6 +5563,7 @@ export const useProductControllerRemove = <TError = unknown,
     }
     
 /**
+ * В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Создать/заменить вариации товара
  */
 export const productControllerSetVariants = (
@@ -5745,7 +5757,7 @@ export const useS3ControllerPresignPostUpload = <TError = void,
     }
     
 /**
- * @summary Старт multipart загрузки
+ * @summary Начать multipart загрузку
  */
 export const s3ControllerStartMultipart = (
     multipartStartDtoReq: MultipartStartDtoReq,
@@ -5795,7 +5807,7 @@ const {mutation: mutationOptions} = options ?
     export type S3ControllerStartMultipartMutationError = void
 
     /**
- * @summary Старт multipart загрузки
+ * @summary Начать multipart загрузку
  */
 export const useS3ControllerStartMultipart = <TError = void,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, TError,{data: MultipartStartDtoReq}, TContext>, }

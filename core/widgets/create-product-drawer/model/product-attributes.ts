@@ -32,6 +32,46 @@ export function buildInitialAttributeValues(
   return values;
 }
 
+export function hasPersistedAttributeValue(
+  value: AttributeFormValue | undefined,
+): boolean {
+  if (typeof value === "boolean") {
+    return true;
+  }
+
+  if (typeof value === "string") {
+    return value.trim().length > 0;
+  }
+
+  return value !== null && value !== undefined;
+}
+
+export function buildRemovedProductAttributeIds(
+  attributes: AttributeDto[],
+  initialValues: Record<string, AttributeFormValue>,
+  currentValues: Record<string, AttributeFormValue>,
+): string[] {
+  const removedAttributeIds: string[] = [];
+
+  for (const attribute of attributes) {
+    if (attribute.dataType === AttributeDtoDataType.BOOLEAN) {
+      continue;
+    }
+
+    const initialValue = initialValues[attribute.id];
+    const currentValue = currentValues[attribute.id];
+
+    if (
+      hasPersistedAttributeValue(initialValue) &&
+      !hasPersistedAttributeValue(currentValue)
+    ) {
+      removedAttributeIds.push(attribute.id);
+    }
+  }
+
+  return removedAttributeIds;
+}
+
 export function sortAttributesByDisplayOrder(
   attributes: AttributeDto[],
 ): AttributeDto[] {

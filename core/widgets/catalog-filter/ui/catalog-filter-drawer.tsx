@@ -1,35 +1,22 @@
 "use client";
 
-import { useBrandControllerGetAll } from "@/shared/api/generated";
-import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
+import {
+  type CatalogFilterItem,
+  type CatalogFilterPatch,
+} from "@/core/widgets/catalog-filter/model/catalog-filter-drawer";
+import { useCatalogFilterDrawer } from "@/core/widgets/catalog-filter/model/use-catalog-filter-drawer";
+import { CatalogFilterDrawerTrigger } from "@/core/widgets/catalog-filter/ui/catalog-filter-drawer-trigger";
 import { cn } from "@/shared/lib/utils";
 import { AppDrawer } from "@/shared/ui/app-drawer";
-import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { Input } from "@/shared/ui/input";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { RefreshCcw, SlidersVertical } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 import React from "react";
 
-type CatalogFilterDraftState = Pick<
-  CatalogFilterQueryState,
-  | "categories"
-  | "brands"
-  | "isPopular"
-  | "isDiscount"
-  | "searchTerm"
-  | "minPrice"
-  | "maxPrice"
->;
-
-type CatalogFilterPatch = Partial<CatalogFilterDraftState>;
-
-type CatalogFilterItem = {
-  id: string;
-  name: string;
-};
+import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 
 interface CatalogFilterDrawerProps {
   className?: string;
@@ -39,56 +26,6 @@ interface CatalogFilterDrawerProps {
   isCategoriesLoading?: boolean;
   onApply: (patch?: CatalogFilterPatch) => void;
 }
-
-const CATALOG_FILTER_EMPTY_PATCH: CatalogFilterPatch = {
-  categories: [],
-  brands: [],
-  isPopular: undefined,
-  isDiscount: undefined,
-  searchTerm: undefined,
-  minPrice: undefined,
-  maxPrice: undefined,
-};
-
-const createDraftFromQueryState = (
-  queryState: CatalogFilterQueryState,
-): CatalogFilterDraftState => ({
-  categories: [...queryState.categories],
-  brands: [...queryState.brands],
-  isPopular: queryState.isPopular,
-  isDiscount: queryState.isDiscount,
-  searchTerm: queryState.searchTerm,
-  minPrice: queryState.minPrice,
-  maxPrice: queryState.maxPrice,
-});
-
-const normalizeDraft = (
-  draft: CatalogFilterDraftState,
-): CatalogFilterDraftState => {
-  const normalizeList = (value: string[]): string[] => {
-    const cleaned = value
-      .map((item) => item.trim())
-      .filter(Boolean);
-    return Array.from(new Set(cleaned));
-  };
-  const normalizeString = (value?: string): string | undefined => {
-    if (typeof value !== "string") {
-      return undefined;
-    }
-    const cleaned = value.trim();
-    return cleaned || undefined;
-  };
-
-  return {
-    categories: normalizeList(draft.categories),
-    brands: normalizeList(draft.brands),
-    isPopular: draft.isPopular ? true : undefined,
-    isDiscount: draft.isDiscount ? true : undefined,
-    searchTerm: normalizeString(draft.searchTerm),
-    minPrice: normalizeString(draft.minPrice),
-    maxPrice: normalizeString(draft.maxPrice),
-  };
-};
 
 const FilterSection: React.FC<
   React.PropsWithChildren<{ title: string; className?: string }>
@@ -187,70 +124,21 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
   isCategoriesLoading = false,
   onApply,
 }) => {
-  const [open, setOpen] = React.useState(false);
-  const [draft, setDraft] = React.useState<CatalogFilterDraftState>(() =>
-    createDraftFromQueryState(queryState),
-  );
-  const brandsQuery = useBrandControllerGetAll();
-  const brands = React.useMemo(() => brandsQuery.data ?? [], [brandsQuery.data]);
-
-  React.useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    setDraft(createDraftFromQueryState(queryState));
-  }, [open, queryState]);
-
-  const patchDraft = React.useCallback(
-    (patch: Partial<CatalogFilterDraftState>) => {
-      setDraft((previousValue) => ({ ...previousValue, ...patch }));
-    },
-    [],
-  );
-
-  const toggleArrayDraftValue = React.useCallback(
-    (key: "categories" | "brands", value: string) => {
-      const normalized = value.trim();
-      if (!normalized) {
-        return;
-      }
-
-      setDraft((previousValue) => {
-        const currentItems = previousValue[key];
-        const nextItems = currentItems.includes(normalized)
-          ? currentItems.filter((item) => item !== normalized)
-          : [...currentItems, normalized];
-
-        return {
-          ...previousValue,
-          [key]: nextItems,
-        };
-      });
-    },
-    [],
-  );
-
-  const toggleBooleanDraftValue = React.useCallback(
-    (key: "isPopular" | "isDiscount") => {
-      setDraft((previousValue) => ({
-        ...previousValue,
-        [key]: previousValue[key] ? undefined : true,
-      }));
-    },
-    [],
-  );
-
-  const handleClear = React.useCallback(() => {
-    setDraft(createDraftFromQueryState({ ...queryState, ...CATALOG_FILTER_EMPTY_PATCH }));
-    onApply(CATALOG_FILTER_EMPTY_PATCH);
-    setOpen(false);
-  }, [onApply, queryState]);
-
-  const handleSubmit = React.useCallback(() => {
-    onApply(normalizeDraft(draft));
-    setOpen(false);
-  }, [draft, onApply]);
+  const {
+    brands,
+    brandsQuery,
+    draft,
+    handleClear,
+    handleSubmit,
+    open,
+    patchDraft,
+    setOpen,
+    toggleArrayDraftValue,
+    toggleBooleanDraftValue,
+  } = useCatalogFilterDrawer({
+    onApply,
+    queryState,
+  });
 
   return (
     <AppDrawer
@@ -258,24 +146,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
       onOpenChange={setOpen}
       className={className}
       trigger={
-        <button
-          type="button"
-          className={cn(
-            "shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full bg-background",
-            activeFiltersCount > 0 && "bg-primary text-primary-foreground",
-          )}
-          aria-label="Открыть фильтр"
-        >
-          {activeFiltersCount > 0 ? (
-            <Badge
-              variant="secondary"
-              className="shadow-custom absolute top-0 -right-1 h-4 min-w-4 rounded-full px-1 text-[10px]"
-            >
-              {activeFiltersCount}
-            </Badge>
-          ) : null}
-          <SlidersVertical size={20} />
-        </button>
+        <CatalogFilterDrawerTrigger activeFiltersCount={activeFiltersCount} />
       }
     >
       <AppDrawer.Content className="mx-auto w-full max-w-2xl">
@@ -358,7 +229,10 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
                     checked={draft.isDiscount}
                     onCheckedChange={() => toggleBooleanDraftValue("isDiscount")}
                   />
-                  <label htmlFor="catalog-filter-discount" className="cursor-pointer">
+                  <label
+                    htmlFor="catalog-filter-discount"
+                    className="cursor-pointer"
+                  >
                     Товары со скидкой
                   </label>
                 </div>

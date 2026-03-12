@@ -1,18 +1,18 @@
 "use client";
 
+import { useConfirmationDrawer } from "@/shared/hooks/use-confirmation-drawer";
 import { cn } from "@/shared/lib/utils";
-import { Button, type ButtonProps } from "@/shared/ui/button";
+import { type ButtonProps } from "@/shared/ui/button";
+import { ConfirmationDrawerActions } from "@/shared/ui/confirmation-drawer-actions";
 import {
   Drawer,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerScrollArea,
   DrawerTitle,
   DrawerTrigger,
 } from "@/shared/ui/drawer";
-import { Loader2 } from "lucide-react";
 import * as React from "react";
 import type {
   DialogProps,
@@ -125,97 +125,27 @@ export function ConfirmationDrawer({
   bodyClassName,
   footerClassName,
 }: ConfirmationDrawerProps) {
-  const isControlled = open !== undefined;
-  const [internalOpen, setInternalOpen] = React.useState(defaultOpen ?? false);
-  const [isPending, setIsPending] = React.useState(false);
-  const isMountedRef = React.useRef(true);
-  const afterCloseFiredRef = React.useRef(false);
-
-  React.useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  const actualOpen = isControlled ? open : internalOpen;
-  React.useEffect(() => {
-    if (actualOpen) afterCloseFiredRef.current = false;
-  }, [actualOpen]);
-
-  const setOpen = React.useCallback(
-    (next: boolean) => {
-      if (!isControlled) setInternalOpen(next);
-      onOpenChange?.(next);
-    },
-    [isControlled, onOpenChange],
-  );
-
-  const handleOpenChange = React.useCallback(
-    (next: boolean) => {
-      if (!next && preventCloseWhilePending && isPending) return;
-      setOpen(next);
-    },
-    [isPending, preventCloseWhilePending, setOpen],
-  );
-
-  const closeDrawer = React.useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
-
-  const handleCancel = React.useCallback(async () => {
-    if (preventCloseWhilePending && isPending) return;
-    try {
-      await onCancel?.();
-      if (closeOnCancel) closeDrawer();
-    } catch (error) {
-      onError?.(error);
-    }
-  }, [
-    preventCloseWhilePending,
-    isPending,
-    onCancel,
-    closeOnCancel,
-    closeDrawer,
-    onError,
-  ]);
-
-  const handleConfirm = React.useCallback(async () => {
-    if (isPending) return;
-    if (!onConfirm) {
-      if (closeOnConfirm) closeDrawer();
-      return;
-    }
-
-    setIsPending(true);
-    try {
-      await onConfirm();
-      if (closeOnConfirm) closeDrawer();
-    } catch (error) {
-      onError?.(error);
-    } finally {
-      if (isMountedRef.current) setIsPending(false);
-    }
-  }, [isPending, onConfirm, closeOnConfirm, closeDrawer, onError]);
-
   const computedConfirmVariant =
     confirmVariant ?? (tone === "destructive" ? "destructive" : "default");
-
-  const handleCloseAnimationEnd = React.useCallback(
-    (
-      event:
-        | React.AnimationEvent<HTMLDivElement>
-        | React.TransitionEvent<HTMLDivElement>,
-    ) => {
-      if (event.target !== event.currentTarget) return;
-      if (actualOpen) return;
-      const state = event.currentTarget.getAttribute("data-state");
-      if (state && state !== "closed") return;
-      if (afterCloseFiredRef.current) return;
-      afterCloseFiredRef.current = true;
-      onAfterClose?.();
-    },
-    [actualOpen, onAfterClose],
-  );
+  const {
+    actualOpen,
+    handleCancel,
+    handleCloseAnimationEnd,
+    handleConfirm,
+    handleOpenChange,
+    isPending,
+  } = useConfirmationDrawer({
+    closeOnCancel,
+    closeOnConfirm,
+    defaultOpen,
+    onAfterClose,
+    onCancel,
+    onConfirm,
+    onError,
+    onOpenChange,
+    open,
+    preventCloseWhilePending,
+  });
 
   return (
     <Drawer open={actualOpen} onOpenChange={handleOpenChange} {...drawerProps}>
@@ -248,50 +178,26 @@ export function ConfirmationDrawer({
             </DrawerScrollArea>
           ) : null}
 
-          <DrawerFooter
-            className={cn(
-              "flex-col gap-2 sm:flex-row sm:justify-end",
-              footerClassName,
-            )}
-          >
-            {footer ? (
-              footer
-            ) : (
-              <>
-                {!hideCancel ? (
-                  <Button
-                    type="button"
-                    variant={cancelVariant}
-                    size={cancelSize}
-                    onClick={handleCancel}
-                    disabled={cancelDisabled || isPending}
-                    {...cancelButtonProps}
-                  >
-                    {cancelText}
-                  </Button>
-                ) : null}
-                {!hideConfirm ? (
-                  <Button
-                    type="button"
-                    variant={computedConfirmVariant}
-                    size={confirmSize}
-                    onClick={handleConfirm}
-                    disabled={confirmDisabled || isPending}
-                    {...confirmButtonProps}
-                  >
-                    {isPending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        {pendingText ?? confirmText}
-                      </>
-                    ) : (
-                      confirmText
-                    )}
-                  </Button>
-                ) : null}
-              </>
-            )}
-          </DrawerFooter>
+          <ConfirmationDrawerActions
+            cancelButtonProps={cancelButtonProps}
+            cancelDisabled={cancelDisabled}
+            cancelSize={cancelSize}
+            cancelText={cancelText}
+            cancelVariant={cancelVariant}
+            className={footerClassName}
+            confirmButtonProps={confirmButtonProps}
+            confirmDisabled={confirmDisabled}
+            confirmSize={confirmSize}
+            confirmText={confirmText}
+            confirmVariant={computedConfirmVariant}
+            footer={footer}
+            hideCancel={hideCancel}
+            hideConfirm={hideConfirm}
+            isPending={isPending}
+            onCancel={handleCancel}
+            onConfirm={handleConfirm}
+            pendingText={pendingText}
+          />
         </div>
       </DrawerContent>
     </Drawer>

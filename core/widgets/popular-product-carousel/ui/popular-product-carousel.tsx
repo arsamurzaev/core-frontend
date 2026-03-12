@@ -2,6 +2,7 @@
 
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
+import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import { useProductControllerGetPopular } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -49,7 +50,7 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
         <CarouselContent>
           {data?.map((product) => (
             <CarouselItem key={product.id}>
-              <article>
+              <article className="relative">
                 <Suspense>
                   <ProductLink
                     slug={product.slug}
@@ -58,6 +59,7 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
                     <ProductCard data={product} isDetailed />
                   </ProductLink>
                 </Suspense>
+                <EditProductCardAction productId={product.id} />
               </article>
             </CarouselItem>
           ))}

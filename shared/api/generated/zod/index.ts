@@ -458,17 +458,17 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "bgMedia": zod.object({
   "id": zod.string(),
@@ -479,17 +479,17 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "note": zod.string().nullable()
 }).nullable(),
@@ -588,17 +588,17 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "bgMedia": zod.object({
   "id": zod.string(),
@@ -609,17 +609,17 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "note": zod.string().nullable()
 }).nullable(),
@@ -659,17 +659,17 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "bgMedia": zod.object({
   "id": zod.string(),
@@ -680,17 +680,17 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "note": zod.string().nullable()
 }).nullable(),
@@ -749,17 +749,17 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "bgMedia": zod.object({
   "id": zod.string(),
@@ -770,17 +770,17 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "note": zod.string().nullable()
 }).nullable(),
@@ -848,17 +848,17 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "bgMedia": zod.object({
   "id": zod.string(),
@@ -869,17 +869,17 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "note": zod.string().nullable()
 }).nullable(),
@@ -909,17 +909,17 @@ export const CategoryControllerGetAllResponseItem = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "descriptor": zod.string().nullable(),
   "discount": zod.number().nullable(),
@@ -968,17 +968,17 @@ export const CategoryControllerGetByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "descriptor": zod.string().nullable(),
   "discount": zod.number().nullable(),
@@ -1002,17 +1002,17 @@ export const CategoryControllerGetByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable()
 }))
 })
@@ -1053,17 +1053,17 @@ export const CategoryControllerUpdateResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "descriptor": zod.string().nullable(),
   "discount": zod.number().nullable(),
@@ -1087,17 +1087,17 @@ export const CategoryControllerUpdateResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable()
 }))
 })
@@ -1116,6 +1116,7 @@ export const CategoryControllerRemoveResponse = zod.object({
 
 
 /**
+ * Для media.variants внутри product.media возвращается только variant с назначением card.
  * @summary List category products (infinite)
  */
 export const CategoryControllerGetProductsByCategoryParams = zod.object({
@@ -1154,17 +1155,17 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -1549,6 +1550,7 @@ export const CartControllerSsePublicQueryParams = zod.object({
 
 
 /**
+ * В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 export const ProductControllerGetAllResponseItem = zod.object({
@@ -1569,17 +1571,17 @@ export const ProductControllerGetAllResponseItem = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -1625,7 +1627,7 @@ export const ProductControllerCreateBody = zod.object({
 
 
 /**
- * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed.
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
  * @summary Список товаров с фильтрами (бесконечный скролл)
  */
 export const ProductControllerGetInfiniteQueryParams = zod.object({
@@ -1661,17 +1663,17 @@ export const ProductControllerGetInfiniteResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -1719,6 +1721,7 @@ export const ProductControllerGetInfiniteResponse = zod.object({
 
 
 /**
+ * В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 export const ProductControllerGetPopularResponseItem = zod.object({
@@ -1739,17 +1742,17 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -1829,6 +1832,7 @@ export const ProductControllerGetPopularResponse = zod.array(ProductControllerGe
 
 
 /**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по slug
  */
 export const ProductControllerGetBySlugParams = zod.object({
@@ -1853,17 +1857,17 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -1942,6 +1946,7 @@ export const ProductControllerGetBySlugResponse = zod.object({
 
 
 /**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по id
  */
 export const ProductControllerGetByIdParams = zod.object({
@@ -1966,17 +1971,17 @@ export const ProductControllerGetByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -2055,7 +2060,7 @@ export const ProductControllerGetByIdResponse = zod.object({
 
 
 /**
- * Для изменения позиции товара в категории передайте categoryId и categoryPosition.
+ * Для изменения позиции товара в категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Обновить товар
  */
 export const ProductControllerUpdateParams = zod.object({
@@ -2085,6 +2090,7 @@ export const ProductControllerUpdateBody = zod.object({
   "valueBoolean": zod.boolean().optional(),
   "valueDateTime": zod.iso.datetime({}).optional()
 })).optional().describe('Только видимые атрибуты (isHidden=false)'),
+  "removeAttributeIds": zod.array(zod.string()).optional().describe('ID атрибутов товара, которые нужно удалить при редактировании'),
   "variants": zod.array(zod.object({
   "variantKey": zod.string().describe('Ключ варианта, приходит из ответа товара'),
   "price": zod.number().optional(),
@@ -2111,17 +2117,17 @@ export const ProductControllerUpdateResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -2179,6 +2185,7 @@ export const ProductControllerRemoveResponse = zod.object({
 
 
 /**
+ * В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Создать/заменить вариации товара
  */
 export const ProductControllerSetVariantsParams = zod.object({
@@ -2214,17 +2221,17 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 })
 })),
   "brand": zod.object({
@@ -2327,7 +2334,7 @@ export const S3ControllerPresignPostUploadBody = zod.object({
 
 
 /**
- * @summary Старт multipart загрузки
+ * @summary Начать multipart загрузку
  */
 export const S3ControllerStartMultipartBody = zod.object({
   "contentType": zod.string().describe('MIME-тип файла'),
@@ -2505,17 +2512,17 @@ export const SeoControllerGetAllResponseItem = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "ogType": zod.string().nullable(),
   "ogUrl": zod.string().nullable(),
@@ -2533,17 +2540,17 @@ export const SeoControllerGetAllResponseItem = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "twitterSite": zod.string().nullable(),
   "twitterCreator": zod.string().nullable(),
@@ -2635,17 +2642,17 @@ export const SeoControllerGetByEntityResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "ogType": zod.string().nullable(),
   "ogUrl": zod.string().nullable(),
@@ -2663,17 +2670,17 @@ export const SeoControllerGetByEntityResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "twitterSite": zod.string().nullable(),
   "twitterCreator": zod.string().nullable(),
@@ -2720,17 +2727,17 @@ export const SeoControllerGetByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "ogType": zod.string().nullable(),
   "ogUrl": zod.string().nullable(),
@@ -2748,17 +2755,17 @@ export const SeoControllerGetByIdResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "twitterSite": zod.string().nullable(),
   "twitterCreator": zod.string().nullable(),
@@ -2844,17 +2851,17 @@ export const SeoControllerUpdateResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "ogType": zod.string().nullable(),
   "ogUrl": zod.string().nullable(),
@@ -2872,17 +2879,17 @@ export const SeoControllerUpdateResponse = zod.object({
   "height": zod.number().nullable(),
   "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
   "key": zod.string(),
-  "url": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
   "variants": zod.array(zod.object({
   "id": zod.string(),
-  "kind": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
   "mimeType": zod.string().nullable(),
   "size": zod.number().nullable(),
   "width": zod.number().nullable(),
   "height": zod.number().nullable(),
   "key": zod.string(),
-  "url": zod.string()
-}))
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
 }).nullable(),
   "twitterSite": zod.string().nullable(),
   "twitterCreator": zod.string().nullable(),

@@ -211,6 +211,7 @@ export interface CreateUserDtoReq {
 
 export interface MediaVariantDto {
   id: string;
+  /** Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail. */
   kind: string;
   /** @nullable */
   mimeType: string | null;
@@ -221,6 +222,7 @@ export interface MediaVariantDto {
   /** @nullable */
   height: number | null;
   key: string;
+  /** Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind. */
   url: string;
 }
 
@@ -246,7 +248,9 @@ export interface MediaDto {
   height: number | null;
   status: MediaDtoStatus;
   key: string;
+  /** Основной URL медиа. Для адаптивной выдачи используйте variants по назначению. */
   url: string;
+  /** Доступные варианты изображения. Обычно используются роли: thumb для корзины/миниатюр, card для карточек в списках, detail для страницы товара. */
   variants: MediaVariantDto[];
 }
 
@@ -834,6 +838,8 @@ export interface UpdateProductDtoReq {
   categoryPosition?: number;
   /** Только видимые атрибуты (isHidden=false) */
   attributes?: ProductAttributeValueDto[];
+  /** ID атрибутов товара, которые нужно удалить при редактировании */
+  removeAttributeIds?: string[];
   variants?: ProductVariantUpdateDtoReq[];
 }
 
@@ -1801,6 +1807,7 @@ const categoryControllerRemove = (
     }
   
 /**
+ * Для media.variants внутри product.media возвращается только variant с назначением card.
  * @summary List category products (infinite)
  */
 const categoryControllerGetProductsByCategory = (
@@ -1959,6 +1966,7 @@ const cartControllerSsePublic = (
     }
   
 /**
+ * В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 const productControllerGetAll = (
@@ -1986,7 +1994,7 @@ const productControllerCreate = (
     }
   
 /**
- * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed.
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
  * @summary Список товаров с фильтрами (бесконечный скролл)
  */
 const productControllerGetInfinite = (
@@ -2000,6 +2008,7 @@ const productControllerGetInfinite = (
     }
   
 /**
+ * В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 const productControllerGetPopular = (
@@ -2012,6 +2021,7 @@ const productControllerGetPopular = (
     }
   
 /**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по slug
  */
 const productControllerGetBySlug = (
@@ -2024,6 +2034,7 @@ const productControllerGetBySlug = (
     }
   
 /**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по id
  */
 const productControllerGetById = (
@@ -2036,7 +2047,7 @@ const productControllerGetById = (
     }
   
 /**
- * Для изменения позиции товара в категории передайте categoryId и categoryPosition.
+ * Для изменения позиции товара в категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Обновить товар
  */
 const productControllerUpdate = (
@@ -2064,6 +2075,7 @@ const productControllerRemove = (
     }
   
 /**
+ * В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Создать/заменить вариации товара
  */
 const productControllerSetVariants = (
@@ -2107,7 +2119,7 @@ const s3ControllerPresignPostUpload = (
     }
   
 /**
- * @summary Старт multipart загрузки
+ * @summary Начать multipart загрузку
  */
 const s3ControllerStartMultipart = (
     multipartStartDtoReq: MultipartStartDtoReq,

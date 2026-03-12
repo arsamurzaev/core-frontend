@@ -8,6 +8,7 @@ import {
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
+import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import {
   CategoryDto,
   categoryControllerGetProductsByCategory,
@@ -207,7 +208,7 @@ export const CategoryProducts: React.FC<Props> = ({
         ) : (
           <ul className={listClassName}>
             {products.map(({ productId, product }) => (
-              <article key={productId}>
+              <article key={productId} className="relative">
                 <ProductLink slug={product.slug} className="block h-full">
                   <ProductCard
                     data={product}
@@ -215,6 +216,7 @@ export const CategoryProducts: React.FC<Props> = ({
                     className={cn("h-full", isDetailed && "min-h-[160px]")}
                   />
                 </ProductLink>
+                <EditProductCardAction productId={product.id} />
               </article>
             ))}
             {isFetchingNextPage &&

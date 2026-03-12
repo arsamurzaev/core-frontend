@@ -1,7 +1,4 @@
 import { ProductWithAttributesDto } from "@/shared/api/generated";
-import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
-import { getTotalPrice } from "@/shared/lib/calculate-price";
-import { isDiscountActive } from "@/shared/lib/is-discount-active";
 import { cn } from "@/shared/lib/utils";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { Badge } from "@/shared/ui/badge";
@@ -14,19 +11,20 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import React from "react";
+import { buildProductCardView } from "../model/product-card-view";
 
 interface Props {
+  actions?: React.ReactNode;
   className?: string;
   data: ProductWithAttributesDto;
-  isDetailed?: boolean;
-  actions?: React.ReactNode;
   footerAction?: React.ReactNode;
+  isDetailed?: boolean;
 }
 
 interface ProductCardLayoutProps {
+  children: React.ReactNode;
   className?: string;
   isDetailed?: boolean;
-  children: React.ReactNode;
 }
 
 const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
@@ -109,8 +107,8 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
 
 interface ProductCardFooterProps {
   currency: string;
-  discount: number | undefined;
-  displayPrice: ReturnType<typeof getTotalPrice>;
+  discount?: number;
+  displayPrice: number | undefined;
   footerAction?: React.ReactNode;
   hasDiscount: boolean;
   isDetailed?: boolean;
@@ -196,28 +194,16 @@ const ProductCardBase: React.FC<Props> = ({
   actions,
   data,
 }) => {
-  const price = toNumberValue(data.price) ?? 0;
   const {
-    description = "",
-    subtitle = "",
-    currency = "RUB",
-    discountedPrice,
-    discount = undefined,
-    discountStartAt,
-    discountEndAt,
-  } = resolveAttributes(data.productAttributes);
-
-  const hasDiscount =
-    isDiscountActive(discountStartAt, discountEndAt) && Boolean(discount);
-
-  const displayPrice = getTotalPrice({
-    discountedPrice,
-    discountStartAt,
-    discountEndAt,
+    currency,
+    description,
     discount,
+    displayPrice,
+    hasDiscount,
+    imageUrl,
     price,
-  });
-  const imageUrl = data.media?.[0]?.media?.url || "/not-found-photo.png";
+    subtitle,
+  } = buildProductCardView(data);
 
   return (
     <ProductCardLayout className={className} isDetailed={isDetailed}>
@@ -253,10 +239,10 @@ const ProductCardBase: React.FC<Props> = ({
 };
 
 type ProductCardCompound = React.FC<Props> & {
-  Layout: typeof ProductCardLayout;
   Content: typeof ProductCardContent;
-  Header: typeof ProductCardHeaderSection;
   Footer: typeof ProductCardFooterSection;
+  Header: typeof ProductCardHeaderSection;
+  Layout: typeof ProductCardLayout;
 };
 
 export const ProductCard: ProductCardCompound = Object.assign(ProductCardBase, {

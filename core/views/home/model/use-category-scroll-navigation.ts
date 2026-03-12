@@ -2,18 +2,11 @@
 
 import {
   CategoryDto,
-  CategoryProductsPageDto,
-  categoryControllerGetProductsByCategory,
 } from "@/shared/api/generated";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import {
-  ACTIVE_CATEGORY_HYSTERESIS_PX,
-  type AlignCategorySectionResult,
   clamp,
-  FILTER_BAR_SCROLL_OFFSET,
-  getCategorySectionId,
-  PAGE_END_EPSILON_PX,
   PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX,
   PROGRAMMATIC_SCROLL_DEFAULT_SETTLE_DELAY_MS,
   PROGRAMMATIC_SCROLL_FRAME_DELAY_FACTOR,
@@ -23,6 +16,17 @@ import {
   PROGRAMMATIC_SCROLL_MIN_ALIGN_DELTA_PX,
   PROGRAMMATIC_SCROLL_MIN_SETTLE_DELAY_MS,
 } from "./category-scroll";
+import {
+  alignCategorySectionToLine,
+  getActiveCategoryLineY,
+  isCategoryProgrammaticTargetReached,
+  resolveActiveCategoryIdByLine,
+} from "./category-scroll-navigation-dom";
+import {
+  getCategoryFirstPageState,
+  hasCategoryFirstPageLoaded,
+  prefetchCategoryFirstPage,
+} from "./category-scroll-navigation-query";
 
 interface UseCategoryScrollNavigationParams {
   categories: CategoryDto[];
@@ -38,13 +42,7 @@ interface UseCategoryScrollNavigationResult {
   handleCategoryBarClick: (item: { id: string }) => void;
 }
 
-type CategoryFirstPageState = "loaded" | "pending" | "error";
-
 const PROGRAMMATIC_SCROLL_MAX_WAIT_FOR_DATA_ATTEMPTS = 48;
-
-function getCategoryProductsQueryKey(categoryId: string, pageSize: number) {
-  return ["category-products-infinite", categoryId, pageSize] as const;
-}
 
 export function useCategoryScrollNavigation({
   categories,
@@ -80,6 +78,10 @@ export function useCategoryScrollNavigation({
     React.useState(false);
 
   const isCatalogViewEnabled = isCatalogTab && !isFilterActive;
+  const categoryIds = React.useMemo(
+    () => categories.map((category) => category.id),
+    [categories],
+  );
 
   React.useEffect(() => {
     activeCategoryIdRef.current = activeCategoryId;
@@ -206,166 +208,41 @@ export function useCategoryScrollNavigation({
     });
   }, [categories, resetProgrammaticScrollState]);
 
-  const getActiveLineY = React.useCallback((): number => {
-    const filterBar = document.getElementById("catalog-filter-bar");
-    return (filterBar?.getBoundingClientRect().bottom ?? 0) + FILTER_BAR_SCROLL_OFFSET;
-  }, []);
-
   const alignCategorySection = React.useCallback(
     (
       categoryId: string,
       behavior: ScrollBehavior,
       minDeltaPx = 0,
-    ): AlignCategorySectionResult => {
-      const target = document.getElementById(getCategorySectionId(categoryId));
-
-      if (!target) {
-        return {
-          found: false,
-          didScroll: false,
-          distanceToLine: Number.POSITIVE_INFINITY,
-        };
-      }
-
-      const deltaY = target.getBoundingClientRect().top - getActiveLineY();
-      const distanceToLine = Math.abs(deltaY);
-
-      if (distanceToLine <= minDeltaPx) {
-        return {
-          found: true,
-          didScroll: false,
-          distanceToLine,
-        };
-      }
-
-      const nextTop = Math.max(window.scrollY + deltaY, 0);
-      const scrollDistance = Math.abs(nextTop - window.scrollY);
-
-      if (scrollDistance <= minDeltaPx) {
-        return {
-          found: true,
-          didScroll: false,
-          distanceToLine,
-        };
-      }
-
-      window.scrollTo({
-        top: nextTop,
+    ) => {
+      return alignCategorySectionToLine({
+        categoryId,
         behavior,
+        minDeltaPx,
       });
-
-      return {
-        found: true,
-        didScroll: true,
-        distanceToLine,
-      };
     },
-    [getActiveLineY],
+    [],
   );
 
   const resolveActiveCategoryByLine = React.useCallback(
     (lineY: number): string | null => {
-      if (categories.length === 0) {
-        return null;
-      }
-
-      const sections = categories
-        .map((category) => {
-          const element = document.getElementById(getCategorySectionId(category.id));
-
-          if (!element) {
-            return null;
-          }
-
-          return {
-            id: category.id,
-            rect: element.getBoundingClientRect(),
-          };
-        })
-        .filter((section): section is { id: string; rect: DOMRect } => section !== null);
-
-      if (sections.length === 0) {
-        return activeCategoryIdRef.current ?? categories[0].id;
-      }
-
-      const firstSection = sections[0];
-      const lastSection = sections[sections.length - 1];
-
-      if (lineY < firstSection.rect.top) {
-        return firstSection.id;
-      }
-
-      if (lineY >= lastSection.rect.bottom) {
-        return lastSection.id;
-      }
-
-      const currentActiveId = activeCategoryIdRef.current;
-      if (currentActiveId) {
-        const currentSection = sections.find((section) => section.id === currentActiveId);
-
-        if (currentSection) {
-          const isWithinCurrentSection =
-            currentSection.rect.top - ACTIVE_CATEGORY_HYSTERESIS_PX <= lineY &&
-            currentSection.rect.bottom + ACTIVE_CATEGORY_HYSTERESIS_PX > lineY;
-
-          if (isWithinCurrentSection) {
-            return currentActiveId;
-          }
-        }
-      }
-
-      let candidateId = firstSection.id;
-      for (const section of sections) {
-        if (section.rect.top <= lineY) {
-          candidateId = section.id;
-          continue;
-        }
-
-        break;
-      }
-
-      return candidateId;
+      return resolveActiveCategoryIdByLine({
+        categoryIds,
+        currentActiveCategoryId: activeCategoryIdRef.current,
+        lineY,
+      });
     },
-    [categories],
+    [categoryIds],
   );
 
   const isProgrammaticTargetReached = React.useCallback(
     (targetId: string): boolean => {
-      const lineY = getActiveLineY();
-      const activeCategoryAtLine = resolveActiveCategoryByLine(lineY);
-
-      if (activeCategoryAtLine === targetId) {
-        return true;
-      }
-
-      const lastCategoryId = categories[categories.length - 1]?.id ?? null;
-      if (targetId !== lastCategoryId) {
-        return false;
-      }
-
-      const target = document.getElementById(getCategorySectionId(targetId));
-      if (!target) {
-        return false;
-      }
-
-      const isAtPageBottom =
-        window.scrollY + window.innerHeight >=
-        document.documentElement.scrollHeight - PAGE_END_EPSILON_PX;
-
-      if (!isAtPageBottom) {
-        return false;
-      }
-
-      const targetRect = target.getBoundingClientRect();
-      const distanceToLine = Math.abs(targetRect.top - lineY);
-      const isTargetVisible =
-        targetRect.top < window.innerHeight && targetRect.bottom > 0;
-
-      return (
-        distanceToLine <= PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX || isTargetVisible
-      );
+      return isCategoryProgrammaticTargetReached({
+        categoryIds,
+        currentActiveCategoryId: activeCategoryIdRef.current,
+        targetId,
+      });
     },
-    [categories, getActiveLineY, resolveActiveCategoryByLine],
+    [categoryIds],
   );
 
   const syncActiveCategoryByViewport = React.useCallback(() => {
@@ -373,7 +250,7 @@ export function useCategoryScrollNavigation({
       return;
     }
 
-    const lineY = getActiveLineY();
+    const lineY = getActiveCategoryLineY();
     const nextActiveCategoryId = resolveActiveCategoryByLine(lineY);
 
     if (!nextActiveCategoryId) {
@@ -398,35 +275,26 @@ export function useCategoryScrollNavigation({
       pendingScrollCategoryIdRef.current = null;
       setPendingScrollCategoryId(null);
     }
-  }, [categories.length, getActiveLineY, isCatalogViewEnabled, resolveActiveCategoryByLine]);
+  }, [categories.length, isCatalogViewEnabled, resolveActiveCategoryByLine]);
 
-  const getCategoryFirstPageState = React.useCallback(
-    (categoryId: string): CategoryFirstPageState => {
-      const categoryQueryKey = getCategoryProductsQueryKey(categoryId, pageSize);
-      const queryData = queryClient.getQueryData<{
-        pages?: unknown[];
-      }>(categoryQueryKey);
-
-      if (Array.isArray(queryData?.pages) && queryData.pages.length > 0) {
-        return "loaded";
-      }
-
-      const queryState = queryClient.getQueryState(categoryQueryKey);
-
-      if (queryState?.status === "error") {
-        return "error";
-      }
-
-      return "pending";
-    },
+  const getCategoryFirstPageStatus = React.useCallback(
+    (categoryId: string) =>
+      getCategoryFirstPageState({
+        categoryId,
+        pageSize,
+        queryClient,
+      }),
     [pageSize, queryClient],
   );
 
-  const hasCategoryFirstPageLoaded = React.useCallback(
-    (categoryId: string): boolean => {
-      return getCategoryFirstPageState(categoryId) === "loaded";
-    },
-    [getCategoryFirstPageState],
+  const hasLoadedCategoryFirstPage = React.useCallback(
+    (categoryId: string) =>
+      hasCategoryFirstPageLoaded({
+        categoryId,
+        pageSize,
+        queryClient,
+      }),
+    [pageSize, queryClient],
   );
 
   const scheduleSyncActiveCategoryByViewport = React.useCallback(() => {
@@ -517,7 +385,7 @@ export function useCategoryScrollNavigation({
       }
 
       if (programmaticScrollRequiresFirstPageRef.current) {
-        const firstPageState = getCategoryFirstPageState(targetId);
+        const firstPageState = getCategoryFirstPageStatus(targetId);
 
         if (firstPageState !== "loaded") {
           if (firstPageState === "error") {
@@ -591,7 +459,7 @@ export function useCategoryScrollNavigation({
     alignCategorySection,
     clearProgrammaticScrollSettle,
     getProgrammaticScrollSettleDelay,
-    getCategoryFirstPageState,
+    getCategoryFirstPageStatus,
     isProgrammaticTargetReached,
     releaseProgrammaticScrollLock,
   ]);
@@ -609,23 +477,15 @@ export function useCategoryScrollNavigation({
       setIsProgrammaticScrollLocked(true);
       startProgrammaticScrollFpsTracking();
 
-      const categoryQueryKey = getCategoryProductsQueryKey(item.id, pageSize);
-      const hasWarmData = hasCategoryFirstPageLoaded(item.id);
+      const hasWarmData = hasLoadedCategoryFirstPage(item.id);
       programmaticScrollRequiresFirstPageRef.current = !hasWarmData;
 
       if (!hasWarmData) {
-        void queryClient
-          .prefetchInfiniteQuery({
-            queryKey: categoryQueryKey,
-            queryFn: ({ pageParam }) =>
-              categoryControllerGetProductsByCategory(item.id, {
-                cursor: pageParam as string | undefined,
-                limit: pageSize,
-              }),
-            initialPageParam: undefined as string | undefined,
-            getNextPageParam: (lastPage: CategoryProductsPageDto) =>
-              lastPage.nextCursor ?? undefined,
-          })
+        void prefetchCategoryFirstPage({
+          categoryId: item.id,
+          pageSize,
+          queryClient,
+        })
           .catch(() => undefined);
       }
 
@@ -646,7 +506,7 @@ export function useCategoryScrollNavigation({
     },
     [
       alignCategorySection,
-      hasCategoryFirstPageLoaded,
+      hasLoadedCategoryFirstPage,
       pageSize,
       queryClient,
       resetProgrammaticScrollState,

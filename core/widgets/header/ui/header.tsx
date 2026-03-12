@@ -28,6 +28,23 @@ export const Header: React.FC<Props> = ({ className }) => {
 
   const logoutMutation = useAuthControllerLogout();
 
+  const handleCopyCatalogLink = async () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(window.location.host);
+      toast.success("Ссылка скопирована в буфер обмена");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Не удалось скопировать ссылку",
+      );
+    }
+  };
+
   const handleLogout = async () => {
     const getConfirm = await confirm({
       title: "Выход",
@@ -106,14 +123,9 @@ export const Header: React.FC<Props> = ({ className }) => {
         ) : isAuthenticated ? (
           <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
             <CreateProductDrawer />
-            <ShareDrawer
-              mode="share"
-              trigger={
-                <Button size="sm" variant="outline">
-                  Поделиться каталогом
-                </Button>
-              }
-            />
+            <Button onClick={handleCopyCatalogLink} variant="outline" size="sm">
+              Поделиться каталогом
+            </Button>
             <Button size={"sm"} variant={"outline"}>
               Статистика аккаунта
             </Button>

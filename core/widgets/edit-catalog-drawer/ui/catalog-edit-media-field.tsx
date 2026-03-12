@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { type CatalogEditFormValues } from "@/core/widgets/edit-catalog-drawer/model/form-config";
+import { useSingleImageCropperField } from "@/shared/hooks/use-single-image-cropper-field";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { ImageCropperDrawer } from "@/shared/ui/image-cropper-drawer";
 import React from "react";
@@ -36,66 +37,28 @@ export const CatalogEditMediaField: React.FC<CatalogEditMediaFieldProps> = ({
   caption,
   outputOptions,
 }) => {
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const [cropperOpen, setCropperOpen] = React.useState(false);
-  const [pendingFiles, setPendingFiles] = React.useState<File[]>([]);
-
-  const selectedFile = field.value instanceof File ? field.value : null;
-  const selectedPreviewUrl = React.useMemo(
-    () => (selectedFile ? URL.createObjectURL(selectedFile) : null),
-    [selectedFile],
-  );
-
-  React.useEffect(() => {
-    return () => {
-      if (selectedPreviewUrl) {
-        URL.revokeObjectURL(selectedPreviewUrl);
-      }
-    };
-  }, [selectedPreviewUrl]);
-
-  const displaySrc = selectedPreviewUrl ?? existingUrl ?? fallbackSrc;
-  const isDisabled = disabled || readOnly;
-
-  const handlePickFile = React.useCallback(() => {
-    if (isDisabled) {
-      return;
-    }
-
-    inputRef.current?.click();
-  }, [isDisabled]);
-
-  const handleFileChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const nextFile = event.target.files?.[0];
-      event.currentTarget.value = "";
-
-      if (!nextFile) {
-        return;
-      }
-
-      setPendingFiles([nextFile]);
-      setCropperOpen(true);
-    },
-    [],
-  );
-
-  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
-    setCropperOpen(nextOpen);
-    if (!nextOpen) {
-      setPendingFiles([]);
-    }
-  }, []);
-
-  const handleApply = React.useCallback(
-    async (files: File[]) => {
-      field.onChange(files[0] ?? undefined);
+  const selectedFile = field.value instanceof File ? field.value : undefined;
+  const {
+    cropperOpen,
+    displaySrc,
+    handleApply,
+    handleFileChange,
+    handleOpenChange,
+    handlePickFile,
+    inputRef,
+    isDisabled,
+    pendingFiles,
+  } = useSingleImageCropperField({
+    file: selectedFile,
+    disabled,
+    readOnly,
+    existingUrl,
+    fallbackSrc,
+    onApplyFile: (file) => {
+      field.onChange(file);
       field.onBlur();
-      setPendingFiles([]);
-      setCropperOpen(false);
     },
-    [field],
-  );
+  });
 
   return (
     <>

@@ -109,7 +109,7 @@ export const ATTRIBUTE_FIELD_OVERRIDES_BY_KEY: Record<
     layout: { colSpan: 2, order: 81 },
   },
   discountstartat: {
-    label: "Дата скидки (с)",
+    label: "Дата скидки",
     layout: { colSpan: 2, order: 82 },
   },
   discountendat: {
