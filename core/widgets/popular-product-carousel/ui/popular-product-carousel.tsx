@@ -2,9 +2,12 @@
 
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
+import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
+import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui/toggle-product-popular-action";
 import { useProductControllerGetPopular } from "@/shared/api/generated";
 import { cn } from "@/shared/lib/utils";
+import { useSession } from "@/shared/providers/session-provider";
 import {
   Carousel,
   CarouselApi,
@@ -20,21 +23,53 @@ interface Props {
 
 export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
-  const [count, setCount] = React.useState(0);
-  const [current, setCurrent] = React.useState(0);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const { isAuthenticated } = useSession();
 
   const { isLoading, data } = useProductControllerGetPopular();
 
+  const slideCount = data?.length ?? 0;
+
+  const syncCurrentIndex = React.useCallback(() => {
+    if (!api) {
+      setCurrentIndex(0);
+      return;
+    }
+
+    const snapCount = api.scrollSnapList().length;
+    if (snapCount === 0) {
+      setCurrentIndex(0);
+      return;
+    }
+
+    setCurrentIndex(Math.min(api.selectedScrollSnap(), snapCount - 1));
+  }, [api]);
+
   React.useEffect(() => {
-    if (!api || !data) return;
+    if (!api) {
+      setCurrentIndex(0);
+      return;
+    }
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
+    syncCurrentIndex();
+    api.on("select", syncCurrentIndex);
+    api.on("reInit", syncCurrentIndex);
 
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api, data]);
+    return () => {
+      api.off("select", syncCurrentIndex);
+      api.off("reInit", syncCurrentIndex);
+    };
+  }, [api, syncCurrentIndex]);
+
+  React.useLayoutEffect(() => {
+    if (!api) {
+      setCurrentIndex(0);
+      return;
+    }
+
+    api.reInit();
+    syncCurrentIndex();
+  }, [api, slideCount, syncCurrentIndex]);
 
   if (isLoading) {
     return <PopularProductCarouselSkeleton />;
@@ -56,23 +91,39 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
                     slug={product.slug}
                     className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
                   >
-                    <ProductCard data={product} isDetailed />
+                    <ProductCard
+                      data={product}
+                      isDetailed
+                      isVisiblePrice={isAuthenticated}
+                      footerAction={
+                        isAuthenticated ? (
+                          <ToggleProductPopularAction
+                            productId={product.id}
+                            isPopular={Boolean(product.isPopular)}
+                          />
+                        ) : undefined
+                      }
+                    />
                   </ProductLink>
                 </Suspense>
-                <EditProductCardAction productId={product.id} />
+                <EditProductCardAction
+                  isMoySkladLinked={isMoySkladProduct(product)}
+                  productId={product.id}
+                  status={product.status}
+                />
               </article>
             </CarouselItem>
           ))}
         </CarouselContent>
 
         <ul className="flex justify-center gap-1 min-h-1">
-          {Boolean(count) &&
-            Array.from({ length: count }).map((_, index) => (
+          {slideCount > 0 &&
+            Array.from({ length: slideCount }).map((_, index) => (
               <li
                 key={index}
                 className={cn(
                   "bg-primary h-1 w-2 rounded-full transition-all",
-                  current === index + 1 && "w-24",
+                  currentIndex === index && "w-24",
                 )}
               />
             ))}

@@ -3,4 +3,4 @@ export type {
   FilePreviewEntry,
   UploadPhase,
   UploadState,
-} from "@/core/widgets/product-editor/model/types";
+} from "@/core/modules/product/editor/model/types";

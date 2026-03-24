@@ -1,15 +1,15 @@
 "use client";
 
-import { extractApiErrorMessage } from "@/core/widgets/create-product-drawer/lib/errors";
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
   invalidateCreateProductQueries,
   parseCreateProductPayload,
 } from "@/core/widgets/create-product-drawer/model/create-product-drawer-data";
-import { type CreateProductFormValues } from "@/core/widgets/create-product-drawer/model/form-config";
-import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/widgets/product-editor/model/product-image-editor-shared";
-import { type UploadState } from "@/core/widgets/product-editor/model/types";
-import { uploadProductImages } from "@/core/widgets/product-editor/lib/upload-product-images";
-import { validateProductFormValues } from "@/core/widgets/product-editor/model/validate-product-form-values";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
+import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
+import { type UploadState } from "@/core/modules/product/editor/model/types";
+import { uploadProductImages } from "@/core/modules/product/editor/lib/upload-product-images";
+import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
@@ -151,3 +151,4 @@ export function useCreateProductSubmit({
     visibleAttributes,
   ]);
 }
+

@@ -125,7 +125,6 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
                         <Input
                           {...field}
                           id={field.name}
-                          type="password"
                           value={field.value ?? ""}
                           autoComplete="current-password"
                           aria-invalid={fieldState.invalid}

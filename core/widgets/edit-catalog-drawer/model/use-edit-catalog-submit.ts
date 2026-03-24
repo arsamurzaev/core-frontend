@@ -1,6 +1,6 @@
 "use client";
 
-import { extractApiErrorMessage } from "@/core/widgets/create-product-drawer/lib/errors";
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { type MediaUploadState } from "@/core/widgets/edit-catalog-drawer/lib/upload-media";
 import {
   buildCatalogEditSubmittedValues,

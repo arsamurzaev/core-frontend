@@ -3,10 +3,10 @@
 import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
-} from "@/core/widgets/create-product-drawer/model/form-config";
+} from "@/core/modules/product/editor/model/form-config";
 import {
   buildInitialAttributeValues,
-} from "@/core/widgets/create-product-drawer/model/product-attributes";
+} from "@/core/modules/product/editor/model/product-attributes";
 import { type AttributeDto } from "@/shared/api/generated";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -76,3 +76,4 @@ export function useCreateProductDrawerState({
     setErrorMessage,
   };
 }
+

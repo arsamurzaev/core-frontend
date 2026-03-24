@@ -111,6 +111,7 @@ function createBaseProduct(
     slug,
     price,
     brand: null,
+    categories: [],
     media: [
       {
         position: 0,

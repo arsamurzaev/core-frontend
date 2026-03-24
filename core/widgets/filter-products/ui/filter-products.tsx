@@ -8,6 +8,7 @@ import {
   PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
   useProductCardViewMode,
 } from "@/core/modules/product/model/use-product-card-view-mode";
+import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import {
   DETAILED_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
@@ -15,9 +16,12 @@ import {
   GRID_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
   GRID_FILTER_PRODUCTS_NEXT_PAGE_SKELETON_COUNT,
 } from "@/core/widgets/filter-products/model/filter-products";
+import { useFilterRecommendations } from "@/core/widgets/filter-products/model/use-filter-recommendations";
+import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui/toggle-product-popular-action";
 import { useFilterProducts } from "@/core/widgets/filter-products/model/use-filter-products";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import { cn } from "@/shared/lib/utils";
+import { useSession } from "@/shared/providers/session-provider";
 import React from "react";
 
 interface FilterProductsProps {
@@ -29,15 +33,29 @@ function createSkeletonKeys(length: number): number[] {
   return Array.from({ length }, (_, index) => index);
 }
 
-export const FilterProducts: React.FC<FilterProductsProps> = ({
-  className,
-  queryState,
+interface FilterProductListSectionProps {
+  emptyText: string;
+  heading: string;
+  isDetailed: boolean;
+  isFetchingNextPage: boolean;
+  isLoading: boolean;
+  loadMoreRef: React.RefObject<HTMLDivElement | null>;
+  products: Array<{
+    id: string;
+    slug: string;
+  } & React.ComponentProps<typeof ProductCard>["data"]>;
+}
+
+const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
+  emptyText,
+  heading,
+  isDetailed,
+  isFetchingNextPage,
+  isLoading,
+  loadMoreRef,
+  products,
 }) => {
-  const { isDetailed } = useProductCardViewMode();
-  const { isFetchingNextPage, isLoading, loadMoreRef, products } =
-    useFilterProducts({
-      queryState,
-    });
+  const { isAuthenticated } = useSession();
   const listClassName = React.useMemo(
     () =>
       isDetailed
@@ -65,14 +83,14 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
   );
 
   return (
-    <div className={cn("space-y-6", className)}>
-      <h2 className="pl-1 text-left text-xl font-bold">Результаты фильтра</h2>
+    <div className="space-y-6">
+      <h2 className="pl-1 text-left text-xl font-bold">{heading}</h2>
 
       <ul className={listClassName}>
         {isLoading &&
           initialSkeletonKeys.map((index) => (
             <ProductCardSkeleton
-              key={`filter-initial-${index}`}
+              key={`${heading}-initial-${index}`}
               isDetailed={isDetailed}
             />
           ))}
@@ -84,27 +102,80 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
                   data={product}
                   isDetailed={isDetailed}
                   className={cn("h-full", isDetailed && "min-h-[160px]")}
+                  isVisiblePrice={isAuthenticated}
+                  footerAction={
+                    isAuthenticated ? (
+                      <ToggleProductPopularAction
+                        productId={product.id}
+                        isPopular={Boolean(product.isPopular)}
+                      />
+                    ) : undefined
+                  }
                 />
               </ProductLink>
-              <EditProductCardAction productId={product.id} />
+              <EditProductCardAction
+                isMoySkladLinked={isMoySkladProduct(product)}
+                productId={product.id}
+                status={product.status}
+              />
             </article>
           ))}
         {isFetchingNextPage &&
           nextPageSkeletonKeys.map((index) => (
             <ProductCardSkeleton
-              key={`filter-next-${index}`}
+              key={`${heading}-next-${index}`}
               isDetailed={isDetailed}
             />
           ))}
       </ul>
 
       {!isLoading && products.length === 0 ? (
-        <p className="text-muted-foreground text-center text-sm">
-          По вашему запросу ничего не найдено
-        </p>
+        <p className="text-muted-foreground text-center text-sm">{emptyText}</p>
       ) : null}
 
       <div ref={loadMoreRef} aria-hidden className="h-px w-full" />
+    </div>
+  );
+};
+
+export const FilterProducts: React.FC<FilterProductsProps> = ({
+  className,
+  queryState,
+}) => {
+  const { isDetailed } = useProductCardViewMode();
+  const { isFetchingNextPage, isLoading, loadMoreRef, products } =
+    useFilterProducts({
+      queryState,
+    });
+  const {
+    isFetchingNextPage: isFetchingRecommendationsNextPage,
+    isLoading: isRecommendationsLoading,
+    loadMoreRef: recommendationsLoadMoreRef,
+    products: recommendedProducts,
+  } = useFilterRecommendations({
+    queryState,
+  });
+
+  return (
+    <div className={cn("space-y-6", className)}>
+      <FilterProductListSection
+        heading="Результаты фильтра"
+        emptyText="По вашему запросу ничего не найдено"
+        isDetailed={isDetailed}
+        isFetchingNextPage={isFetchingNextPage}
+        isLoading={isLoading}
+        loadMoreRef={loadMoreRef}
+        products={products}
+      />
+      <FilterProductListSection
+        heading="Рекомендации"
+        emptyText="Рекомендации не найдены"
+        isDetailed={isDetailed}
+        isFetchingNextPage={isFetchingRecommendationsNextPage}
+        isLoading={isRecommendationsLoading}
+        loadMoreRef={recommendationsLoadMoreRef}
+        products={recommendedProducts}
+      />
     </div>
   );
 };

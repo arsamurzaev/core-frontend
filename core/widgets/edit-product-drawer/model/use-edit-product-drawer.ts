@@ -1,29 +1,47 @@
 "use client";
 
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
-} from "@/core/widgets/create-product-drawer/model/form-config";
+} from "@/core/modules/product/editor/model/form-config";
 import {
   buildPersistedEditableAttributeValues,
 } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import { useEditProductDrawerState } from "@/core/widgets/edit-product-drawer/model/use-edit-product-drawer-state";
 import { useEditProductImageEditor } from "@/core/widgets/edit-product-drawer/model/use-edit-product-image-editor";
 import { useEditProductSubmit } from "@/core/widgets/edit-product-drawer/model/use-edit-product-submit";
-import { useProductFormFields } from "@/core/widgets/product-editor/model/use-product-form-fields";
+import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
+import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
 import {
   useProductControllerGetById,
+  useProductControllerRemove,
   useProductControllerUpdate,
 } from "@/shared/api/generated";
 import { useCatalog } from "@/shared/providers/catalog-provider";
+import { confirmDelete } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-export function useEditProductDrawer(productId: string) {
+function getMissingProductMessage(params: {
+  error: unknown;
+  isError: boolean;
+}): string {
+  return params.isError
+    ? extractApiErrorMessage(params.error)
+    : "Не удалось загрузить товар для редактирования.";
+}
+
+export function useEditProductDrawer(
+  productId: string,
+  onExternalOpenChange?: (open: boolean) => void,
+) {
   const { type } = useCatalog();
   const queryClient = useQueryClient();
   const updateProduct = useProductControllerUpdate();
+  const removeProduct = useProductControllerRemove();
   const form = useForm<CreateProductFormValues>({
     defaultValues: CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   });
@@ -43,7 +61,6 @@ export function useEditProductDrawer(productId: string) {
       form,
       sourceAttributes: type.attributes,
       isActive: open,
-      includeCategories: false,
     },
   );
 
@@ -60,9 +77,12 @@ export function useEditProductDrawer(productId: string) {
     isSubmitting,
   });
 
+  const isDeleting = removeProduct.isPending;
+  const isBusy = isSubmitting || isDeleting;
+
   const drawerState = useEditProductDrawerState({
     form,
-    isSubmitting,
+    isSubmitting: isBusy,
     open,
     product,
     productAttributes,
@@ -72,8 +92,57 @@ export function useEditProductDrawer(productId: string) {
     setOpen,
   });
 
+  const handleCloseDrawer = React.useCallback(() => {
+    drawerState.closeDrawer();
+    onExternalOpenChange?.(false);
+  }, [drawerState, onExternalOpenChange]);
+
+  const handleDelete = React.useCallback(() => {
+    if (isBusy) {
+      return;
+    }
+
+    if (!product) {
+      const message = getMissingProductMessage({
+        error: productQuery.error,
+        isError: productQuery.isError,
+      });
+      drawerState.setErrorMessage(message);
+      toast.error(message);
+      return;
+    }
+
+    void confirmDelete({
+      title: "Удалить товар?",
+      description: `Товар "${product.name}" будет удален без возможности восстановления.`,
+      confirmText: "Удалить",
+      pendingText: "Удаление...",
+      tone: "destructive",
+      onConfirm: async () => {
+        await removeProduct.mutateAsync({ id: product.id });
+        handleCloseDrawer();
+        toast.success("Товар успешно удален.");
+        void invalidateProductQueries(queryClient);
+      },
+      onError: (error) => {
+        const message = extractApiErrorMessage(error);
+        drawerState.setErrorMessage(message);
+        toast.error(message);
+      },
+    });
+  }, [
+    drawerState,
+    handleCloseDrawer,
+    isBusy,
+    product,
+    productQuery.error,
+    productQuery.isError,
+    queryClient,
+    removeProduct,
+  ]);
+
   const handleSubmit = useEditProductSubmit({
-    closeDrawer: drawerState.closeDrawer,
+    closeDrawer: handleCloseDrawer,
     form,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isSubmitting,
@@ -106,6 +175,7 @@ export function useEditProductDrawer(productId: string) {
     handleCropperOpenChange: imageEditor.handleCropperOpenChange,
     handleEditItem: imageEditor.handleEditItem,
     handleFilesChange: imageEditor.handleFilesChange,
+    handleDelete,
     handleOpenChange: drawerState.handleOpenChange,
     handleReset: drawerState.handleReset,
     handleSelectItemForSwap: imageEditor.handleSelectItemForSwap,
@@ -113,6 +183,8 @@ export function useEditProductDrawer(productId: string) {
     handleToggleReorderMode: imageEditor.handleToggleReorderMode,
     imageItems: imageEditor.imageItems,
     isCropperOpen: imageEditor.isCropperOpen,
+    isBusy,
+    isDeleting,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isLoadingProduct: open && productQuery.isLoading && !product,
     isReorderMode: imageEditor.isReorderMode,
@@ -125,3 +197,4 @@ export function useEditProductDrawer(productId: string) {
     uploadedMediaIds: imageEditor.uploadedMediaIds,
   };
 }
+

@@ -215,19 +215,22 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Checkbox
-                    id="catalog-filter-popular"
                     checked={draft.isPopular}
                     onCheckedChange={() => toggleBooleanDraftValue("isPopular")}
                   />
-                  <label htmlFor="catalog-filter-popular" className="cursor-pointer">
+                  <label
+                    htmlFor="catalog-filter-popular"
+                    className="cursor-pointer"
+                  >
                     Популярные товары
                   </label>
                 </div>
                 <div className="flex items-center gap-3">
                   <Checkbox
-                    id="catalog-filter-discount"
                     checked={draft.isDiscount}
-                    onCheckedChange={() => toggleBooleanDraftValue("isDiscount")}
+                    onCheckedChange={() =>
+                      toggleBooleanDraftValue("isDiscount")
+                    }
                   />
                   <label
                     htmlFor="catalog-filter-discount"

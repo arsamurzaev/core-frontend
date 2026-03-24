@@ -1,14 +1,14 @@
 "use client";
 
-import { extractApiErrorMessage } from "@/core/widgets/create-product-drawer/lib/errors";
-import { type CreateProductFormValues } from "@/core/widgets/create-product-drawer/model/form-config";
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import {
   invalidateEditProductQueries,
   parseEditProductUpdatePayload,
 } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
-import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/widgets/product-editor/model/product-image-editor-shared";
-import { type AttributeFormValue } from "@/core/widgets/product-editor/model/types";
-import { validateProductFormValues } from "@/core/widgets/product-editor/model/validate-product-form-values";
+import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
+import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
+import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
 import {
   type AttributeDto,
   type ProductWithDetailsDto,
@@ -125,10 +125,9 @@ export function useEditProductSubmit({
         data: updatePayload,
       });
 
-      await invalidateEditProductQueries(queryClient, product);
-
-      toast.success("Товар успешно обновлен.");
       closeDrawer();
+      toast.success("Товар успешно обновлен.");
+      void invalidateEditProductQueries(queryClient);
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -156,3 +155,4 @@ export function useEditProductSubmit({
     visibleAttributes,
   ]);
 }
+

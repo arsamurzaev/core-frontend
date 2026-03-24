@@ -5,7 +5,7 @@ import {
   isQueueErrorStatus,
   pollQueueStatus,
   streamQueueStatus,
-} from "@/core/widgets/create-product-drawer/lib/upload-queue";
+} from "@/shared/lib/upload-queue";
 import {
   s3ControllerEnqueueFromS3,
   s3ControllerPresignUpload,

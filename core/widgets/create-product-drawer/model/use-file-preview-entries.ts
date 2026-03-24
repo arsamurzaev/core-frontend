@@ -1,1 +1,1 @@
-export { useFilePreviewEntries } from "@/core/widgets/product-editor/model/use-file-preview-entries";
+export { useFilePreviewEntries } from "@/core/modules/product/editor/model/use-file-preview-entries";

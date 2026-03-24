@@ -10,6 +10,7 @@ import {
   type CatalogEditTextareaControllerConfig,
 } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-textarea-controller";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
+import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-integrations-drawer";
 import { FieldError } from "@/shared/ui/field";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -62,7 +63,8 @@ function buildCatalogEditMediaFields(params: {
       aspectRatio: 1,
       triggerText: "Изменить главное фото",
       cropperTitle: "Обрезка главного фото",
-      cropperDescription: "Подготовьте главное фото каталога перед сохранением.",
+      cropperDescription:
+        "Подготовьте главное фото каталога перед сохранением.",
       outputOptions: {
         maxWidth: 1400,
         maxHeight: 1400,
@@ -167,6 +169,10 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
           <EditCatalogContactsDrawer form={form} disabled={disabled} />
         </CatalogEditTextRow>
       </div>
+
+      <hr className="w-full" />
+
+      <EditCatalogIntegrationsDrawer disabled={disabled} />
     </div>
   );
 };

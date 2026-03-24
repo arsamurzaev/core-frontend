@@ -5,23 +5,25 @@ import { Badge } from "@/shared/ui/badge";
 import { SlidersVertical } from "lucide-react";
 import React from "react";
 
-type CatalogFilterDrawerTriggerProps = {
+type CatalogFilterDrawerTriggerProps = React.ComponentPropsWithoutRef<"button"> & {
   activeFiltersCount: number;
-  className?: string;
 };
 
-export const CatalogFilterDrawerTrigger: React.FC<
+export const CatalogFilterDrawerTrigger = React.forwardRef<
+  HTMLButtonElement,
   CatalogFilterDrawerTriggerProps
-> = ({ activeFiltersCount, className }) => {
+>(({ activeFiltersCount, className, type, ...props }, ref) => {
   return (
     <button
-      type="button"
+      ref={ref}
+      type={type ?? "button"}
       className={cn(
         "shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full bg-background",
         activeFiltersCount > 0 && "bg-primary text-primary-foreground",
         className,
       )}
       aria-label="Открыть фильтр"
+      {...props}
     >
       {activeFiltersCount > 0 ? (
         <Badge
@@ -34,4 +36,6 @@ export const CatalogFilterDrawerTrigger: React.FC<
       <SlidersVertical size={20} />
     </button>
   );
-};
+});
+
+CatalogFilterDrawerTrigger.displayName = "CatalogFilterDrawerTrigger";

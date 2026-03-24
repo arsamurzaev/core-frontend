@@ -1,7 +1,9 @@
 import { ProductWithAttributesDto } from "@/shared/api/generated";
+import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { cn } from "@/shared/lib/utils";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { Badge } from "@/shared/ui/badge";
+import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
 import {
   Card,
   CardContent,
@@ -18,7 +20,9 @@ interface Props {
   className?: string;
   data: ProductWithAttributesDto;
   footerAction?: React.ReactNode;
+  isMoySkladLinked?: boolean;
   isDetailed?: boolean;
+  isVisiblePrice?: boolean;
 }
 
 interface ProductCardLayoutProps {
@@ -48,16 +52,16 @@ const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
 interface ProductCardContentProps {
   actions?: React.ReactNode;
   imageUrl?: string;
-  isDetailed?: boolean;
+  isMoySkladLinked?: boolean;
 }
 
 const ProductCardContent: React.FC<ProductCardContentProps> = ({
   actions,
   imageUrl,
-  isDetailed,
+  isMoySkladLinked = false,
 }) => {
   return (
-    <CardContent className={cn("flex-[0_1_160px]", isDetailed && "relative")}>
+    <CardContent className="relative flex-[0_1_160px]">
       <div className="min-w-25">
         <AspectRatio ratio={3 / 4}>
           <img
@@ -68,6 +72,15 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
           />
         </AspectRatio>
       </div>
+      {isMoySkladLinked ? (
+        <div
+          className="pointer-events-none absolute top-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-custom"
+          title="Товар из MoySklad"
+          aria-label="Товар из MoySklad"
+        >
+          <MoyskladIcon />
+        </div>
+      ) : null}
       {actions}
     </CardContent>
   );
@@ -112,6 +125,7 @@ interface ProductCardFooterProps {
   footerAction?: React.ReactNode;
   hasDiscount: boolean;
   isDetailed?: boolean;
+  isVisiblePrice?: boolean;
   price: number;
 }
 
@@ -122,6 +136,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
   footerAction,
   hasDiscount,
   isDetailed,
+  isVisiblePrice,
   price,
 }) => {
   return (
@@ -172,11 +187,11 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
         className={cn(
           "text-base font-bold",
           !hasDiscount && "mt-4",
-          footerAction && "hidden",
-          !Boolean(displayPrice) && "h-6",
+          footerAction && !isVisiblePrice && "hidden",
+          displayPrice === undefined && "h-6",
         )}
       >
-        {Boolean(displayPrice) && (
+        {displayPrice !== undefined && (
           <>
             {Intl.NumberFormat("ru").format(displayPrice)}{" "}
             <span className="font-normal">{currency}</span>
@@ -189,7 +204,9 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
 
 const ProductCardBase: React.FC<Props> = ({
   footerAction,
+  isMoySkladLinked,
   isDetailed,
+  isVisiblePrice,
   className,
   actions,
   data,
@@ -204,13 +221,14 @@ const ProductCardBase: React.FC<Props> = ({
     price,
     subtitle,
   } = buildProductCardView(data);
+  const resolvedIsMoySkladLinked = isMoySkladLinked ?? isMoySkladProduct(data);
 
   return (
     <ProductCardLayout className={className} isDetailed={isDetailed}>
       <ProductCardContent
         actions={actions}
         imageUrl={imageUrl}
-        isDetailed={isDetailed}
+        isMoySkladLinked={resolvedIsMoySkladLinked}
       />
       <div
         className={cn(
@@ -231,6 +249,7 @@ const ProductCardBase: React.FC<Props> = ({
           footerAction={footerAction}
           hasDiscount={hasDiscount}
           isDetailed={isDetailed}
+          isVisiblePrice={isVisiblePrice}
           price={price}
         />
       </div>

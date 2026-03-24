@@ -1,4 +1,4 @@
-import { formatGeneratedZodError } from "@/core/widgets/create-product-drawer/lib/errors";
+import { formatGeneratedZodError } from "@/shared/lib/api-errors";
 import {
   uploadCatalogImage,
   type MediaUploadState,

@@ -2,14 +2,14 @@
 
 import {
   formatGeneratedZodError,
-} from "@/core/widgets/create-product-drawer/lib/errors";
+} from "@/shared/lib/api-errors";
 import {
   type CreateProductFormValues,
   normalizeOptionalString,
-} from "@/core/widgets/create-product-drawer/model/form-config";
+} from "@/core/modules/product/editor/model/form-config";
 import {
   buildProductAttributePayload,
-} from "@/core/widgets/create-product-drawer/model/product-attributes";
+} from "@/core/modules/product/editor/model/product-attributes";
 import { type AttributeDto } from "@/shared/api/generated";
 import {
   getProductControllerGetAllQueryKey,
@@ -73,3 +73,4 @@ export async function invalidateCreateProductQueries(
     }),
   ]);
 }
+

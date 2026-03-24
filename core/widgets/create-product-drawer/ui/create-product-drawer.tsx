@@ -1,7 +1,7 @@
 "use client";
 
 import { useCreateProductDrawer } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer";
-import { ProductEditorDrawerContent } from "@/core/widgets/product-editor/ui/product-editor-drawer-content";
+import { ProductEditorDrawerContent } from "@/core/modules/product/editor/ui/product-editor-drawer-content";
 import { cn } from "@/shared/lib/utils";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";

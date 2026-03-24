@@ -1,5 +1,5 @@
-import { type FilePreviewEntry } from "@/core/widgets/product-editor/model/types";
-import { type ProductImageSectionItem } from "@/core/widgets/product-editor/ui/product-images-section";
+import { type FilePreviewEntry } from "@/core/modules/product/editor/model/types";
+import { type ProductImageSectionItem } from "@/core/modules/product/editor/ui/product-images-section";
 import { type ProductMediaDto } from "@/shared/api/generated";
 
 export type EditProductImageItem =

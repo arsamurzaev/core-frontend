@@ -66,13 +66,16 @@ export const SchemaDrivenProductCardDemo: React.FC = () => {
   });
 
   const fallbackSlug = allProductsQuery.data?.[0]?.slug ?? "";
-  const fallbackDetailsQuery = useProductControllerGetBySlug(fallbackSlug, {
-    query: {
-      enabled: needFallback && Boolean(fallbackSlug),
-      staleTime: 30_000,
-      retry: 1,
+  const fallbackDetailsQuery = useProductControllerGetBySlug(
+    fallbackSlug,
+    {
+      query: {
+        enabled: needFallback && Boolean(fallbackSlug),
+        staleTime: 30_000,
+        retry: 1,
+      },
     },
-  });
+  );
 
   const fallbackProduct: ProductWithDetailsDto | null =
     fallbackDetailsQuery.data ?? null;

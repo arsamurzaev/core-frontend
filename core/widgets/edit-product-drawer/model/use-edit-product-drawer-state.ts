@@ -1,7 +1,7 @@
 "use client";
 
-import { extractApiErrorMessage } from "@/core/widgets/create-product-drawer/lib/errors";
-import { type CreateProductFormValues } from "@/core/widgets/create-product-drawer/model/form-config";
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import {
   buildEditProductFormValues,
 } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
@@ -91,3 +91,4 @@ export function useEditProductDrawerState({
     setErrorMessage,
   };
 }
+

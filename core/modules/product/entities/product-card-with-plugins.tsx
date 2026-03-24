@@ -4,6 +4,7 @@ import type {
   ProductWithAttributesDto,
   ProductWithDetailsDto,
 } from "@/shared/api/generated";
+import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { Badge } from "@/shared/ui/badge";
@@ -35,6 +36,8 @@ function toProductWithAttributesDto(
     price: data.price,
     media: data.media,
     brand: data.brand,
+    categories: data.categories,
+    integration: data.integration,
     isPopular: data.isPopular,
     status: data.status,
     position: data.position,
@@ -59,6 +62,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
     [catalog, data, plugin],
   );
   const baseCardData = React.useMemo(() => toProductWithAttributesDto(data), [data]);
+  const isMoySkladLinked = React.useMemo(() => isMoySkladProduct(data), [data]);
 
   return (
     <div className={cn("space-y-2", pluginContainerClassName)}>
@@ -67,6 +71,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
         className={className}
         actions={actions}
         footerAction={footerAction}
+        isMoySkladLinked={isMoySkladLinked}
         isDetailed={isDetailed}
       />
       {(model.badges.length > 0 || model.lines.length > 0) && (

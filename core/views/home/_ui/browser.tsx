@@ -1,16 +1,18 @@
 "use client";
 
 import { CategoryCard } from "@/core/modules/category/ui/category-card";
+import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import {
   PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
   PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
   useProductCardViewMode,
 } from "@/core/modules/product/model/use-product-card-view-mode";
-import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { CatalogFilterDrawer } from "@/core/widgets/catalog-filter/ui/catalog-filter-drawer";
 import {
   CATEGORY_PRODUCTS_PAGE_SIZE,
   CategoryProducts,
+  UNCATEGORIZED_PRODUCTS_SECTION_ID,
+  UncategorizedProducts,
 } from "@/core/widgets/category-products/ui/category-products";
 import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
 import { FilterBar } from "@/core/widgets/filter-bar/ui/filter-bar";
@@ -174,23 +176,29 @@ export const Browser: React.FC<BrowserProps> = ({ className }) => {
                     />
                   ))
                 ) : (
-                  categories.map((category, index) => (
-                    <CategoryProducts
-                      key={category.id}
-                      category={category}
-                      sectionId={getCategorySectionId(category.id)}
-                      initiallyActivated={index === 0}
-                      forceActivation={
-                        programmaticScrollTargetId === category.id ||
-                        activeCategoryId === category.id
-                      }
-                      allowActivation={
-                        !isProgrammaticScroll ||
-                        programmaticScrollTargetId === category.id
-                      }
-                      allowLoadMore={!isProgrammaticScroll}
+                  <>
+                    {categories.map((category, index) => (
+                      <CategoryProducts
+                        key={category.id}
+                        category={category}
+                        sectionId={getCategorySectionId(category.id)}
+                        initiallyActivated={index === 0}
+                        forceActivation={
+                          programmaticScrollTargetId === category.id ||
+                          activeCategoryId === category.id
+                        }
+                        allowActivation={
+                          !isProgrammaticScroll ||
+                          programmaticScrollTargetId === category.id
+                        }
+                        allowLoadMore={!isProgrammaticScroll}
+                      />
+                    ))}
+                    <UncategorizedProducts
+                      sectionId={UNCATEGORIZED_PRODUCTS_SECTION_ID}
+                      initiallyActivated={categories.length === 0}
                     />
-                  ))
+                  </>
                 )}
               </div>
             </div>

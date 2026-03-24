@@ -481,6 +481,28 @@ export interface ProductBrandDto {
   slug: string;
 }
 
+export interface ProductCategoryDto {
+  id: string;
+  name: string;
+  position: number;
+}
+
+export type ProductIntegrationDtoProvider = typeof ProductIntegrationDtoProvider[keyof typeof ProductIntegrationDtoProvider];
+
+
+export const ProductIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export interface ProductIntegrationDto {
+  provider: ProductIntegrationDtoProvider;
+  externalId: string;
+  /** @nullable */
+  externalCode: string | null;
+  /** @nullable */
+  lastSyncedAt: string | null;
+}
+
 export type ProductAttributeRefDtoDataType = typeof ProductAttributeRefDtoDataType[keyof typeof ProductAttributeRefDtoDataType];
 
 
@@ -553,6 +575,8 @@ export interface ProductWithAttributesDto {
   price: string;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductWithAttributesDtoStatus;
   position: number;
@@ -602,326 +626,175 @@ export interface UpdateCategoryDtoReq {
   products?: CategoryProductInputDtoReq[];
 }
 
-export interface CartProductShortDto {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-}
+export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
 
-export interface CartItemDto {
-  id: string;
-  productId: string;
+
+export const MoySkladIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
+
+
+export const MoySkladIntegrationDtoLastSyncStatus = {
+  IDLE: 'IDLE',
+  SYNCING: 'SYNCING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+} as const;
+
+export interface MoySkladIntegrationDto {
+  provider: MoySkladIntegrationDtoProvider;
+  isActive: boolean;
+  hasToken: boolean;
   /** @nullable */
-  variantId: string | null;
-  quantity: number;
-  product: CartProductShortDto;
-  lineTotal: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CartTotalsDto {
-  itemsCount: number;
-  subtotal: number;
-}
-
-export interface CartDto {
-  id: string;
-  catalogId: string;
+  tokenPreview: string | null;
+  priceTypeName: string;
+  importImages: boolean;
+  syncStock: boolean;
+  scheduleEnabled: boolean;
   /** @nullable */
-  publicKey: string | null;
+  schedulePattern: string | null;
+  scheduleTimezone: string;
+  lastSyncStatus: MoySkladIntegrationDtoLastSyncStatus;
   /** @nullable */
-  checkoutAt: string | null;
-  items: CartItemDto[];
-  totals: CartTotalsDto;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CartResponseDto {
-  ok: boolean;
-  cart: CartDto;
-}
-
-export interface ShareCartResponseDto {
-  ok: boolean;
-  cart: CartDto;
-  publicKey: string;
-}
-
-export interface UpsertCartItemDtoReq {
-  productId: string;
-  variantId?: string;
-  /** 0 = удалить позицию из корзины */
-  quantity: number;
-}
-
-export interface CheckoutCartResponseDto {
-  ok: boolean;
-  cart: CartDto;
-  publicKey: string;
-  checkoutKey: string;
-}
-
-export interface PublicUpsertCartItemDtoReq {
-  productId: string;
-  variantId?: string;
-  /** 0 = удалить позицию из корзины */
-  quantity: number;
-  checkoutKey: string;
-}
-
-export type ProductDtoStatus = typeof ProductDtoStatus[keyof typeof ProductDtoStatus];
-
-
-export const ProductDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  price: string;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  isPopular: boolean;
-  status: ProductDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ProductInfinitePageDto {
-  items: ProductWithAttributesDto[];
+  syncStartedAt: string | null;
   /** @nullable */
-  nextCursor: string | null;
-  /**
-   * Стабильный seed для детерминированной рандомизации
-   * @nullable
-   */
-  seed: string | null;
-}
-
-export interface VariantAttributeDto {
-  id: string;
-  attributeId: string;
-  enumValueId: string;
-  attribute: ProductAttributeRefDto;
-  enumValue: ProductAttributeEnumValueDto;
-}
-
-export type ProductVariantDtoStatus = typeof ProductVariantDtoStatus[keyof typeof ProductVariantDtoStatus];
-
-
-export const ProductVariantDtoStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantDto {
-  id: string;
-  sku: string;
-  variantKey: string;
-  stock: number;
-  price: string;
-  status: ProductVariantDtoStatus;
-  isAvailable: boolean;
-  createdAt: string;
-  updatedAt: string;
-  attributes: VariantAttributeDto[];
-}
-
-export type ProductWithDetailsDtoStatus = typeof ProductWithDetailsDtoStatus[keyof typeof ProductWithDetailsDtoStatus];
-
-
-export const ProductWithDetailsDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductWithDetailsDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  price: string;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  isPopular: boolean;
-  status: ProductWithDetailsDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variants: ProductVariantDto[];
-}
-
-export interface ProductAttributeValueDto {
-  attributeId: string;
-  enumValueId?: string;
-  valueString?: string;
-  valueInteger?: number;
-  valueDecimal?: number;
-  valueBoolean?: boolean;
-  valueDateTime?: string;
-}
-
-/**
- * Вариации товара создаются администратором
- */
-export type CreateProductDtoReqVariants = { [key: string]: unknown };
-
-export interface CreateProductDtoReq {
-  name: string;
-  price: number;
-  mediaIds?: string[];
-  isPopular?: boolean;
-  status?: string;
-  position?: number;
-  brandId?: string;
-  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
-  categories?: string[];
-  attributes?: ProductAttributeValueDto[];
-  /** Вариации товара создаются администратором */
-  variants?: CreateProductDtoReqVariants;
-}
-
-export interface ProductCreateResponseDto {
-  ok: boolean;
-  id: string;
-  slug: string;
-}
-
-export type ProductVariantUpdateDtoReqStatus = typeof ProductVariantUpdateDtoReqStatus[keyof typeof ProductVariantUpdateDtoReqStatus];
-
-
-export const ProductVariantUpdateDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantUpdateDtoReq {
-  /** Ключ варианта, приходит из ответа товара */
-  variantKey: string;
-  price?: number;
-  stock?: number;
-  status?: ProductVariantUpdateDtoReqStatus;
-}
-
-export interface UpdateProductDtoReq {
-  name?: string;
-  price?: number;
-  mediaIds?: string[];
-  isPopular?: boolean;
-  status?: string;
-  position?: number;
+  lastSyncAt: string | null;
   /** @nullable */
-  brandId?: string | null;
-  /** ID категории, в которой нужно изменить/установить позицию товара */
-  categoryId?: string;
-  /**
-   * Позиция товара внутри категории (передавать только вместе с categoryId)
-   * @minimum 0
-   */
-  categoryPosition?: number;
-  /** Только видимые атрибуты (isHidden=false) */
-  attributes?: ProductAttributeValueDto[];
-  /** ID атрибутов товара, которые нужно удалить при редактировании */
-  removeAttributeIds?: string[];
-  variants?: ProductVariantUpdateDtoReq[];
-}
-
-export type ProductUpdateResponseDtoStatus = typeof ProductUpdateResponseDtoStatus[keyof typeof ProductUpdateResponseDtoStatus];
-
-
-export const ProductUpdateResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductUpdateResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  price: string;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  isPopular: boolean;
-  status: ProductUpdateResponseDtoStatus;
-  position: number;
+  lastSyncError: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
   createdAt: string;
   updatedAt: string;
-  productAttributes: ProductAttributeDto[];
+}
+
+export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof typeof MoySkladSyncRunDtoProvider];
+
+
+export const MoySkladSyncRunDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
+
+
+export const MoySkladSyncRunDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+} as const;
+
+export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof typeof MoySkladSyncRunDtoTrigger];
+
+
+export const MoySkladSyncRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+} as const;
+
+export type MoySkladSyncRunDtoStatus = typeof MoySkladSyncRunDtoStatus[keyof typeof MoySkladSyncRunDtoStatus];
+
+
+export const MoySkladSyncRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface MoySkladSyncRunDto {
+  id: string;
+  provider: MoySkladSyncRunDtoProvider;
+  mode: MoySkladSyncRunDtoMode;
+  trigger: MoySkladSyncRunDtoTrigger;
+  status: MoySkladSyncRunDtoStatus;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  imagesImported: number;
+  /** @nullable */
+  durationMs: number | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MoySkladIntegrationStatusDto {
+  configured: boolean;
+  integration: MoySkladIntegrationDto | null;
+  activeRun: MoySkladSyncRunDto | null;
+  lastRun: MoySkladSyncRunDto | null;
+}
+
+export interface UpsertMoySkladIntegrationDtoReq {
+  token: string;
+  isActive?: boolean;
+  priceTypeName?: string;
+  importImages?: boolean;
+  syncStock?: boolean;
+  scheduleEnabled?: boolean;
+  schedulePattern?: string;
+  scheduleTimezone?: string;
+}
+
+export interface UpdateMoySkladIntegrationDtoReq {
+  token?: string;
+  isActive?: boolean;
+  priceTypeName?: string;
+  importImages?: boolean;
+  syncStock?: boolean;
+  scheduleEnabled?: boolean;
+  schedulePattern?: string;
+  scheduleTimezone?: string;
+}
+
+export interface TestMoySkladConnectionDtoReq {
+  token?: string;
+}
+
+export interface MoySkladTestConnectionDto {
   ok: boolean;
 }
 
-export type ProductVariantItemDtoReqStatus = typeof ProductVariantItemDtoReqStatus[keyof typeof ProductVariantItemDtoReqStatus];
+export type MoySkladQueuedSyncDtoMode = typeof MoySkladQueuedSyncDtoMode[keyof typeof MoySkladQueuedSyncDtoMode];
 
 
-export const ProductVariantItemDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
+export const MoySkladQueuedSyncDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
 } as const;
 
-export interface ProductVariantItemDtoReq {
-  price?: number;
-  stock?: number;
-  status?: ProductVariantItemDtoReqStatus;
-  /** Идентификатор значения перечисления */
-  enumValueId?: string;
-  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
-  value?: string;
-}
-
-export interface SetProductVariantsDtoReq {
-  variantAttributeId: string;
-  items: ProductVariantItemDtoReq[];
-}
-
-export type ProductVariantsResponseDtoStatus = typeof ProductVariantsResponseDtoStatus[keyof typeof ProductVariantsResponseDtoStatus];
+export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[keyof typeof MoySkladQueuedSyncDtoTrigger];
 
 
-export const ProductVariantsResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
+export const MoySkladQueuedSyncDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
 } as const;
 
-export interface ProductVariantsResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  price: string;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  isPopular: boolean;
-  status: ProductVariantsResponseDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variants: ProductVariantDto[];
+export interface MoySkladQueuedSyncDto {
   ok: boolean;
+  queued: boolean;
+  runId: string;
+  jobId: string;
+  mode: MoySkladQueuedSyncDtoMode;
+  trigger: MoySkladQueuedSyncDtoTrigger;
 }
 
 export interface PresignUploadDtoReq {
@@ -1065,6 +938,399 @@ export interface UploadQueueStatusDto {
   /** Результаты для массива файлов */
   results?: UploadImageResponseDto[];
   error?: string;
+}
+
+export interface CartProductShortDto {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+}
+
+export interface CartItemDto {
+  id: string;
+  productId: string;
+  /** @nullable */
+  variantId: string | null;
+  quantity: number;
+  product: CartProductShortDto;
+  lineTotal: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CartTotalsDto {
+  itemsCount: number;
+  subtotal: number;
+}
+
+export interface CartDto {
+  id: string;
+  catalogId: string;
+  /** @nullable */
+  publicKey: string | null;
+  /** @nullable */
+  checkoutAt: string | null;
+  items: CartItemDto[];
+  totals: CartTotalsDto;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CartResponseDto {
+  ok: boolean;
+  cart: CartDto;
+}
+
+export interface ShareCartResponseDto {
+  ok: boolean;
+  cart: CartDto;
+  publicKey: string;
+}
+
+export interface UpsertCartItemDtoReq {
+  productId: string;
+  variantId?: string;
+  /** 0 = удалить позицию из корзины */
+  quantity: number;
+}
+
+export interface CheckoutCartResponseDto {
+  ok: boolean;
+  cart: CartDto;
+  publicKey: string;
+  checkoutKey: string;
+}
+
+export interface PublicUpsertCartItemDtoReq {
+  productId: string;
+  variantId?: string;
+  /** 0 = удалить позицию из корзины */
+  quantity: number;
+  checkoutKey: string;
+}
+
+export type ProductDtoStatus = typeof ProductDtoStatus[keyof typeof ProductDtoStatus];
+
+
+export const ProductDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  price: string;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProductInfinitePageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * Стабильный seed для детерминированной рандомизации
+   * @nullable
+   */
+  seed: string | null;
+}
+
+export interface ProductCursorPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+}
+
+export interface VariantAttributeDto {
+  id: string;
+  attributeId: string;
+  enumValueId: string;
+  attribute: ProductAttributeRefDto;
+  enumValue: ProductAttributeEnumValueDto;
+}
+
+export type ProductVariantDtoStatus = typeof ProductVariantDtoStatus[keyof typeof ProductVariantDtoStatus];
+
+
+export const ProductVariantDtoStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantDto {
+  id: string;
+  sku: string;
+  variantKey: string;
+  stock: number;
+  price: string;
+  status: ProductVariantDtoStatus;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+  attributes: VariantAttributeDto[];
+}
+
+export type ProductWithDetailsDtoStatus = typeof ProductWithDetailsDtoStatus[keyof typeof ProductWithDetailsDtoStatus];
+
+
+export const ProductWithDetailsDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductWithDetailsDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  price: string;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductWithDetailsDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variants: ProductVariantDto[];
+}
+
+export interface ProductAttributeValueDto {
+  attributeId: string;
+  enumValueId?: string;
+  valueString?: string;
+  valueInteger?: number;
+  valueDecimal?: number;
+  valueBoolean?: boolean;
+  valueDateTime?: string;
+}
+
+export interface ProductVariantAttributeDtoReq {
+  attributeId: string;
+  /** Идентификатор значения перечисления */
+  enumValueId?: string;
+  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
+  value?: string;
+}
+
+export type ProductVariantDtoReqStatus = typeof ProductVariantDtoReqStatus[keyof typeof ProductVariantDtoReqStatus];
+
+
+export const ProductVariantDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantDtoReq {
+  price?: number;
+  stock?: number;
+  isAvailable?: boolean;
+  status?: ProductVariantDtoReqStatus;
+  attributes?: ProductVariantAttributeDtoReq[];
+}
+
+export interface CreateProductDtoReq {
+  name: string;
+  price: number;
+  mediaIds?: string[];
+  isPopular?: boolean;
+  status?: string;
+  position?: number;
+  brandId?: string;
+  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
+  categories?: string[];
+  attributes?: ProductAttributeValueDto[];
+  variants?: ProductVariantDtoReq[];
+}
+
+export type ProductCreateResponseDtoStatus = typeof ProductCreateResponseDtoStatus[keyof typeof ProductCreateResponseDtoStatus];
+
+
+export const ProductCreateResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductCreateResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  price: string;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductCreateResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variants: ProductVariantDto[];
+  ok: boolean;
+}
+
+export type ProductVariantUpdateDtoReqStatus = typeof ProductVariantUpdateDtoReqStatus[keyof typeof ProductVariantUpdateDtoReqStatus];
+
+
+export const ProductVariantUpdateDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantUpdateDtoReq {
+  /** Ключ варианта, приходит из ответа товара */
+  variantKey: string;
+  price?: number;
+  stock?: number;
+  status?: ProductVariantUpdateDtoReqStatus;
+}
+
+export interface UpdateProductDtoReq {
+  name?: string;
+  price?: number;
+  mediaIds?: string[];
+  isPopular?: boolean;
+  status?: string;
+  position?: number;
+  /** @nullable */
+  brandId?: string | null;
+  /** Список категорий товара. При редактировании заменяет набор привязок товара к категориям. */
+  categories?: string[];
+  /** ID категории, в которой нужно изменить/установить позицию товара */
+  categoryId?: string;
+  /**
+   * Позиция товара внутри категории (передавать только вместе с categoryId)
+   * @minimum 0
+   */
+  categoryPosition?: number;
+  /** Только видимые атрибуты (isHidden=false) */
+  attributes?: ProductAttributeValueDto[];
+  /** ID атрибутов товара, которые нужно удалить при редактировании */
+  removeAttributeIds?: string[];
+  variants?: ProductVariantUpdateDtoReq[];
+}
+
+export type ProductUpdateResponseDtoStatus = typeof ProductUpdateResponseDtoStatus[keyof typeof ProductUpdateResponseDtoStatus];
+
+
+export const ProductUpdateResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductUpdateResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  price: string;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductUpdateResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variants: ProductVariantDto[];
+  ok: boolean;
+}
+
+export interface UpdateProductCategoryPositionDtoReq {
+  /** ID категории, внутри которой нужно изменить позицию товара */
+  categoryId: string;
+  /**
+   * Новая позиция товара внутри категории
+   * @minimum 0
+   */
+  position: number;
+}
+
+export type ProductVariantItemDtoReqStatus = typeof ProductVariantItemDtoReqStatus[keyof typeof ProductVariantItemDtoReqStatus];
+
+
+export const ProductVariantItemDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantItemDtoReq {
+  price?: number;
+  stock?: number;
+  status?: ProductVariantItemDtoReqStatus;
+  /** Идентификатор значения перечисления */
+  enumValueId?: string;
+  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
+  value?: string;
+}
+
+export interface SetProductVariantsDtoReq {
+  variantAttributeId: string;
+  items: ProductVariantItemDtoReq[];
+}
+
+export type ProductVariantsResponseDtoStatus = typeof ProductVariantsResponseDtoStatus[keyof typeof ProductVariantsResponseDtoStatus];
+
+
+export const ProductVariantsResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductVariantsResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  price: string;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductVariantsResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variants: ProductVariantDto[];
+  ok: boolean;
 }
 
 export type SeoDtoEntityType = typeof SeoDtoEntityType[keyof typeof SeoDtoEntityType];
@@ -1266,6 +1532,19 @@ cursor?: string;
 limit?: number;
 };
 
+export type IntegrationControllerGetMoySkladRunsParams = {
+/**
+ * Сколько последних запусков вернуть
+ */
+limit?: number;
+};
+
+export type S3ControllerEnqueueFromS3Body = {
+  key: string;
+} | {
+  items: UploadFromS3ItemDtoReq[];
+};
+
 export type CartControllerGetPublicCartParams = {
 /**
  * Ключ доступа для чтения/изменения публичной корзины
@@ -1334,10 +1613,62 @@ limit?: unknown;
 cursor?: unknown;
 };
 
-export type S3ControllerEnqueueFromS3Body = {
-  key: string;
-} | {
-  items: UploadFromS3ItemDtoReq[];
+export type ProductControllerGetRecommendationsInfiniteParams = {
+/**
+ * JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.
+ */
+attributes?: unknown;
+/**
+ * Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)
+ */
+isDiscount?: unknown;
+/**
+ * Фильтр по популярным товарам (true/false)
+ */
+isPopular?: unknown;
+/**
+ * Поиск по названию (contains, insensitive)
+ */
+searchTerm?: unknown;
+/**
+ * Максимальная цена
+ */
+maxPrice?: unknown;
+/**
+ * Минимальная цена
+ */
+minPrice?: unknown;
+/**
+ * ID брендов через запятую
+ */
+brands?: unknown;
+/**
+ * ID категорий через запятую
+ */
+categories?: unknown;
+/**
+ * Seed для детерминированной рандомизации
+ */
+seed?: unknown;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: unknown;
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: unknown;
+};
+
+export type ProductControllerGetUncategorizedInfiniteParams = {
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: string;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: string;
 };
 
 export const getGatewayService = () => {
@@ -1822,6 +2153,256 @@ const categoryControllerGetProductsByCategory = (
     }
   
 /**
+ * @summary Получить настройки интеграции MoySklad
+ */
+const integrationControllerGetMoySklad = (
+    
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Создать или заменить настройки MoySklad
+ */
+const integrationControllerUpsertMoySklad = (
+    upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertMoySkladIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Обновить настройки MoySklad
+ */
+const integrationControllerUpdateMoySklad = (
+    updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMoySkladIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Удалить настройки MoySklad
+ */
+const integrationControllerRemoveMoySklad = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/moysklad`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Получить статус интеграции MoySklad
+ */
+const integrationControllerGetMoySkladStatus = (
+    
+ ) => {
+      return mutator<MoySkladIntegrationStatusDto>(
+      {url: `/integration/moysklad/status`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Получить историю sync MoySklad
+ */
+const integrationControllerGetMoySkladRuns = (
+    params?: IntegrationControllerGetMoySkladRunsParams,
+ ) => {
+      return mutator<MoySkladSyncRunDto[]>(
+      {url: `/integration/moysklad/runs`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Проверить подключение к MoySklad
+ */
+const integrationControllerTestMoySkladConnection = (
+    testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
+ ) => {
+      return mutator<MoySkladTestConnectionDto>(
+      {url: `/integration/moysklad/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testMoySkladConnectionDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Поставить полный sync MoySklad в очередь
+ */
+const integrationControllerSyncMoySkladCatalog = (
+    
+ ) => {
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/integration/moysklad/sync`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Отменить текущий sync MoySklad
+ */
+const integrationControllerCancelMoySkladSync = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/moysklad/sync`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Поставить sync одного товара MoySklad в очередь
+ */
+const integrationControllerSyncMoySkladProduct = (
+    id: string,
+ ) => {
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/integration/moysklad/sync-product/${id}`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Получить presigned URL для загрузки
+ */
+const s3ControllerPresignUpload = (
+    presignUploadDtoReq: PresignUploadDtoReq,
+ ) => {
+      return mutator<PresignUploadResponseDto>(
+      {url: `/s3/images/presign`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: presignUploadDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Получить presigned POST для загрузки с лимитом размера
+ */
+const s3ControllerPresignPostUpload = (
+    presignPostUploadDtoReq: PresignPostUploadDtoReq,
+ ) => {
+      return mutator<PresignPostUploadResponseDto>(
+      {url: `/s3/images/presign-post`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: presignPostUploadDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Начать multipart загрузку
+ */
+const s3ControllerStartMultipart = (
+    multipartStartDtoReq: MultipartStartDtoReq,
+ ) => {
+      return mutator<MultipartStartResponseDto>(
+      {url: `/s3/images/multipart/start`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartStartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Получить URL для загрузки части
+ */
+const s3ControllerPresignMultipartPart = (
+    multipartPartDtoReq: MultipartPartDtoReq,
+ ) => {
+      return mutator<MultipartPartResponseDto>(
+      {url: `/s3/images/multipart/part`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartPartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Завершить multipart загрузку и поставить обработку в очередь
+ */
+const s3ControllerCompleteMultipart = (
+    multipartCompleteDtoReq: MultipartCompleteDtoReq,
+ ) => {
+      return mutator<MultipartCompleteResponseDto>(
+      {url: `/s3/images/multipart/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartCompleteDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Отменить multipart загрузку
+ */
+const s3ControllerAbortMultipart = (
+    multipartAbortDtoReq: MultipartAbortDtoReq,
+ ) => {
+      return mutator<void>(
+      {url: `/s3/images/multipart/abort`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartAbortDtoReq
+    },
+      );
+    }
+  
+/**
+ * Поддерживаются оба формата тела запроса: key или items.
+ * @summary Поставить в очередь обработку загруженных файлов
+ */
+const s3ControllerEnqueueFromS3 = (
+    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
+ ) => {
+      return mutator<UploadQueueResponseDto>(
+      {url: `/s3/images/queue/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: s3ControllerEnqueueFromS3Body
+    },
+      );
+    }
+  
+/**
+ * @summary Статус загрузки изображений
+ */
+const s3ControllerGetQueueStatus = (
+    id: string,
+ ) => {
+      return mutator<UploadQueueStatusDto>(
+      {url: `/s3/images/queue/${id}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Стрим статуса загрузки (SSE)
+ */
+const s3ControllerStreamQueue = (
+    id: string,
+ ) => {
+      return mutator<UploadQueueStatusDto>(
+      {url: `/s3/images/queue/${id}/stream`, method: 'GET'
+    },
+      );
+    }
+  
+/**
  * @summary Создать или получить текущую корзину по cookie-токену
  */
 const cartControllerCreateOrGetCurrent = (
@@ -1979,7 +2560,7 @@ const productControllerGetAll = (
     }
   
 /**
- * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории).
+ * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории). При необходимости можно сразу передать variants.
  * @summary Создать товар
  */
 const productControllerCreate = (
@@ -2002,6 +2583,34 @@ const productControllerGetInfinite = (
  ) => {
       return mutator<ProductInfinitePageDto>(
       {url: `/product/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Временная реализация: возвращает товары, которые не попадают в текущий фильтр. Поддерживает те же query-параметры и deterministic seed, что и /product/infinite.
+ * @summary Список рекомендаций под фильтром (бесконечный скролл)
+ */
+const productControllerGetRecommendationsInfinite = (
+    params?: ProductControllerGetRecommendationsInfiniteParams,
+ ) => {
+      return mutator<ProductInfinitePageDto>(
+      {url: `/product/recommendations/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * @summary Список товаров без категории (бесконечный скролл)
+ */
+const productControllerGetUncategorizedInfinite = (
+    params?: ProductControllerGetUncategorizedInfiniteParams,
+ ) => {
+      return mutator<ProductCursorPageDto>(
+      {url: `/product/uncategorized/infinite`, method: 'GET',
         params
     },
       );
@@ -2047,7 +2656,7 @@ const productControllerGetById = (
     }
   
 /**
- * Для изменения позиции товара в категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
+ * Для замены привязок товара передайте массив categories. Для изменения позиции товара внутри одной категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Обновить товар
  */
 const productControllerUpdate = (
@@ -2075,6 +2684,61 @@ const productControllerRemove = (
     }
   
 /**
+ * Создает копию товара со всеми медиа, атрибутами, вариантами и категориями. Новый товар создается со status=HIDDEN.
+ * @summary Дублировать товар
+ */
+const productControllerDuplicate = (
+    id: string,
+ ) => {
+      return mutator<ProductCreateResponseDto>(
+      {url: `/product/${id}/duplicate`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
+ * @summary Изменить позицию товара в категории
+ */
+const productControllerUpdateCategoryPosition = (
+    id: string,
+    updateProductCategoryPositionDtoReq: UpdateProductCategoryPositionDtoReq,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/category-position`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateProductCategoryPositionDtoReq
+    },
+      );
+    }
+  
+/**
+ * Переключает статус товара между ACTIVE и HIDDEN. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Переключить статус товара
+ */
+const productControllerToggleStatus = (
+    id: string,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/toggle-status`, method: 'PATCH'
+    },
+      );
+    }
+  
+/**
+ * Переключает флаг isPopular у товара. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Переключить популярность товара
+ */
+const productControllerTogglePopular = (
+    id: string,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/toggle-popular`, method: 'PATCH'
+    },
+      );
+    }
+  
+/**
  * В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Создать/заменить вариации товара
  */
@@ -2086,129 +2750,6 @@ const productControllerSetVariants = (
       {url: `/product/${id}/variants`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: setProductVariantsDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Получить presigned URL для загрузки
- */
-const s3ControllerPresignUpload = (
-    presignUploadDtoReq: PresignUploadDtoReq,
- ) => {
-      return mutator<PresignUploadResponseDto>(
-      {url: `/s3/images/presign`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: presignUploadDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Получить presigned POST для загрузки с лимитом размера
- */
-const s3ControllerPresignPostUpload = (
-    presignPostUploadDtoReq: PresignPostUploadDtoReq,
- ) => {
-      return mutator<PresignPostUploadResponseDto>(
-      {url: `/s3/images/presign-post`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: presignPostUploadDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Начать multipart загрузку
- */
-const s3ControllerStartMultipart = (
-    multipartStartDtoReq: MultipartStartDtoReq,
- ) => {
-      return mutator<MultipartStartResponseDto>(
-      {url: `/s3/images/multipart/start`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartStartDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Получить URL для загрузки части
- */
-const s3ControllerPresignMultipartPart = (
-    multipartPartDtoReq: MultipartPartDtoReq,
- ) => {
-      return mutator<MultipartPartResponseDto>(
-      {url: `/s3/images/multipart/part`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartPartDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Завершить multipart загрузку и поставить обработку в очередь
- */
-const s3ControllerCompleteMultipart = (
-    multipartCompleteDtoReq: MultipartCompleteDtoReq,
- ) => {
-      return mutator<MultipartCompleteResponseDto>(
-      {url: `/s3/images/multipart/complete`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartCompleteDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Отменить multipart загрузку
- */
-const s3ControllerAbortMultipart = (
-    multipartAbortDtoReq: MultipartAbortDtoReq,
- ) => {
-      return mutator<void>(
-      {url: `/s3/images/multipart/abort`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartAbortDtoReq
-    },
-      );
-    }
-  
-/**
- * Поддерживаются оба формата тела запроса: key или items.
- * @summary Поставить в очередь обработку загруженных файлов
- */
-const s3ControllerEnqueueFromS3 = (
-    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
- ) => {
-      return mutator<UploadQueueResponseDto>(
-      {url: `/s3/images/queue/complete`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: s3ControllerEnqueueFromS3Body
-    },
-      );
-    }
-  
-/**
- * @summary Статус загрузки изображений
- */
-const s3ControllerGetQueueStatus = (
-    id: string,
- ) => {
-      return mutator<UploadQueueStatusDto>(
-      {url: `/s3/images/queue/${id}`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * @summary Стрим статуса загрузки (SSE)
- */
-const s3ControllerStreamQueue = (
-    id: string,
- ) => {
-      return mutator<UploadQueueStatusDto>(
-      {url: `/s3/images/queue/${id}/stream`, method: 'GET'
     },
       );
     }
@@ -2291,7 +2832,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerSetVariants,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetInfinite,productControllerGetRecommendationsInfinite,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -2328,6 +2869,25 @@ export type CategoryControllerGetByIdResult = NonNullable<Awaited<ReturnType<Ret
 export type CategoryControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerUpdate']>>>
 export type CategoryControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerRemove']>>>
 export type CategoryControllerGetProductsByCategoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetProductsByCategory']>>>
+export type IntegrationControllerGetMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySklad']>>>
+export type IntegrationControllerUpsertMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpsertMoySklad']>>>
+export type IntegrationControllerUpdateMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpdateMoySklad']>>>
+export type IntegrationControllerRemoveMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRemoveMoySklad']>>>
+export type IntegrationControllerGetMoySkladStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladStatus']>>>
+export type IntegrationControllerGetMoySkladRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladRuns']>>>
+export type IntegrationControllerTestMoySkladConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerTestMoySkladConnection']>>>
+export type IntegrationControllerSyncMoySkladCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladCatalog']>>>
+export type IntegrationControllerCancelMoySkladSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerCancelMoySkladSync']>>>
+export type IntegrationControllerSyncMoySkladProductResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladProduct']>>>
+export type S3ControllerPresignUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignUpload']>>>
+export type S3ControllerPresignPostUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignPostUpload']>>>
+export type S3ControllerStartMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStartMultipart']>>>
+export type S3ControllerPresignMultipartPartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignMultipartPart']>>>
+export type S3ControllerCompleteMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerCompleteMultipart']>>>
+export type S3ControllerAbortMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerAbortMultipart']>>>
+export type S3ControllerEnqueueFromS3Result = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerEnqueueFromS3']>>>
+export type S3ControllerGetQueueStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerGetQueueStatus']>>>
+export type S3ControllerStreamQueueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStreamQueue']>>>
 export type CartControllerCreateOrGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCreateOrGetCurrent']>>>
 export type CartControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetCurrent']>>>
 export type CartControllerShareCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerShareCurrent']>>>
@@ -2342,21 +2902,18 @@ export type CartControllerSsePublicResult = NonNullable<Awaited<ReturnType<Retur
 export type ProductControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetAll']>>>
 export type ProductControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerCreate']>>>
 export type ProductControllerGetInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfinite']>>>
+export type ProductControllerGetRecommendationsInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetRecommendationsInfinite']>>>
+export type ProductControllerGetUncategorizedInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetUncategorizedInfinite']>>>
 export type ProductControllerGetPopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopular']>>>
 export type ProductControllerGetBySlugResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetBySlug']>>>
 export type ProductControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetById']>>>
 export type ProductControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerUpdate']>>>
 export type ProductControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerRemove']>>>
+export type ProductControllerDuplicateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerDuplicate']>>>
+export type ProductControllerUpdateCategoryPositionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerUpdateCategoryPosition']>>>
+export type ProductControllerToggleStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerToggleStatus']>>>
+export type ProductControllerTogglePopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerTogglePopular']>>>
 export type ProductControllerSetVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariants']>>>
-export type S3ControllerPresignUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignUpload']>>>
-export type S3ControllerPresignPostUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignPostUpload']>>>
-export type S3ControllerStartMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStartMultipart']>>>
-export type S3ControllerPresignMultipartPartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignMultipartPart']>>>
-export type S3ControllerCompleteMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerCompleteMultipart']>>>
-export type S3ControllerAbortMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerAbortMultipart']>>>
-export type S3ControllerEnqueueFromS3Result = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerEnqueueFromS3']>>>
-export type S3ControllerGetQueueStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerGetQueueStatus']>>>
-export type S3ControllerStreamQueueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStreamQueue']>>>
 export type SeoControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['seoControllerGetAll']>>>
 export type SeoControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['seoControllerCreate']>>>
 export type SeoControllerGetByEntityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['seoControllerGetByEntity']>>>

@@ -2,29 +2,26 @@
 
 import {
   formatGeneratedZodError,
-} from "@/core/widgets/create-product-drawer/lib/errors";
+} from "@/shared/lib/api-errors";
 import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
   normalizeOptionalString,
-} from "@/core/widgets/create-product-drawer/model/form-config";
+} from "@/core/modules/product/editor/model/form-config";
 import {
   buildInitialAttributeValues,
   buildProductAttributePayload,
   buildRemovedProductAttributeIds,
   hasPersistedAttributeValue,
-} from "@/core/widgets/create-product-drawer/model/product-attributes";
-import { type AttributeFormValue } from "@/core/widgets/product-editor/model/types";
+} from "@/core/modules/product/editor/model/product-attributes";
+import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
 import {
   type AttributeDto,
   ProductAttributeRefDtoDataType,
   type ProductAttributeDto,
   type ProductWithDetailsDto,
-  getProductControllerGetAllQueryKey,
-  getProductControllerGetByIdQueryKey,
-  getProductControllerGetBySlugQueryKey,
-  getProductControllerGetPopularQueryKey,
 } from "@/shared/api/generated";
+import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
 import { ProductControllerUpdateBody } from "@/shared/api/generated/zod";
 import { type QueryClient } from "@tanstack/react-query";
 
@@ -34,6 +31,12 @@ const DISCOUNT_ATTRIBUTE_KEYS = new Set([
   "discountstartat",
   "discountendat",
 ]);
+
+function normalizeCategoryIds(values: string[] | undefined): string[] {
+  return (values ?? [])
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+}
 
 function normalizeAttributeKey(value: string | null | undefined): string {
   if (!value) {
@@ -97,7 +100,9 @@ export function buildEditProductFormValues(
     name: product.name,
     price: String(product.price ?? ""),
     brandId: product.brand?.id ?? undefined,
-    categoryIds: [],
+    categoryIds: normalizeCategoryIds(
+      product.categories?.map((category) => category.id),
+    ),
     hasDiscount,
     attributes,
   };
@@ -131,6 +136,7 @@ export function buildEditProductUpdatePayloadCandidate(params: {
 }) {
   const { formValues, mediaIds, persistedAttributeValues, productAttributes } =
     params;
+  const normalizedCategories = normalizeCategoryIds(formValues.categoryIds);
 
   const attributes = buildProductAttributePayload(
     productAttributes,
@@ -147,6 +153,7 @@ export function buildEditProductUpdatePayloadCandidate(params: {
     price: Number(formValues.price),
     mediaIds,
     brandId: normalizeOptionalString(formValues.brandId) ?? null,
+    categories: normalizedCategories,
     attributes,
     removeAttributeIds:
       removeAttributeIds.length > 0 ? removeAttributeIds : undefined,
@@ -173,36 +180,7 @@ export function parseEditProductUpdatePayload(params: {
 
   return payloadParsed.data;
 }
-
-export async function invalidateEditProductQueries(
-  queryClient: QueryClient,
-  product: Pick<ProductWithDetailsDto, "id" | "slug">,
-) {
-  await Promise.all([
-    queryClient.invalidateQueries({
-      queryKey: getProductControllerGetAllQueryKey(),
-    }),
-    queryClient.invalidateQueries({
-      queryKey: ["/product/infinite"],
-    }),
-    queryClient.invalidateQueries({
-      queryKey: getProductControllerGetPopularQueryKey(),
-    }),
-    queryClient.invalidateQueries({
-      queryKey: getProductControllerGetByIdQueryKey(product.id),
-    }),
-    queryClient.invalidateQueries({
-      queryKey: getProductControllerGetBySlugQueryKey(product.slug),
-    }),
-    queryClient.invalidateQueries({
-      predicate: (query) => {
-        const key = query.queryKey[0];
-        return (
-          typeof key === "string" &&
-          key.startsWith("/category/") &&
-          key.endsWith("/products/infinite")
-        );
-      },
-    }),
-  ]);
+export async function invalidateEditProductQueries(queryClient: QueryClient) {
+  await invalidateProductQueries(queryClient);
 }
+

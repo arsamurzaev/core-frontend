@@ -3,11 +3,11 @@
 import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
-} from "@/core/widgets/create-product-drawer/model/form-config";
+} from "@/core/modules/product/editor/model/form-config";
 import { useCreateProductDrawerState } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer-state";
 import { useCreateProductSubmit } from "@/core/widgets/create-product-drawer/model/use-create-product-submit";
-import { useProductFormFields } from "@/core/widgets/product-editor/model/use-product-form-fields";
-import { useProductImageEditor } from "@/core/widgets/product-editor/model/use-product-image-editor";
+import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
+import { useProductImageEditor } from "@/core/modules/product/editor/model/use-product-image-editor";
 import { useProductControllerCreate } from "@/shared/api/generated";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useQueryClient } from "@tanstack/react-query";
@@ -94,3 +94,4 @@ export function useCreateProductDrawer() {
     uploadedMediaIds: imageEditor.uploadedMediaIds,
   };
 }
+

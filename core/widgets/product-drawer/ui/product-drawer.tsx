@@ -40,13 +40,16 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   onAfterClose,
 }) => {
   const { catalog } = useCatalogState();
-  const { data, isError, isLoading } = useProductControllerGetBySlug(productSlug, {
-    query: {
-      enabled: Boolean(productSlug),
-      initialData: initialProduct ?? undefined,
-      staleTime: 30_000,
+  const { data, isError, isLoading } = useProductControllerGetBySlug(
+    productSlug,
+    {
+      query: {
+        enabled: Boolean(productSlug),
+        initialData: initialProduct ?? undefined,
+        staleTime: 30_000,
+      },
     },
-  });
+  );
 
   const viewModel = React.useMemo(
     () =>
