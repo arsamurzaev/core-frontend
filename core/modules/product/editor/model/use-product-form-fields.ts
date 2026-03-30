@@ -16,7 +16,7 @@ import {
   AttributeDtoDataType,
   useBrandControllerGetAll,
   useCategoryControllerGetAll,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";

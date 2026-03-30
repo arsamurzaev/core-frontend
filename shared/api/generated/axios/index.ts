@@ -305,6 +305,96 @@ export interface CatalogContactDto {
   value: string;
 }
 
+export type SeoDtoEntityType = typeof SeoDtoEntityType[keyof typeof SeoDtoEntityType];
+
+
+export const SeoDtoEntityType = {
+  CATALOG: 'CATALOG',
+  CATEGORY: 'CATEGORY',
+  PRODUCT: 'PRODUCT',
+  PAGE: 'PAGE',
+  BRAND: 'BRAND',
+  ARTICLE: 'ARTICLE',
+  OTHER: 'OTHER',
+} as const;
+
+/**
+ * @nullable
+ */
+export type SeoDtoSitemapChangeFreq = typeof SeoDtoSitemapChangeFreq[keyof typeof SeoDtoSitemapChangeFreq] | null;
+
+
+export const SeoDtoSitemapChangeFreq = {
+  ALWAYS: 'ALWAYS',
+  HOURLY: 'HOURLY',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  YEARLY: 'YEARLY',
+  NEVER: 'NEVER',
+} as const;
+
+export interface SeoDto {
+  id: string;
+  catalogId: string;
+  entityType: SeoDtoEntityType;
+  entityId: string;
+  /** @nullable */
+  urlPath: string | null;
+  /** @nullable */
+  canonicalUrl: string | null;
+  /** @nullable */
+  title: string | null;
+  /** @nullable */
+  description: string | null;
+  /** @nullable */
+  keywords: string | null;
+  /** @nullable */
+  h1: string | null;
+  /** @nullable */
+  seoText: string | null;
+  /** @nullable */
+  robots: string | null;
+  isIndexable: boolean;
+  isFollowable: boolean;
+  /** @nullable */
+  ogTitle: string | null;
+  /** @nullable */
+  ogDescription: string | null;
+  ogMedia: MediaDto | null;
+  /** @nullable */
+  ogType: string | null;
+  /** @nullable */
+  ogUrl: string | null;
+  /** @nullable */
+  ogSiteName: string | null;
+  /** @nullable */
+  ogLocale: string | null;
+  /** @nullable */
+  twitterCard: string | null;
+  /** @nullable */
+  twitterTitle: string | null;
+  /** @nullable */
+  twitterDescription: string | null;
+  twitterMedia: MediaDto | null;
+  /** @nullable */
+  twitterSite: string | null;
+  /** @nullable */
+  twitterCreator: string | null;
+  /** @nullable */
+  hreflang: string | null;
+  /** @nullable */
+  structuredData: string | null;
+  /** @nullable */
+  extras: string | null;
+  /** @nullable */
+  sitemapPriority: number | null;
+  /** @nullable */
+  sitemapChangeFreq: SeoDtoSitemapChangeFreq;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CatalogTypeDto {
   id: string;
   code: string;
@@ -327,10 +417,36 @@ export interface CatalogCurrentDto {
   deleteAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  /** @nullable */
+  subscriptionEndsAt?: string | null;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
   contacts: CatalogContactDto[];
+  seo: SeoDto | null;
   type: CatalogTypeDto;
+}
+
+export interface CatalogCurrentShellDto {
+  id: string;
+  slug: string;
+  /** @nullable */
+  domain: string | null;
+  name: string;
+  typeId: string;
+  /** @nullable */
+  parentId: string | null;
+  /** @nullable */
+  userId: string | null;
+  /** @nullable */
+  deleteAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  /** @nullable */
+  subscriptionEndsAt?: string | null;
+  config: CatalogConfigDto | null;
+  settings: CatalogSettingsDto | null;
+  contacts: CatalogContactDto[];
+  seo: SeoDto | null;
 }
 
 export type UpdateCatalogContactDtoReqType = typeof UpdateCatalogContactDtoReqType[keyof typeof UpdateCatalogContactDtoReqType];
@@ -394,6 +510,8 @@ export interface CatalogDto {
   deleteAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  /** @nullable */
+  subscriptionEndsAt?: string | null;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
 }
@@ -418,6 +536,149 @@ export interface CatalogCreateResponseDto {
   slug: string;
   /** @nullable */
   domain: string | null;
+}
+
+export interface PresignUploadDtoReq {
+  /** MIME-тип файла */
+  contentType: string;
+  /** Путь внутри каталога */
+  path?: string;
+  folder?: string;
+  entityId?: string;
+}
+
+export interface PresignUploadResponseDto {
+  ok: boolean;
+  mediaId: string;
+  uploadUrl: string;
+  key: string;
+  url: string;
+  expiresIn: number;
+}
+
+export interface PresignPostUploadDtoReq {
+  /** MIME-тип файла */
+  contentType: string;
+  /** Размер файла в байтах (для предварительной проверки лимита) */
+  contentLength?: number;
+  /** Путь внутри каталога */
+  path?: string;
+  folder?: string;
+  entityId?: string;
+}
+
+export type PresignPostUploadResponseDtoFields = { [key: string]: unknown };
+
+export interface PresignPostUploadResponseDto {
+  ok: boolean;
+  mediaId: string;
+  uploadUrl: string;
+  fields: PresignPostUploadResponseDtoFields;
+  key: string;
+  url: string;
+  expiresIn: number;
+  maxFileBytes: number;
+}
+
+export interface MultipartStartDtoReq {
+  /** MIME-тип файла */
+  contentType: string;
+  /** Размер файла в байтах */
+  fileSize: number;
+  /** Размер части в мегабайтах (по умолчанию 64) */
+  partSizeMb?: number;
+  /** Путь внутри каталога */
+  path?: string;
+  folder?: string;
+  entityId?: string;
+}
+
+export interface MultipartStartResponseDto {
+  ok: boolean;
+  mediaId: string;
+  uploadId: string;
+  key: string;
+  url: string;
+  partSize: number;
+  partCount: number;
+}
+
+export interface MultipartPartDtoReq {
+  key: string;
+  uploadId: string;
+  partNumber: number;
+}
+
+export interface MultipartPartResponseDto {
+  ok: boolean;
+  partNumber: number;
+  uploadUrl: string;
+}
+
+export interface MultipartCompletePartDtoReq {
+  partNumber: number;
+  etag: string;
+}
+
+export interface MultipartCompleteDtoReq {
+  key: string;
+  uploadId: string;
+  parts: MultipartCompletePartDtoReq[];
+}
+
+export interface MultipartCompleteResponseDto {
+  ok: boolean;
+  key: string;
+  jobId: string;
+  count: number;
+}
+
+export interface MultipartAbortDtoReq {
+  key: string;
+  uploadId: string;
+}
+
+export interface UploadFromS3ItemDtoReq {
+  key: string;
+  /** ID записи media (если есть в ответе presign) */
+  mediaId?: string;
+  /** URL файла (если есть в ответе presign) */
+  url?: string;
+}
+
+export interface UploadQueueResponseDto {
+  ok: boolean;
+  jobId: string;
+  count: number;
+}
+
+export interface ImageVariantDto {
+  name: string;
+  width: number;
+  height: number;
+  size: number;
+  contentType: string;
+  key: string;
+  url: string;
+}
+
+export interface UploadImageResponseDto {
+  ok: boolean;
+  mediaId: string;
+  key: string;
+  url: string;
+  variants: ImageVariantDto[];
+}
+
+export interface UploadQueueStatusDto {
+  ok: boolean;
+  status: string;
+  progress: number;
+  /** Результат для одного файла */
+  result?: UploadImageResponseDto;
+  /** Результаты для массива файлов */
+  results?: UploadImageResponseDto[];
+  error?: string;
 }
 
 export interface CategoryDto {
@@ -597,6 +858,18 @@ export interface CategoryProductsPageDto {
   nextCursor: string | null;
 }
 
+export interface CategoryProductCardDto {
+  productId: string;
+  position: number;
+  product: ProductWithAttributesDto;
+}
+
+export interface CategoryProductsCardPageDto {
+  items: CategoryProductCardDto[];
+  /** @nullable */
+  nextCursor: string | null;
+}
+
 export interface CategoryProductInputDtoReq {
   productId: string;
   position?: number;
@@ -624,6 +897,14 @@ export interface UpdateCategoryDtoReq {
   /** @nullable */
   parentId?: string | null;
   products?: CategoryProductInputDtoReq[];
+}
+
+export interface UpdateCategoryPositionDtoReq {
+  /**
+   * Новая позиция категории среди соседних категорий
+   * @minimum 0
+   */
+  position: number;
 }
 
 export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
@@ -797,148 +1078,18 @@ export interface MoySkladQueuedSyncDto {
   trigger: MoySkladQueuedSyncDtoTrigger;
 }
 
-export interface PresignUploadDtoReq {
-  /** MIME-тип файла */
-  contentType: string;
-  /** Путь внутри каталога */
-  path?: string;
-  folder?: string;
-  entityId?: string;
-}
+export type CartStatus = typeof CartStatus[keyof typeof CartStatus];
 
-export interface PresignUploadResponseDto {
-  ok: boolean;
-  mediaId: string;
-  uploadUrl: string;
-  key: string;
-  url: string;
-  expiresIn: number;
-}
 
-export interface PresignPostUploadDtoReq {
-  /** MIME-тип файла */
-  contentType: string;
-  /** Размер файла в байтах (для предварительной проверки лимита) */
-  contentLength?: number;
-  /** Путь внутри каталога */
-  path?: string;
-  folder?: string;
-  entityId?: string;
-}
-
-export type PresignPostUploadResponseDtoFields = { [key: string]: unknown };
-
-export interface PresignPostUploadResponseDto {
-  ok: boolean;
-  mediaId: string;
-  uploadUrl: string;
-  fields: PresignPostUploadResponseDtoFields;
-  key: string;
-  url: string;
-  expiresIn: number;
-  maxFileBytes: number;
-}
-
-export interface MultipartStartDtoReq {
-  /** MIME-тип файла */
-  contentType: string;
-  /** Размер файла в байтах */
-  fileSize: number;
-  /** Размер части в мегабайтах (по умолчанию 64) */
-  partSizeMb?: number;
-  /** Путь внутри каталога */
-  path?: string;
-  folder?: string;
-  entityId?: string;
-}
-
-export interface MultipartStartResponseDto {
-  ok: boolean;
-  mediaId: string;
-  uploadId: string;
-  key: string;
-  url: string;
-  partSize: number;
-  partCount: number;
-}
-
-export interface MultipartPartDtoReq {
-  key: string;
-  uploadId: string;
-  partNumber: number;
-}
-
-export interface MultipartPartResponseDto {
-  ok: boolean;
-  partNumber: number;
-  uploadUrl: string;
-}
-
-export interface MultipartCompletePartDtoReq {
-  partNumber: number;
-  etag: string;
-}
-
-export interface MultipartCompleteDtoReq {
-  key: string;
-  uploadId: string;
-  parts: MultipartCompletePartDtoReq[];
-}
-
-export interface MultipartCompleteResponseDto {
-  ok: boolean;
-  key: string;
-  jobId: string;
-  count: number;
-}
-
-export interface MultipartAbortDtoReq {
-  key: string;
-  uploadId: string;
-}
-
-export interface UploadFromS3ItemDtoReq {
-  key: string;
-  /** ID записи media (если есть в ответе presign) */
-  mediaId?: string;
-  /** URL файла (если есть в ответе presign) */
-  url?: string;
-}
-
-export interface UploadQueueResponseDto {
-  ok: boolean;
-  jobId: string;
-  count: number;
-}
-
-export interface ImageVariantDto {
-  name: string;
-  width: number;
-  height: number;
-  size: number;
-  contentType: string;
-  key: string;
-  url: string;
-}
-
-export interface UploadImageResponseDto {
-  ok: boolean;
-  mediaId: string;
-  key: string;
-  url: string;
-  variants: ImageVariantDto[];
-}
-
-export interface UploadQueueStatusDto {
-  ok: boolean;
-  status: string;
-  progress: number;
-  /** Результат для одного файла */
-  result?: UploadImageResponseDto;
-  /** Результаты для массива файлов */
-  results?: UploadImageResponseDto[];
-  error?: string;
-}
+export const CartStatus = {
+  DRAFT: 'DRAFT',
+  SHARED: 'SHARED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  PAUSED: 'PAUSED',
+  CONVERTED: 'CONVERTED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+} as const;
 
 export interface CartProductShortDto {
   id: string;
@@ -967,10 +1118,22 @@ export interface CartTotalsDto {
 export interface CartDto {
   id: string;
   catalogId: string;
+  status: CartStatus;
+  /** @nullable */
+  statusMessage: string | null;
+  statusChangedAt: string;
   /** @nullable */
   publicKey: string | null;
   /** @nullable */
   checkoutAt: string | null;
+  /** @nullable */
+  assignedManagerId: string | null;
+  /** @nullable */
+  managerSessionStartedAt: string | null;
+  /** @nullable */
+  managerLastSeenAt: string | null;
+  /** @nullable */
+  closedAt: string | null;
   items: CartItemDto[];
   totals: CartTotalsDto;
   createdAt: string;
@@ -1002,6 +1165,37 @@ export interface CheckoutCartResponseDto {
   checkoutKey: string;
 }
 
+export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
+
+
+export const OrderStatus = {
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface CompletedOrderItemDto {
+  id: string;
+  productId: string;
+  /** @nullable */
+  variantId: string | null;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface CompletedOrderDto {
+  id: string;
+  status: OrderStatus;
+  catalogId: string;
+  totalAmount: number;
+  items: CompletedOrderItemDto[];
+  createdAt: string;
+}
+
+export interface CompleteCartOrderResponseDto {
+  ok: boolean;
+  order: CompletedOrderDto;
+}
+
 export interface PublicUpsertCartItemDtoReq {
   productId: string;
   variantId?: string;
@@ -1010,32 +1204,15 @@ export interface PublicUpsertCartItemDtoReq {
   checkoutKey: string;
 }
 
-export type ProductDtoStatus = typeof ProductDtoStatus[keyof typeof ProductDtoStatus];
-
-
-export const ProductDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  price: string;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
+export interface ProductCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * РЎС‚Р°Р±РёР»СЊРЅС‹Р№ seed РґР»СЏ РґРµС‚РµСЂРјРёРЅРёСЂРѕРІР°РЅРЅРѕР№ СЂР°РЅРґРѕРјРёР·Р°С†РёРё
+   * @nullable
+   */
+  seed: string | null;
 }
 
 export interface ProductInfinitePageDto {
@@ -1047,6 +1224,12 @@ export interface ProductInfinitePageDto {
    * @nullable
    */
   seed: string | null;
+}
+
+export interface ProductCursorCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
 }
 
 export interface ProductCursorPageDto {
@@ -1333,96 +1516,6 @@ export interface ProductVariantsResponseDto {
   ok: boolean;
 }
 
-export type SeoDtoEntityType = typeof SeoDtoEntityType[keyof typeof SeoDtoEntityType];
-
-
-export const SeoDtoEntityType = {
-  CATALOG: 'CATALOG',
-  CATEGORY: 'CATEGORY',
-  PRODUCT: 'PRODUCT',
-  PAGE: 'PAGE',
-  BRAND: 'BRAND',
-  ARTICLE: 'ARTICLE',
-  OTHER: 'OTHER',
-} as const;
-
-/**
- * @nullable
- */
-export type SeoDtoSitemapChangeFreq = typeof SeoDtoSitemapChangeFreq[keyof typeof SeoDtoSitemapChangeFreq] | null;
-
-
-export const SeoDtoSitemapChangeFreq = {
-  ALWAYS: 'ALWAYS',
-  HOURLY: 'HOURLY',
-  DAILY: 'DAILY',
-  WEEKLY: 'WEEKLY',
-  MONTHLY: 'MONTHLY',
-  YEARLY: 'YEARLY',
-  NEVER: 'NEVER',
-} as const;
-
-export interface SeoDto {
-  id: string;
-  catalogId: string;
-  entityType: SeoDtoEntityType;
-  entityId: string;
-  /** @nullable */
-  urlPath: string | null;
-  /** @nullable */
-  canonicalUrl: string | null;
-  /** @nullable */
-  title: string | null;
-  /** @nullable */
-  description: string | null;
-  /** @nullable */
-  keywords: string | null;
-  /** @nullable */
-  h1: string | null;
-  /** @nullable */
-  seoText: string | null;
-  /** @nullable */
-  robots: string | null;
-  isIndexable: boolean;
-  isFollowable: boolean;
-  /** @nullable */
-  ogTitle: string | null;
-  /** @nullable */
-  ogDescription: string | null;
-  ogMedia: MediaDto | null;
-  /** @nullable */
-  ogType: string | null;
-  /** @nullable */
-  ogUrl: string | null;
-  /** @nullable */
-  ogSiteName: string | null;
-  /** @nullable */
-  ogLocale: string | null;
-  /** @nullable */
-  twitterCard: string | null;
-  /** @nullable */
-  twitterTitle: string | null;
-  /** @nullable */
-  twitterDescription: string | null;
-  twitterMedia: MediaDto | null;
-  /** @nullable */
-  twitterSite: string | null;
-  /** @nullable */
-  twitterCreator: string | null;
-  /** @nullable */
-  hreflang: string | null;
-  /** @nullable */
-  structuredData: string | null;
-  /** @nullable */
-  extras: string | null;
-  /** @nullable */
-  sitemapPriority: number | null;
-  /** @nullable */
-  sitemapChangeFreq: SeoDtoSitemapChangeFreq;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export type CreateSeoDtoReqHreflang = { [key: string]: unknown };
 
 export type CreateSeoDtoReqStructuredData = { [key: string]: unknown };
@@ -1519,7 +1612,26 @@ export type AdminSsoControllerEnterParams = {
 next?: string;
 };
 
+export type S3ControllerEnqueueFromS3Body = {
+  key: string;
+} | {
+  items: UploadFromS3ItemDtoReq[];
+};
+
 export type CategoryControllerGetProductsByCategoryParams = {
+/**
+ * Курсор из предыдущего ответа (opaque)
+ */
+cursor?: string;
+/**
+ * Размер страницы (1-50)
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
+};
+
+export type CategoryControllerGetProductCardsByCategoryParams = {
 /**
  * Курсор из предыдущего ответа (opaque)
  */
@@ -1539,31 +1651,72 @@ export type IntegrationControllerGetMoySkladRunsParams = {
 limit?: number;
 };
 
-export type S3ControllerEnqueueFromS3Body = {
-  key: string;
-} | {
-  items: UploadFromS3ItemDtoReq[];
-};
-
 export type CartControllerGetPublicCartParams = {
 /**
- * Ключ доступа для чтения/изменения публичной корзины
+ * Read/write key for the public cart
  */
 checkoutKey: string;
 };
 
 export type CartControllerRemovePublicItemParams = {
 /**
- * Ключ доступа для изменения публичной корзины
+ * Write key for the public cart
  */
 checkoutKey: string;
 };
 
 export type CartControllerSsePublicParams = {
 /**
- * Ключ доступа для подписки на SSE
+ * SSE access key for the public cart
  */
 checkoutKey: string;
+};
+
+export type ProductControllerGetInfiniteCardsParams = {
+/**
+ * JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.
+ */
+attributes?: unknown;
+/**
+ * Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)
+ */
+isDiscount?: unknown;
+/**
+ * Фильтр по популярным товарам (true/false)
+ */
+isPopular?: unknown;
+/**
+ * Поиск по name, sku или slug (contains, insensitive)
+ */
+searchTerm?: unknown;
+/**
+ * Максимальная цена
+ */
+maxPrice?: unknown;
+/**
+ * Минимальная цена
+ */
+minPrice?: unknown;
+/**
+ * ID брендов через запятую
+ */
+brands?: unknown;
+/**
+ * ID категорий через запятую
+ */
+categories?: unknown;
+/**
+ * Seed для детерминированной рандомизации
+ */
+seed?: unknown;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: unknown;
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: unknown;
 };
 
 export type ProductControllerGetInfiniteParams = {
@@ -1580,7 +1733,54 @@ isDiscount?: unknown;
  */
 isPopular?: unknown;
 /**
- * Поиск по названию (contains, insensitive)
+ * Поиск по name, sku или slug (contains, insensitive)
+ */
+searchTerm?: unknown;
+/**
+ * Максимальная цена
+ */
+maxPrice?: unknown;
+/**
+ * Минимальная цена
+ */
+minPrice?: unknown;
+/**
+ * ID брендов через запятую
+ */
+brands?: unknown;
+/**
+ * ID категорий через запятую
+ */
+categories?: unknown;
+/**
+ * Seed для детерминированной рандомизации
+ */
+seed?: unknown;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: unknown;
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: unknown;
+};
+
+export type ProductControllerGetRecommendationsInfiniteCardsParams = {
+/**
+ * JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.
+ */
+attributes?: unknown;
+/**
+ * Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)
+ */
+isDiscount?: unknown;
+/**
+ * Фильтр по популярным товарам (true/false)
+ */
+isPopular?: unknown;
+/**
+ * Поиск по name, sku или slug (contains, insensitive)
  */
 searchTerm?: unknown;
 /**
@@ -1627,7 +1827,7 @@ isDiscount?: unknown;
  */
 isPopular?: unknown;
 /**
- * Поиск по названию (contains, insensitive)
+ * Поиск по name, sku или slug (contains, insensitive)
  */
 searchTerm?: unknown;
 /**
@@ -1658,6 +1858,17 @@ limit?: unknown;
  * Курсор из предыдущего ответа (opaque base64)
  */
 cursor?: unknown;
+};
+
+export type ProductControllerGetUncategorizedInfiniteCardsParams = {
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: string;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: string;
 };
 
 export type ProductControllerGetUncategorizedInfiniteParams = {
@@ -2011,10 +2222,34 @@ const catalogControllerGetCurrent = (
 const catalogControllerUpdateCurrent = (
     updateCatalogDtoReq: UpdateCatalogDtoReq,
  ) => {
-      return mutator<CatalogDto>(
+      return mutator<CatalogCurrentShellDto>(
       {url: `/catalog/current`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updateCatalogDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Get current catalog shell
+ */
+const catalogControllerGetCurrentShell = (
+    
+ ) => {
+      return mutator<CatalogCurrentShellDto>(
+      {url: `/catalog/current/shell`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get current catalog type schema
+ */
+const catalogControllerGetCurrentTypeSchema = (
+    
+ ) => {
+      return mutator<CatalogTypeDto>(
+      {url: `/catalog/current/type-schema`, method: 'GET'
     },
       );
     }
@@ -2068,6 +2303,129 @@ const catalogControllerUpdateById = (
       {url: `/catalog/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updateCatalogDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Получить presigned URL для загрузки
+ */
+const s3ControllerPresignUpload = (
+    presignUploadDtoReq: PresignUploadDtoReq,
+ ) => {
+      return mutator<PresignUploadResponseDto>(
+      {url: `/s3/images/presign`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: presignUploadDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Получить presigned POST для загрузки с лимитом размера
+ */
+const s3ControllerPresignPostUpload = (
+    presignPostUploadDtoReq: PresignPostUploadDtoReq,
+ ) => {
+      return mutator<PresignPostUploadResponseDto>(
+      {url: `/s3/images/presign-post`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: presignPostUploadDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Начать multipart загрузку
+ */
+const s3ControllerStartMultipart = (
+    multipartStartDtoReq: MultipartStartDtoReq,
+ ) => {
+      return mutator<MultipartStartResponseDto>(
+      {url: `/s3/images/multipart/start`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartStartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Получить URL для загрузки части
+ */
+const s3ControllerPresignMultipartPart = (
+    multipartPartDtoReq: MultipartPartDtoReq,
+ ) => {
+      return mutator<MultipartPartResponseDto>(
+      {url: `/s3/images/multipart/part`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartPartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Завершить multipart загрузку и поставить обработку в очередь
+ */
+const s3ControllerCompleteMultipart = (
+    multipartCompleteDtoReq: MultipartCompleteDtoReq,
+ ) => {
+      return mutator<MultipartCompleteResponseDto>(
+      {url: `/s3/images/multipart/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartCompleteDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Отменить multipart загрузку
+ */
+const s3ControllerAbortMultipart = (
+    multipartAbortDtoReq: MultipartAbortDtoReq,
+ ) => {
+      return mutator<void>(
+      {url: `/s3/images/multipart/abort`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartAbortDtoReq
+    },
+      );
+    }
+  
+/**
+ * Поддерживаются оба формата тела запроса: key или items.
+ * @summary Поставить в очередь обработку загруженных файлов
+ */
+const s3ControllerEnqueueFromS3 = (
+    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
+ ) => {
+      return mutator<UploadQueueResponseDto>(
+      {url: `/s3/images/queue/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: s3ControllerEnqueueFromS3Body
+    },
+      );
+    }
+  
+/**
+ * @summary Статус загрузки изображений
+ */
+const s3ControllerGetQueueStatus = (
+    id: string,
+ ) => {
+      return mutator<UploadQueueStatusDto>(
+      {url: `/s3/images/queue/${id}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Стрим статуса загрузки (SSE)
+ */
+const s3ControllerStreamQueue = (
+    id: string,
+ ) => {
+      return mutator<UploadQueueStatusDto>(
+      {url: `/s3/images/queue/${id}/stream`, method: 'GET'
     },
       );
     }
@@ -2148,6 +2506,37 @@ const categoryControllerGetProductsByCategory = (
       return mutator<CategoryProductsPageDto>(
       {url: `/category/${id}/products/infinite`, method: 'GET',
         params
+    },
+      );
+    }
+  
+/**
+ * Возвращает карточки товаров категории с productAttributes, но без variants.
+ * @summary List category product cards (infinite)
+ */
+const categoryControllerGetProductCardsByCategory = (
+    id: string,
+    params?: CategoryControllerGetProductCardsByCategoryParams,
+ ) => {
+      return mutator<CategoryProductsCardPageDto>(
+      {url: `/category/${id}/products/cards/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.
+ * @summary Изменить позицию категории
+ */
+const categoryControllerUpdatePosition = (
+    id: string,
+    updateCategoryPositionDtoReq: UpdateCategoryPositionDtoReq,
+ ) => {
+      return mutator<CategoryWithRelationsDto>(
+      {url: `/category/${id}/position`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCategoryPositionDtoReq
     },
       );
     }
@@ -2280,130 +2669,7 @@ const integrationControllerSyncMoySkladProduct = (
     }
   
 /**
- * @summary Получить presigned URL для загрузки
- */
-const s3ControllerPresignUpload = (
-    presignUploadDtoReq: PresignUploadDtoReq,
- ) => {
-      return mutator<PresignUploadResponseDto>(
-      {url: `/s3/images/presign`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: presignUploadDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Получить presigned POST для загрузки с лимитом размера
- */
-const s3ControllerPresignPostUpload = (
-    presignPostUploadDtoReq: PresignPostUploadDtoReq,
- ) => {
-      return mutator<PresignPostUploadResponseDto>(
-      {url: `/s3/images/presign-post`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: presignPostUploadDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Начать multipart загрузку
- */
-const s3ControllerStartMultipart = (
-    multipartStartDtoReq: MultipartStartDtoReq,
- ) => {
-      return mutator<MultipartStartResponseDto>(
-      {url: `/s3/images/multipart/start`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartStartDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Получить URL для загрузки части
- */
-const s3ControllerPresignMultipartPart = (
-    multipartPartDtoReq: MultipartPartDtoReq,
- ) => {
-      return mutator<MultipartPartResponseDto>(
-      {url: `/s3/images/multipart/part`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartPartDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Завершить multipart загрузку и поставить обработку в очередь
- */
-const s3ControllerCompleteMultipart = (
-    multipartCompleteDtoReq: MultipartCompleteDtoReq,
- ) => {
-      return mutator<MultipartCompleteResponseDto>(
-      {url: `/s3/images/multipart/complete`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartCompleteDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Отменить multipart загрузку
- */
-const s3ControllerAbortMultipart = (
-    multipartAbortDtoReq: MultipartAbortDtoReq,
- ) => {
-      return mutator<void>(
-      {url: `/s3/images/multipart/abort`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartAbortDtoReq
-    },
-      );
-    }
-  
-/**
- * Поддерживаются оба формата тела запроса: key или items.
- * @summary Поставить в очередь обработку загруженных файлов
- */
-const s3ControllerEnqueueFromS3 = (
-    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
- ) => {
-      return mutator<UploadQueueResponseDto>(
-      {url: `/s3/images/queue/complete`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: s3ControllerEnqueueFromS3Body
-    },
-      );
-    }
-  
-/**
- * @summary Статус загрузки изображений
- */
-const s3ControllerGetQueueStatus = (
-    id: string,
- ) => {
-      return mutator<UploadQueueStatusDto>(
-      {url: `/s3/images/queue/${id}`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * @summary Стрим статуса загрузки (SSE)
- */
-const s3ControllerStreamQueue = (
-    id: string,
- ) => {
-      return mutator<UploadQueueStatusDto>(
-      {url: `/s3/images/queue/${id}/stream`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * @summary Создать или получить текущую корзину по cookie-токену
+ * @summary Create or return the current cart by cookie token
  */
 const cartControllerCreateOrGetCurrent = (
     
@@ -2415,7 +2681,7 @@ const cartControllerCreateOrGetCurrent = (
     }
   
 /**
- * @summary Получить текущую корзину по cookie-токену
+ * @summary Get the current cart by cookie token
  */
 const cartControllerGetCurrent = (
     
@@ -2427,7 +2693,7 @@ const cartControllerGetCurrent = (
     }
   
 /**
- * @summary Получить публичный ключ для шаринга корзины
+ * @summary Issue a public key for the current cart
  */
 const cartControllerShareCurrent = (
     
@@ -2439,7 +2705,7 @@ const cartControllerShareCurrent = (
     }
   
 /**
- * @summary Добавить или обновить позицию в текущей корзине
+ * @summary Upsert an item in the current cart
  */
 const cartControllerUpsertCurrentItem = (
     upsertCartItemDtoReq: UpsertCartItemDtoReq,
@@ -2453,7 +2719,7 @@ const cartControllerUpsertCurrentItem = (
     }
   
 /**
- * @summary Удалить позицию из текущей корзины
+ * @summary Remove an item from the current cart
  */
 const cartControllerRemoveCurrentItem = (
     itemId: string,
@@ -2465,7 +2731,7 @@ const cartControllerRemoveCurrentItem = (
     }
   
 /**
- * @summary SSE поток обновлений текущей корзины
+ * @summary SSE stream for the current cart
  */
 const cartControllerSseCurrent = (
     
@@ -2477,7 +2743,7 @@ const cartControllerSseCurrent = (
     }
   
 /**
- * @summary Выдать checkoutKey для публичной корзины
+ * @summary Issue a checkoutKey for a public cart
  */
 const cartControllerCreateCheckoutKey = (
     publicKey: string,
@@ -2489,7 +2755,7 @@ const cartControllerCreateCheckoutKey = (
     }
   
 /**
- * @summary Получить публичную корзину по checkoutKey
+ * @summary Get a public cart by checkoutKey
  */
 const cartControllerGetPublicCart = (
     publicKey: string,
@@ -2503,7 +2769,55 @@ const cartControllerGetPublicCart = (
     }
   
 /**
- * @summary Добавить или обновить позицию в публичной корзине
+ * @summary Mark a cart as being processed by a manager
+ */
+const cartControllerStartManagerSession = (
+    publicKey: string,
+ ) => {
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/start`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Refresh manager presence for a cart
+ */
+const cartControllerHeartbeatManagerSession = (
+    publicKey: string,
+ ) => {
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/heartbeat`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Move a cart to PAUSED after manager processing
+ */
+const cartControllerReleaseManagerSession = (
+    publicKey: string,
+ ) => {
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/release`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Convert a shared cart to a completed order
+ */
+const cartControllerCompleteManagerOrder = (
+    publicKey: string,
+ ) => {
+      return mutator<CompleteCartOrderResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/complete`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Upsert an item in a public cart
  */
 const cartControllerUpsertPublicItem = (
     publicKey: string,
@@ -2518,7 +2832,7 @@ const cartControllerUpsertPublicItem = (
     }
   
 /**
- * @summary Удалить позицию из публичной корзины
+ * @summary Remove an item from a public cart
  */
 const cartControllerRemovePublicItem = (
     publicKey: string,
@@ -2533,7 +2847,7 @@ const cartControllerRemovePublicItem = (
     }
   
 /**
- * @summary SSE поток обновлений публичной корзины
+ * @summary SSE stream for a public cart
  */
 const cartControllerSsePublic = (
     publicKey: string,
@@ -2547,13 +2861,13 @@ const cartControllerSsePublic = (
     }
   
 /**
- * В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 const productControllerGetAll = (
     
  ) => {
-      return mutator<ProductDto[]>(
+      return mutator<ProductWithAttributesDto[]>(
       {url: `/product`, method: 'GET'
     },
       );
@@ -2575,6 +2889,20 @@ const productControllerCreate = (
     }
   
 /**
+ * Возвращает карточки товаров с productAttributes, но без variants. Поддерживает те же фильтры, что и /product/infinite.
+ * @summary Лёгкий card-feed товаров (бесконечный скролл)
+ */
+const productControllerGetInfiniteCards = (
+    params?: ProductControllerGetInfiniteCardsParams,
+ ) => {
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
  * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
  * @summary Список товаров с фильтрами (бесконечный скролл)
  */
@@ -2583,6 +2911,20 @@ const productControllerGetInfinite = (
  ) => {
       return mutator<ProductInfinitePageDto>(
       {url: `/product/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Возвращает карточки рекомендаций с productAttributes, но без variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
+ * @summary Лёгкий card-feed рекомендаций
+ */
+const productControllerGetRecommendationsInfiniteCards = (
+    params?: ProductControllerGetRecommendationsInfiniteCardsParams,
+ ) => {
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/recommendations/infinite`, method: 'GET',
         params
     },
       );
@@ -2603,6 +2945,33 @@ const productControllerGetRecommendationsInfinite = (
     }
   
 /**
+ * Возвращает популярные товары с productAttributes, но без variants.
+ * @summary Лёгкий список популярных товаров
+ */
+const productControllerGetPopularCards = (
+    
+ ) => {
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product/cards/popular`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * Возвращает карточки товаров без активной категории с productAttributes, но без variants.
+ * @summary Лёгкий список товаров без категории
+ */
+const productControllerGetUncategorizedInfiniteCards = (
+    params?: ProductControllerGetUncategorizedInfiniteCardsParams,
+ ) => {
+      return mutator<ProductCursorCardPageDto>(
+      {url: `/product/cards/uncategorized/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
  * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров без категории (бесконечный скролл)
  */
@@ -2617,13 +2986,13 @@ const productControllerGetUncategorizedInfinite = (
     }
   
 /**
- * В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 const productControllerGetPopular = (
     
  ) => {
-      return mutator<ProductWithDetailsDto[]>(
+      return mutator<ProductWithAttributesDto[]>(
       {url: `/product/popular`, method: 'GET'
     },
       );
@@ -2832,7 +3201,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetInfinite,productControllerGetRecommendationsInfinite,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminSsoControllerEnter,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePosition,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -2859,16 +3228,29 @@ export type BrandControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnT
 export type UserControllerRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['userControllerRegister']>>>
 export type CatalogControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrent']>>>
 export type CatalogControllerUpdateCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerUpdateCurrent']>>>
+export type CatalogControllerGetCurrentShellResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrentShell']>>>
+export type CatalogControllerGetCurrentTypeSchemaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrentTypeSchema']>>>
 export type CatalogControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetAll']>>>
 export type CatalogControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerCreate']>>>
 export type CatalogControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetById']>>>
 export type CatalogControllerUpdateByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerUpdateById']>>>
+export type S3ControllerPresignUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignUpload']>>>
+export type S3ControllerPresignPostUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignPostUpload']>>>
+export type S3ControllerStartMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStartMultipart']>>>
+export type S3ControllerPresignMultipartPartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignMultipartPart']>>>
+export type S3ControllerCompleteMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerCompleteMultipart']>>>
+export type S3ControllerAbortMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerAbortMultipart']>>>
+export type S3ControllerEnqueueFromS3Result = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerEnqueueFromS3']>>>
+export type S3ControllerGetQueueStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerGetQueueStatus']>>>
+export type S3ControllerStreamQueueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStreamQueue']>>>
 export type CategoryControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetAll']>>>
 export type CategoryControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerCreate']>>>
 export type CategoryControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetById']>>>
 export type CategoryControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerUpdate']>>>
 export type CategoryControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerRemove']>>>
 export type CategoryControllerGetProductsByCategoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetProductsByCategory']>>>
+export type CategoryControllerGetProductCardsByCategoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetProductCardsByCategory']>>>
+export type CategoryControllerUpdatePositionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerUpdatePosition']>>>
 export type IntegrationControllerGetMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySklad']>>>
 export type IntegrationControllerUpsertMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpsertMoySklad']>>>
 export type IntegrationControllerUpdateMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpdateMoySklad']>>>
@@ -2879,15 +3261,6 @@ export type IntegrationControllerTestMoySkladConnectionResult = NonNullable<Awai
 export type IntegrationControllerSyncMoySkladCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladCatalog']>>>
 export type IntegrationControllerCancelMoySkladSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerCancelMoySkladSync']>>>
 export type IntegrationControllerSyncMoySkladProductResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladProduct']>>>
-export type S3ControllerPresignUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignUpload']>>>
-export type S3ControllerPresignPostUploadResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignPostUpload']>>>
-export type S3ControllerStartMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStartMultipart']>>>
-export type S3ControllerPresignMultipartPartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerPresignMultipartPart']>>>
-export type S3ControllerCompleteMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerCompleteMultipart']>>>
-export type S3ControllerAbortMultipartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerAbortMultipart']>>>
-export type S3ControllerEnqueueFromS3Result = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerEnqueueFromS3']>>>
-export type S3ControllerGetQueueStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerGetQueueStatus']>>>
-export type S3ControllerStreamQueueResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['s3ControllerStreamQueue']>>>
 export type CartControllerCreateOrGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCreateOrGetCurrent']>>>
 export type CartControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetCurrent']>>>
 export type CartControllerShareCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerShareCurrent']>>>
@@ -2896,13 +3269,21 @@ export type CartControllerRemoveCurrentItemResult = NonNullable<Awaited<ReturnTy
 export type CartControllerSseCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSseCurrent']>>>
 export type CartControllerCreateCheckoutKeyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCreateCheckoutKey']>>>
 export type CartControllerGetPublicCartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetPublicCart']>>>
+export type CartControllerStartManagerSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerStartManagerSession']>>>
+export type CartControllerHeartbeatManagerSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerHeartbeatManagerSession']>>>
+export type CartControllerReleaseManagerSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerReleaseManagerSession']>>>
+export type CartControllerCompleteManagerOrderResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCompleteManagerOrder']>>>
 export type CartControllerUpsertPublicItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerUpsertPublicItem']>>>
 export type CartControllerRemovePublicItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerRemovePublicItem']>>>
 export type CartControllerSsePublicResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSsePublic']>>>
 export type ProductControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetAll']>>>
 export type ProductControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerCreate']>>>
+export type ProductControllerGetInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfiniteCards']>>>
 export type ProductControllerGetInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfinite']>>>
+export type ProductControllerGetRecommendationsInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetRecommendationsInfiniteCards']>>>
 export type ProductControllerGetRecommendationsInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetRecommendationsInfinite']>>>
+export type ProductControllerGetPopularCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopularCards']>>>
+export type ProductControllerGetUncategorizedInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetUncategorizedInfiniteCards']>>>
 export type ProductControllerGetUncategorizedInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetUncategorizedInfinite']>>>
 export type ProductControllerGetPopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopular']>>>
 export type ProductControllerGetBySlugResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetBySlug']>>>

@@ -3,9 +3,10 @@
 import {
   useProductControllerGetAll,
   useProductControllerGetBySlug,
-  useProductControllerGetPopular,
+  useProductControllerGetPopularCards,
+  type ProductWithAttributesDto,
   type ProductWithDetailsDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -47,14 +48,15 @@ export const SchemaDrivenProductCardDemo: React.FC = () => {
   const typeCode = type.code.toLowerCase();
   const typeConfig = TYPE_CARD_CONFIG[typeCode as SupportedTypeCode] ?? null;
 
-  const popularQuery = useProductControllerGetPopular({
+  const popularQuery = useProductControllerGetPopularCards({
     query: {
       staleTime: 30_000,
       retry: 1,
     },
   });
 
-  const primaryProduct = popularQuery.data?.[0] ?? null;
+  const primaryProduct: ProductWithAttributesDto | null =
+    popularQuery.data?.[0] ?? null;
   const needFallback = !popularQuery.isLoading && !primaryProduct;
 
   const allProductsQuery = useProductControllerGetAll({

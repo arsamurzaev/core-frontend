@@ -22,6 +22,13 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
   title,
   text,
   url,
+  drawerTitle,
+  copyButtonLabel,
+  copyMode,
+  copySuccessMessage,
+  appendUrlToMessage,
+  open,
+  onOpenChange,
 }) => {
   const messengerConfirmContent = React.useMemo(
     () => <ShareDrawerConfirmContent />,
@@ -29,7 +36,8 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
   );
 
   const {
-    drawerTitle,
+    copyButtonLabel: resolvedCopyButtonLabel,
+    drawerTitle: resolvedDrawerTitle,
     handleCopy,
     primaryActions,
     secondaryActions,
@@ -40,13 +48,23 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
     title,
     text,
     url,
+    drawerTitle,
+    copyButtonLabel,
+    copyMode,
+    copySuccessMessage,
+    appendUrlToMessage,
     messengerConfirmContent,
   });
 
   return (
-    <AppDrawer className={className} trigger={trigger}>
+    <AppDrawer
+      className={className}
+      trigger={trigger}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <AppDrawer.Content className="max-h-[40%] min-h-[490px] bg-[#F2F2F7] text-center">
-        <ShareDrawerHeader title={drawerTitle} />
+        <ShareDrawerHeader title={resolvedDrawerTitle} />
 
         <div className="space-y-8">
           <div className="flex flex-wrap justify-evenly">
@@ -74,7 +92,7 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
               onClick={handleCopy}
               disabled={!shareUrl}
             >
-              скопировать ссылку на каталог
+              {resolvedCopyButtonLabel}
             </button>
           </p>
 

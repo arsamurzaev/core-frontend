@@ -65,16 +65,16 @@ function DrawerOverlay({
  */
 function DrawerHandle({
   className,
+  preventCycle = true,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Handle>) {
   return (
-    <div className="flex justify-center pt-3">
-      <DrawerPrimitive.Handle
-        data-slot="drawer-handle"
-        className={cn("bg-muted h-1.5 w-12 rounded-full", className)}
-        {...props}
-      />
-    </div>
+    <DrawerPrimitive.Handle
+      data-slot="drawer-handle"
+      className={cn("bg-muted h-1.5 w-12 rounded-full", className)}
+      preventCycle={preventCycle}
+      {...props}
+    />
   );
 }
 
@@ -103,14 +103,27 @@ function DrawerScrollArea({
   );
 }
 
+interface DrawerContentProps extends React.ComponentProps<typeof DrawerPrimitive.Content> {
+  handleClassName?: string;
+  handleWrapperClassName?: string;
+  hideHandle?: boolean;
+  hideOverlay?: boolean;
+  overlayClassName?: string;
+}
+
 function DrawerContent({
   className,
   children,
+  handleClassName,
+  handleWrapperClassName,
+  hideHandle = false,
+  hideOverlay = false,
+  overlayClassName,
   ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: DrawerContentProps) {
   return (
     <DrawerPortal>
-      <DrawerOverlay />
+      {!hideOverlay ? <DrawerOverlay className={overlayClassName} /> : null}
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(
@@ -142,9 +155,17 @@ function DrawerContent({
         {...props}
       >
         {/* Only show handle for bottom/top by default (optional) */}
-        <div className="group-data-[vaul-drawer-direction=left]/drawer-content:hidden group-data-[vaul-drawer-direction=right]/drawer-content:hidden">
-          <DrawerHandle />
-        </div>
+        {!hideHandle ? (
+          <div
+            className={cn(
+              "flex justify-center py-3",
+              "group-data-[vaul-drawer-direction=left]/drawer-content:hidden group-data-[vaul-drawer-direction=right]/drawer-content:hidden",
+              handleWrapperClassName,
+            )}
+          >
+            <DrawerHandle className={handleClassName} />
+          </div>
+        ) : null}
 
         {children}
       </DrawerPrimitive.Content>
@@ -173,7 +194,10 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-footer"
-      className={cn("shrink-0 mt-auto flex flex-col gap-2 p-4", className)}
+      className={cn(
+        "shrink-0 mt-auto flex flex-col gap-2 px-4 pt-4 pb-3",
+        className,
+      )}
       {...props}
     />
   );

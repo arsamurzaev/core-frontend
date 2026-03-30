@@ -1,1 +1,1 @@
-export * from "@/core/modules/product/editor/ui/create-product-categories-field";
+export { CreateProductCategoriesField } from "@/core/modules/product/editor/ui";

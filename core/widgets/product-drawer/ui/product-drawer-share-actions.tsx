@@ -1,6 +1,6 @@
 "use client";
 
-import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
+import { LazyShareDrawerTrigger } from "@/core/widgets/share-drawer/ui/lazy-share-drawer-trigger";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
 import { Button } from "@/shared/ui/button";
 import { CircleHelp, Reply } from "lucide-react";
@@ -74,7 +74,7 @@ export function ProductDrawerShareActions({
 }: ProductDrawerShareActionsProps) {
   return (
     <div className="absolute top-2 right-2 flex flex-col gap-2">
-      <ShareDrawer
+      <LazyShareDrawerTrigger
         mode="share"
         title={title}
         text={text}

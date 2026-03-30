@@ -8,24 +8,44 @@ import {
   type CatalogFilterItem,
   type CatalogFilterPatch,
 } from "@/core/widgets/catalog-filter/model/catalog-filter-drawer";
-import { useBrandControllerGetAll } from "@/shared/api/generated";
+import { useBrandControllerGetAll } from "@/shared/api/generated/react-query";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import React from "react";
 
 interface UseCatalogFilterDrawerParams {
+  open?: boolean;
   onApply: (patch?: CatalogFilterPatch) => void;
+  onOpenChange?: (open: boolean) => void;
   queryState: CatalogFilterQueryState;
 }
 
 export function useCatalogFilterDrawer({
+  open: controlledOpen,
   onApply,
+  onOpenChange,
   queryState,
 }: UseCatalogFilterDrawerParams) {
-  const [open, setOpen] = React.useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = React.useCallback(
+    (nextOpen: boolean) => {
+      if (controlledOpen === undefined) {
+        setUncontrolledOpen(nextOpen);
+      }
+
+      onOpenChange?.(nextOpen);
+    },
+    [controlledOpen, onOpenChange],
+  );
   const [draft, setDraft] = React.useState<CatalogFilterDraftState>(() =>
     createCatalogFilterDraftFromQueryState(queryState),
   );
-  const brandsQuery = useBrandControllerGetAll();
+  const brandsQuery = useBrandControllerGetAll({
+    query: {
+      enabled: open,
+      staleTime: 60_000,
+    },
+  });
   const brands = React.useMemo<CatalogFilterItem[]>(
     () => brandsQuery.data ?? [],
     [brandsQuery.data],
@@ -87,12 +107,12 @@ export function useCatalogFilterDrawer({
     );
     onApply(CATALOG_FILTER_EMPTY_PATCH);
     setOpen(false);
-  }, [onApply, queryState]);
+  }, [onApply, queryState, setOpen]);
 
   const handleSubmit = React.useCallback(() => {
     onApply(normalizeCatalogFilterDraft(draft));
     setOpen(false);
-  }, [draft, onApply]);
+  }, [draft, onApply, setOpen]);
 
   return {
     brands,

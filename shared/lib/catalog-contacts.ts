@@ -2,7 +2,7 @@ import {
   CatalogContactDtoType,
   type CatalogContactDto,
   type CatalogContactDtoType as CatalogContactType,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { normalizePhoneValue } from "@/shared/lib/phone";
 
 export type CatalogContactsByType = Partial<

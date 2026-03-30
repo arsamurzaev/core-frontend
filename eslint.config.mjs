@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Legacy archive, excluded from active maintenance.
+    "w-old/**",
   ]),
 ]);
 

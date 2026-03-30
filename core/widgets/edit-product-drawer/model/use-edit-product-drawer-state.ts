@@ -8,7 +8,7 @@ import {
 import {
   type AttributeDto,
   type ProductWithDetailsDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 

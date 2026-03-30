@@ -1,5 +1,5 @@
 import { mutator } from "@/shared/api/client";
-import type { ProductWithDetailsDto } from "@/shared/api/generated";
+import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { ProductControllerGetBySlugResponse } from "@/shared/api/generated/zod";
 import { cookies } from "next/headers";
 

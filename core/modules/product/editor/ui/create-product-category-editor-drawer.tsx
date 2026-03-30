@@ -20,6 +20,7 @@ interface CreateProductCategoryEditorDrawerProps {
   disabled?: boolean;
   existingUrl?: string | null;
   file?: File;
+  headerAction?: React.ReactNode;
   loading?: boolean;
   name: string;
   onDescriptorChange: (value: string) => void;
@@ -40,6 +41,7 @@ export function CreateProductCategoryEditorDrawer({
   disabled = false,
   existingUrl,
   file,
+  headerAction,
   loading = false,
   name,
   onDescriptorChange,
@@ -60,6 +62,7 @@ export function CreateProductCategoryEditorDrawer({
           <AppDrawer.Header
             title={title}
             description={description}
+            trailingTitleNode={headerAction}
             withCloseButton={withCloseButton}
           />
           <hr />

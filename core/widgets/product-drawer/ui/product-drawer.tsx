@@ -1,22 +1,21 @@
 "use client";
 
+import { useCart } from "@/core/modules/cart/model/cart-context";
+import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
 import {
   buildProductDrawerViewModel,
 } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { useProductDrawerAfterClose } from "@/core/widgets/product-drawer/model/use-product-drawer-after-close";
-import { ProductDrawerImageCarousel } from "@/core/widgets/product-drawer/ui/product-drawer-image-carousel";
-import { ProductDrawerOverviewHeader, ProductDrawerOverviewMeta } from "@/core/widgets/product-drawer/ui/product-drawer-overview";
-import { ProductDrawerPrice } from "@/core/widgets/product-drawer/ui/product-drawer-price";
-import { ProductDrawerShareActions } from "@/core/widgets/product-drawer/ui/product-drawer-share-actions";
-import type { ProductWithDetailsDto } from "@/shared/api/generated";
-import { useProductControllerGetBySlug } from "@/shared/api/generated";
+import { ProductDetailsPanel } from "@/core/widgets/product-drawer/ui/product-details-panel";
+import {
+  type ProductWithDetailsDto,
+  useProductControllerGetBySlug,
+} from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import {
   Drawer,
   DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
   DrawerScrollArea,
   DrawerTitle,
 } from "@/shared/ui/drawer";
@@ -26,6 +25,7 @@ interface ProductDrawerProps {
   open: boolean;
   productSlug: string;
   initialProduct?: ProductWithDetailsDto | null;
+  product?: ProductWithDetailsDto | null;
   className?: string;
   onOpenChange: (open: boolean) => void;
   onAfterClose?: () => void;
@@ -35,21 +35,24 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   open,
   productSlug,
   initialProduct,
+  product,
   className,
   onOpenChange,
   onAfterClose,
 }) => {
   const { catalog } = useCatalogState();
+  const { shouldUseCartUi } = useCart();
   const { data, isError, isLoading } = useProductControllerGetBySlug(
     productSlug,
     {
       query: {
-        enabled: Boolean(productSlug),
-        initialData: initialProduct ?? undefined,
+        enabled: Boolean(productSlug) && !product,
+        initialData: product ?? initialProduct ?? undefined,
         staleTime: 30_000,
       },
     },
   );
+  const resolvedProduct = product ?? data ?? initialProduct ?? null;
 
   const viewModel = React.useMemo(
     () =>
@@ -57,9 +60,9 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
         catalog,
         isError,
         isLoading,
-        product: data,
+        product: resolvedProduct ?? undefined,
       }),
-    [catalog, data, isError, isLoading],
+    [catalog, isError, isLoading, resolvedProduct],
   );
 
   const handleCloseAnimationEnd = useProductDrawerAfterClose({
@@ -79,51 +82,29 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
         )}
       >
         <DrawerTitle className="sr-only">{viewModel.displayName}</DrawerTitle>
-
-        <div className="flex min-h-0 flex-1 flex-col">
-          <DrawerScrollArea>
-            <DrawerHeader className="overflow-visible px-0 pb-4">
-              <div className="relative">
-                <span className="sr-only">carousel</span>
-                <ProductDrawerImageCarousel
-                  key={productSlug}
-                  imageUrls={viewModel.imageUrls}
-                  isLoading={isLoading}
-                  productName={viewModel.displayName}
-                />
-                <ProductDrawerShareActions
-                  title={viewModel.displayName}
-                  text={viewModel.shareText}
-                />
-              </div>
-
-              <ProductDrawerOverviewHeader
-                displayName={viewModel.displayName}
-                subtitle={viewModel.subtitle}
-                description={viewModel.description}
-                hasError={viewModel.hasError}
-                isLoading={isLoading}
-              />
-            </DrawerHeader>
-
-            <ProductDrawerOverviewMeta
-              brandName={viewModel.brandName}
-              isLoading={isLoading}
-              variantsSummary={viewModel.variantsSummary}
-            />
-          </DrawerScrollArea>
-
-          <DrawerFooter className="shadow-custom relative mx-2 flex min-h-[84px] flex-row items-center justify-between rounded-t-2xl px-6 py-0">
-            <ProductDrawerPrice
-              currency={viewModel.currency}
-              discount={viewModel.discount}
-              displayPrice={viewModel.displayPrice}
-              hasDiscount={viewModel.hasDiscount}
-              isLoading={isLoading}
-              price={viewModel.price}
-            />
-          </DrawerFooter>
-        </div>
+        <ProductDetailsPanel
+          brandName={viewModel.brandName ?? undefined}
+          currency={viewModel.currency}
+          description={viewModel.description}
+          displayName={viewModel.displayName}
+          displayPrice={viewModel.displayPrice}
+          discount={viewModel.discount}
+          footerAction={
+            shouldUseCartUi && resolvedProduct?.id ? (
+              <CartProductDrawerFooterAction productId={resolvedProduct.id} />
+            ) : null
+          }
+          hasDiscount={viewModel.hasDiscount}
+          hasError={viewModel.hasError}
+          imageUrls={viewModel.imageUrls}
+          isLoading={isLoading}
+          price={viewModel.price}
+          resetKey={productSlug}
+          ScrollAreaComponent={DrawerScrollArea}
+          shareText={viewModel.shareText}
+          subtitle={viewModel.subtitle}
+          variantsSummary={viewModel.variantsSummary}
+        />
       </DrawerContent>
     </Drawer>
   );

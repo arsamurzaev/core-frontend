@@ -14,7 +14,7 @@ import {
   useBrandControllerGetAll,
   useBrandControllerRemove,
   useBrandControllerUpdate,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import {
   type DynamicFieldRenderProps,
   type FieldOption,

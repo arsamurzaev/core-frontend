@@ -1,1 +1,1 @@
-export * from "@/core/modules/product/actions/model/invalidate-product-queries";
+export { invalidateProductQueries } from "@/core/modules/product/actions/model";

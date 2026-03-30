@@ -2,20 +2,25 @@
 
 import {
   buildCatalogEditFormDefaultValues,
-  catalogEditFormSchema,
+  catalogEditFormResolver,
   type CatalogEditFormValues,
 } from "@/core/widgets/edit-catalog-drawer/model/form-config";
 import { useEditCatalogDrawerState } from "@/core/widgets/edit-catalog-drawer/model/use-edit-catalog-drawer-state";
 import { useEditCatalogSubmit } from "@/core/widgets/edit-catalog-drawer/model/use-edit-catalog-submit";
-import { useCatalogControllerUpdateCurrent } from "@/shared/api/generated";
+import { useCatalogControllerUpdateCurrent } from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-export function useEditCatalogDrawer() {
+interface UseEditCatalogDrawerParams {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function useEditCatalogDrawer(params: UseEditCatalogDrawerParams = {}) {
+  const { open, onOpenChange } = params;
   const catalog = useCatalog();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -26,7 +31,7 @@ export function useEditCatalogDrawer() {
   );
   const form = useForm<CatalogEditFormValues>({
     defaultValues,
-    resolver: zodResolver(catalogEditFormSchema),
+    resolver: catalogEditFormResolver,
     mode: "onChange",
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -35,6 +40,8 @@ export function useEditCatalogDrawer() {
     defaultValues,
     form,
     isSubmitting,
+    open,
+    onOpenChange,
   });
   const handleSubmit = useEditCatalogSubmit({
     catalogId: catalog.id,

@@ -5,12 +5,14 @@ import { type MediaUploadState } from "@/core/widgets/edit-catalog-drawer/lib/up
 import {
   buildCatalogEditSubmittedValues,
   invalidateCatalogEditQueries,
-  parseCatalogEditFormValues,
-  parseCatalogEditUpdatePayload,
   uploadCatalogEditMediaIds,
 } from "@/core/widgets/edit-catalog-drawer/model/edit-catalog-drawer-data";
-import { type CatalogEditFormValues } from "@/core/widgets/edit-catalog-drawer/model/form-config";
-import { type UpdateCatalogDtoReq } from "@/shared/api/generated";
+import {
+  buildCatalogEditUpdatePayload,
+  normalizeCatalogEditFormValues,
+  type CatalogEditFormValues,
+} from "@/core/widgets/edit-catalog-drawer/model/form-config";
+import { type UpdateCatalogDtoReq } from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -53,20 +55,23 @@ export function useEditCatalogSubmit({
       return;
     }
 
+    const isValid = await form.trigger();
+    if (!isValid) {
+      setErrorMessage("Форма содержит некорректные данные профиля.");
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
-      const parsedForm = parseCatalogEditFormValues(form.getValues());
+      const parsedForm = normalizeCatalogEditFormValues(form.getValues());
       const mediaIds = await uploadCatalogEditMediaIds({
         catalogId,
         onStateChange: setUploadState,
         values: parsedForm,
       });
-      const parsedPayload = parseCatalogEditUpdatePayload({
-        values: parsedForm,
-        ...mediaIds,
-      });
+      const parsedPayload = buildCatalogEditUpdatePayload(parsedForm, mediaIds);
 
       await updateCatalog.mutateAsync({
         data: parsedPayload,

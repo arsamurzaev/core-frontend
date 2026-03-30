@@ -3,7 +3,7 @@
 import type {
   ProductWithAttributesDto,
   ProductWithDetailsDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";

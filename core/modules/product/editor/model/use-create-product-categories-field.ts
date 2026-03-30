@@ -7,7 +7,7 @@ import {
 } from "@/core/modules/product/editor/model/category-field-utils";
 import { useCategoryCrudState } from "@/core/modules/product/editor/model/use-category-crud-state";
 import { useCategorySelectionState } from "@/core/modules/product/editor/model/use-category-selection-state";
-import { useCategoryControllerGetAll } from "@/shared/api/generated";
+import { useCategoryControllerGetAll } from "@/shared/api/generated/react-query";
 import {
   type DynamicFieldRenderProps,
   type FieldOption,

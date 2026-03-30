@@ -1,7 +1,7 @@
 "use client";
 
 import { getFieldOptionText } from "@/core/modules/product/editor/lib/select-field-utils";
-import { type CategoryDto } from "@/shared/api/generated";
+import { type CategoryDto } from "@/shared/api/generated/react-query";
 import { type FieldOption } from "@/shared/ui/dynamic-form";
 
 export type CategoryListItem = Pick<CategoryDto, "id" | "name" | "descriptor"> & {

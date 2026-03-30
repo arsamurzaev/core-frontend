@@ -46,7 +46,11 @@ export function ShareDrawerBrand() {
     <p className="flex flex-col items-center text-center text-sm text-[#8C8C8C]">
       разработано на платформе
       <br />
-      <Link href={SHARE_DRAWER_PLATFORM_URL} target="_blank" rel="noopener noreferrer">
+      <Link
+        href={SHARE_DRAWER_PLATFORM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <KreatiWordmark />
       </Link>
     </p>

@@ -1,8 +1,14 @@
 "use client";
 
-import { AppDrawerFooter, type AppDrawerFooterProps } from "@/shared/ui/app-drawer-footer";
-import { AppDrawerHeader, type AppDrawerHeaderProps } from "@/shared/ui/app-drawer-header";
 import { cn } from "@/shared/lib/utils";
+import {
+  AppDrawerFooter,
+  type AppDrawerFooterProps,
+} from "@/shared/ui/app-drawer-footer";
+import {
+  AppDrawerHeader,
+  type AppDrawerHeaderProps,
+} from "@/shared/ui/app-drawer-header";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/shared/ui/drawer";
 import * as React from "react";
 
@@ -37,11 +43,9 @@ const AppDrawerRoot: React.FC<AppDrawerProps> = ({
   );
 };
 
-const AppDrawerContent: React.FC<React.ComponentProps<typeof DrawerContent>> = ({
-  className,
-  children,
-  ...props
-}) => {
+const AppDrawerContent: React.FC<
+  React.ComponentProps<typeof DrawerContent>
+> = ({ className, children, ...props }) => {
   return (
     <DrawerContent className={cn(className)} {...props}>
       {children}

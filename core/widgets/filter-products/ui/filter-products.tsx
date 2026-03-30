@@ -1,5 +1,8 @@
 "use client";
 
+import { useCart } from "@/core/modules/cart/model/cart-context";
+import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
+import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
@@ -17,7 +20,7 @@ import {
   GRID_FILTER_PRODUCTS_NEXT_PAGE_SKELETON_COUNT,
 } from "@/core/widgets/filter-products/model/filter-products";
 import { useFilterRecommendations } from "@/core/widgets/filter-products/model/use-filter-recommendations";
-import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui/toggle-product-popular-action";
+import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
 import { useFilterProducts } from "@/core/widgets/filter-products/model/use-filter-products";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import { cn } from "@/shared/lib/utils";
@@ -56,6 +59,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   products,
 }) => {
   const { isAuthenticated } = useSession();
+  const { quantityByProductId, shouldUseCartUi } = useCart();
   const listClassName = React.useMemo(
     () =>
       isDetailed
@@ -101,10 +105,20 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                 <ProductCard
                   data={product}
                   isDetailed={isDetailed}
+                  actions={
+                    shouldUseCartUi ? (
+                      <CartProductAction productId={product.id} />
+                    ) : undefined
+                  }
                   className={cn("h-full", isDetailed && "min-h-[160px]")}
-                  isVisiblePrice={isAuthenticated}
+                  hidePriceWhenFooterAction={shouldUseCartUi}
                   footerAction={
-                    isAuthenticated ? (
+                    shouldUseCartUi && (quantityByProductId[product.id] ?? 0) > 0 ? (
+                      <CartProductCardFooterAction
+                        product={product}
+                        isDetailed={isDetailed}
+                      />
+                    ) : !shouldUseCartUi && isAuthenticated ? (
                       <ToggleProductPopularAction
                         productId={product.id}
                         isPopular={Boolean(product.isPopular)}
@@ -113,11 +127,13 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                   }
                 />
               </ProductLink>
-              <EditProductCardAction
-                isMoySkladLinked={isMoySkladProduct(product)}
-                productId={product.id}
-                status={product.status}
-              />
+              {!shouldUseCartUi ? (
+                <EditProductCardAction
+                  isMoySkladLinked={isMoySkladProduct(product)}
+                  productId={product.id}
+                  status={product.status}
+                />
+              ) : null}
             </article>
           ))}
         {isFetchingNextPage &&

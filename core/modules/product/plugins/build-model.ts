@@ -2,7 +2,7 @@ import type {
   CatalogCurrentDto,
   ProductWithAttributesDto,
   ProductWithDetailsDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import {
   pickAttributeValues,
   type ParsedAttributeValue,

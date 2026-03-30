@@ -8,12 +8,12 @@ import {
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
 import { type UploadState } from "@/core/modules/product/editor/model/types";
-import { uploadProductImages } from "@/core/modules/product/editor/lib/upload-product-images";
 import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
+import { uploadProductImages } from "@/core/modules/product/editor/lib";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";

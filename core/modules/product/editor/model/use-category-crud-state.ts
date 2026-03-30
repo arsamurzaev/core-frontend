@@ -16,7 +16,8 @@ import {
   useCategoryControllerCreate,
   useCategoryControllerRemove,
   useCategoryControllerUpdate,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
+import { revalidateStorefrontCacheBestEffort } from "@/shared/api/revalidate-storefront-client";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
@@ -59,9 +60,12 @@ export function useCategoryCrudState({
     React.useState<CategoryListItem | null>(null);
 
   const invalidateCategories = React.useCallback(async () => {
-    await queryClient.invalidateQueries({
-      queryKey: getCategoryControllerGetAllQueryKey(),
-    });
+    await Promise.allSettled([
+      queryClient.invalidateQueries({
+        queryKey: getCategoryControllerGetAllQueryKey(),
+      }),
+      revalidateStorefrontCacheBestEffort(),
+    ]);
   }, [queryClient]);
 
   const resetCreateForm = React.useCallback(() => {

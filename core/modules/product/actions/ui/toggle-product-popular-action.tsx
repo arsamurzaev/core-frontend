@@ -2,7 +2,7 @@
 
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
-import { useProductControllerTogglePopular } from "@/shared/api/generated";
+import { useProductControllerTogglePopular } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";

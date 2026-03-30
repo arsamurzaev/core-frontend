@@ -1,11 +1,27 @@
 "use client";
 
+import {
+  formatSubscriptionDaysText,
+  getCatalogSubscriptionEndsAt,
+  getDaysUntilSubscriptionEnd,
+} from "@/core/widgets/footer/model/subscription-status";
+import { useSubscriptionWarning } from "@/core/widgets/footer/model/use-subscription-warning";
 import { cn } from "@/shared/lib/utils";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
-import { Button } from "@/shared/ui/button";
 import { AppDrawer } from "@/shared/ui/app-drawer";
+import { Button } from "@/shared/ui/button";
+import { Carousel, CarouselContent, CarouselItem } from "@/shared/ui/carousel";
+import { Checkbox } from "@/shared/ui/checkbox";
+import {
+  DrawerClose,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/shared/ui/drawer";
 import { KreatiLogo } from "@/shared/ui/icons/kreati-logo";
-import { LifeBuoy, MessageCircle, Send } from "lucide-react";
+import { Flame, Heart, type LucideIcon, X, Zap } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -13,20 +29,91 @@ interface Props {
   className?: string;
 }
 
+interface SupportDrawerProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+type SubscriptionPlan = {
+  id: string;
+  title: string;
+  description: React.ReactNode;
+  benefits: string[];
+  oldPrice?: string;
+  price: string;
+  Icon: LucideIcon;
+  iconClassName: string;
+};
+
 const PLATFORM_URL = "https://catalog.kreati.ru";
 
 const SUPPORT_LINKS = [
   {
     id: "whatsapp",
-    title: "Напишите нам в WhatsApp",
+    title: "Напишите нам в Whatsapp",
     href: "https://wa.me/+79380018778",
-    icon: MessageCircle,
+    imageSrc: "/ui-share-wa-icon.svg",
   },
   {
     id: "telegram",
     title: "Напишите нам в Telegram",
     href: "https://t.me/next_time_ts",
-    icon: Send,
+    imageSrc: "/ui-share-tg-icon.svg",
+  },
+] as const;
+
+const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: "comfortable",
+    title: "Удобный",
+    description: "Подключение на 10 месяцев + 2 месяца в подарок.",
+    benefits: [
+      "Выгода 17 %",
+      "Один ежегодный платёж и 2 месяца в подарок",
+      "Всё включено",
+    ],
+    oldPrice: "34 800 ₽",
+    price: "29 000 ₽ / год",
+    Icon: Flame,
+    iconClassName: "fill-[#4F6DE1] text-transparent",
+  },
+  {
+    id: "best",
+    title: "Самый выгодный",
+    description: (
+      <>
+        Подключение на 12 месяцев
+        <br />+ 3 месяца в подарок.
+      </>
+    ),
+    benefits: [
+      "Выгода 20 %",
+      "Один ежегодный платёж и 3 месяца в подарок",
+      "Всё включено",
+    ],
+    oldPrice: "43 500 ₽",
+    price: "34 800 ₽ / год",
+    Icon: Zap,
+    iconClassName: "fill-violet-600 text-transparent",
+  },
+  {
+    id: "base",
+    title: "Базовый",
+    description: (
+      <>
+        Подключение на 1 месяц,
+        <br />
+        ежемесячная оплата.
+      </>
+    ),
+    benefits: [
+      "Помесячный тариф без привязки",
+      "Удобно тестировать",
+      "Всё включено",
+    ],
+    price: "2 900 ₽ / мес",
+    Icon: Heart,
+    iconClassName: "fill-[#38C3F5] text-transparent",
   },
 ] as const;
 
@@ -47,49 +134,291 @@ const FooterBrand: React.FC = () => {
   );
 };
 
-const SupportDrawer: React.FC = () => {
+const LegacyDrawerBrand: React.FC = () => {
+  return (
+    <p className="text-muted-foreground flex flex-col items-center text-center text-sm">
+      Разработано на платформе <br />
+      <Link href={PLATFORM_URL} target="_blank" rel="noreferrer">
+        <LegacyKreatiWordmark />
+      </Link>
+    </p>
+  );
+};
+
+const LegacySupportTriggerIcon: React.FC = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M20.0665 7.7774H19.1041C19.2791 8.39304 19.379 9.04005 19.379 9.71099C19.379 13.6204 16.1985 16.8009 12.2891 16.8009C9.8915 16.8009 7.77207 15.6016 6.48828 13.7746V17.4884C6.48828 18.5546 7.35564 19.422 8.42187 19.422H15.8894L18.2787 21.8113C18.6828 22.2154 19.3789 21.9317 19.3789 21.3556V19.422H20.0664C21.1326 19.422 22 18.5546 22 17.4884V9.71104C22.0001 8.64481 21.1327 7.7774 20.0665 7.7774Z"
+        fill="#2167C7"
+      />
+      <path
+        d="M13.5782 0H1.93359C0.86736 0 0 0.86736 0 1.93359V9.71095C0 10.7772 0.86736 11.6445 1.93359 11.6445H2.62107V13.5781C2.62107 14.1471 3.31131 14.4424 3.72129 14.0338L5.63112 12.124C5.35666 11.3694 5.19918 10.5591 5.19918 9.71095C5.19918 5.80158 8.37968 2.62107 12.2891 2.62107C13.4499 2.62107 14.5435 2.90708 15.5117 3.40374V1.93359C15.5118 0.86736 14.6444 0 13.5782 0Z"
+        fill="#2167C7"
+      />
+      <path
+        d="M12.2891 3.91022C9.09036 3.91022 6.48828 6.5123 6.48828 9.71102C6.48828 12.9097 9.09036 15.5118 12.2891 15.5118C15.4878 15.5118 18.0899 12.9097 18.0899 9.71102C18.0899 6.5123 15.4878 3.91022 12.2891 3.91022ZM14.1547 9.99927L12.8657 12.5774C12.7073 12.8933 12.3225 13.0255 12.0008 12.8657C11.6823 12.7065 11.5533 12.3193 11.7126 12.0009L12.5352 10.3555H11C10.5228 10.3555 10.2086 9.85102 10.4235 9.42273L11.7126 6.84459C11.8724 6.52545 12.2583 6.39894 12.5774 6.5563C12.8959 6.71555 13.0249 7.10267 12.8657 7.42112L12.043 9.06647H13.5782C14.0554 9.06647 14.3696 9.57098 14.1547 9.99927Z"
+        fill="#2167C7"
+      />
+    </svg>
+  );
+};
+
+const LegacyKreatiWordmark: React.FC = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="52"
+      height="13"
+      viewBox="0 0 52 13"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M0 12.9472V8.77236H1.68934V7.00203H0V0H1.68934V7.00203L5.56954 3.48781H7.73401L3.00914 7.76829L8.84264 12.9472H6.38782L1.68934 8.77236V12.9472H0Z"
+        fill="#242426"
+      />
+      <path
+        d="M11.5614 12.9472H9.87208V3.61992H11.5614V5.31098C11.6881 3.81016 13.0132 3.61992 13.198 3.61992H15.0985V5.31098H16.867V6.92276H15.0985V5.31098H11.5614V12.9472Z"
+        fill="#242426"
+      />
+      <path d="M52 0.0528455H50.1259V1.79675H52V0.0528455Z" fill="#242426" />
+      <path d="M52 3.67276H50.1259V13H52V3.67276Z" fill="#242426" />
+      <path
+        d="M42.4183 0.713415H44.1076V3.64634H47.1959V5.25813H44.1076V11.1768H47.1959V12.9736H44.1076V11.1768H42.4183V5.25813H40.1482V3.54065H42.4183V0.713415Z"
+        fill="#242426"
+      />
+      <path
+        d="M36.0041 5.36382H30.4081V3.5935H36.0041V5.36382H37.7726V12.9736H36.0041V11.3536C35.9782 11.9614 35.5746 12.9736 34.0772 12.9736H31.8599C31.8599 12.9736 29.8274 12.9736 29.8274 11.2297H36.0041V8.93089H31.6487V7.16057H36.0041V5.36382Z"
+        fill="#242426"
+      />
+      <path d="M29.8274 11.2561V8.93089H31.5695V11.2561H29.8274Z" fill="#242426" />
+      <path
+        d="M20.7736 12.9207V11.2033H19.0315V7.47764V5.25813C19.0315 4.13781 20.1929 3.68157 20.7736 3.5935C21.7942 3.58469 24.1206 3.57236 25.2609 3.5935C26.4012 3.61463 26.8623 4.71206 26.9503 5.25813V7.31911H25.2609V5.25813H20.7736V7.47764H26.9503V9.11585H20.7736V11.2033H26.9503V12.9207H20.7736Z"
+        fill="#242426"
+      />
+      <path d="M26.9503 7.47764V7.31911H25.2609V7.47764H26.9503Z" fill="#242426" />
+    </svg>
+  );
+};
+
+const LegacyDrawerHeader: React.FC = () => {
+  return (
+    <DrawerHeader className="gap-y-5 pb-1 [&_svg]:size-5 [&_svg]:text-muted-foreground">
+      <DrawerTitle className="flex items-center justify-between" asChild>
+        <div>
+          <h2 className="flex-1 text-center text-2xl font-bold">
+            Выберите удобный сервис для связи с нами
+          </h2>
+          <DrawerClose className="text-muted-foreground">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="15"
+              height="15"
+              viewBox="0 0 15 15"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M8.83793 7.5L14.9019 1.43638C15.0325 1.3057 15.0325 1.09396 14.9019 0.963277L14.0371 0.097971C13.9744 0.035396 13.889 0 13.8004 0C13.7116 0 13.6264 0.035396 13.5637 0.097971L7.49982 6.16175L1.43597 0.097971C1.31034 -0.0276531 1.08801 -0.0274951 0.962697 0.097971L0.0980118 0.963277C-0.0326706 1.09396 -0.0326706 1.3057 0.0980118 1.43638L6.16187 7.5L0.0980118 13.5636C-0.0326706 13.6943 -0.0326706 13.906 0.0980118 14.0367L0.962855 14.902C1.02559 14.9646 1.11076 15 1.19957 15C1.28838 15 1.37339 14.9646 1.43612 14.902L7.49998 8.83825L13.5638 14.902C13.6266 14.9646 13.7119 15 13.8005 15C13.8892 15 13.9745 14.9646 14.0373 14.902L14.9021 14.0367C15.0326 13.906 15.0326 13.6943 14.9021 13.5636L8.83793 7.5Z"
+                fill="#D2D2D2"
+              />
+            </svg>
+            <span className="sr-only">Закрыть</span>
+          </DrawerClose>
+        </div>
+      </DrawerTitle>
+      <DrawerDescription className="sr-only">
+        Выберите удобный сервис для связи с нами
+      </DrawerDescription>
+    </DrawerHeader>
+  );
+};
+
+const SupportDrawer: React.FC<SupportDrawerProps> = ({
+  open,
+  onOpenChange,
+}) => {
   return (
     <AppDrawer
+      open={open}
+      onOpenChange={onOpenChange}
       trigger={
-        <button
-          type="button"
-          className="text-foreground inline-flex items-center gap-2 text-sm"
-        >
-          <LifeBuoy className="size-5 text-[#2167C7]" />
+        <button type="button" className="flex items-center gap-2">
+          <LegacySupportTriggerIcon />
           Техническая поддержка
         </button>
       }
     >
-      <AppDrawer.Content className="mx-auto w-full max-w-md">
-        <div className="flex min-h-0 flex-1 flex-col">
-          <AppDrawer.Header
-            title="Выберите удобный сервис для связи с нами"
-            description=""
-          />
-          <div className="space-y-8 px-5 pb-10">
-            <div className="flex justify-evenly">
-              {SUPPORT_LINKS.map((item) => {
-                const Icon = item.icon;
+      <AppDrawer.Content className="h-fit max-h-[40%] pb-10 text-center">
+        <LegacyDrawerHeader />
+        <div className="space-y-8">
+          <div className="flex justify-evenly">
+            {SUPPORT_LINKS.map((item) => (
+              <div key={item.id} className="basis-1/4">
+                <Button asChild variant="ghost" className="size-[60px]" size="icon">
+                  <Link
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={item.title}
+                  >
+                    <Image
+                      src={item.imageSrc}
+                      width={60}
+                      height={60}
+                      className="h-full w-full object-cover"
+                      alt=""
+                    />
+                  </Link>
+                </Button>
+                <p className="text-xs">{item.title}</p>
+              </div>
+            ))}
+          </div>
+          <LegacyDrawerBrand />
+        </div>
+      </AppDrawer.Content>
+    </AppDrawer>
+  );
+};
 
-                return (
-                  <div key={item.id} className="basis-1/3 text-center">
-                    <Link href={item.href} target="_blank" rel="noreferrer">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-[60px] rounded-full"
-                      >
-                        <span className="bg-secondary inline-flex size-[52px] items-center justify-center rounded-full">
-                          <Icon className="size-6 text-[#2167C7]" />
-                        </span>
-                      </Button>
-                    </Link>
-                    <p className="mt-2 text-xs">{item.title}</p>
-                  </div>
-                );
-              })}
+const SubscriptionStatusCard: React.FC<{
+  daysRemaining: number;
+  subscriptionEndsAt: Date | null;
+}> = ({ daysRemaining, subscriptionEndsAt }) => {
+  const isExpired = daysRemaining === 0;
+
+  return (
+    <div className="text-center">
+      <p className="text-muted-foreground text-sm">
+        {isExpired ? "Статус лицензии" : "До конца подписки"}
+      </p>
+      <div
+        className={cn(
+          "text-2xl font-medium",
+          isExpired
+            ? "text-red-500"
+            : daysRemaining <= 3
+              ? "text-red-500"
+              : daysRemaining <= 7
+                ? "text-orange-500"
+                : "text-foreground",
+        )}
+      >
+        {formatSubscriptionDaysText(daysRemaining)}
+      </div>
+      {subscriptionEndsAt ? (
+        <div className="text-muted-foreground mt-1 text-xs">
+          до {subscriptionEndsAt.toLocaleDateString("ru-RU")}
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+const SubscriptionPlanCard: React.FC<{ plan: SubscriptionPlan }> = ({ plan }) => {
+  return (
+    <article className="bg-muted/20 flex h-full flex-col justify-between gap-6 rounded-xl px-9 py-5 text-left select-none">
+      <div className="space-y-2">
+        <h3 className="flex items-center gap-2 text-[clamp(14px,7cqw,25px)] leading-none font-bold">
+          <plan.Icon className={plan.iconClassName} />
+          {plan.title}
+        </h3>
+        <p className="text-[clamp(12px,5cqw,14px)] font-medium">
+          {plan.description}
+        </p>
+      </div>
+      <div className="flex flex-1 flex-col justify-between gap-6">
+        <ul className="space-y-6">
+          {plan.benefits.map((benefit) => (
+            <li
+              key={benefit}
+              className="text-[clamp(10px,5cqw,12px)] flex items-center gap-3 leading-none"
+            >
+              <Checkbox className="bg-primary" checked />
+              {benefit}
+            </li>
+          ))}
+        </ul>
+        <div className="space-y-1 text-right">
+          <p className="text-[clamp(10px,5.5cqw,16px)] leading-none line-through">
+            {plan.oldPrice ?? ""}
+          </p>
+          <h3 className="text-[clamp(16px,8cqw,24px)] leading-none font-bold">
+            {plan.price}
+          </h3>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const SubscriptionReminderDrawer: React.FC<{
+  message: string;
+  onOpenChange: (open: boolean) => void;
+  onRenewClick: () => void;
+  open: boolean;
+}> = ({ message, onOpenChange, onRenewClick, open }) => {
+  return (
+    <AppDrawer open={open} onOpenChange={onOpenChange}>
+      <AppDrawer.Content className="max-h-fit pb-10">
+        <DrawerHeader className="gap-y-5 pb-1">
+          <div className="grid grid-cols-[20px_minmax(0,1fr)_20px] items-start gap-2">
+            <div />
+            <div className="space-y-3 text-center">
+              <DrawerTitle className="text-base font-normal">
+                До конца вашей подписки осталось
+              </DrawerTitle>
+              <DrawerDescription className="text-foreground text-6xl font-semibold">
+                {message}
+              </DrawerDescription>
             </div>
-            <FooterBrand />
+            <div className="flex justify-end">
+              <DrawerClose className="text-muted-foreground inline-flex items-center justify-center">
+                <X className="size-4" />
+                <span className="sr-only">Закрыть</span>
+              </DrawerClose>
+            </div>
+          </div>
+        </DrawerHeader>
+
+        <div className="space-y-10 overflow-y-auto">
+          <p className="px-5.5 text-center text-xs">
+            Оставайтесь с нами — всё только начинается.
+            <br />
+            Ваш «Каталог» продолжает работать, пока вы с нами. Мы сохраним все
+            ваши данные, оформление и настройки, чтобы вы просто продолжали
+            развивать бизнес без пауз. Спасибо, что выбираете нас.
+          </p>
+
+          <div className="px-5">
+            <Carousel opts={{ align: "start" }}>
+              <CarouselContent>
+                {SUBSCRIPTION_PLANS.map((plan) => (
+                  <CarouselItem key={plan.id} className="basis-5/6">
+                    <SubscriptionPlanCard plan={plan} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          </div>
+
+          <div className="px-4">
+            <Button
+              className="rounded-full"
+              size="full"
+              onClick={onRenewClick}
+            >
+              Продлить подписку
+            </Button>
           </div>
         </div>
       </AppDrawer.Content>
@@ -99,15 +428,59 @@ const SupportDrawer: React.FC = () => {
 
 export const Footer: React.FC<Props> = ({ className }) => {
   const { user } = useSession();
-  const canOpenSupport =
-    user?.role === "CATALOG" || user?.role === "ADMIN";
+  const { catalog } = useCatalogState();
+  const [supportOpen, setSupportOpen] = React.useState(false);
+
+  const canOpenSupport = user?.role === "CATALOG" || user?.role === "ADMIN";
+  const subscriptionEndsAt = React.useMemo(
+    () => getCatalogSubscriptionEndsAt(catalog),
+    [catalog],
+  );
+  const hasSubscriptionStatus = subscriptionEndsAt !== undefined;
+  const daysRemaining = React.useMemo(
+    () =>
+      subscriptionEndsAt === undefined
+        ? null
+        : getDaysUntilSubscriptionEnd(subscriptionEndsAt),
+    [subscriptionEndsAt],
+  );
+
+  const { open: warningOpen, setOpen: setWarningOpen, message } =
+    useSubscriptionWarning({
+      catalogId: catalog?.id,
+      daysRemaining,
+      isAdmin: canOpenSupport,
+      subscriptionEndsAt,
+    });
+
+  const handleRenewClick = React.useCallback(() => {
+    setWarningOpen(false);
+    setSupportOpen(true);
+  }, [setWarningOpen]);
 
   return (
     <footer className={cn("space-y-6 pb-28", className)}>
       <FooterBrand />
+
       {canOpenSupport ? (
-        <div className="flex justify-center">
-          <SupportDrawer />
+        <div className="flex flex-col items-center space-y-10">
+          <SupportDrawer open={supportOpen} onOpenChange={setSupportOpen} />
+
+          {hasSubscriptionStatus && daysRemaining !== null ? (
+            <SubscriptionStatusCard
+              daysRemaining={daysRemaining}
+              subscriptionEndsAt={subscriptionEndsAt}
+            />
+          ) : null}
+
+          {message ? (
+            <SubscriptionReminderDrawer
+              open={warningOpen}
+              onOpenChange={setWarningOpen}
+              onRenewClick={handleRenewClick}
+              message={message}
+            />
+          ) : null}
         </div>
       ) : null}
     </footer>

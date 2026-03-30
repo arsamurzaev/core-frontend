@@ -1,6 +1,11 @@
 "use client";
 
-import { CatalogContactDtoType } from "@/shared/api/generated";
+import {
+  type ShareActionItem,
+  type ShareDrawerMessengerType,
+  type ShareDrawerSocialItem,
+} from "@/core/widgets/share-drawer/model/share-drawer-types";
+import { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import { buildCatalogContactHref } from "@/shared/lib/catalog-contacts";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { type CatalogWithContacts } from "@/shared/providers/catalog-provider";
@@ -9,11 +14,6 @@ import {
   CatalogOwnerMailIcon,
   CatalogOwnerPhoneIcon,
 } from "@/shared/ui/icons/catalog-owner-icons";
-import type {
-  ShareActionItem,
-  ShareDrawerMessengerType,
-  ShareDrawerSocialItem,
-} from "@/core/widgets/share-drawer/model/share-drawer-types";
 
 const normalizeText = toOptionalTrimmedString;
 
@@ -42,37 +42,33 @@ export function buildShareCaption(params: {
 
 export function buildShareMessage(params: {
   caption?: string;
+  shouldAppendUrl?: boolean;
   url: string;
 }): string {
-  return [normalizeText(params.caption), normalizeText(params.url)]
-    .filter(Boolean)
-    .join("\n");
+  const normalizedCaption = normalizeText(params.caption);
+  const normalizedUrl =
+    params.shouldAppendUrl === false ? undefined : normalizeText(params.url);
+
+  return [normalizedCaption, normalizedUrl].filter(Boolean).join("\n");
 }
 
 export function getShareDrawerTitle(isShareMode: boolean): string {
   return isShareMode
-    ? "Выберите удобный сервис для отправки каталога"
+    ? "Выберите удобный сервис для отправки"
     : "Выберите удобный сервис для связи с нами";
 }
 
-function filterAvailableActions(items: ShareActionItem[]): ShareActionItem[] {
-  return items.filter((item) => Boolean(item.href || item.onClick));
+function filterAvailableActions(items: Array<ShareActionItem | null>): ShareActionItem[] {
+  return items.filter(
+    (item): item is ShareActionItem => Boolean(item && (item.href || item.onClick)),
+  );
 }
 
-function buildTelegramShareHref(params: {
-  shareCaption: string;
-  shareUrl: string;
-}): string | undefined {
-  const { shareCaption, shareUrl } = params;
-
-  if (!shareUrl) {
-    return undefined;
-  }
-
-  return `https://t.me/share/url?${new URLSearchParams({
-    url: shareUrl,
-    ...(shareCaption ? { text: shareCaption } : {}),
-  }).toString()}`;
+function hasCatalogContact(
+  catalog: CatalogWithContacts,
+  type: CatalogContactDtoType,
+): boolean {
+  return Boolean(normalizeText(catalog.getContactValue(type)));
 }
 
 export function buildShareDrawerSocialItems(
@@ -114,47 +110,56 @@ export function buildShareDrawerSocialItems(
 export function buildShareDrawerPrimaryActions(params: {
   catalog: CatalogWithContacts;
   isShareMode: boolean;
-  shareCaption: string;
   shareMessage: string;
   shareUrl: string;
 }): ShareActionItem[] {
-  const { catalog, isShareMode, shareCaption, shareMessage, shareUrl } = params;
+  const { catalog, isShareMode, shareMessage, shareUrl } = params;
 
   if (isShareMode) {
     return filterAvailableActions([
-      {
-        id: "whatsapp",
-        label: "Отправить в WhatsApp",
-        href: buildCatalogContactHref({
-          type: CatalogContactDtoType.WHATSAPP,
-          value: "https://wa.me/",
-          text: shareMessage,
-        }),
-        imageSrc: "/ui-share-wa-icon.svg",
-      },
-      {
-        id: "telegram",
-        label: "Отправить в Telegram",
-        href: buildTelegramShareHref({ shareCaption, shareUrl }),
-        imageSrc: "/ui-share-tg-icon.svg",
-      },
-      {
-        id: "sms",
-        label: "Отправить в Сообщениях",
-        href: buildCatalogContactHref({
-          type: CatalogContactDtoType.SMS,
-          value: "sms:",
-          text: shareMessage,
-        }),
-        imageSrc: "/ui-share-phone-icon.svg",
-      },
+      hasCatalogContact(catalog, CatalogContactDtoType.WHATSAPP)
+        ? {
+            id: "whatsapp",
+            label: "Отправить в WhatsApp",
+            href: buildCatalogContactHref({
+              type: CatalogContactDtoType.WHATSAPP,
+              value: catalog.getContactValue(CatalogContactDtoType.WHATSAPP),
+              text: shareMessage,
+            }),
+            imageSrc: "/ui-share-wa-icon.svg",
+          }
+        : null,
+      hasCatalogContact(catalog, CatalogContactDtoType.TELEGRAM)
+        ? {
+            id: "telegram",
+            label: "Отправить в Telegram",
+            href: buildCatalogContactHref({
+              type: CatalogContactDtoType.TELEGRAM,
+              value: catalog.getContactValue(CatalogContactDtoType.TELEGRAM),
+              text: shareMessage,
+            }),
+            imageSrc: "/ui-share-tg-icon.svg",
+          }
+        : null,
+      hasCatalogContact(catalog, CatalogContactDtoType.SMS)
+        ? {
+            id: "sms",
+            label: "Отправить в сообщения",
+            href: buildCatalogContactHref({
+              type: CatalogContactDtoType.SMS,
+              value: catalog.getContactValue(CatalogContactDtoType.SMS),
+              text: shareMessage,
+            }),
+            imageSrc: "/ui-share-phone-icon.svg",
+          }
+        : null,
     ]);
   }
 
   return filterAvailableActions([
     {
       id: "whatsapp",
-      label: "Напишите нам в Whatsapp",
+      label: "Напишите нам в WhatsApp",
       href: buildCatalogContactHref({
         type: CatalogContactDtoType.WHATSAPP,
         value: catalog.getContactValue(CatalogContactDtoType.WHATSAPP),
@@ -174,7 +179,7 @@ export function buildShareDrawerPrimaryActions(params: {
     },
     {
       id: "sms",
-      label: "Напишите нам в Сообщениях",
+      label: "Напишите нам в сообщения",
       href: buildCatalogContactHref({
         type: CatalogContactDtoType.SMS,
         value: catalog.getContactValue(CatalogContactDtoType.SMS),
@@ -193,33 +198,41 @@ export function buildShareDrawerSecondaryActions(params: {
   const { catalog, isShareMode, onMessengerAction } = params;
 
   return filterAvailableActions([
-    {
-      id: "max",
-      label: isShareMode ? "Поделиться через MAX" : "Напишите нам в MAX",
-      href: !isShareMode
-        ? buildCatalogContactHref({
-            type: CatalogContactDtoType.MAX,
-            value: catalog.getContactValue(CatalogContactDtoType.MAX),
-          })
-        : undefined,
-      onClick: isShareMode ? () => onMessengerAction("max") : undefined,
-      imageSrc: "/max-icon.svg",
-      unoptimized: true,
-      buttonClassName: "overflow-hidden",
-      buttonVariant: "default",
-    },
-    {
-      id: "bip",
-      label: isShareMode ? "Поделиться через Bip" : "Напишите нам в Bip",
-      href: !isShareMode
-        ? buildCatalogContactHref({
-            type: CatalogContactDtoType.BIP,
-            value: catalog.getContactValue(CatalogContactDtoType.BIP),
-          })
-        : undefined,
-      onClick: isShareMode ? () => onMessengerAction("bip") : undefined,
-      imageSrc: "/bip-icon.svg",
-      unoptimized: true,
-    },
+    hasCatalogContact(catalog, CatalogContactDtoType.MAX)
+      ? {
+          id: "max",
+          label: isShareMode
+            ? "Поделиться через MAX"
+            : "Напишите нам в MAX",
+          href: !isShareMode
+            ? buildCatalogContactHref({
+                type: CatalogContactDtoType.MAX,
+                value: catalog.getContactValue(CatalogContactDtoType.MAX),
+              })
+            : undefined,
+          onClick: isShareMode ? () => onMessengerAction("max") : undefined,
+          imageSrc: "/max-icon.svg",
+          unoptimized: true,
+          buttonClassName: "overflow-hidden",
+          buttonVariant: "default",
+        }
+      : null,
+    hasCatalogContact(catalog, CatalogContactDtoType.BIP)
+      ? {
+          id: "bip",
+          label: isShareMode
+            ? "Поделиться через Bip"
+            : "Напишите нам в Bip",
+          href: !isShareMode
+            ? buildCatalogContactHref({
+                type: CatalogContactDtoType.BIP,
+                value: catalog.getContactValue(CatalogContactDtoType.BIP),
+              })
+            : undefined,
+          onClick: isShareMode ? () => onMessengerAction("bip") : undefined,
+          imageSrc: "/bip-icon.svg",
+          unoptimized: true,
+        }
+      : null,
   ]);
 }

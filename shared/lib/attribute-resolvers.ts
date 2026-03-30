@@ -16,7 +16,7 @@ import type {
 import type {
   ProductAttributeDto,
   ProductAttributeValueDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 
 type Resolver<T, Raw> = {
   fallback: T;

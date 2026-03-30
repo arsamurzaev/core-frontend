@@ -4,7 +4,6 @@ import {
   CREATE_PRODUCT_FIELD_GROUP_PROPS,
   CREATE_PRODUCT_FIELDSET_PROPS,
   CREATE_PRODUCT_FORM_LAYOUT,
-  createProductFormSchema,
   type CreateProductFormValues,
   PRODUCT_IMAGE_ASPECT_RATIO,
 } from "@/core/modules/product/editor/model/form-config";
@@ -192,7 +191,6 @@ export const ProductEditorDrawerContent: React.FC<
             <div className="space-y-6">
               <section className="space-y-3">
                 <DynamicForm
-                  schema={createProductFormSchema}
                   form={form}
                   fields={formFields}
                   onSubmit={() => undefined}

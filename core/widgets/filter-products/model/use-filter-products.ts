@@ -10,10 +10,10 @@ import {
   hasActiveCatalogFilters,
 } from "@/shared/lib/catalog-filter-query";
 import {
-  type ProductControllerGetInfiniteParams,
-  type ProductInfinitePageDto,
-  productControllerGetInfinite,
-} from "@/shared/api/generated";
+  type ProductCardPageDto,
+  type ProductControllerGetInfiniteCardsParams,
+  productControllerGetInfiniteCards,
+} from "@/shared/api/generated/react-query";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import React from "react";
 
@@ -28,7 +28,7 @@ interface UseFilterProductsParams {
 
 export function useFilterProducts({ queryState }: UseFilterProductsParams) {
   const loadMoreRef = React.useRef<HTMLDivElement | null>(null);
-  const requestParams = React.useMemo<ProductControllerGetInfiniteParams>(
+  const requestParams = React.useMemo<ProductControllerGetInfiniteCardsParams>(
     () => buildFilterRequestParams(queryState),
     [queryState],
   );
@@ -56,7 +56,7 @@ export function useFilterProducts({ queryState }: UseFilterProductsParams) {
       queryFn: ({ pageParam }) => {
         const typedPageParam = pageParam as FilterProductsPageParam;
 
-        return productControllerGetInfinite({
+        return productControllerGetInfiniteCards({
           ...requestParams,
           cursor: typedPageParam.cursor,
           seed: typedPageParam.seed,
@@ -67,7 +67,7 @@ export function useFilterProducts({ queryState }: UseFilterProductsParams) {
         seed: deterministicSeed,
       } as FilterProductsPageParam,
       getNextPageParam: (
-        lastPage: ProductInfinitePageDto,
+        lastPage: ProductCardPageDto,
         _allPages,
         lastPageParam,
       ) => {

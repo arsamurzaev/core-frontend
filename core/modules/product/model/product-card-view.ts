@@ -1,4 +1,4 @@
-import { ProductWithAttributesDto } from "@/shared/api/generated";
+import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { getTotalPrice } from "@/shared/lib/calculate-price";
 import { isDiscountActive } from "@/shared/lib/is-discount-active";

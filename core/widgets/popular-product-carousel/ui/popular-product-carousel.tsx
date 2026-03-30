@@ -1,32 +1,45 @@
 "use client";
 
+import { useCart } from "@/core/modules/cart/model/cart-context";
+import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
+import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
-import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui/toggle-product-popular-action";
-import { useProductControllerGetPopular } from "@/shared/api/generated";
+import {
+  type ProductWithAttributesDto,
+  useProductControllerGetPopularCards,
+} from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
-import { useSession } from "@/shared/providers/session-provider";
 import {
   Carousel,
   CarouselApi,
   CarouselContent,
   CarouselItem,
 } from "@/shared/ui/carousel";
-import React, { Suspense } from "react";
+import React from "react";
 import { PopularProductCarouselSkeleton } from "./skeleton/popular-product-carousel-skeleton";
 
 interface Props {
   className?: string;
+  initialProducts?: ProductWithAttributesDto[];
 }
 
-export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
+export const PopularProductCarousel: React.FC<Props> = ({
+  className,
+  initialProducts = [],
+}) => {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const { isAuthenticated } = useSession();
+  const { quantityByProductId, shouldUseCartUi } = useCart();
 
-  const { isLoading, data } = useProductControllerGetPopular();
+  const { isLoading, data } = useProductControllerGetPopularCards({
+    query: {
+      initialData: initialProducts,
+      staleTime: 60_000,
+    },
+  });
 
   const slideCount = data?.length ?? 0;
 
@@ -78,6 +91,7 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
   if (!isLoading && !data?.length) {
     return null;
   }
+
   return (
     <section className="space-y-8">
       <h2 className="text-2xl font-bold">Популярное</h2>
@@ -86,37 +100,43 @@ export const PopularProductCarousel: React.FC<Props> = ({ className }) => {
           {data?.map((product) => (
             <CarouselItem key={product.id}>
               <article className="relative">
-                <Suspense>
-                  <ProductLink
-                    slug={product.slug}
-                    className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
-                  >
-                    <ProductCard
-                      data={product}
-                      isDetailed
-                      isVisiblePrice={isAuthenticated}
-                      footerAction={
-                        isAuthenticated ? (
-                          <ToggleProductPopularAction
-                            productId={product.id}
-                            isPopular={Boolean(product.isPopular)}
-                          />
-                        ) : undefined
-                      }
-                    />
-                  </ProductLink>
-                </Suspense>
-                <EditProductCardAction
-                  isMoySkladLinked={isMoySkladProduct(product)}
-                  productId={product.id}
-                  status={product.status}
-                />
+                <ProductLink
+                  slug={product.slug}
+                  className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
+                >
+                  <ProductCard
+                    data={product}
+                    isDetailed
+                    actions={
+                      shouldUseCartUi ? (
+                        <CartProductAction productId={product.id} />
+                      ) : undefined
+                    }
+                    hidePriceWhenFooterAction={shouldUseCartUi}
+                    footerAction={
+                      shouldUseCartUi &&
+                      (quantityByProductId[product.id] ?? 0) > 0 ? (
+                        <CartProductCardFooterAction
+                          product={product}
+                          isDetailed
+                        />
+                      ) : undefined
+                    }
+                  />
+                </ProductLink>
+                {!shouldUseCartUi ? (
+                  <EditProductCardAction
+                    isMoySkladLinked={isMoySkladProduct(product)}
+                    productId={product.id}
+                    status={product.status}
+                  />
+                ) : null}
               </article>
             </CarouselItem>
           ))}
         </CarouselContent>
 
-        <ul className="flex justify-center gap-1 min-h-1">
+        <ul className="flex min-h-1 justify-center gap-1">
           {slideCount > 0 &&
             Array.from({ length: slideCount }).map((_, index) => (
               <li

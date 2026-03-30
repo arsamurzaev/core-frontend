@@ -1,7 +1,7 @@
 import {
   type ProductIntegrationDto,
   ProductIntegrationDtoProvider,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 
 interface ProductWithIntegration {
   integration: ProductIntegrationDto | null;

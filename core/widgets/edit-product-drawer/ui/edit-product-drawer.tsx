@@ -1,8 +1,10 @@
 "use client";
 
 import { useEditProductDrawer } from "@/core/widgets/edit-product-drawer/model/use-edit-product-drawer";
-import { ProductEditorDrawerContent } from "@/core/modules/product/editor/ui/product-editor-drawer-content";
-import { ProductImagesSection } from "@/core/modules/product/editor/ui/product-images-section";
+import {
+  ProductEditorDrawerContent,
+  ProductImagesSection,
+} from "@/core/modules/product/editor/ui";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { Loader2, Trash2 } from "lucide-react";

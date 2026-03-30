@@ -15,7 +15,7 @@ import {
   useIntegrationControllerTestMoySkladConnection,
   useIntegrationControllerUpdateMoySklad,
   useIntegrationControllerUpsertMoySklad,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";

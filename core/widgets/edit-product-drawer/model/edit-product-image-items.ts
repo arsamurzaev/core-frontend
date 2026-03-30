@@ -1,6 +1,6 @@
 import { type FilePreviewEntry } from "@/core/modules/product/editor/model/types";
 import { type ProductImageSectionItem } from "@/core/modules/product/editor/ui/product-images-section";
-import { type ProductMediaDto } from "@/shared/api/generated";
+import { type ProductMediaDto } from "@/shared/api/generated/react-query";
 
 export type EditProductImageItem =
   | {

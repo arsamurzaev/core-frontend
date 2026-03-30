@@ -1,1 +1,1 @@
-export * from "@/core/modules/product/editor/ui/product-editor-drawer-content";
+export * from "@/core/modules/product/editor/ui";

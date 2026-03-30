@@ -53,27 +53,12 @@ export const ConfirmationDrawerActions: React.FC<
 }) => {
   return (
     <DrawerFooter
-      className={cn(
-        "flex-col gap-2 sm:flex-row sm:justify-end",
-        className,
-      )}
+      className={cn("flex-col gap-2 sm:flex-row sm:justify-end", className)}
     >
       {footer ? (
         footer
       ) : (
         <>
-          {!hideCancel ? (
-            <Button
-              type="button"
-              variant={cancelVariant}
-              size={cancelSize}
-              onClick={() => void onCancel()}
-              disabled={cancelDisabled || isPending}
-              {...cancelButtonProps}
-            >
-              {cancelText}
-            </Button>
-          ) : null}
           {!hideConfirm ? (
             <Button
               type="button"
@@ -91,6 +76,18 @@ export const ConfirmationDrawerActions: React.FC<
               ) : (
                 confirmText
               )}
+            </Button>
+          ) : null}
+          {!hideCancel ? (
+            <Button
+              type="button"
+              variant={cancelVariant}
+              size={cancelSize}
+              onClick={() => void onCancel()}
+              disabled={cancelDisabled || isPending}
+              {...cancelButtonProps}
+            >
+              {cancelText}
             </Button>
           ) : null}
         </>

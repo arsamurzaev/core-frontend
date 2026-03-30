@@ -2,18 +2,18 @@
 
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
-import {
-  invalidateEditProductQueries,
-  parseEditProductUpdatePayload,
-} from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
 import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
 import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
 import {
+  invalidateEditProductQueries,
+  parseEditProductUpdatePayload,
+} from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
+import {
   type AttributeDto,
   type ProductWithDetailsDto,
   type UpdateProductDtoReq,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";

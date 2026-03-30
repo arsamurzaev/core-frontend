@@ -5,7 +5,7 @@ import {
   type CatalogContactDtoType,
   useCatalogControllerGetCurrent,
   type CatalogControllerGetCurrentQueryResult,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import {
   getPrimaryCatalogContact,
   getPrimaryCatalogContactValue,
@@ -18,7 +18,12 @@ import React, { PropsWithChildren, useMemo } from "react";
 
 type CatalogStatus = "loading" | "ready" | "missing" | "error";
 
-export type CatalogWithContacts = CatalogControllerGetCurrentQueryResult & {
+type CatalogSubscriptionMeta = {
+  subscriptionEndsAt?: string | null;
+};
+
+export type CatalogWithContacts = CatalogControllerGetCurrentQueryResult &
+  CatalogSubscriptionMeta & {
   contacts: CatalogContactDto[];
   contactsByType: CatalogContactsByType;
   getContactByType: (type: CatalogContactDtoType) => CatalogContactDto | undefined;
@@ -39,7 +44,7 @@ export type CatalogStateValue = {
 const CatalogContext = createStrictContext<CatalogStateValue>();
 
 type CatalogProviderProps = PropsWithChildren<{
-  initialCatalog?: CatalogControllerGetCurrentQueryResult | null;
+  initialCatalog?: (CatalogControllerGetCurrentQueryResult & CatalogSubscriptionMeta) | null;
 }>;
 
 function isMissingCatalogError(error: unknown): boolean {
@@ -73,7 +78,11 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
   });
 
   const missing = isMissingCatalogError(query.error);
-  const rawCatalog = missing ? undefined : query.data;
+  const rawCatalog = missing
+    ? undefined
+    : (query.data as
+        | (CatalogControllerGetCurrentQueryResult & CatalogSubscriptionMeta)
+        | undefined);
   const normalizedContacts = useMemo(
     () => normalizeCatalogContacts(rawCatalog?.contacts),
     [rawCatalog?.contacts],

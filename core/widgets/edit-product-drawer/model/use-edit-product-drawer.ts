@@ -5,19 +5,19 @@ import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
+import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
 import {
   buildPersistedEditableAttributeValues,
 } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import { useEditProductDrawerState } from "@/core/widgets/edit-product-drawer/model/use-edit-product-drawer-state";
 import { useEditProductImageEditor } from "@/core/widgets/edit-product-drawer/model/use-edit-product-image-editor";
 import { useEditProductSubmit } from "@/core/widgets/edit-product-drawer/model/use-edit-product-submit";
-import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
-import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
+import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   useProductControllerGetById,
   useProductControllerRemove,
   useProductControllerUpdate,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { confirmDelete } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";

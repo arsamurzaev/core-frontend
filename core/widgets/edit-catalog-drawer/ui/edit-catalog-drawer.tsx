@@ -9,10 +9,14 @@ import { Progress } from "@/shared/ui/progress";
 import React from "react";
 
 type EditCatalogDrawerProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   trigger?: React.ReactNode;
 };
 
 export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
+  open,
+  onOpenChange,
   trigger,
 }) => {
   const {
@@ -23,22 +27,26 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
     handleSubmit,
     isSubmitting,
     logoUrl,
-    open,
+    open: drawerOpen,
     uploadState,
-  } = useEditCatalogDrawer();
+  } = useEditCatalogDrawer({
+    open,
+    onOpenChange,
+  });
+
+  const resolvedTrigger =
+    trigger === undefined ? (
+      <Button size="sm" variant="outline">
+        Редактировать профиль
+      </Button>
+    ) : trigger;
 
   return (
     <AppDrawer
-      open={open}
+      open={drawerOpen}
       onOpenChange={handleOpenChange}
       dismissible={!isSubmitting}
-      trigger={
-        trigger ?? (
-          <Button size="sm" variant="outline">
-            Редактировать профиль
-          </Button>
-        )
-      }
+      trigger={resolvedTrigger}
     >
       <AppDrawer.Content className="mx-auto w-full max-w-2xl">
         <div className="flex min-h-0 flex-1 flex-col">

@@ -21,12 +21,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <>
+      <HomeContent />
       <ProductDrawerRoute
         productSlug={productSlug}
         closeStrategy="push-home"
         initialProduct={initialProduct}
       />
-      <HomeContent />
     </>
   );
 }

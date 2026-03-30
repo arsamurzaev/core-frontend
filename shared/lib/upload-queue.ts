@@ -6,7 +6,7 @@ import {
 import {
   type UploadQueueStatusDto,
   s3ControllerGetQueueStatus,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;

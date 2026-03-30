@@ -4,17 +4,23 @@ import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
-import { useCreateProductDrawerState } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer-state";
-import { useCreateProductSubmit } from "@/core/widgets/create-product-drawer/model/use-create-product-submit";
 import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
 import { useProductImageEditor } from "@/core/modules/product/editor/model/use-product-image-editor";
-import { useProductControllerCreate } from "@/shared/api/generated";
+import { useCreateProductDrawerState } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer-state";
+import { useCreateProductSubmit } from "@/core/widgets/create-product-drawer/model/use-create-product-submit";
+import { useProductControllerCreate } from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { useForm } from "react-hook-form";
 
-export function useCreateProductDrawer() {
+interface UseCreateProductDrawerParams {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}) {
+  const { open: controlledOpen, onOpenChange } = params;
   const { type } = useCatalog();
   const queryClient = useQueryClient();
   const createProduct = useProductControllerCreate();
@@ -22,7 +28,21 @@ export function useCreateProductDrawer() {
     defaultValues: CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [open, setOpen] = React.useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = React.useCallback(
+    (nextOpen: boolean | ((currentOpen: boolean) => boolean)) => {
+      const resolvedOpen =
+        typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
+
+      if (controlledOpen === undefined) {
+        setUncontrolledOpen(resolvedOpen);
+      }
+
+      onOpenChange?.(resolvedOpen);
+    },
+    [controlledOpen, onOpenChange, open],
+  );
 
   const { formFields, productAttributes, visibleAttributes } = useProductFormFields(
     {

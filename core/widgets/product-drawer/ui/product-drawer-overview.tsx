@@ -1,6 +1,5 @@
 "use client";
 
-import { DrawerDescription, DrawerTitle } from "@/shared/ui/drawer";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 interface ProductDrawerOverviewHeaderProps {
@@ -38,13 +37,13 @@ export function ProductDrawerOverviewHeader({
         </>
       ) : (
         <>
-          <DrawerTitle className="text-2xl font-bold sm:text-3xl">
+          <h2 className="text-2xl font-bold sm:text-3xl">
             {displayName}
-          </DrawerTitle>
+          </h2>
           {subtitle ? (
-            <DrawerDescription className="text-left text-base font-light text-foreground sm:text-lg">
+            <p className="text-left text-base font-light text-foreground sm:text-lg">
               {subtitle}
-            </DrawerDescription>
+            </p>
           ) : null}
           {description ? (
             <p className="text-xs break-words whitespace-pre-wrap sm:text-base">

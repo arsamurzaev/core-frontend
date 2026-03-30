@@ -1,17 +1,17 @@
-﻿"use client";
+"use client";
 
-/* eslint-disable @next/next/no-img-element */
-import { CreateProductDrawer } from "@/core/widgets/create-product-drawer/ui/create-product-drawer";
-import { EditCatalogDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-drawer";
-import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
-import { useAuthControllerLogout } from "@/shared/api/generated";
+import { LazyCreateProductDrawerTrigger } from "@/core/widgets/header/ui/lazy-create-product-drawer-trigger";
+import { LazyEditCatalogDrawerTrigger } from "@/core/widgets/header/ui/lazy-edit-catalog-drawer-trigger";
+import { LazyShareDrawerTrigger } from "@/core/widgets/share-drawer/ui/lazy-share-drawer-trigger";
+import { useAuthControllerLogout } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
 import { Skeleton } from "@/shared/ui/skeleton";
-import { ArrowRight, Pencil } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 import { toast } from "sonner";
 
@@ -46,47 +46,40 @@ export const Header: React.FC<Props> = ({ className }) => {
   };
 
   const handleLogout = async () => {
-    const getConfirm = await confirm({
+    const shouldLogout = await confirm({
       title: "Выход",
       description: "Вы действительно хотите выйти?",
     });
 
-    if (!getConfirm) {
+    if (!shouldLogout) {
       return;
     }
 
     toast.promise(logoutMutation.mutateAsync(), {
       loading: "Выход...",
       success: () => "Выход выполнен",
-      error: (err) => (err instanceof Error ? err.message : "Ошибка выхода"),
+      error: (error) =>
+        error instanceof Error ? error.message : "Ошибка выхода",
     });
   };
 
   return (
-    <header className={cn("", className)}>
+    <header className={cn(className)}>
       <div className="space-y-6">
         <div className="-mt-5 flex items-start gap-5">
           <div className="relative">
-            <div className="size-27.5 rounded-full border-[0.5px] border-white bg-white shadow-[0_0_6px_0] shadow-black/50 sm:size-35">
-              <img
+            <div className="size-27.5 relative overflow-hidden rounded-full border-[0.5px] border-white bg-white shadow-[0_0_6px_0] shadow-black/50 sm:size-35">
+              <Image
                 alt=""
                 src={logoMedia?.url || "/default-avatar.png"}
-                className="h-full w-full rounded-full object-contain"
+                fill
+                sizes="(max-width: 640px) 110px, 140px"
+                className="object-contain"
               />
             </div>
-            {isAuthenticated ? (
-              <EditCatalogDrawer
-                trigger={
-                  <Button
-                    size="icon"
-                    className="shadow-custom absolute right-0 bottom-0 h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
-                  >
-                    <Pencil className="fill-muted-foreground size-4" />
-                  </Button>
-                }
-              />
-            ) : null}
+            {isAuthenticated ? <LazyEditCatalogDrawerTrigger /> : null}
           </div>
+
           <div className="pt-6 flex-1">
             <h1 className="text-[18px] leading-tight font-bold text-black sm:text-2xl">
               {name}
@@ -105,7 +98,8 @@ export const Header: React.FC<Props> = ({ className }) => {
               )}
             </p>
           </div>
-          {isAuthenticated && (
+
+          {isAuthenticated ? (
             <div className="flex pt-6">
               <Button
                 onClick={handleLogout}
@@ -115,23 +109,23 @@ export const Header: React.FC<Props> = ({ className }) => {
                 Выйти <ArrowRight className="size-3" />
               </Button>
             </div>
-          )}
+          ) : null}
         </div>
 
         {isLoading ? (
-          <Skeleton className="w-full h-10" />
+          <Skeleton className="h-10 w-full" />
         ) : isAuthenticated ? (
           <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
-            <CreateProductDrawer />
+            <LazyCreateProductDrawerTrigger />
             <Button onClick={handleCopyCatalogLink} variant="outline" size="sm">
               Поделиться каталогом
             </Button>
-            <Button size={"sm"} variant={"outline"}>
+            <Button size="sm" variant="outline">
               Статистика аккаунта
             </Button>
           </div>
         ) : (
-          <ShareDrawer />
+          <LazyShareDrawerTrigger />
         )}
       </div>
     </header>

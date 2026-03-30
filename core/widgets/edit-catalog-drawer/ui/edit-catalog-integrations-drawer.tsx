@@ -1,6 +1,6 @@
 "use client";
 
-import { useIntegrationControllerGetMoySkladStatus } from "@/shared/api/generated";
+import { useIntegrationControllerGetMoySkladStatus } from "@/shared/api/generated/react-query";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";

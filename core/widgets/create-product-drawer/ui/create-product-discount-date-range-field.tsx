@@ -1,1 +1,1 @@
-export * from "@/core/modules/product/editor/ui/create-product-discount-date-range-field";
+export { CreateProductDiscountDateRangeField } from "@/core/modules/product/editor/ui";

@@ -1,13 +1,17 @@
 "use client";
 
 import { CategoryCard } from "@/core/modules/category/ui/category-card";
+import { CategoryCardSkeleton } from "@/core/modules/category/ui/category-card-skeleton";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import {
   PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
   PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
   useProductCardViewMode,
 } from "@/core/modules/product/model/use-product-card-view-mode";
-import { CatalogFilterDrawer } from "@/core/widgets/catalog-filter/ui/catalog-filter-drawer";
+import { useCategoryAdmin } from "@/core/widgets/category-admin/model/use-category-admin";
+import { CategoryAdminBarActions } from "@/core/widgets/category-admin/ui/category-admin-bar-actions";
+import { CategoryAdminCardAction } from "@/core/widgets/category-admin/ui/category-admin-card-action";
+import { LazyCatalogFilterDrawer } from "@/core/widgets/catalog-filter/ui/lazy-catalog-filter-drawer";
 import {
   CATEGORY_PRODUCTS_PAGE_SIZE,
   CategoryProducts,
@@ -17,25 +21,43 @@ import {
 import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
 import { FilterBar } from "@/core/widgets/filter-bar/ui/filter-bar";
 import { FilterProducts } from "@/core/widgets/filter-products/ui/filter-products";
-import { useCategoryControllerGetAll } from "@/shared/api/generated";
+import {
+  type CategoryDto,
+  useCategoryControllerGetAll,
+} from "@/shared/api/generated/react-query";
 import {
   getCatalogActiveFiltersCount,
   type CatalogFilterQueryState,
 } from "@/shared/lib/catalog-filter-query";
 import { cn } from "@/shared/lib/utils";
+import { useSession } from "@/shared/providers/session-provider";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import dynamic from "next/dynamic";
 import React from "react";
 import { getCategorySectionId } from "../model/category-scroll";
 import { useBrowserQueryState } from "../model/use-browser-query-state";
 import { useCategoryScrollNavigation } from "../model/use-category-scroll-navigation";
 
+const CategoryAdminDrawersDynamic = dynamic(
+  () =>
+    import("@/core/widgets/category-admin/ui/category-admin-drawers").then(
+      (module) => module.CategoryAdminDrawers,
+    ),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
+
 interface BrowserProps {
   className?: string;
+  initialCategories?: CategoryDto[];
 }
 
 const CATEGORY_LOADING_SECTIONS_COUNT = 3;
 const CATEGORY_LOADING_PRODUCTS_COUNT = 4;
+const CATEGORY_LOADING_CARDS_COUNT = 4;
 
 const CategoryProductsSectionSkeleton = () => {
   const { isDetailed } = useProductCardViewMode();
@@ -87,7 +109,10 @@ const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({ tab }) => {
   );
 };
 
-export const Browser: React.FC<BrowserProps> = ({ className }) => {
+export const Browser: React.FC<BrowserProps> = ({
+  className,
+  initialCategories = [],
+}) => {
   const {
     queryState,
     isFilterActive,
@@ -95,11 +120,22 @@ export const Browser: React.FC<BrowserProps> = ({ className }) => {
     handleTabChange,
     handleFilterToggle,
   } = useBrowserQueryState();
-  const categoriesQuery = useCategoryControllerGetAll();
+  const categoriesQuery = useCategoryControllerGetAll({
+    query: {
+      initialData: initialCategories,
+      staleTime: 60_000,
+    },
+  });
   const categories = React.useMemo(
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const { user } = useSession();
+  const canManageCategories =
+    user?.role === "ADMIN" || user?.role === "CATALOG";
+  const categoryAdmin = useCategoryAdmin({
+    categories,
+  });
   const {
     activeCategoryId,
     isProgrammaticScroll,
@@ -116,10 +152,49 @@ export const Browser: React.FC<BrowserProps> = ({ className }) => {
       !isFilterActive && categoriesQuery.isLoading && categories.length === 0,
     [categories.length, categoriesQuery.isLoading, isFilterActive],
   );
+  const shouldShowCategoryCardsLoading =
+    categoriesQuery.isLoading && categories.length === 0;
   const activeFiltersCount = React.useMemo(
     () => getCatalogActiveFiltersCount(queryState),
     [queryState],
   );
+  const shouldShowAdminActions =
+    canManageCategories && queryState.tab === "categories";
+  const shouldRenderAdminDrawers =
+    canManageCategories &&
+    (categoryAdmin.isCreateOpen ||
+      categoryAdmin.isReorderOpen ||
+      categoryAdmin.editingCategory !== null ||
+      categoryAdmin.deletingCategory !== null);
+  const [hasMountedAdminDrawers, setHasMountedAdminDrawers] = React.useState(
+    shouldRenderAdminDrawers,
+  );
+
+  React.useEffect(() => {
+    if (!shouldRenderAdminDrawers) {
+      return;
+    }
+
+    setHasMountedAdminDrawers(true);
+  }, [shouldRenderAdminDrawers]);
+  const filterBottomRow =
+    queryState.tab === "catalog" ? (
+      !isFilterActive ? (
+        <CategoryBarList
+          items={categories}
+          isLoading={categoriesQuery.isLoading}
+          activeCategoryId={activeCategoryId}
+          onCategoryClick={handleCategoryBarClick}
+        />
+      ) : null
+    ) : shouldShowAdminActions ? (
+      <CategoryAdminBarActions
+        canReorder={categories.length > 1}
+        disabled={categoriesQuery.isLoading}
+        onCreateClick={() => categoryAdmin.setIsCreateOpen(true)}
+        onReorderClick={() => categoryAdmin.handleReorderOpenChange(true)}
+      />
+    ) : null;
 
   return (
     <section
@@ -137,7 +212,7 @@ export const Browser: React.FC<BrowserProps> = ({ className }) => {
           tab={<CatalogTabsToggle tab={queryState.tab} />}
           searchTerm={queryState.searchTerm}
           filterAction={
-            <CatalogFilterDrawer
+            <LazyCatalogFilterDrawer
               queryState={queryState}
               categories={categories}
               isCategoriesLoading={categoriesQuery.isLoading}
@@ -146,16 +221,7 @@ export const Browser: React.FC<BrowserProps> = ({ className }) => {
             />
           }
           onFilterToggle={handleFilterToggle}
-          bottomRow={
-            queryState.tab === "catalog" && !isFilterActive ? (
-              <CategoryBarList
-                items={categories}
-                isLoading={categoriesQuery.isLoading}
-                activeCategoryId={activeCategoryId}
-                onCategoryClick={handleCategoryBarClick}
-              />
-            ) : null
-          }
+          bottomRow={filterBottomRow}
         />
 
         <div className="overflow-hidden rounded-lg">
@@ -164,7 +230,9 @@ export const Browser: React.FC<BrowserProps> = ({ className }) => {
             style={{ transform: `translateX(-${swipeTranslatePercent}%)` }}
           >
             <div className="w-1/2 shrink-0 space-y-7.5">
-              <div className="m-1">
+              <div
+                className={cn("m-1", queryState.tab === "categories" && "h-0")}
+              >
                 {isFilterActive ? (
                   <FilterProducts queryState={queryState} />
                 ) : shouldShowCategoryProductsLoading ? (
@@ -202,23 +270,47 @@ export const Browser: React.FC<BrowserProps> = ({ className }) => {
                 )}
               </div>
             </div>
+
             <div className="w-1/2 shrink-0">
-              {categories.map((category, index) => (
-                <CategoryCard
-                  handleClick={() =>
-                    handleFilterToggle({
-                      categories: [category.id],
-                    })
-                  }
-                  key={category.id}
-                  data={category}
-                  index={index}
-                />
-              ))}
+              {shouldShowCategoryCardsLoading
+                ? Array.from({ length: CATEGORY_LOADING_CARDS_COUNT }).map(
+                    (_, index) => (
+                      <CategoryCardSkeleton
+                        key={`category-card-skeleton-${index}`}
+                      />
+                    ),
+                  )
+                : categories.map((category, index) => (
+                    <CategoryCard
+                      handleClick={() =>
+                        handleFilterToggle({
+                          categories: [category.id],
+                        })
+                      }
+                      key={category.id}
+                      data={category}
+                      index={index}
+                      action={
+                        canManageCategories
+                          ? (currentCategory) => (
+                              <CategoryAdminCardAction
+                                onClick={() =>
+                                  categoryAdmin.handleStartEdit(currentCategory)
+                                }
+                              />
+                            )
+                          : undefined
+                      }
+                    />
+                  ))}
             </div>
           </div>
         </div>
       </Tabs>
+
+      {canManageCategories && hasMountedAdminDrawers ? (
+        <CategoryAdminDrawersDynamic admin={categoryAdmin} />
+      ) : null}
     </section>
   );
 };

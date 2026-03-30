@@ -4,7 +4,7 @@ import {
   getIntegrationControllerGetMoySkladQueryKey,
   getIntegrationControllerGetMoySkladRunsQueryKey,
   getIntegrationControllerGetMoySkladStatusQueryKey,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
 
 export async function invalidateMoySkladIntegrationQueries(

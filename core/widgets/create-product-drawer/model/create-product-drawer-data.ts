@@ -1,22 +1,15 @@
 "use client";
 
-import {
-  formatGeneratedZodError,
-} from "@/shared/lib/api-errors";
+import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
 import {
   type CreateProductFormValues,
   normalizeOptionalString,
 } from "@/core/modules/product/editor/model/form-config";
+import { buildProductAttributePayload } from "@/core/modules/product/editor/model/product-attributes";
 import {
-  buildProductAttributePayload,
-} from "@/core/modules/product/editor/model/product-attributes";
-import { type AttributeDto } from "@/shared/api/generated";
-import {
-  getProductControllerGetAllQueryKey,
-  getProductControllerGetPopularQueryKey,
+  type AttributeDto,
   type CreateProductDtoReq,
-} from "@/shared/api/generated";
-import { ProductControllerCreateBody } from "@/shared/api/generated/zod";
+} from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
 
 function normalizeCategoryIds(values: string[] | undefined): string[] {
@@ -33,44 +26,26 @@ export function parseCreateProductPayload(params: {
 }): CreateProductDtoReq {
   const { formValues, mediaIds, normalizedPrice, productAttributes } = params;
   const normalizedCategories = normalizeCategoryIds(formValues.categoryIds);
+  const normalizedBrandId = normalizeOptionalString(formValues.brandId);
   const attributesPayload = buildProductAttributePayload(
     productAttributes,
     formValues.attributes ?? {},
   );
 
-  const payloadCandidate = {
+  return {
     name: formValues.name.trim(),
     price: normalizedPrice,
-    brandId: normalizeOptionalString(formValues.brandId),
-    mediaIds: mediaIds.length > 0 ? mediaIds : undefined,
-    categories:
-      normalizedCategories.length > 0 ? normalizedCategories : undefined,
-    attributes: attributesPayload.length > 0 ? attributesPayload : undefined,
-  };
-
-  const payloadParsed = ProductControllerCreateBody.safeParse(payloadCandidate);
-  if (!payloadParsed.success) {
-    throw new Error(
-      formatGeneratedZodError(
-        payloadParsed.error,
-        "Форма содержит некорректные данные для создания товара.",
-      ),
-    );
-  }
-
-  return payloadParsed.data;
+    ...(normalizedBrandId ? { brandId: normalizedBrandId } : {}),
+    ...(mediaIds.length > 0 ? { mediaIds } : {}),
+    ...(normalizedCategories.length > 0
+      ? { categories: normalizedCategories }
+      : {}),
+    ...(attributesPayload.length > 0 ? { attributes: attributesPayload } : {}),
+  } satisfies CreateProductDtoReq;
 }
 
 export async function invalidateCreateProductQueries(
   queryClient: QueryClient,
 ) {
-  await Promise.all([
-    queryClient.invalidateQueries({
-      queryKey: getProductControllerGetPopularQueryKey(),
-    }),
-    queryClient.invalidateQueries({
-      queryKey: getProductControllerGetAllQueryKey(),
-    }),
-  ]);
+  await invalidateProductQueries(queryClient);
 }
-

@@ -4,21 +4,56 @@ import {
   CatalogContactDtoType,
   type CatalogCurrentDto,
   type UpdateCatalogDtoReq,
-} from "@/shared/api/generated";
-import { CatalogControllerUpdateCurrentBody } from "@/shared/api/generated/zod";
+} from "@/shared/api/generated/react-query";
 import { normalizePhoneValue } from "@/shared/lib/phone";
-import { z } from "zod";
-
-const optionalFileSchema = z.custom<File | undefined>(
-  (value) => value === undefined || value instanceof File,
-);
+import {
+  type FieldErrors,
+  type Resolver,
+} from "react-hook-form";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CONTACT_PHONE_FIELD_NAMES = ["phone", "message", "whatsapp"] as const;
 const CONTACT_URL_FIELD_NAMES = ["bip", "max", "map"] as const;
+const PHONE_ERROR_MESSAGE =
+  "Введите полный номер в формате +7 (xxx) xxx-xx-xx.";
+const EMAIL_ERROR_MESSAGE = "Введите корректный email адрес.";
+const CONTACT_REQUIRED_MESSAGE = "Укажите хотя бы один контакт.";
 
-function normalizeText(value: string): string {
-  return value.trim();
+export type CatalogEditFormValues = {
+  name: string;
+  about: string;
+  description: string;
+  phone: string;
+  message: string;
+  email: string;
+  whatsapp: string;
+  telegram: string;
+  max: string;
+  bip: string;
+  map: string;
+  logoFile?: File;
+  bgFile?: File;
+};
+
+type CatalogEditTextFieldName = "name" | "about" | "description";
+type CatalogEditContactFieldName = keyof Pick<
+  CatalogEditFormValues,
+  "phone" | "message" | "email" | "whatsapp" | "telegram" | "max" | "bip" | "map"
+>;
+
+function createFieldError(message: string) {
+  return {
+    type: "validate",
+    message,
+  } as const;
+}
+
+function normalizeText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeOptionalFile(value: unknown): File | undefined {
+  return value instanceof File ? value : undefined;
 }
 
 function hasAtLeastOneContact(values: Record<string, string>): boolean {
@@ -46,92 +81,157 @@ function cleanExternalUrl(value: string): string {
   }
 }
 
-const contactFieldSchema = z
-  .object({
-    phone: z
-      .string()
-      .trim()
-      .refine((value) => value.length === 0 || hasValidPhoneDigits(value), {
-        message: "Введите полный номер в формате +7 (xxx) xxx-xx-xx.",
-      }),
-    message: z
-      .string()
-      .trim()
-      .refine((value) => value.length === 0 || hasValidPhoneDigits(value), {
-        message: "Введите полный номер в формате +7 (xxx) xxx-xx-xx.",
-      }),
-    email: z
-      .string()
-      .trim()
-      .refine((value) => value.length === 0 || emailRegex.test(value), {
-        message: "Введите корректный email адрес.",
-      }),
-    whatsapp: z
-      .string()
-      .trim()
-      .refine((value) => value.length === 0 || hasValidPhoneDigits(value), {
-        message: "Введите полный номер в формате +7 (xxx) xxx-xx-xx.",
-      }),
-    telegram: z.string().trim().max(255, {
-      message: "Telegram не должен превышать 255 символов.",
-    }),
-    max: z.string().trim().max(255, {
-      message: "Ссылка MAX не должна превышать 255 символов.",
-    }),
-    bip: z.string().trim().max(255, {
-      message: "Ссылка Bip не должна превышать 255 символов.",
-    }),
-    map: z.string().trim().max(500, {
-      message: "Ссылка на карту не должна превышать 500 символов.",
-    }),
-  })
-  .superRefine((values, ctx) => {
-    if (hasAtLeastOneContact(values)) {
-      return;
-    }
+function validateCatalogEditTextField(params: {
+  errors: FieldErrors<CatalogEditFormValues>;
+  label: string;
+  max: number;
+  min: number;
+  name: CatalogEditTextFieldName;
+  value: string;
+}) {
+  const { errors, label, max, min, name, value } = params;
 
-    ctx.addIssue({
-      code: "custom",
-      path: ["phone"],
-      message: "Укажите хотя бы один контакт.",
-    });
+  if (value.length < min) {
+    errors[name] = createFieldError(
+      `${label} должно содержать минимум ${min} символов.`,
+    );
+    return;
+  }
+
+  if (value.length > max) {
+    errors[name] = createFieldError(
+      `${label} не должно превышать ${max} символов.`,
+    );
+  }
+}
+
+function validateCatalogEditContacts(
+  errors: FieldErrors<CatalogEditFormValues>,
+  values: CatalogEditFormValues,
+) {
+  const phoneFields: CatalogEditContactFieldName[] = [
+    "phone",
+    "message",
+    "whatsapp",
+  ];
+
+  for (const fieldName of phoneFields) {
+    const value = values[fieldName];
+    if (value.length > 0 && !hasValidPhoneDigits(value)) {
+      errors[fieldName] = createFieldError(PHONE_ERROR_MESSAGE);
+    }
+  }
+
+  if (values.email.length > 0 && !emailRegex.test(values.email)) {
+    errors.email = createFieldError(EMAIL_ERROR_MESSAGE);
+  }
+
+  if (values.telegram.length > 255) {
+    errors.telegram = createFieldError(
+      "Telegram не должен превышать 255 символов.",
+    );
+  }
+
+  if (values.max.length > 255) {
+    errors.max = createFieldError(
+      "Ссылка MAX не должна превышать 255 символов.",
+    );
+  }
+
+  if (values.bip.length > 255) {
+    errors.bip = createFieldError(
+      "Ссылка Bip не должна превышать 255 символов.",
+    );
+  }
+
+  if (values.map.length > 500) {
+    errors.map = createFieldError(
+      "Ссылка на карту не должна превышать 500 символов.",
+    );
+  }
+
+  if (
+    !hasAtLeastOneContact({
+      phone: values.phone,
+      message: values.message,
+      email: values.email,
+      whatsapp: values.whatsapp,
+      telegram: values.telegram,
+      max: values.max,
+      bip: values.bip,
+      map: values.map,
+    })
+  ) {
+    errors.phone = createFieldError(CONTACT_REQUIRED_MESSAGE);
+  }
+}
+
+function buildCatalogEditFormErrors(
+  values: CatalogEditFormValues,
+): FieldErrors<CatalogEditFormValues> {
+  const errors: FieldErrors<CatalogEditFormValues> = {};
+
+  validateCatalogEditTextField({
+    errors,
+    name: "name",
+    value: values.name,
+    label: "Имя",
+    min: 2,
+    max: 35,
+  });
+  validateCatalogEditTextField({
+    errors,
+    name: "about",
+    value: values.about,
+    label: "Описание",
+    min: 5,
+    max: 100,
+  });
+  validateCatalogEditTextField({
+    errors,
+    name: "description",
+    value: values.description,
+    label: "Общая информация",
+    min: 10,
+    max: 500,
   });
 
-const catalogEditBaseSchema = CatalogControllerUpdateCurrentBody.pick({
-  name: true,
-  about: true,
-  description: true,
-  contacts: true,
-});
+  validateCatalogEditContacts(errors, values);
 
-export const catalogEditFormSchema = catalogEditBaseSchema
-  .omit({ contacts: true })
-  .extend({
-    name: z
-      .string()
-      .trim()
-      .min(2, { message: "Имя должно содержать минимум 2 символа." })
-      .max(35, { message: "Имя не должно превышать 35 символов." }),
-    about: z
-      .string()
-      .trim()
-      .min(5, { message: "Описание должно содержать минимум 5 символов." })
-      .max(100, { message: "Описание не должно превышать 100 символов." }),
-    description: z
-      .string()
-      .trim()
-      .min(10, {
-        message: "Общая информация должна содержать минимум 10 символов.",
-      })
-      .max(500, {
-        message: "Общая информация не должна превышать 500 символов.",
-      }),
-    logoFile: optionalFileSchema.optional(),
-    bgFile: optionalFileSchema.optional(),
-  })
-  .merge(contactFieldSchema);
+  return errors;
+}
 
-export type CatalogEditFormValues = z.infer<typeof catalogEditFormSchema>;
+export function normalizeCatalogEditFormValues(
+  values: CatalogEditFormValues,
+): CatalogEditFormValues {
+  return {
+    name: normalizeText(values.name),
+    about: normalizeText(values.about),
+    description: normalizeText(values.description),
+    phone: normalizeText(values.phone),
+    message: normalizeText(values.message),
+    email: normalizeText(values.email),
+    whatsapp: normalizeText(values.whatsapp),
+    telegram: normalizeText(values.telegram),
+    max: normalizeText(values.max),
+    bip: normalizeText(values.bip),
+    map: normalizeText(values.map),
+    logoFile: normalizeOptionalFile(values.logoFile),
+    bgFile: normalizeOptionalFile(values.bgFile),
+  };
+}
+
+export const catalogEditFormResolver: Resolver<CatalogEditFormValues> = async (
+  rawValues,
+) => {
+  const values = normalizeCatalogEditFormValues(rawValues as CatalogEditFormValues);
+  const errors = buildCatalogEditFormErrors(values);
+
+  return {
+    values: Object.keys(errors).length > 0 ? {} : values,
+    errors,
+  };
+};
 
 export const CATALOG_EDIT_FORM_LABEL_CLASS =
   "!flex-none !min-w-[100px] !max-w-[100px] sm:!min-w-[180px] sm:!max-w-[180px]";
@@ -154,10 +254,7 @@ export const CATALOG_EDIT_FIELD_GROUP_PROPS = {
 };
 
 type ContactFieldConfig = {
-  name: keyof Pick<
-    CatalogEditFormValues,
-    "phone" | "message" | "email" | "whatsapp" | "telegram" | "max" | "bip" | "map"
-  >;
+  name: CatalogEditContactFieldName;
   type: CatalogContactDtoType;
   label: string;
   placeholder: string;
@@ -250,9 +347,10 @@ export function buildCatalogEditFormDefaultValues(
   return {
     name: catalog.name ?? "",
     about: catalog.config?.about ?? "",
-    description: typeof catalog.config?.description === "string"
-      ? catalog.config.description
-      : "",
+    description:
+      typeof catalog.config?.description === "string"
+        ? catalog.config.description
+        : "",
     phone: getCatalogContactValue(catalog, CatalogContactDtoType.PHONE),
     message: getCatalogContactValue(catalog, CatalogContactDtoType.SMS),
     email: getCatalogContactValue(catalog, CatalogContactDtoType.EMAIL),

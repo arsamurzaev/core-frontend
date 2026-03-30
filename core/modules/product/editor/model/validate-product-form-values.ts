@@ -1,15 +1,14 @@
 "use client";
 
 import {
-  createProductFormSchema,
+  normalizeCreateProductFormValues,
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
-import { formatGeneratedZodError } from "@/shared/lib/api-errors";
 import { isMissingRequiredValue } from "@/core/modules/product/editor/model/product-attributes";
 import {
   type AttributeDto,
   AttributeDtoDataType,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 
 interface ValidateProductFormValuesParams {
   invalidFormMessage: string;
@@ -38,18 +37,16 @@ export function validateProductFormValues({
   values,
   visibleAttributes,
 }: ValidateProductFormValuesParams): ValidateProductFormValuesResult {
-  const parsedValues = createProductFormSchema.safeParse(values);
-  if (!parsedValues.success) {
+  const parsedValues = normalizeCreateProductFormValues(values);
+
+  if (parsedValues.name.trim().length === 0 || parsedValues.price.trim().length === 0) {
     return {
       success: false,
-      errorMessage: formatGeneratedZodError(
-        parsedValues.error,
-        invalidFormMessage,
-      ),
+      errorMessage: invalidFormMessage,
     };
   }
 
-  const normalizedPrice = Number(parsedValues.data.price);
+  const normalizedPrice = Number(parsedValues.price);
   if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) {
     return {
       success: false,
@@ -58,7 +55,7 @@ export function validateProductFormValues({
   }
 
   for (const attribute of visibleAttributes) {
-    const value = parsedValues.data.attributes[attribute.id];
+    const value = parsedValues.attributes[attribute.id];
 
     if (isMissingRequiredValue(attribute, value)) {
       return {
@@ -90,7 +87,6 @@ export function validateProductFormValues({
     success: true,
     errorMessage: null,
     normalizedPrice,
-    parsedValues: parsedValues.data,
+    parsedValues,
   };
 }
-

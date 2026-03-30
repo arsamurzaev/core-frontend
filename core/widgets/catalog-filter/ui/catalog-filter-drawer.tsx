@@ -7,6 +7,7 @@ import {
 import { useCatalogFilterDrawer } from "@/core/widgets/catalog-filter/model/use-catalog-filter-drawer";
 import { CatalogFilterDrawerTrigger } from "@/core/widgets/catalog-filter/ui/catalog-filter-drawer-trigger";
 import { cn } from "@/shared/lib/utils";
+import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
@@ -16,15 +17,16 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { RefreshCcw } from "lucide-react";
 import React from "react";
 
-import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
-
-interface CatalogFilterDrawerProps {
-  className?: string;
-  queryState: CatalogFilterQueryState;
+export interface CatalogFilterDrawerProps {
   activeFiltersCount: number;
   categories: CatalogFilterItem[];
+  className?: string;
   isCategoriesLoading?: boolean;
   onApply: (patch?: CatalogFilterPatch) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  queryState: CatalogFilterQueryState;
+  trigger?: React.ReactNode;
 }
 
 const FilterSection: React.FC<
@@ -39,17 +41,17 @@ const FilterSection: React.FC<
 };
 
 interface FilterListProps {
-  items: CatalogFilterItem[];
   isLoading: boolean;
-  selectedItems: string[];
+  items: CatalogFilterItem[];
   onToggle: (id: string) => void;
+  selectedItems: string[];
 }
 
 const FilterList: React.FC<FilterListProps> = ({
-  items,
   isLoading,
-  selectedItems,
+  items,
   onToggle,
+  selectedItems,
 }) => {
   if (isLoading) {
     return (
@@ -91,16 +93,16 @@ const FilterList: React.FC<FilterListProps> = ({
 
 interface FilterPriceInputProps {
   label: string;
+  onChange: (value: string) => void;
   placeholder: string;
   value?: string;
-  onChange: (value: string) => void;
 }
 
 const FilterPriceInput: React.FC<FilterPriceInputProps> = ({
   label,
+  onChange,
   placeholder,
   value,
-  onChange,
 }) => {
   return (
     <div className="flex items-center gap-2">
@@ -117,12 +119,15 @@ const FilterPriceInput: React.FC<FilterPriceInputProps> = ({
 };
 
 export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
-  className,
-  queryState,
   activeFiltersCount,
   categories,
+  className,
   isCategoriesLoading = false,
   onApply,
+  open,
+  onOpenChange,
+  queryState,
+  trigger,
 }) => {
   const {
     brands,
@@ -130,24 +135,32 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
     draft,
     handleClear,
     handleSubmit,
-    open,
+    open: drawerOpen,
     patchDraft,
     setOpen,
     toggleArrayDraftValue,
-    toggleBooleanDraftValue,
   } = useCatalogFilterDrawer({
+    open,
     onApply,
+    onOpenChange,
     queryState,
   });
+  const popularCheckboxId = React.useId();
+  const discountCheckboxId = React.useId();
+
+  const resolvedTrigger =
+    trigger === undefined ? (
+      <CatalogFilterDrawerTrigger activeFiltersCount={activeFiltersCount} />
+    ) : (
+      trigger
+    );
 
   return (
     <AppDrawer
-      open={open}
+      open={drawerOpen}
       onOpenChange={setOpen}
       className={className}
-      trigger={
-        <CatalogFilterDrawerTrigger activeFiltersCount={activeFiltersCount} />
-      }
+      trigger={resolvedTrigger}
     >
       <AppDrawer.Content className="mx-auto w-full max-w-2xl">
         <div className="flex min-h-0 flex-1 flex-col">
@@ -185,7 +198,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
               <FilterSection title="Бренды">
                 <FilterList
                   items={brands}
-                  isLoading={brandsQuery.isLoading}
+                  isLoading={drawerOpen && brandsQuery.isLoading}
                   selectedItems={draft.brands}
                   onToggle={(id) => toggleArrayDraftValue("brands", id)}
                 />
@@ -215,27 +228,29 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Checkbox
-                    checked={draft.isPopular}
-                    onCheckedChange={() => toggleBooleanDraftValue("isPopular")}
+                    id={popularCheckboxId}
+                    checked={draft.isPopular === true}
+                    onCheckedChange={(checked) =>
+                      patchDraft({
+                        isPopular: checked === true ? true : undefined,
+                      })
+                    }
                   />
-                  <label
-                    htmlFor="catalog-filter-popular"
-                    className="cursor-pointer"
-                  >
+                  <label htmlFor={popularCheckboxId} className="cursor-pointer">
                     Популярные товары
                   </label>
                 </div>
                 <div className="flex items-center gap-3">
                   <Checkbox
-                    checked={draft.isDiscount}
-                    onCheckedChange={() =>
-                      toggleBooleanDraftValue("isDiscount")
+                    id={discountCheckboxId}
+                    checked={draft.isDiscount === true}
+                    onCheckedChange={(checked) =>
+                      patchDraft({
+                        isDiscount: checked === true ? true : undefined,
+                      })
                     }
                   />
-                  <label
-                    htmlFor="catalog-filter-discount"
-                    className="cursor-pointer"
-                  >
+                  <label htmlFor={discountCheckboxId} className="cursor-pointer">
                     Товары со скидкой
                   </label>
                 </div>

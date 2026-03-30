@@ -1,7 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useAuthControllerLogin } from "@/shared/api/generated";
-import { AuthControllerLoginBody } from "@/shared/api/generated/zod";
+import { useAuthControllerLogin } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import {
@@ -14,35 +13,24 @@ import {
 import { KreatiLogo } from "@/shared/ui/icons/kreati-logo";
 import { Input } from "@/shared/ui/input";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import z from "zod";
 
 interface Props {
   className?: string;
 }
 
-const schema = AuthControllerLoginBody.extend({
-  login: z
-    .string({ error: "Логин должен быть строкой" })
-    .min(3, { error: "Минимум 3 символа" })
-    .max(50, { error: "Максимум 50 символов" }),
-  password: z
-    .string({ error: "Пароль должен быть строкой" })
-    .min(6, { error: "Минимум 6 символов" })
-    .max(50, { error: "Максимум 50 символов" }),
-});
-
-type LoginFormValues = z.infer<typeof schema>;
+type LoginFormValues = {
+  login: string;
+  password: string;
+};
 
 export const LoginContent: React.FC<Props> = ({ className }) => {
   const router = useRouter();
 
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(schema),
     defaultValues: {
       login: "",
       password: "",
@@ -52,8 +40,13 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
   const loginMutation = useAuthControllerLogin();
 
   const onSubmit = form.handleSubmit(async (data: LoginFormValues) => {
+    const payload = {
+      login: data.login.trim(),
+      password: data.password,
+    };
+
     const loginPromise = (async () => {
-      await loginMutation.mutateAsync({ data });
+      await loginMutation.mutateAsync({ data: payload });
       router.replace("/");
       router.refresh();
     })();
@@ -90,6 +83,22 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
                   <Controller
                     name="login"
                     control={form.control}
+                    rules={{
+                      required: "Введите логин",
+                      validate: (value) => {
+                        const normalizedValue = value.trim();
+
+                        if (normalizedValue.length < 3) {
+                          return "Минимум 3 символа";
+                        }
+
+                        if (normalizedValue.length > 50) {
+                          return "Максимум 50 символов";
+                        }
+
+                        return true;
+                      },
+                    }}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel htmlFor={field.name} className="sr-only">
@@ -117,6 +126,17 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
                   <Controller
                     name="password"
                     control={form.control}
+                    rules={{
+                      required: "Введите пароль",
+                      minLength: {
+                        value: 6,
+                        message: "Минимум 6 символов",
+                      },
+                      maxLength: {
+                        value: 50,
+                        message: "Максимум 50 символов",
+                      },
+                    }}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel htmlFor={field.name} className="sr-only">

@@ -19,7 +19,7 @@ import {
 import { type UploadState } from "@/core/modules/product/editor/model/types";
 import { useFilePreviewEntries } from "@/core/modules/product/editor/model/use-file-preview-entries";
 import { useProductImageReorderState } from "@/core/modules/product/editor/model/use-product-image-reorder-state";
-import { type ProductMediaDto } from "@/shared/api/generated";
+import { type ProductMediaDto } from "@/shared/api/generated/react-query";
 import React from "react";
 import { toast } from "sonner";
 

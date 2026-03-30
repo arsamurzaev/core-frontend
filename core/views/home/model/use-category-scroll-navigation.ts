@@ -2,7 +2,7 @@
 
 import {
   CategoryDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import {

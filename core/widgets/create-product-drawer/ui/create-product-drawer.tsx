@@ -1,7 +1,7 @@
 "use client";
 
+import { ProductEditorDrawerContent } from "@/core/modules/product/editor/ui";
 import { useCreateProductDrawer } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer";
-import { ProductEditorDrawerContent } from "@/core/modules/product/editor/ui/product-editor-drawer-content";
 import { cn } from "@/shared/lib/utils";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
@@ -9,10 +9,16 @@ import React from "react";
 
 interface CreateProductDrawerProps {
   className?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
 }
 
 export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
   className,
+  open,
+  onOpenChange,
+  trigger,
 }) => {
   const {
     cropperApplyLabel,
@@ -39,23 +45,29 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     isInitialCropRequired,
     isReorderMode,
     isSubmitting,
-    open,
+    open: drawerOpen,
     pendingSwapIndex,
     removeFile,
     uploadState,
     uploadedMediaIds,
-  } = useCreateProductDrawer();
+  } = useCreateProductDrawer({
+    open,
+    onOpenChange,
+  });
+
+  const resolvedTrigger =
+    trigger === undefined ? (
+      <Button className={cn("col-span-2", className)}>
+        + Добавить позицию
+      </Button>
+    ) : trigger;
 
   return (
     <AppDrawer
-      open={open}
+      open={drawerOpen}
       onOpenChange={handleOpenChange}
       dismissible={!isSubmitting}
-      trigger={
-        <Button className={cn("col-span-2", className)}>
-          + Добавить позицию
-        </Button>
-      }
+      trigger={resolvedTrigger}
     >
       <ProductEditorDrawerContent
         contentClassName="mx-auto w-full max-w-2xl"

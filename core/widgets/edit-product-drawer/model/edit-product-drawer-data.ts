@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  formatGeneratedZodError,
-} from "@/shared/lib/api-errors";
-import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
   normalizeOptionalString,
@@ -20,9 +17,9 @@ import {
   ProductAttributeRefDtoDataType,
   type ProductAttributeDto,
   type ProductWithDetailsDto,
-} from "@/shared/api/generated";
+  type UpdateProductDtoReq,
+} from "@/shared/api/generated/react-query";
 import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
-import { ProductControllerUpdateBody } from "@/shared/api/generated/zod";
 import { type QueryClient } from "@tanstack/react-query";
 
 const DISCOUNT_ATTRIBUTE_KEYS = new Set([
@@ -133,7 +130,7 @@ export function buildEditProductUpdatePayloadCandidate(params: {
   mediaIds: string[];
   persistedAttributeValues: Record<string, AttributeFormValue>;
   productAttributes: AttributeDto[];
-}) {
+}): UpdateProductDtoReq {
   const { formValues, mediaIds, persistedAttributeValues, productAttributes } =
     params;
   const normalizedCategories = normalizeCategoryIds(formValues.categoryIds);
@@ -166,21 +163,9 @@ export function parseEditProductUpdatePayload(params: {
   persistedAttributeValues: Record<string, AttributeFormValue>;
   productAttributes: AttributeDto[];
 }) {
-  const payloadCandidate = buildEditProductUpdatePayloadCandidate(params);
-  const payloadParsed = ProductControllerUpdateBody.safeParse(payloadCandidate);
-
-  if (!payloadParsed.success) {
-    throw new Error(
-      formatGeneratedZodError(
-        payloadParsed.error,
-        "Форма содержит некорректные данные для редактирования товара.",
-      ),
-    );
-  }
-
-  return payloadParsed.data;
+  return buildEditProductUpdatePayloadCandidate(params);
 }
+
 export async function invalidateEditProductQueries(queryClient: QueryClient) {
   await invalidateProductQueries(queryClient);
 }
-

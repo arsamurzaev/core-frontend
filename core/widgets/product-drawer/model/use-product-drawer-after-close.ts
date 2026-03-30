@@ -41,7 +41,7 @@ export function useProductDrawerAfterClose({
 
     const fallbackTimer = window.setTimeout(() => {
       emitAfterCloseOnce();
-    }, 260);
+    }, 700);
 
     return () => {
       window.clearTimeout(fallbackTimer);
@@ -66,7 +66,11 @@ export function useProductDrawerAfterClose({
         return;
       }
 
-      emitAfterCloseOnce();
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          emitAfterCloseOnce();
+        });
+      });
     },
     [emitAfterCloseOnce, open],
   );

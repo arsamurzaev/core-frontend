@@ -1,5 +1,4 @@
 import axios from "axios";
-import { z } from "zod";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -32,30 +31,4 @@ export function extractApiErrorMessage(error: unknown): string {
   }
 
   return "Не удалось выполнить операцию.";
-}
-
-export function formatGeneratedZodError(
-  error: z.ZodError,
-  fallback: string,
-): string {
-  const firstIssue = error.issues[0];
-  if (!firstIssue) return fallback;
-
-  const path =
-    firstIssue.path.length > 0 ? firstIssue.path.map(String).join(".") : "";
-  const issueMessage = firstIssue.message?.trim();
-
-  if (!path && issueMessage) {
-    return issueMessage;
-  }
-
-  if (path && issueMessage) {
-    return `${issueMessage} (${path})`;
-  }
-
-  if (path) {
-    return `${fallback} (${path})`;
-  }
-
-  return fallback;
 }

@@ -9,6 +9,13 @@ export interface ShareDrawerProps {
   title?: string;
   text?: string;
   url?: string;
+  drawerTitle?: string;
+  copyButtonLabel?: string;
+  copyMode?: "message" | "url";
+  copySuccessMessage?: string;
+  appendUrlToMessage?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export interface ShareActionItem {

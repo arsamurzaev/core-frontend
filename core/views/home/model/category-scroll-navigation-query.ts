@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  CategoryProductsPageDto,
-  categoryControllerGetProductsByCategory,
-} from "@/shared/api/generated";
+  CategoryProductsCardPageDto,
+  categoryControllerGetProductCardsByCategory,
+} from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
 
 export type CategoryFirstPageState = "loaded" | "pending" | "error";
@@ -53,12 +53,12 @@ export async function prefetchCategoryFirstPage(params: {
   await queryClient.prefetchInfiniteQuery({
     queryKey: getCategoryProductsQueryKey(categoryId, pageSize),
     queryFn: ({ pageParam }) =>
-      categoryControllerGetProductsByCategory(categoryId, {
+      categoryControllerGetProductCardsByCategory(categoryId, {
         cursor: pageParam as string | undefined,
         limit: pageSize,
       }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: CategoryProductsPageDto) =>
+    getNextPageParam: (lastPage: CategoryProductsCardPageDto) =>
       lastPage.nextCursor ?? undefined,
   });
 }

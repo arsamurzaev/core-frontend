@@ -2,7 +2,7 @@
 
 import { invalidateMoySkladIntegrationQueries } from "@/core/modules/product/actions/model/invalidate-moysklad-integration-queries";
 import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
-import { useIntegrationControllerSyncMoySkladProduct } from "@/shared/api/generated";
+import { useIntegrationControllerSyncMoySkladProduct } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";

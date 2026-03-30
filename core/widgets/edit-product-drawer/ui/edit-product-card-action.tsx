@@ -1,15 +1,17 @@
 "use client";
 
-import { ChangeProductCategoryPositionAction } from "@/core/modules/product/actions/ui/change-product-category-position-action";
-import { SyncMoySkladProductAction } from "@/core/modules/product/actions/ui/sync-moysklad-product-action";
+import {
+  ChangeProductCategoryPositionAction,
+  SyncMoySkladProductAction,
+} from "@/core/modules/product/actions/ui";
+import { useEditProductDrawerHost } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
-import { EditProductDrawer } from "@/core/widgets/edit-product-drawer/ui/edit-product-drawer";
-import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
+import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   ProductWithAttributesDtoStatus,
   useProductControllerDuplicate,
   useProductControllerToggleStatus,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
@@ -34,10 +36,10 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
   status,
 }) => {
   const { isAuthenticated } = useSession();
+  const { openDrawer } = useEditProductDrawerHost();
   const queryClient = useQueryClient();
   const duplicateProduct = useProductControllerDuplicate();
   const toggleProductStatus = useProductControllerToggleStatus();
-  const [open, setOpen] = React.useState(false);
   const [isUpdatingCategoryPosition, setIsUpdatingCategoryPosition] =
     React.useState(false);
   const [isSyncingMoySklad, setIsSyncingMoySklad] = React.useState(false);
@@ -54,9 +56,9 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
     (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
       event.stopPropagation();
-      setOpen(true);
+      openDrawer(productId);
     },
-    [],
+    [openDrawer, productId],
   );
 
   const handleDuplicateClick = React.useCallback(
@@ -191,12 +193,6 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
           <Pencil className="text-muted-foreground size-4" />
         </Button>
       </div>
-
-      <EditProductDrawer
-        productId={productId}
-        open={open}
-        onOpenChange={setOpen}
-      />
     </>
   );
 };

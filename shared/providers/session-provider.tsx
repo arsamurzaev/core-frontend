@@ -5,8 +5,9 @@ import {
   getAuthControllerMeQueryKey,
   useAuthControllerMe,
   type AuthUserDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
+import { type SessionBootstrapState } from "@/shared/providers/session-bootstrap";
 import React, {
   PropsWithChildren,
   useCallback,
@@ -66,10 +67,25 @@ function readMutationKey(value: unknown): string | null {
   return value[0];
 }
 
-export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
+type SessionProviderProps = PropsWithChildren<{
+  initialSession?: SessionBootstrapState | null;
+}>;
+
+export const SessionProvider: React.FC<SessionProviderProps> = ({
+  children,
+  initialSession,
+}) => {
   const queryClient = useQueryClient();
+  const initialCsrfCookiePresent = initialSession?.csrfCookiePresent ?? null;
+  const [deferInitialAuthQuery, setDeferInitialAuthQuery] = useState(
+    Boolean(
+      initialSession?.resolved &&
+        initialSession.csrfCookiePresent &&
+        !initialSession.authData,
+    ),
+  );
   const [csrfCookiePresent, setCsrfCookiePresent] = useState<boolean | null>(
-    null,
+    initialCsrfCookiePresent,
   );
 
   const updateCsrfCookie = useCallback(() => {
@@ -100,29 +116,36 @@ export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [updateCsrfCookie]);
 
   const canRequest = csrfCookiePresent === true;
+  const shouldEnableAuthQuery = canRequest && !deferInitialAuthQuery;
 
   const query = useAuthControllerMe({
     query: {
-      enabled: canRequest,
+      initialData: initialSession?.authData ?? undefined,
+      enabled: shouldEnableAuthQuery,
       retry: (failureCount, error) => {
         if (isUnauthorized(error)) return false;
         return failureCount < 2;
       },
       staleTime: 60_000,
-      refetchOnWindowFocus: canRequest,
-      refetchOnReconnect: canRequest,
+      refetchOnWindowFocus: shouldEnableAuthQuery,
+      refetchOnReconnect: shouldEnableAuthQuery,
     },
   });
 
   const unauthorized = isUnauthorized(query.error);
-  const user = !canRequest || unauthorized ? null : (query.data?.user ?? null);
+  const user =
+    !canRequest || unauthorized || deferInitialAuthQuery
+      ? null
+      : (query.data?.user ?? null);
 
   const status: SessionStatus =
     csrfCookiePresent === null
       ? "loading"
       : !canRequest
         ? "unauthenticated"
-        : query.isLoading
+        : deferInitialAuthQuery
+          ? "unauthenticated"
+          : query.isLoading && !query.data
           ? "loading"
           : query.error && !unauthorized
             ? "error"
@@ -134,10 +157,12 @@ export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const hasCookie = updateCsrfCookie();
 
     if (!hasCookie) {
+      setDeferInitialAuthQuery(false);
       queryClient.removeQueries({ queryKey: getAuthControllerMeQueryKey() });
       return null;
     }
 
+    setDeferInitialAuthQuery(false);
     await queryClient.invalidateQueries({ queryKey: getAuthControllerMeQueryKey() });
     return query.refetch();
   }, [query, queryClient, updateCsrfCookie]);
@@ -162,9 +187,12 @@ export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
     () => ({
       user,
       status,
-      isLoading: csrfCookiePresent === null || (canRequest && query.isLoading),
+      isLoading:
+        csrfCookiePresent === null ||
+        (canRequest && !deferInitialAuthQuery && query.isLoading && !query.data),
       isAuthenticated: status === "authenticated",
-      error: !canRequest || unauthorized ? null : query.error,
+      error:
+        !canRequest || unauthorized || deferInitialAuthQuery ? null : query.error,
       refetch: syncSession,
     }),
     [
@@ -172,7 +200,9 @@ export const SessionProvider: React.FC<PropsWithChildren> = ({ children }) => {
       status,
       csrfCookiePresent,
       canRequest,
+      deferInitialAuthQuery,
       query.isLoading,
+      query.data,
       query.error,
       syncSession,
       unauthorized,

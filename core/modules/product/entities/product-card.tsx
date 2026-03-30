@@ -1,9 +1,8 @@
-import { ProductWithAttributesDto } from "@/shared/api/generated";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
+import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { Badge } from "@/shared/ui/badge";
-import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
 import {
   Card,
   CardContent,
@@ -12,6 +11,8 @@ import {
   CardSubTitle,
   CardTitle,
 } from "@/shared/ui/card";
+import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
+import Image from "next/image";
 import React from "react";
 import { buildProductCardView } from "../model/product-card-view";
 
@@ -20,9 +21,9 @@ interface Props {
   className?: string;
   data: ProductWithAttributesDto;
   footerAction?: React.ReactNode;
+  hidePriceWhenFooterAction?: boolean;
   isMoySkladLinked?: boolean;
   isDetailed?: boolean;
-  isVisiblePrice?: boolean;
 }
 
 interface ProductCardLayoutProps {
@@ -64,11 +65,12 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
     <CardContent className="relative flex-[0_1_160px]">
       <div className="min-w-25">
         <AspectRatio ratio={3 / 4}>
-          <img
-            loading="lazy"
+          <Image
             src={imageUrl || "/not-found-photo.png"}
-            className="h-full w-full object-contain"
-            alt="карточка товара"
+            fill
+            sizes="(max-width: 640px) 100px, 160px"
+            className="object-contain"
+            alt="Карточка товара"
           />
         </AspectRatio>
       </div>
@@ -124,8 +126,8 @@ interface ProductCardFooterProps {
   displayPrice: number | undefined;
   footerAction?: React.ReactNode;
   hasDiscount: boolean;
+  hidePriceWhenFooterAction?: boolean;
   isDetailed?: boolean;
-  isVisiblePrice?: boolean;
   price: number;
 }
 
@@ -135,15 +137,15 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
   displayPrice,
   footerAction,
   hasDiscount,
+  hidePriceWhenFooterAction,
   isDetailed,
-  isVisiblePrice,
   price,
 }) => {
   return (
     <CardFooter
       className={cn(
         "relative flex w-full flex-col items-end justify-center",
-        isDetailed && "flex-row flex-wrap justify-end gap-x-3 pt-4",
+        isDetailed && "flex-row flex-wrap justify-end gap-x-3 gap-y-2 pt-4",
       )}
     >
       <div
@@ -173,21 +175,12 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
           </>
         )}
       </div>
-      {footerAction ? (
-        <div
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-        >
-          {footerAction}
-        </div>
-      ) : null}
+      {footerAction}
       <p
         className={cn(
-          "text-base font-bold",
+          "text-base font-bold whitespace-nowrap",
           !hasDiscount && "mt-4",
-          footerAction && !isVisiblePrice && "hidden",
+          footerAction && hidePriceWhenFooterAction && "hidden",
           displayPrice === undefined && "h-6",
         )}
       >
@@ -204,9 +197,9 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
 
 const ProductCardBase: React.FC<Props> = ({
   footerAction,
+  hidePriceWhenFooterAction,
   isMoySkladLinked,
   isDetailed,
-  isVisiblePrice,
   className,
   actions,
   data,
@@ -248,8 +241,8 @@ const ProductCardBase: React.FC<Props> = ({
           displayPrice={displayPrice}
           footerAction={footerAction}
           hasDiscount={hasDiscount}
+          hidePriceWhenFooterAction={hidePriceWhenFooterAction}
           isDetailed={isDetailed}
-          isVisiblePrice={isVisiblePrice}
           price={price}
         />
       </div>

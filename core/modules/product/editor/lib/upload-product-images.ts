@@ -12,7 +12,7 @@ import {
   type UploadQueueStatusDto,
   s3ControllerEnqueueFromS3,
   s3ControllerPresignUpload,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import axios from "axios";
 
 function clamp(value: number, min: number, max: number): number {

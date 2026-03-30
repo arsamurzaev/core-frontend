@@ -10,7 +10,7 @@ import {
   resolveCurrentAbsoluteUrl,
 } from "@/core/widgets/share-drawer/model/share-drawer-helpers";
 import { type ShareDrawerMessengerType } from "@/core/widgets/share-drawer/model/share-drawer-types";
-import { CatalogContactDtoType } from "@/shared/api/generated";
+import { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import { buildCatalogContactHref } from "@/shared/lib/catalog-contacts";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
@@ -25,6 +25,11 @@ interface UseShareDrawerParams {
   title?: string;
   text?: string;
   url?: string;
+  drawerTitle?: string;
+  copyButtonLabel?: string;
+  copyMode?: "message" | "url";
+  copySuccessMessage?: string;
+  appendUrlToMessage?: boolean;
   messengerConfirmContent: React.ReactNode;
 }
 
@@ -35,6 +40,11 @@ export function useShareDrawer({
   title,
   text,
   url,
+  drawerTitle,
+  copyButtonLabel,
+  copyMode = "url",
+  copySuccessMessage,
+  appendUrlToMessage = true,
   messengerConfirmContent,
 }: UseShareDrawerParams) {
   const catalog = useCatalog();
@@ -97,25 +107,36 @@ export function useShareDrawer({
     () =>
       buildShareMessage({
         caption: shareCaption,
+        shouldAppendUrl: appendUrlToMessage,
         url: shareUrl,
       }),
-    [shareCaption, shareUrl],
+    [appendUrlToMessage, shareCaption, shareUrl],
   );
 
   const handleCopy = React.useCallback(async () => {
-    if (!shareUrl) {
+    const valueToCopy =
+      copyMode === "message" ? normalizeText(shareMessage) ?? shareUrl : shareUrl;
+
+    if (!valueToCopy) {
       return;
     }
 
     try {
-      await copyTextToClipboard(shareUrl);
-      toast.success("Ссылка на каталог скопирована");
+      await copyTextToClipboard(valueToCopy);
+      toast.success(
+        copySuccessMessage ??
+          (copyMode === "message"
+            ? "Текст успешно скопирован."
+            : "Ссылка успешно скопирована."),
+      );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Не удалось скопировать ссылку",
+        error instanceof Error
+          ? error.message
+          : "Не удалось скопировать данные.",
       );
     }
-  }, [shareUrl]);
+  }, [copyMode, copySuccessMessage, shareMessage, shareUrl]);
 
   const handleMessengerAction = React.useCallback(
     async (type: ShareDrawerMessengerType) => {
@@ -144,7 +165,7 @@ export function useShareDrawer({
         const shouldOpen = await confirm({
           title: `Открыть приложение ${appName}`,
           description:
-            "Ссылка уже скопирована. Вам остается только вставить и отправить ее в чат.",
+            "Текст уже скопирован. Останется только вставить его и отправить в чат.",
           confirmText: "Далее",
           cancelText: "Отмена",
           children: messengerConfirmContent,
@@ -159,7 +180,7 @@ export function useShareDrawer({
         toast.error(
           error instanceof Error
             ? error.message
-            : "Не удалось открыть приложение",
+            : "Не удалось открыть приложение.",
         );
       }
     },
@@ -171,11 +192,10 @@ export function useShareDrawer({
       buildShareDrawerPrimaryActions({
         catalog,
         isShareMode,
-        shareCaption,
         shareMessage,
         shareUrl,
       }),
-    [catalog, isShareMode, shareCaption, shareMessage, shareUrl],
+    [catalog, isShareMode, shareMessage, shareUrl],
   );
 
   const secondaryActions = React.useMemo(
@@ -194,7 +214,10 @@ export function useShareDrawer({
   );
 
   return {
-    drawerTitle: getShareDrawerTitle(isShareMode),
+    copyButtonLabel:
+      normalizeText(copyButtonLabel) ??
+      (copyMode === "message" ? "Скопировать текст" : "Скопировать ссылку"),
+    drawerTitle: normalizeText(drawerTitle) ?? getShareDrawerTitle(isShareMode),
     handleCopy,
     primaryActions,
     secondaryActions,

@@ -444,6 +444,7 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "deleteAt": zod.iso.datetime({}).nullish(),
   "createdAt": zod.iso.datetime({}).optional(),
   "updatedAt": zod.iso.datetime({}).optional(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
   "about": zod.string(),
@@ -504,6 +505,82 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "position": zod.number(),
   "value": zod.string()
 })),
+  "seo": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "type": zod.object({
   "id": zod.string(),
   "code": zod.string(),
@@ -574,6 +651,7 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "deleteAt": zod.iso.datetime({}).nullish(),
   "createdAt": zod.iso.datetime({}).optional(),
   "updatedAt": zod.iso.datetime({}).optional(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
   "about": zod.string(),
@@ -627,7 +705,277 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "isActive": zod.boolean(),
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
+}).nullable(),
+  "contacts": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
+  "position": zod.number(),
+  "value": zod.string()
+})),
+  "seo": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
 }).nullable()
+})
+
+
+/**
+ * @summary Get current catalog shell
+ */
+export const CatalogControllerGetCurrentShellResponse = zod.object({
+  "id": zod.string(),
+  "slug": zod.string(),
+  "domain": zod.string().nullable(),
+  "name": zod.string(),
+  "typeId": zod.string(),
+  "parentId": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
+  "config": zod.object({
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
+  "about": zod.string(),
+  "description": zod.string().nullable(),
+  "currency": zod.string(),
+  "logoMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "bgMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "note": zod.string().nullable()
+}).nullable(),
+  "settings": zod.object({
+  "isActive": zod.boolean(),
+  "googleVerification": zod.string().nullable(),
+  "yandexVerification": zod.string().nullable()
+}).nullable(),
+  "contacts": zod.array(zod.object({
+  "id": zod.string(),
+  "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
+  "position": zod.number(),
+  "value": zod.string()
+})),
+  "seo": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable()
+})
+
+
+/**
+ * @summary Get current catalog type schema
+ */
+export const CatalogControllerGetCurrentTypeSchemaResponse = zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "attributes": zod.array(zod.object({
+  "id": zod.string(),
+  "typeIds": zod.array(zod.string()),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "enumValues": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional()
+}))
 })
 
 
@@ -645,6 +993,7 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "deleteAt": zod.iso.datetime({}).nullish(),
   "createdAt": zod.iso.datetime({}).optional(),
   "updatedAt": zod.iso.datetime({}).optional(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
   "about": zod.string(),
@@ -735,6 +1084,7 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "deleteAt": zod.iso.datetime({}).nullish(),
   "createdAt": zod.iso.datetime({}).optional(),
   "updatedAt": zod.iso.datetime({}).optional(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
   "about": zod.string(),
@@ -834,6 +1184,7 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "deleteAt": zod.iso.datetime({}).nullish(),
   "createdAt": zod.iso.datetime({}).optional(),
   "updatedAt": zod.iso.datetime({}).optional(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
   "about": zod.string(),
@@ -888,6 +1239,179 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
 }).nullable()
+})
+
+
+/**
+ * @summary Получить presigned URL для загрузки
+ */
+export const S3ControllerPresignUploadBody = zod.object({
+  "contentType": zod.string().describe('MIME-тип файла'),
+  "path": zod.string().optional().describe('Путь внутри каталога'),
+  "folder": zod.string().optional(),
+  "entityId": zod.string().optional()
+})
+
+
+/**
+ * @summary Получить presigned POST для загрузки с лимитом размера
+ */
+export const S3ControllerPresignPostUploadBody = zod.object({
+  "contentType": zod.string().describe('MIME-тип файла'),
+  "contentLength": zod.number().optional().describe('Размер файла в байтах (для предварительной проверки лимита)'),
+  "path": zod.string().optional().describe('Путь внутри каталога'),
+  "folder": zod.string().optional(),
+  "entityId": zod.string().optional()
+})
+
+
+/**
+ * @summary Начать multipart загрузку
+ */
+export const S3ControllerStartMultipartBody = zod.object({
+  "contentType": zod.string().describe('MIME-тип файла'),
+  "fileSize": zod.number().describe('Размер файла в байтах'),
+  "partSizeMb": zod.number().optional().describe('Размер части в мегабайтах (по умолчанию 64)'),
+  "path": zod.string().optional().describe('Путь внутри каталога'),
+  "folder": zod.string().optional(),
+  "entityId": zod.string().optional()
+})
+
+
+/**
+ * @summary Получить URL для загрузки части
+ */
+export const S3ControllerPresignMultipartPartBody = zod.object({
+  "key": zod.string(),
+  "uploadId": zod.string(),
+  "partNumber": zod.number()
+})
+
+
+/**
+ * @summary Завершить multipart загрузку и поставить обработку в очередь
+ */
+export const S3ControllerCompleteMultipartBody = zod.object({
+  "key": zod.string(),
+  "uploadId": zod.string(),
+  "parts": zod.array(zod.object({
+  "partNumber": zod.number(),
+  "etag": zod.string()
+}))
+})
+
+
+/**
+ * @summary Отменить multipart загрузку
+ */
+export const S3ControllerAbortMultipartBody = zod.object({
+  "key": zod.string(),
+  "uploadId": zod.string()
+})
+
+
+/**
+ * Поддерживаются оба формата тела запроса: key или items.
+ * @summary Поставить в очередь обработку загруженных файлов
+ */
+export const S3ControllerEnqueueFromS3Body = zod.union([zod.object({
+  "key": zod.string()
+}),zod.object({
+  "items": zod.array(zod.object({
+  "key": zod.string(),
+  "mediaId": zod.string().optional().describe('ID записи media (если есть в ответе presign)'),
+  "url": zod.string().optional().describe('URL файла (если есть в ответе presign)')
+}))
+})])
+
+
+/**
+ * @summary Статус загрузки изображений
+ */
+export const S3ControllerGetQueueStatusParams = zod.object({
+  "id": zod.string().describe('ID задания очереди')
+})
+
+export const S3ControllerGetQueueStatusResponse = zod.object({
+  "ok": zod.boolean(),
+  "status": zod.string(),
+  "progress": zod.number(),
+  "result": zod.object({
+  "ok": zod.boolean(),
+  "mediaId": zod.string(),
+  "key": zod.string(),
+  "url": zod.string(),
+  "variants": zod.array(zod.object({
+  "name": zod.string(),
+  "width": zod.number(),
+  "height": zod.number(),
+  "size": zod.number(),
+  "contentType": zod.string(),
+  "key": zod.string(),
+  "url": zod.string()
+}))
+}).optional().describe('Результат для одного файла'),
+  "results": zod.array(zod.object({
+  "ok": zod.boolean(),
+  "mediaId": zod.string(),
+  "key": zod.string(),
+  "url": zod.string(),
+  "variants": zod.array(zod.object({
+  "name": zod.string(),
+  "width": zod.number(),
+  "height": zod.number(),
+  "size": zod.number(),
+  "contentType": zod.string(),
+  "key": zod.string(),
+  "url": zod.string()
+}))
+})).optional().describe('Результаты для массива файлов'),
+  "error": zod.string().optional()
+})
+
+
+/**
+ * @summary Стрим статуса загрузки (SSE)
+ */
+export const S3ControllerStreamQueueParams = zod.object({
+  "id": zod.string().describe('ID задания очереди')
+})
+
+export const S3ControllerStreamQueueResponse = zod.object({
+  "ok": zod.boolean(),
+  "status": zod.string(),
+  "progress": zod.number(),
+  "result": zod.object({
+  "ok": zod.boolean(),
+  "mediaId": zod.string(),
+  "key": zod.string(),
+  "url": zod.string(),
+  "variants": zod.array(zod.object({
+  "name": zod.string(),
+  "width": zod.number(),
+  "height": zod.number(),
+  "size": zod.number(),
+  "contentType": zod.string(),
+  "key": zod.string(),
+  "url": zod.string()
+}))
+}).optional().describe('Результат для одного файла'),
+  "results": zod.array(zod.object({
+  "ok": zod.boolean(),
+  "mediaId": zod.string(),
+  "key": zod.string(),
+  "url": zod.string(),
+  "variants": zod.array(zod.object({
+  "name": zod.string(),
+  "width": zod.number(),
+  "height": zod.number(),
+  "size": zod.number(),
+  "contentType": zod.string(),
+  "key": zod.string(),
+  "url": zod.string()
+}))
+})).optional().describe('Результаты для массива файлов'),
+  "error": zod.string().optional()
 })
 
 
@@ -1224,6 +1748,195 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
 
 
 /**
+ * Возвращает карточки товаров категории с productAttributes, но без variants.
+ * @summary List category product cards (infinite)
+ */
+export const CategoryControllerGetProductCardsByCategoryParams = zod.object({
+  "id": zod.string().describe('ID категории')
+})
+
+export const categoryControllerGetProductCardsByCategoryQueryLimitDefault = 24;
+export const categoryControllerGetProductCardsByCategoryQueryLimitMax = 50;
+
+
+
+export const CategoryControllerGetProductCardsByCategoryQueryParams = zod.object({
+  "cursor": zod.string().optional().describe('Курсор из предыдущего ответа (opaque)'),
+  "limit": zod.number().min(1).max(categoryControllerGetProductCardsByCategoryQueryLimitMax).default(categoryControllerGetProductCardsByCategoryQueryLimitDefault).describe('Размер страницы (1-50)')
+})
+
+export const CategoryControllerGetProductCardsByCategoryResponse = zod.object({
+  "items": zod.array(zod.object({
+  "productId": zod.string(),
+  "position": zod.number(),
+  "product": zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "categories": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+}))
+})
+})),
+  "nextCursor": zod.string().nullable()
+})
+
+
+/**
+ * Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.
+ * @summary Изменить позицию категории
+ */
+export const CategoryControllerUpdatePositionParams = zod.object({
+  "id": zod.string().describe('ID категории')
+})
+
+export const categoryControllerUpdatePositionBodyPositionMin = 0;
+
+
+
+export const CategoryControllerUpdatePositionBody = zod.object({
+  "position": zod.number().min(categoryControllerUpdatePositionBodyPositionMin).describe('Новая позиция категории среди соседних категорий')
+})
+
+export const CategoryControllerUpdatePositionResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "parentId": zod.string().nullable(),
+  "position": zod.number(),
+  "name": zod.string(),
+  "imageMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "descriptor": zod.string().nullable(),
+  "discount": zod.number().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "parent": zod.object({
+  "id": zod.string(),
+  "name": zod.string()
+}).nullable(),
+  "children": zod.array(zod.object({
+  "id": zod.string(),
+  "parentId": zod.string().nullable(),
+  "position": zod.number(),
+  "name": zod.string(),
+  "imageMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable()
+}))
+})
+
+
+/**
  * @summary Получить настройки интеграции MoySklad
  */
 export const IntegrationControllerGetMoySkladResponse = zod.object({
@@ -1491,188 +2204,22 @@ export const IntegrationControllerSyncMoySkladProductResponse = zod.object({
 
 
 /**
- * @summary Получить presigned URL для загрузки
- */
-export const S3ControllerPresignUploadBody = zod.object({
-  "contentType": zod.string().describe('MIME-тип файла'),
-  "path": zod.string().optional().describe('Путь внутри каталога'),
-  "folder": zod.string().optional(),
-  "entityId": zod.string().optional()
-})
-
-
-/**
- * @summary Получить presigned POST для загрузки с лимитом размера
- */
-export const S3ControllerPresignPostUploadBody = zod.object({
-  "contentType": zod.string().describe('MIME-тип файла'),
-  "contentLength": zod.number().optional().describe('Размер файла в байтах (для предварительной проверки лимита)'),
-  "path": zod.string().optional().describe('Путь внутри каталога'),
-  "folder": zod.string().optional(),
-  "entityId": zod.string().optional()
-})
-
-
-/**
- * @summary Начать multipart загрузку
- */
-export const S3ControllerStartMultipartBody = zod.object({
-  "contentType": zod.string().describe('MIME-тип файла'),
-  "fileSize": zod.number().describe('Размер файла в байтах'),
-  "partSizeMb": zod.number().optional().describe('Размер части в мегабайтах (по умолчанию 64)'),
-  "path": zod.string().optional().describe('Путь внутри каталога'),
-  "folder": zod.string().optional(),
-  "entityId": zod.string().optional()
-})
-
-
-/**
- * @summary Получить URL для загрузки части
- */
-export const S3ControllerPresignMultipartPartBody = zod.object({
-  "key": zod.string(),
-  "uploadId": zod.string(),
-  "partNumber": zod.number()
-})
-
-
-/**
- * @summary Завершить multipart загрузку и поставить обработку в очередь
- */
-export const S3ControllerCompleteMultipartBody = zod.object({
-  "key": zod.string(),
-  "uploadId": zod.string(),
-  "parts": zod.array(zod.object({
-  "partNumber": zod.number(),
-  "etag": zod.string()
-}))
-})
-
-
-/**
- * @summary Отменить multipart загрузку
- */
-export const S3ControllerAbortMultipartBody = zod.object({
-  "key": zod.string(),
-  "uploadId": zod.string()
-})
-
-
-/**
- * Поддерживаются оба формата тела запроса: key или items.
- * @summary Поставить в очередь обработку загруженных файлов
- */
-export const S3ControllerEnqueueFromS3Body = zod.union([zod.object({
-  "key": zod.string()
-}),zod.object({
-  "items": zod.array(zod.object({
-  "key": zod.string(),
-  "mediaId": zod.string().optional().describe('ID записи media (если есть в ответе presign)'),
-  "url": zod.string().optional().describe('URL файла (если есть в ответе presign)')
-}))
-})])
-
-
-/**
- * @summary Статус загрузки изображений
- */
-export const S3ControllerGetQueueStatusParams = zod.object({
-  "id": zod.string().describe('ID задания очереди')
-})
-
-export const S3ControllerGetQueueStatusResponse = zod.object({
-  "ok": zod.boolean(),
-  "status": zod.string(),
-  "progress": zod.number(),
-  "result": zod.object({
-  "ok": zod.boolean(),
-  "mediaId": zod.string(),
-  "key": zod.string(),
-  "url": zod.string(),
-  "variants": zod.array(zod.object({
-  "name": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "size": zod.number(),
-  "contentType": zod.string(),
-  "key": zod.string(),
-  "url": zod.string()
-}))
-}).optional().describe('Результат для одного файла'),
-  "results": zod.array(zod.object({
-  "ok": zod.boolean(),
-  "mediaId": zod.string(),
-  "key": zod.string(),
-  "url": zod.string(),
-  "variants": zod.array(zod.object({
-  "name": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "size": zod.number(),
-  "contentType": zod.string(),
-  "key": zod.string(),
-  "url": zod.string()
-}))
-})).optional().describe('Результаты для массива файлов'),
-  "error": zod.string().optional()
-})
-
-
-/**
- * @summary Стрим статуса загрузки (SSE)
- */
-export const S3ControllerStreamQueueParams = zod.object({
-  "id": zod.string().describe('ID задания очереди')
-})
-
-export const S3ControllerStreamQueueResponse = zod.object({
-  "ok": zod.boolean(),
-  "status": zod.string(),
-  "progress": zod.number(),
-  "result": zod.object({
-  "ok": zod.boolean(),
-  "mediaId": zod.string(),
-  "key": zod.string(),
-  "url": zod.string(),
-  "variants": zod.array(zod.object({
-  "name": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "size": zod.number(),
-  "contentType": zod.string(),
-  "key": zod.string(),
-  "url": zod.string()
-}))
-}).optional().describe('Результат для одного файла'),
-  "results": zod.array(zod.object({
-  "ok": zod.boolean(),
-  "mediaId": zod.string(),
-  "key": zod.string(),
-  "url": zod.string(),
-  "variants": zod.array(zod.object({
-  "name": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "size": zod.number(),
-  "contentType": zod.string(),
-  "key": zod.string(),
-  "url": zod.string()
-}))
-})).optional().describe('Результаты для массива файлов'),
-  "error": zod.string().optional()
-})
-
-
-/**
- * @summary Получить текущую корзину по cookie-токену
+ * @summary Get the current cart by cookie token
  */
 export const CartControllerGetCurrentResponse = zod.object({
   "ok": zod.boolean(),
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1699,15 +2246,22 @@ export const CartControllerGetCurrentResponse = zod.object({
 
 
 /**
- * @summary Получить публичный ключ для шаринга корзины
+ * @summary Issue a public key for the current cart
  */
 export const CartControllerShareCurrentResponse = zod.object({
   "ok": zod.boolean(),
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1735,7 +2289,7 @@ export const CartControllerShareCurrentResponse = zod.object({
 
 
 /**
- * @summary Добавить или обновить позицию в текущей корзине
+ * @summary Upsert an item in the current cart
  */
 export const CartControllerUpsertCurrentItemBody = zod.object({
   "productId": zod.uuid(),
@@ -1748,8 +2302,15 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1776,10 +2337,10 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
 
 
 /**
- * @summary Удалить позицию из текущей корзины
+ * @summary Remove an item from the current cart
  */
 export const CartControllerRemoveCurrentItemParams = zod.object({
-  "itemId": zod.string().describe('ID позиции корзины')
+  "itemId": zod.string().describe('Cart item id')
 })
 
 export const CartControllerRemoveCurrentItemResponse = zod.object({
@@ -1787,8 +2348,15 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1815,10 +2383,10 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
 
 
 /**
- * @summary Выдать checkoutKey для публичной корзины
+ * @summary Issue a checkoutKey for a public cart
  */
 export const CartControllerCreateCheckoutKeyParams = zod.object({
-  "publicKey": zod.string().describe('Публичный ключ корзины')
+  "publicKey": zod.string().describe('Public cart key')
 })
 
 export const CartControllerCreateCheckoutKeyResponse = zod.object({
@@ -1826,8 +2394,15 @@ export const CartControllerCreateCheckoutKeyResponse = zod.object({
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1856,14 +2431,14 @@ export const CartControllerCreateCheckoutKeyResponse = zod.object({
 
 
 /**
- * @summary Получить публичную корзину по checkoutKey
+ * @summary Get a public cart by checkoutKey
  */
 export const CartControllerGetPublicCartParams = zod.object({
-  "publicKey": zod.string().describe('Публичный ключ корзины')
+  "publicKey": zod.string().describe('Public cart key')
 })
 
 export const CartControllerGetPublicCartQueryParams = zod.object({
-  "checkoutKey": zod.string().describe('Ключ доступа для чтения\/изменения публичной корзины')
+  "checkoutKey": zod.string().describe('Read\/write key for the public cart')
 })
 
 export const CartControllerGetPublicCartResponse = zod.object({
@@ -1871,8 +2446,15 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1899,10 +2481,174 @@ export const CartControllerGetPublicCartResponse = zod.object({
 
 
 /**
- * @summary Добавить или обновить позицию в публичной корзине
+ * @summary Mark a cart as being processed by a manager
+ */
+export const CartControllerStartManagerSessionParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const CartControllerStartManagerSessionResponse = zod.object({
+  "ok": zod.boolean(),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "quantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number()
+}),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number()
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Refresh manager presence for a cart
+ */
+export const CartControllerHeartbeatManagerSessionParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const CartControllerHeartbeatManagerSessionResponse = zod.object({
+  "ok": zod.boolean(),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "quantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number()
+}),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number()
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Move a cart to PAUSED after manager processing
+ */
+export const CartControllerReleaseManagerSessionParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const CartControllerReleaseManagerSessionResponse = zod.object({
+  "ok": zod.boolean(),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "quantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number()
+}),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number()
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Convert a shared cart to a completed order
+ */
+export const CartControllerCompleteManagerOrderParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const CartControllerCompleteManagerOrderResponse = zod.object({
+  "ok": zod.boolean(),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['PENDING', 'COMPLETED']),
+  "catalogId": zod.uuid(),
+  "totalAmount": zod.number(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
+  "createdAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Upsert an item in a public cart
  */
 export const CartControllerUpsertPublicItemParams = zod.object({
-  "publicKey": zod.string().describe('Публичный ключ корзины')
+  "publicKey": zod.string().describe('Public cart key')
 })
 
 export const CartControllerUpsertPublicItemBody = zod.object({
@@ -1917,8 +2663,15 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1945,15 +2698,15 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
 
 
 /**
- * @summary Удалить позицию из публичной корзины
+ * @summary Remove an item from a public cart
  */
 export const CartControllerRemovePublicItemParams = zod.object({
-  "publicKey": zod.string().describe('Публичный ключ корзины'),
-  "itemId": zod.string().describe('ID позиции корзины')
+  "publicKey": zod.string().describe('Public cart key'),
+  "itemId": zod.string().describe('Cart item id')
 })
 
 export const CartControllerRemovePublicItemQueryParams = zod.object({
-  "checkoutKey": zod.string().describe('Ключ доступа для изменения публичной корзины')
+  "checkoutKey": zod.string().describe('Write key for the public cart')
 })
 
 export const CartControllerRemovePublicItemResponse = zod.object({
@@ -1961,8 +2714,15 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
   "items": zod.array(zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
@@ -1989,19 +2749,19 @@ export const CartControllerRemovePublicItemResponse = zod.object({
 
 
 /**
- * @summary SSE поток обновлений публичной корзины
+ * @summary SSE stream for a public cart
  */
 export const CartControllerSsePublicParams = zod.object({
-  "publicKey": zod.string().describe('Публичный ключ корзины')
+  "publicKey": zod.string().describe('Public cart key')
 })
 
 export const CartControllerSsePublicQueryParams = zod.object({
-  "checkoutKey": zod.string().describe('Ключ доступа для подписки на SSE')
+  "checkoutKey": zod.string().describe('SSE access key for the public cart')
 })
 
 
 /**
- * В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 export const ProductControllerGetAllResponseItem = zod.object({
@@ -2055,7 +2815,35 @@ export const ProductControllerGetAllResponseItem = zod.object({
   "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
   "position": zod.number(),
   "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+}))
 })
 export const ProductControllerGetAllResponse = zod.array(ProductControllerGetAllResponseItem)
 
@@ -2097,6 +2885,111 @@ export const ProductControllerCreateBody = zod.object({
 
 
 /**
+ * Возвращает карточки товаров с productAttributes, но без variants. Поддерживает те же фильтры, что и /product/infinite.
+ * @summary Лёгкий card-feed товаров (бесконечный скролл)
+ */
+export const ProductControllerGetInfiniteCardsQueryParams = zod.object({
+  "attributes": zod.unknown().optional().describe('JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.'),
+  "isDiscount": zod.unknown().optional().describe('Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)'),
+  "isPopular": zod.unknown().optional().describe('Фильтр по популярным товарам (true\/false)'),
+  "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
+  "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
+  "minPrice": zod.unknown().optional().describe('Минимальная цена'),
+  "brands": zod.unknown().optional().describe('ID брендов через запятую'),
+  "categories": zod.unknown().optional().describe('ID категорий через запятую'),
+  "seed": zod.unknown().optional().describe('Seed для детерминированной рандомизации'),
+  "limit": zod.unknown().optional().describe('Размер страницы (1-50), по умолчанию 24'),
+  "cursor": zod.unknown().optional().describe('Курсор из предыдущего ответа (opaque base64)')
+})
+
+export const ProductControllerGetInfiniteCardsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "categories": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+}))
+})),
+  "nextCursor": zod.string().nullable(),
+  "seed": zod.string().nullable().describe('РЎС‚Р°Р±РёР»СЊРЅС‹Р№ seed РґР»СЏ РґРµС‚РµСЂРјРёРЅРёСЂРѕРІР°РЅРЅРѕР№ СЂР°РЅРґРѕРјРёР·Р°С†РёРё')
+})
+
+
+/**
  * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
  * @summary Список товаров с фильтрами (бесконечный скролл)
  */
@@ -2104,7 +2997,7 @@ export const ProductControllerGetInfiniteQueryParams = zod.object({
   "attributes": zod.unknown().optional().describe('JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.'),
   "isDiscount": zod.unknown().optional().describe('Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)'),
   "isPopular": zod.unknown().optional().describe('Фильтр по популярным товарам (true\/false)'),
-  "searchTerm": zod.unknown().optional().describe('Поиск по названию (contains, insensitive)'),
+  "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
   "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
   "minPrice": zod.unknown().optional().describe('Минимальная цена'),
   "brands": zod.unknown().optional().describe('ID брендов через запятую'),
@@ -2202,6 +3095,111 @@ export const ProductControllerGetInfiniteResponse = zod.object({
 
 
 /**
+ * Возвращает карточки рекомендаций с productAttributes, но без variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
+ * @summary Лёгкий card-feed рекомендаций
+ */
+export const ProductControllerGetRecommendationsInfiniteCardsQueryParams = zod.object({
+  "attributes": zod.unknown().optional().describe('JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.'),
+  "isDiscount": zod.unknown().optional().describe('Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)'),
+  "isPopular": zod.unknown().optional().describe('Фильтр по популярным товарам (true\/false)'),
+  "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
+  "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
+  "minPrice": zod.unknown().optional().describe('Минимальная цена'),
+  "brands": zod.unknown().optional().describe('ID брендов через запятую'),
+  "categories": zod.unknown().optional().describe('ID категорий через запятую'),
+  "seed": zod.unknown().optional().describe('Seed для детерминированной рандомизации'),
+  "limit": zod.unknown().optional().describe('Размер страницы (1-50), по умолчанию 24'),
+  "cursor": zod.unknown().optional().describe('Курсор из предыдущего ответа (opaque base64)')
+})
+
+export const ProductControllerGetRecommendationsInfiniteCardsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "categories": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+}))
+})),
+  "nextCursor": zod.string().nullable(),
+  "seed": zod.string().nullable().describe('РЎС‚Р°Р±РёР»СЊРЅС‹Р№ seed РґР»СЏ РґРµС‚РµСЂРјРёРЅРёСЂРѕРІР°РЅРЅРѕР№ СЂР°РЅРґРѕРјРёР·Р°С†РёРё')
+})
+
+
+/**
  * Временная реализация: возвращает товары, которые не попадают в текущий фильтр. Поддерживает те же query-параметры и deterministic seed, что и /product/infinite.
  * @summary Список рекомендаций под фильтром (бесконечный скролл)
  */
@@ -2209,7 +3207,7 @@ export const ProductControllerGetRecommendationsInfiniteQueryParams = zod.object
   "attributes": zod.unknown().optional().describe('JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.'),
   "isDiscount": zod.unknown().optional().describe('Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)'),
   "isPopular": zod.unknown().optional().describe('Фильтр по популярным товарам (true\/false)'),
-  "searchTerm": zod.unknown().optional().describe('Поиск по названию (contains, insensitive)'),
+  "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
   "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
   "minPrice": zod.unknown().optional().describe('Минимальная цена'),
   "brands": zod.unknown().optional().describe('ID брендов через запятую'),
@@ -2303,6 +3301,189 @@ export const ProductControllerGetRecommendationsInfiniteResponse = zod.object({
 })),
   "nextCursor": zod.string().nullable(),
   "seed": zod.string().nullable().describe('Стабильный seed для детерминированной рандомизации')
+})
+
+
+/**
+ * Возвращает популярные товары с productAttributes, но без variants.
+ * @summary Лёгкий список популярных товаров
+ */
+export const ProductControllerGetPopularCardsResponseItem = zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "categories": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+}))
+})
+export const ProductControllerGetPopularCardsResponse = zod.array(ProductControllerGetPopularCardsResponseItem)
+
+
+/**
+ * Возвращает карточки товаров без активной категории с productAttributes, но без variants.
+ * @summary Лёгкий список товаров без категории
+ */
+export const ProductControllerGetUncategorizedInfiniteCardsQueryParams = zod.object({
+  "cursor": zod.string().optional().describe('Курсор из предыдущего ответа (opaque base64)'),
+  "limit": zod.string().optional().describe('Размер страницы (1-50), по умолчанию 24')
+})
+
+export const ProductControllerGetUncategorizedInfiniteCardsResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "categories": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+}))
+})),
+  "nextCursor": zod.string().nullable()
 })
 
 
@@ -2402,7 +3583,7 @@ export const ProductControllerGetUncategorizedInfiniteResponse = zod.object({
 
 
 /**
- * В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 export const ProductControllerGetPopularResponseItem = zod.object({
@@ -2484,40 +3665,6 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
-})),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "sku": zod.string(),
-  "variantKey": zod.string(),
-  "stock": zod.number(),
-  "price": zod.string(),
-  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
-  "isAvailable": zod.boolean(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({}),
-  "attributes": zod.array(zod.object({
-  "id": zod.string(),
-  "attributeId": zod.string(),
-  "enumValueId": zod.string(),
-  "attribute": zod.object({
-  "id": zod.string(),
-  "key": zod.string(),
-  "displayName": zod.string(),
-  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
-  "isRequired": zod.boolean(),
-  "isVariantAttribute": zod.boolean(),
-  "isFilterable": zod.boolean(),
-  "displayOrder": zod.number(),
-  "isHidden": zod.boolean()
-}),
-  "enumValue": zod.object({
-  "id": zod.string(),
-  "value": zod.string(),
-  "displayName": zod.string().nullable(),
-  "displayOrder": zod.number(),
-  "businessId": zod.string().nullable()
-})
-}))
 }))
 })
 export const ProductControllerGetPopularResponse = zod.array(ProductControllerGetPopularResponseItem)

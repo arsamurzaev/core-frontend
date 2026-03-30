@@ -1,6 +1,5 @@
-﻿"use client";
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import * as React from "react";
@@ -12,11 +11,9 @@ import {
   type FieldErrors,
   type FieldValues,
   type Path,
-  type Resolver,
   type FieldError as RhfFieldError,
   type UseFormReturn,
 } from "react-hook-form";
-import { z } from "zod";
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
@@ -67,10 +64,13 @@ export type FieldLayout = {
   style?: React.CSSProperties;
 };
 
-type ZodSchema = z.core.$ZodType;
-type ZodShape = z.core.$ZodShape;
 type CharacterLimitedTextareaProps = React.ComponentProps<
   typeof CharacterLimitedTextarea
+>;
+type ToggleGroupProps = React.ComponentProps<typeof ToggleGroup>;
+type ToggleGroupSanitizedProps = Omit<
+  ToggleGroupProps,
+  "type" | "value" | "defaultValue" | "onValueChange"
 >;
 type DynamicTextareaProps = Omit<
   CharacterLimitedTextareaProps,
@@ -80,6 +80,23 @@ type DynamicTextareaProps = Omit<
   rows?: number;
   forceShowCounter?: boolean;
 };
+
+function sanitizeToggleGroupProps(
+  props?: ToggleGroupProps,
+): ToggleGroupSanitizedProps {
+  if (!props) {
+    return {} as ToggleGroupSanitizedProps;
+  }
+
+  const nextProps = { ...props } as Record<string, unknown>;
+
+  delete nextProps.type;
+  delete nextProps.value;
+  delete nextProps.defaultValue;
+  delete nextProps.onValueChange;
+
+  return nextProps as ToggleGroupSanitizedProps;
+}
 
 export type FieldKind =
   | "text"
@@ -145,7 +162,6 @@ export type DynamicFieldConfig<TValues extends FieldValues = FieldValues> = {
   labelClassName?: string;
   descriptionClassName?: string;
   errorClassName?: string;
-  schema?: ZodSchema;
 };
 
 export type DynamicFieldRenderProps<TValues extends FieldValues = FieldValues> =
@@ -180,20 +196,14 @@ export type DynamicFormLayout = {
   style?: React.CSSProperties;
 };
 
-type SchemaValues<Schema extends ZodSchema> =
-  z.output<Schema> extends FieldValues ? z.output<Schema> : FieldValues;
-
-export type DynamicFormProps<Schema extends ZodSchema> = {
-  schema: Schema;
-  fields?: DynamicFieldConfig<SchemaValues<Schema>>[];
-  fieldOverrides?: Record<
-    string,
-    Partial<DynamicFieldConfig<SchemaValues<Schema>>>
-  >;
-  defaultValues?: DefaultValues<SchemaValues<Schema>>;
-  onSubmit: (values: SchemaValues<Schema>) => void | Promise<void>;
-  onInvalid?: (errors: FieldErrors<SchemaValues<Schema>>) => void;
-  form?: UseFormReturn<SchemaValues<Schema>, unknown, SchemaValues<Schema>>;
+export type DynamicFormProps<TValues extends FieldValues = FieldValues> = {
+  schema?: unknown;
+  fields?: DynamicFieldConfig<TValues>[];
+  fieldOverrides?: Record<string, Partial<DynamicFieldConfig<TValues>>>;
+  defaultValues?: DefaultValues<TValues>;
+  onSubmit: (values: TValues) => void | Promise<void>;
+  onInvalid?: (errors: FieldErrors<TValues>) => void;
+  form?: UseFormReturn<TValues, unknown, TValues>;
   layout?: DynamicFormLayout;
   disabled?: boolean;
   readOnly?: boolean;
@@ -204,22 +214,6 @@ export type DynamicFormProps<Schema extends ZodSchema> = {
   fieldGroupProps?: React.ComponentProps<typeof FieldGroup>;
   actions?: React.ReactNode;
 };
-
-type ZodUnwrapResult = {
-  schema: ZodSchema;
-  isOptional: boolean;
-  isNullable: boolean;
-};
-
-type ZodDefLike = {
-  type?: string;
-  innerType?: ZodSchema;
-  in?: ZodSchema;
-  shape?: ZodShape | (() => ZodShape);
-  checks?: unknown[];
-};
-
-type ZodConstructor = new (...args: never[]) => ZodSchema;
 
 const GRID_FALLBACK_COLUMNS = 1;
 const DEFAULT_TEXTAREA_MAX_LENGTH = 500;
@@ -236,140 +230,37 @@ type CalendarSingleProps = Omit<
 
 const CalendarSingle = Calendar as React.ComponentType<CalendarSingleProps>;
 
-function getZodDef(schema: ZodSchema): ZodDefLike | undefined {
-  const anySchema = schema as {
-    _def?: ZodDefLike;
-    def?: ZodDefLike;
-    _zod?: { def?: ZodDefLike };
-  };
-  return anySchema._def ?? anySchema.def ?? anySchema._zod?.def;
-}
-
-function safeInstanceof<T extends ZodSchema>(
-  value: unknown,
-  ctor: unknown,
-): value is T {
-  return (
-    typeof ctor === "function" && value instanceof (ctor as ZodConstructor)
-  );
-}
-
-function isZodEnum(schema: ZodSchema): schema is z.ZodEnum<z.util.EnumLike> {
-  return safeInstanceof(schema, (z as { ZodEnum?: unknown }).ZodEnum);
-}
-
-function unwrapZodType(schema: ZodSchema): ZodUnwrapResult {
-  let current = schema;
-  let isOptional = false;
-  let isNullable = false;
-  const visited = new Set<ZodSchema>();
-
-  while (current && !visited.has(current)) {
-    visited.add(current);
-    const optionalCheck = (current as { isOptional?: () => boolean })
-      .isOptional;
-    if (typeof optionalCheck === "function") {
-      isOptional = isOptional || optionalCheck();
-    }
-    const nullableCheck = (current as { isNullable?: () => boolean })
-      .isNullable;
-    if (typeof nullableCheck === "function") {
-      isNullable = isNullable || nullableCheck();
-    }
-
-    const def = getZodDef(current);
-    const type = def?.type;
-
-    if (safeInstanceof(current, z.ZodOptional) || type === "optional") {
-      const unwrap = (current as { unwrap?: () => ZodSchema }).unwrap;
-      const inner = def?.innerType ?? (unwrap ? unwrap() : undefined);
-      if (inner) {
-        current = inner;
-        continue;
-      }
-    }
-
-    if (safeInstanceof(current, z.ZodNullable) || type === "nullable") {
-      const unwrap = (current as { unwrap?: () => ZodSchema }).unwrap;
-      const inner = def?.innerType ?? (unwrap ? unwrap() : undefined);
-      if (inner) {
-        current = inner;
-        continue;
-      }
-    }
-
-    if (safeInstanceof(current, z.ZodDefault) || type === "default") {
-      const unwrap = (current as { unwrap?: () => ZodSchema }).unwrap;
-      const inner = def?.innerType ?? (unwrap ? unwrap() : undefined);
-      if (inner) {
-        current = inner;
-        continue;
-      }
-    }
-
-    if (safeInstanceof(current, z.ZodCatch) || type === "catch") {
-      const unwrap = (current as { unwrap?: () => ZodSchema }).unwrap;
-      const inner = def?.innerType ?? (unwrap ? unwrap() : undefined);
-      if (inner) {
-        current = inner;
-        continue;
-      }
-    }
-
-    if (type === "pipe" && def?.in) {
-      current = def.in as ZodSchema;
-      continue;
-    }
-
-    break;
-  }
-
-  return { schema: current, isOptional, isNullable };
-}
-
-function getZodShape(schema: ZodSchema): ZodShape | null {
-  const unwrapped = unwrapZodType(schema).schema;
-  if (safeInstanceof(unwrapped, z.ZodObject)) {
-    const def = getZodDef(unwrapped);
-    const shapeValue =
-      def?.shape ??
-      (unwrapped as { shape?: ZodShape | (() => ZodShape) }).shape;
-    if (typeof shapeValue === "function") return shapeValue();
-    return shapeValue ?? null;
-  }
-  return null;
-}
-
-function humanizeLabel(value: string): string {
-  const withSpaces = value
-    .replace(/[_-]+/g, " ")
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2");
-  return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1);
-}
-
 function getErrorByPath<TValues extends FieldValues>(
   errors: FieldErrors<TValues>,
   path: Path<TValues>,
 ): RhfFieldError | undefined {
   const segments = String(path).split(".");
   let current: unknown = errors;
+
   for (const segment of segments) {
     if (!current) return undefined;
     current = (current as Record<string, unknown>)[segment];
   }
+
   return current as RhfFieldError | undefined;
 }
 
 function normalizeFieldErrors(
   error?: RhfFieldError,
 ): Array<{ message?: string }> {
-  if (!error) return [];
+  if (!error) {
+    return [];
+  }
+
   if (error.types) {
     const messages = Object.values(error.types)
       .flatMap((value) => (Array.isArray(value) ? value : [value]))
       .filter(Boolean)
       .map((message) => ({ message: String(message) }));
-    if (messages.length) return messages;
+
+    if (messages.length > 0) {
+      return messages;
+    }
   }
 
   if (error.message) {
@@ -378,183 +269,21 @@ function normalizeFieldErrors(
 
   return [];
 }
-function getStringConstraints(schema: ZodSchema): {
-  minLength?: number;
-  maxLength?: number;
-  format?: string | null;
-} {
-  const anySchema = schema as {
-    minLength?: number | null;
-    maxLength?: number | null;
-    format?: string | null;
-  };
-  if (
-    typeof anySchema.minLength === "number" ||
-    typeof anySchema.maxLength === "number"
-  ) {
-    return {
-      minLength: anySchema.minLength ?? undefined,
-      maxLength: anySchema.maxLength ?? undefined,
-      format: anySchema.format ?? null,
-    };
-  }
-
-  const def = getZodDef(schema);
-  const checks = (def?.checks ?? []) as Array<{
-    kind?: string;
-    value?: number;
-    format?: string;
-  }>;
-  let minLength: number | undefined;
-  let maxLength: number | undefined;
-  let format: string | null | undefined;
-
-  for (const check of checks) {
-    if (check.kind === "min") minLength = check.value;
-    if (check.kind === "max") maxLength = check.value;
-    if (
-      check.kind === "email" ||
-      check.kind === "url" ||
-      check.kind === "datetime"
-    ) {
-      format = check.kind;
-    }
-  }
-
-  return {
-    minLength,
-    maxLength,
-    format,
-  };
-}
-
-function getNumberConstraints(schema: ZodSchema): {
-  min?: number;
-  max?: number;
-  isInt?: boolean;
-} {
-  const anySchema = schema as {
-    minValue?: number | null;
-    maxValue?: number | null;
-    isInt?: boolean;
-  };
-  if (
-    typeof anySchema.minValue === "number" ||
-    typeof anySchema.maxValue === "number"
-  ) {
-    return {
-      min: anySchema.minValue ?? undefined,
-      max: anySchema.maxValue ?? undefined,
-      isInt: Boolean(anySchema.isInt),
-    };
-  }
-
-  const def = getZodDef(schema);
-  const checks = (def?.checks ?? []) as Array<{
-    kind?: string;
-    value?: number;
-    inclusive?: boolean;
-  }>;
-  let min: number | undefined;
-  let max: number | undefined;
-  let isInt = false;
-
-  for (const check of checks) {
-    if (check.kind === "min" || check.kind === "greater") min = check.value;
-    if (check.kind === "max" || check.kind === "less") max = check.value;
-    if (check.kind === "int") isInt = true;
-  }
-
-  return { min, max, isInt };
-}
-
-function getDateConstraints(schema: ZodSchema): {
-  minDate?: Date;
-  maxDate?: Date;
-} {
-  const anySchema = schema as { minDate?: Date | null; maxDate?: Date | null };
-  if (anySchema.minDate || anySchema.maxDate) {
-    return {
-      minDate: anySchema.minDate ?? undefined,
-      maxDate: anySchema.maxDate ?? undefined,
-    };
-  }
-
-  const def = getZodDef(schema);
-  const checks = (def?.checks ?? []) as Array<{ kind?: string; value?: Date }>;
-  let minDate: Date | undefined;
-  let maxDate: Date | undefined;
-
-  for (const check of checks) {
-    if (check.kind === "min" || check.kind === "greater") minDate = check.value;
-    if (check.kind === "max" || check.kind === "less") maxDate = check.value;
-  }
-
-  return { minDate, maxDate };
-}
-
-function inferFieldKind(schema: ZodSchema): FieldKind {
-  if (safeInstanceof(schema, z.ZodString)) {
-    const { format } = getStringConstraints(schema);
-    if (format === "email") return "email";
-    if (format === "url") return "url";
-    if (format === "e164") return "tel";
-    if (format === "datetime") return "datetime";
-    if (format === "date") return "date-input";
-    if (format === "time") return "time";
-    return "text";
-  }
-
-  if (safeInstanceof(schema, z.ZodNumber)) return "number";
-  if (safeInstanceof(schema, z.ZodBoolean)) return "switch";
-  if (safeInstanceof(schema, z.ZodDate)) return "date";
-  if (isZodEnum(schema)) return "select";
-
-  if (safeInstanceof(schema, z.ZodArray)) {
-    const element = (schema as z.ZodArray<ZodSchema>).element;
-    const inner = unwrapZodType(element).schema;
-    if (isZodEnum(inner)) {
-      return "checkbox-group";
-    }
-  }
-
-  return "text";
-}
-
-function inferOptions(schema: ZodSchema): FieldOption[] | undefined {
-  if (isZodEnum(schema)) {
-    const entries =
-      (
-        schema as {
-          options?: string[];
-          enum?: Record<string, string | number>;
-        }
-      ).options ??
-      Object.values(
-        (schema as { enum?: Record<string, string | number> }).enum ?? {},
-      );
-    return entries.map((value) => ({
-      value,
-      label: humanizeLabel(String(value)),
-    }));
-  }
-
-  if (safeInstanceof(schema, z.ZodArray)) {
-    const element = (schema as z.ZodArray<ZodSchema>).element;
-    return inferOptions(unwrapZodType(element).schema);
-  }
-
-  return undefined;
-}
 
 function mergeFieldOverrides<TValues extends FieldValues>(
   fields: DynamicFieldConfig<TValues>[],
   overrides?: Record<string, Partial<DynamicFieldConfig<TValues>>>,
 ): DynamicFieldConfig<TValues>[] {
-  if (!overrides) return fields;
+  if (!overrides) {
+    return fields;
+  }
+
   return fields.map((field) => {
     const override = overrides[String(field.name)];
-    if (!override) return field;
+    if (!override) {
+      return field;
+    }
+
     return {
       ...field,
       ...override,
@@ -580,184 +309,81 @@ function mergeFieldOverrides<TValues extends FieldValues>(
     };
   });
 }
-function normalizeFields<TValues extends FieldValues>(
-  fields: DynamicFieldConfig<TValues>[],
-  schemaMap: Record<string, ZodSchema | undefined>,
-): DynamicFieldConfig<TValues>[] {
-  return fields.map((field) => {
-    const schema = field.schema ?? schemaMap[String(field.name)];
-    const unwrapped = schema ? unwrapZodType(schema) : null;
-    const inferredKind =
-      field.kind ?? (unwrapped ? inferFieldKind(unwrapped.schema) : "text");
-    const required =
-      field.required ?? (unwrapped ? !unwrapped.isOptional : false);
-    const schemaDescription = (
-      schema as { description?: string } | undefined
-    )?.description;
-    const description = field.description ?? schemaDescription;
-    const options =
-      field.options ?? (unwrapped ? inferOptions(unwrapped.schema) : undefined);
-
-    const stringConstraints =
-      unwrapped && safeInstanceof(unwrapped.schema, z.ZodString)
-        ? getStringConstraints(unwrapped.schema)
-        : {};
-    const numberConstraints =
-      unwrapped && safeInstanceof(unwrapped.schema, z.ZodNumber)
-        ? getNumberConstraints(unwrapped.schema)
-        : {};
-    const dateConstraints =
-      unwrapped && safeInstanceof(unwrapped.schema, z.ZodDate)
-        ? getDateConstraints(unwrapped.schema)
-        : {};
-
-    return {
-      ...field,
-      schema,
-      kind: inferredKind,
-      required,
-      description,
-      options,
-      minLength: field.minLength ?? stringConstraints.minLength,
-      maxLength: field.maxLength ?? stringConstraints.maxLength,
-      min: field.min ?? numberConstraints.min,
-      max: field.max ?? numberConstraints.max,
-      step:
-        field.step ??
-        (typeof numberConstraints.isInt === "boolean"
-          ? numberConstraints.isInt
-            ? 1
-            : undefined
-          : undefined),
-      calendarProps: field.calendarProps
-        ? field.calendarProps
-        : dateConstraints.minDate || dateConstraints.maxDate
-          ? {
-              fromDate: dateConstraints.minDate,
-              toDate: dateConstraints.maxDate,
-            }
-          : undefined,
-    };
-  });
-}
 
 function sortFields<TValues extends FieldValues>(
   fields: DynamicFieldConfig<TValues>[],
 ): DynamicFieldConfig<TValues>[] {
-  return [...fields].sort((a, b) => {
-    const orderA = a.layout?.order ?? 0;
-    const orderB = b.layout?.order ?? 0;
-    return orderA - orderB;
+  return [...fields].sort((left, right) => {
+    const leftOrder = left.layout?.order ?? 0;
+    const rightOrder = right.layout?.order ?? 0;
+    return leftOrder - rightOrder;
   });
 }
 
-export function createDynamicFields<Schema extends ZodSchema>(
-  schema: Schema,
-  overrides?: Record<string, Partial<DynamicFieldConfig<SchemaValues<Schema>>>>,
-): DynamicFieldConfig<SchemaValues<Schema>>[] {
-  const shape = getZodShape(schema);
-  if (!shape) return [];
-  const fields = Object.entries(shape).map(([key, value]) => ({
-    name: key as Path<SchemaValues<Schema>>,
-    label: humanizeLabel(key),
-    schema: value,
-  }));
-  return mergeFieldOverrides(fields, overrides);
-}
-
-export function DynamicForm<Schema extends ZodSchema>({
-  schema,
-  fields,
+export function DynamicForm<TValues extends FieldValues = FieldValues>({
+  fields = [],
   fieldOverrides,
   defaultValues,
   onSubmit,
   onInvalid,
-  form: externalForm,
+  form,
   layout,
-  disabled,
-  readOnly,
+  disabled = false,
+  readOnly = false,
   showOptionalLabel = false,
   disableWhileSubmitting = true,
   className,
   fieldSetProps,
   fieldGroupProps,
   actions,
-}: DynamicFormProps<Schema>) {
-  const resolverSchema = schema as z.core.$ZodType<
-    SchemaValues<Schema>,
-    SchemaValues<Schema>
-  >;
-  const internalForm = useForm<
-    SchemaValues<Schema>,
-    unknown,
-    SchemaValues<Schema>
-  >({
-    resolver: zodResolver(resolverSchema) as Resolver<
-      SchemaValues<Schema>,
-      unknown,
-      SchemaValues<Schema>
-    >,
+}: DynamicFormProps<TValues>) {
+  const internalForm = useForm<TValues>({
     defaultValues,
-    criteriaMode: "all",
   });
-  const form = externalForm ?? internalForm;
-
-  const schemaShape = React.useMemo(() => getZodShape(schema), [schema]);
-  const schemaMap = React.useMemo(() => {
-    const map: Record<string, ZodSchema> = {};
-    if (schemaShape) {
-      for (const [key, value] of Object.entries(schemaShape)) {
-        map[key] = value;
-      }
-    }
-    return map;
-  }, [schemaShape]);
-
-  const baseFields = React.useMemo(() => {
-    if (fields && fields.length) return fields;
-    return createDynamicFields(schema, fieldOverrides);
-  }, [fields, schema, fieldOverrides]);
-
-  const mergedFields = React.useMemo(
-    () => mergeFieldOverrides(baseFields, fieldOverrides),
-    [baseFields, fieldOverrides],
-  );
-
+  const resolvedForm = form ?? internalForm;
   const normalizedFields = React.useMemo(
-    () => sortFields(normalizeFields(mergedFields, schemaMap)),
-    [mergedFields, schemaMap],
+    () => sortFields(mergeFieldOverrides(fields, fieldOverrides)),
+    [fieldOverrides, fields],
   );
 
-  const formDisabled = Boolean(
-    disabled || (disableWhileSubmitting && form.formState.isSubmitting),
-  );
+  const {
+    variant = "stack",
+    columns = GRID_FALLBACK_COLUMNS,
+    className: layoutClassName,
+    groupClassName,
+    style: layoutStyle,
+  } = layout ?? {};
 
-  const layoutVariant =
-    layout?.variant ??
-    (layout?.columns && layout.columns > 1 ? "grid" : "stack");
-  const columns = layout?.columns ?? GRID_FALLBACK_COLUMNS;
-  const gridStyle: React.CSSProperties | undefined =
-    layoutVariant === "grid"
-      ? {
-          gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-          ...(layout?.style ?? {}),
-        }
-      : layout?.style;
+  const formDisabled =
+    disabled || (disableWhileSubmitting && resolvedForm.formState.isSubmitting);
+
+  const gridStyle =
+    variant === "grid"
+      ? ({
+          display: "grid",
+          gridTemplateColumns: `repeat(${Math.max(columns, 1)}, minmax(0, 1fr))`,
+          ...layoutStyle,
+        } satisfies React.CSSProperties)
+      : layoutStyle;
 
   return (
-    <FormProvider {...form}>
+    <FormProvider {...resolvedForm}>
       <form
-        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
-        className={cn("space-y-8", className)}
-        noValidate
+        onSubmit={resolvedForm.handleSubmit(
+          async (values) => {
+            await onSubmit(values);
+          },
+          onInvalid,
+        )}
+        className={cn("space-y-6", className)}
       >
-        <FieldSet {...fieldSetProps}>
+        <FieldSet {...fieldSetProps} disabled={formDisabled}>
           <FieldGroup
             {...fieldGroupProps}
             className={cn(
-              layoutVariant === "grid" ? "grid gap-6" : "flex flex-col gap-6",
-              layout?.className,
-              layout?.groupClassName,
+              variant === "grid" ? "grid gap-4" : "space-y-4",
+              layoutClassName,
+              groupClassName,
               fieldGroupProps?.className,
             )}
             style={gridStyle}
@@ -766,10 +392,10 @@ export function DynamicForm<Schema extends ZodSchema>({
               <DynamicFormField
                 key={String(field.name)}
                 field={field}
-                form={form}
+                form={resolvedForm}
                 showOptionalLabel={showOptionalLabel}
                 disabled={formDisabled}
-                readOnly={readOnly ?? false}
+                readOnly={readOnly}
               />
             ))}
           </FieldGroup>
@@ -949,6 +575,7 @@ function DynamicFormField<TValues extends FieldValues>({
     />
   );
 }
+
 function renderDefaultControl<TValues extends FieldValues>(
   props: DynamicFieldRenderProps<TValues>,
   describedBy?: string,
@@ -979,9 +606,7 @@ function renderDefaultControl<TValues extends FieldValues>(
     const maxLengthCandidate = fieldConfig.maxLength ?? maxLengthProp;
     const resolvedMaxLength =
       maxLengthCandidate ??
-      (forceShowCounter
-        ? DEFAULT_TEXTAREA_MAX_LENGTH
-        : Number.MAX_SAFE_INTEGER);
+      (forceShowCounter ? DEFAULT_TEXTAREA_MAX_LENGTH : Number.MAX_SAFE_INTEGER);
     const shouldShowCounter =
       forceShowCounter === true
         ? true
@@ -1031,6 +656,7 @@ function renderDefaultControl<TValues extends FieldValues>(
 
   if (kind === "checkbox-group") {
     const values = Array.isArray(field.value) ? field.value : [];
+
     return (
       <div
         className={cn("grid gap-2", fieldConfig.controlClassName)}
@@ -1038,6 +664,7 @@ function renderDefaultControl<TValues extends FieldValues>(
       >
         {(options ?? []).map((option) => {
           const checked = values.includes(option.value);
+
           return (
             <Label
               key={String(option.value)}
@@ -1093,14 +720,12 @@ function renderDefaultControl<TValues extends FieldValues>(
     const hasNumberValues =
       options?.length &&
       options.every((option) => typeof option.value === "number");
-
     const isMultiple = Boolean(fieldConfig.multiple);
     const rawValue = isMultiple
       ? Array.isArray(field.value)
         ? field.value[0]
         : undefined
       : field.value;
-
     const value =
       rawValue === undefined || rawValue === null
         ? undefined
@@ -1172,6 +797,7 @@ function renderDefaultControl<TValues extends FieldValues>(
       >
         {(options ?? []).map((option) => {
           const itemId = `${id}-${String(option.value)}`;
+
           return (
             <Label
               key={String(option.value)}
@@ -1201,6 +827,7 @@ function renderDefaultControl<TValues extends FieldValues>(
   if (kind === "slider") {
     const value =
       typeof field.value === "number" ? field.value : (fieldConfig.min ?? 0);
+
     return (
       <div className="flex items-center gap-3">
         <Slider
@@ -1227,18 +854,13 @@ function renderDefaultControl<TValues extends FieldValues>(
 
   if (kind === "toggle-group") {
     const type = fieldConfig.toggleGroupProps?.type ?? "single";
-    const {
-      type: _type,
-      value: _value,
-      defaultValue: _defaultValue,
-      onValueChange: _onValueChange,
-      ...toggleProps
-    } = fieldConfig.toggleGroupProps ?? {};
+    const toggleProps = sanitizeToggleGroupProps(fieldConfig.toggleGroupProps);
 
     if (type === "multiple") {
       const value = Array.isArray(field.value)
         ? field.value.map((item) => String(item))
         : [];
+
       return (
         <ToggleGroup
           id={id}
@@ -1356,6 +978,7 @@ function renderDefaultControl<TValues extends FieldValues>(
         : kind === "time"
           ? "time"
           : "date";
+
     return (
       <Input
         id={id}
@@ -1400,6 +1023,7 @@ function renderDefaultControl<TValues extends FieldValues>(
           field.onChange(raw === "" ? undefined : Number(raw));
           return;
         }
+
         field.onChange(event.target.value);
       }}
       onBlur={field.onBlur}

@@ -23,6 +23,7 @@ import {
   CardSubTitle,
   CardTitle,
 } from "@/shared/ui/card";
+import Image from "next/image";
 import React from "react";
 
 interface ExtraAttributeConfig {
@@ -169,10 +170,12 @@ export const SchemaDrivenProductCard: React.FC<Props> = ({
       <CardContent className={cn("flex-[0_1_160px]", isDetailed && "relative")}>
         <div className="min-w-25">
           <AspectRatio ratio={3 / 4}>
-            <img
-              loading="lazy"
+            <Image
               src={imageUrl || "/not-found-photo.png"}
-              className="h-full w-full object-contain"
+              fill
+              sizes="(max-width: 640px) 100px, 160px"
+              unoptimized
+              className="object-contain"
               alt="карточка товара"
             />
           </AspectRatio>

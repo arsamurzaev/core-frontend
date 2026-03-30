@@ -1,5 +1,6 @@
 "use client";
 
+import { revalidateStorefrontCacheBestEffort } from "@/shared/api/revalidate-storefront-client";
 import { type QueryClient, type QueryKey } from "@tanstack/react-query";
 
 function shouldInvalidateProductQuery(queryKey: QueryKey): boolean {
@@ -28,5 +29,6 @@ export async function invalidateProductQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries({
       predicate: (query) => shouldInvalidateProductQuery(query.queryKey),
     }),
+    revalidateStorefrontCacheBestEffort(),
   ]);
 }

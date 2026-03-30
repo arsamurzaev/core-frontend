@@ -1,4 +1,4 @@
-import { CategoryDto } from "@/shared/api/generated";
+import type { CategoryDto } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import React from "react";
 

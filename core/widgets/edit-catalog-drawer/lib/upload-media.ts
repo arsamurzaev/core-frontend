@@ -10,7 +10,7 @@ import {
   s3ControllerEnqueueFromS3,
   s3ControllerPresignUpload,
   type UploadQueueStatusDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import axios from "axios";
 
 export type MediaUploadState = {

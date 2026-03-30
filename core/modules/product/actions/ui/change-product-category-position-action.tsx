@@ -3,7 +3,7 @@
 import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
 import {
   useProductControllerUpdateCategoryPosition,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";

@@ -2,7 +2,7 @@ import {
   type AttributeDto,
   AttributeDtoDataType,
   type ProductAttributeValueDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
 
 function normalizeAttributeValue(

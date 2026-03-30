@@ -112,6 +112,7 @@ function createBaseProduct(
     price,
     brand: null,
     categories: [],
+    integration: null,
     media: [
       {
         position: 0,

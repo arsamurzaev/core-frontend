@@ -1,8 +1,8 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
-import type { ProductWithDetailsDto } from "@/shared/api/generated";
+import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { buildHomeHrefWithCatalogQuery } from "@/shared/lib/product-route";
 import { ProductDrawer } from "./product-drawer";
 
@@ -14,25 +14,11 @@ interface ProductDrawerRouteProps {
   initialProduct?: ProductWithDetailsDto | null;
 }
 
-function getProductSlugFromPath(pathname: string): string | null {
-  if (!pathname.startsWith("/product/")) return null;
-
-  const slug = pathname.slice("/product/".length).split("/")[0] ?? "";
-  if (!slug) return null;
-
-  try {
-    return decodeURIComponent(slug);
-  } catch {
-    return slug;
-  }
-}
-
 export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   productSlug,
   closeStrategy,
   initialProduct,
 }) => {
-  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(true);
@@ -42,13 +28,8 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   );
 
   React.useEffect(() => {
-    const currentPath = pathname ?? "";
-    const currentSlug = getProductSlugFromPath(currentPath);
-
-    if (currentSlug === productSlug) {
-      setOpen(true);
-    }
-  }, [pathname, productSlug]);
+    setOpen(true);
+  }, [productSlug]);
 
   const handleOpenChange = React.useCallback((nextOpen: boolean) => {
     if (nextOpen) {
@@ -62,7 +43,7 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   const handleAfterClose = React.useCallback(() => {
     if (closeStrategy === "back") {
       if (typeof window !== "undefined" && window.history.length <= 1) {
-        router.push(homeHref);
+        router.push(homeHref, { scroll: false });
         return;
       }
 
@@ -70,7 +51,7 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
       return;
     }
 
-    router.push(homeHref);
+    router.push(homeHref, { scroll: false });
   }, [closeStrategy, homeHref, router]);
 
   if (!productSlug) {

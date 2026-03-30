@@ -1,5 +1,8 @@
 "use client";
 
+import { useCart } from "@/core/modules/cart/model/cart-context";
+import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
+import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
 import {
   PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
   PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
@@ -10,14 +13,14 @@ import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
-import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui/toggle-product-popular-action";
+import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
 import {
   CategoryDto,
   ProductWithAttributesDto,
-  categoryControllerGetProductsByCategory,
-  getProductControllerGetUncategorizedInfiniteQueryKey,
-  productControllerGetUncategorizedInfinite,
-} from "@/shared/api/generated";
+  categoryControllerGetProductCardsByCategory,
+  getProductControllerGetUncategorizedInfiniteCardsQueryKey,
+  productControllerGetUncategorizedInfiniteCards,
+} from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { useSession } from "@/shared/providers/session-provider";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -88,6 +91,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 }) => {
   const { isDetailed } = useProductCardViewMode();
   const { isAuthenticated } = useSession();
+  const { quantityByProductId, shouldUseCartUi } = useCart();
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
   const loadMoreRef = React.useRef<HTMLDivElement | null>(null);
   const [isActivated, setIsActivated] = React.useState(initiallyActivated);
@@ -255,10 +259,20 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                   <ProductCard
                     data={product}
                     isDetailed={isDetailed}
+                    actions={
+                      shouldUseCartUi ? (
+                        <CartProductAction productId={product.id} />
+                      ) : undefined
+                    }
                     className={cn("h-full", isDetailed && "min-h-[160px]")}
-                    isVisiblePrice={isAuthenticated}
+                    hidePriceWhenFooterAction={shouldUseCartUi}
                     footerAction={
-                      isAuthenticated ? (
+                      shouldUseCartUi && (quantityByProductId[product.id] ?? 0) > 0 ? (
+                        <CartProductCardFooterAction
+                          product={product}
+                          isDetailed={isDetailed}
+                        />
+                      ) : !shouldUseCartUi && isAuthenticated ? (
                         <ToggleProductPopularAction
                           productId={product.id}
                           isPopular={Boolean(product.isPopular)}
@@ -267,13 +281,15 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                     }
                   />
                 </ProductLink>
-                <EditProductCardAction
-                  categoryId={categoryId}
-                  categoryPosition={categoryPosition}
-                  isMoySkladLinked={isMoySkladProduct(product)}
-                  productId={product.id}
-                  status={product.status}
-                />
+                {!shouldUseCartUi ? (
+                  <EditProductCardAction
+                    categoryId={categoryId}
+                    categoryPosition={categoryPosition}
+                    isMoySkladLinked={isMoySkladProduct(product)}
+                    productId={product.id}
+                    status={product.status}
+                  />
+                ) : null}
               </article>
             ))}
             {isFetchingNextPage &&
@@ -308,7 +324,7 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
 
   const queryFn = React.useCallback(
     async (cursor: string | undefined): Promise<ProductSectionPage> => {
-      const page = await categoryControllerGetProductsByCategory(category.id, {
+      const page = await categoryControllerGetProductCardsByCategory(category.id, {
         cursor,
         limit: CATEGORY_PRODUCTS_PAGE_SIZE,
       });
@@ -357,13 +373,13 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
   );
 
   const queryKey = React.useMemo(
-    () => getProductControllerGetUncategorizedInfiniteQueryKey(queryParams),
+    () => getProductControllerGetUncategorizedInfiniteCardsQueryKey(queryParams),
     [queryParams],
   );
 
   const queryFn = React.useCallback(
     async (cursor: string | undefined): Promise<ProductSectionPage> => {
-      const page = await productControllerGetUncategorizedInfinite({
+      const page = await productControllerGetUncategorizedInfiniteCards({
         ...queryParams,
         cursor,
       });

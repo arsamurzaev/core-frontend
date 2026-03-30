@@ -1,12 +1,17 @@
 import { AxiosHeaders, type AxiosResponse } from "axios";
+import { getForwardedHost } from "@/shared/api/forwarded-host";
 
-export const API_BASE_URL = "http://localhost:4000";
+function normalizeBaseUrl(url: string): string {
+  return url.endsWith("/") ? url.slice(0, -1) : url;
+}
+
+export const API_BASE_URL = normalizeBaseUrl(
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000",
+);
 export const FORWARDED_HOST_HEADER = "x-forwarded-host";
 
 const CSRF_COOKIE_NAME = "csrf";
 const CSRF_HEADER_NAME = "X-CSRF-Token";
-const DEV_FORWARDED_HOST =
-  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "urban-style.myctlg.ru";
 
 export type ApiHeaders = Record<string, string>;
 
@@ -21,31 +26,6 @@ function getCookie(name: string): string | null {
   );
 
   return match ? decodeURIComponent(match[1]) : null;
-}
-
-function isLocalhost(hostname: string): boolean {
-  return (
-    hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]"
-  );
-}
-
-export function getForwardedHost(): string | null {
-  const isDev = process.env.NODE_ENV === "development";
-
-  if (typeof window !== "undefined") {
-    const { hostname, host } = window.location;
-    if (isDev || isLocalhost(hostname)) {
-      return DEV_FORWARDED_HOST;
-    }
-
-    return host;
-  }
-
-  if (isDev) {
-    return DEV_FORWARDED_HOST;
-  }
-
-  return null;
 }
 
 export function withCsrf(headers: ApiHeaders = {}): ApiHeaders {
@@ -121,3 +101,5 @@ export function normalizeResponseData<T>(response: AxiosResponse<T>): T {
 
   return response.data as T;
 }
+
+export { getForwardedHost };

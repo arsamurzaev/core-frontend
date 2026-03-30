@@ -1,8 +1,17 @@
-import { type AttributeDto, AttributeDtoDataType } from "@/shared/api/generated";
-import { ProductControllerCreateBody } from "@/shared/api/generated/zod";
+import { type AttributeDto, AttributeDtoDataType } from "@/shared/api/generated/react-query";
 import { type DynamicFieldConfig } from "@/shared/ui/dynamic-form";
 import { type Path } from "react-hook-form";
-import { z } from "zod";
+
+export type ProductAttributeFormValue = string | boolean | null;
+
+export type CreateProductFormValues = {
+  name: string;
+  price: string;
+  brandId?: string;
+  categoryIds: string[];
+  hasDiscount: boolean;
+  attributes: Record<string, ProductAttributeFormValue>;
+};
 
 export function normalizeOptionalString(value: unknown): string | undefined {
   if (typeof value !== "string") {
@@ -13,14 +22,52 @@ export function normalizeOptionalString(value: unknown): string | undefined {
   return normalized.length > 0 ? normalized : undefined;
 }
 
-function normalizeAttributesRecord(value: unknown): unknown {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+function normalizeCategoryIds(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === "string");
+}
+
+function normalizeAttributeValue(
+  value: unknown,
+): ProductAttributeFormValue | undefined {
+  if (value === null || typeof value === "string" || typeof value === "boolean") {
     return value;
   }
 
-  return Object.fromEntries(
-    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined),
-  );
+  return undefined;
+}
+
+function normalizeAttributesRecord(
+  value: unknown,
+): Record<string, ProductAttributeFormValue> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return {};
+  }
+
+  const entries = Object.entries(value)
+    .map(([key, entryValue]) => {
+      const normalizedValue = normalizeAttributeValue(entryValue);
+      return normalizedValue === undefined ? null : [key, normalizedValue];
+    })
+    .filter((entry): entry is [string, ProductAttributeFormValue] => entry !== null);
+
+  return Object.fromEntries(entries);
+}
+
+export function normalizeCreateProductFormValues(
+  values: CreateProductFormValues,
+): CreateProductFormValues {
+  return {
+    name: typeof values.name === "string" ? values.name : "",
+    price: typeof values.price === "string" ? values.price : "",
+    brandId: normalizeOptionalString(values.brandId),
+    categoryIds: normalizeCategoryIds(values.categoryIds),
+    hasDiscount: values.hasDiscount === true,
+    attributes: normalizeAttributesRecord(values.attributes),
+  };
 }
 
 export const CREATE_PRODUCT_FORM_LABEL_CLASS =
@@ -28,25 +75,6 @@ export const CREATE_PRODUCT_FORM_LABEL_CLASS =
 
 export const CREATE_PRODUCT_FORM_FIELD_CLASS =
   "items-start [&>[data-slot=field-label]]:!flex-none [&>[data-slot=field-label]]:!min-w-[100px] [&>[data-slot=field-label]]:!max-w-[100px] sm:[&>[data-slot=field-label]]:!min-w-[200px] sm:[&>[data-slot=field-label]]:!max-w-[200px] [&>[data-slot=field-content]]:min-w-[217px] [&>[data-slot=field-content]]:flex-1";
-
-export const createProductFormSchema = z.object({
-  name: ProductControllerCreateBody.shape.name
-    .trim()
-    .min(1, { message: "Введите название товара." }),
-  price: z.string().trim().min(1, { message: "Укажите корректную цену." }),
-  brandId: z.preprocess(
-    normalizeOptionalString,
-    ProductControllerCreateBody.shape.brandId.optional(),
-  ),
-  categoryIds: z.array(z.string()).default([]),
-  hasDiscount: z.boolean().default(false),
-  attributes: z.preprocess(
-    normalizeAttributesRecord,
-    z.record(z.string(), z.union([z.string(), z.boolean(), z.null()])),
-  ),
-});
-
-export type CreateProductFormValues = z.infer<typeof createProductFormSchema>;
 
 export const CREATE_PRODUCT_FORM_DEFAULT_VALUES: CreateProductFormValues = {
   name: "",

@@ -324,6 +324,96 @@ export interface CatalogContactDto {
   value: string;
 }
 
+export type SeoDtoEntityType = typeof SeoDtoEntityType[keyof typeof SeoDtoEntityType];
+
+
+export const SeoDtoEntityType = {
+  CATALOG: 'CATALOG',
+  CATEGORY: 'CATEGORY',
+  PRODUCT: 'PRODUCT',
+  PAGE: 'PAGE',
+  BRAND: 'BRAND',
+  ARTICLE: 'ARTICLE',
+  OTHER: 'OTHER',
+} as const;
+
+/**
+ * @nullable
+ */
+export type SeoDtoSitemapChangeFreq = typeof SeoDtoSitemapChangeFreq[keyof typeof SeoDtoSitemapChangeFreq] | null;
+
+
+export const SeoDtoSitemapChangeFreq = {
+  ALWAYS: 'ALWAYS',
+  HOURLY: 'HOURLY',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  YEARLY: 'YEARLY',
+  NEVER: 'NEVER',
+} as const;
+
+export interface SeoDto {
+  id: string;
+  catalogId: string;
+  entityType: SeoDtoEntityType;
+  entityId: string;
+  /** @nullable */
+  urlPath: string | null;
+  /** @nullable */
+  canonicalUrl: string | null;
+  /** @nullable */
+  title: string | null;
+  /** @nullable */
+  description: string | null;
+  /** @nullable */
+  keywords: string | null;
+  /** @nullable */
+  h1: string | null;
+  /** @nullable */
+  seoText: string | null;
+  /** @nullable */
+  robots: string | null;
+  isIndexable: boolean;
+  isFollowable: boolean;
+  /** @nullable */
+  ogTitle: string | null;
+  /** @nullable */
+  ogDescription: string | null;
+  ogMedia: MediaDto | null;
+  /** @nullable */
+  ogType: string | null;
+  /** @nullable */
+  ogUrl: string | null;
+  /** @nullable */
+  ogSiteName: string | null;
+  /** @nullable */
+  ogLocale: string | null;
+  /** @nullable */
+  twitterCard: string | null;
+  /** @nullable */
+  twitterTitle: string | null;
+  /** @nullable */
+  twitterDescription: string | null;
+  twitterMedia: MediaDto | null;
+  /** @nullable */
+  twitterSite: string | null;
+  /** @nullable */
+  twitterCreator: string | null;
+  /** @nullable */
+  hreflang: string | null;
+  /** @nullable */
+  structuredData: string | null;
+  /** @nullable */
+  extras: string | null;
+  /** @nullable */
+  sitemapPriority: number | null;
+  /** @nullable */
+  sitemapChangeFreq: SeoDtoSitemapChangeFreq;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CatalogTypeDto {
   id: string;
   code: string;
@@ -346,10 +436,36 @@ export interface CatalogCurrentDto {
   deleteAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  /** @nullable */
+  subscriptionEndsAt?: string | null;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
   contacts: CatalogContactDto[];
+  seo: SeoDto | null;
   type: CatalogTypeDto;
+}
+
+export interface CatalogCurrentShellDto {
+  id: string;
+  slug: string;
+  /** @nullable */
+  domain: string | null;
+  name: string;
+  typeId: string;
+  /** @nullable */
+  parentId: string | null;
+  /** @nullable */
+  userId: string | null;
+  /** @nullable */
+  deleteAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  /** @nullable */
+  subscriptionEndsAt?: string | null;
+  config: CatalogConfigDto | null;
+  settings: CatalogSettingsDto | null;
+  contacts: CatalogContactDto[];
+  seo: SeoDto | null;
 }
 
 export type UpdateCatalogContactDtoReqType = typeof UpdateCatalogContactDtoReqType[keyof typeof UpdateCatalogContactDtoReqType];
@@ -413,6 +529,8 @@ export interface CatalogDto {
   deleteAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  /** @nullable */
+  subscriptionEndsAt?: string | null;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
 }
@@ -437,6 +555,149 @@ export interface CatalogCreateResponseDto {
   slug: string;
   /** @nullable */
   domain: string | null;
+}
+
+export interface PresignUploadDtoReq {
+  /** MIME-тип файла */
+  contentType: string;
+  /** Путь внутри каталога */
+  path?: string;
+  folder?: string;
+  entityId?: string;
+}
+
+export interface PresignUploadResponseDto {
+  ok: boolean;
+  mediaId: string;
+  uploadUrl: string;
+  key: string;
+  url: string;
+  expiresIn: number;
+}
+
+export interface PresignPostUploadDtoReq {
+  /** MIME-тип файла */
+  contentType: string;
+  /** Размер файла в байтах (для предварительной проверки лимита) */
+  contentLength?: number;
+  /** Путь внутри каталога */
+  path?: string;
+  folder?: string;
+  entityId?: string;
+}
+
+export type PresignPostUploadResponseDtoFields = { [key: string]: unknown };
+
+export interface PresignPostUploadResponseDto {
+  ok: boolean;
+  mediaId: string;
+  uploadUrl: string;
+  fields: PresignPostUploadResponseDtoFields;
+  key: string;
+  url: string;
+  expiresIn: number;
+  maxFileBytes: number;
+}
+
+export interface MultipartStartDtoReq {
+  /** MIME-тип файла */
+  contentType: string;
+  /** Размер файла в байтах */
+  fileSize: number;
+  /** Размер части в мегабайтах (по умолчанию 64) */
+  partSizeMb?: number;
+  /** Путь внутри каталога */
+  path?: string;
+  folder?: string;
+  entityId?: string;
+}
+
+export interface MultipartStartResponseDto {
+  ok: boolean;
+  mediaId: string;
+  uploadId: string;
+  key: string;
+  url: string;
+  partSize: number;
+  partCount: number;
+}
+
+export interface MultipartPartDtoReq {
+  key: string;
+  uploadId: string;
+  partNumber: number;
+}
+
+export interface MultipartPartResponseDto {
+  ok: boolean;
+  partNumber: number;
+  uploadUrl: string;
+}
+
+export interface MultipartCompletePartDtoReq {
+  partNumber: number;
+  etag: string;
+}
+
+export interface MultipartCompleteDtoReq {
+  key: string;
+  uploadId: string;
+  parts: MultipartCompletePartDtoReq[];
+}
+
+export interface MultipartCompleteResponseDto {
+  ok: boolean;
+  key: string;
+  jobId: string;
+  count: number;
+}
+
+export interface MultipartAbortDtoReq {
+  key: string;
+  uploadId: string;
+}
+
+export interface UploadFromS3ItemDtoReq {
+  key: string;
+  /** ID записи media (если есть в ответе presign) */
+  mediaId?: string;
+  /** URL файла (если есть в ответе presign) */
+  url?: string;
+}
+
+export interface UploadQueueResponseDto {
+  ok: boolean;
+  jobId: string;
+  count: number;
+}
+
+export interface ImageVariantDto {
+  name: string;
+  width: number;
+  height: number;
+  size: number;
+  contentType: string;
+  key: string;
+  url: string;
+}
+
+export interface UploadImageResponseDto {
+  ok: boolean;
+  mediaId: string;
+  key: string;
+  url: string;
+  variants: ImageVariantDto[];
+}
+
+export interface UploadQueueStatusDto {
+  ok: boolean;
+  status: string;
+  progress: number;
+  /** Результат для одного файла */
+  result?: UploadImageResponseDto;
+  /** Результаты для массива файлов */
+  results?: UploadImageResponseDto[];
+  error?: string;
 }
 
 export interface CategoryDto {
@@ -616,6 +877,18 @@ export interface CategoryProductsPageDto {
   nextCursor: string | null;
 }
 
+export interface CategoryProductCardDto {
+  productId: string;
+  position: number;
+  product: ProductWithAttributesDto;
+}
+
+export interface CategoryProductsCardPageDto {
+  items: CategoryProductCardDto[];
+  /** @nullable */
+  nextCursor: string | null;
+}
+
 export interface CategoryProductInputDtoReq {
   productId: string;
   position?: number;
@@ -643,6 +916,14 @@ export interface UpdateCategoryDtoReq {
   /** @nullable */
   parentId?: string | null;
   products?: CategoryProductInputDtoReq[];
+}
+
+export interface UpdateCategoryPositionDtoReq {
+  /**
+   * Новая позиция категории среди соседних категорий
+   * @minimum 0
+   */
+  position: number;
 }
 
 export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
@@ -816,148 +1097,18 @@ export interface MoySkladQueuedSyncDto {
   trigger: MoySkladQueuedSyncDtoTrigger;
 }
 
-export interface PresignUploadDtoReq {
-  /** MIME-тип файла */
-  contentType: string;
-  /** Путь внутри каталога */
-  path?: string;
-  folder?: string;
-  entityId?: string;
-}
+export type CartStatus = typeof CartStatus[keyof typeof CartStatus];
 
-export interface PresignUploadResponseDto {
-  ok: boolean;
-  mediaId: string;
-  uploadUrl: string;
-  key: string;
-  url: string;
-  expiresIn: number;
-}
 
-export interface PresignPostUploadDtoReq {
-  /** MIME-тип файла */
-  contentType: string;
-  /** Размер файла в байтах (для предварительной проверки лимита) */
-  contentLength?: number;
-  /** Путь внутри каталога */
-  path?: string;
-  folder?: string;
-  entityId?: string;
-}
-
-export type PresignPostUploadResponseDtoFields = { [key: string]: unknown };
-
-export interface PresignPostUploadResponseDto {
-  ok: boolean;
-  mediaId: string;
-  uploadUrl: string;
-  fields: PresignPostUploadResponseDtoFields;
-  key: string;
-  url: string;
-  expiresIn: number;
-  maxFileBytes: number;
-}
-
-export interface MultipartStartDtoReq {
-  /** MIME-тип файла */
-  contentType: string;
-  /** Размер файла в байтах */
-  fileSize: number;
-  /** Размер части в мегабайтах (по умолчанию 64) */
-  partSizeMb?: number;
-  /** Путь внутри каталога */
-  path?: string;
-  folder?: string;
-  entityId?: string;
-}
-
-export interface MultipartStartResponseDto {
-  ok: boolean;
-  mediaId: string;
-  uploadId: string;
-  key: string;
-  url: string;
-  partSize: number;
-  partCount: number;
-}
-
-export interface MultipartPartDtoReq {
-  key: string;
-  uploadId: string;
-  partNumber: number;
-}
-
-export interface MultipartPartResponseDto {
-  ok: boolean;
-  partNumber: number;
-  uploadUrl: string;
-}
-
-export interface MultipartCompletePartDtoReq {
-  partNumber: number;
-  etag: string;
-}
-
-export interface MultipartCompleteDtoReq {
-  key: string;
-  uploadId: string;
-  parts: MultipartCompletePartDtoReq[];
-}
-
-export interface MultipartCompleteResponseDto {
-  ok: boolean;
-  key: string;
-  jobId: string;
-  count: number;
-}
-
-export interface MultipartAbortDtoReq {
-  key: string;
-  uploadId: string;
-}
-
-export interface UploadFromS3ItemDtoReq {
-  key: string;
-  /** ID записи media (если есть в ответе presign) */
-  mediaId?: string;
-  /** URL файла (если есть в ответе presign) */
-  url?: string;
-}
-
-export interface UploadQueueResponseDto {
-  ok: boolean;
-  jobId: string;
-  count: number;
-}
-
-export interface ImageVariantDto {
-  name: string;
-  width: number;
-  height: number;
-  size: number;
-  contentType: string;
-  key: string;
-  url: string;
-}
-
-export interface UploadImageResponseDto {
-  ok: boolean;
-  mediaId: string;
-  key: string;
-  url: string;
-  variants: ImageVariantDto[];
-}
-
-export interface UploadQueueStatusDto {
-  ok: boolean;
-  status: string;
-  progress: number;
-  /** Результат для одного файла */
-  result?: UploadImageResponseDto;
-  /** Результаты для массива файлов */
-  results?: UploadImageResponseDto[];
-  error?: string;
-}
+export const CartStatus = {
+  DRAFT: 'DRAFT',
+  SHARED: 'SHARED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  PAUSED: 'PAUSED',
+  CONVERTED: 'CONVERTED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+} as const;
 
 export interface CartProductShortDto {
   id: string;
@@ -986,10 +1137,22 @@ export interface CartTotalsDto {
 export interface CartDto {
   id: string;
   catalogId: string;
+  status: CartStatus;
+  /** @nullable */
+  statusMessage: string | null;
+  statusChangedAt: string;
   /** @nullable */
   publicKey: string | null;
   /** @nullable */
   checkoutAt: string | null;
+  /** @nullable */
+  assignedManagerId: string | null;
+  /** @nullable */
+  managerSessionStartedAt: string | null;
+  /** @nullable */
+  managerLastSeenAt: string | null;
+  /** @nullable */
+  closedAt: string | null;
   items: CartItemDto[];
   totals: CartTotalsDto;
   createdAt: string;
@@ -1021,6 +1184,37 @@ export interface CheckoutCartResponseDto {
   checkoutKey: string;
 }
 
+export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
+
+
+export const OrderStatus = {
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface CompletedOrderItemDto {
+  id: string;
+  productId: string;
+  /** @nullable */
+  variantId: string | null;
+  quantity: number;
+  unitPrice: number;
+}
+
+export interface CompletedOrderDto {
+  id: string;
+  status: OrderStatus;
+  catalogId: string;
+  totalAmount: number;
+  items: CompletedOrderItemDto[];
+  createdAt: string;
+}
+
+export interface CompleteCartOrderResponseDto {
+  ok: boolean;
+  order: CompletedOrderDto;
+}
+
 export interface PublicUpsertCartItemDtoReq {
   productId: string;
   variantId?: string;
@@ -1029,32 +1223,15 @@ export interface PublicUpsertCartItemDtoReq {
   checkoutKey: string;
 }
 
-export type ProductDtoStatus = typeof ProductDtoStatus[keyof typeof ProductDtoStatus];
-
-
-export const ProductDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  price: string;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
+export interface ProductCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * РЎС‚Р°Р±РёР»СЊРЅС‹Р№ seed РґР»СЏ РґРµС‚РµСЂРјРёРЅРёСЂРѕРІР°РЅРЅРѕР№ СЂР°РЅРґРѕРјРёР·Р°С†РёРё
+   * @nullable
+   */
+  seed: string | null;
 }
 
 export interface ProductInfinitePageDto {
@@ -1066,6 +1243,12 @@ export interface ProductInfinitePageDto {
    * @nullable
    */
   seed: string | null;
+}
+
+export interface ProductCursorCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
 }
 
 export interface ProductCursorPageDto {
@@ -1352,96 +1535,6 @@ export interface ProductVariantsResponseDto {
   ok: boolean;
 }
 
-export type SeoDtoEntityType = typeof SeoDtoEntityType[keyof typeof SeoDtoEntityType];
-
-
-export const SeoDtoEntityType = {
-  CATALOG: 'CATALOG',
-  CATEGORY: 'CATEGORY',
-  PRODUCT: 'PRODUCT',
-  PAGE: 'PAGE',
-  BRAND: 'BRAND',
-  ARTICLE: 'ARTICLE',
-  OTHER: 'OTHER',
-} as const;
-
-/**
- * @nullable
- */
-export type SeoDtoSitemapChangeFreq = typeof SeoDtoSitemapChangeFreq[keyof typeof SeoDtoSitemapChangeFreq] | null;
-
-
-export const SeoDtoSitemapChangeFreq = {
-  ALWAYS: 'ALWAYS',
-  HOURLY: 'HOURLY',
-  DAILY: 'DAILY',
-  WEEKLY: 'WEEKLY',
-  MONTHLY: 'MONTHLY',
-  YEARLY: 'YEARLY',
-  NEVER: 'NEVER',
-} as const;
-
-export interface SeoDto {
-  id: string;
-  catalogId: string;
-  entityType: SeoDtoEntityType;
-  entityId: string;
-  /** @nullable */
-  urlPath: string | null;
-  /** @nullable */
-  canonicalUrl: string | null;
-  /** @nullable */
-  title: string | null;
-  /** @nullable */
-  description: string | null;
-  /** @nullable */
-  keywords: string | null;
-  /** @nullable */
-  h1: string | null;
-  /** @nullable */
-  seoText: string | null;
-  /** @nullable */
-  robots: string | null;
-  isIndexable: boolean;
-  isFollowable: boolean;
-  /** @nullable */
-  ogTitle: string | null;
-  /** @nullable */
-  ogDescription: string | null;
-  ogMedia: MediaDto | null;
-  /** @nullable */
-  ogType: string | null;
-  /** @nullable */
-  ogUrl: string | null;
-  /** @nullable */
-  ogSiteName: string | null;
-  /** @nullable */
-  ogLocale: string | null;
-  /** @nullable */
-  twitterCard: string | null;
-  /** @nullable */
-  twitterTitle: string | null;
-  /** @nullable */
-  twitterDescription: string | null;
-  twitterMedia: MediaDto | null;
-  /** @nullable */
-  twitterSite: string | null;
-  /** @nullable */
-  twitterCreator: string | null;
-  /** @nullable */
-  hreflang: string | null;
-  /** @nullable */
-  structuredData: string | null;
-  /** @nullable */
-  extras: string | null;
-  /** @nullable */
-  sitemapPriority: number | null;
-  /** @nullable */
-  sitemapChangeFreq: SeoDtoSitemapChangeFreq;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export type CreateSeoDtoReqHreflang = { [key: string]: unknown };
 
 export type CreateSeoDtoReqStructuredData = { [key: string]: unknown };
@@ -1538,7 +1631,26 @@ export type AdminSsoControllerEnterParams = {
 next?: string;
 };
 
+export type S3ControllerEnqueueFromS3Body = {
+  key: string;
+} | {
+  items: UploadFromS3ItemDtoReq[];
+};
+
 export type CategoryControllerGetProductsByCategoryParams = {
+/**
+ * Курсор из предыдущего ответа (opaque)
+ */
+cursor?: string;
+/**
+ * Размер страницы (1-50)
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
+};
+
+export type CategoryControllerGetProductCardsByCategoryParams = {
 /**
  * Курсор из предыдущего ответа (opaque)
  */
@@ -1558,31 +1670,72 @@ export type IntegrationControllerGetMoySkladRunsParams = {
 limit?: number;
 };
 
-export type S3ControllerEnqueueFromS3Body = {
-  key: string;
-} | {
-  items: UploadFromS3ItemDtoReq[];
-};
-
 export type CartControllerGetPublicCartParams = {
 /**
- * Ключ доступа для чтения/изменения публичной корзины
+ * Read/write key for the public cart
  */
 checkoutKey: string;
 };
 
 export type CartControllerRemovePublicItemParams = {
 /**
- * Ключ доступа для изменения публичной корзины
+ * Write key for the public cart
  */
 checkoutKey: string;
 };
 
 export type CartControllerSsePublicParams = {
 /**
- * Ключ доступа для подписки на SSE
+ * SSE access key for the public cart
  */
 checkoutKey: string;
+};
+
+export type ProductControllerGetInfiniteCardsParams = {
+/**
+ * JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.
+ */
+attributes?: unknown;
+/**
+ * Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)
+ */
+isDiscount?: unknown;
+/**
+ * Фильтр по популярным товарам (true/false)
+ */
+isPopular?: unknown;
+/**
+ * Поиск по name, sku или slug (contains, insensitive)
+ */
+searchTerm?: unknown;
+/**
+ * Максимальная цена
+ */
+maxPrice?: unknown;
+/**
+ * Минимальная цена
+ */
+minPrice?: unknown;
+/**
+ * ID брендов через запятую
+ */
+brands?: unknown;
+/**
+ * ID категорий через запятую
+ */
+categories?: unknown;
+/**
+ * Seed для детерминированной рандомизации
+ */
+seed?: unknown;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: unknown;
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: unknown;
 };
 
 export type ProductControllerGetInfiniteParams = {
@@ -1599,7 +1752,54 @@ isDiscount?: unknown;
  */
 isPopular?: unknown;
 /**
- * Поиск по названию (contains, insensitive)
+ * Поиск по name, sku или slug (contains, insensitive)
+ */
+searchTerm?: unknown;
+/**
+ * Максимальная цена
+ */
+maxPrice?: unknown;
+/**
+ * Минимальная цена
+ */
+minPrice?: unknown;
+/**
+ * ID брендов через запятую
+ */
+brands?: unknown;
+/**
+ * ID категорий через запятую
+ */
+categories?: unknown;
+/**
+ * Seed для детерминированной рандомизации
+ */
+seed?: unknown;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: unknown;
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: unknown;
+};
+
+export type ProductControllerGetRecommendationsInfiniteCardsParams = {
+/**
+ * JSON-объект фильтров атрибутов. Дополнительно поддерживаются query-параметры attr.<key>, attrMin.<key>, attrMax.<key>, attrBool.<key>.
+ */
+attributes?: unknown;
+/**
+ * Только товары с активной скидкой (учитываются атрибуты discount, discountStartAt, discountEndAt)
+ */
+isDiscount?: unknown;
+/**
+ * Фильтр по популярным товарам (true/false)
+ */
+isPopular?: unknown;
+/**
+ * Поиск по name, sku или slug (contains, insensitive)
  */
 searchTerm?: unknown;
 /**
@@ -1646,7 +1846,7 @@ isDiscount?: unknown;
  */
 isPopular?: unknown;
 /**
- * Поиск по названию (contains, insensitive)
+ * Поиск по name, sku или slug (contains, insensitive)
  */
 searchTerm?: unknown;
 /**
@@ -1677,6 +1877,17 @@ limit?: unknown;
  * Курсор из предыдущего ответа (opaque base64)
  */
 cursor?: unknown;
+};
+
+export type ProductControllerGetUncategorizedInfiniteCardsParams = {
+/**
+ * Курсор из предыдущего ответа (opaque base64)
+ */
+cursor?: string;
+/**
+ * Размер страницы (1-50), по умолчанию 24
+ */
+limit?: string;
 };
 
 export type ProductControllerGetUncategorizedInfiniteParams = {
@@ -3578,7 +3789,7 @@ export const catalogControllerUpdateCurrent = (
 ) => {
       
       
-      return mutator<CatalogDto>(
+      return mutator<CatalogCurrentShellDto>(
       {url: `/catalog/current`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updateCatalogDtoReq, signal
@@ -3633,6 +3844,188 @@ export const useCatalogControllerUpdateCurrent = <TError = unknown,
       return useMutation(getCatalogControllerUpdateCurrentMutationOptions(options), queryClient);
     }
     
+/**
+ * @summary Get current catalog shell
+ */
+export const catalogControllerGetCurrentShell = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogCurrentShellDto>(
+      {url: `/catalog/current/shell`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogControllerGetCurrentShellQueryKey = () => {
+    return [
+    `/catalog/current/shell`
+    ] as const;
+    }
+
+    
+export const getCatalogControllerGetCurrentShellQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetCurrentShellQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>> = ({ signal }) => catalogControllerGetCurrentShell(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogControllerGetCurrentShellQueryResult = NonNullable<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>>
+export type CatalogControllerGetCurrentShellQueryError = unknown
+
+
+export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>,
+          TError,
+          Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>,
+          TError,
+          Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get current catalog shell
+ */
+
+export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogControllerGetCurrentShellQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get current catalog type schema
+ */
+export const catalogControllerGetCurrentTypeSchema = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogTypeDto>(
+      {url: `/catalog/current/type-schema`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogControllerGetCurrentTypeSchemaQueryKey = () => {
+    return [
+    `/catalog/current/type-schema`
+    ] as const;
+    }
+
+    
+export const getCatalogControllerGetCurrentTypeSchemaQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetCurrentTypeSchemaQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>> = ({ signal }) => catalogControllerGetCurrentTypeSchema(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogControllerGetCurrentTypeSchemaQueryResult = NonNullable<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>>
+export type CatalogControllerGetCurrentTypeSchemaQueryError = unknown
+
+
+export function useCatalogControllerGetCurrentTypeSchema<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>,
+          TError,
+          Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogControllerGetCurrentTypeSchema<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>,
+          TError,
+          Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogControllerGetCurrentTypeSchema<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get current catalog type schema
+ */
+
+export function useCatalogControllerGetCurrentTypeSchema<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogControllerGetCurrentTypeSchemaQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
 /**
  * @summary List catalogs
  */
@@ -3944,6 +4337,637 @@ export const useCatalogControllerUpdateById = <TError = unknown,
       return useMutation(getCatalogControllerUpdateByIdMutationOptions(options), queryClient);
     }
     
+/**
+ * @summary Получить presigned URL для загрузки
+ */
+export const s3ControllerPresignUpload = (
+    presignUploadDtoReq: PresignUploadDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<PresignUploadResponseDto>(
+      {url: `/s3/images/presign`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: presignUploadDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getS3ControllerPresignUploadMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, TError,{data: PresignUploadDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, TError,{data: PresignUploadDtoReq}, TContext> => {
+
+const mutationKey = ['s3ControllerPresignUpload'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, {data: PresignUploadDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  s3ControllerPresignUpload(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type S3ControllerPresignUploadMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerPresignUpload>>>
+    export type S3ControllerPresignUploadMutationBody = PresignUploadDtoReq
+    export type S3ControllerPresignUploadMutationError = void
+
+    /**
+ * @summary Получить presigned URL для загрузки
+ */
+export const useS3ControllerPresignUpload = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, TError,{data: PresignUploadDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof s3ControllerPresignUpload>>,
+        TError,
+        {data: PresignUploadDtoReq},
+        TContext
+      > => {
+      return useMutation(getS3ControllerPresignUploadMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Получить presigned POST для загрузки с лимитом размера
+ */
+export const s3ControllerPresignPostUpload = (
+    presignPostUploadDtoReq: PresignPostUploadDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<PresignPostUploadResponseDto>(
+      {url: `/s3/images/presign-post`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: presignPostUploadDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getS3ControllerPresignPostUploadMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, TError,{data: PresignPostUploadDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, TError,{data: PresignPostUploadDtoReq}, TContext> => {
+
+const mutationKey = ['s3ControllerPresignPostUpload'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, {data: PresignPostUploadDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  s3ControllerPresignPostUpload(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type S3ControllerPresignPostUploadMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>>
+    export type S3ControllerPresignPostUploadMutationBody = PresignPostUploadDtoReq
+    export type S3ControllerPresignPostUploadMutationError = void
+
+    /**
+ * @summary Получить presigned POST для загрузки с лимитом размера
+ */
+export const useS3ControllerPresignPostUpload = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, TError,{data: PresignPostUploadDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>,
+        TError,
+        {data: PresignPostUploadDtoReq},
+        TContext
+      > => {
+      return useMutation(getS3ControllerPresignPostUploadMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Начать multipart загрузку
+ */
+export const s3ControllerStartMultipart = (
+    multipartStartDtoReq: MultipartStartDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MultipartStartResponseDto>(
+      {url: `/s3/images/multipart/start`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartStartDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getS3ControllerStartMultipartMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, TError,{data: MultipartStartDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, TError,{data: MultipartStartDtoReq}, TContext> => {
+
+const mutationKey = ['s3ControllerStartMultipart'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, {data: MultipartStartDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  s3ControllerStartMultipart(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type S3ControllerStartMultipartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerStartMultipart>>>
+    export type S3ControllerStartMultipartMutationBody = MultipartStartDtoReq
+    export type S3ControllerStartMultipartMutationError = void
+
+    /**
+ * @summary Начать multipart загрузку
+ */
+export const useS3ControllerStartMultipart = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, TError,{data: MultipartStartDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof s3ControllerStartMultipart>>,
+        TError,
+        {data: MultipartStartDtoReq},
+        TContext
+      > => {
+      return useMutation(getS3ControllerStartMultipartMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Получить URL для загрузки части
+ */
+export const s3ControllerPresignMultipartPart = (
+    multipartPartDtoReq: MultipartPartDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MultipartPartResponseDto>(
+      {url: `/s3/images/multipart/part`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartPartDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getS3ControllerPresignMultipartPartMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, TError,{data: MultipartPartDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, TError,{data: MultipartPartDtoReq}, TContext> => {
+
+const mutationKey = ['s3ControllerPresignMultipartPart'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, {data: MultipartPartDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  s3ControllerPresignMultipartPart(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type S3ControllerPresignMultipartPartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>>
+    export type S3ControllerPresignMultipartPartMutationBody = MultipartPartDtoReq
+    export type S3ControllerPresignMultipartPartMutationError = void
+
+    /**
+ * @summary Получить URL для загрузки части
+ */
+export const useS3ControllerPresignMultipartPart = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, TError,{data: MultipartPartDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>,
+        TError,
+        {data: MultipartPartDtoReq},
+        TContext
+      > => {
+      return useMutation(getS3ControllerPresignMultipartPartMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Завершить multipart загрузку и поставить обработку в очередь
+ */
+export const s3ControllerCompleteMultipart = (
+    multipartCompleteDtoReq: MultipartCompleteDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MultipartCompleteResponseDto>(
+      {url: `/s3/images/multipart/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartCompleteDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getS3ControllerCompleteMultipartMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, TError,{data: MultipartCompleteDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, TError,{data: MultipartCompleteDtoReq}, TContext> => {
+
+const mutationKey = ['s3ControllerCompleteMultipart'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, {data: MultipartCompleteDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  s3ControllerCompleteMultipart(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type S3ControllerCompleteMultipartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>>
+    export type S3ControllerCompleteMultipartMutationBody = MultipartCompleteDtoReq
+    export type S3ControllerCompleteMultipartMutationError = void
+
+    /**
+ * @summary Завершить multipart загрузку и поставить обработку в очередь
+ */
+export const useS3ControllerCompleteMultipart = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, TError,{data: MultipartCompleteDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>,
+        TError,
+        {data: MultipartCompleteDtoReq},
+        TContext
+      > => {
+      return useMutation(getS3ControllerCompleteMultipartMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Отменить multipart загрузку
+ */
+export const s3ControllerAbortMultipart = (
+    multipartAbortDtoReq: MultipartAbortDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/s3/images/multipart/abort`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: multipartAbortDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getS3ControllerAbortMultipartMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, TError,{data: MultipartAbortDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, TError,{data: MultipartAbortDtoReq}, TContext> => {
+
+const mutationKey = ['s3ControllerAbortMultipart'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, {data: MultipartAbortDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  s3ControllerAbortMultipart(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type S3ControllerAbortMultipartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>>
+    export type S3ControllerAbortMultipartMutationBody = MultipartAbortDtoReq
+    export type S3ControllerAbortMultipartMutationError = void
+
+    /**
+ * @summary Отменить multipart загрузку
+ */
+export const useS3ControllerAbortMultipart = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, TError,{data: MultipartAbortDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof s3ControllerAbortMultipart>>,
+        TError,
+        {data: MultipartAbortDtoReq},
+        TContext
+      > => {
+      return useMutation(getS3ControllerAbortMultipartMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Поддерживаются оба формата тела запроса: key или items.
+ * @summary Поставить в очередь обработку загруженных файлов
+ */
+export const s3ControllerEnqueueFromS3 = (
+    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<UploadQueueResponseDto>(
+      {url: `/s3/images/queue/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: s3ControllerEnqueueFromS3Body, signal
+    },
+      );
+    }
+  
+
+
+export const getS3ControllerEnqueueFromS3MutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext> => {
+
+const mutationKey = ['s3ControllerEnqueueFromS3'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, {data: S3ControllerEnqueueFromS3Body}> = (props) => {
+          const {data} = props ?? {};
+
+          return  s3ControllerEnqueueFromS3(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type S3ControllerEnqueueFromS3MutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>>
+    export type S3ControllerEnqueueFromS3MutationBody = S3ControllerEnqueueFromS3Body
+    export type S3ControllerEnqueueFromS3MutationError = void
+
+    /**
+ * @summary Поставить в очередь обработку загруженных файлов
+ */
+export const useS3ControllerEnqueueFromS3 = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>,
+        TError,
+        {data: S3ControllerEnqueueFromS3Body},
+        TContext
+      > => {
+      return useMutation(getS3ControllerEnqueueFromS3MutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Статус загрузки изображений
+ */
+export const s3ControllerGetQueueStatus = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<UploadQueueStatusDto>(
+      {url: `/s3/images/queue/${id}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getS3ControllerGetQueueStatusQueryKey = (id: string,) => {
+    return [
+    `/s3/images/queue/${id}`
+    ] as const;
+    }
+
+    
+export const getS3ControllerGetQueueStatusQueryOptions = <TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getS3ControllerGetQueueStatusQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>> = ({ signal }) => s3ControllerGetQueueStatus(id, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type S3ControllerGetQueueStatusQueryResult = NonNullable<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>>
+export type S3ControllerGetQueueStatusQueryError = void
+
+
+export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>,
+          TError,
+          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>,
+          TError,
+          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Статус загрузки изображений
+ */
+
+export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getS3ControllerGetQueueStatusQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Стрим статуса загрузки (SSE)
+ */
+export const s3ControllerStreamQueue = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<UploadQueueStatusDto>(
+      {url: `/s3/images/queue/${id}/stream`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getS3ControllerStreamQueueQueryKey = (id: string,) => {
+    return [
+    `/s3/images/queue/${id}/stream`
+    ] as const;
+    }
+
+    
+export const getS3ControllerStreamQueueQueryOptions = <TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getS3ControllerStreamQueueQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof s3ControllerStreamQueue>>> = ({ signal }) => s3ControllerStreamQueue(id, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type S3ControllerStreamQueueQueryResult = NonNullable<Awaited<ReturnType<typeof s3ControllerStreamQueue>>>
+export type S3ControllerStreamQueueQueryError = unknown
+
+
+export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof s3ControllerStreamQueue>>,
+          TError,
+          Awaited<ReturnType<typeof s3ControllerStreamQueue>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof s3ControllerStreamQueue>>,
+          TError,
+          Awaited<ReturnType<typeof s3ControllerStreamQueue>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Стрим статуса загрузки (SSE)
+ */
+
+export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getS3ControllerStreamQueueQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
 /**
  * @summary List categories
  */
@@ -4417,6 +5441,172 @@ export function useCategoryControllerGetProductsByCategory<TData = Awaited<Retur
 
 
 
+/**
+ * Возвращает карточки товаров категории с productAttributes, но без variants.
+ * @summary List category product cards (infinite)
+ */
+export const categoryControllerGetProductCardsByCategory = (
+    id: string,
+    params?: CategoryControllerGetProductCardsByCategoryParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CategoryProductsCardPageDto>(
+      {url: `/category/${id}/products/cards/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getCategoryControllerGetProductCardsByCategoryQueryKey = (id: string,
+    params?: CategoryControllerGetProductCardsByCategoryParams,) => {
+    return [
+    `/category/${id}/products/cards/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getCategoryControllerGetProductCardsByCategoryQueryOptions = <TData = Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError = void>(id: string,
+    params?: CategoryControllerGetProductCardsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCategoryControllerGetProductCardsByCategoryQueryKey(id,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>> = ({ signal }) => categoryControllerGetProductCardsByCategory(id,params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CategoryControllerGetProductCardsByCategoryQueryResult = NonNullable<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>>
+export type CategoryControllerGetProductCardsByCategoryQueryError = void
+
+
+export function useCategoryControllerGetProductCardsByCategory<TData = Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError = void>(
+ id: string,
+    params: undefined |  CategoryControllerGetProductCardsByCategoryParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>,
+          TError,
+          Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCategoryControllerGetProductCardsByCategory<TData = Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError = void>(
+ id: string,
+    params?: CategoryControllerGetProductCardsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>,
+          TError,
+          Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCategoryControllerGetProductCardsByCategory<TData = Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError = void>(
+ id: string,
+    params?: CategoryControllerGetProductCardsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List category product cards (infinite)
+ */
+
+export function useCategoryControllerGetProductCardsByCategory<TData = Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError = void>(
+ id: string,
+    params?: CategoryControllerGetProductCardsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCategoryControllerGetProductCardsByCategoryQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.
+ * @summary Изменить позицию категории
+ */
+export const categoryControllerUpdatePosition = (
+    id: string,
+    updateCategoryPositionDtoReq: UpdateCategoryPositionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CategoryWithRelationsDto>(
+      {url: `/category/${id}/position`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCategoryPositionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCategoryControllerUpdatePositionMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerUpdatePosition>>, TError,{id: string;data: UpdateCategoryPositionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof categoryControllerUpdatePosition>>, TError,{id: string;data: UpdateCategoryPositionDtoReq}, TContext> => {
+
+const mutationKey = ['categoryControllerUpdatePosition'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerUpdatePosition>>, {id: string;data: UpdateCategoryPositionDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  categoryControllerUpdatePosition(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CategoryControllerUpdatePositionMutationResult = NonNullable<Awaited<ReturnType<typeof categoryControllerUpdatePosition>>>
+    export type CategoryControllerUpdatePositionMutationBody = UpdateCategoryPositionDtoReq
+    export type CategoryControllerUpdatePositionMutationError = void
+
+    /**
+ * @summary Изменить позицию категории
+ */
+export const useCategoryControllerUpdatePosition = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerUpdatePosition>>, TError,{id: string;data: UpdateCategoryPositionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof categoryControllerUpdatePosition>>,
+        TError,
+        {id: string;data: UpdateCategoryPositionDtoReq},
+        TContext
+      > => {
+      return useMutation(getCategoryControllerUpdatePositionMutationOptions(options), queryClient);
+    }
+    
 /**
  * @summary Получить настройки интеграции MoySklad
  */
@@ -5132,638 +6322,7 @@ export const useIntegrationControllerSyncMoySkladProduct = <TError = unknown,
     }
     
 /**
- * @summary Получить presigned URL для загрузки
- */
-export const s3ControllerPresignUpload = (
-    presignUploadDtoReq: PresignUploadDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<PresignUploadResponseDto>(
-      {url: `/s3/images/presign`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: presignUploadDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getS3ControllerPresignUploadMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, TError,{data: PresignUploadDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, TError,{data: PresignUploadDtoReq}, TContext> => {
-
-const mutationKey = ['s3ControllerPresignUpload'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, {data: PresignUploadDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  s3ControllerPresignUpload(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type S3ControllerPresignUploadMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerPresignUpload>>>
-    export type S3ControllerPresignUploadMutationBody = PresignUploadDtoReq
-    export type S3ControllerPresignUploadMutationError = void
-
-    /**
- * @summary Получить presigned URL для загрузки
- */
-export const useS3ControllerPresignUpload = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, TError,{data: PresignUploadDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof s3ControllerPresignUpload>>,
-        TError,
-        {data: PresignUploadDtoReq},
-        TContext
-      > => {
-      return useMutation(getS3ControllerPresignUploadMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Получить presigned POST для загрузки с лимитом размера
- */
-export const s3ControllerPresignPostUpload = (
-    presignPostUploadDtoReq: PresignPostUploadDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<PresignPostUploadResponseDto>(
-      {url: `/s3/images/presign-post`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: presignPostUploadDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getS3ControllerPresignPostUploadMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, TError,{data: PresignPostUploadDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, TError,{data: PresignPostUploadDtoReq}, TContext> => {
-
-const mutationKey = ['s3ControllerPresignPostUpload'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, {data: PresignPostUploadDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  s3ControllerPresignPostUpload(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type S3ControllerPresignPostUploadMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>>
-    export type S3ControllerPresignPostUploadMutationBody = PresignPostUploadDtoReq
-    export type S3ControllerPresignPostUploadMutationError = void
-
-    /**
- * @summary Получить presigned POST для загрузки с лимитом размера
- */
-export const useS3ControllerPresignPostUpload = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, TError,{data: PresignPostUploadDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>,
-        TError,
-        {data: PresignPostUploadDtoReq},
-        TContext
-      > => {
-      return useMutation(getS3ControllerPresignPostUploadMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Начать multipart загрузку
- */
-export const s3ControllerStartMultipart = (
-    multipartStartDtoReq: MultipartStartDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MultipartStartResponseDto>(
-      {url: `/s3/images/multipart/start`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartStartDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getS3ControllerStartMultipartMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, TError,{data: MultipartStartDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, TError,{data: MultipartStartDtoReq}, TContext> => {
-
-const mutationKey = ['s3ControllerStartMultipart'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, {data: MultipartStartDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  s3ControllerStartMultipart(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type S3ControllerStartMultipartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerStartMultipart>>>
-    export type S3ControllerStartMultipartMutationBody = MultipartStartDtoReq
-    export type S3ControllerStartMultipartMutationError = void
-
-    /**
- * @summary Начать multipart загрузку
- */
-export const useS3ControllerStartMultipart = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, TError,{data: MultipartStartDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof s3ControllerStartMultipart>>,
-        TError,
-        {data: MultipartStartDtoReq},
-        TContext
-      > => {
-      return useMutation(getS3ControllerStartMultipartMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Получить URL для загрузки части
- */
-export const s3ControllerPresignMultipartPart = (
-    multipartPartDtoReq: MultipartPartDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MultipartPartResponseDto>(
-      {url: `/s3/images/multipart/part`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartPartDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getS3ControllerPresignMultipartPartMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, TError,{data: MultipartPartDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, TError,{data: MultipartPartDtoReq}, TContext> => {
-
-const mutationKey = ['s3ControllerPresignMultipartPart'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, {data: MultipartPartDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  s3ControllerPresignMultipartPart(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type S3ControllerPresignMultipartPartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>>
-    export type S3ControllerPresignMultipartPartMutationBody = MultipartPartDtoReq
-    export type S3ControllerPresignMultipartPartMutationError = void
-
-    /**
- * @summary Получить URL для загрузки части
- */
-export const useS3ControllerPresignMultipartPart = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, TError,{data: MultipartPartDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>,
-        TError,
-        {data: MultipartPartDtoReq},
-        TContext
-      > => {
-      return useMutation(getS3ControllerPresignMultipartPartMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Завершить multipart загрузку и поставить обработку в очередь
- */
-export const s3ControllerCompleteMultipart = (
-    multipartCompleteDtoReq: MultipartCompleteDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MultipartCompleteResponseDto>(
-      {url: `/s3/images/multipart/complete`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartCompleteDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getS3ControllerCompleteMultipartMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, TError,{data: MultipartCompleteDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, TError,{data: MultipartCompleteDtoReq}, TContext> => {
-
-const mutationKey = ['s3ControllerCompleteMultipart'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, {data: MultipartCompleteDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  s3ControllerCompleteMultipart(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type S3ControllerCompleteMultipartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>>
-    export type S3ControllerCompleteMultipartMutationBody = MultipartCompleteDtoReq
-    export type S3ControllerCompleteMultipartMutationError = void
-
-    /**
- * @summary Завершить multipart загрузку и поставить обработку в очередь
- */
-export const useS3ControllerCompleteMultipart = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, TError,{data: MultipartCompleteDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>,
-        TError,
-        {data: MultipartCompleteDtoReq},
-        TContext
-      > => {
-      return useMutation(getS3ControllerCompleteMultipartMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Отменить multipart загрузку
- */
-export const s3ControllerAbortMultipart = (
-    multipartAbortDtoReq: MultipartAbortDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<void>(
-      {url: `/s3/images/multipart/abort`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: multipartAbortDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getS3ControllerAbortMultipartMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, TError,{data: MultipartAbortDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, TError,{data: MultipartAbortDtoReq}, TContext> => {
-
-const mutationKey = ['s3ControllerAbortMultipart'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, {data: MultipartAbortDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  s3ControllerAbortMultipart(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type S3ControllerAbortMultipartMutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>>
-    export type S3ControllerAbortMultipartMutationBody = MultipartAbortDtoReq
-    export type S3ControllerAbortMultipartMutationError = void
-
-    /**
- * @summary Отменить multipart загрузку
- */
-export const useS3ControllerAbortMultipart = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, TError,{data: MultipartAbortDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof s3ControllerAbortMultipart>>,
-        TError,
-        {data: MultipartAbortDtoReq},
-        TContext
-      > => {
-      return useMutation(getS3ControllerAbortMultipartMutationOptions(options), queryClient);
-    }
-    
-/**
- * Поддерживаются оба формата тела запроса: key или items.
- * @summary Поставить в очередь обработку загруженных файлов
- */
-export const s3ControllerEnqueueFromS3 = (
-    s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<UploadQueueResponseDto>(
-      {url: `/s3/images/queue/complete`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: s3ControllerEnqueueFromS3Body, signal
-    },
-      );
-    }
-  
-
-
-export const getS3ControllerEnqueueFromS3MutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext> => {
-
-const mutationKey = ['s3ControllerEnqueueFromS3'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, {data: S3ControllerEnqueueFromS3Body}> = (props) => {
-          const {data} = props ?? {};
-
-          return  s3ControllerEnqueueFromS3(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type S3ControllerEnqueueFromS3MutationResult = NonNullable<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>>
-    export type S3ControllerEnqueueFromS3MutationBody = S3ControllerEnqueueFromS3Body
-    export type S3ControllerEnqueueFromS3MutationError = void
-
-    /**
- * @summary Поставить в очередь обработку загруженных файлов
- */
-export const useS3ControllerEnqueueFromS3 = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, TError,{data: S3ControllerEnqueueFromS3Body}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>,
-        TError,
-        {data: S3ControllerEnqueueFromS3Body},
-        TContext
-      > => {
-      return useMutation(getS3ControllerEnqueueFromS3MutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Статус загрузки изображений
- */
-export const s3ControllerGetQueueStatus = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<UploadQueueStatusDto>(
-      {url: `/s3/images/queue/${id}`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getS3ControllerGetQueueStatusQueryKey = (id: string,) => {
-    return [
-    `/s3/images/queue/${id}`
-    ] as const;
-    }
-
-    
-export const getS3ControllerGetQueueStatusQueryOptions = <TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getS3ControllerGetQueueStatusQueryKey(id);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>> = ({ signal }) => s3ControllerGetQueueStatus(id, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type S3ControllerGetQueueStatusQueryResult = NonNullable<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>>
-export type S3ControllerGetQueueStatusQueryError = void
-
-
-export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
- id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>,
-          TError,
-          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>,
-          TError,
-          Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Статус загрузки изображений
- */
-
-export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getS3ControllerGetQueueStatusQueryOptions(id,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * @summary Стрим статуса загрузки (SSE)
- */
-export const s3ControllerStreamQueue = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<UploadQueueStatusDto>(
-      {url: `/s3/images/queue/${id}/stream`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getS3ControllerStreamQueueQueryKey = (id: string,) => {
-    return [
-    `/s3/images/queue/${id}/stream`
-    ] as const;
-    }
-
-    
-export const getS3ControllerStreamQueueQueryOptions = <TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getS3ControllerStreamQueueQueryKey(id);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof s3ControllerStreamQueue>>> = ({ signal }) => s3ControllerStreamQueue(id, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type S3ControllerStreamQueueQueryResult = NonNullable<Awaited<ReturnType<typeof s3ControllerStreamQueue>>>
-export type S3ControllerStreamQueueQueryError = unknown
-
-
-export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
- id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof s3ControllerStreamQueue>>,
-          TError,
-          Awaited<ReturnType<typeof s3ControllerStreamQueue>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof s3ControllerStreamQueue>>,
-          TError,
-          Awaited<ReturnType<typeof s3ControllerStreamQueue>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Стрим статуса загрузки (SSE)
- */
-
-export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getS3ControllerStreamQueueQueryOptions(id,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * @summary Создать или получить текущую корзину по cookie-токену
+ * @summary Create or return the current cart by cookie token
  */
 export const cartControllerCreateOrGetCurrent = (
     
@@ -5811,7 +6370,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerCreateOrGetCurrentMutationError = unknown
 
     /**
- * @summary Создать или получить текущую корзину по cookie-токену
+ * @summary Create or return the current cart by cookie token
  */
 export const useCartControllerCreateOrGetCurrent = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCreateOrGetCurrent>>, TError,void, TContext>, }
@@ -5825,7 +6384,7 @@ export const useCartControllerCreateOrGetCurrent = <TError = unknown,
     }
     
 /**
- * @summary Получить текущую корзину по cookie-токену
+ * @summary Get the current cart by cookie token
  */
 export const cartControllerGetCurrent = (
     
@@ -5896,7 +6455,7 @@ export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof ca
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Получить текущую корзину по cookie-токену
+ * @summary Get the current cart by cookie token
  */
 
 export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof cartControllerGetCurrent>>, TError = unknown>(
@@ -5916,7 +6475,7 @@ export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof ca
 
 
 /**
- * @summary Получить публичный ключ для шаринга корзины
+ * @summary Issue a public key for the current cart
  */
 export const cartControllerShareCurrent = (
     
@@ -5964,7 +6523,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerShareCurrentMutationError = unknown
 
     /**
- * @summary Получить публичный ключ для шаринга корзины
+ * @summary Issue a public key for the current cart
  */
 export const useCartControllerShareCurrent = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,void, TContext>, }
@@ -5978,7 +6537,7 @@ export const useCartControllerShareCurrent = <TError = unknown,
     }
     
 /**
- * @summary Добавить или обновить позицию в текущей корзине
+ * @summary Upsert an item in the current cart
  */
 export const cartControllerUpsertCurrentItem = (
     upsertCartItemDtoReq: UpsertCartItemDtoReq,
@@ -6028,7 +6587,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerUpsertCurrentItemMutationError = unknown
 
     /**
- * @summary Добавить или обновить позицию в текущей корзине
+ * @summary Upsert an item in the current cart
  */
 export const useCartControllerUpsertCurrentItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerUpsertCurrentItem>>, TError,{data: UpsertCartItemDtoReq}, TContext>, }
@@ -6042,7 +6601,7 @@ export const useCartControllerUpsertCurrentItem = <TError = unknown,
     }
     
 /**
- * @summary Удалить позицию из текущей корзины
+ * @summary Remove an item from the current cart
  */
 export const cartControllerRemoveCurrentItem = (
     itemId: string,
@@ -6090,7 +6649,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerRemoveCurrentItemMutationError = unknown
 
     /**
- * @summary Удалить позицию из текущей корзины
+ * @summary Remove an item from the current cart
  */
 export const useCartControllerRemoveCurrentItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemoveCurrentItem>>, TError,{itemId: string}, TContext>, }
@@ -6104,7 +6663,7 @@ export const useCartControllerRemoveCurrentItem = <TError = unknown,
     }
     
 /**
- * @summary SSE поток обновлений текущей корзины
+ * @summary SSE stream for the current cart
  */
 export const cartControllerSseCurrent = (
     
@@ -6175,7 +6734,7 @@ export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof ca
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary SSE поток обновлений текущей корзины
+ * @summary SSE stream for the current cart
  */
 
 export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof cartControllerSseCurrent>>, TError = unknown>(
@@ -6195,7 +6754,7 @@ export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof ca
 
 
 /**
- * @summary Выдать checkoutKey для публичной корзины
+ * @summary Issue a checkoutKey for a public cart
  */
 export const cartControllerCreateCheckoutKey = (
     publicKey: string,
@@ -6243,7 +6802,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerCreateCheckoutKeyMutationError = unknown
 
     /**
- * @summary Выдать checkoutKey для публичной корзины
+ * @summary Issue a checkoutKey for a public cart
  */
 export const useCartControllerCreateCheckoutKey = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>, TError,{publicKey: string}, TContext>, }
@@ -6257,7 +6816,7 @@ export const useCartControllerCreateCheckoutKey = <TError = unknown,
     }
     
 /**
- * @summary Получить публичную корзину по checkoutKey
+ * @summary Get a public cart by checkoutKey
  */
 export const cartControllerGetPublicCart = (
     publicKey: string,
@@ -6335,7 +6894,7 @@ export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Получить публичную корзину по checkoutKey
+ * @summary Get a public cart by checkoutKey
  */
 
 export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(
@@ -6356,7 +6915,255 @@ export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof
 
 
 /**
- * @summary Добавить или обновить позицию в публичной корзине
+ * @summary Mark a cart as being processed by a manager
+ */
+export const cartControllerStartManagerSession = (
+    publicKey: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/start`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerStartManagerSessionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerStartManagerSession>>, TError,{publicKey: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerStartManagerSession>>, TError,{publicKey: string}, TContext> => {
+
+const mutationKey = ['cartControllerStartManagerSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerStartManagerSession>>, {publicKey: string}> = (props) => {
+          const {publicKey} = props ?? {};
+
+          return  cartControllerStartManagerSession(publicKey,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerStartManagerSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerStartManagerSession>>>
+    
+    export type CartControllerStartManagerSessionMutationError = unknown
+
+    /**
+ * @summary Mark a cart as being processed by a manager
+ */
+export const useCartControllerStartManagerSession = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerStartManagerSession>>, TError,{publicKey: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerStartManagerSession>>,
+        TError,
+        {publicKey: string},
+        TContext
+      > => {
+      return useMutation(getCartControllerStartManagerSessionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Refresh manager presence for a cart
+ */
+export const cartControllerHeartbeatManagerSession = (
+    publicKey: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/heartbeat`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerHeartbeatManagerSessionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>, TError,{publicKey: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>, TError,{publicKey: string}, TContext> => {
+
+const mutationKey = ['cartControllerHeartbeatManagerSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>, {publicKey: string}> = (props) => {
+          const {publicKey} = props ?? {};
+
+          return  cartControllerHeartbeatManagerSession(publicKey,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerHeartbeatManagerSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>>
+    
+    export type CartControllerHeartbeatManagerSessionMutationError = unknown
+
+    /**
+ * @summary Refresh manager presence for a cart
+ */
+export const useCartControllerHeartbeatManagerSession = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>, TError,{publicKey: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>,
+        TError,
+        {publicKey: string},
+        TContext
+      > => {
+      return useMutation(getCartControllerHeartbeatManagerSessionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Move a cart to PAUSED after manager processing
+ */
+export const cartControllerReleaseManagerSession = (
+    publicKey: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/release`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerReleaseManagerSessionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>, TError,{publicKey: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>, TError,{publicKey: string}, TContext> => {
+
+const mutationKey = ['cartControllerReleaseManagerSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>, {publicKey: string}> = (props) => {
+          const {publicKey} = props ?? {};
+
+          return  cartControllerReleaseManagerSession(publicKey,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerReleaseManagerSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>>
+    
+    export type CartControllerReleaseManagerSessionMutationError = unknown
+
+    /**
+ * @summary Move a cart to PAUSED after manager processing
+ */
+export const useCartControllerReleaseManagerSession = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>, TError,{publicKey: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>,
+        TError,
+        {publicKey: string},
+        TContext
+      > => {
+      return useMutation(getCartControllerReleaseManagerSessionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Convert a shared cart to a completed order
+ */
+export const cartControllerCompleteManagerOrder = (
+    publicKey: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CompleteCartOrderResponseDto>(
+      {url: `/cart/public/${publicKey}/manager/complete`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerCompleteManagerOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>, TError,{publicKey: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>, TError,{publicKey: string}, TContext> => {
+
+const mutationKey = ['cartControllerCompleteManagerOrder'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>, {publicKey: string}> = (props) => {
+          const {publicKey} = props ?? {};
+
+          return  cartControllerCompleteManagerOrder(publicKey,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerCompleteManagerOrderMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>>
+    
+    export type CartControllerCompleteManagerOrderMutationError = unknown
+
+    /**
+ * @summary Convert a shared cart to a completed order
+ */
+export const useCartControllerCompleteManagerOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>, TError,{publicKey: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>,
+        TError,
+        {publicKey: string},
+        TContext
+      > => {
+      return useMutation(getCartControllerCompleteManagerOrderMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Upsert an item in a public cart
  */
 export const cartControllerUpsertPublicItem = (
     publicKey: string,
@@ -6407,7 +7214,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerUpsertPublicItemMutationError = unknown
 
     /**
- * @summary Добавить или обновить позицию в публичной корзине
+ * @summary Upsert an item in a public cart
  */
 export const useCartControllerUpsertPublicItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerUpsertPublicItem>>, TError,{publicKey: string;data: PublicUpsertCartItemDtoReq}, TContext>, }
@@ -6421,7 +7228,7 @@ export const useCartControllerUpsertPublicItem = <TError = unknown,
     }
     
 /**
- * @summary Удалить позицию из публичной корзины
+ * @summary Remove an item from a public cart
  */
 export const cartControllerRemovePublicItem = (
     publicKey: string,
@@ -6472,7 +7279,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerRemovePublicItemMutationError = unknown
 
     /**
- * @summary Удалить позицию из публичной корзины
+ * @summary Remove an item from a public cart
  */
 export const useCartControllerRemovePublicItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string;params: CartControllerRemovePublicItemParams}, TContext>, }
@@ -6486,7 +7293,7 @@ export const useCartControllerRemovePublicItem = <TError = unknown,
     }
     
 /**
- * @summary SSE поток обновлений публичной корзины
+ * @summary SSE stream for a public cart
  */
 export const cartControllerSsePublic = (
     publicKey: string,
@@ -6564,7 +7371,7 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary SSE поток обновлений публичной корзины
+ * @summary SSE stream for a public cart
  */
 
 export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(
@@ -6585,7 +7392,7 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
 
 
 /**
- * В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 export const productControllerGetAll = (
@@ -6594,7 +7401,7 @@ export const productControllerGetAll = (
 ) => {
       
       
-      return mutator<ProductDto[]>(
+      return mutator<ProductWithAttributesDto[]>(
       {url: `/product`, method: 'GET', signal
     },
       );
@@ -6742,6 +7549,99 @@ export const useProductControllerCreate = <TError = unknown,
     }
     
 /**
+ * Возвращает карточки товаров с productAttributes, но без variants. Поддерживает те же фильтры, что и /product/infinite.
+ * @summary Лёгкий card-feed товаров (бесконечный скролл)
+ */
+export const productControllerGetInfiniteCards = (
+    params?: ProductControllerGetInfiniteCardsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetInfiniteCardsQueryKey = (params?: ProductControllerGetInfiniteCardsParams,) => {
+    return [
+    `/product/cards/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteCardsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>> = ({ signal }) => productControllerGetInfiniteCards(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>>
+export type ProductControllerGetInfiniteCardsQueryError = unknown
+
+
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params: undefined |  ProductControllerGetInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий card-feed товаров (бесконечный скролл)
+ */
+
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetInfiniteCardsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
  * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
  * @summary Список товаров с фильтрами (бесконечный скролл)
  */
@@ -6824,6 +7724,99 @@ export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeo
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetInfiniteQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Возвращает карточки рекомендаций с productAttributes, но без variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
+ * @summary Лёгкий card-feed рекомендаций
+ */
+export const productControllerGetRecommendationsInfiniteCards = (
+    params?: ProductControllerGetRecommendationsInfiniteCardsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/recommendations/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetRecommendationsInfiniteCardsQueryKey = (params?: ProductControllerGetRecommendationsInfiniteCardsParams,) => {
+    return [
+    `/product/cards/recommendations/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetRecommendationsInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetRecommendationsInfiniteCardsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>> = ({ signal }) => productControllerGetRecommendationsInfiniteCards(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetRecommendationsInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>>
+export type ProductControllerGetRecommendationsInfiniteCardsQueryError = unknown
+
+
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params: undefined |  ProductControllerGetRecommendationsInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий card-feed рекомендаций
+ */
+
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetRecommendationsInfiniteCardsQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -6928,6 +7921,191 @@ export function useProductControllerGetRecommendationsInfinite<TData = Awaited<R
 
 
 /**
+ * Возвращает популярные товары с productAttributes, но без variants.
+ * @summary Лёгкий список популярных товаров
+ */
+export const productControllerGetPopularCards = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product/cards/popular`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetPopularCardsQueryKey = () => {
+    return [
+    `/product/cards/popular`
+    ] as const;
+    }
+
+    
+export const getProductControllerGetPopularCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetPopularCardsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetPopularCards>>> = ({ signal }) => productControllerGetPopularCards(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetPopularCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetPopularCards>>>
+export type ProductControllerGetPopularCardsQueryError = unknown
+
+
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий список популярных товаров
+ */
+
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetPopularCardsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Возвращает карточки товаров без активной категории с productAttributes, но без variants.
+ * @summary Лёгкий список товаров без категории
+ */
+export const productControllerGetUncategorizedInfiniteCards = (
+    params?: ProductControllerGetUncategorizedInfiniteCardsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCursorCardPageDto>(
+      {url: `/product/cards/uncategorized/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetUncategorizedInfiniteCardsQueryKey = (params?: ProductControllerGetUncategorizedInfiniteCardsParams,) => {
+    return [
+    `/product/cards/uncategorized/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetUncategorizedInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetUncategorizedInfiniteCardsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>> = ({ signal }) => productControllerGetUncategorizedInfiniteCards(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetUncategorizedInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>>
+export type ProductControllerGetUncategorizedInfiniteCardsQueryError = unknown
+
+
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params: undefined |  ProductControllerGetUncategorizedInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий список товаров без категории
+ */
+
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetUncategorizedInfiniteCardsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
  * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров без категории (бесконечный скролл)
  */
@@ -7021,7 +8199,7 @@ export function useProductControllerGetUncategorizedInfinite<TData = Awaited<Ret
 
 
 /**
- * В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 export const productControllerGetPopular = (
@@ -7030,7 +8208,7 @@ export const productControllerGetPopular = (
 ) => {
       
       
-      return mutator<ProductWithDetailsDto[]>(
+      return mutator<ProductWithAttributesDto[]>(
       {url: `/product/popular`, method: 'GET', signal
     },
       );

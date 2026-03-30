@@ -4,10 +4,10 @@ import {
   CREATE_PRODUCT_FORM_DEFAULT_VALUES,
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
+import { buildInitialAttributeValues } from "@/core/modules/product/editor/model/product-attributes";
 import {
-  buildInitialAttributeValues,
-} from "@/core/modules/product/editor/model/product-attributes";
-import { type AttributeDto } from "@/shared/api/generated";
+  type AttributeDto,
+} from "@/shared/api/generated/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 

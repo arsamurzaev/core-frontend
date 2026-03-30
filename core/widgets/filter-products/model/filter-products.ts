@@ -1,7 +1,7 @@
 import {
   type CatalogFilterQueryState,
 } from "@/shared/lib/catalog-filter-query";
-import { type ProductControllerGetInfiniteParams } from "@/shared/api/generated";
+import { type ProductControllerGetInfiniteCardsParams } from "@/shared/api/generated/react-query";
 
 export const FILTER_PRODUCTS_PAGE_SIZE = 24;
 export const GRID_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT = 12;
@@ -44,7 +44,7 @@ export function createDeterministicSeed(value: string): string {
 
 export function buildFilterRequestParams(
   queryState: CatalogFilterQueryState,
-): ProductControllerGetInfiniteParams {
+): ProductControllerGetInfiniteCardsParams {
   const categories =
     queryState.categories.length > 0
       ? queryState.categories.join(",")

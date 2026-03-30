@@ -1,9 +1,9 @@
-import { ProductAttributeRefDtoDataType } from "@/shared/api/generated";
+import { ProductAttributeRefDtoDataType } from "@/shared/api/generated/react-query";
 import type {
   AttributeDtoDataType,
   ProductAttributeDto,
   ProductAttributeValueDto,
-} from "@/shared/api/generated";
+} from "@/shared/api/generated/react-query";
 
 export type ParsedAttributeValue = string | number | boolean | null;
 
