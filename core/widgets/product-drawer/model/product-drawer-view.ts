@@ -2,8 +2,7 @@
 
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
-import { getTotalPrice } from "@/shared/lib/calculate-price";
-import { isDiscountActive } from "@/shared/lib/is-discount-active";
+import { calculatePrice } from "@/shared/lib/calculate-price";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
 
@@ -81,8 +80,7 @@ export function buildProductDrawerViewModel(params: {
   const discountEndAt = parseOptionalDate(attrs.discountEndAt);
 
   const price = toNumberValue(product?.price ?? null) ?? 0;
-  const isDiscountEnabled = isDiscountActive(discountStartAt, discountEndAt);
-  const displayPrice = getTotalPrice({
+  const pricing = calculatePrice({
     price,
     discountedPrice,
     discount,
@@ -95,9 +93,9 @@ export function buildProductDrawerViewModel(params: {
     currency,
     description,
     displayName: product?.name ?? "Товар",
-    displayPrice,
-    discount,
-    hasDiscount: displayPrice < price && isDiscountEnabled,
+    displayPrice: pricing.totalPrice,
+    discount: pricing.discountPercent,
+    hasDiscount: pricing.hasDiscount,
     hasError: isError || (!isLoading && !product),
     imageUrls: getProductImageUrls(product),
     price,

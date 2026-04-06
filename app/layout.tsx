@@ -1,5 +1,13 @@
-import { getCurrentCatalogServer } from "@/shared/api/server/get-current-catalog";
+import {
+  getCurrentCatalogServer,
+  resolveServerForwardedHost,
+} from "@/shared/api/server/get-current-catalog";
 import { getCurrentSessionServer } from "@/shared/api/server/get-current-session";
+import {
+  buildCatalogMetadata,
+  getCatalogHtmlLang,
+  getCatalogStructuredData,
+} from "@/shared/lib/catalog-seo";
 import { AppProvider } from "@/shared/providers/app-provider";
 import { ConfirmationProvider } from "@/shared/ui/confirmation";
 import { Toaster } from "@/shared/ui/sonner";
@@ -8,10 +16,23 @@ import { notFound } from "next/navigation";
 import { sfProText } from "./font";
 import "./globals.css";
 
-export const metadata: Metadata = {
+const fallbackMetadata: Metadata = {
   title: "Catalog Frontend",
   description: "Клиент каталога с корзиной, фильтрами и управлением товарами.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [catalog, forwardedHost] = await Promise.all([
+    getCurrentCatalogServer(),
+    resolveServerForwardedHost(),
+  ]);
+
+  if (!catalog) {
+    return fallbackMetadata;
+  }
+
+  return buildCatalogMetadata(catalog, forwardedHost);
+}
 
 export default async function RootLayout({
   children,
@@ -27,8 +48,19 @@ export default async function RootLayout({
     notFound();
   }
 
+  const structuredData = getCatalogStructuredData(data);
+  const htmlLang = getCatalogHtmlLang(data);
+
   return (
-    <html lang="ru">
+    <html lang={htmlLang}>
+      <head>
+        {structuredData ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: structuredData }}
+          />
+        ) : null}
+      </head>
       <body className={`${sfProText.className} antialiased min-h-svh`}>
         <AppProvider initialCatalog={data} initialSession={initialSession}>
           {children}

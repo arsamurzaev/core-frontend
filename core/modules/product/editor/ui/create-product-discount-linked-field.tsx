@@ -1,6 +1,7 @@
 "use client";
 
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
+import { clamp } from "@/shared/lib/math";
 import { cn } from "@/shared/lib/utils";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import { Input } from "@/shared/ui/input";
@@ -13,10 +14,6 @@ interface CreateProductDiscountLinkedFieldProps
   extends DynamicFieldRenderProps<CreateProductFormValues> {
   mode: LinkedDiscountFieldMode;
   relatedAttributeId?: string;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
 }
 
 function toInputValue(value: unknown): string {

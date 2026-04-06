@@ -1,4 +1,4 @@
-import { Browser } from "@/core/views/home/_ui/browser";
+import { CatalogBrowser } from "@/sandbox/ui/catalog-browser";
 import { BackgroundImage } from "@/core/views/home/_ui/background-image";
 import { LazyCartDrawer } from "@/core/widgets/cart-drawer/ui/lazy-cart-drawer";
 import { EditProductDrawerHostProvider } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
@@ -26,7 +26,7 @@ export const HomeContent = async ({ className }: Props) => {
             <Header />
             <Suspense>
               <PopularProductCarousel initialProducts={popularProducts} />
-              <Browser initialCategories={categories} />
+              <CatalogBrowser initialCategories={categories} />
             </Suspense>
             <Footer />
           </div>

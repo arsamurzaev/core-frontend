@@ -27,6 +27,7 @@ interface Props {
   bottomRow?: ReactNode;
   searchTerm?: string;
   filterAction?: ReactNode;
+  hideFilter?: boolean;
   onFilterToggle?: (patch?: CatalogFilterValuePatch) => void;
 }
 
@@ -36,6 +37,7 @@ export const FilterBar: React.FC<Props> = ({
   bottomRow,
   searchTerm,
   filterAction,
+  hideFilter,
   onFilterToggle,
 }) => {
   const { isDetailed, toggleMode } = useProductCardViewMode();
@@ -116,7 +118,7 @@ export const FilterBar: React.FC<Props> = ({
           />
         </Button>
 
-        {filterAction ? (
+        {!hideFilter && (filterAction ? (
           <div className="shrink-0">{filterAction}</div>
         ) : (
           <Button
@@ -126,7 +128,7 @@ export const FilterBar: React.FC<Props> = ({
           >
             <SlidersVertical size={20} />
           </Button>
-        )}
+        ))}
       </div>
 
       {bottomRow ? <div className="mt-3">{bottomRow}</div> : null}

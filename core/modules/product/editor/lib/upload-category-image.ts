@@ -1,11 +1,14 @@
 "use client";
 
 import {
+  buildEnqueuePayload,
   extractQueueMediaIds,
   isQueueErrorStatus,
   pollQueueStatus,
   streamQueueStatus,
 } from "@/shared/lib/upload-queue";
+import { type UploadState } from "@/core/modules/product/editor/model/types";
+import { clamp } from "@/shared/lib/math";
 import {
   s3ControllerEnqueueFromS3,
   s3ControllerPresignUpload,
@@ -13,37 +16,13 @@ import {
 } from "@/shared/api/generated/react-query";
 import axios from "axios";
 
-export type CategoryImageUploadState = {
-  phase: "idle" | "uploading" | "processing" | "done" | "error";
-  progress: number;
-  message: string;
-};
+export type CategoryImageUploadState = UploadState;
 
 export const IDLE_CATEGORY_IMAGE_UPLOAD_STATE: CategoryImageUploadState = {
   phase: "idle",
   progress: 0,
   message: "",
 };
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
-}
-
-function buildEnqueuePayload(presign: {
-  key: string;
-  mediaId?: string;
-  url?: string;
-}) {
-  return {
-    items: [
-      {
-        key: presign.key,
-        ...(presign.mediaId ? { mediaId: presign.mediaId } : {}),
-        ...(presign.url ? { url: presign.url } : {}),
-      },
-    ],
-  };
-}
 
 export async function uploadCategoryImage({
   file,

@@ -6,6 +6,7 @@ import {
   normalizeOptionalString,
 } from "@/core/modules/product/editor/model/form-config";
 import { buildProductAttributePayload } from "@/core/modules/product/editor/model/product-attributes";
+import { buildCreateVariantsPayload } from "@/core/modules/product/editor/model/product-variants";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
@@ -32,6 +33,8 @@ export function parseCreateProductPayload(params: {
     formValues.attributes ?? {},
   );
 
+  const variantsPayload = buildCreateVariantsPayload(formValues.variants ?? {});
+
   return {
     name: formValues.name.trim(),
     price: normalizedPrice,
@@ -41,6 +44,7 @@ export function parseCreateProductPayload(params: {
       ? { categories: normalizedCategories }
       : {}),
     ...(attributesPayload.length > 0 ? { attributes: attributesPayload } : {}),
+    ...(variantsPayload.length > 0 ? { variants: variantsPayload } : {}),
   } satisfies CreateProductDtoReq;
 }
 

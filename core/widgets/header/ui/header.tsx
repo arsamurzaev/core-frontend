@@ -75,14 +75,30 @@ export const Header: React.FC<Props> = ({ className }) => {
                 fill
                 sizes="(max-width: 640px) 110px, 140px"
                 className="object-contain"
+                unoptimized={Boolean(logoMedia?.url)}
               />
             </div>
             {isAuthenticated ? <LazyEditCatalogDrawerTrigger /> : null}
           </div>
 
           <div className="pt-6 flex-1">
-            <h1 className="text-[18px] leading-tight font-bold text-black sm:text-2xl">
+            <h1
+              className={cn(
+                "text-[18px] leading-tight font-bold text-black sm:text-2xl",
+                isAuthenticated && "flex justify-between",
+              )}
+            >
               {name}
+              {isAuthenticated ? (
+                <div className="flex">
+                  <button
+                    onClick={handleLogout}
+                    className="text-primary flex items-center h-fit gap-1 text-xs underline"
+                  >
+                    Выйти <ArrowRight className="size-3" />
+                  </button>
+                </div>
+              ) : null}
             </h1>
             <h2 className="text-[12px] leading-tight whitespace-pre-line text-black sm:text-base">
               {about || (
@@ -98,18 +114,6 @@ export const Header: React.FC<Props> = ({ className }) => {
               )}
             </p>
           </div>
-
-          {isAuthenticated ? (
-            <div className="flex pt-6">
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                className="text-primary h-fit gap-1 text-xs underline"
-              >
-                Выйти <ArrowRight className="size-3" />
-              </Button>
-            </div>
-          ) : null}
         </div>
 
         {isLoading ? (

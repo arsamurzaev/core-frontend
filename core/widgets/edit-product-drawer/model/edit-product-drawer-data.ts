@@ -11,6 +11,7 @@ import {
   buildRemovedProductAttributeIds,
   hasPersistedAttributeValue,
 } from "@/core/modules/product/editor/model/product-attributes";
+import { buildVariantsFormValueFromExisting } from "@/core/modules/product/editor/model/product-variants";
 import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
 import {
   type AttributeDto,
@@ -76,6 +77,7 @@ function toFormAttributeValue(
 export function buildEditProductFormValues(
   product: ProductWithDetailsDto,
   productAttributes: AttributeDto[],
+  variantAttributes: AttributeDto[] = [],
 ): CreateProductFormValues {
   const attributes = buildInitialAttributeValues(productAttributes);
   let hasDiscount = false;
@@ -92,6 +94,11 @@ export function buildEditProductFormValues(
     }
   }
 
+  const variants = buildVariantsFormValueFromExisting(
+    product.variants ?? [],
+    variantAttributes,
+  );
+
   return {
     ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
     name: product.name,
@@ -102,6 +109,7 @@ export function buildEditProductFormValues(
     ),
     hasDiscount,
     attributes,
+    variants,
   };
 }
 

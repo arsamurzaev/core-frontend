@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find c:/Users/krush/Desktop/www/catalog/frontend -type f \\\\\\(-name *error-boundary* -o -name *ErrorBoundary* \\\\\\) ! -path */node_modules/* ! -path */.next/*)",
+      "Bash(npx tsc:*)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}

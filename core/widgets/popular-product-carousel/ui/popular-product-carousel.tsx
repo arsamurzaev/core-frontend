@@ -110,7 +110,13 @@ export const PopularProductCarousel: React.FC<Props> = ({
                     actions={
                       shouldUseCartUi ? (
                         <CartProductAction productId={product.id} />
-                      ) : undefined
+                      ) : (
+                        <EditProductCardAction
+                          isMoySkladLinked={isMoySkladProduct(product)}
+                          productId={product.id}
+                          status={product.status}
+                        />
+                      )
                     }
                     hidePriceWhenFooterAction={shouldUseCartUi}
                     footerAction={
@@ -124,13 +130,6 @@ export const PopularProductCarousel: React.FC<Props> = ({
                     }
                   />
                 </ProductLink>
-                {!shouldUseCartUi ? (
-                  <EditProductCardAction
-                    isMoySkladLinked={isMoySkladProduct(product)}
-                    productId={product.id}
-                    status={product.status}
-                  />
-                ) : null}
               </article>
             </CarouselItem>
           ))}

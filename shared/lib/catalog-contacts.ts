@@ -4,19 +4,11 @@ import {
   type CatalogContactDtoType as CatalogContactType,
 } from "@/shared/api/generated/react-query";
 import { normalizePhoneValue } from "@/shared/lib/phone";
+import { toOptionalTrimmedString as normalizeText } from "@/shared/lib/text";
 
 export type CatalogContactsByType = Partial<
   Record<CatalogContactType, CatalogContactDto[]>
 >;
-
-function normalizeText(value?: string | null): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const trimmed = value.trim();
-  return trimmed || undefined;
-}
 
 function isAbsoluteUrl(value: string): boolean {
   return /^(https?:\/\/|mailto:|tel:|sms:)/i.test(value);

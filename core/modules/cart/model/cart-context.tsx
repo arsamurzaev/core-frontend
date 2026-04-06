@@ -8,12 +8,7 @@ import {
   isCartNotFoundError,
   isCartUnauthorizedError,
 } from "@/core/modules/cart/model/cart-api-errors";
-import {
-  isCartDetachedEvent,
-  isCartStatusChangedEvent,
-  isCartUpdatedEvent,
-  isInactiveSharedCartStatus,
-} from "@/core/modules/cart/model/cart-events";
+import { isInactiveSharedCartStatus } from "@/core/modules/cart/model/cart-events";
 import {
   buildCartPublicStorageKey,
   buildCartShareUrl,
@@ -29,18 +24,18 @@ import {
   getPublicAccessKey,
 } from "@/core/modules/cart/model/cart-share";
 import { useCartDerivedState } from "@/core/modules/cart/model/use-cart-derived-state";
+import { useCartManagerSession } from "@/core/modules/cart/model/use-cart-manager-session";
+import { useCartSse } from "@/core/modules/cart/model/use-cart-sse";
+import { type CartMode } from "@/core/modules/cart/model/cart-constants";
 import {
   AuthUserDtoRole,
-  cartControllerReleaseManagerSession,
   cartControllerCompleteManagerOrder,
   cartControllerCreateOrGetCurrent,
   cartControllerCreateCheckoutKey,
   cartControllerGetCurrent,
   cartControllerGetPublicCart,
-  cartControllerHeartbeatManagerSession,
   cartControllerRemoveCurrentItem,
   cartControllerRemovePublicItem,
-  cartControllerStartManagerSession,
   cartControllerShareCurrent,
   cartControllerUpsertCurrentItem,
   cartControllerUpsertPublicItem,
@@ -49,16 +44,6 @@ import {
   type CompletedOrderDto,
   type ProductWithAttributesDto,
 } from "@/shared/api/generated/react-query";
-import {
-  connectCartControllerSseCurrent,
-  connectCartControllerSsePublic,
-} from "@/shared/api/generated/cart-sse";
-import {
-  API_BASE_URL,
-  FORWARDED_HOST_HEADER,
-  getForwardedHost,
-} from "@/shared/api/client";
-import { withCsrf } from "@/shared/api/client-request";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
@@ -72,34 +57,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 
-type CartMode = "current" | "public";
-
-const CART_MANAGER_HEARTBEAT_MS = 25_000;
-const CART_SSE_RECONNECT_DELAY_MS = 3_000;
-
-function releaseManagerSessionWithKeepalive(publicKey: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const headers = new Headers(withCsrf());
-  const forwardedHost = getForwardedHost();
-
-  if (forwardedHost) {
-    headers.set(FORWARDED_HOST_HEADER, forwardedHost);
-  }
-
-  void fetch(
-    new URL(`/cart/public/${publicKey}/manager/release`, API_BASE_URL).toString(),
-    {
-      method: "POST",
-      credentials: "include",
-      headers,
-      keepalive: true,
-      cache: "no-store",
-    },
-  ).catch(() => undefined);
-}
 
 export interface CartSharePayload {
   text: string;
@@ -181,6 +138,10 @@ function CartProviderFallback({
       {children}
     </CartContext.Provider>
   );
+}
+
+function buildCurrentCartStorageKey(catalogId: string): string {
+  return `catalog-current-cart:${catalogId}`;
 }
 
 function normalizeVariantId(variantId?: string | null): string | undefined {
@@ -282,19 +243,23 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     () => buildCartPublicStorageKey(catalog.id),
     [catalog.id],
   );
+  const currentCartStorageKey = React.useMemo(
+    () => buildCurrentCartStorageKey(catalog.id),
+    [catalog.id],
+  );
   const fallbackCurrency = React.useMemo(
     () => getCatalogCurrency(catalog, "RUB"),
     [catalog],
   );
   const [storedPublicAccess, setStoredPublicAccess] =
     React.useState<CartPublicAccess | null>(null);
+  const [hasStoredCurrentCart, setHasStoredCurrentCart] = React.useState(false);
   const [autoExpandPublicCartAccessKey, setAutoExpandPublicCartAccessKey] =
     React.useState<string | null>(null);
   const [isHydrated, setIsHydrated] = React.useState(false);
-  const [isManagerSessionLoading, setIsManagerSessionLoading] =
-    React.useState(false);
   const lastPublicCartUnavailableToastAtRef = React.useRef(0);
   const resettingInactiveCartRef = React.useRef<string | null>(null);
+  const currentCartNotFoundHandledRef = React.useRef(false);
 
   const clearStoredPublicAccess = React.useCallback(() => {
     if (typeof window !== "undefined") {
@@ -304,6 +269,22 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     setAutoExpandPublicCartAccessKey(null);
     setStoredPublicAccess(null);
   }, [storageKey]);
+
+  const persistStoredCurrentCart = React.useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(currentCartStorageKey, "1");
+    }
+
+    setHasStoredCurrentCart(true);
+  }, [currentCartStorageKey]);
+
+  const clearStoredCurrentCart = React.useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(currentCartStorageKey);
+    }
+
+    setHasStoredCurrentCart(false);
+  }, [currentCartStorageKey]);
 
   const notifyPublicCartUnavailable = React.useCallback(() => {
     const now = Date.now();
@@ -339,8 +320,33 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     );
     setAutoExpandPublicCartAccessKey(getPublicAccessKey(access));
     setStoredPublicAccess(access);
+    setHasStoredCurrentCart(
+      window.localStorage.getItem(currentCartStorageKey) === "1",
+    );
     setIsHydrated(true);
-  }, [storageKey]);
+  }, [currentCartStorageKey, storageKey]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (
+        event.storageArea !== window.localStorage ||
+        event.key !== currentCartStorageKey
+      ) {
+        return;
+      }
+
+      setHasStoredCurrentCart(event.newValue === "1");
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [currentCartStorageKey]);
 
   React.useEffect(() => {
     if (!isHydrated || !pathname) {
@@ -367,6 +373,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
   const shouldEnableCurrentCartQuery =
     isHydrated &&
+    hasStoredCurrentCart &&
     !isSessionLoading &&
     (!isAuthenticated || Boolean(storedPublicAccess));
 
@@ -395,6 +402,32 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       return failureCount < 2;
     },
   });
+
+  React.useEffect(() => {
+    if (!currentCartQuery.isFetched) {
+      return;
+    }
+
+    if (currentCartQuery.data !== null) {
+      persistStoredCurrentCart();
+      currentCartNotFoundHandledRef.current = false;
+      return;
+    }
+
+    if (currentCartNotFoundHandledRef.current) {
+      return;
+    }
+
+    currentCartNotFoundHandledRef.current = true;
+    clearStoredCurrentCart();
+    queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+  }, [
+    clearStoredCurrentCart,
+    currentCartQuery.data,
+    currentCartQuery.isFetched,
+    persistStoredCurrentCart,
+    queryClient,
+  ]);
 
   const currentCart = currentCartQuery.data ?? null;
   const isOwnSharedCart = React.useMemo(
@@ -476,11 +509,18 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       return;
     }
 
+    queryClient.removeQueries({
+      queryKey: cartQueryKeys.public(
+        storedPublicAccess.publicKey,
+        storedPublicAccess.checkoutKey,
+      ),
+    });
     notifyPublicCartUnavailable();
   }, [
     mode,
     notifyPublicCartUnavailable,
     publicCartQuery.error,
+    queryClient,
     storedPublicAccess,
   ]);
 
@@ -508,9 +548,16 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   }, [catalog.name]);
   const setCurrentCartData = React.useCallback(
     (cart: CartDto | null) => {
+      if (cart) {
+        persistStoredCurrentCart();
+        currentCartNotFoundHandledRef.current = false;
+      } else {
+        clearStoredCurrentCart();
+      }
+
       queryClient.setQueryData(cartQueryKeys.current, cart);
     },
-    [queryClient],
+    [clearStoredCurrentCart, persistStoredCurrentCart, queryClient],
   );
 
   const setPublicCartData = React.useCallback(
@@ -630,231 +677,14 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     ],
   );
 
-  React.useEffect(() => {
-    if (!isHydrated) {
-      return;
-    }
-
-    if (mode === "public") {
-      if (!storedPublicAccess) {
-        return;
-      }
-    } else if (!currentCart?.id) {
-      return;
-    }
-
-    const abortController = new AbortController();
-    let reconnectTimeoutId: number | null = null;
-    let isDisposed = false;
-
-    const scheduleReconnect = () => {
-      if (isDisposed) {
-        return;
-      }
-
-      reconnectTimeoutId = window.setTimeout(() => {
-        void connect();
-      }, CART_SSE_RECONNECT_DELAY_MS);
-    };
-
-    const connect = async () => {
-      try {
-        if (mode === "public" && storedPublicAccess) {
-          await connectCartControllerSsePublic(
-            storedPublicAccess.publicKey,
-            { checkoutKey: storedPublicAccess.checkoutKey },
-            {
-              signal: abortController.signal,
-              onEvent: (event) => {
-                if (isCartUpdatedEvent(event)) {
-                  handleSseCartUpdated(event.data, storedPublicAccess);
-                  return;
-                }
-
-                if (isCartStatusChangedEvent(event)) {
-                  handleSseCartStatusChanged(event.data, storedPublicAccess);
-                  return;
-                }
-
-                if (isCartDetachedEvent(event)) {
-                  clearStoredPublicAccess();
-                  toast.success("Корзина была откреплена.");
-                }
-              },
-            },
-          );
-        } else {
-          await connectCartControllerSseCurrent({
-            signal: abortController.signal,
-            onEvent: (event) => {
-              if (isCartUpdatedEvent(event)) {
-                handleSseCartUpdated(event.data);
-                return;
-              }
-
-              if (isCartStatusChangedEvent(event)) {
-                handleSseCartStatusChanged(event.data);
-              }
-            },
-          });
-        }
-
-        if (!abortController.signal.aborted) {
-          scheduleReconnect();
-        }
-      } catch (error) {
-        if (abortController.signal.aborted || isDisposed) {
-          return;
-        }
-
-        if (
-          mode === "public" &&
-          (isCartUnauthorizedError(error) || isCartNotFoundError(error))
-        ) {
-          notifyPublicCartUnavailable();
-          return;
-        }
-
-        scheduleReconnect();
-      }
-    };
-
-    void connect();
-
-    return () => {
-      isDisposed = true;
-      abortController.abort();
-
-      if (reconnectTimeoutId !== null) {
-        window.clearTimeout(reconnectTimeoutId);
-      }
-    };
-  }, [
-    clearStoredPublicAccess,
-    currentCart?.id,
-    handleSseCartStatusChanged,
-    handleSseCartUpdated,
-    isHydrated,
-    mode,
-    notifyPublicCartUnavailable,
-    storedPublicAccess,
-  ]);
-
-  React.useEffect(() => {
-    if (!isHydrated || !isManagedPublicCart || !storedPublicAccess) {
-      return;
-    }
-
-    let isDisposed = false;
-    let heartbeatIntervalId: number | null = null;
-    let hasStartedManagerSession = false;
-    let hasReleasedManagerSession = false;
-
-    const access = storedPublicAccess;
-
-    const clearHeartbeat = () => {
-      if (heartbeatIntervalId !== null) {
-        window.clearInterval(heartbeatIntervalId);
-        heartbeatIntervalId = null;
-      }
-    };
-
-    const releaseManagerSession = (useKeepalive = false) => {
-      if (hasReleasedManagerSession || !hasStartedManagerSession) {
-        return;
-      }
-
-      hasReleasedManagerSession = true;
-      clearHeartbeat();
-
-      if (useKeepalive) {
-        releaseManagerSessionWithKeepalive(access.publicKey);
-        return;
-      }
-
-      void cartControllerReleaseManagerSession(access.publicKey).catch(
-        () => undefined,
-      );
-    };
-
-    const handlePageHide = () => {
-      releaseManagerSession(true);
-    };
-
-    const runHeartbeat = async () => {
-      try {
-        const response = await cartControllerHeartbeatManagerSession(
-          access.publicKey,
-        );
-
-        if (isDisposed) {
-          return;
-        }
-
-        setPublicCartData(access, response.cart);
-      } catch (error) {
-        if (isDisposed) {
-          return;
-        }
-
-        if (isCartUnauthorizedError(error) || isCartNotFoundError(error)) {
-          clearHeartbeat();
-          return;
-        }
-      }
-    };
-
-    const startManagerSession = async () => {
-      setIsManagerSessionLoading(true);
-
-      try {
-        const response = await cartControllerStartManagerSession(access.publicKey);
-
-        if (isDisposed) {
-          return;
-        }
-
-        hasStartedManagerSession = true;
-        setPublicCartData(access, response.cart);
-        heartbeatIntervalId = window.setInterval(() => {
-          void runHeartbeat();
-        }, CART_MANAGER_HEARTBEAT_MS);
-      } catch (error) {
-        if (isDisposed) {
-          return;
-        }
-
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : "Не удалось взять корзину в работу.",
-        );
-      } finally {
-        if (!isDisposed) {
-          setIsManagerSessionLoading(false);
-        }
-      }
-    };
-
-    window.addEventListener("pagehide", handlePageHide);
-    window.addEventListener("beforeunload", handlePageHide);
-    void startManagerSession();
-
-    return () => {
-      window.removeEventListener("pagehide", handlePageHide);
-      window.removeEventListener("beforeunload", handlePageHide);
-      isDisposed = true;
-      releaseManagerSession();
-      clearHeartbeat();
-    };
-  }, [
+  const { isManagerSessionLoading } = useCartManagerSession({
     isHydrated,
     isManagedPublicCart,
     setPublicCartData,
     storedPublicAccess,
-    user?.id,
-    user?.role,
-  ]);
+    userId: user?.id,
+    userRole: user?.role,
+  });
 
   const upsertCurrentItemMutation = useMutation({
     mutationFn: async (params: {
@@ -871,6 +701,13 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       return response.cart;
     },
     onSuccess: setCurrentCartData,
+    onError: (error) => {
+      if (isCartNotFoundError(error)) {
+        clearStoredCurrentCart();
+        currentCartNotFoundHandledRef.current = true;
+        queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+      }
+    },
   });
 
   const upsertPublicItemMutation = useMutation({
@@ -895,6 +732,11 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     onSuccess: ({ access, cart }) => {
       setPublicCartData(access, cart);
     },
+    onError: (error, params) => {
+      if (isCartNotFoundError(error)) {
+        dismissPublicCart(params.access);
+      }
+    },
   });
 
   const removeCurrentItemMutation = useMutation({
@@ -903,6 +745,13 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       return response.cart;
     },
     onSuccess: setCurrentCartData,
+    onError: (error) => {
+      if (isCartNotFoundError(error)) {
+        clearStoredCurrentCart();
+        currentCartNotFoundHandledRef.current = true;
+        queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+      }
+    },
   });
 
   const removePublicItemMutation = useMutation({
@@ -925,6 +774,11 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     },
     onSuccess: ({ access, cart }) => {
       setPublicCartData(access, cart);
+    },
+    onError: (error, params) => {
+      if (isCartNotFoundError(error)) {
+        dismissPublicCart(params.access);
+      }
     },
   });
 
@@ -957,6 +811,25 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       });
       clearStoredPublicAccess();
     },
+  });
+
+  const isLocalCartMutationPending =
+    upsertCurrentItemMutation.isPending ||
+    upsertPublicItemMutation.isPending ||
+    removeCurrentItemMutation.isPending ||
+    removePublicItemMutation.isPending;
+
+  useCartSse({
+    activeCart,
+    clearStoredPublicAccess,
+    currentCartId: currentCart?.id,
+    handleSseCartStatusChanged,
+    handleSseCartUpdated,
+    isHydrated,
+    isLocalCartMutationPending,
+    mode,
+    notifyPublicCartUnavailable,
+    storedPublicAccess,
   });
 
   const findCartItemByProductId = React.useCallback(

@@ -9,6 +9,7 @@ import {
   type AttributeDto,
   type ProductWithDetailsDto,
 } from "@/shared/api/generated/react-query";
+
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
@@ -18,6 +19,7 @@ interface UseEditProductDrawerStateParams {
   open: boolean;
   product: ProductWithDetailsDto | null;
   productAttributes: AttributeDto[];
+  variantAttributes?: AttributeDto[];
   productQueryError: unknown;
   productQueryIsError: boolean;
   resetFromMedia: (media: ProductWithDetailsDto["media"]) => void;
@@ -30,6 +32,7 @@ export function useEditProductDrawerState({
   open,
   product,
   productAttributes,
+  variantAttributes = [],
   productQueryError,
   productQueryIsError,
   resetFromMedia,
@@ -39,11 +42,11 @@ export function useEditProductDrawerState({
 
   const resetFromProduct = React.useCallback(
     (nextProduct: ProductWithDetailsDto) => {
-      form.reset(buildEditProductFormValues(nextProduct, productAttributes));
+      form.reset(buildEditProductFormValues(nextProduct, productAttributes, variantAttributes));
       resetFromMedia(nextProduct.media);
       setErrorMessage(null);
     },
-    [form, productAttributes, resetFromMedia],
+    [form, productAttributes, variantAttributes, resetFromMedia],
   );
 
   React.useEffect(() => {

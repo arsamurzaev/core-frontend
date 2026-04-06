@@ -396,6 +396,7 @@ export interface SeoDto {
   /** @nullable */
   twitterDescription: string | null;
   twitterMedia: MediaDto | null;
+  faviconMedia: MediaDto | null;
   /** @nullable */
   twitterSite: string | null;
   /** @nullable */
@@ -1228,7 +1229,7 @@ export interface ProductCardPageDto {
   /** @nullable */
   nextCursor: string | null;
   /**
-   * РЎС‚Р°Р±РёР»СЊРЅС‹Р№ seed РґР»СЏ РґРµС‚РµСЂРјРёРЅРёСЂРѕРІР°РЅРЅРѕР№ СЂР°РЅРґРѕРјРёР·Р°С†РёРё
+   * Стабильный seed для детерминированной рандомизации
    * @nullable
    */
   seed: string | null;
@@ -1315,6 +1316,7 @@ export interface ProductWithDetailsDto {
   updatedAt: string;
   productAttributes: ProductAttributeDto[];
   variants: ProductVariantDto[];
+  seo: SeoDto | null;
 }
 
 export interface ProductAttributeValueDto {
@@ -1394,6 +1396,7 @@ export interface ProductCreateResponseDto {
   updatedAt: string;
   productAttributes: ProductAttributeDto[];
   variants: ProductVariantDto[];
+  seo: SeoDto | null;
   ok: boolean;
 }
 
@@ -1467,6 +1470,7 @@ export interface ProductUpdateResponseDto {
   updatedAt: string;
   productAttributes: ProductAttributeDto[];
   variants: ProductVariantDto[];
+  seo: SeoDto | null;
   ok: boolean;
 }
 
@@ -1532,6 +1536,7 @@ export interface ProductVariantsResponseDto {
   updatedAt: string;
   productAttributes: ProductAttributeDto[];
   variants: ProductVariantDto[];
+  seo: SeoDto | null;
   ok: boolean;
 }
 
@@ -1565,6 +1570,7 @@ export interface CreateSeoDtoReq {
   twitterTitle?: string;
   twitterDescription?: string;
   twitterMediaId?: string;
+  faviconMediaId?: string;
   twitterSite?: string;
   twitterCreator?: string;
   hreflang?: CreateSeoDtoReqHreflang;
@@ -1604,6 +1610,7 @@ export interface UpdateSeoDtoReq {
   twitterTitle?: string;
   twitterDescription?: string;
   twitterMediaId?: string;
+  faviconMediaId?: string;
   twitterSite?: string;
   twitterCreator?: string;
   hreflang?: UpdateSeoDtoReqHreflang;

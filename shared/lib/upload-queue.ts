@@ -8,6 +8,22 @@ import {
   s3ControllerGetQueueStatus,
 } from "@/shared/api/generated/react-query";
 
+export function buildEnqueuePayload(presign: {
+  key: string;
+  mediaId?: string;
+  url?: string;
+}) {
+  return {
+    items: [
+      {
+        key: presign.key,
+        ...(presign.mediaId ? { mediaId: presign.mediaId } : {}),
+        ...(presign.url ? { url: presign.url } : {}),
+      },
+    ],
+  };
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }

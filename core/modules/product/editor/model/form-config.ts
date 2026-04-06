@@ -1,6 +1,10 @@
 import { type AttributeDto, AttributeDtoDataType } from "@/shared/api/generated/react-query";
+import { toOptionalTrimmedString as normalizeOptionalString } from "@/shared/lib/text";
 import { type DynamicFieldConfig } from "@/shared/ui/dynamic-form";
 import { type Path } from "react-hook-form";
+import { type VariantsFormValue } from "@/core/modules/product/editor/model/product-variants";
+
+export { normalizeOptionalString };
 
 export type ProductAttributeFormValue = string | boolean | null;
 
@@ -11,16 +15,8 @@ export type CreateProductFormValues = {
   categoryIds: string[];
   hasDiscount: boolean;
   attributes: Record<string, ProductAttributeFormValue>;
+  variants: VariantsFormValue;
 };
-
-export function normalizeOptionalString(value: unknown): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const normalized = value.trim();
-  return normalized.length > 0 ? normalized : undefined;
-}
 
 function normalizeCategoryIds(value: unknown): string[] {
   if (!Array.isArray(value)) {
@@ -67,6 +63,10 @@ export function normalizeCreateProductFormValues(
     categoryIds: normalizeCategoryIds(values.categoryIds),
     hasDiscount: values.hasDiscount === true,
     attributes: normalizeAttributesRecord(values.attributes),
+    variants:
+      typeof values.variants === "object" && values.variants !== null
+        ? values.variants
+        : {},
   };
 }
 
@@ -83,6 +83,7 @@ export const CREATE_PRODUCT_FORM_DEFAULT_VALUES: CreateProductFormValues = {
   categoryIds: [],
   hasDiscount: false,
   attributes: {},
+  variants: {},
 };
 
 export const PRODUCT_IMAGE_ASPECT_RATIO = 3 / 4;

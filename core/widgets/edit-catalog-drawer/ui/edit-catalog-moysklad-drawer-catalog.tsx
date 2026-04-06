@@ -11,6 +11,11 @@ import {
   useIntegrationControllerUpdateMoySklad,
   useIntegrationControllerUpsertMoySklad,
 } from "@/shared/api/generated/react-query";
+import {
+  normalizeTimeZone,
+  resolveBrowserTimeZone,
+} from "@/core/widgets/edit-catalog-drawer/lib/moysklad-form-state";
+import { DEFAULT_DAILY_SYNC_HOUR } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-schedule";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
@@ -29,27 +34,11 @@ import { ChevronRight } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
-const DEFAULT_SCHEDULE_TIMEZONE = "Europe/Moscow";
-const DEFAULT_DAILY_SYNC_HOUR = "0";
-
 type CatalogFormState = {
   token: string;
 };
 
 type ValidationErrors = Partial<Record<"token", string>>;
-
-function resolveBrowserTimeZone(): string | null {
-  try {
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone?.trim();
-    return timeZone || null;
-  } catch {
-    return null;
-  }
-}
-
-function normalizeTimeZone(value?: string | null): string {
-  return value?.trim() || DEFAULT_SCHEDULE_TIMEZONE;
-}
 
 function formatSyncTimestamp(value?: string | null): string | null {
   if (!value) return null;

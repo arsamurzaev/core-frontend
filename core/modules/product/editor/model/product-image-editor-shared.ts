@@ -1,4 +1,7 @@
 import { type UploadState } from "@/core/modules/product/editor/model/types";
+import { clamp } from "@/shared/lib/math";
+
+export { clamp as clampNumber };
 
 export const MAX_PRODUCT_IMAGES = 12;
 
@@ -11,9 +14,6 @@ export const IDLE_PRODUCT_IMAGE_UPLOAD_STATE: UploadState = {
 export const REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE =
   "Сначала последовательно обрежьте все фотографии (1, 2, 3 ...).";
 
-export function clampNumber(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
 
 export function getProductImageCropperCopy(params: {
   isEditingSingle: boolean;

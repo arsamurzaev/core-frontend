@@ -1,26 +1,39 @@
 import { HomeContent } from "@/core/views/home/home-content";
-import { getProductBySlugServer } from "@/core/widgets/product-drawer/lib/get-product-by-slug.server";
+import {
+  generateProductPageMetadata,
+  getProductPageDataServer,
+  getProductPageStructuredData,
+  normalizeProductSlug,
+} from "@/core/widgets/product-drawer/lib/product-page.server";
 import { ProductDrawerRoute } from "@/core/widgets/product-drawer/ui/product-drawer-route";
+import type { Metadata } from "next";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-function normalizeSlug(slug: string): string {
-  try {
-    return decodeURIComponent(slug);
-  } catch {
-    return slug;
-  }
+export async function generateMetadata({
+  params,
+}: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  return generateProductPageMetadata(normalizeProductSlug(slug));
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const productSlug = normalizeSlug(slug);
-  const initialProduct = await getProductBySlugServer(productSlug);
+  const productSlug = normalizeProductSlug(slug);
+  const { product: initialProduct, seo } =
+    await getProductPageDataServer(productSlug);
+  const structuredData = getProductPageStructuredData(seo?.structuredData);
 
   return (
     <>
+      {structuredData ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: structuredData }}
+        />
+      ) : null}
       <HomeContent />
       <ProductDrawerRoute
         productSlug={productSlug}

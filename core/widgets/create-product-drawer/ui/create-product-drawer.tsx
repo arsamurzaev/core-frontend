@@ -32,6 +32,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     files,
     form,
     formFields,
+    variantAttributes,
     handleCropApply,
     handleCropperOpenChange,
     handleEditFile,
@@ -91,6 +92,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         cropperTitle={cropperTitle}
         cropperDescription={cropperDescription}
         cropperApplyLabel={cropperApplyLabel}
+        variantAttributes={variantAttributes}
         onReset={handleReset}
         onSubmit={handleSubmit}
         onFilesChange={handleFilesChange}

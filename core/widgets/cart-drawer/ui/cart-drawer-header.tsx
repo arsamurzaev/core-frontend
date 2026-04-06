@@ -38,7 +38,7 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
   totalQuantity,
 }) => {
   return (
-    <div className="my-4 grid gap-1.5 px-4">
+    <div className="grid gap-1.5 px-4">
       <div className={cn(className)}>
         <Button
           type="button"

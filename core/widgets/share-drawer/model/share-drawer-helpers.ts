@@ -163,7 +163,6 @@ export function buildShareDrawerPrimaryActions(params: {
       href: buildCatalogContactHref({
         type: CatalogContactDtoType.WHATSAPP,
         value: catalog.getContactValue(CatalogContactDtoType.WHATSAPP),
-        text: shareUrl,
       }),
       imageSrc: "/ui-share-wa-icon.svg",
     },
@@ -173,7 +172,6 @@ export function buildShareDrawerPrimaryActions(params: {
       href: buildCatalogContactHref({
         type: CatalogContactDtoType.TELEGRAM,
         value: catalog.getContactValue(CatalogContactDtoType.TELEGRAM),
-        text: shareUrl,
       }),
       imageSrc: "/ui-share-tg-icon.svg",
     },
@@ -183,7 +181,6 @@ export function buildShareDrawerPrimaryActions(params: {
       href: buildCatalogContactHref({
         type: CatalogContactDtoType.SMS,
         value: catalog.getContactValue(CatalogContactDtoType.SMS),
-        text: shareUrl,
       }),
       imageSrc: "/ui-share-phone-icon.svg",
     },

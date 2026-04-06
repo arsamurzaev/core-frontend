@@ -1,19 +1,26 @@
-import { mutator } from "@/shared/api/client";
+import { FORWARDED_HOST_HEADER, mutator } from "@/shared/api/client";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { ProductControllerGetBySlugResponse } from "@/shared/api/generated/zod";
+import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import { cookies } from "next/headers";
 
 export async function getProductBySlugServer(
   slug: string,
 ): Promise<ProductWithDetailsDto | null> {
   try {
-    const cookieStore = await cookies();
+    const [cookieStore, forwardedHost] = await Promise.all([
+      cookies(),
+      resolveServerForwardedHost(),
+    ]);
     const cookieHeader = cookieStore.toString();
 
     const response = await mutator<unknown>({
       url: `/product/slug/${encodeURIComponent(slug)}`,
       method: "GET",
-      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      headers: {
+        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+        [FORWARDED_HOST_HEADER]: forwardedHost,
+      },
     });
 
     const parsed = ProductControllerGetBySlugResponse.safeParse(response);

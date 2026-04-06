@@ -28,6 +28,7 @@ export const BackgroundImage: React.FC<Props> = ({ className }) => {
           priority
           className="rounded-b-md object-cover"
           alt=""
+          unoptimized={Boolean(bgMedia?.url)}
         />
       </AspectRatio>
     </div>

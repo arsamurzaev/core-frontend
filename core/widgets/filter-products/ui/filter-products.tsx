@@ -108,6 +108,12 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                   actions={
                     shouldUseCartUi ? (
                       <CartProductAction productId={product.id} />
+                    ) : isDetailed ? (
+                      <EditProductCardAction
+                        isMoySkladLinked={isMoySkladProduct(product)}
+                        productId={product.id}
+                        status={product.status}
+                      />
                     ) : undefined
                   }
                   className={cn("h-full", isDetailed && "min-h-[160px]")}
@@ -127,7 +133,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                   }
                 />
               </ProductLink>
-              {!shouldUseCartUi ? (
+              {!shouldUseCartUi && !isDetailed ? (
                 <EditProductCardAction
                   isMoySkladLinked={isMoySkladProduct(product)}
                   productId={product.id}

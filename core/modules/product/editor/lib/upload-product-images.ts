@@ -7,6 +7,7 @@ import {
   streamQueueStatus,
 } from "@/shared/lib/upload-queue";
 import { type UploadState } from "@/core/modules/product/editor/model/types";
+import { clamp } from "@/shared/lib/math";
 import {
   type S3ControllerEnqueueFromS3Body,
   type UploadQueueStatusDto,
@@ -14,10 +15,6 @@ import {
   s3ControllerPresignUpload,
 } from "@/shared/api/generated/react-query";
 import axios from "axios";
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
 
 function buildEnqueueFromS3Payload(
   keys: string[],

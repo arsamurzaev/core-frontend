@@ -19,9 +19,7 @@ export function isLocalRequestHost(host: string): boolean {
   const hostname = extractHostname(host);
 
   return (
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "::1"
+    hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1"
   );
 }
 

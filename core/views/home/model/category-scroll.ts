@@ -17,10 +17,8 @@ export interface AlignCategorySectionResult {
   distanceToLine: number;
 }
 
+export { clamp } from "@/shared/lib/math";
+
 export function getCategorySectionId(categoryId: string): string {
   return `${CATEGORY_SECTION_ID_PREFIX}-${categoryId}`;
-}
-
-export function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
 }

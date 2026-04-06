@@ -44,7 +44,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     [controlledOpen, onOpenChange, open],
   );
 
-  const { formFields, productAttributes, visibleAttributes } = useProductFormFields(
+  const { formFields, productAttributes, variantAttributes, visibleAttributes } = useProductFormFields(
     {
       form,
       sourceAttributes: type.attributes,
@@ -94,6 +94,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     files: imageEditor.files,
     form,
     formFields,
+    variantAttributes,
     handleCropApply: imageEditor.handleCropApply,
     handleCropperOpenChange: imageEditor.handleCropperOpenChange,
     handleEditFile: imageEditor.handleEditFile,

@@ -17,6 +17,7 @@ import {
   useBrandControllerGetAll,
   useCategoryControllerGetAll,
 } from "@/shared/api/generated/react-query";
+
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -75,42 +76,21 @@ export function useProductFormFields({
     [sourceAttributes],
   );
 
+  const variantAttributes = React.useMemo(
+    () =>
+      sortAttributesByDisplayOrder(
+        (sourceAttributes ?? []).filter(
+          (attribute) =>
+            !attribute.isHidden &&
+            attribute.isVariantAttribute &&
+            attribute.dataType === AttributeDtoDataType.ENUM,
+        ),
+      ),
+    [sourceAttributes],
+  );
+
   const discountAttributes = React.useMemo(
     () => productAttributes.filter((attribute) => isDiscountAttribute(attribute)),
-    [productAttributes],
-  );
-
-  const discountAttribute = React.useMemo(
-    () =>
-      productAttributes.find(
-        (attribute) => normalizeAttributeKey(attribute.key) === "discount",
-      ) ?? null,
-    [productAttributes],
-  );
-
-  const discountedPriceAttribute = React.useMemo(
-    () =>
-      productAttributes.find(
-        (attribute) =>
-          normalizeAttributeKey(attribute.key) === "discountedprice",
-      ) ?? null,
-    [productAttributes],
-  );
-
-  const discountStartAttribute = React.useMemo(
-    () =>
-      productAttributes.find(
-        (attribute) =>
-          normalizeAttributeKey(attribute.key) === "discountstartat",
-      ) ?? null,
-    [productAttributes],
-  );
-
-  const discountEndAttribute = React.useMemo(
-    () =>
-      productAttributes.find(
-        (attribute) => normalizeAttributeKey(attribute.key) === "discountendat",
-      ) ?? null,
     [productAttributes],
   );
 
@@ -201,6 +181,15 @@ export function useProductFormFields({
   );
 
   const formFields = React.useMemo(() => {
+    const discountAttribute =
+      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discount") ?? null;
+    const discountedPriceAttribute =
+      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discountedprice") ?? null;
+    const discountStartAttribute =
+      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discountstartat") ?? null;
+    const discountEndAttribute =
+      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discountendat") ?? null;
+
     const discountFieldName = discountAttribute
       ? `attributes.${discountAttribute.id}`
       : null;
@@ -276,13 +265,7 @@ export function useProductFormFields({
 
         return field;
       });
-  }, [
-    baseFormFields,
-    discountAttribute,
-    discountEndAttribute,
-    discountStartAttribute,
-    discountedPriceAttribute,
-  ]);
+  }, [baseFormFields, productAttributes]);
 
   React.useEffect(() => {
     if (!isActive) {
@@ -332,6 +315,7 @@ export function useProductFormFields({
   return {
     formFields,
     productAttributes,
+    variantAttributes,
     visibleAttributes,
   };
 }

@@ -16,6 +16,7 @@ import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   useProductControllerGetById,
   useProductControllerRemove,
+  useProductControllerSetVariants,
   useProductControllerUpdate,
 } from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
@@ -41,6 +42,7 @@ export function useEditProductDrawer(
   const { type } = useCatalog();
   const queryClient = useQueryClient();
   const updateProduct = useProductControllerUpdate();
+  const setVariants = useProductControllerSetVariants();
   const removeProduct = useProductControllerRemove();
   const form = useForm<CreateProductFormValues>({
     defaultValues: CREATE_PRODUCT_FORM_DEFAULT_VALUES,
@@ -56,7 +58,7 @@ export function useEditProductDrawer(
     },
   });
 
-  const { formFields, productAttributes, visibleAttributes } = useProductFormFields(
+  const { formFields, productAttributes, variantAttributes, visibleAttributes } = useProductFormFields(
     {
       form,
       sourceAttributes: type.attributes,
@@ -86,6 +88,7 @@ export function useEditProductDrawer(
     open,
     product,
     productAttributes,
+    variantAttributes,
     productQueryError: productQuery.error,
     productQueryIsError: productQuery.isError,
     resetFromMedia: imageEditor.resetFromMedia,
@@ -157,7 +160,9 @@ export function useEditProductDrawer(
     resolveMediaIdsForSubmit: imageEditor.resolveMediaIdsForSubmit,
     setErrorMessage: drawerState.setErrorMessage,
     setIsSubmitting,
+    setVariants,
     updateProduct,
+    variantAttributes,
     visibleAttributes,
   });
 
@@ -171,6 +176,7 @@ export function useEditProductDrawer(
     errorMessage: drawerState.errorMessage,
     form,
     formFields,
+    variantAttributes,
     handleCropApply: imageEditor.handleCropApply,
     handleCropperOpenChange: imageEditor.handleCropperOpenChange,
     handleEditItem: imageEditor.handleEditItem,

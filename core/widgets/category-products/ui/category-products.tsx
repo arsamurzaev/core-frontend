@@ -76,6 +76,7 @@ const GRID_INITIAL_SKELETON_ITEMS_COUNT = CATEGORY_PRODUCTS_PAGE_SIZE;
 const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 6;
 const GRID_NEXT_PAGE_SKELETON_ITEMS_COUNT = 4;
 const DETAILED_NEXT_PAGE_SKELETON_ITEMS_COUNT = 3;
+const UNCATEGORIZED_QUERY_PARAMS = { limit: String(CATEGORY_PRODUCTS_PAGE_SIZE) };
 
 const ProductSection: React.FC<ProductSectionProps> = ({
   className,
@@ -89,7 +90,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   allowLoadMore = true,
   hideWhenEmpty = false,
 }) => {
-  const { isDetailed } = useProductCardViewMode();
+  const { isDetailed, hasHydrated } = useProductCardViewMode();
   const { isAuthenticated } = useSession();
   const { quantityByProductId, shouldUseCartUi } = useCart();
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
@@ -159,45 +160,20 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       enabled: isActivated,
     });
 
-  const hasLoadedFirstPage = React.useMemo(
-    () => Boolean(data?.pages?.length),
-    [data],
-  );
+  const hasLoadedFirstPage = Boolean(data?.pages?.length);
   const products = React.useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
   );
-  const listClassName = React.useMemo(
-    () =>
-      isDetailed
-        ? PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME
-        : PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
-    [isDetailed],
-  );
-  const initialSkeletonKeys = React.useMemo(
-    () =>
-      Array.from(
-        {
-          length: isDetailed
-            ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
-            : GRID_INITIAL_SKELETON_ITEMS_COUNT,
-        },
-        (_, index) => index,
-      ),
-    [isDetailed],
-  );
-  const nextPageSkeletonKeys = React.useMemo(
-    () =>
-      Array.from(
-        {
-          length: isDetailed
-            ? DETAILED_NEXT_PAGE_SKELETON_ITEMS_COUNT
-            : GRID_NEXT_PAGE_SKELETON_ITEMS_COUNT,
-        },
-        (_, index) => index,
-      ),
-    [isDetailed],
-  );
+  const listClassName = isDetailed
+    ? PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME
+    : PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME;
+  const initialSkeletonCount = isDetailed
+    ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
+    : GRID_INITIAL_SKELETON_ITEMS_COUNT;
+  const nextPageSkeletonCount = isDetailed
+    ? DETAILED_NEXT_PAGE_SKELETON_ITEMS_COUNT
+    : GRID_NEXT_PAGE_SKELETON_ITEMS_COUNT;
 
   React.useEffect(() => {
     if (!allowLoadMore || !isActivated || !hasNextPage || isFetchingNextPage) {
@@ -243,14 +219,16 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       </h2>
       <div style={{ overflowAnchor: "none" }}>
         {!hasLoadedFirstPage ? (
-          <ul className={listClassName}>
-            {initialSkeletonKeys.map((index) => (
-              <ProductCardSkeleton
-                key={`initial-skeleton-${index}`}
-                isDetailed={isDetailed}
-              />
-            ))}
-          </ul>
+          hasHydrated ? (
+            <ul className={listClassName}>
+              {Array.from({ length: initialSkeletonCount }, (_, index) => (
+                <ProductCardSkeleton
+                  key={`initial-skeleton-${index}`}
+                  isDetailed={isDetailed}
+                />
+              ))}
+            </ul>
+          ) : null
         ) : (
           <ul className={listClassName}>
             {products.map(({ key, product, categoryId, categoryPosition }) => (
@@ -262,6 +240,14 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                     actions={
                       shouldUseCartUi ? (
                         <CartProductAction productId={product.id} />
+                      ) : isDetailed ? (
+                        <EditProductCardAction
+                          categoryId={categoryId}
+                          categoryPosition={categoryPosition}
+                          isMoySkladLinked={isMoySkladProduct(product)}
+                          productId={product.id}
+                          status={product.status}
+                        />
                       ) : undefined
                     }
                     className={cn("h-full", isDetailed && "min-h-[160px]")}
@@ -281,7 +267,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                     }
                   />
                 </ProductLink>
-                {!shouldUseCartUi ? (
+                {!shouldUseCartUi && !isDetailed ? (
                   <EditProductCardAction
                     categoryId={categoryId}
                     categoryPosition={categoryPosition}
@@ -293,7 +279,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
               </article>
             ))}
             {isFetchingNextPage &&
-              nextPageSkeletonKeys.map((index) => (
+              Array.from({ length: nextPageSkeletonCount }, (_, index) => (
                 <ProductCardSkeleton
                   key={`next-page-${index}`}
                   isDetailed={isDetailed}
@@ -365,22 +351,15 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
   allowActivation = true,
   allowLoadMore = true,
 }) => {
-  const queryParams = React.useMemo(
-    () => ({
-      limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
-    }),
-    [],
-  );
-
   const queryKey = React.useMemo(
-    () => getProductControllerGetUncategorizedInfiniteCardsQueryKey(queryParams),
-    [queryParams],
+    () => getProductControllerGetUncategorizedInfiniteCardsQueryKey(UNCATEGORIZED_QUERY_PARAMS),
+    [],
   );
 
   const queryFn = React.useCallback(
     async (cursor: string | undefined): Promise<ProductSectionPage> => {
       const page = await productControllerGetUncategorizedInfiniteCards({
-        ...queryParams,
+        ...UNCATEGORIZED_QUERY_PARAMS,
         cursor,
       });
 
@@ -392,7 +371,7 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
         })),
       };
     },
-    [queryParams],
+    [],
   );
 
   return (

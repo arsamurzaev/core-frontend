@@ -12,6 +12,8 @@ import {
   ProductImagesSection,
   type ProductImageSectionItem,
 } from "@/core/modules/product/editor/ui/product-images-section";
+import { ProductVariantsField } from "@/core/modules/product/editor/ui/product-variants-field";
+import { type AttributeDto } from "@/shared/api/generated/react-query";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import {
@@ -49,6 +51,7 @@ export interface ProductEditorDrawerContentProps {
   trailingTitleNode?: React.ReactNode;
   uploadState: UploadState;
   uploadedMediaIds: string[];
+  variantAttributes?: AttributeDto[];
   onCropApply: (files: File[]) => void;
   onCropperOpenChange: (open: boolean) => void;
   onEditFile: (index: number) => void;
@@ -88,6 +91,7 @@ export const ProductEditorDrawerContent: React.FC<
   trailingTitleNode,
   uploadState,
   uploadedMediaIds,
+  variantAttributes,
   onCropApply,
   onCropperOpenChange,
   onEditFile,
@@ -200,6 +204,14 @@ export const ProductEditorDrawerContent: React.FC<
                   fieldSetProps={CREATE_PRODUCT_FIELDSET_PROPS}
                   fieldGroupProps={CREATE_PRODUCT_FIELD_GROUP_PROPS}
                 />
+
+                {variantAttributes && variantAttributes.length > 0 && (
+                  <ProductVariantsField
+                    form={form}
+                    variantAttributes={variantAttributes}
+                    disabled={resolvedIsBusy}
+                  />
+                )}
               </section>
 
               {showImagesSection ? (

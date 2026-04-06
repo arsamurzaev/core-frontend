@@ -31,6 +31,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
     errorMessage,
     form,
     formFields,
+    variantAttributes,
     handleCropApply,
     handleCropperOpenChange,
     handleDelete,
@@ -157,6 +158,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
           cropperDescription={cropperDescription}
           cropperApplyLabel={cropperApplyLabel}
           showImagesSection
+          variantAttributes={variantAttributes}
           onSubmit={handleSubmit}
           onFilesChange={handleFilesChange}
           onToggleReorderMode={handleToggleReorderMode}

@@ -3,6 +3,10 @@
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
+import {
+  buildSetVariantsPayloads,
+  type VariantsFormValue,
+} from "@/core/modules/product/editor/model/product-variants";
 import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
 import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
 import {
@@ -12,6 +16,7 @@ import {
 import {
   type AttributeDto,
   type ProductWithDetailsDto,
+  type SetProductVariantsDtoReq,
   type UpdateProductDtoReq,
 } from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
@@ -23,6 +28,13 @@ interface EditProductUpdateMutation {
   mutateAsync: (params: {
     id: string;
     data: UpdateProductDtoReq;
+  }) => Promise<unknown>;
+}
+
+interface EditProductSetVariantsMutation {
+  mutateAsync: (params: {
+    id: string;
+    data: SetProductVariantsDtoReq;
   }) => Promise<unknown>;
 }
 
@@ -42,7 +54,9 @@ interface UseEditProductSubmitParams {
   resolveMediaIdsForSubmit: () => Promise<string[]>;
   setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
   setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
+  setVariants: EditProductSetVariantsMutation;
   updateProduct: EditProductUpdateMutation;
+  variantAttributes: AttributeDto[];
   visibleAttributes: AttributeDto[];
 }
 
@@ -71,7 +85,9 @@ export function useEditProductSubmit({
   resolveMediaIdsForSubmit,
   setErrorMessage,
   setIsSubmitting,
+  setVariants,
   updateProduct,
+  variantAttributes,
   visibleAttributes,
 }: UseEditProductSubmitParams) {
   return React.useCallback(async () => {
@@ -125,6 +141,17 @@ export function useEditProductSubmit({
         data: updatePayload,
       });
 
+      const setVariantsPayloads = buildSetVariantsPayloads(
+        (validationResult.parsedValues.variants ?? {}) as VariantsFormValue,
+        variantAttributes,
+      );
+
+      await Promise.all(
+        setVariantsPayloads.map((payload) =>
+          setVariants.mutateAsync({ id: product.id, data: payload }),
+        ),
+      );
+
       closeDrawer();
       toast.success("Товар успешно обновлен.");
       void invalidateEditProductQueries(queryClient);
@@ -151,7 +178,9 @@ export function useEditProductSubmit({
     resolveMediaIdsForSubmit,
     setErrorMessage,
     setIsSubmitting,
+    setVariants,
     updateProduct,
+    variantAttributes,
     visibleAttributes,
   ]);
 }
