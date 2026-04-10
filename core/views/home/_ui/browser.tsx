@@ -35,9 +35,9 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import dynamic from "next/dynamic";
 import React from "react";
-import { getCategorySectionId } from "../model/category-scroll";
-import { useBrowserQueryState } from "../model/use-browser-query-state";
-import { useCategoryScrollNavigation } from "../model/use-category-scroll-navigation";
+import { getCategorySectionId } from "@/core/modules/browser/model/category-scroll";
+import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
+import { useCategoryScrollNavigation } from "@/core/modules/browser/model/use-category-scroll-navigation";
 
 const CategoryAdminDrawersDynamic = dynamic(
   () =>

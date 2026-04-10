@@ -23,7 +23,11 @@ function getErrorMessage(error: unknown): string {
     : "Не удалось обновить корзину.";
 }
 
-export const CartDrawer: React.FC = () => {
+interface CartDrawerProps {
+  actionRenderer?: (productId: string) => React.ReactNode;
+}
+
+export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const {
     autoExpandPublicCartAccessKey,
     clearCart,
@@ -250,6 +254,7 @@ export const CartDrawer: React.FC = () => {
                 isManagedPublicCart={isManagedPublicCart}
                 isPublicMode={isPublicMode}
                 items={items}
+                actionRenderer={actionRenderer}
                 onCommentChange={setComment}
                 onItemClick={handleOpenProduct}
                 status={status}

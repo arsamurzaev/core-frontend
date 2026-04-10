@@ -11,4 +11,5 @@ export interface CatalogPlugin {
   filterAccess: "all" | "admin";
   showTabToggle: boolean;
   Browser?: React.ComponentType<BrowserProps>;
+  CartCardAction?: React.ComponentType<{ productId: string }>;
 }

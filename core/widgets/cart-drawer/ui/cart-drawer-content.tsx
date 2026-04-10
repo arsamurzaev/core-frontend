@@ -15,6 +15,7 @@ interface CartDrawerContentProps {
   isManagedPublicCart: boolean;
   isPublicMode: boolean;
   items: CartItemView[];
+  actionRenderer?: (productId: string) => React.ReactNode;
   onCommentChange: (comment: string) => void;
   onItemClick: (product: ProductWithDetailsDto) => void;
   status: string | null;
@@ -70,6 +71,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   isManagedPublicCart,
   isPublicMode,
   items,
+  actionRenderer,
   onCommentChange,
   onItemClick,
   status,
@@ -94,6 +96,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
       ) : hasItems ? (
         <CartCardList
           items={items}
+          actionRenderer={actionRenderer}
           onItemClick={(item) => {
             if (item.product) {
               onItemClick(item.product);

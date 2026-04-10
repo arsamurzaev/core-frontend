@@ -9,6 +9,7 @@ import React from "react";
 interface CartCardListProps {
   className?: string;
   hasAction?: boolean;
+  actionRenderer?: (productId: string) => React.ReactNode;
   items: CartItemView[];
   onItemClick?: (item: CartItemView) => void;
 }
@@ -16,6 +17,7 @@ interface CartCardListProps {
 export const CartCardList: React.FC<CartCardListProps> = ({
   className,
   hasAction = true,
+  actionRenderer,
   items,
   onItemClick,
 }) => {
@@ -31,7 +33,11 @@ export const CartCardList: React.FC<CartCardListProps> = ({
                 : undefined
             }
             actions={
-              hasAction ? <CartCardAction productId={item.productId} /> : undefined
+              actionRenderer
+                ? actionRenderer(item.productId)
+                : hasAction
+                  ? <CartCardAction productId={item.productId} />
+                  : undefined
             }
           />
         </li>

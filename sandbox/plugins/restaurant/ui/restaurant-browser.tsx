@@ -21,9 +21,9 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { Skeleton } from "@/shared/ui/skeleton";
 import React from "react";
-import { getCategorySectionId } from "@/core/views/home/model/category-scroll";
-import { useBrowserQueryState } from "@/core/views/home/model/use-browser-query-state";
-import { useCategoryScrollNavigation } from "@/core/views/home/model/use-category-scroll-navigation";
+import { getCategorySectionId } from "@/core/modules/browser/model/category-scroll";
+import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
+import { useCategoryScrollNavigation } from "@/core/modules/browser/model/use-category-scroll-navigation";
 import { RestaurantFilterBar } from "./restaurant-filter-bar";
 
 interface RestaurantBrowserProps {

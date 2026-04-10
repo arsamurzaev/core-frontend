@@ -3,7 +3,12 @@
     "allow": [
       "Bash(find c:/Users/krush/Desktop/www/catalog/frontend -type f \\\\\\(-name *error-boundary* -o -name *ErrorBoundary* \\\\\\) ! -path */node_modules/* ! -path */.next/*)",
       "Bash(npx tsc:*)",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(mkdir -p \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model\")",
+      "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/category-scroll.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/category-scroll.ts\")",
+      "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/category-scroll-navigation-dom.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/category-scroll-navigation-dom.ts\")",
+      "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/category-scroll-navigation-query.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/category-scroll-navigation-query.ts\")",
+      "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/use-browser-query-state.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/use-browser-query-state.ts\")"
     ]
   }
 }

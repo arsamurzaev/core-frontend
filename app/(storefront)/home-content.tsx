@@ -1,6 +1,6 @@
 import { CatalogBrowser } from "@/sandbox/ui/catalog-browser";
 import { BackgroundImage } from "@/core/views/home/_ui/background-image";
-import { LazyCartDrawer } from "@/core/widgets/cart-drawer/ui/lazy-cart-drawer";
+import { PluginCartDrawer } from "@/sandbox/ui/plugin-cart-drawer";
 import { EditProductDrawerHostProvider } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
 import { Footer } from "@/core/widgets/footer/ui/footer";
 import { Header } from "@/core/widgets/header/ui/header";
@@ -31,7 +31,7 @@ export const HomeContent = async ({ className }: Props) => {
             <Footer />
           </div>
         </EditProductDrawerHostProvider>
-        <LazyCartDrawer />
+        <PluginCartDrawer />
       </ContentContainer>
     </main>
   );

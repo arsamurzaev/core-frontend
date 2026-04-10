@@ -72,6 +72,7 @@ interface CartContextValue {
   decrementProduct: (productId: string) => Promise<void>;
   detachPublicCart: () => void;
   incrementProduct: (productId: string) => Promise<void>;
+  setProductQuantity: (productId: string, nextQuantity: number) => Promise<void>;
   isBusy: boolean;
   isHydrated: boolean;
   isLoading: boolean;
@@ -106,6 +107,7 @@ const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   decrementProduct: async () => {},
   detachPublicCart: () => {},
   incrementProduct: async () => {},
+  setProductQuantity: async () => {},
   isBusy: false,
   isHydrated: false,
   isLoading: true,
@@ -1005,6 +1007,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       decrementProduct,
       detachPublicCart: clearStoredPublicAccess,
       incrementProduct,
+      setProductQuantity,
       isBusy,
       isHydrated,
       isLoading:
@@ -1036,6 +1039,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       completeManagedOrder,
       decrementProduct,
       incrementProduct,
+      setProductQuantity,
       isBusy,
       isHydrated,
       isSessionLoading,

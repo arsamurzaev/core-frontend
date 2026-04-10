@@ -7,7 +7,7 @@ import {
   getCategorySectionId,
   PAGE_END_EPSILON_PX,
   PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX,
-} from "@/core/views/home/model/category-scroll";
+} from "./category-scroll";
 
 interface CategorySectionSnapshot {
   id: string;
