@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useIntegrationControllerGetMoySkladStatus } from "@/shared/api/generated/react-query";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -30,7 +30,8 @@ function getIntegrationsSummary(params: {
 
   return {
     badge: "Не настроено",
-    description: "Подключите внешний источник товаров и sync в одном месте.",
+    description:
+      "Подключите внешний источник товаров и синхронизацию в одном месте.",
   };
 }
 
@@ -60,17 +61,22 @@ export const EditCatalogIntegrationsDrawer: React.FC<{
           <Button
             type="button"
             variant="ghost"
-            className="h-auto w-full justify-between rounded-2xl border border-black/10 px-4 py-4 text-left hover:bg-muted/30"
+            className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
             disabled={disabled}
           >
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-medium text-foreground">
                   Интеграции
                 </span>
-                <Badge variant="secondary">{summary.badge}</Badge>
+                <Badge
+                  variant="secondary"
+                  className="max-w-full break-words text-left whitespace-normal"
+                >
+                  {summary.badge}
+                </Badge>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
                 {summary.description}
               </p>
             </div>

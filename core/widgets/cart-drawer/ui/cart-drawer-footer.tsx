@@ -9,12 +9,14 @@ import React from "react";
 import { toast } from "sonner";
 
 interface CartDrawerFooterProps {
+  canShare: boolean;
   className?: string;
   currency: string;
   hasDiscount: boolean;
   hasItems: boolean;
   isBusy?: boolean;
   isManagedPublicCart: boolean;
+  onCollapse?: () => void;
   onCompleteOrder: () => Promise<void>;
   onShareClick: () => Promise<CartSharePayload>;
   price: number;
@@ -36,12 +38,14 @@ function getCompleteErrorMessage(error: unknown): string {
 }
 
 export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
+  canShare,
   className,
   currency,
   hasDiscount,
   hasItems,
   isBusy = false,
   isManagedPublicCart,
+  onCollapse,
   onCompleteOrder,
   onShareClick,
   price,
@@ -75,7 +79,14 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
       <DrawerFooter
         className={cn("mt-auto items-center px-3 pb-0 pt-0", className)}
       >
-        <div className="shadow-custom border-muted mx-auto grid w-full max-w-[720px] grid-cols-[minmax(110px,auto)_minmax(0,1fr)] items-center gap-4 rounded-t-lg border p-5 sm:gap-6">
+        <div
+          className={cn(
+            "shadow-custom border-muted mx-auto grid w-full max-w-180 items-center gap-4 rounded-t-lg border p-5 sm:gap-6",
+            isManagedPublicCart || canShare || onCollapse
+              ? "grid-cols-[minmax(110px,auto)_minmax(0,1fr)]"
+              : "grid-cols-1",
+          )}
+        >
           <div className="min-w-[110px]">
             <h4 className="w-[110px] text-xs">Заказ на сумму</h4>
             <h4 className="text-lg font-bold whitespace-nowrap sm:text-xl">
@@ -88,17 +99,37 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
             ) : null}
           </div>
 
-          <Button
-            type="button"
-            className="w-full justify-center"
-            disabled={isBusy || !hasItems}
-            onClick={() =>
-              void (isManagedPublicCart ? handleComplete() : handleShare())
-            }
-            size="full"
-          >
-            {isManagedPublicCart ? "Завершить заказ" : "Поделиться"}
-          </Button>
+          {isManagedPublicCart ? (
+            <Button
+              type="button"
+              className="w-full justify-center"
+              disabled={isBusy}
+              onClick={() => void handleComplete()}
+              size="full"
+            >
+              Завершить заказ
+            </Button>
+          ) : canShare ? (
+            <Button
+              type="button"
+              className="w-full justify-center"
+              disabled={isBusy || !hasItems}
+              onClick={() => void handleShare()}
+              size="full"
+            >
+              Поделиться
+            </Button>
+          ) : onCollapse ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full justify-center"
+              onClick={onCollapse}
+              size="full"
+            >
+              Свернуть
+            </Button>
+          ) : null}
         </div>
       </DrawerFooter>
 

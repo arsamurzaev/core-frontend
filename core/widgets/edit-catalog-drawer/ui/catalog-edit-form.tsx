@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { type CatalogEditFormValues } from "@/core/widgets/edit-catalog-drawer/model/form-config";
 import {
@@ -10,6 +10,7 @@ import {
   type CatalogEditTextareaControllerConfig,
 } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-textarea-controller";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
+import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
 import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-integrations-drawer";
 import { FieldError } from "@/shared/ui/field";
 import React from "react";
@@ -107,14 +108,14 @@ function CatalogEditTextRow({
   required?: boolean;
 }) {
   return (
-    <div className="grid w-full grid-cols-[100px_minmax(0,1fr)] gap-x-5 gap-y-2 px-5 sm:grid-cols-[180px_minmax(0,1fr)]">
-      <div className="pt-1 text-sm leading-6">
+    <div className="grid w-full grid-cols-1 gap-x-5 gap-y-2 px-5 sm:grid-cols-[180px_minmax(0,1fr)]">
+      <div className="min-w-0 pt-1 text-sm leading-6">
         {label}
         {required ? <span className="text-destructive">*</span> : null}
       </div>
       <div className="min-w-0">{children}</div>
       {errorMessage ? (
-        <FieldError className="col-start-2">{errorMessage}</FieldError>
+        <FieldError className="sm:col-start-2">{errorMessage}</FieldError>
       ) : null}
     </div>
   );
@@ -167,6 +168,17 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
           errorMessage={form.formState.errors.phone?.message}
         >
           <EditCatalogContactsDrawer form={form} disabled={disabled} />
+        </CatalogEditTextRow>
+
+        <CatalogEditTextRow
+          label="Сценарий заказа"
+          required
+          errorMessage={
+            form.formState.errors.allowedModes?.message ??
+            form.formState.errors.defaultMode?.message
+          }
+        >
+          <EditCatalogExperienceDrawer form={form} disabled={disabled} />
         </CatalogEditTextRow>
       </div>
 

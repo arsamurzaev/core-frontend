@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   type ShareActionItem,
@@ -111,9 +111,8 @@ export function buildShareDrawerPrimaryActions(params: {
   catalog: CatalogWithContacts;
   isShareMode: boolean;
   shareMessage: string;
-  shareUrl: string;
 }): ShareActionItem[] {
-  const { catalog, isShareMode, shareMessage, shareUrl } = params;
+  const { catalog, isShareMode, shareMessage } = params;
 
   if (isShareMode) {
     return filterAvailableActions([

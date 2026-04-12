@@ -1,10 +1,16 @@
-"use client";
+﻿"use client";
 
 import {
   CatalogContactDtoType,
   type CatalogCurrentDto,
   type UpdateCatalogDtoReq,
 } from "@/shared/api/generated/react-query";
+import {
+  getCatalogExperienceDefaultValues,
+  normalizeCatalogExperienceModes,
+  resolveCatalogExperienceDefaultMode,
+  type CatalogExperienceMode,
+} from "@/core/widgets/edit-catalog-drawer/model/catalog-experience";
 import { normalizePhoneValue } from "@/shared/lib/phone";
 import {
   type FieldErrors,
@@ -31,6 +37,8 @@ export type CatalogEditFormValues = {
   max: string;
   bip: string;
   map: string;
+  defaultMode: CatalogExperienceMode;
+  allowedModes: CatalogExperienceMode[];
   logoFile?: File;
   bgFile?: File;
 };
@@ -166,6 +174,24 @@ function validateCatalogEditContacts(
   }
 }
 
+function validateCatalogEditExperienceSettings(
+  errors: FieldErrors<CatalogEditFormValues>,
+  values: CatalogEditFormValues,
+) {
+  if (values.allowedModes.length === 0) {
+    errors.allowedModes = createFieldError(
+      "Выберите хотя бы один сценарий заказа.",
+    );
+    return;
+  }
+
+  if (!values.allowedModes.includes(values.defaultMode)) {
+    errors.defaultMode = createFieldError(
+      "Сценарий по умолчанию должен входить в доступные.",
+    );
+  }
+}
+
 function buildCatalogEditFormErrors(
   values: CatalogEditFormValues,
 ): FieldErrors<CatalogEditFormValues> {
@@ -197,6 +223,7 @@ function buildCatalogEditFormErrors(
   });
 
   validateCatalogEditContacts(errors, values);
+  validateCatalogEditExperienceSettings(errors, values);
 
   return errors;
 }
@@ -204,6 +231,12 @@ function buildCatalogEditFormErrors(
 export function normalizeCatalogEditFormValues(
   values: CatalogEditFormValues,
 ): CatalogEditFormValues {
+  const allowedModes = normalizeCatalogExperienceModes(values.allowedModes);
+  const defaultMode = resolveCatalogExperienceDefaultMode(
+    values.defaultMode,
+    allowedModes,
+  );
+
   return {
     name: normalizeText(values.name),
     about: normalizeText(values.about),
@@ -216,6 +249,8 @@ export function normalizeCatalogEditFormValues(
     max: normalizeText(values.max),
     bip: normalizeText(values.bip),
     map: normalizeText(values.map),
+    defaultMode,
+    allowedModes,
     logoFile: normalizeOptionalFile(values.logoFile),
     bgFile: normalizeOptionalFile(values.bgFile),
   };
@@ -344,6 +379,8 @@ function normalizeUrlContact(value: string): string | undefined {
 export function buildCatalogEditFormDefaultValues(
   catalog: CatalogCurrentDto,
 ): CatalogEditFormValues {
+  const experience = getCatalogExperienceDefaultValues(catalog);
+
   return {
     name: catalog.name ?? "",
     about: catalog.config?.about ?? "",
@@ -359,6 +396,8 @@ export function buildCatalogEditFormDefaultValues(
     max: getCatalogContactValue(catalog, CatalogContactDtoType.MAX),
     bip: getCatalogContactValue(catalog, CatalogContactDtoType.BIP),
     map: getCatalogContactValue(catalog, CatalogContactDtoType.MAP),
+    defaultMode: experience.defaultMode,
+    allowedModes: experience.allowedModes,
     logoFile: undefined,
     bgFile: undefined,
   };
@@ -404,6 +443,8 @@ export function buildCatalogEditUpdatePayload(
     name: normalizeText(values.name),
     about: normalizeText(values.about),
     description: normalizeText(values.description),
+    defaultMode: values.defaultMode,
+    allowedModes: values.allowedModes,
     contacts,
     ...(logoMediaId ? { logoMediaId } : {}),
     ...(bgMediaId ? { bgMediaId } : {}),

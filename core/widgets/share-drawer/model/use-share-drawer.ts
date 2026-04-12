@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   buildShareCaption,
@@ -193,9 +193,8 @@ export function useShareDrawer({
         catalog,
         isShareMode,
         shareMessage,
-        shareUrl,
       }),
-    [catalog, isShareMode, shareMessage, shareUrl],
+    [catalog, isShareMode, shareMessage],
   );
 
   const secondaryActions = React.useMemo(

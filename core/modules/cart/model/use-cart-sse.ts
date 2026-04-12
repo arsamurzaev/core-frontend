@@ -25,7 +25,6 @@ import { type CartDto } from "@/shared/api/generated/react-query";
 type UseCartSseParams = {
   activeCart: CartDto | null;
   clearStoredPublicAccess: () => void;
-  currentCartId?: string | null;
   handleSseCartStatusChanged: (cart: CartDto, access?: CartPublicAccess | null) => void;
   handleSseCartUpdated: (cart: CartDto, access?: CartPublicAccess | null) => void;
   isHydrated: boolean;
@@ -51,7 +50,6 @@ function getCartItemsFingerprint(cart: CartDto | null | undefined): string | nul
 export function useCartSse({
   activeCart,
   clearStoredPublicAccess,
-  currentCartId,
   handleSseCartStatusChanged,
   handleSseCartUpdated,
   isHydrated,
@@ -76,11 +74,7 @@ export function useCartSse({
       return;
     }
 
-    if (mode === "public") {
-      if (!storedPublicAccess) {
-        return;
-      }
-    } else if (!currentCartId) {
+    if (mode !== "public" || !storedPublicAccess) {
       return;
     }
 
@@ -192,7 +186,6 @@ export function useCartSse({
     };
   }, [
     clearStoredPublicAccess,
-    currentCartId,
     handleSseCartStatusChanged,
     handleSseCartUpdated,
     isHydrated,

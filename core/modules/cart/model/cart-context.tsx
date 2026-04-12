@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   getCartPricingForProduct,
@@ -28,7 +28,6 @@ import { useCartManagerSession } from "@/core/modules/cart/model/use-cart-manage
 import { useCartSse } from "@/core/modules/cart/model/use-cart-sse";
 import { type CartMode } from "@/core/modules/cart/model/cart-constants";
 import {
-  AuthUserDtoRole,
   cartControllerCompleteManagerOrder,
   cartControllerCreateOrGetCurrent,
   cartControllerCreateCheckoutKey,
@@ -45,6 +44,8 @@ import {
   type ProductWithAttributesDto,
 } from "@/shared/api/generated/react-query";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
+import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
+import { useCatalogMode } from "@/shared/lib/catalog-mode";
 import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
@@ -83,6 +84,7 @@ interface CartContextValue {
   mode: CartMode;
   prepareShareOrder: (comment?: string) => Promise<CartSharePayload>;
   publicAccess: CartPublicAccess | null;
+  canShare: boolean;
   quantityByProductId: Record<string, number>;
   shouldUseCartUi: boolean;
   status: CartDto["status"] | null;
@@ -119,6 +121,7 @@ const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   prepareShareOrder: async () => {
     throw new Error("Корзина еще не готова.");
   },
+  canShare: false,
   publicAccess: null,
   quantityByProductId: {},
   shouldUseCartUi: false,
@@ -153,10 +156,6 @@ function normalizeVariantId(variantId?: string | null): string | undefined {
 
   const trimmed = variantId.trim();
   return trimmed || undefined;
-}
-
-function isManagerRole(role?: string | null) {
-  return role === AuthUserDtoRole.ADMIN || role === AuthUserDtoRole.CATALOG;
 }
 
 function formatSharePrice(value: number) {
@@ -538,9 +537,13 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     cart: activeCart,
     fallbackCurrency,
   });
-  const shouldUseCartUi = mode === "public" || (!isSessionLoading && !isAuthenticated);
+  const catalogMode = useCatalogMode();
+  const shouldUseCartUi =
+    catalogMode !== "BROWSE" &&
+    (mode === "public" || (!isSessionLoading && !isAuthenticated));
+  const canShare = shouldUseCartUi && catalogMode === "DELIVERY";
   const isManagedPublicCart =
-    mode === "public" && Boolean(user && isManagerRole(user.role));
+    mode === "public" && Boolean(user && isCatalogManagerRole(user.role));
   const shareCurrency = items[0]?.currency ?? fallbackCurrency;
   const shareTitle = React.useMemo(() => {
     const normalizedCatalogName = catalog.name?.trim();
@@ -660,7 +663,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
         return;
       }
 
-      if (!isManagerRole(user?.role)) {
+      if (!isCatalogManagerRole(user?.role)) {
         void replaceInactiveUserCart(cart, access);
         return;
       }
@@ -824,7 +827,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   useCartSse({
     activeCart,
     clearStoredPublicAccess,
-    currentCartId: currentCart?.id,
     handleSseCartStatusChanged,
     handleSseCartUpdated,
     isHydrated,
@@ -1001,6 +1003,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   const value = React.useMemo<CartContextValue>(
     () => ({
       autoExpandPublicCartAccessKey,
+      canShare,
       cart: activeCart,
       clearCart,
       completeManagedOrder,
@@ -1034,6 +1037,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       activeCartStatus,
       activeCartStatusMessage,
       autoExpandPublicCartAccessKey,
+      canShare,
       clearCart,
       clearStoredPublicAccess,
       completeManagedOrder,

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   formatProductDrawerPrice,
@@ -36,7 +36,7 @@ export function ProductDrawerPrice({
   return (
     <div className="flex gap-4">
       {hasDiscount ? (
-        <div className="text-muted-foreground relative text-xl line-through">
+        <div className="text-muted text-xl line-through">
           {discount > 0 ? (
             <Badge className="absolute top-3 left-0">-{discount}%</Badge>
           ) : null}
@@ -45,7 +45,7 @@ export function ProductDrawerPrice({
         </div>
       ) : null}
 
-      <div className={cn("text-xl", !displayPrice && "hidden")}>
+      <div className={cn("text-xl", !Boolean(displayPrice) && "hidden")}>
         <span className="font-bold">
           {formatProductDrawerPrice(displayPrice)}
         </span>{" "}

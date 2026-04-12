@@ -1,4 +1,4 @@
-import { AuthUserDtoRole } from "@/shared/api/generated/react-query";
+﻿import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import {
   getCurrentSessionServerUncached,
@@ -10,12 +10,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 const CSRF_COOKIE_NAME = "csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
-
-function isAllowedRole(role?: string | null): boolean {
-  return (
-    role === AuthUserDtoRole.ADMIN || role === AuthUserDtoRole.CATALOG
-  );
-}
 
 export async function POST(request: NextRequest) {
   const csrfCookie = request.cookies.get(CSRF_COOKIE_NAME)?.value ?? null;
@@ -31,7 +25,7 @@ export async function POST(request: NextRequest) {
   const session = await getCurrentSessionServerUncached();
   const role = session.authData?.user.role;
 
-  if (!isAllowedRole(role)) {
+  if (!isCatalogManagerRole(role)) {
     return NextResponse.json(
       { message: "Storefront cache может инвалидировать только администратор." },
       { status: 403 },

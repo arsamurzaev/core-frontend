@@ -1,4 +1,4 @@
-import { useProductCardViewMode } from "@/core/modules/product/model/use-product-card-view-mode";
+﻿import { useProductCardViewMode } from "@/core/modules/product/model/use-product-card-view-mode";
 import {
   type CatalogFilterValuePatch,
   useFilterBar,
@@ -28,6 +28,7 @@ interface Props {
   searchTerm?: string;
   filterAction?: ReactNode;
   hideFilter?: boolean;
+  stickySearchMode?: "dialog" | "inline";
   onFilterToggle?: (patch?: CatalogFilterValuePatch) => void;
 }
 
@@ -38,6 +39,7 @@ export const FilterBar: React.FC<Props> = ({
   searchTerm,
   filterAction,
   hideFilter,
+  stickySearchMode = "dialog",
   onFilterToggle,
 }) => {
   const { isDetailed, toggleMode } = useProductCardViewMode();
@@ -63,7 +65,7 @@ export const FilterBar: React.FC<Props> = ({
       )}
     >
       <div className="flex gap-5">
-        {isSticky ? (
+        {isSticky && stickySearchMode === "dialog" ? (
           <>
             {tab}
             <Dialog>

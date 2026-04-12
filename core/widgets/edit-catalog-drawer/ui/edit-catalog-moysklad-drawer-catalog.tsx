@@ -1,21 +1,24 @@
-"use client";
+﻿"use client";
 
+import {
+  normalizeTimeZone,
+  resolveBrowserTimeZone,
+} from "@/core/widgets/edit-catalog-drawer/lib/moysklad-form-state";
+import { DEFAULT_DAILY_SYNC_HOUR } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-schedule";
+import {
+  getStatusBadge,
+  getStatusDescription,
+} from "@/core/widgets/edit-catalog-drawer/lib/moysklad-status";
 import {
   getIntegrationControllerGetMoySkladQueryKey,
   getIntegrationControllerGetMoySkladRunsQueryKey,
   getIntegrationControllerGetMoySkladStatusQueryKey,
-  type MoySkladIntegrationStatusDto,
   type UpdateMoySkladIntegrationDtoReq,
   type UpsertMoySkladIntegrationDtoReq,
   useIntegrationControllerGetMoySkladStatus,
   useIntegrationControllerUpdateMoySklad,
   useIntegrationControllerUpsertMoySklad,
 } from "@/shared/api/generated/react-query";
-import {
-  normalizeTimeZone,
-  resolveBrowserTimeZone,
-} from "@/core/widgets/edit-catalog-drawer/lib/moysklad-form-state";
-import { DEFAULT_DAILY_SYNC_HOUR } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-schedule";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
@@ -39,58 +42,6 @@ type CatalogFormState = {
 };
 
 type ValidationErrors = Partial<Record<"token", string>>;
-
-function formatSyncTimestamp(value?: string | null): string | null {
-  if (!value) return null;
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-
-  return new Intl.DateTimeFormat("ru-RU", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function getStatusBadge(params: {
-  configured: boolean;
-  isActive?: boolean;
-  hasActiveRun: boolean;
-}) {
-  if (params.hasActiveRun) {
-    return { label: "Синхронизация", variant: "default" as const };
-  }
-
-  if (!params.configured) {
-    return { label: "Не настроено", variant: "secondary" as const };
-  }
-
-  if (params.isActive === false) {
-    return { label: "Выключено", variant: "secondary" as const };
-  }
-
-  return { label: "Подключено", variant: "default" as const };
-}
-
-function getStatusDescription(status?: MoySkladIntegrationStatusDto): string {
-  if (!status?.configured) {
-    return "Добавьте токен для подключения.";
-  }
-
-  if (status.activeRun) {
-    return "Сейчас выполняется или ожидает запуска синхронизация.";
-  }
-
-  const lastRunAt =
-    formatSyncTimestamp(status.lastRun?.finishedAt) ??
-    formatSyncTimestamp(status.integration?.lastSyncAt);
-
-  if (lastRunAt) {
-    return `Последний sync: ${lastRunAt}.`;
-  }
-
-  return "Интеграция уже подключена и работает с базовыми настройками.";
-}
 
 async function refreshIntegrationQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -220,7 +171,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
       toast.success(
         isConfigured
           ? "Токен MoySklad обновлён."
-          : "Интеграция MoySklad подключена. Первичный импорт запускается автоматически.",
+          : "Интеграция MoySklad подключена. Первый импорт запустится автоматически.",
       );
       setOpen(false);
     } catch (error) {
@@ -250,17 +201,22 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
         <Button
           type="button"
           variant="ghost"
-          className="h-auto w-full justify-between rounded-2xl border border-black/10 px-4 py-4 text-left hover:bg-muted/30"
+          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
           disabled={disabled}
         >
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-foreground">
                 MoySklad
               </span>
-              <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+              <Badge
+                variant={statusBadge.variant}
+                className="max-w-full break-words text-left whitespace-normal"
+              >
+                {statusBadge.label}
+              </Badge>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
               {statusDescription}
             </p>
           </div>
@@ -272,7 +228,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="MoySklad"
-            description="Вставьте токен, а остальное приложение настроит автоматически."
+            description="Вставьте токен, а остальные базовые настройки приложение включит автоматически."
             withCloseButton={!isBusy}
           />
           <hr />
@@ -280,13 +236,16 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-5">
               <div className="rounded-2xl border border-black/10 bg-muted/15 p-4">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Статус</span>
-                  <Badge variant={statusBadge.variant}>
+                  <Badge
+                    variant={statusBadge.variant}
+                    className="max-w-full break-words text-left whitespace-normal"
+                  >
                     {statusBadge.label}
                   </Badge>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 break-words text-sm text-muted-foreground">
                   {statusDescription}
                 </p>
               </div>
@@ -295,7 +254,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
                 <div className="text-sm font-medium">
                   Что включится по умолчанию
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 break-words text-sm text-muted-foreground">
                   Импорт изображений, синхронизация остатков и ежедневный sync.
                   Часовой пояс берём из браузера, а если он недоступен,
                   используем Москву.
@@ -316,7 +275,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
                     }
                     disabled={isBusy}
                   />
-                  <FieldDescription>
+                  <FieldDescription className="break-words">
                     {isConfigured
                       ? "Если оставить поле пустым, текущий токен сохранится."
                       : "После сохранения первый импорт запустится автоматически."}

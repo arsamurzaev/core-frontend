@@ -1,6 +1,5 @@
-import { type MoySkladIntegrationStatusDto } from "@/shared/api/generated/react-query";
+﻿import { type MoySkladIntegrationStatusDto } from "@/shared/api/generated/react-query";
 import {
-  DEFAULT_DAILY_SYNC_HOUR,
   DEFAULT_SCHEDULE_TIMEZONE,
   parseSchedulePattern,
   type SchedulePreset,

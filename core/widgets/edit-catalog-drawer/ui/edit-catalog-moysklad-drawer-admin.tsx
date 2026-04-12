@@ -1,21 +1,5 @@
-"use client";
+﻿"use client";
 
-import {
-  getIntegrationControllerGetMoySkladQueryKey,
-  getIntegrationControllerGetMoySkladRunsQueryKey,
-  getIntegrationControllerGetMoySkladStatusQueryKey,
-  type MoySkladIntegrationStatusDto,
-  type UpdateMoySkladIntegrationDtoReq,
-  type UpsertMoySkladIntegrationDtoReq,
-  useIntegrationControllerCancelMoySkladSync,
-  useIntegrationControllerGetMoySkladRuns,
-  useIntegrationControllerGetMoySkladStatus,
-  useIntegrationControllerSyncMoySkladCatalog,
-  useIntegrationControllerTestMoySkladConnection,
-  useIntegrationControllerUpdateMoySklad,
-  useIntegrationControllerUpsertMoySklad,
-} from "@/shared/api/generated/react-query";
-import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
   buildMoySkladFormState,
   normalizeTimeZone,
@@ -38,6 +22,22 @@ import {
   getStatusBadge,
   getStatusDescription,
 } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-status";
+import {
+  getIntegrationControllerGetMoySkladQueryKey,
+  getIntegrationControllerGetMoySkladRunsQueryKey,
+  getIntegrationControllerGetMoySkladStatusQueryKey,
+  type MoySkladIntegrationStatusDto,
+  type UpdateMoySkladIntegrationDtoReq,
+  type UpsertMoySkladIntegrationDtoReq,
+  useIntegrationControllerCancelMoySkladSync,
+  useIntegrationControllerGetMoySkladRuns,
+  useIntegrationControllerGetMoySkladStatus,
+  useIntegrationControllerSyncMoySkladCatalog,
+  useIntegrationControllerTestMoySkladConnection,
+  useIntegrationControllerUpdateMoySklad,
+  useIntegrationControllerUpsertMoySklad,
+} from "@/shared/api/generated/react-query";
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -101,8 +101,10 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
   const syncCatalogMutation = useIntegrationControllerSyncMoySkladCatalog();
   const cancelSyncMutation = useIntegrationControllerCancelMoySkladSync();
 
-  const [formState, setFormState] = React.useState<MoySkladFormState>(resolveInitialFormState);
-  const [validationErrors, setValidationErrors] = React.useState<ValidationErrors>({});
+  const [formState, setFormState] =
+    React.useState<MoySkladFormState>(resolveInitialFormState);
+  const [validationErrors, setValidationErrors] =
+    React.useState<ValidationErrors>({});
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
 
@@ -131,6 +133,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
       const preferredTimeZone = normalizeTimeZone(
         nextStatus?.integration?.scheduleTimezone ?? resolveBrowserTimeZone(),
       );
+
       setFormState(buildMoySkladFormState(nextStatus, preferredTimeZone));
       setValidationErrors({});
       setErrorMessage(null);
@@ -141,6 +144,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
       setOpen(nextOpen);
+
       if (nextOpen) {
         resetLocalState(statusQuery.data);
         void statusQuery.refetch();
@@ -157,6 +161,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
     ) => {
       setFormState((prev) => ({ ...prev, [key]: value }));
       setErrorMessage(null);
+
       if (key === "token") {
         setValidationErrors((prev) => ({ ...prev, token: undefined }));
       }
@@ -208,7 +213,10 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
         ? ""
         : !formState.scheduleTouched && formState.legacySchedulePattern
           ? formState.legacySchedulePattern
-          : buildSchedulePattern(formState.schedulePreset, formState.scheduleHour);
+          : buildSchedulePattern(
+              formState.schedulePreset,
+              formState.scheduleHour,
+            );
 
       const commonPayload = {
         isActive: formState.isActive,
@@ -225,12 +233,14 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
           ...commonPayload,
           ...(trimmedToken ? { token: trimmedToken } : {}),
         };
+
         await updateMutation.mutateAsync({ data: payload });
       } else {
         const payload: UpsertMoySkladIntegrationDtoReq = {
           ...commonPayload,
           token: trimmedToken,
         };
+
         await upsertMutation.mutateAsync({ data: payload });
       }
 
@@ -259,11 +269,14 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
   const handleTestConnection = React.useCallback(async () => {
     if (isBusy) return;
+
     const trimmedToken = formState.token.trim();
+
     if (!isConfigured && !trimmedToken) {
       setValidationErrors({ token: "Введите токен MoySklad." });
       return;
     }
+
     try {
       await testConnectionMutation.mutateAsync({
         data: trimmedToken ? { token: trimmedToken } : {},
@@ -278,6 +291,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
   const handleSyncNow = React.useCallback(async () => {
     if (isBusy || !isConfigured) return;
+
     try {
       await syncCatalogMutation.mutateAsync();
       await refreshIntegrationQueries(queryClient);
@@ -291,6 +305,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
   const handleCancelSync = React.useCallback(async () => {
     if (isBusy || !status?.activeRun) return;
+
     try {
       await cancelSyncMutation.mutateAsync();
       await refreshIntegrationQueries(queryClient);
@@ -312,15 +327,24 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
         <Button
           type="button"
           variant="ghost"
-          className="h-auto w-full justify-between rounded-2xl border border-black/10 px-4 py-4 text-left hover:bg-muted/30"
+          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
           disabled={disabled}
         >
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">MoySklad</span>
-              <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-foreground">
+                MoySklad
+              </span>
+              <Badge
+                variant={statusBadge.variant}
+                className="max-w-full break-words text-left whitespace-normal"
+              >
+                {statusBadge.label}
+              </Badge>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">{statusDescription}</p>
+            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+              {statusDescription}
+            </p>
           </div>
           <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
         </Button>
@@ -338,37 +362,65 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-5">
               <div className="rounded-2xl border border-black/10 bg-muted/15 p-4">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Статус</span>
-                  <Badge variant={statusBadge.variant}>{statusBadge.label}</Badge>
+                  <Badge
+                    variant={statusBadge.variant}
+                    className="max-w-full break-words text-left whitespace-normal"
+                  >
+                    {statusBadge.label}
+                  </Badge>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{statusDescription}</p>
+                <p className="mt-2 break-words text-sm text-muted-foreground">
+                  {statusDescription}
+                </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
                   <div className="text-sm font-medium">Текущий запуск</div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {status?.activeRun ? getRunMeta(status.activeRun) : "Сейчас активного запуска нет."}
+                  <p className="mt-2 break-words text-sm text-muted-foreground">
+                    {status?.activeRun
+                      ? getRunMeta(status.activeRun)
+                      : "Сейчас активного запуска нет."}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
                   <div className="text-sm font-medium">Последний результат</div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {status?.lastRun ? getRunSummary(status.lastRun) : "История запусков пока пустая."}
+                  <p className="mt-2 break-words text-sm text-muted-foreground">
+                    {status?.lastRun
+                      ? getRunSummary(status.lastRun)
+                      : "История запусков пока пустая."}
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Button type="button" variant="outline" onClick={() => void handleTestConnection()} disabled={isBusy}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-auto whitespace-normal text-left"
+                  onClick={() => void handleTestConnection()}
+                  disabled={isBusy}
+                >
                   Проверить подключение
                 </Button>
-                <Button type="button" onClick={() => void handleSyncNow()} disabled={isBusy || !isConfigured}>
+                <Button
+                  type="button"
+                  className="h-auto whitespace-normal text-left"
+                  onClick={() => void handleSyncNow()}
+                  disabled={isBusy || !isConfigured}
+                >
                   Запустить sync
                 </Button>
                 {status?.activeRun ? (
-                  <Button type="button" variant="outline" onClick={() => void handleCancelSync()} disabled={isBusy}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-auto whitespace-normal text-left"
+                    onClick={() => void handleCancelSync()}
+                    disabled={isBusy}
+                  >
                     Отменить sync
                   </Button>
                 ) : null}
@@ -389,7 +441,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       }
                       disabled={isBusy}
                     />
-                    <FieldDescription>
+                    <FieldDescription className="break-words">
                       {isConfigured
                         ? "Если оставить поле пустым, текущий токен сохранится."
                         : "Токен нужен для первого подключения и синхронизации."}
@@ -399,17 +451,22 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="moysklad-price-type">Тип цены</FieldLabel>
+                  <FieldLabel htmlFor="moysklad-price-type">
+                    Тип цены
+                  </FieldLabel>
                   <FieldContent>
                     <Input
                       autoComplete="off"
                       value={formState.priceTypeName}
-                      onChange={(e) => setFieldValue("priceTypeName", e.target.value)}
+                      onChange={(e) =>
+                        setFieldValue("priceTypeName", e.target.value)
+                      }
                       placeholder="Цена продажи"
                       disabled={isBusy}
                     />
-                    <FieldDescription>
-                      Оставьте пустым, если хотите использовать стандартный тип цены.
+                    <FieldDescription className="break-words">
+                      Оставьте пустым, если хотите использовать стандартный тип
+                      цены.
                     </FieldDescription>
                   </FieldContent>
                 </Field>
@@ -421,29 +478,39 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     {
                       key: "isActive" as const,
                       title: "Интеграция активна",
-                      description: "Если выключить, sync запускаться не будет.",
+                      description:
+                        "Если выключить, sync запускаться не будет.",
                     },
                     {
                       key: "importImages" as const,
                       title: "Импортировать изображения",
-                      description: "Подтягивать фотографии товаров из MoySklad.",
+                      description:
+                        "Подтягивать фотографии товаров из MoySklad.",
                     },
                     {
                       key: "syncStock" as const,
                       title: "Синхронизировать остатки",
-                      description: "Обновлять наличие товара по данным MoySklad.",
+                      description:
+                        "Обновлять наличие товара по данным MoySklad.",
                     },
                     {
                       key: "scheduleEnabled" as const,
                       title: "Плановый sync",
-                      description: "Запускайте синхронизацию по понятному шаблону без ручного cron.",
+                      description:
+                        "Запускайте синхронизацию по понятному шаблону без ручного cron.",
                     },
-                  ] satisfies { key: keyof MoySkladFormState; title: string; description: string }[]
+                  ] satisfies {
+                    key: keyof MoySkladFormState;
+                    title: string;
+                    description: string;
+                  }[]
                 ).map(({ key, title, description }) => (
-                  <Field key={key} orientation="horizontal">
+                  <Field key={key} orientation="responsive">
                     <FieldContent>
                       <FieldTitle>{title}</FieldTitle>
-                      <FieldDescription>{description}</FieldDescription>
+                      <FieldDescription className="break-words">
+                        {description}
+                      </FieldDescription>
                     </FieldContent>
                     <Switch
                       checked={formState[key] as boolean}
@@ -461,7 +528,9 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     <FieldContent>
                       <Select
                         value={formState.schedulePreset}
-                        onValueChange={(v) => setSchedulePreset(v as SchedulePreset)}
+                        onValueChange={(value) =>
+                          setSchedulePreset(value as SchedulePreset)
+                        }
                         disabled={isBusy}
                       >
                         <SelectTrigger>
@@ -475,7 +544,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                           ))}
                         </SelectContent>
                       </Select>
-                      <FieldDescription>
+                      <FieldDescription className="break-words">
                         {getSchedulePresetDescription(formState.schedulePreset)}
                       </FieldDescription>
                     </FieldContent>
@@ -485,7 +554,11 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     <Field>
                       <FieldLabel>Время запуска</FieldLabel>
                       <FieldContent>
-                        <Select value={formState.scheduleHour} onValueChange={setScheduleHour} disabled={isBusy}>
+                        <Select
+                          value={formState.scheduleHour}
+                          onValueChange={setScheduleHour}
+                          disabled={isBusy}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Выберите время" />
                           </SelectTrigger>
@@ -497,7 +570,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                             ))}
                           </SelectContent>
                         </Select>
-                        <FieldDescription>
+                        <FieldDescription className="break-words">
                           Запуск будет происходить каждый день в выбранный час.
                         </FieldDescription>
                       </FieldContent>
@@ -506,44 +579,65 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
                   <div className="rounded-2xl border border-black/10 bg-background/70 p-3">
                     <div className="text-sm font-medium">Часовой пояс</div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {formState.scheduleTimezone}. Определяем автоматически по браузеру, а если это недоступно, используем Москву.
+                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                      {formState.scheduleTimezone}. Определяем автоматически по
+                      браузеру, а если это недоступно, используем Москву.
                     </p>
                   </div>
 
-                  {formState.legacySchedulePattern && !formState.scheduleTouched ? (
+                  {formState.legacySchedulePattern &&
+                  !formState.scheduleTouched ? (
                     <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-700">
                       Сейчас у интеграции сохранено нестандартное расписание:{" "}
-                      <span className="font-medium">{formState.legacySchedulePattern}</span>.
-                      Пока вы не меняете этот блок, оно сохранится как есть.
+                      <span className="font-medium">
+                        {formState.legacySchedulePattern}
+                      </span>
+                      . Пока вы не меняете этот блок, оно сохранится как есть.
                     </div>
                   ) : null}
                 </div>
               ) : null}
 
               <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Последние запуски</span>
                   {runsQuery.isFetching ? (
-                    <span className="text-xs text-muted-foreground">Обновляем…</span>
+                    <span className="text-xs text-muted-foreground">
+                      Обновляем…
+                    </span>
                   ) : null}
                 </div>
                 <div className="mt-3 space-y-3">
                   {syncHistory.length ? (
                     syncHistory.map((run) => {
                       const badge = getRunStatusBadge(run.status);
+
                       return (
-                        <div key={run.id} className="rounded-2xl border border-black/10 bg-background/70 p-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="text-sm font-medium">{getRunMeta(run)}</span>
-                            <Badge variant={badge.variant}>{badge.label}</Badge>
+                        <div
+                          key={run.id}
+                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <span className="break-words text-sm font-medium">
+                              {getRunMeta(run)}
+                            </span>
+                            <Badge
+                              variant={badge.variant}
+                              className="max-w-full break-words text-left whitespace-normal"
+                            >
+                              {badge.label}
+                            </Badge>
                           </div>
-                          <p className="mt-2 text-sm text-muted-foreground">{getRunSummary(run)}</p>
+                          <p className="mt-2 break-words text-sm text-muted-foreground">
+                            {getRunSummary(run)}
+                          </p>
                         </div>
                       );
                     })
                   ) : (
-                    <p className="text-sm text-muted-foreground">История запусков пока пустая.</p>
+                    <p className="text-sm text-muted-foreground">
+                      История запусков пока пустая.
+                    </p>
                   )}
                 </div>
               </div>
@@ -560,7 +654,9 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
             className="border-t"
             isAutoClose={false}
             loading={isBusy}
-            btnText={isConfigured ? "Сохранить настройки" : "Подключить MoySklad"}
+            btnText={
+              isConfigured ? "Сохранить настройки" : "Подключить MoySklad"
+            }
             handleClick={() => void handleSubmit()}
           />
         </div>

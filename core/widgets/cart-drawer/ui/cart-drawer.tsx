@@ -30,6 +30,7 @@ interface CartDrawerProps {
 export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const {
     autoExpandPublicCartAccessKey,
+    canShare,
     clearCart,
     completeManagedOrder,
     detachPublicCart,
@@ -263,11 +264,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
             </DrawerScrollArea>
 
             <CartDrawerFooter
+              canShare={canShare}
               currency={currency}
               hasDiscount={totals.hasDiscount}
               hasItems={hasItems}
               isBusy={isBusy}
               isManagedPublicCart={isManagedPublicCart}
+              onCollapse={!canShare && !isManagedPublicCart && isFullyExpanded ? () => setSnapPoint(SNAP_POINTS[0]) : undefined}
               onCompleteOrder={handleCompleteOrder}
               onShareClick={() => prepareShareOrder(comment)}
               price={totals.subtotal}
