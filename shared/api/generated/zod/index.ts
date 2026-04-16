@@ -5046,7 +5046,8 @@ export const CartControllerGetCurrentResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5088,7 +5089,8 @@ export const CartControllerShareCurrentResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5137,7 +5139,8 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5183,7 +5186,8 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5229,7 +5233,8 @@ export const CartControllerCreateCheckoutKeyResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5281,7 +5286,8 @@ export const CartControllerGetPublicCartResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5327,7 +5333,8 @@ export const CartControllerStartManagerSessionResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5373,7 +5380,8 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5419,7 +5427,8 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5498,7 +5507,8 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -5549,7 +5559,8 @@ export const CartControllerRemovePublicItemResponse = zod.object({
 })),
   "totals": zod.object({
   "itemsCount": zod.number(),
-  "subtotal": zod.number()
+  "subtotal": zod.number(),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})

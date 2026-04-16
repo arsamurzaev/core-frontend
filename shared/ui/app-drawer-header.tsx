@@ -37,33 +37,42 @@ export const AppDrawerHeader: React.FC<AppDrawerHeaderProps> = ({
   withCloseButton = true,
 }) => {
   return (
-    <DrawerHeader className={cn("gap-y-5 pb-1", className)}>
-      <div
-        className={cn(
-          "grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2",
-          titleClassName,
-        )}
+    <DrawerHeader
+      className={cn(
+        "[&_svg]:text-muted-foreground gap-y-5 [&_svg]:size-6",
+        className,
+      )}
+    >
+      <DrawerTitle
+        className={cn("flex items-center justify-between", titleClassName)}
+        asChild
       >
-        <div className="min-w-0">{trailingTitleNode}</div>
-        <DrawerTitle className="text-center text-2xl font-bold">
-          {title}
-        </DrawerTitle>
-        <div className="flex justify-end">
+        <div>
+          {trailingTitleNode ? (
+            <div className="min-w-0 shrink-0">{trailingTitleNode}</div>
+          ) : (
+            <div className="size-8 shrink-0" />
+          )}
+          <h2 className="flex-1 text-center text-2xl font-bold">{title}</h2>
           {withCloseButton ? (
             <DrawerClose
               className={cn(
-                "text-muted-foreground inline-flex items-center justify-center",
+                "text-muted-foreground inline-flex size-8 shrink-0 items-center justify-center rounded-full",
                 closeButtonClassName,
               )}
             >
-              <X className="size-4" />
+              <X />
               <span className="sr-only">Закрыть</span>
             </DrawerClose>
-          ) : null}
+          ) : (
+            <div className="size-8 shrink-0" />
+          )}
         </div>
-      </div>
+      </DrawerTitle>
 
-      {description ? <DrawerDescription>{description}</DrawerDescription> : null}
+      {description ? (
+        <DrawerDescription>{description}</DrawerDescription>
+      ) : null}
     </DrawerHeader>
   );
 };

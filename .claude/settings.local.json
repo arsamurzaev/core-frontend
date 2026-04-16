@@ -8,7 +8,27 @@
       "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/category-scroll.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/category-scroll.ts\")",
       "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/category-scroll-navigation-dom.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/category-scroll-navigation-dom.ts\")",
       "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/category-scroll-navigation-query.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/category-scroll-navigation-query.ts\")",
-      "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/use-browser-query-state.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/use-browser-query-state.ts\")"
+      "Bash(cp \"c:/Users/krush/Desktop/www/catalog/frontend/core/views/home/model/use-browser-query-state.ts\" \"c:/Users/krush/Desktop/www/catalog/frontend/core/modules/browser/model/use-browser-query-state.ts\")",
+      "Bash(mkdir -p graphify-out)",
+      "Bash(python -c ':*)",
+      "Bash(python -c \"import graphify; print\\(graphify.__version__\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python -c \"import graphify; print\\('OK', graphify.__version__\\)\")",
+      "Bash(python -c \"import graphify; print\\('OK'\\)\")",
+      "Bash(python -c \"import sys; open\\('.graphify_python', 'w'\\).write\\(sys.executable\\)\")",
+      "Read(//c/Users/krush/.claude/plans/**)",
+      "Read(//c/Users/krush/.claude/skills/graphify/**)",
+      "Bash(pip uninstall:*)",
+      "Bash(ls .graphify*)",
+      "Read(//c/Users/krush/**)",
+      "Bash(rm -f \"C:/Users/krush/.claude/skills/graphify/.graphify_version\")",
+      "Bash(rm -rf \"C:/Users/krush/.claude/skills/graphify\")",
+      "Bash(rm -rf \"C:/Users/krush/.claude/graphify-out\")",
+      "Bash(sed -i 's/className=\"mx-auto w-full max-w-2xl\"/className=\"w-full\"/g' core/widgets/edit-catalog-drawer/ui/edit-catalog-drawer.tsx core/widgets/catalog-filter/ui/catalog-filter-drawer.tsx)",
+      "Bash(sed -i 's/contentClassName=\"mx-auto w-full max-w-2xl\"/contentClassName=\"w-full\"/g' core/widgets/edit-product-drawer/ui/edit-product-drawer.tsx)",
+      "Bash(sed -i 's/className=\"mx-auto w-full max-w-2xl\"/className=\"w-full\"/g' core/widgets/edit-product-drawer/ui/edit-product-drawer.tsx)",
+      "Bash(sed -i 's/className=\"mx-auto w-full max-w-xl\"/className=\"w-full\"/g' core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer.tsx core/widgets/edit-catalog-drawer/ui/edit-catalog-moysklad-drawer-admin.tsx core/widgets/edit-catalog-drawer/ui/edit-catalog-moysklad-drawer-catalog.tsx core/widgets/edit-catalog-drawer/ui/edit-catalog-integrations-drawer.tsx core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer.tsx)",
+      "Bash(sed -i 's/className=\"mx-auto w-full max-w-md\"/className=\"w-full\"/g' core/widgets/category-admin/ui/category-reorder-drawer.tsx core/modules/product/editor/ui/create-product-category-editor-drawer.tsx core/modules/product/editor/ui/create-product-category-selection-drawer.tsx core/modules/product/editor/ui/create-product-brand-field.tsx)"
     ]
   }
 }

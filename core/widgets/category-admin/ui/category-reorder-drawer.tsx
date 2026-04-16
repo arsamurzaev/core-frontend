@@ -312,7 +312,7 @@ export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
 }) => {
   return (
     <AppDrawer open={open} onOpenChange={onOpenChange} dismissible={!isSaving}>
-      <AppDrawer.Content className="mx-auto w-full max-w-md">
+      <AppDrawer.Content className="w-full">
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Порядок категорий"

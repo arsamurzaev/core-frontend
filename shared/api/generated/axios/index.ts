@@ -1514,6 +1514,8 @@ export interface CartItemDto {
 export interface CartTotalsDto {
   itemsCount: number;
   subtotal: number;
+  /** Итого к оплате (subtotal с учётом скидок) */
+  total: number;
 }
 
 export interface CartDto {

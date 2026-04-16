@@ -1,5 +1,7 @@
 const DEFAULT_FORWARDED_HOST =
-  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "urban-style.myctlg.ru";
+  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "hayr.myctlg.ru";
+
+// itminot,steepstep,ajwa,memory,samine,samsung95,villari,hayr
 
 function extractHostname(host: string): string {
   const normalizedHost = host.trim().toLowerCase();

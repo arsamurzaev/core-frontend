@@ -64,7 +64,7 @@ export const CartCard: React.FC<CartCardProps> = ({
           sizes="(max-width: 640px) 100px, 150px"
           unoptimized
           alt="Фото товара"
-          className="object-contain"
+          className="object-cover"
         />
       </div>
       <div className="flex h-full items-center p-2 pl-0">

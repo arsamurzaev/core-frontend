@@ -81,14 +81,14 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
       >
         <div
           className={cn(
-            "shadow-custom border-muted mx-auto grid w-full max-w-180 items-center gap-4 rounded-t-lg border p-5 sm:gap-6",
+            "shadow-custom border-muted mx-auto grid w-full max-w-[95%] items-center gap-4 rounded-t-lg border p-5 sm:gap-6",
             isManagedPublicCart || canShare || onCollapse
               ? "grid-cols-[minmax(110px,auto)_minmax(0,1fr)]"
               : "grid-cols-1",
           )}
         >
-          <div className="min-w-[110px]">
-            <h4 className="w-[110px] text-xs">Заказ на сумму</h4>
+          <div className="min-w-27.5">
+            <h4 className="w-27.5 text-xs">Заказ на сумму</h4>
             <h4 className="text-lg font-bold whitespace-nowrap sm:text-xl">
               {formatPrice(price)} {currency}
             </h4>

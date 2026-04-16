@@ -57,7 +57,7 @@ export function CreateProductCategoryEditorDrawer({
 }: CreateProductCategoryEditorDrawerProps) {
   return (
     <AppDrawer open={open} onOpenChange={onOpenChange} dismissible={!disabled}>
-      <AppDrawer.Content className="mx-auto w-full max-w-md">
+      <AppDrawer.Content className="w-full">
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title={title}

@@ -75,7 +75,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
       dismissible={!isBusy}
     >
       {isLoadingProduct || !product ? (
-        <AppDrawer.Content className="mx-auto w-full max-w-2xl">
+        <AppDrawer.Content className="w-full">
           <div className="flex min-h-0 flex-1 flex-col">
             <AppDrawer.Header
               title="Редактор позиции"
@@ -107,7 +107,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
         </AppDrawer.Content>
       ) : (
         <ProductEditorDrawerContent
-          contentClassName="mx-auto w-full max-w-2xl"
+          contentClassName="w-full"
           title="Редактор позиции"
           submitLabel="Сохранить изменения"
           form={form}

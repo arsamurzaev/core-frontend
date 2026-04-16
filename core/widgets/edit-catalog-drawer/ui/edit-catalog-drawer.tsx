@@ -39,7 +39,9 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
       <Button size="sm" variant="outline">
         Редактировать профиль
       </Button>
-    ) : trigger;
+    ) : (
+      trigger
+    );
 
   return (
     <AppDrawer
@@ -48,7 +50,7 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
       dismissible={!isSubmitting}
       trigger={resolvedTrigger}
     >
-      <AppDrawer.Content className="mx-auto w-full max-w-2xl">
+      <AppDrawer.Content className="w-full">
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Редактор профиля"

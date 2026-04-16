@@ -45,7 +45,7 @@ export const EditCatalogContactsDrawer: React.FC<
         </Button>
       }
     >
-      <AppDrawer.Content className="mx-auto w-full max-w-xl">
+      <AppDrawer.Content className="w-full">
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Контакты"

@@ -103,7 +103,9 @@ function DrawerScrollArea({
   );
 }
 
-interface DrawerContentProps extends React.ComponentProps<typeof DrawerPrimitive.Content> {
+interface DrawerContentProps extends React.ComponentProps<
+  typeof DrawerPrimitive.Content
+> {
   handleClassName?: string;
   handleWrapperClassName?: string;
   hideHandle?: boolean;
@@ -138,6 +140,7 @@ function DrawerContent({
           // bottom
           "data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0",
           "data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t",
+          "data-[vaul-drawer-direction=bottom]:max-w-180 data-[vaul-drawer-direction=bottom]:mx-auto",
 
           // right
           "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0",
@@ -178,7 +181,7 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="drawer-header"
       className={cn(
-        "shrink-0 p-4",
+        "shrink-0 p-4 pt-0",
         "flex flex-col gap-0.5 md:gap-1.5",
         "group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center",
         "group-data-[vaul-drawer-direction=top]/drawer-content:text-center",

@@ -2,6 +2,12 @@
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
+import {
+  DrawerClose,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/shared/ui/drawer";
 import { CartIcon } from "@/shared/ui/icons/cart-icon";
 import { Trash2, X } from "lucide-react";
 import React from "react";
@@ -12,7 +18,6 @@ interface CartDrawerHeaderProps {
   hasAction: boolean;
   hasDiscount: boolean;
   onActionClick: () => void;
-  onCollapse: () => void;
   price: number;
   setSnapPoint: (snapPoint: number | string) => void;
   snapPoint: number | string | null;
@@ -30,7 +35,6 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
   hasAction,
   hasDiscount,
   onActionClick,
-  onCollapse,
   price,
   setSnapPoint,
   snapPoint,
@@ -38,7 +42,10 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
   totalQuantity,
 }) => {
   return (
-    <div className="grid gap-1.5 px-4">
+    <DrawerHeader className="grid gap-1.5 px-4 py-0">
+      <DrawerTitle className="sr-only">
+        {"\u041a\u043e\u0440\u0437\u0438\u043d\u0430"}
+      </DrawerTitle>
       <div className={cn(className)}>
         <Button
           type="button"
@@ -96,18 +103,20 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
 
           <h3 className="sm:text-2xl">Корзина</h3>
 
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-5 w-5"
-            size="icon"
-            onClick={onCollapse}
-            aria-label="Свернуть корзину"
-          >
-            <X className="text-muted" />
-          </Button>
+          <DrawerClose asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-5 w-5"
+              size="icon"
+              aria-label="Свернуть корзину"
+            >
+              <X className="text-muted" />
+            </Button>
+          </DrawerClose>
         </div>
       </div>
-    </div>
+      <DrawerDescription className="sr-only">Корзина</DrawerDescription>
+    </DrawerHeader>
   );
 };

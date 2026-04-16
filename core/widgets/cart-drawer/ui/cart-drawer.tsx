@@ -10,7 +10,7 @@ import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { confirm } from "@/shared/ui/confirmation";
-import { DrawerScrollArea, DrawerTitle } from "@/shared/ui/drawer";
+import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
@@ -226,21 +226,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
           <AppDrawer.Content
             hideOverlay
             handleWrapperClassName="pt-0"
-            handleClassName="mx-auto mt-2 h-1 w-[50px] rounded-full bg-[#EBEBF0]"
+            handleClassName="mx-auto mt-2 h-1 w-[50px] rounded-full bg-muted"
             className={cn(
               "shadow-custom bg-background fixed inset-x-0 bottom-0 z-30 mx-auto mt-24 flex h-full max-h-[94%] max-w-180 flex-col rounded-t-2xl border pb-0 focus:outline-none",
               "max-h-[calc(100%-25px)] w-[98%] transition-all",
               snapPoint === 1 && "w-full",
             )}
           >
-            <DrawerTitle className="sr-only">Корзина</DrawerTitle>
-
             <CartDrawerHeader
               currency={currency}
               hasAction={!isManagedPublicCart && (isPublicMode || hasItems)}
               hasDiscount={totals.hasDiscount}
               onActionClick={() => void handleHeaderAction()}
-              onCollapse={() => setSnapPoint(SNAP_POINTS[0])}
               price={totals.subtotal}
               setSnapPoint={setSnapPoint}
               snapPoint={snapPoint}

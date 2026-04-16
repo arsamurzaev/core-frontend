@@ -47,7 +47,7 @@ const AppDrawerContent: React.FC<
   React.ComponentProps<typeof DrawerContent>
 > = ({ className, children, ...props }) => {
   return (
-    <DrawerContent className={cn(className)} {...props}>
+    <DrawerContent className={cn("mx-auto w-full max-w-180", className)} {...props}>
       {children}
     </DrawerContent>
   );

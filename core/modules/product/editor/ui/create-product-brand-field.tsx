@@ -95,7 +95,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
         }}
         dismissible={!isControlDisabled}
       >
-        <AppDrawer.Content className="mx-auto w-full max-w-md">
+        <AppDrawer.Content className="w-full">
           <div className="flex min-h-0 flex-1 flex-col">
             <AppDrawer.Header
               title="Выбор бренда"
@@ -228,7 +228,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
         onOpenChange={handleEditOpenChange}
         dismissible={!updateBrand.isPending}
       >
-        <AppDrawer.Content className="mx-auto w-full max-w-md">
+        <AppDrawer.Content className="w-full">
           <div className="flex min-h-0 flex-1 flex-col">
             <AppDrawer.Header
               title="Редактор бренда"
