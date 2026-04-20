@@ -11,11 +11,8 @@ import { calculatePrice } from "@/shared/lib/calculate-price";
 
 const FALLBACK_IMAGE_URL = "/not-found-photo.png";
 
-function resolveCartItemImageUrl(item: CartItemDto): string {
-  const media = item.product.media?.[0]?.media;
-  if (!media) return FALLBACK_IMAGE_URL;
-  const thumbVariant = media.variants.find((v) => v.kind?.startsWith("thumb"));
-  return thumbVariant?.url ?? media.url ?? FALLBACK_IMAGE_URL;
+function resolveCartItemImageUrl(): string {
+  return FALLBACK_IMAGE_URL;
 }
 
 type CartProductLike = ProductWithAttributesDto | ProductWithDetailsDto;
@@ -100,7 +97,7 @@ export function buildCartItemView(params: {
       displayLineTotal: item.lineTotal,
       hasDiscount: false,
       id: item.id,
-      imageUrl: resolveCartItemImageUrl(item),
+      imageUrl: resolveCartItemImageUrl(),
       name: item.product.name,
       originalLineTotal: item.lineTotal,
       product: undefined,
