@@ -81,19 +81,17 @@ export function ProductDrawerImageCarousel({
         ))}
       </CarouselContent>
 
-      {imageUrls.length > 1 ? (
-        <ul className="flex justify-center gap-1 px-4 pb-1">
-          {imageUrls.map((_, index) => (
-            <li
-              key={index}
-              className={cn(
-                "bg-secondary h-2 w-2 rounded-full transition-colors",
-                currentIndex === index && "bg-primary",
-              )}
-            />
-          ))}
-        </ul>
-      ) : null}
+      <ul className="flex justify-center min-h-2 gap-1 px-4 pb-1">
+        {imageUrls.map((_, index) => (
+          <li
+            key={index}
+            className={cn(
+              "bg-secondary size-2 rounded-full transition-colors",
+              currentIndex === index && "bg-primary",
+            )}
+          />
+        ))}
+      </ul>
     </Carousel>
   );
 }

@@ -1,7 +1,7 @@
-import { getCurrentCatalogServer, resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import {
-  buildCatalogMetadata,
-} from "@/shared/lib/catalog-seo";
+  getCurrentCatalogServer,
+  resolveServerForwardedHost,
+} from "@/shared/api/server/get-current-catalog";
 import {
   buildProductMetadata,
   getProductStructuredData,
@@ -19,9 +19,48 @@ export function normalizeProductSlug(slug: string): string {
   }
 }
 
+function resolveMetadataBaseUrl(
+  forwardedHost: string,
+  domain: string | null | undefined,
+): URL {
+  const resolvedHost = (domain ?? forwardedHost).trim();
+  return new URL(
+    /^https?:\/\//i.test(resolvedHost) ? resolvedHost : `https://${resolvedHost}`,
+  );
+}
+
+function buildGenericProductMetadata(
+  productSlug: string,
+  forwardedHost: string,
+  domain: string | null | undefined,
+): Metadata {
+  const metadataBase = resolveMetadataBaseUrl(forwardedHost, domain);
+  const fallbackTitle =
+    productSlug
+      .split(/[-_]+/g)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .join(" ") || "Товар";
+
+  return {
+    metadataBase,
+    title: {
+      absolute: fallbackTitle,
+    },
+    description: `${fallbackTitle} в каталоге`,
+    alternates: {
+      canonical: new URL(
+        `/product/${encodeURIComponent(productSlug)}`,
+        metadataBase,
+      ).toString(),
+    },
+  };
+}
+
 export const getProductPageDataServer = cache(async (productSlug: string) => {
   const product = await getProductBySlugServer(productSlug);
-  const seo = product ? await getProductSeoByIdServer(product.id) : null;
+  const seo =
+    product?.seo ?? (product ? await getProductSeoByIdServer(product.id) : null);
 
   return {
     product,
@@ -50,7 +89,11 @@ export async function generateProductPageMetadata(
   }
 
   if (!product) {
-    return buildCatalogMetadata(catalog, forwardedHost);
+    return buildGenericProductMetadata(
+      productSlug,
+      forwardedHost,
+      catalog.domain,
+    );
   }
 
   return buildProductMetadata({

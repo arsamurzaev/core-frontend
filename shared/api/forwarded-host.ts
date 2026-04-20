@@ -1,5 +1,5 @@
 const DEFAULT_FORWARDED_HOST =
-  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "hayr.myctlg.ru";
+  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "econom.test.myctlg.ru";
 
 // itminot,steepstep,ajwa,memory,samine,samsung95,villari,hayr
 
@@ -32,10 +32,7 @@ export function normalizeForwardedHost(host: string | null): string | null {
 
   const normalizedHost = host.trim();
 
-  if (
-    process.env.NODE_ENV === "development" ||
-    isLocalRequestHost(normalizedHost)
-  ) {
+  if (isLocalRequestHost(normalizedHost)) {
     return DEFAULT_FORWARDED_HOST;
   }
 

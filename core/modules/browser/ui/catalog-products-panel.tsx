@@ -72,7 +72,10 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
     !isFilterActive && isCategoriesLoading && categories.length === 0;
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={{ overflowAnchor: isProgrammaticScroll ? "none" : undefined }}
+    >
       <div className={cn(contentClassName, collapsed && "h-0")}>
         {isFilterActive ? (
           <FilterProducts queryState={queryState} />
@@ -91,8 +94,9 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
                 sectionId={getCategorySectionId(category.id)}
                 initiallyActivated={index === 0}
                 forceActivation={
-                  programmaticScrollTargetId === category.id ||
-                  activeCategoryId === category.id
+                  isProgrammaticScroll
+                    ? programmaticScrollTargetId === category.id
+                    : activeCategoryId === category.id
                 }
                 allowActivation={
                   !isProgrammaticScroll ||

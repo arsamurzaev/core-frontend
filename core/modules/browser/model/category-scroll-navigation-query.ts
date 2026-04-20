@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  CategoryProductsCardPageDto,
   categoryControllerGetProductCardsByCategory,
 } from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
@@ -52,13 +51,24 @@ export async function prefetchCategoryFirstPage(params: {
 
   await queryClient.prefetchInfiniteQuery({
     queryKey: getCategoryProductsQueryKey(categoryId, pageSize),
-    queryFn: ({ pageParam }) =>
-      categoryControllerGetProductCardsByCategory(categoryId, {
+    queryFn: async ({ pageParam }) => {
+      const page = await categoryControllerGetProductCardsByCategory(categoryId, {
         cursor: pageParam as string | undefined,
         limit: pageSize,
-      }),
+      });
+
+      return {
+        nextCursor: page.nextCursor,
+        items: page.items.map(({ productId, product, position }) => ({
+          categoryId,
+          categoryPosition: position,
+          key: productId ?? product.id,
+          product,
+        })),
+      };
+    },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage: CategoryProductsCardPageDto) =>
+    getNextPageParam: (lastPage: { nextCursor: string | null }) =>
       lastPage.nextCursor ?? undefined,
   });
 }

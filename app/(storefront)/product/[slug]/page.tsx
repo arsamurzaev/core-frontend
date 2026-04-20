@@ -16,6 +16,7 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
+
   return generateProductPageMetadata(normalizeProductSlug(slug));
 }
 

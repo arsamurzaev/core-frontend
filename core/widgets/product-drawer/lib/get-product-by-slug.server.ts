@@ -4,6 +4,45 @@ import { ProductControllerGetBySlugResponse } from "@/shared/api/generated/zod";
 import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import { cookies } from "next/headers";
 
+function normalizeSeoSitemapPriority<T>(value: T): T {
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  const record = value as Record<string, unknown>;
+  const rawPriority = record.sitemapPriority;
+
+  if (typeof rawPriority !== "string") {
+    return value;
+  }
+
+  const parsedPriority = Number(rawPriority);
+
+  return {
+    ...record,
+    sitemapPriority: Number.isFinite(parsedPriority) ? parsedPriority : null,
+  } as T;
+}
+
+function normalizeProductResponse(
+  value: unknown,
+): unknown {
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  if (!("seo" in record)) {
+    return value;
+  }
+
+  return {
+    ...record,
+    seo: normalizeSeoSitemapPriority(record.seo),
+  };
+}
+
 export async function getProductBySlugServer(
   slug: string,
 ): Promise<ProductWithDetailsDto | null> {
@@ -23,7 +62,9 @@ export async function getProductBySlugServer(
       },
     });
 
-    const parsed = ProductControllerGetBySlugResponse.safeParse(response);
+    const parsed = ProductControllerGetBySlugResponse.safeParse(
+      normalizeProductResponse(response),
+    );
     if (!parsed.success) {
       return null;
     }

@@ -251,7 +251,9 @@ export function buildProductMetadata(params: {
 
   return {
     metadataBase,
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     keywords: normalizeKeywords(seo?.keywords),
     robots:

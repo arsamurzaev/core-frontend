@@ -59,7 +59,7 @@ export const FilterBar: React.FC<Props> = ({
       id="catalog-filter-bar"
       ref={stickyRef}
       className={cn(
-        "sticky top-0 z-20 rounded-b-2xl bg-white p-0 transition-all",
+        "sticky top-0 z-20 rounded-b-2xl bg-white p-0 transition-shadow duration-200 ease-out",
         isSticky && "-mx-2.5 p-4 shadow-custom",
         className,
       )}

@@ -180,32 +180,33 @@ export function useCategoryScrollNavigation({
 
   React.useEffect(() => {
     if (categories.length === 0) {
+      activeCategoryIdRef.current = null;
       setActiveCategoryId(null);
       resetProgrammaticScrollState();
       return;
     }
 
-    setActiveCategoryId((previousValue) => {
-      if (
-        previousValue &&
-        categories.some((category) => category.id === previousValue)
-      ) {
-        return previousValue;
-      }
+    const categoryIdSet = new Set(categories.map((category) => category.id));
+    const nextActiveCategoryId =
+      activeCategoryIdRef.current &&
+      categoryIdSet.has(activeCategoryIdRef.current)
+        ? activeCategoryIdRef.current
+        : categories[0]?.id ?? null;
+    const nextPendingCategoryId =
+      pendingScrollCategoryIdRef.current &&
+      categoryIdSet.has(pendingScrollCategoryIdRef.current)
+        ? pendingScrollCategoryIdRef.current
+        : null;
 
-      return categories[0].id;
-    });
+    activeCategoryIdRef.current = nextActiveCategoryId;
+    setActiveCategoryId(nextActiveCategoryId);
+    pendingScrollCategoryIdRef.current = nextPendingCategoryId;
+    setPendingScrollCategoryId(nextPendingCategoryId);
 
-    setPendingScrollCategoryId((previousValue) => {
-      if (
-        previousValue &&
-        categories.some((category) => category.id === previousValue)
-      ) {
-        return previousValue;
-      }
-
-      return null;
-    });
+    const targetId = programmaticScrollTargetIdRef.current;
+    if (targetId && !categoryIdSet.has(targetId)) {
+      resetProgrammaticScrollState();
+    }
   }, [categories, resetProgrammaticScrollState]);
 
   const alignCategorySection = React.useCallback(
@@ -238,11 +239,19 @@ export function useCategoryScrollNavigation({
     (targetId: string): boolean => {
       return isCategoryProgrammaticTargetReached({
         categoryIds,
-        currentActiveCategoryId: activeCategoryIdRef.current,
         targetId,
       });
     },
     [categoryIds],
+  );
+
+  const isCategoryActiveAtLine = React.useCallback(
+    (categoryId: string): boolean => {
+      const lineY = getActiveCategoryLineY();
+
+      return resolveActiveCategoryByLine(lineY) === categoryId;
+    },
+    [resolveActiveCategoryByLine],
   );
 
   const syncActiveCategoryByViewport = React.useCallback(() => {
@@ -348,23 +357,23 @@ export function useCategoryScrollNavigation({
         return;
       }
 
-      void alignCategorySection(
-        targetId,
-        "auto",
-        PROGRAMMATIC_SCROLL_MIN_ALIGN_DELTA_PX,
-      );
-
       activeCategoryIdRef.current = targetId;
       setActiveCategoryId(targetId);
       resetProgrammaticScrollState();
       scheduleSyncActiveCategoryByViewport();
     },
-    [
-      alignCategorySection,
-      resetProgrammaticScrollState,
-      scheduleSyncActiveCategoryByViewport,
-    ],
+    [resetProgrammaticScrollState, scheduleSyncActiveCategoryByViewport],
   );
+
+  const abortProgrammaticScroll = React.useCallback(() => {
+    resetProgrammaticScrollState();
+    syncActiveCategoryByViewport();
+    scheduleSyncActiveCategoryByViewport();
+  }, [
+    resetProgrammaticScrollState,
+    scheduleSyncActiveCategoryByViewport,
+    syncActiveCategoryByViewport,
+  ]);
 
   const scheduleProgrammaticScrollSettle = React.useCallback(() => {
     clearProgrammaticScrollSettle();
@@ -389,18 +398,7 @@ export function useCategoryScrollNavigation({
 
         if (firstPageState !== "loaded") {
           if (firstPageState === "error") {
-            releaseProgrammaticScrollLock(targetId);
-            return;
-          }
-
-          const alignResult = alignCategorySection(
-            targetId,
-            "auto",
-            PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX,
-          );
-
-          if (!alignResult.found) {
-            releaseProgrammaticScrollLock(targetId);
+            abortProgrammaticScroll();
             return;
           }
 
@@ -408,7 +406,7 @@ export function useCategoryScrollNavigation({
             programmaticScrollSettleAttemptsRef.current >=
             PROGRAMMATIC_SCROLL_MAX_WAIT_FOR_DATA_ATTEMPTS
           ) {
-            releaseProgrammaticScrollLock(targetId);
+            abortProgrammaticScroll();
             return;
           }
 
@@ -422,6 +420,12 @@ export function useCategoryScrollNavigation({
 
         programmaticScrollRequiresFirstPageRef.current = false;
         programmaticScrollSettleAttemptsRef.current = 0;
+        setProgrammaticScrollTargetId(targetId);
+        programmaticScrollSettleTimerRef.current = window.setTimeout(
+          runAttempt,
+          0,
+        );
+        return;
       }
 
       if (isProgrammaticTargetReached(targetId)) {
@@ -457,6 +461,7 @@ export function useCategoryScrollNavigation({
     );
   }, [
     alignCategorySection,
+    abortProgrammaticScroll,
     clearProgrammaticScrollSettle,
     getProgrammaticScrollSettleDelay,
     getCategoryFirstPageStatus,
@@ -466,18 +471,31 @@ export function useCategoryScrollNavigation({
 
   const handleCategoryBarClick = React.useCallback(
     (item: { id: string }) => {
+      if (!isCatalogViewEnabled || !categoryIds.includes(item.id)) {
+        return;
+      }
+
+      if (
+        activeCategoryIdRef.current === item.id &&
+        isCategoryActiveAtLine(item.id)
+      ) {
+        resetProgrammaticScrollState();
+        scheduleSyncActiveCategoryByViewport();
+        return;
+      }
+
       activeCategoryIdRef.current = item.id;
       setActiveCategoryId(item.id);
       pendingScrollCategoryIdRef.current = item.id;
       setPendingScrollCategoryId(item.id);
       programmaticScrollTargetIdRef.current = item.id;
-      setProgrammaticScrollTargetId(item.id);
       programmaticScrollSettleAttemptsRef.current = 0;
       programmaticScrollLockRef.current = true;
       setIsProgrammaticScrollLocked(true);
       startProgrammaticScrollFpsTracking();
 
       const hasWarmData = hasLoadedCategoryFirstPage(item.id);
+      setProgrammaticScrollTargetId(hasWarmData ? item.id : null);
       programmaticScrollRequiresFirstPageRef.current = !hasWarmData;
 
       if (!hasWarmData) {
@@ -487,6 +505,10 @@ export function useCategoryScrollNavigation({
           queryClient,
         })
           .catch(() => undefined);
+
+        scheduleSyncActiveCategoryByViewport();
+        scheduleProgrammaticScrollSettle();
+        return;
       }
 
       const alignResult = alignCategorySection(
@@ -506,7 +528,10 @@ export function useCategoryScrollNavigation({
     },
     [
       alignCategorySection,
+      categoryIds,
       hasLoadedCategoryFirstPage,
+      isCatalogViewEnabled,
+      isCategoryActiveAtLine,
       pageSize,
       queryClient,
       resetProgrammaticScrollState,

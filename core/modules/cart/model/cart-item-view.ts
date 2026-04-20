@@ -11,6 +11,13 @@ import { calculatePrice } from "@/shared/lib/calculate-price";
 
 const FALLBACK_IMAGE_URL = "/not-found-photo.png";
 
+function resolveCartItemImageUrl(item: CartItemDto): string {
+  const media = item.product.media?.[0]?.media;
+  if (!media) return FALLBACK_IMAGE_URL;
+  const thumbVariant = media.variants.find((v) => v.kind?.startsWith("thumb"));
+  return thumbVariant?.url ?? media.url ?? FALLBACK_IMAGE_URL;
+}
+
 type CartProductLike = ProductWithAttributesDto | ProductWithDetailsDto;
 
 export interface CartPricingView {
@@ -93,7 +100,7 @@ export function buildCartItemView(params: {
       displayLineTotal: item.lineTotal,
       hasDiscount: false,
       id: item.id,
-      imageUrl: FALLBACK_IMAGE_URL,
+      imageUrl: resolveCartItemImageUrl(item),
       name: item.product.name,
       originalLineTotal: item.lineTotal,
       product: undefined,

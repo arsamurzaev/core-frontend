@@ -33,6 +33,7 @@ export function useFilterBar({
   searchTerm,
 }: UseFilterBarParams) {
   const stickyRef = React.useRef<HTMLDivElement>(null);
+  const stickyFrameRef = React.useRef<number | null>(null);
   const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
@@ -43,23 +44,42 @@ export function useFilterBar({
     const stickyTopOffset = 8;
 
     const updateStickyState = () => {
+      stickyFrameRef.current = null;
+
       const node = stickyRef.current;
       if (!node) {
         return;
       }
 
       const top = node.getBoundingClientRect().top;
-      setIsSticky(top <= stickyTopOffset);
+      const nextIsSticky = top <= stickyTopOffset;
+
+      setIsSticky((previousValue) =>
+        previousValue === nextIsSticky ? previousValue : nextIsSticky,
+      );
+    };
+
+    const scheduleStickyStateUpdate = () => {
+      if (stickyFrameRef.current !== null) {
+        return;
+      }
+
+      stickyFrameRef.current = window.requestAnimationFrame(updateStickyState);
     };
 
     updateStickyState();
 
-    window.addEventListener("scroll", updateStickyState, { passive: true });
-    window.addEventListener("resize", updateStickyState);
+    window.addEventListener("scroll", scheduleStickyStateUpdate, { passive: true });
+    window.addEventListener("resize", scheduleStickyStateUpdate);
 
     return () => {
-      window.removeEventListener("scroll", updateStickyState);
-      window.removeEventListener("resize", updateStickyState);
+      window.removeEventListener("scroll", scheduleStickyStateUpdate);
+      window.removeEventListener("resize", scheduleStickyStateUpdate);
+
+      if (stickyFrameRef.current !== null) {
+        window.cancelAnimationFrame(stickyFrameRef.current);
+        stickyFrameRef.current = null;
+      }
     };
   }, []);
 

@@ -3,12 +3,6 @@
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
-import {
-  Carousel,
-  CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from "@/shared/ui/carousel";
 import React from "react";
 
 export type CategoryBarItem = {
@@ -31,7 +25,9 @@ export const CategoryBarList: React.FC<Props> = ({
   activeCategoryId,
   onCategoryClick,
 }) => {
-  const [api, setApi] = React.useState<CarouselApi | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const itemRefsRef = React.useRef(new Map<string, HTMLButtonElement>());
+  const scrollFrameRef = React.useRef<number | null>(null);
   const skeletonWidths = React.useMemo(
     () => ["w-16", "w-24", "w-20", "w-28", "w-[4.5rem]", "w-[5.5rem]"],
     [],
@@ -43,12 +39,54 @@ export const CategoryBarList: React.FC<Props> = ({
   );
 
   React.useEffect(() => {
-    if (!api || activeIndex < 0) {
+    if (!activeCategoryId || activeIndex < 0) {
       return;
     }
 
-    api.scrollTo(activeIndex);
-  }, [activeIndex, api]);
+    if (scrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(scrollFrameRef.current);
+    }
+
+    scrollFrameRef.current = window.requestAnimationFrame(() => {
+      scrollFrameRef.current = null;
+      const container = scrollContainerRef.current;
+      const activeItem = itemRefsRef.current.get(activeCategoryId);
+
+      if (!container || !activeItem) {
+        return;
+      }
+
+      const containerRect = container.getBoundingClientRect();
+      const activeItemRect = activeItem.getBoundingClientRect();
+      const scrollPadding = 8;
+      const leftOverflow =
+        activeItemRect.left - containerRect.left - scrollPadding;
+      const rightOverflow =
+        activeItemRect.right - containerRect.right + scrollPadding;
+
+      if (leftOverflow < 0) {
+        container.scrollTo({
+          left: container.scrollLeft + leftOverflow,
+          behavior: "auto",
+        });
+        return;
+      }
+
+      if (rightOverflow > 0) {
+        container.scrollTo({
+          left: container.scrollLeft + rightOverflow,
+          behavior: "auto",
+        });
+      }
+    });
+
+    return () => {
+      if (scrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+    };
+  }, [activeCategoryId, activeIndex]);
 
   if (isLoading && items.length === 0) {
     return (
@@ -70,33 +108,38 @@ export const CategoryBarList: React.FC<Props> = ({
   }
 
   return (
-    <Carousel
-      setApi={setApi}
-      opts={{
-        align: "start",
-        dragFree: true,
-        containScroll: "trimSnaps",
-      }}
-      className={cn("w-full", className)}
+    <div
+      ref={scrollContainerRef}
+      className={cn(
+        "w-full overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        className,
+      )}
     >
-      <CarouselContent className="-ml-2">
+      <div className="flex w-max gap-2">
         {items.map((item, index) => {
           const isActive = activeIndex === index;
 
           return (
-            <CarouselItem key={item.id} className="basis-auto pl-2">
-              <Button
-                type="button"
-                variant={isActive ? "default" : "secondary"}
-                className="h-9 w-fit rounded-full px-4 py-2 text-sm"
-                onClick={() => onCategoryClick?.(item, index)}
-              >
-                {item.name}
-              </Button>
-            </CarouselItem>
+            <Button
+              key={item.id}
+              ref={(node) => {
+                if (node) {
+                  itemRefsRef.current.set(item.id, node);
+                  return;
+                }
+
+                itemRefsRef.current.delete(item.id);
+              }}
+              type="button"
+              variant={isActive ? "default" : "secondary"}
+              className="h-9 w-fit shrink-0 rounded-full px-4 py-2 text-sm"
+              onClick={() => onCategoryClick?.(item, index)}
+            >
+              {item.name}
+            </Button>
           );
         })}
-      </CarouselContent>
-    </Carousel>
+      </div>
+    </div>
   );
 };

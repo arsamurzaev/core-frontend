@@ -7,6 +7,28 @@ import { SeoControllerGetByEntityResponse } from "@/shared/api/generated/zod";
 import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import { cookies } from "next/headers";
 
+function normalizeSeoResponse(
+  value: unknown,
+): unknown {
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  const record = value as Record<string, unknown>;
+  const rawPriority = record.sitemapPriority;
+
+  if (typeof rawPriority !== "string") {
+    return value;
+  }
+
+  const parsedPriority = Number(rawPriority);
+
+  return {
+    ...record,
+    sitemapPriority: Number.isFinite(parsedPriority) ? parsedPriority : null,
+  };
+}
+
 export async function getProductSeoByIdServer(
   productId: string,
 ): Promise<SeoDto | null> {
@@ -26,7 +48,9 @@ export async function getProductSeoByIdServer(
       },
     });
 
-    const parsed = SeoControllerGetByEntityResponse.safeParse(response);
+    const parsed = SeoControllerGetByEntityResponse.safeParse(
+      normalizeSeoResponse(response),
+    );
     if (!parsed.success) {
       return null;
     }

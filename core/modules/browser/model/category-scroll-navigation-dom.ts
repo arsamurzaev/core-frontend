@@ -146,28 +146,25 @@ export function resolveActiveCategoryIdByLine(params: {
 
 export function isCategoryProgrammaticTargetReached(params: {
   categoryIds: string[];
-  currentActiveCategoryId: string | null;
   targetId: string;
 }): boolean {
-  const { categoryIds, currentActiveCategoryId, targetId } = params;
+  const { categoryIds, targetId } = params;
   const lineY = getActiveCategoryLineY();
-  const activeCategoryAtLine = resolveActiveCategoryIdByLine({
-    categoryIds,
-    currentActiveCategoryId,
-    lineY,
-  });
+  const target = document.getElementById(getCategorySectionId(targetId));
 
-  if (activeCategoryAtLine === targetId) {
+  if (!target) {
+    return false;
+  }
+
+  const targetRect = target.getBoundingClientRect();
+  const distanceToLine = Math.abs(targetRect.top - lineY);
+
+  if (distanceToLine <= PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX) {
     return true;
   }
 
   const lastCategoryId = categoryIds[categoryIds.length - 1] ?? null;
   if (targetId !== lastCategoryId) {
-    return false;
-  }
-
-  const target = document.getElementById(getCategorySectionId(targetId));
-  if (!target) {
     return false;
   }
 
@@ -179,12 +176,8 @@ export function isCategoryProgrammaticTargetReached(params: {
     return false;
   }
 
-  const targetRect = target.getBoundingClientRect();
-  const distanceToLine = Math.abs(targetRect.top - lineY);
   const isTargetVisible =
     targetRect.top < window.innerHeight && targetRect.bottom > 0;
 
-  return (
-    distanceToLine <= PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX || isTargetVisible
-  );
+  return isTargetVisible;
 }

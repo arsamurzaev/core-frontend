@@ -1,27 +1,71 @@
 import type { NextConfig } from "next";
 
-function createRemotePattern(urlValue: string) {
-  const url = new URL(urlValue);
+const isDev = process.env.NODE_ENV === "development";
 
-  return {
-    protocol: url.protocol.replace(":", "") as "http" | "https",
-    hostname: url.hostname,
-    ...(url.port ? { port: url.port } : {}),
-    pathname: "/**",
-  };
-}
+const ContentSecurityPolicy = `
+  default-src 'self';
+  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://mc.yandex.ru https://mc.yandex.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' data: blob:
+    https://s3.storage.myctlg.ru
+    https://s3.twcstorage.ru
+    https://*.twcstorage.ru
+    https://mc.yandex.ru https://mc.yandex.com
+    https://*.moysklad.ru;
+  font-src 'self' https://fonts.gstatic.com;
+  connect-src 'self' blob:
+    https://mc.yandex.ru https://mc.yandex.com
+    wss://mc.yandex.ru wss://mc.yandex.com
+    https://s3.storage.myctlg.ru
+    https://s3.twcstorage.ru;
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+  ${isDev ? "" : "upgrade-insecure-requests;"}
+`;
+
+const securityHeaders = [
+  {
+    key: "Content-Security-Policy",
+    value: ContentSecurityPolicy.replace(/\s+/g, " ").trim(),
+  },
+];
 
 const nextConfig: NextConfig = {
+  compress: true,
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
-      createRemotePattern(
-        process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000",
-      ),
       {
         protocol: "https",
-        hostname: "**",
+        hostname: "s3.storage.myctlg.ru",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "s3.twcstorage.ru",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "api.moysklad.ru",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "miniature-prod.moysklad.ru",
+        pathname: "/**",
       },
     ],
+    minimumCacheTTL: 2678400,
   },
 };
 
