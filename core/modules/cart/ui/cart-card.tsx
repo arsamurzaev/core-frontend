@@ -3,7 +3,7 @@
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
 import { Badge } from "@/shared/ui/badge";
 import { cn } from "@/shared/lib/utils";
-import Image from "next/image";
+
 import React from "react";
 
 interface CartCardProps {
@@ -58,13 +58,10 @@ export const CartCard: React.FC<CartCardProps> = ({
       )}
     >
       <div className="relative aspect-[3/4] h-25 sm:h-[150px]">
-        <Image
+        <img
           src={item.imageUrl}
-          fill
-          sizes="(max-width: 640px) 100px, 150px"
-          unoptimized
           alt="Фото товара"
-          className="object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
       </div>
       <div className="flex h-full items-center p-2 pl-0">

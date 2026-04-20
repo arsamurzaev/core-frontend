@@ -11,7 +11,7 @@ import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { ArrowRight } from "lucide-react";
-import Image from "next/image";
+
 import React from "react";
 import { toast } from "sonner";
 
@@ -69,13 +69,10 @@ export const Header: React.FC<Props> = ({ className }) => {
         <div className="-mt-5 flex items-start gap-5">
           <div className="relative">
             <div className="size-27.5 relative overflow-hidden rounded-full border-[0.5px] border-white bg-white shadow-[0_0_6px_0] shadow-black/50 sm:size-35">
-              <Image
+              <img
                 alt=""
                 src={logoMedia?.url || "/default-avatar.png"}
-                fill
-                sizes="(max-width: 640px) 110px, 140px"
-                className="object-contain"
-                unoptimized={Boolean(logoMedia?.url)}
+                className="absolute inset-0 h-full w-full object-contain"
               />
             </div>
             {isAuthenticated ? <LazyEditCatalogDrawerTrigger /> : null}

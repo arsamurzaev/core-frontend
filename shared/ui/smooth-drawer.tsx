@@ -24,7 +24,7 @@ import {
 } from "@/shared/ui/drawer";
 import { Fingerprint } from "lucide-react";
 import { motion } from "motion/react";
-import Image from "next/image";
+
 import Link from "next/link";
 import type * as React from "react";
 
@@ -145,7 +145,7 @@ export default function SmoothDrawer({
               <DrawerTitle className="flex items-center gap-2.5 font-semibold text-2xl tracking-tighter">
                 <motion.div variants={itemVariants as any}>
                   <div className="rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-200 p-1.5 shadow-inner dark:from-zinc-800 dark:to-zinc-900">
-                    <Image alt="Logo" height={32} src="/logo.svg" width={32} />
+                    <img alt="Logo" src="/logo.svg" className="h-8 w-8" />
                   </div>
                 </motion.div>
                 <motion.span variants={itemVariants as any}>

@@ -3,7 +3,7 @@
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Pencil, X } from "lucide-react";
-import NextImage from "next/image";
+
 import React from "react";
 
 export interface ProductImageGridItemProps {
@@ -44,12 +44,9 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
           isReorderMode && !disabled ? "cursor-pointer" : "cursor-default",
         )}
       >
-        <NextImage
+        <img
           src={previewUrl}
           alt={`Изображение ${index + 1}`}
-          width={480}
-          height={640}
-          unoptimized
           className={cn(
             "aspect-[3/4] w-full object-cover transition-opacity",
             isReorderMode && !isSwapCandidate ? "opacity-90" : "opacity-100",

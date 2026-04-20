@@ -3,7 +3,7 @@
 import { type ShareActionItem } from "@/core/widgets/share-drawer/model/share-drawer-types";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
-import Image from "next/image";
+
 
 interface ShareActionTileProps {
   item: ShareActionItem;
@@ -11,13 +11,10 @@ interface ShareActionTileProps {
 
 export function ShareActionTile({ item }: ShareActionTileProps) {
   const content = item.imageSrc ? (
-    <Image
+    <img
       src={item.imageSrc}
-      width={60}
-      height={60}
       className="h-full w-full object-cover"
       alt=""
-      unoptimized={item.unoptimized}
     />
   ) : null;
 

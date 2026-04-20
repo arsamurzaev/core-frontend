@@ -8,7 +8,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/shared/ui/drawer";
-import Image from "next/image";
+
 import Link from "next/link";
 import React from "react";
 
@@ -170,10 +170,8 @@ export const SupportDrawer: React.FC<SupportDrawerProps> = ({
                     rel="noreferrer"
                     aria-label={item.title}
                   >
-                    <Image
+                    <img
                       src={item.imageSrc}
-                      width={60}
-                      height={60}
                       className="h-full w-full object-cover"
                       alt=""
                     />

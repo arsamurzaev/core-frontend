@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/shared/ui/card";
 import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
-import Image from "next/image";
+
 import React from "react";
 import { buildProductCardView } from "../model/product-card-view";
 
@@ -65,11 +65,9 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
     <CardContent className="relative flex-[0_1_160px]">
       <div className="min-w-25">
         <AspectRatio ratio={3 / 4}>
-          <Image
+          <img
             src={imageUrl || "/not-found-photo.png"}
-            fill
-            sizes="(max-width: 640px) 100px, 160px"
-            className="object-contain"
+            className="absolute inset-0 h-full w-full object-contain"
             alt="Карточка товара"
           />
         </AspectRatio>

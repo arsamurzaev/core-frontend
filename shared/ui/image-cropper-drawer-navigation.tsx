@@ -4,7 +4,7 @@ import { type CropperSourceItem } from "@/shared/lib/image-cropper";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import NextImage from "next/image";
+
 import React from "react";
 
 type ImageCropperDrawerNavigationProps = {
@@ -74,12 +74,9 @@ export const ImageCropperDrawerNavigation: React.FC<
                   disabled={isApplying || isSwitching}
                   aria-label={`Выбрать изображение ${index + 1}`}
                 >
-                  <NextImage
+                  <img
                     src={previewUrl}
                     alt={`Изображение ${index + 1}`}
-                    width={48}
-                    height={64}
-                    unoptimized
                     className="h-full w-full object-cover"
                   />
                   {isEdited ? (

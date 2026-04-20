@@ -17,6 +17,7 @@ const ContentSecurityPolicy = `
     https://mc.yandex.ru https://mc.yandex.com
     wss://mc.yandex.ru wss://mc.yandex.com
     https://s3.storage.myctlg.ru
+    http://localhost:*
     https://s3.twcstorage.ru;
   base-uri 'self';
   form-action 'self';
