@@ -100,7 +100,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 }) => {
   const { isDetailed, hasHydrated } = useProductCardViewMode();
   const { isAuthenticated } = useSession();
-  const { quantityByProductId, shouldUseCartUi } = useCart();
+  const { shouldUseCartUi } = useCart();
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [isActivated, setIsActivated] = React.useState(initiallyActivated);
@@ -333,7 +333,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
             className={cn("h-full", isDetailed && "min-h-[160px]")}
             hidePriceWhenFooterAction={shouldUseCartUi}
             footerAction={
-              shouldUseCartUi && (quantityByProductId[product.id] ?? 0) > 0 ? (
+              shouldUseCartUi ? (
                 <CartProductCardFooterAction
                   product={product}
                   isDetailed={isDetailed}
@@ -361,7 +361,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     [
       isAuthenticated,
       isDetailed,
-      quantityByProductId,
       sectionId,
       shouldUseCartUi,
     ],

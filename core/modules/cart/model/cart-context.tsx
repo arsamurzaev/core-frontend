@@ -909,20 +909,18 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     }
 
     if (mode === "public" && storedPublicAccess) {
-      await Promise.all(
-        activeCart.items.map((item) =>
-          removePublicItemMutation.mutateAsync({
-            access: storedPublicAccess,
-            itemId: item.id,
-          }),
-        ),
-      );
+      for (const item of activeCart.items) {
+        await removePublicItemMutation.mutateAsync({
+          access: storedPublicAccess,
+          itemId: item.id,
+        });
+      }
       return;
     }
 
-    await Promise.all(
-      activeCart.items.map((item) => removeCurrentItemMutation.mutateAsync(item.id)),
-    );
+    for (const item of activeCart.items) {
+      await removeCurrentItemMutation.mutateAsync(item.id);
+    }
   }, [
     activeCart,
     mode,

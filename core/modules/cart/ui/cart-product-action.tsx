@@ -11,10 +11,10 @@ interface CartProductActionProps {
   productId: string;
 }
 
-export const CartProductAction: React.FC<CartProductActionProps> = ({
+export const CartProductAction = React.memo(function CartProductAction({
   className,
   productId,
-}) => {
+}: CartProductActionProps) {
   const { handleAdd, isBusy, quantity } = useCartProductControls(productId);
 
   return (
@@ -37,4 +37,4 @@ export const CartProductAction: React.FC<CartProductActionProps> = ({
       {quantity ? <p>{quantity}</p> : <Plus />}
     </Button>
   );
-};
+});

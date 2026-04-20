@@ -13,9 +13,7 @@ interface CartProductCardFooterActionProps {
   product: ProductWithAttributesDto;
 }
 
-export const CartProductCardFooterAction: React.FC<
-  CartProductCardFooterActionProps
-> = ({ className, isDetailed = false, product }) => {
+export const CartProductCardFooterAction = React.memo(function CartProductCardFooterAction({ className, isDetailed = false, product }: CartProductCardFooterActionProps) {
   const pricing = useCartProductPricing(product);
   const { handleDecrement, handleIncrement, isBusy, quantity } =
     useCartProductControls(product.id);
@@ -79,4 +77,4 @@ export const CartProductCardFooterAction: React.FC<
       </button>
     </div>
   );
-};
+});
