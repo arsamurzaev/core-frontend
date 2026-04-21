@@ -11,8 +11,9 @@ interface ErrorProps {
 
 export default function GlobalError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Логирование в систему мониторинга
-    console.error("[GlobalError]", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("[GlobalError]", error);
+    }
     // sendToErrorTracking(error);
   }, [error]);
 

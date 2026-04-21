@@ -6,16 +6,22 @@ import {
 import {
   revalidateStorefrontCacheByHost,
 } from "@/shared/api/server/storefront-cache";
+import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 const CSRF_COOKIE_NAME = "csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 
+function csrfTokensMatch(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
 export async function POST(request: NextRequest) {
   const csrfCookie = request.cookies.get(CSRF_COOKIE_NAME)?.value ?? null;
   const csrfHeader = request.headers.get(CSRF_HEADER_NAME);
 
-  if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+  if (!csrfCookie || !csrfHeader || !csrfTokensMatch(csrfCookie, csrfHeader)) {
     return NextResponse.json(
       { message: "Недостаточно прав для инвалидации storefront cache." },
       { status: 403 },

@@ -328,7 +328,10 @@ export function getCatalogStructuredData(
   }
 
   try {
-    return JSON.stringify(JSON.parse(raw));
+    return JSON.stringify(JSON.parse(raw))
+      .replace(/</g, "\\u003c")
+      .replace(/>/g, "\\u003e")
+      .replace(/&/g, "\\u0026");
   } catch {
     return null;
   }
