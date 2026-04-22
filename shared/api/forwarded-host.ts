@@ -1,5 +1,5 @@
 const DEFAULT_FORWARDED_HOST =
-  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "hayr.myctlg-update.ru";
+  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "hayr.myctlg.ru";
 
 // itminot,steepstep,ajwa,memory,samine,samsung95,villari,hayr
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCartProductPricing } from "@/core/modules/cart/model/cart-context";
+import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
@@ -23,7 +24,18 @@ export const CartProductCardFooterAction = React.memo(function CartProductCardFo
     event.stopPropagation();
   };
 
-  if (!quantity || !pricing) {
+  if (!quantity) {
+    const { displayPrice, currency, hasDiscount } = buildProductCardView(product);
+    if (!displayPrice) return null;
+    return (
+      <p className={cn("text-base font-bold whitespace-nowrap", !hasDiscount && "mt-4", className)}>
+        {Intl.NumberFormat("ru").format(displayPrice)}{" "}
+        <span className="font-normal">{currency}</span>
+      </p>
+    );
+  }
+
+  if (!pricing) {
     return null;
   }
 

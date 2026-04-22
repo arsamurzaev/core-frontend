@@ -90,7 +90,15 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
   const updateCsrfCookie = useCallback(() => {
     const hasCookie = hasCsrfCookie();
-    setCsrfCookiePresent((prev) => (prev === hasCookie ? prev : hasCookie));
+    setCsrfCookiePresent((prev) => {
+      if (hasCookie) return true;
+      // Don't flip true→false based solely on document.cookie:
+      // in production the csrf cookie may be scoped to the API domain
+      // (cross-domain) or be HttpOnly, making it invisible to JS while
+      // still valid. Rely on actual /me 401 responses to clear the session.
+      if (prev === true) return true;
+      return hasCookie;
+    });
     return hasCookie;
   }, []);
 
@@ -134,34 +142,25 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 
   const unauthorized = isUnauthorized(query.error);
   const user =
-    !canRequest || unauthorized || deferInitialAuthQuery
+    unauthorized || deferInitialAuthQuery
       ? null
       : (query.data?.user ?? null);
 
   const status: SessionStatus =
     csrfCookiePresent === null
       ? "loading"
-      : !canRequest
+      : deferInitialAuthQuery
         ? "unauthenticated"
-        : deferInitialAuthQuery
-          ? "unauthenticated"
-          : query.isLoading && !query.data
-          ? "loading"
-          : query.error && !unauthorized
-            ? "error"
-            : user
-              ? "authenticated"
-              : "unauthenticated";
+        : query.isLoading && !query.data
+        ? "loading"
+        : query.error && !unauthorized
+          ? "error"
+          : user
+            ? "authenticated"
+            : "unauthenticated";
 
   const syncSession = useCallback(async () => {
-    const hasCookie = updateCsrfCookie();
-
-    if (!hasCookie) {
-      setDeferInitialAuthQuery(false);
-      queryClient.removeQueries({ queryKey: getAuthControllerMeQueryKey() });
-      return null;
-    }
-
+    updateCsrfCookie();
     setDeferInitialAuthQuery(false);
     await queryClient.invalidateQueries({ queryKey: getAuthControllerMeQueryKey() });
     return query.refetch();
@@ -189,17 +188,15 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       status,
       isLoading:
         csrfCookiePresent === null ||
-        (canRequest && !deferInitialAuthQuery && query.isLoading && !query.data),
+        (!deferInitialAuthQuery && query.isLoading && !query.data),
       isAuthenticated: status === "authenticated",
-      error:
-        !canRequest || unauthorized || deferInitialAuthQuery ? null : query.error,
+      error: unauthorized || deferInitialAuthQuery ? null : query.error,
       refetch: syncSession,
     }),
     [
       user,
       status,
       csrfCookiePresent,
-      canRequest,
       deferInitialAuthQuery,
       query.isLoading,
       query.data,
