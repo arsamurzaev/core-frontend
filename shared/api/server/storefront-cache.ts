@@ -21,6 +21,6 @@ export function getStorefrontCacheTags(forwardedHost: string): string[] {
 
 export function revalidateStorefrontCacheByHost(forwardedHost: string): void {
   for (const tag of getStorefrontCacheTags(forwardedHost)) {
-    revalidateTag(tag);
+    revalidateTag(tag, "max");
   }
 }
