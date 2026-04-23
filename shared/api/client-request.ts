@@ -6,7 +6,9 @@ function normalizeBaseUrl(url: string): string {
 }
 
 export const API_BASE_URL = normalizeBaseUrl(
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000",
+  typeof window === "undefined"
+    ? (process.env.API_BASE_URL ?? "http://localhost:4000")
+    : (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000"),
 );
 export const FORWARDED_HOST_HEADER = "x-forwarded-host";
 
@@ -61,10 +63,10 @@ export function withJsonContentType(
   return { ...headers, "Content-Type": "application/json" };
 }
 
-export function applyForwardedHost(
+export async function applyForwardedHost(
   headers: AxiosHeaders | undefined,
-): AxiosHeaders {
-  const forwardedHost = getForwardedHost();
+): Promise<AxiosHeaders> {
+  const forwardedHost = await getForwardedHost();
   const normalized = AxiosHeaders.from(headers);
 
   if (forwardedHost && !normalized.has(FORWARDED_HOST_HEADER)) {

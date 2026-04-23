@@ -39,11 +39,18 @@ export function normalizeForwardedHost(host: string | null): string | null {
   return normalizedHost;
 }
 
-export function getForwardedHost(): string | null {
+export async function getForwardedHost(): Promise<string | null> {
   if (typeof window === "undefined") {
-    return process.env.NODE_ENV === "development"
-      ? DEFAULT_FORWARDED_HOST
-      : null;
+    if (process.env.NODE_ENV === "development") {
+      return DEFAULT_FORWARDED_HOST;
+    }
+    try {
+      const { headers } = await import("next/headers");
+      const host = (await headers()).get("host");
+      return normalizeForwardedHost(host);
+    } catch {
+      return null;
+    }
   }
 
   return normalizeForwardedHost(window.location.host);

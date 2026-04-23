@@ -25,8 +25,8 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
-axiosClient.interceptors.request.use((config) => {
-  config.headers = applyForwardedHost(config.headers);
+axiosClient.interceptors.request.use(async (config) => {
+  config.headers = await applyForwardedHost(config.headers);
   return config;
 });
 
