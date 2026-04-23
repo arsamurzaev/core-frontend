@@ -103,7 +103,7 @@ export async function streamQueueStatus(
 ): Promise<UploadQueueStatusDto> {
   const url = `${API_BASE_URL}/s3/images/queue/${encodeURIComponent(jobId)}/stream`;
   const headers = new Headers({ Accept: "text/event-stream" });
-  const forwardedHost = getForwardedHost();
+  const forwardedHost = await getForwardedHost();
 
   if (forwardedHost) {
     headers.set(FORWARDED_HOST_HEADER, forwardedHost);

@@ -76,9 +76,9 @@ function toAbsoluteApiUrl(path: string, params?: Record<string, unknown>) {
   return new URL(resolvedPath, API_BASE_URL).toString();
 }
 
-function createSseHeaders() {
+async function createSseHeaders() {
   const headers = new Headers({ Accept: "text/event-stream" });
-  const forwardedHost = getForwardedHost();
+  const forwardedHost = await getForwardedHost();
 
   if (forwardedHost) {
     headers.set(FORWARDED_HOST_HEADER, forwardedHost);
@@ -140,7 +140,7 @@ async function connectCartSse(
   const response = await fetch(url, {
     method: "GET",
     credentials: "include",
-    headers: createSseHeaders(),
+    headers: await createSseHeaders(),
     cache: "no-store",
     signal: options.signal,
   });

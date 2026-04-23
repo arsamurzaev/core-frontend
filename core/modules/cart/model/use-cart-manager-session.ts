@@ -11,8 +11,8 @@ import {
 import {
   API_BASE_URL,
   FORWARDED_HOST_HEADER,
-  getForwardedHost,
 } from "@/shared/api/client";
+import { normalizeForwardedHost } from "@/shared/api/forwarded-host";
 import { withCsrf } from "@/shared/api/client-request";
 import {
   isCartNotFoundError,
@@ -27,7 +27,7 @@ function releaseManagerSessionWithKeepalive(publicKey: string) {
   }
 
   const headers = new Headers(withCsrf());
-  const forwardedHost = getForwardedHost();
+  const forwardedHost = normalizeForwardedHost(window.location.host);
 
   if (forwardedHost) {
     headers.set(FORWARDED_HOST_HEADER, forwardedHost);
