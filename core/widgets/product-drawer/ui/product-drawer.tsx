@@ -8,6 +8,7 @@ import {
 import { useProductDrawerAfterClose } from "@/core/widgets/product-drawer/model/use-product-drawer-after-close";
 import { ProductDetailsPanel } from "@/core/widgets/product-drawer/ui/product-details-panel";
 import {
+  type ProductWithAttributesDto,
   type ProductWithDetailsDto,
   useProductControllerGetBySlug,
 } from "@/shared/api/generated/react-query";
@@ -25,6 +26,7 @@ interface ProductDrawerProps {
   open: boolean;
   productSlug: string;
   initialProduct?: ProductWithDetailsDto | null;
+  previewProduct?: ProductWithAttributesDto | null;
   product?: ProductWithDetailsDto | null;
   className?: string;
   onOpenChange: (open: boolean) => void;
@@ -35,6 +37,7 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   open,
   productSlug,
   initialProduct,
+  previewProduct,
   product,
   className,
   onOpenChange,
@@ -53,16 +56,19 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
     },
   );
   const resolvedProduct = product ?? data ?? initialProduct ?? null;
+  const resolvedPreviewProduct = resolvedProduct ? null : (previewProduct ?? null);
+  const shouldShowSkeleton = isLoading && !resolvedPreviewProduct;
 
   const viewModel = React.useMemo(
     () =>
       buildProductDrawerViewModel({
         catalog,
         isError,
-        isLoading,
+        isLoading: shouldShowSkeleton,
+        previewProduct: resolvedPreviewProduct,
         product: resolvedProduct ?? undefined,
       }),
-    [catalog, isError, isLoading, resolvedProduct],
+    [catalog, isError, resolvedPreviewProduct, resolvedProduct, shouldShowSkeleton],
   );
 
   const handleCloseAnimationEnd = useProductDrawerAfterClose({
@@ -91,13 +97,16 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
           discount={viewModel.discount}
           footerAction={
             shouldUseCartUi && resolvedProduct?.id ? (
-              <CartProductDrawerFooterAction productId={resolvedProduct.id} />
+              <CartProductDrawerFooterAction
+                product={resolvedProduct}
+                productId={resolvedProduct.id}
+              />
             ) : null
           }
           hasDiscount={viewModel.hasDiscount}
           hasError={viewModel.hasError}
           imageUrls={viewModel.imageUrls}
-          isLoading={isLoading}
+          isLoading={shouldShowSkeleton}
           price={viewModel.price}
           resetKey={productSlug}
           ScrollAreaComponent={DrawerScrollArea}

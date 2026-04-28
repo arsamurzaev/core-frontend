@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { buildHomeHrefWithCatalogQuery } from "@/shared/lib/product-route";
+import { getProductDrawerPreview } from "../model/product-drawer-preview";
 import { ProductDrawer } from "./product-drawer";
 
 type CloseStrategy = "push-home" | "back";
@@ -22,12 +23,16 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [open, setOpen] = React.useState(true);
+  const [previewProduct, setPreviewProduct] = React.useState(() =>
+    getProductDrawerPreview(productSlug),
+  );
   const homeHref = React.useMemo(
     () => buildHomeHrefWithCatalogQuery(searchParams),
     [searchParams],
   );
 
   React.useEffect(() => {
+    setPreviewProduct(getProductDrawerPreview(productSlug));
     setOpen(true);
   }, [productSlug]);
 
@@ -63,6 +68,7 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
       open={open}
       productSlug={productSlug}
       initialProduct={initialProduct}
+      previewProduct={previewProduct}
       onOpenChange={handleOpenChange}
       onAfterClose={handleAfterClose}
     />

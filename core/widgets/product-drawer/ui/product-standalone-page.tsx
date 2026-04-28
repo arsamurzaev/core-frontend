@@ -63,7 +63,10 @@ export const ProductStandalonePage: React.FC<ProductStandalonePageProps> = ({
               discount={viewModel.discount}
               footerAction={
                 shouldUseCartUi && product?.id ? (
-                  <CartProductDrawerFooterAction productId={product.id} />
+                  <CartProductDrawerFooterAction
+                    product={product}
+                    productId={product.id}
+                  />
                 ) : null
               }
               footerClassName="mx-0 rounded-none border-t bg-background px-6 py-4 shadow-none"

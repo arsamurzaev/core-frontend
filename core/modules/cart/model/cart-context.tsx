@@ -43,6 +43,7 @@ import {
   type CompletedOrderDto,
   type ProductWithAttributesDto,
 } from "@/shared/api/generated/react-query";
+import { toNumberValue } from "@/shared/lib/attributes";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogMode } from "@/shared/lib/catalog-mode";
@@ -70,10 +71,14 @@ interface CartContextValue {
   cart: CartDto | null;
   clearCart: () => Promise<void>;
   completeManagedOrder: () => Promise<CompletedOrderDto>;
-  decrementProduct: (productId: string) => Promise<void>;
+  decrementProduct: (productId: string, product?: CartProductSnapshot) => Promise<void>;
   detachPublicCart: () => void;
-  incrementProduct: (productId: string) => Promise<void>;
-  setProductQuantity: (productId: string, nextQuantity: number) => Promise<void>;
+  incrementProduct: (productId: string, product?: CartProductSnapshot) => Promise<void>;
+  setProductQuantity: (
+    productId: string,
+    nextQuantity: number,
+    product?: CartProductSnapshot,
+  ) => Promise<void>;
   isBusy: boolean;
   isHydrated: boolean;
   isLoading: boolean;
@@ -135,6 +140,15 @@ const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   },
 };
 
+export type CartProductSnapshot = Pick<
+  ProductWithAttributesDto,
+  "id" | "name" | "price" | "slug"
+>;
+
+type CartMutationContext = {
+  previousCart: CartDto | null | undefined;
+};
+
 function CartProviderFallback({
   children,
 }: React.PropsWithChildren) {
@@ -156,6 +170,104 @@ function normalizeVariantId(variantId?: string | null): string | undefined {
 
   const trimmed = variantId.trim();
   return trimmed || undefined;
+}
+
+function createOptimisticCart(params: {
+  cart: CartDto | null;
+  catalogId: string;
+  product?: CartProductSnapshot;
+  productId: string;
+  quantity: number;
+  variantId?: string;
+}): CartDto | null {
+  const { cart, catalogId, product, productId, quantity, variantId } = params;
+  const item =
+    cart?.items.find(
+      (entry) =>
+        entry.productId === productId &&
+        normalizeVariantId(entry.variantId) === normalizeVariantId(variantId),
+    ) ??
+    cart?.items.find((entry) => entry.productId === productId) ??
+    null;
+
+  if (!item && !product) {
+    return cart;
+  }
+
+  if (!cart && quantity <= 0) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const baseCart: CartDto =
+    cart ??
+    {
+      id: `optimistic-${catalogId}`,
+      catalogId,
+      status: "DRAFT",
+      statusMessage: null,
+      statusChangedAt: now,
+      publicKey: null,
+      checkoutAt: null,
+      assignedManagerId: null,
+      managerSessionStartedAt: null,
+      managerLastSeenAt: null,
+      closedAt: null,
+      items: [],
+      totals: {
+        itemsCount: 0,
+        subtotal: 0,
+        total: 0,
+      },
+      createdAt: now,
+      updatedAt: now,
+    };
+  const productPrice = toNumberValue(product?.price ?? null) ?? item?.product.price ?? 0;
+  const productShort = item?.product ?? {
+    id: product?.id ?? productId,
+    name: product?.name ?? "",
+    slug: product?.slug ?? "",
+    price: productPrice,
+  };
+  const nextItems =
+    quantity <= 0
+      ? baseCart.items.filter((entry) => entry.id !== item?.id)
+      : item
+        ? baseCart.items.map((entry) =>
+            entry.id === item.id
+              ? {
+                  ...entry,
+                  quantity,
+                  lineTotal: productPrice * quantity,
+                  updatedAt: now,
+                }
+              : entry,
+          )
+        : [
+            ...baseCart.items,
+            {
+              id: `optimistic-${productId}-${variantId ?? "default"}`,
+              productId,
+              variantId: variantId ?? null,
+              quantity,
+              product: productShort,
+              lineTotal: productPrice * quantity,
+              createdAt: now,
+              updatedAt: now,
+            },
+          ];
+  const subtotal = nextItems.reduce((sum, entry) => sum + entry.lineTotal, 0);
+
+  return {
+    ...baseCart,
+    items: nextItems,
+    totals: {
+      itemsCount: nextItems.reduce((sum, entry) => sum + entry.quantity, 0),
+      subtotal,
+      total: subtotal,
+    },
+    updatedAt: now,
+  };
 }
 
 function formatSharePrice(value: number) {
@@ -693,6 +805,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
   const upsertCurrentItemMutation = useMutation({
     mutationFn: async (params: {
+      product?: CartProductSnapshot;
       productId: string;
       quantity: number;
       variantId?: string;
@@ -705,19 +818,42 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
       return response.cart;
     },
+    onMutate: async (params): Promise<CartMutationContext> => {
+      await queryClient.cancelQueries({ queryKey: cartQueryKeys.current });
+      const previousCart =
+        queryClient.getQueryData<CartDto | null>(cartQueryKeys.current);
+      const optimisticCart = createOptimisticCart({
+        cart: previousCart ?? activeCart,
+        catalogId: catalog.id,
+        product: params.product,
+        productId: params.productId,
+        quantity: params.quantity,
+        variantId: params.variantId,
+      });
+
+      if (optimisticCart !== undefined) {
+        setCurrentCartData(optimisticCart);
+      }
+
+      return { previousCart };
+    },
     onSuccess: setCurrentCartData,
-    onError: (error) => {
+    onError: (error, _params, context) => {
       if (isCartNotFoundError(error)) {
         clearStoredCurrentCart();
         currentCartNotFoundHandledRef.current = true;
         queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+        return;
       }
+
+      setCurrentCartData(context?.previousCart ?? null);
     },
   });
 
   const upsertPublicItemMutation = useMutation({
     mutationFn: async (params: {
       access: CartPublicAccess;
+      product?: CartProductSnapshot;
       productId: string;
       quantity: number;
       variantId?: string;
@@ -737,10 +873,35 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     onSuccess: ({ access, cart }) => {
       setPublicCartData(access, cart);
     },
-    onError: (error, params) => {
+    onMutate: async (params): Promise<CartMutationContext> => {
+      const queryKey = cartQueryKeys.public(
+        params.access.publicKey,
+        params.access.checkoutKey,
+      );
+      await queryClient.cancelQueries({ queryKey });
+      const previousCart = queryClient.getQueryData<CartDto | null>(queryKey);
+      const optimisticCart = createOptimisticCart({
+        cart: previousCart ?? activeCart,
+        catalogId: catalog.id,
+        product: params.product,
+        productId: params.productId,
+        quantity: params.quantity,
+        variantId: params.variantId,
+      });
+
+      if (optimisticCart !== undefined) {
+        setPublicCartData(params.access, optimisticCart);
+      }
+
+      return { previousCart };
+    },
+    onError: (error, params, context) => {
       if (isCartNotFoundError(error)) {
         dismissPublicCart(params.access);
+        return;
       }
+
+      setPublicCartData(params.access, context?.previousCart ?? null);
     },
   });
 
@@ -854,13 +1015,18 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   );
 
   const setProductQuantity = React.useCallback(
-    async (productId: string, nextQuantity: number) => {
+    async (
+      productId: string,
+      nextQuantity: number,
+      product?: CartProductSnapshot,
+    ) => {
       const cartItem = findCartItemByProductId(productId);
       const variantId = normalizeVariantId(cartItem?.variantId);
 
       if (mode === "public" && storedPublicAccess) {
         await upsertPublicItemMutation.mutateAsync({
           access: storedPublicAccess,
+          product,
           productId,
           quantity: nextQuantity,
           ...(variantId ? { variantId } : {}),
@@ -869,6 +1035,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       }
 
       await upsertCurrentItemMutation.mutateAsync({
+        product,
         productId,
         quantity: nextQuantity,
         ...(variantId ? { variantId } : {}),
@@ -884,21 +1051,21 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   );
 
   const incrementProduct = React.useCallback(
-    async (productId: string) => {
+    async (productId: string, product?: CartProductSnapshot) => {
       const quantity = quantityByProductId[productId] ?? 0;
-      await setProductQuantity(productId, quantity + 1);
+      await setProductQuantity(productId, quantity + 1, product);
     },
     [quantityByProductId, setProductQuantity],
   );
 
   const decrementProduct = React.useCallback(
-    async (productId: string) => {
+    async (productId: string, product?: CartProductSnapshot) => {
       const quantity = quantityByProductId[productId] ?? 0;
       if (quantity <= 0) {
         return;
       }
 
-      await setProductQuantity(productId, Math.max(quantity - 1, 0));
+      await setProductQuantity(productId, Math.max(quantity - 1, 0), product);
     },
     [quantityByProductId, setProductQuantity],
   );

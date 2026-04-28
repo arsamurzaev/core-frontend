@@ -24,6 +24,7 @@ import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query"
 import { cn } from "@/shared/lib/utils";
 import { useSession } from "@/shared/providers/session-provider";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useIsIOS } from "@/shared/lib/use-ios-scroll-fix";
 import React from "react";
 
 interface FilterProductsProps {
@@ -53,6 +54,7 @@ const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_PX = 320;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const FILTER_PRODUCTS_VIRTUAL_OVERSCAN = 4;
+const FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS = 10;
 const FILTER_PRODUCTS_LOADER_ROW_KEY = "__loader__";
 
 function createSkeletonKeys(length: number): number[] {
@@ -72,6 +74,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
 }) => {
   const { isAuthenticated } = useSession();
   const { quantityByProductId, shouldUseCartUi } = useCart();
+  const isIOS = useIsIOS();
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [listWidth, setListWidth] = React.useState(0);
   const [scrollMargin, setScrollMargin] = React.useState(0);
@@ -193,7 +196,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   const rowVirtualizer = useWindowVirtualizer({
     count: productRows.length + (isFetchingNextPage ? 1 : 0),
     estimateSize: React.useCallback(() => rowEstimateSize, [rowEstimateSize]),
-    overscan: FILTER_PRODUCTS_VIRTUAL_OVERSCAN,
+    overscan: isIOS ? FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS : FILTER_PRODUCTS_VIRTUAL_OVERSCAN,
     scrollMargin,
     gap: PRODUCT_CARD_GAP_PX,
     enabled: isVirtualizerEnabled,
@@ -205,13 +208,13 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   const renderProductCard = React.useCallback(
     (product: FilterSectionProduct) => (
       <article key={product.id} className="relative">
-        <ProductLink slug={product.slug} className="block h-full">
+        <ProductLink slug={product.slug} product={product} className="block h-full">
           <ProductCard
             data={product}
             isDetailed={isDetailed}
             actions={
               shouldUseCartUi ? (
-                <CartProductAction productId={product.id} />
+                <CartProductAction product={product} />
               ) : isDetailed ? (
                 <EditProductCardAction
                   isMoySkladLinked={isMoySkladProduct(product)}

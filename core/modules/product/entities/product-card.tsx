@@ -1,6 +1,9 @@
+"use client";
+
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
-import { cn } from "@/shared/lib/utils";
+import { cn, getCatalogCurrency } from "@/shared/lib/utils";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { Badge } from "@/shared/ui/badge";
 import {
@@ -202,6 +205,8 @@ const ProductCardBase: React.FC<Props> = ({
   actions,
   data,
 }) => {
+  const { catalog } = useCatalogState();
+  const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
   const {
     currency,
     description,
@@ -211,7 +216,7 @@ const ProductCardBase: React.FC<Props> = ({
     imageUrl,
     price,
     subtitle,
-  } = buildProductCardView(data);
+  } = buildProductCardView(data, { fallbackCurrency });
   const resolvedIsMoySkladLinked = isMoySkladLinked ?? isMoySkladProduct(data);
 
   return (

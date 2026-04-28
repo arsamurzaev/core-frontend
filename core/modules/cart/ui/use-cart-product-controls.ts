@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type CartProductSnapshot,
   useCart,
   useCartProductQuantity,
 } from "@/core/modules/cart/model/cart-context";
@@ -14,17 +15,20 @@ function getCartErrorMessage(error: unknown): string {
     : "Не удалось обновить корзину.";
 }
 
-export function useCartProductControls(productId: string) {
+export function useCartProductControls(
+  productId: string,
+  product?: CartProductSnapshot,
+) {
   const { decrementProduct, incrementProduct, isBusy } = useCart();
   const quantity = useCartProductQuantity(productId);
 
   const handleIncrement = React.useCallback(async () => {
     try {
-      await incrementProduct(productId);
+      await incrementProduct(productId, product);
     } catch (error) {
       toast.error(getCartErrorMessage(error));
     }
-  }, [incrementProduct, productId]);
+  }, [incrementProduct, product, productId]);
 
   const handleDecrement = React.useCallback(async () => {
     if (!quantity) {
@@ -45,11 +49,11 @@ export function useCartProductControls(productId: string) {
     }
 
     try {
-      await decrementProduct(productId);
+      await decrementProduct(productId, product);
     } catch (error) {
       toast.error(getCartErrorMessage(error));
     }
-  }, [decrementProduct, productId, quantity]);
+  }, [decrementProduct, product, productId, quantity]);
 
   return {
     handleAdd: handleIncrement,

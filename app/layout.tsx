@@ -11,7 +11,7 @@ import {
 import { AppProvider } from "@/shared/providers/app-provider";
 import { ConfirmationProvider } from "@/shared/ui/confirmation";
 import { Toaster } from "@/shared/ui/sonner";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { sfProText } from "./font";
 import "./globals.css";
@@ -19,6 +19,13 @@ import "./globals.css";
 const fallbackMetadata: Metadata = {
   title: "Catalog Frontend",
   description: "Клиент каталога с корзиной, фильтрами и управлением товарами.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -9,6 +9,7 @@ import { Drawer as DrawerPrimitive } from "vaul";
  */
 function Drawer({
   handleOnly = true,
+  repositionInputs = false,
   scrollLockTimeout = 300,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
@@ -16,6 +17,7 @@ function Drawer({
     <DrawerPrimitive.Root
       data-slot="drawer"
       handleOnly={handleOnly}
+      repositionInputs={repositionInputs}
       scrollLockTimeout={scrollLockTimeout}
       {...props}
     />

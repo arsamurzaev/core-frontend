@@ -21,6 +21,7 @@ import {
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { cn } from "@/shared/lib/utils";
 import { useSession } from "@/shared/providers/session-provider";
+import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import dynamic from "next/dynamic";
 import React from "react";
@@ -173,13 +174,24 @@ export const Browser: React.FC<BrowserProps> = ({
           tab={<CatalogTabsToggle tab={queryState.tab} />}
           searchTerm={queryState.searchTerm}
           filterAction={
-            <LazyCatalogFilterDrawer
-              queryState={queryState}
-              categories={categories}
-              isCategoriesLoading={categoriesQuery.isLoading}
-              activeFiltersCount={activeFiltersCount}
-              onApply={handleFilterToggle}
-            />
+            <div className="flex items-center gap-2">
+              {isFilterActive ? (
+                <Button
+                  type="button"
+                  className="h-10 rounded-full px-4 whitespace-nowrap"
+                  onClick={() => handleFilterToggle()}
+                >
+                  Сбросить фильтр
+                </Button>
+              ) : null}
+              <LazyCatalogFilterDrawer
+                queryState={queryState}
+                categories={categories}
+                isCategoriesLoading={categoriesQuery.isLoading}
+                activeFiltersCount={activeFiltersCount}
+                onApply={handleFilterToggle}
+              />
+            </div>
           }
           onFilterToggle={handleFilterToggle}
           bottomRow={filterBottomRow}

@@ -2,6 +2,7 @@
 import React, { PropsWithChildren } from "react";
 import { type CatalogControllerGetCurrentQueryResult } from "@/shared/api/generated/react-query";
 import { type SessionBootstrapState } from "@/shared/providers/session-bootstrap";
+import { useIOSScrollFix } from "@/shared/lib/use-ios-scroll-fix";
 import ReactQueryProvider from "./react-query-provider";
 import { SessionProvider } from "./session-provider";
 import { CatalogProvider } from "./catalog-provider";
@@ -16,6 +17,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   initialCatalog,
   initialSession,
 }) => {
+  useIOSScrollFix();
   return (
     <ReactQueryProvider>
       <SessionProvider initialSession={initialSession}>

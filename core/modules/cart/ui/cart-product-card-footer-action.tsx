@@ -4,7 +4,8 @@ import { useCartProductPricing } from "@/core/modules/cart/model/cart-context";
 import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
-import { cn } from "@/shared/lib/utils";
+import { cn, getCatalogCurrency } from "@/shared/lib/utils";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { Minus, Plus } from "lucide-react";
 import React from "react";
 
@@ -16,8 +17,10 @@ interface CartProductCardFooterActionProps {
 
 export const CartProductCardFooterAction = React.memo(function CartProductCardFooterAction({ className, isDetailed = false, product }: CartProductCardFooterActionProps) {
   const pricing = useCartProductPricing(product);
+  const { catalog } = useCatalogState();
+  const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
   const { handleDecrement, handleIncrement, isBusy, quantity } =
-    useCartProductControls(product.id);
+    useCartProductControls(product.id, product);
 
   const handlePreventCardNavigation = (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -25,7 +28,10 @@ export const CartProductCardFooterAction = React.memo(function CartProductCardFo
   };
 
   if (!quantity) {
-    const { displayPrice, currency, hasDiscount } = buildProductCardView(product);
+    const { displayPrice, currency, hasDiscount } = buildProductCardView(
+      product,
+      { fallbackCurrency },
+    );
     if (!displayPrice) return null;
     return (
       <p className={cn("text-base font-bold whitespace-nowrap", !hasDiscount && "mt-4", className)}>

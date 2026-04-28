@@ -37,7 +37,14 @@
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('servers',[]\\)\\); print\\(d.get\\('basePath',''\\)\\)\")",
       "Bash(curl -s http://localhost:4000/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{}')",
       "Bash(curl -s http://localhost:4000/auth/login -X POST -H \"Content-Type: application/json\" -d '{}')",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(k\\) for k in d['paths'].keys\\(\\)]\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(k\\) for k in d['paths'].keys\\(\\)]\")",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:stripearmy.medium.com)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:webkit.org)",
+      "WebFetch(domain:virtuoso.dev)"
     ]
   }
 }

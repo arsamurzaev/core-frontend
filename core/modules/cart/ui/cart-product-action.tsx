@@ -1,6 +1,7 @@
 "use client";
 
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Plus } from "lucide-react";
@@ -8,14 +9,17 @@ import React from "react";
 
 interface CartProductActionProps {
   className?: string;
-  productId: string;
+  product: ProductWithAttributesDto;
 }
 
 export const CartProductAction = React.memo(function CartProductAction({
   className,
-  productId,
+  product,
 }: CartProductActionProps) {
-  const { handleAdd, isBusy, quantity } = useCartProductControls(productId);
+  const { handleAdd, isBusy, quantity } = useCartProductControls(
+    product.id,
+    product,
+  );
 
   return (
     <Button

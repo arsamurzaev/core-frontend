@@ -1,10 +1,15 @@
 "use client";
 
-import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
+import type {
+  ProductWithAttributesDto,
+  ProductWithDetailsDto,
+} from "@/shared/api/generated/react-query";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
+
+type ProductDrawerEntity = ProductWithAttributesDto | ProductWithDetailsDto;
 
 function parseOptionalDate(value: unknown): Date | undefined {
   if (typeof value !== "string") {
@@ -15,9 +20,7 @@ function parseOptionalDate(value: unknown): Date | undefined {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 }
 
-function getProductImageUrls(
-  product: ProductWithDetailsDto | null | undefined,
-): string[] {
+function getProductImageUrls(product: ProductDrawerEntity | null | undefined): string[] {
   const urls =
     product?.media
       ?.slice()
@@ -28,10 +31,8 @@ function getProductImageUrls(
   return urls.length > 0 ? urls : ["/not-found-photo.png"];
 }
 
-function getVariantsSummary(
-  product: ProductWithDetailsDto | null | undefined,
-): string | null {
-  if (!product) {
+function getVariantsSummary(product: ProductDrawerEntity | null | undefined): string | null {
+  if (!product || !("variants" in product)) {
     return null;
   }
 
@@ -62,10 +63,12 @@ export function buildProductDrawerViewModel(params: {
   catalog: CatalogLike | null | undefined;
   isError: boolean;
   isLoading: boolean;
+  previewProduct?: ProductWithAttributesDto | null;
   product: ProductWithDetailsDto | null | undefined;
 }) {
-  const { catalog, isError, isLoading, product } = params;
-  const attrs = resolveAttributes(product?.productAttributes);
+  const { catalog, isError, isLoading, previewProduct, product } = params;
+  const displayProduct = product ?? previewProduct ?? null;
+  const attrs = resolveAttributes(displayProduct?.productAttributes);
 
   const subtitle =
     typeof attrs.subtitle === "string" ? attrs.subtitle : "";
@@ -79,7 +82,7 @@ export function buildProductDrawerViewModel(params: {
   const discountStartAt = parseOptionalDate(attrs.discountStartAt);
   const discountEndAt = parseOptionalDate(attrs.discountEndAt);
 
-  const price = toNumberValue(product?.price ?? null) ?? 0;
+  const price = toNumberValue(displayProduct?.price ?? null) ?? 0;
   const pricing = calculatePrice({
     price,
     discountedPrice,
@@ -89,18 +92,18 @@ export function buildProductDrawerViewModel(params: {
   });
 
   return {
-    brandName: toOptionalTrimmedString(product?.brand?.name),
+    brandName: toOptionalTrimmedString(displayProduct?.brand?.name),
     currency,
     description,
-    displayName: product?.name ?? "Товар",
+    displayName: displayProduct?.name ?? "Товар",
     displayPrice: pricing.totalPrice,
     discount: pricing.discountPercent,
     hasDiscount: pricing.hasDiscount,
-    hasError: isError || (!isLoading && !product),
-    imageUrls: getProductImageUrls(product),
+    hasError: isError || (!isLoading && !displayProduct),
+    imageUrls: getProductImageUrls(displayProduct),
     price,
     shareText: subtitle || description || undefined,
     subtitle,
-    variantsSummary: getVariantsSummary(product),
+    variantsSummary: getVariantsSummary(displayProduct),
   };
 }

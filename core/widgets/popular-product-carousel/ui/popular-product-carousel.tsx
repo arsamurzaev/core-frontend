@@ -102,6 +102,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
               <article className="relative">
                 <ProductLink
                   slug={product.slug}
+                  product={product}
                   className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
                 >
                   <ProductCard
@@ -109,7 +110,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
                     isDetailed
                     actions={
                       shouldUseCartUi ? (
-                        <CartProductAction productId={product.id} />
+                        <CartProductAction product={product} />
                       ) : (
                         <EditProductCardAction
                           isMoySkladLinked={isMoySkladProduct(product)}

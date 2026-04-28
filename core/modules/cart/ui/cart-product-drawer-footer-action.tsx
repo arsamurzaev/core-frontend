@@ -1,5 +1,6 @@
 "use client";
 
+import type { CartProductSnapshot } from "@/core/modules/cart/model/cart-context";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
@@ -8,14 +9,15 @@ import React from "react";
 
 interface CartProductDrawerFooterActionProps {
   className?: string;
+  product?: CartProductSnapshot;
   productId: string;
 }
 
 export const CartProductDrawerFooterAction: React.FC<
   CartProductDrawerFooterActionProps
-> = ({ className, productId }) => {
+> = ({ className, product, productId }) => {
   const { handleAdd, handleDecrement, handleIncrement, isBusy, quantity } =
-    useCartProductControls(productId);
+    useCartProductControls(productId, product);
 
   if (!quantity) {
     return (
