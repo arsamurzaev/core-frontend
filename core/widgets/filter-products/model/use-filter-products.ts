@@ -105,7 +105,7 @@ export function useFilterProducts({ queryState }: UseFilterProductsParams) {
           void fetchNextPage();
         }
       },
-      { rootMargin: "240px 0px" },
+      { rootMargin: "900px 0px" },
     );
 
     observer.observe(target);
