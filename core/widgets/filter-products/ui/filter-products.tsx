@@ -61,6 +61,57 @@ function createSkeletonKeys(length: number): number[] {
   return Array.from({ length }, (_, index) => index);
 }
 
+interface FilterProductCardProps {
+  product: FilterSectionProduct;
+  isDetailed: boolean;
+  shouldUseCartUi: boolean;
+  isAuthenticated: boolean;
+  quantity: number;
+}
+
+const FilterProductCard = React.memo(
+  ({ product, isDetailed, shouldUseCartUi, isAuthenticated, quantity }: FilterProductCardProps) => (
+    <article className="relative">
+      <ProductLink slug={product.slug} product={product} className="block h-full">
+        <ProductCard
+          data={product}
+          isDetailed={isDetailed}
+          actions={
+            shouldUseCartUi ? (
+              <CartProductAction product={product} />
+            ) : isDetailed ? (
+              <EditProductCardAction
+                isMoySkladLinked={isMoySkladProduct(product)}
+                productId={product.id}
+                status={product.status}
+              />
+            ) : undefined
+          }
+          className={cn("h-full", isDetailed && "min-h-[160px]")}
+          hidePriceWhenFooterAction={shouldUseCartUi}
+          footerAction={
+            shouldUseCartUi && quantity > 0 ? (
+              <CartProductCardFooterAction product={product} isDetailed={isDetailed} />
+            ) : !shouldUseCartUi && isAuthenticated ? (
+              <ToggleProductPopularAction
+                productId={product.id}
+                isPopular={Boolean(product.isPopular)}
+              />
+            ) : undefined
+          }
+        />
+      </ProductLink>
+      {!shouldUseCartUi && !isDetailed ? (
+        <EditProductCardAction
+          isMoySkladLinked={isMoySkladProduct(product)}
+          productId={product.id}
+          status={product.status}
+        />
+      ) : null}
+    </article>
+  ),
+);
+
 const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   emptyText,
   heading,
@@ -203,53 +254,6 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   });
   const virtualRows = rowVirtualizer.getVirtualItems();
 
-  const renderProductCard = React.useCallback(
-    (product: FilterSectionProduct) => (
-      <article key={product.id} className="relative">
-        <ProductLink slug={product.slug} product={product} className="block h-full">
-          <ProductCard
-            data={product}
-            isDetailed={isDetailed}
-            actions={
-              shouldUseCartUi ? (
-                <CartProductAction product={product} />
-              ) : isDetailed ? (
-                <EditProductCardAction
-                  isMoySkladLinked={isMoySkladProduct(product)}
-                  productId={product.id}
-                  status={product.status}
-                />
-              ) : undefined
-            }
-            className={cn("h-full", isDetailed && "min-h-[160px]")}
-            hidePriceWhenFooterAction={shouldUseCartUi}
-            footerAction={
-              shouldUseCartUi && (quantityByProductId[product.id] ?? 0) > 0 ? (
-                <CartProductCardFooterAction
-                  product={product}
-                  isDetailed={isDetailed}
-                />
-              ) : !shouldUseCartUi && isAuthenticated ? (
-                <ToggleProductPopularAction
-                  productId={product.id}
-                  isPopular={Boolean(product.isPopular)}
-                />
-              ) : undefined
-            }
-          />
-        </ProductLink>
-        {!shouldUseCartUi && !isDetailed ? (
-          <EditProductCardAction
-            isMoySkladLinked={isMoySkladProduct(product)}
-            productId={product.id}
-            status={product.status}
-          />
-        ) : null}
-      </article>
-    ),
-    [isAuthenticated, isDetailed, quantityByProductId, shouldUseCartUi],
-  );
-
   return (
     <div className="space-y-6">
       <h2 className="pl-1 text-left text-xl font-bold">{heading}</h2>
@@ -280,7 +284,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                   <div
                     key={virtualRow.key}
                     data-index={virtualRow.index}
-                    ref={rowVirtualizer.measureElement}
+                    ref={isIOS ? undefined : rowVirtualizer.measureElement}
                     className="absolute top-0 left-0 w-full"
                     style={{
                       transform: `translateY(${
@@ -312,7 +316,16 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                           gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
                         }}
                       >
-                        {rowItems.map(renderProductCard)}
+                        {rowItems.map((product) => (
+                          <FilterProductCard
+                            key={product.id}
+                            product={product}
+                            isDetailed={isDetailed}
+                            shouldUseCartUi={shouldUseCartUi}
+                            isAuthenticated={isAuthenticated}
+                            quantity={quantityByProductId[product.id] ?? 0}
+                          />
+                        ))}
                       </div>
                     )}
                   </div>

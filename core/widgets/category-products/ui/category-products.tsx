@@ -88,6 +88,63 @@ const UNCATEGORIZED_QUERY_PARAMS = {
   limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
 };
 
+interface ProductSectionCardProps {
+  item: ProductSectionItem;
+  isDetailed: boolean;
+  shouldUseCartUi: boolean;
+  isAuthenticated: boolean;
+}
+
+const ProductSectionCard = React.memo(
+  ({ item, isDetailed, shouldUseCartUi, isAuthenticated }: ProductSectionCardProps) => {
+    const { product, categoryId, categoryPosition } = item;
+    return (
+      <article className="relative">
+        <ProductLink slug={product.slug} product={product} className="block h-full">
+          <ProductCard
+            data={product}
+            isDetailed={isDetailed}
+            actions={
+              shouldUseCartUi ? (
+                <CartProductAction product={product} />
+              ) : isDetailed ? (
+                <EditProductCardAction
+                  categoryId={categoryId}
+                  categoryPosition={categoryPosition}
+                  isMoySkladLinked={isMoySkladProduct(product)}
+                  productId={product.id}
+                  status={product.status}
+                />
+              ) : undefined
+            }
+            className={cn("h-full", isDetailed && "min-h-[160px]")}
+            hidePriceWhenFooterAction={shouldUseCartUi}
+            footerAction={
+              shouldUseCartUi ? (
+                <CartProductCardFooterAction product={product} isDetailed={isDetailed} />
+              ) : !shouldUseCartUi && isAuthenticated ? (
+                <ToggleProductPopularAction
+                  productId={product.id}
+                  isPopular={Boolean(product.isPopular)}
+                />
+              ) : undefined
+            }
+          />
+        </ProductLink>
+        {!shouldUseCartUi && !isDetailed ? (
+          <EditProductCardAction
+            categoryId={categoryId}
+            categoryPosition={categoryPosition}
+            isMoySkladLinked={isMoySkladProduct(product)}
+            productId={product.id}
+            status={product.status}
+          />
+        ) : null}
+      </article>
+    );
+  },
+);
+
 const ProductSection: React.FC<ProductSectionProps> = ({
   className,
   title,
@@ -305,68 +362,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     rowVirtualizer.measure();
   }, [rowVirtualizer]);
 
-  const renderProductCard = React.useCallback(
-    (
-      { key, product, categoryId, categoryPosition }: ProductSectionItem,
-      itemIndex: number,
-    ) => (
-      <article
-        key={`${sectionId}:${categoryPosition ?? "na"}:${key ?? product.id}:${itemIndex}`}
-        className="relative"
-      >
-        <ProductLink slug={product.slug} product={product} className="block h-full">
-          <ProductCard
-            data={product}
-            isDetailed={isDetailed}
-            actions={
-              shouldUseCartUi ? (
-                <CartProductAction product={product} />
-              ) : isDetailed ? (
-                <EditProductCardAction
-                  categoryId={categoryId}
-                  categoryPosition={categoryPosition}
-                  isMoySkladLinked={isMoySkladProduct(product)}
-                  productId={product.id}
-                  status={product.status}
-                />
-              ) : undefined
-            }
-            className={cn("h-full", isDetailed && "min-h-[160px]")}
-            hidePriceWhenFooterAction={shouldUseCartUi}
-            footerAction={
-              shouldUseCartUi ? (
-                <CartProductCardFooterAction
-                  product={product}
-                  isDetailed={isDetailed}
-                />
-              ) : !shouldUseCartUi && isAuthenticated ? (
-                <ToggleProductPopularAction
-                  productId={product.id}
-                  isPopular={Boolean(product.isPopular)}
-                />
-              ) : undefined
-            }
-          />
-        </ProductLink>
-        {!shouldUseCartUi && !isDetailed ? (
-          <EditProductCardAction
-            categoryId={categoryId}
-            categoryPosition={categoryPosition}
-            isMoySkladLinked={isMoySkladProduct(product)}
-            productId={product.id}
-            status={product.status}
-          />
-        ) : null}
-      </article>
-    ),
-    [
-      isAuthenticated,
-      isDetailed,
-      sectionId,
-      shouldUseCartUi,
-    ],
-  );
-
   React.useEffect(() => {
     const lastVisibleRow = virtualRows[virtualRows.length - 1];
 
@@ -380,7 +375,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       return;
     }
 
-    if (lastVisibleRow.index >= productRows.length - 1) {
+    if (lastVisibleRow.index >= productRows.length - 8) {
       void fetchNextPage();
     }
   }, [
@@ -427,7 +422,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                 <div
                   key={virtualRow.key}
                   data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
+                  ref={isIOS ? undefined : rowVirtualizer.measureElement}
                   className="absolute top-0 left-0 w-full"
                   style={{
                     transform: `translateY(${
@@ -463,7 +458,15 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                         gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
                       }}
                     >
-                      {rowItems.map(renderProductCard)}
+                      {rowItems.map((item, itemIndex) => (
+                        <ProductSectionCard
+                          key={`${sectionId}:${item.categoryPosition ?? "na"}:${item.key ?? item.product.id}:${itemIndex}`}
+                          item={item}
+                          isDetailed={isDetailed}
+                          shouldUseCartUi={shouldUseCartUi}
+                          isAuthenticated={isAuthenticated}
+                        />
+                      ))}
                     </div>
                   )}
                 </div>
