@@ -116,26 +116,137 @@ export const HandoffControllerExchangeQueryParams = zod.object({
 
 
 /**
- * @summary Список каталогов
+ * @summary Получить список каталогов для админки
  */
-export const AdminControllerListCatalogsQueryParams = zod.object({
-  "page": zod.number().optional(),
-  "limit": zod.number().optional(),
-  "search": zod.string().optional(),
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']).optional()
+export const adminControllerGetCatalogsQuerySortByDefault = `createdAt`;export const adminControllerGetCatalogsQuerySortOrderDefault = `desc`;
+
+export const AdminControllerGetCatalogsQueryParams = zod.object({
+  "typeIds": zod.array(zod.string()).optional().describe('Type ids. Supports comma separated value.'),
+  "promoCodeIds": zod.array(zod.string()).optional().describe('Promo code ids. Supports comma separated value.'),
+  "statuses": zod.array(zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])).optional().describe('Catalog statuses. Supports comma separated value.'),
+  "sortBy": zod.enum(['createdAt', 'slug', 'name', 'promoCode', 'type', 'subscriptionDaysLeft', 'status']).default(adminControllerGetCatalogsQuerySortByDefault),
+  "sortOrder": zod.enum(['asc', 'desc']).default(adminControllerGetCatalogsQuerySortOrderDefault)
+})
+
+export const AdminControllerGetCatalogsResponseItem = zod.object({
+  "id": zod.string(),
+  "slug": zod.string(),
+  "domain": zod.string().nullable(),
+  "name": zod.string(),
+  "typeId": zod.string(),
+  "parentId": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "promoCodeId": zod.string().nullable(),
+  "promoCodePaid": zod.boolean(),
+  "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
+  "config": zod.object({
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+}).nullable(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
+  "subscriptionDaysLeft": zod.number().nullish(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "logoMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "type": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional()
+}),
+  "promoCode": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "surName": zod.string(),
+  "bet": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional(),
+  "paymentsCount": zod.number().optional()
+}).nullable()
+})
+export const AdminControllerGetCatalogsResponse = zod.array(AdminControllerGetCatalogsResponseItem)
+
+
+/**
+ * @summary Create catalog with generated owner credentials
+ */
+export const AdminControllerCreateCatalogBody = zod.object({
+  "name": zod.string(),
+  "typeId": zod.string(),
+  "activityIds": zod.array(zod.string()).optional(),
+  "metricId": zod.string().optional().describe('Yandex Metrika counter id for MAIN scope.'),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "slug": zod.string().describe('Catalog domain\/subdomain stored as slug.'),
+  "domain": zod.string().nullish().describe('Custom domain.'),
+  "parentId": zod.string().optional(),
+  "trialLicenseDays": zod.number().optional().describe('Trial license duration in days.'),
+  "ownerName": zod.string().optional().describe('If omitted, catalog name is used.')
 })
 
 
 /**
- * @summary Детали каталога
+ * @summary Duplicate catalog with generated owner credentials
  */
-export const AdminControllerGetCatalogParams = zod.object({
+export const AdminControllerDuplicateCatalogParams = zod.object({
   "id": zod.string()
 })
 
+export const AdminControllerDuplicateCatalogBody = zod.object({
+  "name": zod.string(),
+  "typeId": zod.string(),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "slug": zod.string().describe('Catalog domain\/subdomain stored as slug.'),
+  "domain": zod.string().nullish().describe('New custom domain. Source domain is never copied.')
+})
+
 
 /**
- * @summary Обновить каталог
+ * @summary Редактировать каталог
  */
 export const AdminControllerUpdateCatalogParams = zod.object({
   "id": zod.string()
@@ -143,162 +254,472 @@ export const AdminControllerUpdateCatalogParams = zod.object({
 
 export const AdminControllerUpdateCatalogBody = zod.object({
   "name": zod.string().optional(),
-  "domain": zod.string().optional(),
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']).optional(),
-  "note": zod.string().optional(),
-  "subscriptionEndsAt": zod.iso.datetime({}).optional()
+  "typeId": zod.string().optional(),
+  "activityIds": zod.array(zod.string()).optional(),
+  "metricId": zod.string().optional().describe('Yandex Metrika counter id for MAIN scope.'),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']).optional(),
+  "slug": zod.string().optional().describe('Catalog domain\/subdomain stored as slug.'),
+  "domain": zod.string().nullish().describe('Custom domain. Pass null to clear.'),
+  "parentId": zod.string().nullish(),
+  "promoCodeId": zod.string().nullish(),
+  "trialLicenseDays": zod.number().optional().describe('Trial license duration in days from now.')
+})
+
+export const AdminControllerUpdateCatalogResponse = zod.object({
+  "id": zod.string(),
+  "slug": zod.string(),
+  "domain": zod.string().nullable(),
+  "name": zod.string(),
+  "typeId": zod.string(),
+  "parentId": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "promoCodeId": zod.string().nullable(),
+  "promoCodePaid": zod.boolean(),
+  "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
+  "config": zod.object({
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+}).nullable(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
+  "subscriptionDaysLeft": zod.number().nullish(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "logoMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "type": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional()
+}),
+  "promoCode": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "surName": zod.string(),
+  "bet": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional(),
+  "paymentsCount": zod.number().optional()
+}).nullable()
 })
 
 
 /**
- * @summary Удалить каталог (soft delete)
+ * @summary Удалить каталог через soft-delete
  */
 export const AdminControllerDeleteCatalogParams = zod.object({
   "id": zod.string()
 })
 
-
-/**
- * @summary Приостановить каталог
- */
-export const AdminControllerSuspendCatalogParams = zod.object({
-  "id": zod.string()
+export const AdminControllerDeleteCatalogResponse = zod.object({
+  "id": zod.string(),
+  "slug": zod.string(),
+  "domain": zod.string().nullable(),
+  "name": zod.string(),
+  "typeId": zod.string(),
+  "parentId": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "promoCodeId": zod.string().nullable(),
+  "promoCodePaid": zod.boolean(),
+  "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
+  "config": zod.object({
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+}).nullable(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
+  "subscriptionDaysLeft": zod.number().nullish(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "logoMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "type": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional()
+}),
+  "promoCode": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "surName": zod.string(),
+  "bet": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional(),
+  "paymentsCount": zod.number().optional()
+}).nullable()
 })
 
 
 /**
- * @summary Восстановить каталог
+ * @summary Восстановить soft-deleted каталог
  */
 export const AdminControllerRestoreCatalogParams = zod.object({
   "id": zod.string()
 })
 
-
-/**
- * @summary Список пользователей
- */
-export const AdminControllerListUsersQueryParams = zod.object({
-  "page": zod.number().optional(),
-  "limit": zod.number().optional(),
-  "search": zod.string().optional(),
-  "role": zod.enum(['CATALOG', 'USER', 'ADMIN']).optional()
+export const AdminControllerRestoreCatalogResponse = zod.object({
+  "id": zod.string(),
+  "slug": zod.string(),
+  "domain": zod.string().nullable(),
+  "name": zod.string(),
+  "typeId": zod.string(),
+  "parentId": zod.string().nullable(),
+  "userId": zod.string().nullable(),
+  "promoCodeId": zod.string().nullable(),
+  "promoCodePaid": zod.boolean(),
+  "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
+  "config": zod.object({
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+}).nullable(),
+  "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
+  "subscriptionDaysLeft": zod.number().nullish(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "logoMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "type": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional()
+}),
+  "promoCode": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "surName": zod.string(),
+  "bet": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional(),
+  "paymentsCount": zod.number().optional()
+}).nullable()
 })
 
 
 /**
- * @summary Профиль пользователя + сессии
+ * @summary Получить список типов каталогов для админки
  */
-export const AdminControllerGetUserParams = zod.object({
+export const AdminControllerGetTypesResponseItem = zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional()
+})
+export const AdminControllerGetTypesResponse = zod.array(AdminControllerGetTypesResponseItem)
+
+
+/**
+ * @summary Получить список родов деятельности для админки
+ */
+export const AdminControllerGetActivitiesQueryParams = zod.object({
+  "typeId": zod.string()
+})
+
+export const AdminControllerGetActivitiesResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional(),
+  "types": zod.array(zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional()
+}))
+})
+export const AdminControllerGetActivitiesResponse = zod.array(AdminControllerGetActivitiesResponseItem)
+
+
+/**
+ * @summary Создать род деятельности
+ */
+export const AdminControllerCreateActivityBody = zod.object({
+  "name": zod.string(),
+  "typeId": zod.string()
+})
+
+
+/**
+ * @summary Получить список промокодов для админки
+ */
+export const AdminControllerGetPromoCodesResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "surName": zod.string(),
+  "bet": zod.string(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional(),
+  "catalogsCount": zod.number().optional(),
+  "paymentsCount": zod.number().optional()
+})
+export const AdminControllerGetPromoCodesResponse = zod.array(AdminControllerGetPromoCodesResponseItem)
+
+
+/**
+ * @summary Создать промокод
+ */
+export const AdminControllerCreatePromoCodeBody = zod.object({
+  "name": zod.string(),
+  "firstName": zod.string(),
+  "lastName": zod.string(),
+  "surName": zod.string(),
+  "bet": zod.string()
+})
+
+
+/**
+ * @summary Получить список оплат каталога
+ */
+export const AdminControllerGetCatalogPaymentsParams = zod.object({
   "id": zod.string()
 })
 
+export const AdminControllerGetCatalogPaymentsResponseItem = zod.object({
+  "id": zod.string(),
+  "kind": zod.enum(['SUBSCRIPTION', 'PROMOCODE']),
+  "catalogId": zod.string(),
+  "promoCodeId": zod.string().nullable(),
+  "paidAt": zod.iso.datetime({}).nullish(),
+  "amount": zod.number().nullish(),
+  "licenseEndsAt": zod.iso.datetime({}).nullish(),
+  "proofUrl": zod.string().nullish(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional()
+})
+export const AdminControllerGetCatalogPaymentsResponse = zod.array(AdminControllerGetCatalogPaymentsResponseItem)
+
 
 /**
- * @summary Изменить роль пользователя
+ * @summary Получить список оплат промокода
  */
-export const AdminControllerUpdateUserRoleParams = zod.object({
+export const AdminControllerGetPromoCodePaymentsParams = zod.object({
   "id": zod.string()
 })
 
-export const AdminControllerUpdateUserRoleBody = zod.object({
-  "role": zod.enum(['CATALOG', 'USER', 'ADMIN'])
+export const AdminControllerGetPromoCodePaymentsResponseItem = zod.object({
+  "id": zod.string(),
+  "kind": zod.enum(['SUBSCRIPTION', 'PROMOCODE']),
+  "catalogId": zod.string(),
+  "promoCodeId": zod.string().nullable(),
+  "paidAt": zod.iso.datetime({}).nullish(),
+  "amount": zod.number().nullish(),
+  "licenseEndsAt": zod.iso.datetime({}).nullish(),
+  "proofUrl": zod.string().nullish(),
+  "deleteAt": zod.iso.datetime({}).nullish(),
+  "deleteInfo": zod.object({
+  "isDeleted": zod.boolean(),
+  "deletedAt": zod.iso.datetime({}),
+  "purgeAt": zod.iso.datetime({}),
+  "purgeInDays": zod.number()
+}).nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional()
 })
+export const AdminControllerGetPromoCodePaymentsResponse = zod.array(AdminControllerGetPromoCodePaymentsResponseItem)
 
 
 /**
- * @summary Заблокировать пользователя + выкинуть из сессий
+ * @summary Создать оплату промокода для каталога
  */
-export const AdminControllerBlockUserParams = zod.object({
+export const AdminControllerCreateCatalogPromoPaymentParams = zod.object({
   "id": zod.string()
 })
 
+export const AdminControllerCreateCatalogPromoPaymentBody = zod.object({
+  "promoCodeId": zod.uuid(),
+  "amount": zod.number().optional(),
+  "paidAt": zod.iso.datetime({}).optional(),
+  "licenseEndsAt": zod.iso.datetime({}).optional(),
+  "proof": zod.instanceof(File)
+})
+
 
 /**
- * @summary Разблокировать пользователя
+ * @summary Создать оплату подписки для каталога
  */
-export const AdminControllerUnblockUserParams = zod.object({
+export const AdminControllerCreateCatalogSubscriptionPaymentParams = zod.object({
   "id": zod.string()
 })
 
-
-/**
- * @summary Активные сессии пользователя
- */
-export const AdminControllerListUserSessionsParams = zod.object({
-  "id": zod.string()
-})
-
-
-/**
- * @summary Завершить все сессии пользователя
- */
-export const AdminControllerDestroyUserSessionsParams = zod.object({
-  "id": zod.string()
-})
-
-
-/**
- * @summary Все заказы платформы
- */
-export const AdminControllerListOrdersQueryParams = zod.object({
-  "page": zod.number().optional(),
-  "limit": zod.number().optional(),
-  "catalogId": zod.string().optional(),
-  "status": zod.enum(['PENDING', 'COMPLETED']).optional(),
-  "dateFrom": zod.iso.datetime({}).optional(),
-  "dateTo": zod.iso.datetime({}).optional(),
-  "search": zod.string().optional()
-})
-
-
-/**
- * @summary Детали заказа
- */
-export const AdminControllerGetOrderParams = zod.object({
-  "id": zod.string()
-})
-
-
-/**
- * @summary Обновить статус / комментарий заказа
- */
-export const AdminControllerUpdateOrderParams = zod.object({
-  "id": zod.string()
-})
-
-export const AdminControllerUpdateOrderBody = zod.object({
-  "status": zod.enum(['PENDING', 'COMPLETED']).optional(),
-  "commentByAdmin": zod.string().optional()
-})
-
-
-/**
- * @summary Все интеграции платформы
- */
-export const AdminControllerListIntegrationsQueryParams = zod.object({
-  "page": zod.number().optional(),
-  "limit": zod.number().optional()
-})
-
-
-/**
- * @summary Запустить синхронизацию каталога
- */
-export const AdminControllerTriggerSyncParams = zod.object({
-  "catalogId": zod.string()
-})
-
-
-/**
- * @summary История синхронизаций каталога
- */
-export const AdminControllerListSyncRunsParams = zod.object({
-  "catalogId": zod.string()
-})
-
-export const AdminControllerListSyncRunsQueryParams = zod.object({
-  "page": zod.number().optional(),
-  "limit": zod.number().optional()
+export const AdminControllerCreateCatalogSubscriptionPaymentBody = zod.object({
+  "amount": zod.number().optional(),
+  "paidAt": zod.iso.datetime({}).optional(),
+  "licenseEndsAt": zod.iso.datetime({}).optional(),
+  "proof": zod.instanceof(File)
 })
 
 
@@ -312,273 +733,6 @@ export const AdminSsoControllerEnterParams = zod.object({
 
 export const AdminSsoControllerEnterQueryParams = zod.object({
   "next": zod.string().optional().describe('Путь для редиректа после SSO')
-})
-
-
-/**
- * @summary Получить настройки интеграции MoySklad
- */
-export const IntegrationControllerGetMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD']),
-  "isActive": zod.boolean(),
-  "hasToken": zod.boolean(),
-  "tokenPreview": zod.string().nullable(),
-  "priceTypeName": zod.string(),
-  "importImages": zod.boolean(),
-  "syncStock": zod.boolean(),
-  "scheduleEnabled": zod.boolean(),
-  "schedulePattern": zod.string().nullable(),
-  "scheduleTimezone": zod.string(),
-  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
-  "syncStartedAt": zod.iso.datetime({}).nullable(),
-  "lastSyncAt": zod.iso.datetime({}).nullable(),
-  "lastSyncError": zod.string().nullable(),
-  "totalProducts": zod.number(),
-  "createdProducts": zod.number(),
-  "updatedProducts": zod.number(),
-  "deletedProducts": zod.number(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-})
-
-
-/**
- * @summary Создать или заменить настройки MoySklad
- */
-export const IntegrationControllerUpsertMoySkladBody = zod.object({
-  "token": zod.string(),
-  "isActive": zod.boolean().optional(),
-  "priceTypeName": zod.string().optional(),
-  "importImages": zod.boolean().optional(),
-  "syncStock": zod.boolean().optional(),
-  "scheduleEnabled": zod.boolean().optional(),
-  "schedulePattern": zod.string().optional(),
-  "scheduleTimezone": zod.string().optional()
-})
-
-export const IntegrationControllerUpsertMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD']),
-  "isActive": zod.boolean(),
-  "hasToken": zod.boolean(),
-  "tokenPreview": zod.string().nullable(),
-  "priceTypeName": zod.string(),
-  "importImages": zod.boolean(),
-  "syncStock": zod.boolean(),
-  "scheduleEnabled": zod.boolean(),
-  "schedulePattern": zod.string().nullable(),
-  "scheduleTimezone": zod.string(),
-  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
-  "syncStartedAt": zod.iso.datetime({}).nullable(),
-  "lastSyncAt": zod.iso.datetime({}).nullable(),
-  "lastSyncError": zod.string().nullable(),
-  "totalProducts": zod.number(),
-  "createdProducts": zod.number(),
-  "updatedProducts": zod.number(),
-  "deletedProducts": zod.number(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-})
-
-
-/**
- * @summary Обновить настройки MoySklad
- */
-export const IntegrationControllerUpdateMoySkladBody = zod.object({
-  "token": zod.string().optional(),
-  "isActive": zod.boolean().optional(),
-  "priceTypeName": zod.string().optional(),
-  "importImages": zod.boolean().optional(),
-  "syncStock": zod.boolean().optional(),
-  "scheduleEnabled": zod.boolean().optional(),
-  "schedulePattern": zod.string().optional(),
-  "scheduleTimezone": zod.string().optional()
-})
-
-export const IntegrationControllerUpdateMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD']),
-  "isActive": zod.boolean(),
-  "hasToken": zod.boolean(),
-  "tokenPreview": zod.string().nullable(),
-  "priceTypeName": zod.string(),
-  "importImages": zod.boolean(),
-  "syncStock": zod.boolean(),
-  "scheduleEnabled": zod.boolean(),
-  "schedulePattern": zod.string().nullable(),
-  "scheduleTimezone": zod.string(),
-  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
-  "syncStartedAt": zod.iso.datetime({}).nullable(),
-  "lastSyncAt": zod.iso.datetime({}).nullable(),
-  "lastSyncError": zod.string().nullable(),
-  "totalProducts": zod.number(),
-  "createdProducts": zod.number(),
-  "updatedProducts": zod.number(),
-  "deletedProducts": zod.number(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-})
-
-
-/**
- * @summary Удалить настройки MoySklad
- */
-export const IntegrationControllerRemoveMoySkladResponse = zod.object({
-  "ok": zod.boolean()
-})
-
-
-/**
- * @summary Получить статус интеграции MoySklad
- */
-export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
-  "configured": zod.boolean(),
-  "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD']),
-  "isActive": zod.boolean(),
-  "hasToken": zod.boolean(),
-  "tokenPreview": zod.string().nullable(),
-  "priceTypeName": zod.string(),
-  "importImages": zod.boolean(),
-  "syncStock": zod.boolean(),
-  "scheduleEnabled": zod.boolean(),
-  "schedulePattern": zod.string().nullable(),
-  "scheduleTimezone": zod.string(),
-  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
-  "syncStartedAt": zod.iso.datetime({}).nullable(),
-  "lastSyncAt": zod.iso.datetime({}).nullable(),
-  "lastSyncError": zod.string().nullable(),
-  "totalProducts": zod.number(),
-  "createdProducts": zod.number(),
-  "updatedProducts": zod.number(),
-  "deletedProducts": zod.number(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-}).nullable(),
-  "activeRun": zod.object({
-  "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
-  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
-  "jobId": zod.string().nullable(),
-  "productId": zod.string().nullable(),
-  "externalId": zod.string().nullable(),
-  "error": zod.string().nullable(),
-  "totalProducts": zod.number(),
-  "createdProducts": zod.number(),
-  "updatedProducts": zod.number(),
-  "deletedProducts": zod.number(),
-  "imagesImported": zod.number(),
-  "durationMs": zod.number().nullable(),
-  "requestedAt": zod.iso.datetime({}),
-  "startedAt": zod.iso.datetime({}).nullable(),
-  "finishedAt": zod.iso.datetime({}).nullable(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-}).nullable(),
-  "lastRun": zod.object({
-  "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
-  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
-  "jobId": zod.string().nullable(),
-  "productId": zod.string().nullable(),
-  "externalId": zod.string().nullable(),
-  "error": zod.string().nullable(),
-  "totalProducts": zod.number(),
-  "createdProducts": zod.number(),
-  "updatedProducts": zod.number(),
-  "deletedProducts": zod.number(),
-  "imagesImported": zod.number(),
-  "durationMs": zod.number().nullable(),
-  "requestedAt": zod.iso.datetime({}),
-  "startedAt": zod.iso.datetime({}).nullable(),
-  "finishedAt": zod.iso.datetime({}).nullable(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-}).nullable()
-})
-
-
-/**
- * @summary Получить историю sync MoySklad
- */
-export const IntegrationControllerGetMoySkladRunsQueryParams = zod.object({
-  "limit": zod.number().optional().describe('Сколько последних запусков вернуть')
-})
-
-export const IntegrationControllerGetMoySkladRunsResponseItem = zod.object({
-  "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
-  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
-  "jobId": zod.string().nullable(),
-  "productId": zod.string().nullable(),
-  "externalId": zod.string().nullable(),
-  "error": zod.string().nullable(),
-  "totalProducts": zod.number(),
-  "createdProducts": zod.number(),
-  "updatedProducts": zod.number(),
-  "deletedProducts": zod.number(),
-  "imagesImported": zod.number(),
-  "durationMs": zod.number().nullable(),
-  "requestedAt": zod.iso.datetime({}),
-  "startedAt": zod.iso.datetime({}).nullable(),
-  "finishedAt": zod.iso.datetime({}).nullable(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-})
-export const IntegrationControllerGetMoySkladRunsResponse = zod.array(IntegrationControllerGetMoySkladRunsResponseItem)
-
-
-/**
- * @summary Проверить подключение к MoySklad
- */
-export const IntegrationControllerTestMoySkladConnectionBody = zod.object({
-  "token": zod.string().optional()
-})
-
-export const IntegrationControllerTestMoySkladConnectionResponse = zod.object({
-  "ok": zod.boolean()
-})
-
-
-/**
- * @summary Поставить полный sync MoySklad в очередь
- */
-export const IntegrationControllerSyncMoySkladCatalogResponse = zod.object({
-  "ok": zod.boolean(),
-  "queued": zod.boolean(),
-  "runId": zod.string(),
-  "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
-})
-
-
-/**
- * @summary Отменить текущий sync MoySklad
- */
-export const IntegrationControllerCancelMoySkladSyncResponse = zod.object({
-  "ok": zod.boolean()
-})
-
-
-/**
- * @summary Поставить sync одного товара MoySklad в очередь
- */
-export const IntegrationControllerSyncMoySkladProductParams = zod.object({
-  "id": zod.string().describe('ID локального товара')
-})
-
-export const IntegrationControllerSyncMoySkladProductResponse = zod.object({
-  "ok": zod.boolean(),
-  "queued": zod.boolean(),
-  "runId": zod.string(),
-  "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
 })
 
 
@@ -1073,7 +1227,7 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "updatedAt": zod.iso.datetime({}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -1305,7 +1459,7 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "updatedAt": zod.iso.datetime({}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -1482,7 +1636,7 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
   "updatedAt": zod.iso.datetime({}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -1693,7 +1847,7 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "updatedAt": zod.iso.datetime({}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -1786,7 +1940,7 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "updatedAt": zod.iso.datetime({}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -1890,7 +2044,7 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "updatedAt": zod.iso.datetime({}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL']),
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -5009,6 +5163,273 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "updatedAt": zod.iso.datetime({})
 }).nullable(),
   "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Получить настройки интеграции MoySklad
+ */
+export const IntegrationControllerGetMoySkladResponse = zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "isActive": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "priceTypeName": zod.string(),
+  "importImages": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Создать или заменить настройки MoySklad
+ */
+export const IntegrationControllerUpsertMoySkladBody = zod.object({
+  "token": zod.string(),
+  "isActive": zod.boolean().optional(),
+  "priceTypeName": zod.string().optional(),
+  "importImages": zod.boolean().optional(),
+  "syncStock": zod.boolean().optional(),
+  "scheduleEnabled": zod.boolean().optional(),
+  "schedulePattern": zod.string().optional(),
+  "scheduleTimezone": zod.string().optional()
+})
+
+export const IntegrationControllerUpsertMoySkladResponse = zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "isActive": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "priceTypeName": zod.string(),
+  "importImages": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Обновить настройки MoySklad
+ */
+export const IntegrationControllerUpdateMoySkladBody = zod.object({
+  "token": zod.string().optional(),
+  "isActive": zod.boolean().optional(),
+  "priceTypeName": zod.string().optional(),
+  "importImages": zod.boolean().optional(),
+  "syncStock": zod.boolean().optional(),
+  "scheduleEnabled": zod.boolean().optional(),
+  "schedulePattern": zod.string().optional(),
+  "scheduleTimezone": zod.string().optional()
+})
+
+export const IntegrationControllerUpdateMoySkladResponse = zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "isActive": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "priceTypeName": zod.string(),
+  "importImages": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Удалить настройки MoySklad
+ */
+export const IntegrationControllerRemoveMoySkladResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Получить статус интеграции MoySklad
+ */
+export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
+  "configured": zod.boolean(),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "isActive": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "priceTypeName": zod.string(),
+  "importImages": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "activeRun": zod.object({
+  "id": zod.string(),
+  "provider": zod.enum(['MOYSKLAD']),
+  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "jobId": zod.string().nullable(),
+  "productId": zod.string().nullable(),
+  "externalId": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "imagesImported": zod.number(),
+  "durationMs": zod.number().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "lastRun": zod.object({
+  "id": zod.string(),
+  "provider": zod.enum(['MOYSKLAD']),
+  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "jobId": zod.string().nullable(),
+  "productId": zod.string().nullable(),
+  "externalId": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "imagesImported": zod.number(),
+  "durationMs": zod.number().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable()
+})
+
+
+/**
+ * @summary Получить историю sync MoySklad
+ */
+export const IntegrationControllerGetMoySkladRunsQueryParams = zod.object({
+  "limit": zod.number().optional().describe('Сколько последних запусков вернуть')
+})
+
+export const IntegrationControllerGetMoySkladRunsResponseItem = zod.object({
+  "id": zod.string(),
+  "provider": zod.enum(['MOYSKLAD']),
+  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "jobId": zod.string().nullable(),
+  "productId": zod.string().nullable(),
+  "externalId": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "imagesImported": zod.number(),
+  "durationMs": zod.number().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const IntegrationControllerGetMoySkladRunsResponse = zod.array(IntegrationControllerGetMoySkladRunsResponseItem)
+
+
+/**
+ * @summary Проверить подключение к MoySklad
+ */
+export const IntegrationControllerTestMoySkladConnectionBody = zod.object({
+  "token": zod.string().optional()
+})
+
+export const IntegrationControllerTestMoySkladConnectionResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Поставить полный sync MoySklad в очередь
+ */
+export const IntegrationControllerSyncMoySkladCatalogResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "runId": zod.string(),
+  "jobId": zod.string(),
+  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
+})
+
+
+/**
+ * @summary Отменить текущий sync MoySklad
+ */
+export const IntegrationControllerCancelMoySkladSyncResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Поставить sync одного товара MoySklad в очередь
+ */
+export const IntegrationControllerSyncMoySkladProductParams = zod.object({
+  "id": zod.string().describe('ID локального товара')
+})
+
+export const IntegrationControllerSyncMoySkladProductResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "runId": zod.string(),
+  "jobId": zod.string(),
+  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
 })
 
 

@@ -19,6 +19,8 @@ import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
 import React from "react";
 import { buildProductCardView } from "../model/product-card-view";
 
+const RU_NUMBER_FORMAT = new Intl.NumberFormat("ru");
+
 interface Props {
   actions?: React.ReactNode;
   className?: string;
@@ -72,6 +74,8 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
             src={imageUrl || "/not-found-photo.png"}
             className="absolute inset-0 h-full w-full object-contain"
             alt="Карточка товара"
+            loading="lazy"
+            decoding="async"
           />
         </AspectRatio>
       </div>
@@ -163,7 +167,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
                 isDetailed && "pl-6 text-sm",
               )}
             >
-              {Intl.NumberFormat("ru").format(price)} {currency}
+              {RU_NUMBER_FORMAT.format(price)} {currency}
             </p>
             <Badge
               className={cn(
@@ -187,7 +191,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
       >
         {displayPrice !== undefined && (
           <>
-            {Intl.NumberFormat("ru").format(displayPrice)}{" "}
+            {RU_NUMBER_FORMAT.format(displayPrice)}{" "}
             <span className="font-normal">{currency}</span>
           </>
         )}
@@ -253,14 +257,14 @@ const ProductCardBase: React.FC<Props> = ({
   );
 };
 
-type ProductCardCompound = React.FC<Props> & {
+type ProductCardCompound = React.NamedExoticComponent<Props> & {
   Content: typeof ProductCardContent;
   Footer: typeof ProductCardFooterSection;
   Header: typeof ProductCardHeaderSection;
   Layout: typeof ProductCardLayout;
 };
 
-export const ProductCard: ProductCardCompound = Object.assign(ProductCardBase, {
+export const ProductCard: ProductCardCompound = Object.assign(React.memo(ProductCardBase), {
   Layout: ProductCardLayout,
   Content: ProductCardContent,
   Header: ProductCardHeaderSection,

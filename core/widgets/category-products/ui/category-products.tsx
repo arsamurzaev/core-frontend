@@ -265,11 +265,9 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       return;
     }
 
-    window.addEventListener("scroll", measureList, { passive: true });
     window.addEventListener("resize", measureList);
 
     return () => {
-      window.removeEventListener("scroll", measureList);
       window.removeEventListener("resize", measureList);
     };
   }, [isVirtualizerEnabled, measureList]);
