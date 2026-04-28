@@ -33,11 +33,6 @@ export const ProductLink: React.FC<ProductLinkProps> = ({
       href={href}
       scroll={scroll}
       className={cn(className)}
-      onClick={() => {
-        if (product) {
-          saveProductDrawerPreview(product);
-        }
-      }}
       onPointerDown={() => {
         if (product) {
           saveProductDrawerPreview(product);

@@ -30,8 +30,49 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+const CATALOG_ID_STORAGE_KEY = "catalog_id";
+
+export function setCatalogId(catalogId: string): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(CATALOG_ID_STORAGE_KEY, catalogId);
+  }
+}
+
+export function getStoredCatalogId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(CATALOG_ID_STORAGE_KEY);
+}
+
+function expireCookie(name: string): void {
+  const expires = "expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  const base = `${name}=; path=/; ${expires}; samesite=lax; secure`;
+  document.cookie = base;
+  const parts = window.location.hostname.split(".");
+  if (parts.length >= 2) {
+    const domain = "." + parts.slice(-2).join(".");
+    document.cookie = `${base}; domain=${domain}`;
+  }
+}
+
+export function clearCatalogSession(): void {
+  if (typeof window === "undefined") return;
+  const catalogId = getStoredCatalogId();
+  if (catalogId) {
+    expireCookie(`catalog_csrf_${catalogId}`);
+  }
+  expireCookie(CSRF_COOKIE_NAME);
+  localStorage.removeItem(CATALOG_ID_STORAGE_KEY);
+}
+
+function findCsrfToken(): string | null {
+  if (typeof document === "undefined") return null;
+  const catalogId = getStoredCatalogId();
+  if (catalogId) return getCookie(`catalog_csrf_${catalogId}`);
+  return getCookie(CSRF_COOKIE_NAME);
+}
+
 export function withCsrf(headers: ApiHeaders = {}): ApiHeaders {
-  const csrf = getCookie(CSRF_COOKIE_NAME);
+  const csrf = findCsrfToken();
   if (!csrf) {
     return { ...headers };
   }

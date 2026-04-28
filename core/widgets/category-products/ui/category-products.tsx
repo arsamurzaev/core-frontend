@@ -82,7 +82,7 @@ const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_PX = 390;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const PRODUCT_SECTION_VIRTUAL_OVERSCAN = 4;
-const PRODUCT_SECTION_VIRTUAL_OVERSCAN_IOS = 10;
+const PRODUCT_SECTION_VIRTUAL_OVERSCAN_IOS = 20;
 const PRODUCT_SECTION_LOADER_ROW_KEY = "__loader__";
 const UNCATEGORIZED_QUERY_PARAMS = {
   limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
@@ -359,11 +359,12 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   React.useEffect(() => {
+    if (isIOS) return;
     rowVirtualizer.measure();
-  }, [rowVirtualizer]);
+  }, [isIOS, rowVirtualizer]);
 
   React.useEffect(() => {
-    const lastVisibleRow = virtualRows[virtualRows.length - 1];
+    const lastVisibleRow = virtualRows.at(-1);
 
     if (
       !allowLoadMore ||
@@ -375,7 +376,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       return;
     }
 
-    if (lastVisibleRow.index >= productRows.length - 8) {
+    if (lastVisibleRow.index >= productRows.length - (isIOS ? 12 : 8)) {
       void fetchNextPage();
     }
   }, [
@@ -384,6 +385,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     hasNextPage,
     isActivated,
     isFetchingNextPage,
+    isIOS,
     productRows.length,
     virtualRows,
   ]);
@@ -428,6 +430,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                     transform: `translateY(${
                       virtualRow.start - rowVirtualizer.options.scrollMargin
                     }px)`,
+                    minHeight: isIOS ? `${rowEstimateSize}px` : undefined,
                   }}
                 >
                   {isLoaderRow ? (

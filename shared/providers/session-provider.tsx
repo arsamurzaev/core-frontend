@@ -6,6 +6,7 @@ import {
   useAuthControllerMe,
   type AuthUserDto,
 } from "@/shared/api/generated/react-query";
+import { getStoredCatalogId } from "@/shared/api/client-request";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { type SessionBootstrapState } from "@/shared/providers/session-bootstrap";
 import React, {
@@ -47,7 +48,10 @@ function getCookie(name: string): string | null {
 }
 
 function hasCsrfCookie(): boolean {
-  return getCookie(CSRF_COOKIE_NAME) !== null;
+  if (getCookie(CSRF_COOKIE_NAME) !== null) return true;
+  const catalogId = getStoredCatalogId();
+  if (catalogId) return getCookie(`catalog_csrf_${catalogId}`) !== null;
+  return false;
 }
 
 function isUnauthorized(error: unknown): boolean {

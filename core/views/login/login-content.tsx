@@ -1,6 +1,10 @@
 "use client";
 
-import { useAuthControllerLogin } from "@/shared/api/generated/react-query";
+import {
+  AuthUserDtoRole,
+  useAuthControllerLogin,
+} from "@/shared/api/generated/react-query";
+import { setCatalogId } from "@/shared/api/client-request";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import {
@@ -46,7 +50,12 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
     };
 
     const loginPromise = (async () => {
-      await loginMutation.mutateAsync({ data: payload });
+      const result = await loginMutation.mutateAsync({ data: payload });
+
+      if (result.user.role === AuthUserDtoRole.CATALOG && result.catalogId) {
+        setCatalogId(result.catalogId);
+      }
+
       router.replace("/");
       router.refresh();
     })();

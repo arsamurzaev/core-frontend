@@ -54,7 +54,7 @@ const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_PX = 320;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const FILTER_PRODUCTS_VIRTUAL_OVERSCAN = 4;
-const FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS = 10;
+const FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS = 20;
 const FILTER_PRODUCTS_LOADER_ROW_KEY = "__loader__";
 
 function createSkeletonKeys(length: number): number[] {
@@ -290,6 +290,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                       transform: `translateY(${
                         virtualRow.start - rowVirtualizer.options.scrollMargin
                       }px)`,
+                      minHeight: isIOS ? `${rowEstimateSize}px` : undefined,
                     }}
                   >
                     {isLoaderRow ? (

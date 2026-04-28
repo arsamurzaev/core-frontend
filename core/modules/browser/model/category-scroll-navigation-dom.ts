@@ -33,9 +33,19 @@ function getCategorySections(categoryIds: string[]): CategorySectionSnapshot[] {
     );
 }
 
+let cachedLineY: number | null = null;
+
+export function invalidateCategoryScrollCache(): void {
+  cachedLineY = null;
+}
+
 export function getActiveCategoryLineY(): number {
+  if (cachedLineY !== null) {
+    return cachedLineY;
+  }
   const filterBar = document.getElementById("catalog-filter-bar");
-  return (filterBar?.getBoundingClientRect().bottom ?? 0) + FILTER_BAR_SCROLL_OFFSET;
+  cachedLineY = (filterBar?.getBoundingClientRect().bottom ?? 0) + FILTER_BAR_SCROLL_OFFSET;
+  return cachedLineY;
 }
 
 export function alignCategorySectionToLine(params: {

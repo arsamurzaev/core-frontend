@@ -71,6 +71,8 @@ export interface AuthUserDto {
 export interface AuthLoginResponseDto {
   ok: boolean;
   user: AuthUserDto;
+  /** @nullable */
+  catalogId?: string | null;
 }
 
 export interface AuthCatalogLoginResponseDto {

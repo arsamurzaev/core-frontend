@@ -60,7 +60,8 @@ export const AuthControllerLoginResponse = zod.object({
   "login": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['CATALOG', 'USER', 'ADMIN'])
-})
+}),
+  "catalogId": zod.string().nullish()
 })
 
 
@@ -74,7 +75,8 @@ export const AuthControllerMeResponse = zod.object({
   "login": zod.string(),
   "name": zod.string(),
   "role": zod.enum(['CATALOG', 'USER', 'ADMIN'])
-})
+}),
+  "catalogId": zod.string().nullish()
 })
 
 
