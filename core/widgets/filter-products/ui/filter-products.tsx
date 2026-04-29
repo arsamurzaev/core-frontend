@@ -22,7 +22,9 @@ import { useFilterRecommendations } from "@/core/widgets/filter-products/model/u
 import { useFilterProducts } from "@/core/widgets/filter-products/model/use-filter-products";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import { cn } from "@/shared/lib/utils";
+import { useIsIOS } from "@/shared/lib/use-ios-scroll-fix";
 import { useSession } from "@/shared/providers/session-provider";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
 
 interface FilterProductsProps {
@@ -51,6 +53,9 @@ const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
 const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_PX = 320;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
+const FILTER_PRODUCTS_VIRTUAL_OVERSCAN = 4;
+const FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS = 20;
+const FILTER_PRODUCTS_LOADER_ROW_KEY = "__loader__";
 
 function createSkeletonKeys(length: number): number[] {
   return Array.from({ length }, (_, index) => index);
@@ -121,8 +126,10 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
 }) => {
   const { isAuthenticated } = useSession();
   const { quantityByProductId, shouldUseCartUi } = useCart();
+  const isIOS = useIsIOS();
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [listWidth, setListWidth] = React.useState(0);
+  const [scrollMargin, setScrollMargin] = React.useState(0);
   const listClassName = React.useMemo(
     () =>
       isDetailed
@@ -169,15 +176,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   const rowEstimateSize = isDetailed
     ? DETAILED_VIRTUAL_ROW_ESTIMATE_PX
     : GRID_VIRTUAL_ROW_ESTIMATE_PX;
-  const rowVisibilityStyle = React.useMemo(
-    () =>
-      ({
-        contentVisibility: "auto",
-        containIntrinsicSize: `auto ${rowEstimateSize}px`,
-        padding: 4,
-      }) satisfies React.CSSProperties,
-    [rowEstimateSize],
-  );
+  const isVirtualizerEnabled = !isLoading && products.length > 0;
   const measureList = React.useCallback(() => {
     const list = listRef.current;
 
@@ -186,9 +185,16 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
     }
 
     const nextListWidth = list.clientWidth;
+    const nextScrollMargin = Math.max(
+      0,
+      Math.round(list.getBoundingClientRect().top + window.scrollY),
+    );
 
     setListWidth((previousValue) =>
       previousValue === nextListWidth ? previousValue : nextListWidth,
+    );
+    setScrollMargin((previousValue) =>
+      previousValue === nextScrollMargin ? previousValue : nextScrollMargin,
     );
   }, []);
 
@@ -213,7 +219,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   }, [measureList]);
 
   React.useEffect(() => {
-    if (isLoading || products.length === 0 || typeof window === "undefined") {
+    if (!isVirtualizerEnabled || typeof window === "undefined") {
       return;
     }
 
@@ -222,7 +228,42 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
     return () => {
       window.removeEventListener("resize", measureList);
     };
-  }, [isLoading, measureList, products.length]);
+  }, [isVirtualizerEnabled, measureList]);
+
+  const getVirtualRowKey = React.useCallback(
+    (index: number) => {
+      const rowItems = productRows[index];
+
+      if (rowItems) {
+        return `${sectionKey}:${rowItems[0].id}`;
+      }
+
+      return `${sectionKey}:${FILTER_PRODUCTS_LOADER_ROW_KEY}:${index}`;
+    },
+    [productRows, sectionKey],
+  );
+
+  const rowVirtualizer = useWindowVirtualizer({
+    count: productRows.length + (isFetchingNextPage ? 1 : 0),
+    estimateSize: React.useCallback(() => rowEstimateSize, [rowEstimateSize]),
+    overscan: isIOS
+      ? FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS
+      : FILTER_PRODUCTS_VIRTUAL_OVERSCAN,
+    scrollMargin,
+    gap: PRODUCT_CARD_GAP_PX,
+    enabled: isVirtualizerEnabled,
+    getItemKey: getVirtualRowKey,
+    useFlushSync: false,
+  });
+  const virtualRows = rowVirtualizer.getVirtualItems();
+
+  React.useEffect(() => {
+    if (isIOS) {
+      return;
+    }
+
+    rowVirtualizer.measure();
+  }, [isIOS, rowVirtualizer]);
 
   return (
     <div className="space-y-6">
@@ -242,44 +283,63 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
       ) : (
         <>
           <div ref={listRef} style={{ overflowAnchor: "none" }}>
-            <div className="space-y-4">
-              {productRows.map((rowItems, rowIndex) => (
+            <div
+              className="relative w-full"
+              style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+            >
+              {virtualRows.map((virtualRow) => {
+                const rowItems = productRows[virtualRow.index];
+                const isLoaderRow = !rowItems;
+
+                return (
                 <div
-                  key={`${sectionKey}:row:${rowItems[0]?.id ?? rowIndex}`}
-                  className="grid gap-4"
+                  key={virtualRow.key}
+                  data-index={virtualRow.index}
+                  ref={isIOS ? undefined : rowVirtualizer.measureElement}
+                  className="absolute top-0 left-0 w-full"
                   style={{
-                    ...rowVisibilityStyle,
-                    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                    transform: `translateY(${
+                      virtualRow.start - rowVirtualizer.options.scrollMargin
+                    }px)`,
+                    minHeight: isIOS ? `${rowEstimateSize}px` : undefined,
                   }}
                 >
-                  {rowItems.map((product) => (
-                    <FilterProductCard
-                      key={product.id}
-                      product={product}
-                      isDetailed={isDetailed}
-                      shouldUseCartUi={shouldUseCartUi}
-                      isAuthenticated={isAuthenticated}
-                      quantity={quantityByProductId[product.id] ?? 0}
-                    />
-                  ))}
+                  {isLoaderRow ? (
+                    <div
+                      className="grid gap-4"
+                      style={{
+                        gridTemplateColumns: `repeat(${loaderSkeletonCount}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {Array.from({ length: loaderSkeletonCount }, (_, index) => (
+                        <ProductCardSkeleton
+                          key={`${sectionKey}-next-${index}`}
+                          isDetailed={isDetailed}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div
+                      className="grid gap-4"
+                      style={{
+                        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {rowItems.map((product) => (
+                        <FilterProductCard
+                          key={product.id}
+                          product={product}
+                          isDetailed={isDetailed}
+                          shouldUseCartUi={shouldUseCartUi}
+                          isAuthenticated={isAuthenticated}
+                          quantity={quantityByProductId[product.id] ?? 0}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ))}
-              {isFetchingNextPage ? (
-                <div
-                  className="grid gap-4"
-                  style={{
-                    ...rowVisibilityStyle,
-                    gridTemplateColumns: `repeat(${loaderSkeletonCount}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {Array.from({ length: loaderSkeletonCount }, (_, index) => (
-                    <ProductCardSkeleton
-                      key={`${sectionKey}-next-${index}`}
-                      isDetailed={isDetailed}
-                    />
-                  ))}
-                </div>
-              ) : null}
+                );
+              })}
             </div>
           </div>
 

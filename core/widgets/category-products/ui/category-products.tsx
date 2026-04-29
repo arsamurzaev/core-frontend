@@ -22,8 +22,10 @@ import {
   productControllerGetUncategorizedInfiniteCards,
 } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
+import { useIsIOS } from "@/shared/lib/use-ios-scroll-fix";
 import { useSession } from "@/shared/providers/session-provider";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
 
 interface CategoryProductsProps {
@@ -79,6 +81,11 @@ const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
 const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_PX = 390;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
+const PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS = 8;
+const PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS_IOS = 12;
+const PRODUCT_SECTION_VIRTUAL_OVERSCAN = 4;
+const PRODUCT_SECTION_VIRTUAL_OVERSCAN_IOS = 20;
+const PRODUCT_SECTION_LOADER_ROW_KEY = "__loader__";
 const UNCATEGORIZED_QUERY_PARAMS = {
   limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
 };
@@ -156,11 +163,14 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const { isDetailed, hasHydrated } = useProductCardViewMode();
   const { isAuthenticated } = useSession();
   const { shouldUseCartUi } = useCart();
+  const isIOS = useIsIOS();
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
   const listRef = React.useRef<HTMLDivElement | null>(null);
-  const loadMoreRef = React.useRef<HTMLDivElement | null>(null);
   const [isActivated, setIsActivated] = React.useState(initiallyActivated);
+  const [hasReachedViewport, setHasReachedViewport] =
+    React.useState(initiallyActivated);
   const [listWidth, setListWidth] = React.useState(0);
+  const [scrollMargin, setScrollMargin] = React.useState(0);
 
   React.useEffect(() => {
     if (!initiallyActivated || isActivated) {
@@ -169,6 +179,14 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 
     setIsActivated(true);
   }, [initiallyActivated, isActivated]);
+
+  React.useEffect(() => {
+    if (!initiallyActivated || hasReachedViewport) {
+      return;
+    }
+
+    setHasReachedViewport(true);
+  }, [hasReachedViewport, initiallyActivated]);
 
   React.useEffect(() => {
     if (!forceActivation || isActivated) {
@@ -215,6 +233,39 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     };
   }, [allowActivation, isActivated]);
 
+  React.useEffect(() => {
+    if (hasReachedViewport) {
+      return;
+    }
+
+    const heading = headingRef.current;
+
+    if (!heading) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === "undefined") {
+      setHasReachedViewport(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          React.startTransition(() => setHasReachedViewport(true));
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "80px 0px" },
+    );
+
+    observer.observe(heading);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasReachedViewport]);
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey,
@@ -256,19 +307,15 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 
     return rows;
   }, [columns, products]);
+  const shouldRenderLoaderRow = allowLoadMore && hasNextPage;
   const loaderSkeletonCount = isDetailed ? 1 : Math.max(1, columns);
   const rowEstimateSize = isDetailed
     ? DETAILED_VIRTUAL_ROW_ESTIMATE_PX
     : GRID_VIRTUAL_ROW_ESTIMATE_PX;
-  const rowVisibilityStyle = React.useMemo(
-    () =>
-      ({
-        contentVisibility: "auto",
-        containIntrinsicSize: `auto ${rowEstimateSize}px`,
-        padding: 4,
-      }) satisfies React.CSSProperties,
-    [rowEstimateSize],
-  );
+  const isVirtualizerEnabled =
+    isActivated &&
+    hasLoadedFirstPage &&
+    (productRows.length > 0 || shouldRenderLoaderRow);
   const listClassName = isDetailed
     ? PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME
     : PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME;
@@ -283,9 +330,16 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     }
 
     const nextListWidth = list.clientWidth;
+    const nextScrollMargin = Math.max(
+      0,
+      Math.round(list.getBoundingClientRect().top + window.scrollY),
+    );
 
     setListWidth((previousValue) =>
       previousValue === nextListWidth ? previousValue : nextListWidth,
+    );
+    setScrollMargin((previousValue) =>
+      previousValue === nextScrollMargin ? previousValue : nextScrollMargin,
     );
   }, []);
 
@@ -310,7 +364,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   }, [measureList]);
 
   React.useEffect(() => {
-    if (!hasLoadedFirstPage || typeof window === "undefined") {
+    if (!isVirtualizerEnabled || typeof window === "undefined") {
       return;
     }
 
@@ -319,46 +373,76 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     return () => {
       window.removeEventListener("resize", measureList);
     };
-  }, [hasLoadedFirstPage, measureList]);
+  }, [isVirtualizerEnabled, measureList]);
+
+  const getVirtualRowKey = React.useCallback(
+    (index: number) => {
+      const rowItems = productRows[index];
+
+      if (rowItems) {
+        const firstItem = rowItems[0];
+        const resolvedRowKey =
+          firstItem?.key ?? firstItem?.product.id ?? `row-${index}`;
+
+        return `${sectionId}:${resolvedRowKey}:${index}`;
+      }
+
+      return `${sectionId}:${PRODUCT_SECTION_LOADER_ROW_KEY}:${index}`;
+    },
+    [productRows, sectionId],
+  );
+
+  const rowVirtualizer = useWindowVirtualizer({
+    count: productRows.length + (shouldRenderLoaderRow ? 1 : 0),
+    estimateSize: React.useCallback(() => rowEstimateSize, [rowEstimateSize]),
+    overscan: isIOS
+      ? PRODUCT_SECTION_VIRTUAL_OVERSCAN_IOS
+      : PRODUCT_SECTION_VIRTUAL_OVERSCAN,
+    scrollMargin,
+    gap: PRODUCT_CARD_GAP_PX,
+    enabled: isVirtualizerEnabled,
+    getItemKey: getVirtualRowKey,
+    useFlushSync: false,
+  });
+  const virtualRows = rowVirtualizer.getVirtualItems();
 
   React.useEffect(() => {
-    const target = loadMoreRef.current;
+    if (isIOS) {
+      return;
+    }
+
+    rowVirtualizer.measure();
+  }, [isIOS, rowVirtualizer]);
+
+  React.useEffect(() => {
+    const lastVisibleRow = virtualRows.at(-1);
 
     if (
       !allowLoadMore ||
       !isActivated ||
       !hasNextPage ||
       isFetchingNextPage ||
-      !target
+      !lastVisibleRow
     ) {
       return;
     }
 
-    if (typeof IntersectionObserver === "undefined") {
+    const threshold = isIOS
+      ? PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS_IOS
+      : PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS;
+
+    if (lastVisibleRow.index >= productRows.length - threshold) {
       void fetchNextPage();
-      return;
     }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          void fetchNextPage();
-        }
-      },
-      { rootMargin: "900px 0px" },
-    );
-
-    observer.observe(target);
-
-    return () => {
-      observer.disconnect();
-    };
   }, [
     allowLoadMore,
     fetchNextPage,
     hasNextPage,
     isActivated,
     isFetchingNextPage,
+    isIOS,
+    productRows.length,
+    virtualRows,
   ]);
 
   if (hideWhenEmpty && hasLoadedFirstPage && products.length === 0) {
@@ -372,7 +456,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       </h2>
       <div ref={listRef} style={{ overflowAnchor: "none" }}>
         {!hasLoadedFirstPage ? (
-          hasHydrated ? (
+          hasHydrated && hasReachedViewport ? (
             <ul className={listClassName}>
               {Array.from({ length: initialSkeletonCount }, (_, index) => (
                 <ProductCardSkeleton
@@ -383,46 +467,66 @@ const ProductSection: React.FC<ProductSectionProps> = ({
             </ul>
           ) : null
         ) : (
-          <div className="space-y-4">
-            {productRows.map((rowItems, rowIndex) => (
+          <div
+            className="relative w-full"
+            style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+          >
+            {virtualRows.map((virtualRow) => {
+              const rowItems = productRows[virtualRow.index];
+              const isLoaderRow = !rowItems;
+
+              return (
               <div
-                key={`${sectionId}:row:${rowItems[0]?.key ?? rowIndex}`}
-                className="grid gap-4"
+                key={virtualRow.key}
+                data-index={virtualRow.index}
+                ref={isIOS ? undefined : rowVirtualizer.measureElement}
+                className="absolute top-0 left-0 w-full"
                 style={{
-                  ...rowVisibilityStyle,
-                  gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                  transform: `translateY(${
+                    virtualRow.start - rowVirtualizer.options.scrollMargin
+                  }px)`,
+                  minHeight: isIOS ? `${rowEstimateSize}px` : undefined,
                 }}
               >
-                {rowItems.map((item, itemIndex) => (
-                  <ProductSectionCard
-                    key={`${sectionId}:${item.categoryPosition ?? "na"}:${item.key ?? item.product.id}:${itemIndex}`}
-                    item={item}
-                    isDetailed={isDetailed}
-                    shouldUseCartUi={shouldUseCartUi}
-                    isAuthenticated={isAuthenticated}
-                  />
-                ))}
+                {isLoaderRow ? (
+                  isFetchingNextPage ? (
+                    <div
+                      className="grid gap-4"
+                      style={{
+                        gridTemplateColumns: `repeat(${loaderSkeletonCount}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {Array.from({ length: loaderSkeletonCount }, (_, index) => (
+                        <ProductCardSkeleton
+                          key={`next-page-${index}`}
+                          isDetailed={isDetailed}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div aria-hidden className="h-px w-full" />
+                  )
+                ) : (
+                  <div
+                    className="grid gap-4"
+                    style={{
+                      gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                    }}
+                  >
+                    {rowItems.map((item, itemIndex) => (
+                      <ProductSectionCard
+                        key={`${sectionId}:${item.categoryPosition ?? "na"}:${item.key ?? item.product.id}:${itemIndex}`}
+                        item={item}
+                        isDetailed={isDetailed}
+                        shouldUseCartUi={shouldUseCartUi}
+                        isAuthenticated={isAuthenticated}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
-            {isFetchingNextPage ? (
-              <div
-                className="grid gap-4"
-                style={{
-                  ...rowVisibilityStyle,
-                  gridTemplateColumns: `repeat(${loaderSkeletonCount}, minmax(0, 1fr))`,
-                }}
-              >
-                {Array.from({ length: loaderSkeletonCount }, (_, index) => (
-                  <ProductCardSkeleton
-                    key={`next-page-${index}`}
-                    isDetailed={isDetailed}
-                  />
-                ))}
-              </div>
-            ) : null}
-            {allowLoadMore && hasNextPage ? (
-              <div ref={loadMoreRef} aria-hidden className="h-px w-full" />
-            ) : null}
+              );
+            })}
           </div>
         )}
       </div>
