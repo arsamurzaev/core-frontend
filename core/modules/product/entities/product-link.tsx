@@ -36,6 +36,12 @@ export const ProductLink: React.FC<ProductLinkProps> = ({
 
     router.prefetch(href);
   }, [href, product, router]);
+
+  const handlePointerDown = React.useCallback(() => {
+    if (product) {
+      saveProductDrawerPreview(product);
+    }
+  }, [product]);
   const openInstantDrawer = React.useCallback((event: React.MouseEvent) => {
     if (
       event.defaultPrevented ||
@@ -63,8 +69,8 @@ export const ProductLink: React.FC<ProductLinkProps> = ({
       onClick={openInstantDrawer}
       onFocus={prepareNavigation}
       onMouseEnter={prepareNavigation}
-      onPointerDownCapture={prepareNavigation}
-      onTouchStartCapture={prepareNavigation}
+      onPointerDownCapture={handlePointerDown}
+      onTouchStartCapture={handlePointerDown}
     >
       {children}
     </Link>

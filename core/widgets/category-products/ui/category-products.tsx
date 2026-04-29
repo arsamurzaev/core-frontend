@@ -201,7 +201,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          setIsActivated(true);
+          React.startTransition(() => setIsActivated(true));
           observer.disconnect();
         }
       },
