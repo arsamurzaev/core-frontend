@@ -177,3 +177,9 @@ textarea::-webkit-scrollbar {
 [data-slot="drawer-content"] {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+html.cart-drawer-scroll-lock,
+html.cart-drawer-scroll-lock body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
