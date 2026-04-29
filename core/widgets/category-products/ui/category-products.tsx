@@ -22,7 +22,6 @@ import {
   productControllerGetUncategorizedInfiniteCards,
 } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
-import { useIsIOS } from "@/shared/lib/use-ios-scroll-fix";
 import { useSession } from "@/shared/providers/session-provider";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
@@ -85,9 +84,7 @@ const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 300;
 const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 136;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS = 8;
-const PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS_IOS = 12;
 const PRODUCT_SECTION_VIRTUAL_OVERSCAN = 4;
-const PRODUCT_SECTION_VIRTUAL_OVERSCAN_IOS = 20;
 const PRODUCT_SECTION_LOADER_ROW_KEY = "__loader__";
 const UNCATEGORIZED_QUERY_PARAMS = {
   limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
@@ -166,7 +163,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const { isDetailed, hasHydrated } = useProductCardViewMode();
   const { isAuthenticated } = useSession();
   const { shouldUseCartUi } = useCart();
-  const isIOS = useIsIOS();
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [isActivated, setIsActivated] = React.useState(initiallyActivated);
@@ -414,9 +410,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const rowVirtualizer = useWindowVirtualizer({
     count: productRows.length + (shouldRenderLoaderRow ? 1 : 0),
     estimateSize: React.useCallback(() => rowEstimateSize, [rowEstimateSize]),
-    overscan: isIOS
-      ? PRODUCT_SECTION_VIRTUAL_OVERSCAN_IOS
-      : PRODUCT_SECTION_VIRTUAL_OVERSCAN,
+    overscan: PRODUCT_SECTION_VIRTUAL_OVERSCAN,
     scrollMargin,
     gap: PRODUCT_CARD_GAP_PX,
     enabled: isVirtualizerEnabled,
@@ -426,12 +420,8 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   React.useEffect(() => {
-    if (isIOS) {
-      return;
-    }
-
     rowVirtualizer.measure();
-  }, [isIOS, rowVirtualizer]);
+  }, [rowVirtualizer]);
 
   React.useEffect(() => {
     const lastVisibleRow = virtualRows.at(-1);
@@ -446,11 +436,10 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       return;
     }
 
-    const threshold = isIOS
-      ? PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS_IOS
-      : PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS;
-
-    if (lastVisibleRow.index >= productRows.length - threshold) {
+    if (
+      lastVisibleRow.index >=
+      productRows.length - PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS
+    ) {
       void fetchNextPage();
     }
   }, [
@@ -459,7 +448,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     hasNextPage,
     isActivated,
     isFetchingNextPage,
-    isIOS,
     productRows.length,
     virtualRows,
   ]);
@@ -498,13 +486,12 @@ const ProductSection: React.FC<ProductSectionProps> = ({
               <div
                 key={virtualRow.key}
                 data-index={virtualRow.index}
-                ref={isIOS ? undefined : rowVirtualizer.measureElement}
+                ref={rowVirtualizer.measureElement}
                 className="absolute top-0 left-0 w-full"
                 style={{
                   transform: `translateY(${
                     virtualRow.start - rowVirtualizer.options.scrollMargin
                   }px)`,
-                  minHeight: isIOS ? `${rowEstimateSize}px` : undefined,
                 }}
               >
                 {isLoaderRow ? (

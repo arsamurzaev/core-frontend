@@ -22,7 +22,6 @@ import { useFilterRecommendations } from "@/core/widgets/filter-products/model/u
 import { useFilterProducts } from "@/core/widgets/filter-products/model/use-filter-products";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import { cn } from "@/shared/lib/utils";
-import { useIsIOS } from "@/shared/lib/use-ios-scroll-fix";
 import { useSession } from "@/shared/providers/session-provider";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
@@ -57,7 +56,6 @@ const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 300;
 const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 136;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const FILTER_PRODUCTS_VIRTUAL_OVERSCAN = 4;
-const FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS = 20;
 const FILTER_PRODUCTS_LOADER_ROW_KEY = "__loader__";
 
 function createSkeletonKeys(length: number): number[] {
@@ -129,7 +127,6 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
 }) => {
   const { isAuthenticated } = useSession();
   const { quantityByProductId, shouldUseCartUi } = useCart();
-  const isIOS = useIsIOS();
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [listWidth, setListWidth] = React.useState(0);
   const [scrollMargin, setScrollMargin] = React.useState(0);
@@ -265,9 +262,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   const rowVirtualizer = useWindowVirtualizer({
     count: productRows.length + (isFetchingNextPage ? 1 : 0),
     estimateSize: React.useCallback(() => rowEstimateSize, [rowEstimateSize]),
-    overscan: isIOS
-      ? FILTER_PRODUCTS_VIRTUAL_OVERSCAN_IOS
-      : FILTER_PRODUCTS_VIRTUAL_OVERSCAN,
+    overscan: FILTER_PRODUCTS_VIRTUAL_OVERSCAN,
     scrollMargin,
     gap: PRODUCT_CARD_GAP_PX,
     enabled: isVirtualizerEnabled,
@@ -277,12 +272,8 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   React.useEffect(() => {
-    if (isIOS) {
-      return;
-    }
-
     rowVirtualizer.measure();
-  }, [isIOS, rowVirtualizer]);
+  }, [rowVirtualizer]);
 
   return (
     <div className="space-y-6">
@@ -314,13 +305,12 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                 <div
                   key={virtualRow.key}
                   data-index={virtualRow.index}
-                  ref={isIOS ? undefined : rowVirtualizer.measureElement}
+                  ref={rowVirtualizer.measureElement}
                   className="absolute top-0 left-0 w-full"
                   style={{
                     transform: `translateY(${
                       virtualRow.start - rowVirtualizer.options.scrollMargin
                     }px)`,
-                    minHeight: isIOS ? `${rowEstimateSize}px` : undefined,
                   }}
                 >
                   {isLoaderRow ? (
