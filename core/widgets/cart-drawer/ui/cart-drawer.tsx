@@ -6,6 +6,7 @@ import { CartDrawerFooter } from "@/core/widgets/cart-drawer/ui/cart-drawer-foot
 import { CartDrawerHeader } from "@/core/widgets/cart-drawer/ui/cart-drawer-header";
 import { ProductDrawer } from "@/core/widgets/product-drawer/ui/product-drawer";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
+import { useIsIOS } from "@/shared/lib/use-ios-scroll-fix";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -16,6 +17,7 @@ import React from "react";
 import { toast } from "sonner";
 
 const SNAP_POINTS = ["111px", 1] as const;
+const IOS_SCROLL_IDLE_DELAY_MS = 220;
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error
@@ -46,6 +48,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
     shouldUseCartUi,
     totals,
   } = useCart();
+  const isIOS = useIsIOS();
   const catalog = useCatalog();
   const pathname = usePathname();
   const currency = items[0]?.currency ?? getCatalogCurrency(catalog, "RUB");
@@ -54,6 +57,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
     SNAP_POINTS[0],
   );
   const autoExpandedPublicCartRef = React.useRef<string | null>(null);
+  const scrollIdleTimerRef = React.useRef<number | null>(null);
+  const hasMountedVisibleDrawerRef = React.useRef(false);
+  const [isPageScrolling, setIsPageScrolling] = React.useState(false);
+  const [hasMountedVisibleDrawer, setHasMountedVisibleDrawer] =
+    React.useState(false);
   const [selectedProduct, setSelectedProduct] =
     React.useState<ProductWithDetailsDto | null>(null);
   const [isProductDrawerOpen, setIsProductDrawerOpen] = React.useState(false);
@@ -63,10 +71,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const shouldHideCartWhileProductRouteOpen =
     pathname?.startsWith("/product/") ?? false;
   const isFullyExpanded = snapPoint === 1;
-  const shouldLockPageScroll =
-    isFullyExpanded &&
-    !shouldHideDrawer &&
-    !shouldHideCartWhileProductRouteOpen;
   const publicAccessPublicKey = publicAccess?.publicKey ?? null;
   const publicAccessCheckoutKey = publicAccess?.checkoutKey ?? null;
   const publicCartAccessKey =
@@ -76,6 +80,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const shouldAutoExpandPublicCart =
     Boolean(publicCartAccessKey) &&
     autoExpandPublicCartAccessKey === publicCartAccessKey;
+
+  React.useEffect(() => {
+    hasMountedVisibleDrawerRef.current = hasMountedVisibleDrawer;
+  }, [hasMountedVisibleDrawer]);
 
   React.useEffect(() => {
     if (!publicCartAccessKey) {
@@ -95,6 +103,52 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
     autoExpandedPublicCartRef.current = publicCartAccessKey;
   }, [publicCartAccessKey, shouldAutoExpandPublicCart]);
 
+  React.useEffect(() => {
+    if (!isIOS) {
+      return;
+    }
+
+    const handleScroll = () => {
+      if (hasMountedVisibleDrawerRef.current) {
+        return;
+      }
+
+      setIsPageScrolling(true);
+
+      if (scrollIdleTimerRef.current !== null) {
+        window.clearTimeout(scrollIdleTimerRef.current);
+      }
+
+      scrollIdleTimerRef.current = window.setTimeout(() => {
+        scrollIdleTimerRef.current = null;
+        setIsPageScrolling(false);
+      }, IOS_SCROLL_IDLE_DELAY_MS);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+
+      if (scrollIdleTimerRef.current !== null) {
+        window.clearTimeout(scrollIdleTimerRef.current);
+        scrollIdleTimerRef.current = null;
+      }
+    };
+  }, [isIOS]);
+
+  React.useEffect(() => {
+    if (shouldHideDrawer) {
+      setHasMountedVisibleDrawer(false);
+      return;
+    }
+
+    if (isIOS && isPageScrolling) {
+      return;
+    }
+
+    setHasMountedVisibleDrawer(true);
+  }, [isIOS, isPageScrolling, shouldHideDrawer]);
 
   const handleHeaderAction = React.useCallback(async () => {
     if (isManagedPublicCart) {
@@ -185,7 +239,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
     setSelectedProduct(null);
   }, []);
 
-  if (shouldHideDrawer) {
+  if (shouldHideDrawer || (isIOS && !hasMountedVisibleDrawer)) {
     return null;
   }
 
