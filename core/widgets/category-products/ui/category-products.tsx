@@ -79,7 +79,10 @@ const GRID_INITIAL_SKELETON_ITEMS_COUNT = CATEGORY_PRODUCTS_PAGE_SIZE / 2;
 const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 8;
 const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
 const PRODUCT_CARD_GAP_PX = 16;
-const GRID_VIRTUAL_ROW_ESTIMATE_PX = 390;
+const GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX = 360;
+const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 390;
+const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 300;
+const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 136;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS = 8;
 const PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS_IOS = 12;
@@ -309,9 +312,25 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   }, [columns, products]);
   const shouldRenderLoaderRow = allowLoadMore && hasNextPage;
   const loaderSkeletonCount = isDetailed ? 1 : Math.max(1, columns);
-  const rowEstimateSize = isDetailed
-    ? DETAILED_VIRTUAL_ROW_ESTIMATE_PX
-    : GRID_VIRTUAL_ROW_ESTIMATE_PX;
+  const rowEstimateSize = React.useMemo(() => {
+    if (isDetailed) {
+      return DETAILED_VIRTUAL_ROW_ESTIMATE_PX;
+    }
+
+    if (listWidth <= 0) {
+      return GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX;
+    }
+
+    const columnWidth =
+      (listWidth - PRODUCT_CARD_GAP_PX * Math.max(0, columns - 1)) / columns;
+    const estimatedHeight =
+      Math.ceil(columnWidth * (4 / 3)) + GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX;
+
+    return Math.min(
+      GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX,
+      Math.max(GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX, estimatedHeight),
+    );
+  }, [columns, isDetailed, listWidth]);
   const isVirtualizerEnabled =
     isActivated &&
     hasLoadedFirstPage &&
