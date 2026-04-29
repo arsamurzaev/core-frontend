@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { buildHomeHrefWithCatalogQuery } from "@/shared/lib/product-route";
+import { dispatchProductDrawerRouteReady } from "../model/product-drawer-instant-events";
 import { getProductDrawerPreview } from "../model/product-drawer-preview";
 import { ProductDrawer } from "./product-drawer";
 
@@ -34,6 +35,7 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   React.useEffect(() => {
     setPreviewProduct(getProductDrawerPreview(productSlug));
     setOpen(true);
+    dispatchProductDrawerRouteReady();
   }, [productSlug]);
 
   const handleOpenChange = React.useCallback((nextOpen: boolean) => {

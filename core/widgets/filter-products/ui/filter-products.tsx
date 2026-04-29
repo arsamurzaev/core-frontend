@@ -174,6 +174,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
       ({
         contentVisibility: "auto",
         containIntrinsicSize: `auto ${rowEstimateSize}px`,
+        padding: 4,
       }) satisfies React.CSSProperties,
     [rowEstimateSize],
   );

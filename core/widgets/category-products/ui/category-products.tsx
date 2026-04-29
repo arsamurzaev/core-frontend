@@ -265,6 +265,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       ({
         contentVisibility: "auto",
         containIntrinsicSize: `auto ${rowEstimateSize}px`,
+        padding: 4,
       }) satisfies React.CSSProperties,
     [rowEstimateSize],
   );
