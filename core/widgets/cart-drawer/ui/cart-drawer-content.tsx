@@ -13,6 +13,7 @@ interface CartDrawerContentProps {
   comment: string;
   isLoading?: boolean;
   isManagedPublicCart: boolean;
+  isCommentLocked?: boolean;
   isPublicMode: boolean;
   items: CartItemView[];
   actionRenderer?: (productId: string) => React.ReactNode;
@@ -69,6 +70,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   comment,
   isLoading = false,
   isManagedPublicCart,
+  isCommentLocked = false,
   isPublicMode,
   items,
   actionRenderer,
@@ -78,10 +80,13 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   statusMessage,
 }) => {
   const hasItems = items.length > 0;
+  const normalizedComment = comment.trim();
   const shouldShowStatusMessage =
     !isManagedPublicCart &&
     status === "IN_PROGRESS" &&
     Boolean(statusMessage?.trim());
+  const shouldShowCommentEditor = !isCommentLocked;
+  const shouldShowReadonlyComment = isCommentLocked && Boolean(normalizedComment);
 
   return (
     <div className="my-2 space-y-6 overflow-y-auto px-2 py-2">
@@ -125,7 +130,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
         </div>
       )}
 
-      {!isLoading && hasItems ? (
+      {!isLoading && hasItems && shouldShowCommentEditor ? (
         <>
           <p className="text-sm">
             Пожалуйста, впишите в поле ваши пожелания или комментарий к заказу.
@@ -144,6 +149,13 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
             />
           </div>
         </>
+      ) : null}
+
+      {!isLoading && hasItems && shouldShowReadonlyComment ? (
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold">Комментарий:</h3>
+          <p className="whitespace-pre-wrap text-sm">{normalizedComment}</p>
+        </div>
       ) : null}
     </div>
   );

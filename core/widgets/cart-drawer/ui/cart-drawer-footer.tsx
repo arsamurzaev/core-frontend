@@ -19,6 +19,7 @@ interface CartDrawerFooterProps {
   isManagedPublicCart: boolean;
   onCollapse?: () => void;
   onCompleteOrder: () => Promise<void>;
+  onSharePrepared?: () => void;
   onShareClick: () => Promise<CartSharePayload>;
   price: number;
   totalPrice: number;
@@ -49,24 +50,29 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   isManagedPublicCart,
   onCollapse,
   onCompleteOrder,
+  onSharePrepared,
   onShareClick,
   price,
   totalPrice,
 }) => {
   const [isShareDrawerOpen, setIsShareDrawerOpen] = React.useState(false);
+  const [hasOpenedShareDrawer, setHasOpenedShareDrawer] = React.useState(false);
   const [sharePayload, setSharePayload] = React.useState<CartSharePayload | null>(
     null,
   );
+  const effectiveHasSharedCart = hasSharedCart || hasOpenedShareDrawer;
 
   const handleShare = React.useCallback(async () => {
     try {
       const nextPayload = await onShareClick();
       setSharePayload(nextPayload);
+      setHasOpenedShareDrawer(true);
+      onSharePrepared?.();
       setIsShareDrawerOpen(true);
     } catch (error) {
       toast.error(getShareErrorMessage(error));
     }
-  }, [onShareClick]);
+  }, [onShareClick, onSharePrepared]);
 
   const handleComplete = React.useCallback(async () => {
     try {
@@ -119,7 +125,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
               onClick={() => void handleShare()}
               size="full"
             >
-              {hasSharedCart ? "Поделиться" : "Оформить заказ"}
+              {effectiveHasSharedCart ? "Поделиться" : "Оформить заказ"}
             </Button>
           ) : onCollapse ? (
             <Button

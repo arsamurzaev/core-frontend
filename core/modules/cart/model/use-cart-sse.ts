@@ -25,6 +25,7 @@ import { type CartDto } from "@/shared/api/generated/react-query";
 type UseCartSseParams = {
   activeCart: CartDto | null;
   clearStoredPublicAccess: () => void;
+  handleSseConnected?: (access?: CartPublicAccess | null) => void;
   handleSseCartStatusChanged: (cart: CartDto, access?: CartPublicAccess | null) => void;
   handleSseCartUpdated: (cart: CartDto, access?: CartPublicAccess | null) => void;
   isHydrated: boolean;
@@ -50,6 +51,7 @@ function getCartItemsFingerprint(cart: CartDto | null | undefined): string | nul
 export function useCartSse({
   activeCart,
   clearStoredPublicAccess,
+  handleSseConnected,
   handleSseCartStatusChanged,
   handleSseCartUpdated,
   isHydrated,
@@ -74,7 +76,11 @@ export function useCartSse({
       return;
     }
 
-    if (mode !== "public" || !storedPublicAccess) {
+    if (mode === "public" && !storedPublicAccess) {
+      return;
+    }
+
+    if (mode === "current" && !activeCart) {
       return;
     }
 
@@ -101,6 +107,11 @@ export function useCartSse({
             {
               signal: abortController.signal,
               onEvent: (event) => {
+                if (event.type === "connected") {
+                  handleSseConnected?.(storedPublicAccess);
+                  return;
+                }
+
                 if (isCartUpdatedEvent(event)) {
                   const nextFingerprint = getCartItemsFingerprint(event.data);
                   const shouldNotifyCartUpdated =
@@ -132,6 +143,11 @@ export function useCartSse({
           await connectCartControllerSseCurrent({
             signal: abortController.signal,
             onEvent: (event) => {
+              if (event.type === "connected") {
+                handleSseConnected?.();
+                return;
+              }
+
               if (isCartUpdatedEvent(event)) {
                 const nextFingerprint = getCartItemsFingerprint(event.data);
                 const shouldNotifyCartUpdated =
@@ -186,6 +202,7 @@ export function useCartSse({
     };
   }, [
     clearStoredPublicAccess,
+    handleSseConnected,
     handleSseCartStatusChanged,
     handleSseCartUpdated,
     isHydrated,

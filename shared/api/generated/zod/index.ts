@@ -5448,6 +5448,7 @@ export const CartControllerGetCurrentResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5481,6 +5482,14 @@ export const CartControllerGetCurrentResponse = zod.object({
 /**
  * @summary Issue a public key for the current cart
  */
+export const cartControllerShareCurrentBodyCommentMax = 1000;
+
+
+
+export const CartControllerShareCurrentBody = zod.object({
+  "comment": zod.string().max(cartControllerShareCurrentBodyCommentMax).optional()
+})
+
 export const CartControllerShareCurrentResponse = zod.object({
   "ok": zod.boolean(),
   "cart": zod.object({
@@ -5491,6 +5500,7 @@ export const CartControllerShareCurrentResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5541,6 +5551,7 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5588,6 +5599,7 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5635,6 +5647,7 @@ export const CartControllerCreateCheckoutKeyResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5688,6 +5701,7 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5735,6 +5749,7 @@ export const CartControllerStartManagerSessionResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5782,6 +5797,7 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5829,6 +5845,7 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5909,6 +5926,7 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),
@@ -5961,6 +5979,7 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "statusChangedAt": zod.iso.datetime({}),
   "publicKey": zod.string().nullable(),
   "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
   "assignedManagerId": zod.uuid().nullable(),
   "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
   "managerLastSeenAt": zod.iso.datetime({}).nullable(),

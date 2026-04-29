@@ -8,7 +8,11 @@ type CartRealtimeEvent = {
 export function isInactiveSharedCartStatus(
   status: CartDto["status"] | null | undefined,
 ) {
-  return status === "PAUSED" || status === "CONVERTED";
+  return (
+    status === "CONVERTED" ||
+    status === "CANCELLED" ||
+    status === "EXPIRED"
+  );
 }
 
 export function isCartUpdatedEvent(

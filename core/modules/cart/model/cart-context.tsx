@@ -209,6 +209,7 @@ function createOptimisticCart(params: {
       statusChangedAt: now,
       publicKey: null,
       checkoutAt: null,
+      comment: null,
       assignedManagerId: null,
       managerSessionStartedAt: null,
       managerLastSeenAt: null,
@@ -267,6 +268,36 @@ function createOptimisticCart(params: {
       total: subtotal,
     },
     updatedAt: now,
+  };
+}
+
+function mergeCartRealtimeStatus(
+  nextCart: CartDto | null,
+  previousCart: CartDto | null | undefined,
+): CartDto | null {
+  if (!nextCart || !previousCart || nextCart.id !== previousCart.id) {
+    return nextCart;
+  }
+
+  const nextUpdatedAt = Date.parse(nextCart.updatedAt);
+  const previousUpdatedAt = Date.parse(previousCart.updatedAt);
+  const shouldKeepPreviousStatus =
+    Number.isFinite(nextUpdatedAt) &&
+    Number.isFinite(previousUpdatedAt) &&
+    nextUpdatedAt < previousUpdatedAt;
+
+  if (!shouldKeepPreviousStatus) {
+    return nextCart;
+  }
+
+  return {
+    ...nextCart,
+    assignedManagerId: previousCart.assignedManagerId,
+    managerLastSeenAt: previousCart.managerLastSeenAt,
+    managerSessionStartedAt: previousCart.managerSessionStartedAt,
+    status: previousCart.status,
+    statusChangedAt: previousCart.statusChangedAt,
+    statusMessage: previousCart.statusMessage,
   };
 }
 
@@ -336,10 +367,10 @@ function buildLegacyCartShareText(params: {
       ? `Сумма: ${formatShareMoney(totals.subtotal, currency)}`
       : `Сумма: ~${formatShareMoney(totals.originalSubtotal, currency)}~ ${formatShareMoney(totals.subtotal, currency)}`;
 
-  return [url, "", "Заказ:", productsText, normalizedComment ? "" : null]
-    .concat(normalizedComment ? ["Комментарий:", normalizedComment] : [])
+  return ["", url, "", "Заказ:", productsText]
+    .concat(normalizedComment ? ["", "Комментарий:", normalizedComment] : [])
     .concat(["", priceText])
-    .filter(Boolean)
+    .filter((line): line is string => line !== null && line !== undefined)
     .join("\n");
 }
 
@@ -371,6 +402,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     React.useState<string | null>(null);
   const [isHydrated, setIsHydrated] = React.useState(false);
   const lastPublicCartUnavailableToastAtRef = React.useRef(0);
+  const lastClosedOrderToastKeyRef = React.useRef<string | null>(null);
   const resettingInactiveCartRef = React.useRef<string | null>(null);
   const currentCartNotFoundHandledRef = React.useRef(false);
 
@@ -572,6 +604,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
   const mode: CartMode =
     storedPublicAccess && !isOwnSharedCart ? "public" : "current";
+  const isCatalogManager = Boolean(user && isCatalogManagerRole(user.role));
 
   const publicCartQuery = useQuery({
     queryKey:
@@ -599,6 +632,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       isHydrated &&
       mode === "public" &&
       Boolean(storedPublicAccess?.publicKey && storedPublicAccess.checkoutKey),
+    refetchInterval: mode === "public" && isCatalogManager ? 5_000 : false,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
     retry: (failureCount, error) => {
@@ -651,11 +685,11 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   });
   const catalogMode = useCatalogMode();
   const shouldUseCartUi =
+    isHydrated &&
     catalogMode !== "BROWSE" &&
     (mode === "public" || (!isSessionLoading && !isAuthenticated));
   const canShare = shouldUseCartUi && catalogMode === "DELIVERY";
-  const isManagedPublicCart =
-    mode === "public" && Boolean(user && isCatalogManagerRole(user.role));
+  const isManagedPublicCart = mode === "public" && isCatalogManager;
   const shareCurrency = items[0]?.currency ?? fallbackCurrency;
   const shareTitle = React.useMemo(() => {
     const normalizedCatalogName = catalog.name?.trim();
@@ -665,14 +699,18 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   }, [catalog.name]);
   const setCurrentCartData = React.useCallback(
     (cart: CartDto | null) => {
-      if (cart) {
+      const previousCart =
+        queryClient.getQueryData<CartDto | null>(cartQueryKeys.current);
+      const nextCart = mergeCartRealtimeStatus(cart, previousCart);
+
+      if (nextCart) {
         persistStoredCurrentCart();
         currentCartNotFoundHandledRef.current = false;
       } else {
         clearStoredCurrentCart();
       }
 
-      queryClient.setQueryData(cartQueryKeys.current, cart);
+      queryClient.setQueryData(cartQueryKeys.current, nextCart);
     },
     [clearStoredCurrentCart, persistStoredCurrentCart, queryClient],
   );
@@ -683,9 +721,13 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
         return;
       }
 
+      const queryKey = cartQueryKeys.public(access.publicKey, access.checkoutKey);
+      const previousCart = queryClient.getQueryData<CartDto | null>(queryKey);
+      const nextCart = mergeCartRealtimeStatus(cart, previousCart);
+
       queryClient.setQueryData(
-        cartQueryKeys.public(access.publicKey, access.checkoutKey),
-        cart,
+        queryKey,
+        nextCart,
       );
     },
     [queryClient],
@@ -701,6 +743,20 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       setCurrentCartData(cart);
     },
     [setCurrentCartData, setPublicCartData],
+  );
+
+  const handleSseConnected = React.useCallback(
+    (access?: CartPublicAccess | null) => {
+      if (access) {
+        void queryClient.invalidateQueries({
+          queryKey: cartQueryKeys.public(access.publicKey, access.checkoutKey),
+        });
+        return;
+      }
+
+      void queryClient.invalidateQueries({ queryKey: cartQueryKeys.current });
+    },
+    [queryClient],
   );
 
   const dismissPublicCart = React.useCallback(
@@ -766,12 +822,25 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
         setCurrentCartData(cart);
       }
 
+      if (cart.status === "CONVERTED" && !isCatalogManagerRole(user?.role)) {
+        const toastKey = `${cart.id}:${cart.statusChangedAt ?? cart.updatedAt}`;
+
+        if (lastClosedOrderToastKeyRef.current !== toastKey) {
+          lastClosedOrderToastKeyRef.current = toastKey;
+          toast.success("Заказ был успешно закрыт.");
+        }
+      }
+
       if (!isInactiveSharedCartStatus(cart.status)) {
         return;
       }
 
       if (access && isManagedPublicCart) {
         dismissPublicCart(access);
+        return;
+      }
+
+      if (!isCatalogManagerRole(user?.role) && (access || cart.publicKey)) {
         return;
       }
 
@@ -949,7 +1018,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   });
 
   const shareCurrentCartMutation = useMutation({
-    mutationFn: async () => cartControllerShareCurrent(),
+    mutationFn: async (comment?: string) =>
+      cartControllerShareCurrent(comment ? { comment } : undefined),
     onSuccess: (response) => {
       setCurrentCartData(response.cart);
     },
@@ -988,6 +1058,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   useCartSse({
     activeCart,
     clearStoredPublicAccess,
+    handleSseConnected,
     handleSseCartStatusChanged,
     handleSseCartUpdated,
     isHydrated,
@@ -1102,9 +1173,12 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     }
 
     let access = storedPublicAccess;
+    const normalizedComment = comment?.trim();
 
     if (!access) {
-      const shared = await shareCurrentCartMutation.mutateAsync();
+      const shared = await shareCurrentCartMutation.mutateAsync(
+        normalizedComment || undefined,
+      );
       const publicKey = shared.publicKey || shared.cart.publicKey;
       if (!publicKey) {
         throw new Error("Не удалось подготовить публичную корзину.");
@@ -1123,7 +1197,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
     return {
       text: buildLegacyCartShareText({
-        comment,
+        comment: normalizedComment,
         currency: shareCurrency,
         items,
         totals: {

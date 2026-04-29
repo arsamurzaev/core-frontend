@@ -1738,6 +1738,8 @@ export interface CartDto {
   /** @nullable */
   checkoutAt: string | null;
   /** @nullable */
+  comment: string | null;
+  /** @nullable */
   assignedManagerId: string | null;
   /** @nullable */
   managerSessionStartedAt: string | null;
@@ -1754,6 +1756,11 @@ export interface CartDto {
 export interface CartResponseDto {
   ok: boolean;
   cart: CartDto;
+}
+
+export interface ShareCurrentCartDtoReq {
+  /** @maxLength 1000 */
+  comment?: string;
 }
 
 export interface ShareCartResponseDto {
@@ -3553,10 +3560,12 @@ const cartControllerGetCurrent = (
  * @summary Issue a public key for the current cart
  */
 const cartControllerShareCurrent = (
-    
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
  ) => {
       return mutator<ShareCartResponseDto>(
-      {url: `/cart/current/share`, method: 'POST'
+      {url: `/cart/current/share`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq
     },
       );
     }

@@ -60,9 +60,9 @@ export function buildLegacyCartShareText(params: {
       ? `Сумма: ${formatShareMoney(totals.subtotal, currency)}`
       : `Сумма: ~${formatShareMoney(totals.originalSubtotal, currency)}~ ${formatShareMoney(totals.subtotal, currency)}`;
 
-  return [url, "", "Заказ:", productsText, normalizedComment ? "" : null]
-    .concat(normalizedComment ? ["Комментарий:", normalizedComment] : [])
+  return ["", url, "", "Заказ:", productsText]
+    .concat(normalizedComment ? ["", "Комментарий:", normalizedComment] : [])
     .concat(["", priceText])
-    .filter(Boolean)
+    .filter((line): line is string => line !== null && line !== undefined)
     .join("\n");
 }

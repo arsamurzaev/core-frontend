@@ -1757,6 +1757,8 @@ export interface CartDto {
   /** @nullable */
   checkoutAt: string | null;
   /** @nullable */
+  comment: string | null;
+  /** @nullable */
   assignedManagerId: string | null;
   /** @nullable */
   managerSessionStartedAt: string | null;
@@ -1773,6 +1775,11 @@ export interface CartDto {
 export interface CartResponseDto {
   ok: boolean;
   cart: CartDto;
+}
+
+export interface ShareCurrentCartDtoReq {
+  /** @maxLength 1000 */
+  comment?: string;
 }
 
 export interface ShareCartResponseDto {
@@ -9528,13 +9535,15 @@ export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof ca
  * @summary Issue a public key for the current cart
  */
 export const cartControllerShareCurrent = (
-    
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
  signal?: AbortSignal
 ) => {
       
       
       return mutator<ShareCartResponseDto>(
-      {url: `/cart/current/share`, method: 'POST', signal
+      {url: `/cart/current/share`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq, signal
     },
       );
     }
@@ -9542,8 +9551,8 @@ export const cartControllerShareCurrent = (
 
 
 export const getCartControllerShareCurrentMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,void, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,{data: ShareCurrentCartDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,{data: ShareCurrentCartDtoReq}, TContext> => {
 
 const mutationKey = ['cartControllerShareCurrent'];
 const {mutation: mutationOptions} = options ?
@@ -9555,10 +9564,10 @@ const {mutation: mutationOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerShareCurrent>>, void> = () => {
-          
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerShareCurrent>>, {data: ShareCurrentCartDtoReq}> = (props) => {
+          const {data} = props ?? {};
 
-          return  cartControllerShareCurrent()
+          return  cartControllerShareCurrent(data,)
         }
 
 
@@ -9569,18 +9578,18 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerShareCurrentMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerShareCurrent>>>
-    
+    export type CartControllerShareCurrentMutationBody = ShareCurrentCartDtoReq
     export type CartControllerShareCurrentMutationError = unknown
 
     /**
  * @summary Issue a public key for the current cart
  */
 export const useCartControllerShareCurrent = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,void, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,{data: ShareCurrentCartDtoReq}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof cartControllerShareCurrent>>,
         TError,
-        void,
+        {data: ShareCurrentCartDtoReq},
         TContext
       > => {
       return useMutation(getCartControllerShareCurrentMutationOptions(options), queryClient);

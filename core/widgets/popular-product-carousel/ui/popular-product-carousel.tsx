@@ -32,7 +32,9 @@ export const PopularProductCarousel: React.FC<Props> = ({
 }) => {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [isMounted, setIsMounted] = React.useState(false);
   const { quantityByProductId, shouldUseCartUi } = useCart();
+  const shouldRenderCartUi = isMounted && shouldUseCartUi;
 
   const { isLoading, data } = useProductControllerGetPopularCards({
     query: {
@@ -42,6 +44,10 @@ export const PopularProductCarousel: React.FC<Props> = ({
   });
 
   const slideCount = data?.length ?? 0;
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const syncCurrentIndex = React.useCallback(() => {
     if (!api) {
@@ -109,7 +115,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
                     data={product}
                     isDetailed
                     actions={
-                      shouldUseCartUi ? (
+                      shouldRenderCartUi ? (
                         <CartProductAction product={product} />
                       ) : (
                         <EditProductCardAction
@@ -119,9 +125,9 @@ export const PopularProductCarousel: React.FC<Props> = ({
                         />
                       )
                     }
-                    hidePriceWhenFooterAction={shouldUseCartUi}
+                    hidePriceWhenFooterAction={shouldRenderCartUi}
                     footerAction={
-                      shouldUseCartUi &&
+                      shouldRenderCartUi &&
                       (quantityByProductId[product.id] ?? 0) > 0 ? (
                         <CartProductCardFooterAction
                           product={product}

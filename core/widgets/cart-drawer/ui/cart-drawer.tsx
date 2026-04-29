@@ -17,6 +17,14 @@ import { toast } from "sonner";
 
 const SNAP_POINTS = ["111px", 1] as const;
 const CART_DRAWER_SCROLL_LOCK_CLASS = "cart-drawer-scroll-lock";
+const CHECKOUT_CART_STATUSES = new Set([
+  "SHARED",
+  "IN_PROGRESS",
+  "PAUSED",
+  "CONVERTED",
+  "CANCELLED",
+  "EXPIRED",
+]);
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error
@@ -32,6 +40,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const {
     autoExpandPublicCartAccessKey,
     canShare,
+    cart,
     clearCart,
     completeManagedOrder,
     detachPublicCart,
@@ -54,18 +63,35 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const [snapPoint, setSnapPoint] = React.useState<string | number | null>(
     SNAP_POINTS[0],
   );
+  const [hasPreparedShareOrder, setHasPreparedShareOrder] =
+    React.useState(false);
   const autoExpandedPublicCartRef = React.useRef<string | null>(null);
   const [selectedProduct, setSelectedProduct] =
     React.useState<ProductWithDetailsDto | null>(null);
   const [isProductDrawerOpen, setIsProductDrawerOpen] = React.useState(false);
 
   const hasItems = items.length > 0;
-  const shouldHideDrawer = !shouldUseCartUi || (!hasItems && !isPublicMode);
   const shouldHideCartWhileProductRouteOpen =
     pathname?.startsWith("/product/") ?? false;
   const isFullyExpanded = snapPoint === 1;
   const publicAccessPublicKey = publicAccess?.publicKey ?? null;
   const publicAccessCheckoutKey = publicAccess?.checkoutKey ?? null;
+  const hasPublicCartLink = Boolean(cart?.publicKey);
+  const hasSharedCart = Boolean(
+    publicAccessPublicKey && publicAccessCheckoutKey,
+  );
+  const isCheckoutCartStatus = status ? CHECKOUT_CART_STATUSES.has(status) : false;
+  const shouldKeepEmptySharedCartOpen =
+    isPublicMode ||
+    hasPublicCartLink ||
+    hasSharedCart ||
+    hasPreparedShareOrder ||
+    isCheckoutCartStatus;
+  const shouldHideDrawer =
+    !shouldUseCartUi || (!hasItems && !shouldKeepEmptySharedCartOpen);
+  const isCommentLocked =
+    isManagedPublicCart || isPublicMode || hasSharedCart || hasPreparedShareOrder;
+  const displayedComment = isCommentLocked ? (cart?.comment ?? comment) : comment;
   const publicCartAccessKey =
     isPublicMode && publicAccessPublicKey && publicAccessCheckoutKey
       ? `${publicAccessPublicKey}:${publicAccessCheckoutKey}`
@@ -73,6 +99,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const shouldAutoExpandPublicCart =
     Boolean(publicCartAccessKey) &&
     autoExpandPublicCartAccessKey === publicCartAccessKey;
+
+  React.useEffect(() => {
+    setHasPreparedShareOrder(false);
+    setComment("");
+  }, [cart?.id]);
+
 
   React.useEffect(() => {
     if (!publicCartAccessKey) {
@@ -239,9 +271,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
 
             <DrawerScrollArea>
               <CartDrawerContent
-                comment={comment}
+                comment={displayedComment}
                 isLoading={isLoading}
                 isManagedPublicCart={isManagedPublicCart}
+                isCommentLocked={isCommentLocked}
                 isPublicMode={isPublicMode}
                 items={items}
                 actionRenderer={actionRenderer}
@@ -256,9 +289,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
               canShare={canShare}
               currency={currency}
               hasDiscount={totals.hasDiscount}
-              hasSharedCart={Boolean(
-                publicAccessPublicKey && publicAccessCheckoutKey,
-              )}
+              hasSharedCart={hasSharedCart}
               hasItems={hasItems}
               isBusy={isBusy}
               isManagedPublicCart={isManagedPublicCart}
@@ -268,6 +299,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
                   : undefined
               }
               onCompleteOrder={handleCompleteOrder}
+              onSharePrepared={() => setHasPreparedShareOrder(true)}
               onShareClick={() => prepareShareOrder(comment)}
               price={totals.subtotal}
               totalPrice={totals.originalSubtotal}

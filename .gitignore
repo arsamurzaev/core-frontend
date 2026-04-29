@@ -43,3 +43,4 @@ next-env.d.ts
 /w-old
 w-old
 proxy.ts
+count.js
