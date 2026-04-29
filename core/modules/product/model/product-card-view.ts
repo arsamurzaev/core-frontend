@@ -13,6 +13,7 @@ export interface ProductCardView {
   displayPrice: number;
   hasDiscount: boolean;
   imageUrl: string;
+  imageStatus: string | null;
   price: number;
   subtitle: string;
 }
@@ -29,6 +30,10 @@ function resolveProductCardImageUrl(
     data.media?.[0]?.media?.url ||
     PRODUCT_CARD_FALLBACK_IMAGE_URL
   );
+}
+
+function resolveProductCardImageStatus(data: ProductWithAttributesDto): string | null {
+  return data.media?.[0]?.media?.status ?? null;
 }
 
 export function buildProductCardView(
@@ -65,6 +70,7 @@ export function buildProductCardView(
     displayPrice: pricing.totalPrice,
     hasDiscount: pricing.hasDiscount,
     imageUrl: resolveProductCardImageUrl(data),
+    imageStatus: resolveProductCardImageStatus(data),
     price,
     subtitle,
   };

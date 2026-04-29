@@ -5,10 +5,12 @@ import Link from "next/link";
 
 interface ShareDrawerSocialListProps {
   items: ShareDrawerSocialItem[];
+  onItemClick?: () => void;
 }
 
 export function ShareDrawerSocialList({
   items,
+  onItemClick,
 }: ShareDrawerSocialListProps) {
   if (items.length === 0) {
     return null;
@@ -22,7 +24,12 @@ export function ShareDrawerSocialList({
 
           return (
             <li key={item.id}>
-              <Link href={item.href} target="_blank" rel="noopener noreferrer">
+              <Link
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onItemClick}
+              >
                 <Icon />
               </Link>
             </li>

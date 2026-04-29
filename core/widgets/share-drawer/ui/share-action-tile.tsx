@@ -7,9 +7,10 @@ import { Button } from "@/shared/ui/button";
 
 interface ShareActionTileProps {
   item: ShareActionItem;
+  onActionClick?: () => void;
 }
 
-export function ShareActionTile({ item }: ShareActionTileProps) {
+export function ShareActionTile({ item, onActionClick }: ShareActionTileProps) {
   const content = item.imageSrc ? (
     <img
       src={item.imageSrc}
@@ -28,7 +29,12 @@ export function ShareActionTile({ item }: ShareActionTileProps) {
           className={cn("size-[60px]", item.buttonClassName)}
           aria-label={item.label}
         >
-          <a href={item.href} target="_blank" rel="noopener noreferrer">
+          <a
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onActionClick}
+          >
             {content}
           </a>
         </Button>
@@ -38,7 +44,10 @@ export function ShareActionTile({ item }: ShareActionTileProps) {
           variant={item.buttonVariant ?? "ghost"}
           size="icon"
           className={cn("size-[60px]", item.buttonClassName)}
-          onClick={item.onClick}
+          onClick={() => {
+            onActionClick?.();
+            void item.onClick?.();
+          }}
           disabled={item.disabled}
           aria-label={item.label}
         >

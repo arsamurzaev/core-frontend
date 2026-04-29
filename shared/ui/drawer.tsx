@@ -8,7 +8,7 @@ import { Drawer as DrawerPrimitive } from "vaul";
  * Root wrappers
  */
 function Drawer({
-  handleOnly = true,
+  handleOnly = false,
   repositionInputs = false,
   scrollLockTimeout = 300,
   ...props
@@ -73,7 +73,11 @@ function DrawerHandle({
   return (
     <DrawerPrimitive.Handle
       data-slot="drawer-handle"
-      className={cn("bg-muted h-1.5 w-12 rounded-full", className)}
+      className={cn(
+        "relative h-8 w-20 rounded-full bg-transparent",
+        "after:absolute after:top-1/2 after:left-1/2 after:h-1.5 after:w-12 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-muted after:content-['']",
+        className,
+      )}
       preventCycle={preventCycle}
       {...props}
     />
@@ -90,7 +94,6 @@ function DrawerScrollArea({
   return (
     <div
       data-slot="drawer-scroll-area"
-      data-vaul-no-drag=""
       className={cn(
         // scrolling
         "min-h-0 flex-1 overflow-auto",

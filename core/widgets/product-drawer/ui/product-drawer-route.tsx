@@ -1,18 +1,16 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
-import { buildHomeHrefWithCatalogQuery } from "@/shared/lib/product-route";
-import { dispatchProductDrawerRouteReady } from "../model/product-drawer-instant-events";
-import { getProductDrawerPreview } from "../model/product-drawer-preview";
-import { ProductDrawer } from "./product-drawer";
-
-type CloseStrategy = "push-home" | "back";
+import {
+  dispatchProductDrawerRouteClose,
+  dispatchProductDrawerRouteOpen,
+  type ProductDrawerCloseStrategy,
+} from "../model/product-drawer-instant-events";
 
 interface ProductDrawerRouteProps {
   productSlug: string;
-  closeStrategy: CloseStrategy;
+  closeStrategy: ProductDrawerCloseStrategy;
   initialProduct?: ProductWithDetailsDto | null;
 }
 
@@ -21,58 +19,25 @@ export const ProductDrawerRoute: React.FC<ProductDrawerRouteProps> = ({
   closeStrategy,
   initialProduct,
 }) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [open, setOpen] = React.useState(true);
-  const [previewProduct, setPreviewProduct] = React.useState(() =>
-    getProductDrawerPreview(productSlug),
-  );
-  const homeHref = React.useMemo(
-    () => buildHomeHrefWithCatalogQuery(searchParams),
-    [searchParams],
-  );
-
   React.useEffect(() => {
-    setPreviewProduct(getProductDrawerPreview(productSlug));
-    setOpen(true);
-    dispatchProductDrawerRouteReady();
-  }, [productSlug]);
+    let didOpen = false;
+    const openTimer = window.setTimeout(() => {
+      didOpen = true;
+      dispatchProductDrawerRouteOpen({
+        closeStrategy,
+        initialProduct,
+        productSlug,
+      });
+    }, 0);
 
-  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
-    if (nextOpen) {
-      setOpen(true);
-      return;
-    }
+    return () => {
+      window.clearTimeout(openTimer);
 
-    setOpen(false);
-  }, []);
-
-  const handleAfterClose = React.useCallback(() => {
-    if (closeStrategy === "back") {
-      if (typeof window !== "undefined" && window.history.length <= 1) {
-        router.push(homeHref, { scroll: false });
-        return;
+      if (didOpen) {
+        dispatchProductDrawerRouteClose({ productSlug });
       }
+    };
+  }, [closeStrategy, initialProduct, productSlug]);
 
-      router.back();
-      return;
-    }
-
-    router.push(homeHref, { scroll: false });
-  }, [closeStrategy, homeHref, router]);
-
-  if (!productSlug) {
-    return null;
-  }
-
-  return (
-    <ProductDrawer
-      open={open}
-      productSlug={productSlug}
-      initialProduct={initialProduct}
-      previewProduct={previewProduct}
-      onOpenChange={handleOpenChange}
-      onAfterClose={handleAfterClose}
-    />
-  );
+  return null;
 };

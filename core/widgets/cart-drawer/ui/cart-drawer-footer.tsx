@@ -12,6 +12,7 @@ interface CartDrawerFooterProps {
   canShare: boolean;
   className?: string;
   currency: string;
+  hasSharedCart?: boolean;
   hasDiscount: boolean;
   hasItems: boolean;
   isBusy?: boolean;
@@ -41,6 +42,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   canShare,
   className,
   currency,
+  hasSharedCart = false,
   hasDiscount,
   hasItems,
   isBusy = false,
@@ -117,7 +119,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
               onClick={() => void handleShare()}
               size="full"
             >
-              Поделиться
+              {hasSharedCart ? "Поделиться" : "Оформить заказ"}
             </Button>
           ) : onCollapse ? (
             <Button

@@ -94,7 +94,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
 
   React.useEffect(() => {
     const shouldLockPageScroll =
-      isFullyExpanded && !shouldHideDrawer && !shouldHideCartWhileProductRouteOpen;
+      isFullyExpanded &&
+      !shouldHideDrawer &&
+      !shouldHideCartWhileProductRouteOpen;
 
     document.documentElement.classList.toggle(
       CART_DRAWER_SCROLL_LOCK_CLASS,
@@ -254,10 +256,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
               canShare={canShare}
               currency={currency}
               hasDiscount={totals.hasDiscount}
+              hasSharedCart={Boolean(
+                publicAccessPublicKey && publicAccessCheckoutKey,
+              )}
               hasItems={hasItems}
               isBusy={isBusy}
               isManagedPublicCart={isManagedPublicCart}
-              onCollapse={!canShare && !isManagedPublicCart && isFullyExpanded ? () => setSnapPoint(SNAP_POINTS[0]) : undefined}
+              onCollapse={
+                !canShare && !isManagedPublicCart && isFullyExpanded
+                  ? () => setSnapPoint(SNAP_POINTS[0])
+                  : undefined
+              }
               onCompleteOrder={handleCompleteOrder}
               onShareClick={() => prepareShareOrder(comment)}
               price={totals.subtotal}

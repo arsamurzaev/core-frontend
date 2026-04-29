@@ -30,6 +30,25 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
   open,
   onOpenChange,
 }) => {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const isControlled = open !== undefined;
+  const resolvedOpen = isControlled ? open : internalOpen;
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(nextOpen);
+      }
+
+      onOpenChange?.(nextOpen);
+    },
+    [isControlled, onOpenChange],
+  );
+
+  const closeDrawer = React.useCallback(() => {
+    handleOpenChange(false);
+  }, [handleOpenChange]);
+
   const messengerConfirmContent = React.useMemo(
     () => <ShareDrawerConfirmContent />,
     [],
@@ -60,8 +79,8 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
     <AppDrawer
       className={className}
       trigger={trigger}
-      open={open}
-      onOpenChange={onOpenChange}
+      open={resolvedOpen}
+      onOpenChange={handleOpenChange}
     >
       <AppDrawer.Content className="max-h-[40%] min-h-[490px] bg-[#F2F2F7] text-center">
         <ShareDrawerHeader title={resolvedDrawerTitle} />
@@ -69,19 +88,27 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
         <div className="space-y-8">
           <div className="flex flex-wrap justify-evenly">
             {primaryActions.map((item) => (
-              <ShareActionTile key={item.id} item={item} />
+              <ShareActionTile
+                key={item.id}
+                item={item}
+                onActionClick={closeDrawer}
+              />
             ))}
           </div>
 
           {secondaryActions.length > 0 ? (
             <div className="flex justify-evenly">
               {secondaryActions.map((item) => (
-                <ShareActionTile key={item.id} item={item} />
+                <ShareActionTile
+                  key={item.id}
+                  item={item}
+                  onActionClick={closeDrawer}
+                />
               ))}
             </div>
           ) : null}
 
-          <ShareDrawerSocialList items={socialItems} />
+          <ShareDrawerSocialList items={socialItems} onItemClick={closeDrawer} />
 
           <p>
             <span className="text-xs">или вы можете</span>

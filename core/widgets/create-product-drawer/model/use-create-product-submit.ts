@@ -1,19 +1,23 @@
 "use client";
 
-import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
-  invalidateCreateProductQueries,
-  parseCreateProductPayload,
-} from "@/core/widgets/create-product-drawer/model/create-product-drawer-data";
+  enqueueProductImages,
+  waitForProductImagesProcessing,
+} from "@/core/modules/product/editor/lib";
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
 import { type UploadState } from "@/core/modules/product/editor/model/types";
 import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
-import { uploadProductImages } from "@/core/modules/product/editor/lib";
+import { UploadProgressToast } from "@/core/modules/product/editor/ui/upload-progress-toast";
+import {
+  invalidateCreateProductQueries,
+  parseCreateProductPayload,
+} from "@/core/widgets/create-product-drawer/model/create-product-drawer-data";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
 } from "@/shared/api/generated/react-query";
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { type QueryClient } from "@tanstack/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -52,6 +56,17 @@ function toUploadErrorState(current: UploadState, message: string): UploadState 
     phase: "error",
     message,
   };
+}
+
+function renderProgressToast(label: string, progress: number) {
+  return React.createElement(UploadProgressToast, { label, progress });
+}
+
+function renderUploadProgressToast(state: UploadState) {
+  return renderProgressToast(
+    state.message.trim() || "Обработка фотографий...",
+    state.progress,
+  );
 }
 
 export function useCreateProductSubmit({
@@ -99,39 +114,84 @@ export function useCreateProductSubmit({
     setErrorMessage(null);
     setIsSubmitting(true);
 
-    try {
-      const mediaIds =
-        uploadedMediaIds.length > 0
-          ? uploadedMediaIds
-          : await uploadProductImages({
-              files,
-              onStateChange: setUploadState,
+    const parsedValues = validationResult.parsedValues;
+    const normalizedPrice = validationResult.normalizedPrice;
+    const filesSnapshot = [...files];
+    const uploadedMediaIdsSnapshot = [...uploadedMediaIds];
+    const backgroundToastId = toast.loading(
+      renderProgressToast("Сохраняем товар...", 0),
+    );
+
+    closeDrawer();
+
+    void (async () => {
+      try {
+        const queued =
+          uploadedMediaIdsSnapshot.length > 0
+            ? { jobId: "", mediaIds: uploadedMediaIdsSnapshot }
+            : await enqueueProductImages({
+                files: filesSnapshot,
+                onStateChange: (state) => {
+                  setUploadState(state);
+                  toast.loading(renderUploadProgressToast(state), {
+                    id: backgroundToastId,
+                  });
+                },
+              });
+        const mediaIds = queued.mediaIds;
+        setUploadedMediaIds(mediaIds);
+
+        toast.loading(renderProgressToast("Создаём товар...", 100), {
+          id: backgroundToastId,
+        });
+
+        const createPayload = parseCreateProductPayload({
+          formValues: parsedValues,
+          mediaIds,
+          normalizedPrice,
+          productAttributes,
+        });
+
+        await createProduct.mutateAsync({
+          data: createPayload,
+        });
+
+        await invalidateCreateProductQueries(queryClient);
+
+        if (!queued.jobId) {
+          toast.success("Товар создан.", {
+            id: backgroundToastId,
+          });
+          return;
+        }
+
+        toast.loading(renderProgressToast("Товар создан. Обрабатываем фото...", 50), {
+          id: backgroundToastId,
+        });
+
+        await waitForProductImagesProcessing({
+          jobId: queued.jobId,
+          onStateChange: (state) => {
+            toast.loading(renderUploadProgressToast(state), {
+              id: backgroundToastId,
             });
-      setUploadedMediaIds(mediaIds);
+          },
+        });
 
-      const createPayload = parseCreateProductPayload({
-        formValues: validationResult.parsedValues,
-        mediaIds,
-        normalizedPrice: validationResult.normalizedPrice,
-        productAttributes,
-      });
+        await invalidateCreateProductQueries(queryClient);
 
-      await createProduct.mutateAsync({
-        data: createPayload,
-      });
-
-      await invalidateCreateProductQueries(queryClient);
-
-      toast.success("Товар успешно создан.");
-      closeDrawer();
-    } catch (error) {
-      const message = extractApiErrorMessage(error);
-      setErrorMessage(message);
-      setUploadState((current) => toUploadErrorState(current, message));
-      toast.error(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+        toast.success("Товар создан. Фото обработаны.", {
+          id: backgroundToastId,
+        });
+      } catch (error) {
+        const message = extractApiErrorMessage(error);
+        setErrorMessage(message);
+        setUploadState((current) => toUploadErrorState(current, message));
+        toast.error(message, { id: backgroundToastId });
+      } finally {
+        setIsSubmitting(false);
+      }
+    })();
   }, [
     closeDrawer,
     createProduct,
@@ -151,4 +211,3 @@ export function useCreateProductSubmit({
     visibleAttributes,
   ]);
 }
-

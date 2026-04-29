@@ -1,20 +1,25 @@
 "use client";
 
-import {
-  extractQueueMediaIds,
-  isQueueErrorStatus,
-  pollQueueStatus,
-  streamQueueStatus,
-} from "@/shared/lib/upload-queue";
 import { type UploadState } from "@/core/modules/product/editor/model/types";
-import { clamp } from "@/shared/lib/math";
 import {
   type S3ControllerEnqueueFromS3Body,
   type UploadQueueStatusDto,
   s3ControllerEnqueueFromS3,
   s3ControllerPresignUpload,
 } from "@/shared/api/generated/react-query";
+import { clamp } from "@/shared/lib/math";
+import {
+  extractQueueMediaIds,
+  isQueueErrorStatus,
+  pollQueueStatus,
+  streamQueueStatus,
+} from "@/shared/lib/upload-queue";
 import axios from "axios";
+
+export interface EnqueuedProductImages {
+  jobId: string;
+  mediaIds: string[];
+}
 
 function buildEnqueueFromS3Payload(
   keys: string[],
@@ -23,20 +28,24 @@ function buildEnqueueFromS3Payload(
   return { items };
 }
 
-export async function uploadProductImages({
+export async function enqueueProductImages({
   files,
   onStateChange,
 }: {
   files: File[];
   onStateChange?: (state: UploadState) => void;
-}): Promise<string[]> {
+}): Promise<EnqueuedProductImages> {
   if (files.length === 0) {
-    return [];
+    return {
+      jobId: "",
+      mediaIds: [],
+    };
   }
 
   const uploadedBytesByFile = new Map<number, number>();
   const totalBytes = files.reduce((sum, file) => sum + Math.max(file.size, 1), 0);
   const uploadedKeys: string[] = [];
+  const uploadedMediaIds: string[] = [];
 
   const recalcUploadProgress = () => {
     const loaded = Array.from(uploadedBytesByFile.values()).reduce(
@@ -59,6 +68,7 @@ export async function uploadProductImages({
     });
 
     uploadedKeys.push(presign.key);
+    uploadedMediaIds.push(presign.mediaId);
 
     await axios.put(presign.uploadUrl, file, {
       headers: {
@@ -88,6 +98,23 @@ export async function uploadProductImages({
     throw new Error("Сервер не вернул jobId для отслеживания обработки.");
   }
 
+  return {
+    jobId: queued.jobId,
+    mediaIds: uploadedMediaIds,
+  };
+}
+
+export async function waitForProductImagesProcessing({
+  jobId,
+  onStateChange,
+}: {
+  jobId: string;
+  onStateChange?: (state: UploadState) => void;
+}): Promise<string[]> {
+  if (!jobId) {
+    return [];
+  }
+
   const handleQueueUpdate = (statusData: UploadQueueStatusDto) => {
     const queueProgress = clamp(Number(statusData.progress) || 0, 0, 100);
     const totalProgress = clamp(50 + queueProgress * 0.5, 50, 100);
@@ -102,14 +129,15 @@ export async function uploadProductImages({
   let finalQueueStatus: UploadQueueStatusDto;
 
   try {
-    finalQueueStatus = await streamQueueStatus(queued.jobId, handleQueueUpdate);
+    finalQueueStatus = await streamQueueStatus(jobId, handleQueueUpdate);
   } catch {
-    finalQueueStatus = await pollQueueStatus(queued.jobId, handleQueueUpdate);
+    finalQueueStatus = await pollQueueStatus(jobId, handleQueueUpdate);
   }
 
   if (isQueueErrorStatus(finalQueueStatus.status)) {
     throw new Error(
-      finalQueueStatus.error || "Ошибка при обработке загруженных изображений.",
+      finalQueueStatus.error ||
+        "Ошибка при обработке загруженных изображений.",
     );
   }
 
@@ -125,4 +153,23 @@ export async function uploadProductImages({
   });
 
   return mediaIds;
+}
+
+export async function uploadProductImages({
+  files,
+  onStateChange,
+}: {
+  files: File[];
+  onStateChange?: (state: UploadState) => void;
+}): Promise<string[]> {
+  const queued = await enqueueProductImages({ files, onStateChange });
+
+  if (queued.mediaIds.length === 0) {
+    return [];
+  }
+
+  return waitForProductImagesProcessing({
+    jobId: queued.jobId,
+    onStateChange,
+  });
 }

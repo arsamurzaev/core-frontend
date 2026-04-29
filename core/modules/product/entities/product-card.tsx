@@ -57,15 +57,21 @@ const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
 
 interface ProductCardContentProps {
   actions?: React.ReactNode;
+  imageStatus?: string | null;
   imageUrl?: string;
   isMoySkladLinked?: boolean;
 }
 
 const ProductCardContent: React.FC<ProductCardContentProps> = ({
   actions,
+  imageStatus,
   imageUrl,
   isMoySkladLinked = false,
 }) => {
+  const isImageProcessing =
+    imageStatus === "UPLOADED" || imageStatus === "PROCESSING";
+  const isImageFailed = imageStatus === "FAILED";
+
   return (
     <CardContent className="relative flex-[0_1_160px]">
       <div className="min-w-25">
@@ -77,6 +83,11 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
             loading="lazy"
             decoding="async"
           />
+          {isImageProcessing || isImageFailed ? (
+            <div className="absolute inset-x-2 bottom-2 rounded-md bg-background/95 px-2 py-1 text-center text-[11px] font-medium shadow-custom">
+              {isImageFailed ? "Фото не обработано" : "Фото обрабатывается"}
+            </div>
+          ) : null}
         </AspectRatio>
       </div>
       {isMoySkladLinked ? (
@@ -218,6 +229,7 @@ const ProductCardBase: React.FC<Props> = ({
     displayPrice,
     hasDiscount,
     imageUrl,
+    imageStatus,
     price,
     subtitle,
   } = buildProductCardView(data, { fallbackCurrency });
@@ -227,6 +239,7 @@ const ProductCardBase: React.FC<Props> = ({
     <ProductCardLayout className={className} isDetailed={isDetailed}>
       <ProductCardContent
         actions={actions}
+        imageStatus={imageStatus}
         imageUrl={imageUrl}
         isMoySkladLinked={resolvedIsMoySkladLinked}
       />

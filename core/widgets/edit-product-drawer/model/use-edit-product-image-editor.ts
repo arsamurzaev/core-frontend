@@ -9,7 +9,7 @@ import {
   resolveEditProductMediaIds,
   type EditProductImageItem,
 } from "@/core/widgets/edit-product-drawer/model/edit-product-image-items";
-import { uploadProductImages } from "@/core/modules/product/editor/lib/upload-product-images";
+import { enqueueProductImages } from "@/core/modules/product/editor/lib/upload-product-images";
 import {
   IDLE_PRODUCT_IMAGE_UPLOAD_STATE,
   MAX_PRODUCT_IMAGES,
@@ -22,6 +22,11 @@ import { useProductImageReorderState } from "@/core/modules/product/editor/model
 import { type ProductMediaDto } from "@/shared/api/generated/react-query";
 import React from "react";
 import { toast } from "sonner";
+
+export interface ResolvedEditProductMediaSubmit {
+  mediaIds: string[];
+  processingJobIds: string[];
+}
 
 export interface UseEditProductImageEditorParams {
   isSubmitting: boolean;
@@ -321,38 +326,50 @@ export function useEditProductImageEditor({
     setIsCropperOpen(true);
   }, []);
 
-  const resolveMediaIdsForSubmit = React.useCallback(async (): Promise<string[]> => {
+  const resolveMediaIdsForSubmit = React.useCallback(async (
+    onUploadStateChange?: (state: UploadState) => void,
+  ): Promise<ResolvedEditProductMediaSubmit> => {
     const nextItems = [...items];
+    const processingJobIds: string[] = [];
     const pendingLocalItems = nextItems.filter(
       (item): item is Extract<EditProductImageItem, { kind: "local" }> =>
         item.kind === "local" && !item.uploadedMediaId,
     );
 
     if (pendingLocalItems.length === 0) {
-      return resolveEditProductMediaIds(nextItems);
+      return {
+        mediaIds: resolveEditProductMediaIds(nextItems),
+        processingJobIds,
+      };
     }
 
     for (const [index, item] of pendingLocalItems.entries()) {
-      const mediaId = (
-        await uploadProductImages({
+      const queued = await enqueueProductImages({
           files: [item.file],
           onStateChange: (state) => {
             const totalProgress =
               ((index + state.progress / 100) / pendingLocalItems.length) * 100;
-            setUploadState({
+            const nextUploadState = {
               phase: state.phase,
               progress: clampNumber(totalProgress, 0, 100),
               message:
                 pendingLocalItems.length > 1
                   ? `${state.message} (${index + 1}/${pendingLocalItems.length})`
                   : state.message,
-            });
+            };
+
+            setUploadState(nextUploadState);
+            onUploadStateChange?.(nextUploadState);
           },
-        })
-      )[0];
+        });
+      const mediaId = queued.mediaIds[0];
 
       if (!mediaId) {
         throw new Error("Сервер не вернул mediaId после загрузки фотографии.");
+      }
+
+      if (queued.jobId) {
+        processingJobIds.push(queued.jobId);
       }
 
       const itemIndex = nextItems.findIndex((entry) => entry.id === item.id);
@@ -371,7 +388,10 @@ export function useEditProductImageEditor({
       message: "Изображения успешно загружены.",
     });
 
-    return resolveEditProductMediaIds(nextItems);
+    return {
+      mediaIds: resolveEditProductMediaIds(nextItems),
+      processingJobIds,
+    };
   }, [items]);
 
   return {
