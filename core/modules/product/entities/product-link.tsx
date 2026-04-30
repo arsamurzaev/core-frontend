@@ -6,7 +6,7 @@ import type { ProductWithAttributesDto } from "@/shared/api/generated/react-quer
 import { cn } from "@/shared/lib/utils";
 import { buildProductHrefWithCatalogQuery } from "@/shared/lib/product-route";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React from "react";
 
 interface ProductLinkProps extends React.PropsWithChildren {
@@ -23,25 +23,17 @@ export const ProductLink: React.FC<ProductLinkProps> = ({
   scroll = false,
   children,
 }) => {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const href = React.useMemo(
     () => buildProductHrefWithCatalogQuery(slug, searchParams),
     [searchParams, slug],
   );
-  const prepareNavigation = React.useCallback(() => {
-    if (product) {
-      saveProductDrawerPreview(product);
-    }
-
-    router.prefetch(href);
-  }, [href, product, router]);
-
-  const handlePointerDown = React.useCallback(() => {
+  const saveDrawerPreview = React.useCallback(() => {
     if (product) {
       saveProductDrawerPreview(product);
     }
   }, [product]);
+
   const openInstantDrawer = React.useCallback((event: React.MouseEvent) => {
     if (
       event.defaultPrevented ||
@@ -54,23 +46,23 @@ export const ProductLink: React.FC<ProductLinkProps> = ({
       return;
     }
 
-    prepareNavigation();
+    saveDrawerPreview();
 
     if (product) {
       dispatchProductDrawerInstantOpen({ href, product });
     }
-  }, [href, prepareNavigation, product]);
+  }, [href, product, saveDrawerPreview]);
 
   return (
     <Link
       href={href}
+      prefetch={false}
       scroll={scroll}
       className={cn(className)}
       onClick={openInstantDrawer}
-      onFocus={prepareNavigation}
-      onMouseEnter={prepareNavigation}
-      onPointerDownCapture={handlePointerDown}
-      onTouchStartCapture={handlePointerDown}
+      onFocus={saveDrawerPreview}
+      onPointerDownCapture={saveDrawerPreview}
+      onTouchStartCapture={saveDrawerPreview}
     >
       {children}
     </Link>

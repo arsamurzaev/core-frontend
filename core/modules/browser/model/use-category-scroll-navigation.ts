@@ -1,6 +1,7 @@
 "use client";
 
 import { CategoryDto } from "@/shared/api/generated/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { flushSync } from "react-dom";
 import {
@@ -32,6 +33,7 @@ export function useCategoryScrollNavigation({
   isCatalogTab,
   isFilterActive,
 }: UseCategoryScrollNavigationParams): UseCategoryScrollNavigationResult {
+  const queryClient = useQueryClient();
   const activeCategoryIdRef = React.useRef<string | null>(null);
   const syncRafRef = React.useRef<number | null>(null);
   const realignTimerRef = React.useRef<number | null>(null);
@@ -249,6 +251,11 @@ export function useCategoryScrollNavigation({
         return;
       }
 
+      void queryClient.cancelQueries({
+        exact: false,
+        queryKey: ["category-products-infinite"],
+      });
+
       flushSync(() => {
         setNavigationTargetCategoryId(item.id);
         setActiveCategory(item.id);
@@ -270,6 +277,7 @@ export function useCategoryScrollNavigation({
       alignCategoryInstantly,
       categoryIds,
       isCatalogViewEnabled,
+      queryClient,
       scheduleCategoryRealign,
       setActiveCategory,
       syncActiveCategoryAfterLayout,
