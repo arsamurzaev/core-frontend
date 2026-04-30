@@ -15,9 +15,9 @@ import {
   useCategoryControllerCreate,
   useCategoryControllerRemove,
   useCategoryControllerUpdate,
-  useCategoryControllerUpdatePosition,
   type CategoryDto,
 } from "@/shared/api/generated/react-query";
+import { apiClient } from "@/shared/api/client";
 import { revalidateStorefrontCacheBestEffort } from "@/shared/api/revalidate-storefront-client";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,14 +45,16 @@ export interface UseCategoryAdminResult {
   handleReorderCategory: (params: {
     activeId: string;
     overId: string;
-  }) => Promise<void>;
+  }) => void;
   handleReorderOpenChange: (nextOpen: boolean) => void;
+  handleSaveCategoryOrder: () => Promise<void>;
   handleStartEdit: (category: CategoryDto) => void;
   handleUpdateCategory: () => Promise<void>;
   isCreateBusy: boolean;
   isCreateOpen: boolean;
   isEditBusy: boolean;
   isReorderBusy: boolean;
+  hasReorderChanges: boolean;
   isReorderOpen: boolean;
   reorderCategories: CategoryDto[];
   resetCreateForm: () => void;
@@ -97,10 +99,7 @@ function reorderCategoriesByIds(params: {
   );
 
   return {
-    movedCategoryId: activeId,
     nextCategories,
-    nextPosition: newIndex,
-    previousCategories: categories,
   };
 }
 
@@ -111,7 +110,6 @@ export function useCategoryAdmin({
   const createCategory = useCategoryControllerCreate();
   const updateCategory = useCategoryControllerUpdate();
   const removeCategory = useCategoryControllerRemove();
-  const updateCategoryPosition = useCategoryControllerUpdatePosition();
 
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [createName, setCreateName] = React.useState("");
@@ -298,7 +296,18 @@ export function useCategoryAdmin({
 
     try {
       await removeCategory.mutateAsync({ id: deletingCategory.id });
-      await invalidateCategories();
+      const queryKey = getCategoryControllerGetAllQueryKey();
+      queryClient.setQueryData<CategoryDto[]>(queryKey, (current) =>
+        current
+          ?.filter((category) => category.id !== deletingCategory.id)
+          .map((category, index) => ({ ...category, position: index })) ?? [],
+      );
+      setReorderCategories((current) =>
+        current
+          .filter((category) => category.id !== deletingCategory.id)
+          .map((category, index) => ({ ...category, position: index })),
+      );
+      await revalidateStorefrontCacheBestEffort();
       if (editingCategory?.id === deletingCategory.id) {
         resetEditForm();
       }
@@ -311,8 +320,8 @@ export function useCategoryAdmin({
   }, [
     deletingCategory,
     editingCategory,
-    invalidateCategories,
     removeCategory,
+    queryClient,
     resetEditForm,
   ]);
 
@@ -325,7 +334,7 @@ export function useCategoryAdmin({
   );
 
   const handleReorderCategory = React.useCallback(
-    async (params: { activeId: string; overId: string }) => {
+    (params: { activeId: string; overId: string }) => {
       if (isReorderBusy) {
         return;
       }
@@ -340,43 +349,64 @@ export function useCategoryAdmin({
         return;
       }
 
-      const {
-        movedCategoryId,
-        nextCategories,
-        nextPosition,
-        previousCategories,
-      } = reorderResult;
-
-      const queryKey = getCategoryControllerGetAllQueryKey();
-
-      setReorderCategories(nextCategories);
-      queryClient.setQueryData(queryKey, nextCategories);
-
-      try {
-        setIsReorderBusy(true);
-        await updateCategoryPosition.mutateAsync({
-          id: movedCategoryId,
-          data: {
-            position: nextPosition,
-          },
-        });
-        await invalidateCategories();
-      } catch (error) {
-        setReorderCategories(previousCategories);
-        queryClient.setQueryData(queryKey, previousCategories);
-        toast.error(extractApiErrorMessage(error));
-      } finally {
-        setIsReorderBusy(false);
-      }
+      setReorderCategories(reorderResult.nextCategories);
     },
-    [
-      invalidateCategories,
-      isReorderBusy,
-      queryClient,
-      reorderCategories,
-      updateCategoryPosition,
-    ],
+    [isReorderBusy, reorderCategories],
   );
+
+  const hasReorderChanges = React.useMemo(() => {
+    if (categories.length !== reorderCategories.length) {
+      return true;
+    }
+
+    return reorderCategories.some(
+      (category, index) => categories[index]?.id !== category.id,
+    );
+  }, [categories, reorderCategories]);
+
+  const handleSaveCategoryOrder = React.useCallback(async () => {
+    if (isReorderBusy || !hasReorderChanges) {
+      return;
+    }
+
+    const nextCategories = reorderCategories.map((category, index) => ({
+      ...category,
+      position: index,
+    }));
+
+    try {
+      setIsReorderBusy(true);
+
+      const savedCategories = await apiClient.patch<CategoryDto[]>(
+        "/category/positions",
+        {
+          categories: nextCategories.map((category, index) => ({
+            id: category.id,
+            position: index,
+          })),
+        },
+      );
+
+      queryClient.setQueryData(
+        getCategoryControllerGetAllQueryKey(),
+        savedCategories,
+      );
+      setReorderCategories(mapCategoriesToDraft(savedCategories));
+      await revalidateStorefrontCacheBestEffort();
+      setIsReorderOpen(false);
+      toast.success("Порядок категорий сохранён.");
+    } catch (error) {
+      toast.error(extractApiErrorMessage(error));
+    } finally {
+      setIsReorderBusy(false);
+    }
+  }, [
+    hasReorderChanges,
+    invalidateCategories,
+    isReorderBusy,
+    queryClient,
+    reorderCategories,
+  ]);
 
   const isCreateBusy =
     createCategory.isPending ||
@@ -404,8 +434,10 @@ export function useCategoryAdmin({
     handleEditOpenChange,
     handleReorderCategory,
     handleReorderOpenChange,
+    handleSaveCategoryOrder,
     handleStartEdit,
     handleUpdateCategory,
+    hasReorderChanges,
     isCreateBusy,
     isCreateOpen,
     isEditBusy,

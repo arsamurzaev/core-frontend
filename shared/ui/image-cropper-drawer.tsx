@@ -92,6 +92,7 @@ export const ImageCropperDrawer: React.FC<ImageCropperDrawerProps> = ({
   return (
     <Drawer
       open={open}
+      handleOnly
       onOpenChange={handleOpenChange}
       dismissible={!isApplying && !isSwitching}
     >

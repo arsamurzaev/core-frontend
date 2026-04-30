@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 function normalizeStorefrontHost(forwardedHost: string): string {
   return forwardedHost.trim().toLowerCase() || "default";
@@ -21,6 +21,7 @@ export function getStorefrontCacheTags(forwardedHost: string): string[] {
 
 export function revalidateStorefrontCacheByHost(forwardedHost: string): void {
   for (const tag of getStorefrontCacheTags(forwardedHost)) {
-    revalidateTag(tag, "max");
+    revalidateTag(tag, { expire: 0 });
   }
+  revalidatePath("/", "page");
 }

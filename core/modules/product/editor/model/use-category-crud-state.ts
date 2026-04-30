@@ -16,6 +16,7 @@ import {
   useCategoryControllerCreate,
   useCategoryControllerRemove,
   useCategoryControllerUpdate,
+  type CategoryDto,
 } from "@/shared/api/generated/react-query";
 import { revalidateStorefrontCacheBestEffort } from "@/shared/api/revalidate-storefront-client";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
@@ -204,7 +205,14 @@ export function useCategoryCrudState({
 
     try {
       await removeCategory.mutateAsync({ id: deletingCategory.id });
-      await invalidateCategories();
+      queryClient.setQueryData<CategoryDto[]>(
+        getCategoryControllerGetAllQueryKey(),
+        (current) =>
+          current
+            ?.filter((category) => category.id !== deletingCategory.id)
+            .map((category, index) => ({ ...category, position: index })) ?? [],
+      );
+      await revalidateStorefrontCacheBestEffort();
 
       if (selectedValues.includes(deletingCategory.id)) {
         const nextSelectedValues = selectedValues.filter(
@@ -226,8 +234,8 @@ export function useCategoryCrudState({
   }, [
     deletingCategory,
     field,
-    invalidateCategories,
     removeCategory,
+    queryClient,
     selectedValues,
     setDraftValues,
   ]);

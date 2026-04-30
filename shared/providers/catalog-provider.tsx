@@ -74,6 +74,7 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
       ...(hasInitialCatalog ? { initialData: initialCatalog } : {}),
       retry: false,
       staleTime: 60_000,
+      refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
   });

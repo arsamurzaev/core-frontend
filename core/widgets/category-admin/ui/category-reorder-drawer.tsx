@@ -4,6 +4,7 @@ import { type CategoryDto } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import {
@@ -119,12 +120,9 @@ interface SortableCategoryReorderItemProps {
   isDragging?: boolean;
 }
 
-const SortableCategoryReorderItem: React.FC<SortableCategoryReorderItemProps> = ({
-  category,
-  disabled = false,
-  index,
-  isDragging = false,
-}) => {
+const SortableCategoryReorderItem: React.FC<
+  SortableCategoryReorderItemProps
+> = ({ category, disabled = false, index, isDragging = false }) => {
   const {
     attributes,
     listeners,
@@ -297,17 +295,21 @@ const CategoryReorderList: React.FC<CategoryReorderListProps> = ({
 
 interface CategoryReorderDrawerProps {
   categories: CategoryDto[];
+  hasChanges: boolean;
   isSaving: boolean;
   onOpenChange: (nextOpen: boolean) => void;
   onReorder: (params: { activeId: string; overId: string }) => void;
+  onSave: () => void;
   open: boolean;
 }
 
 export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
   categories,
+  hasChanges,
   isSaving,
   onOpenChange,
   onReorder,
+  onSave,
   open,
 }) => {
   return (
@@ -316,7 +318,7 @@ export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Порядок категорий"
-            description="Перетаскивайте категории за иконку слева. Новый порядок сохраняется автоматически после каждого перемещения."
+            description="Перетаскивайте категории за иконку слева и сохраните новый порядок кнопкой внизу."
             withCloseButton={!isSaving}
           />
           <hr />
@@ -336,14 +338,22 @@ export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
           </DrawerScrollArea>
 
           <AppDrawer.Footer className="border-t">
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              {isSaving ? <Loader2 className="size-4 animate-spin" /> : null}
-              <span>
-                {isSaving
-                  ? "Сохраняем порядок..."
-                  : "Порядок сохраняется автоматически"}
-              </span>
-            </div>
+            <Button
+              type="button"
+              size="full"
+              className="rounded-full"
+              disabled={isSaving || !hasChanges}
+              onClick={onSave}
+            >
+              {isSaving ? (
+                <>
+                  Сохраняем...
+                  <Loader2 className="size-4 animate-spin" />
+                </>
+              ) : (
+                "Сохранить"
+              )}
+            </Button>
           </AppDrawer.Footer>
         </div>
       </AppDrawer.Content>

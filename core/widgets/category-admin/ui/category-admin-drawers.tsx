@@ -82,8 +82,10 @@ export const CategoryAdminDrawers: React.FC<CategoryAdminDrawersProps> = ({
         open={admin.isReorderOpen}
         onOpenChange={admin.handleReorderOpenChange}
         categories={admin.reorderCategories}
+        hasChanges={admin.hasReorderChanges}
         isSaving={admin.isReorderBusy}
         onReorder={(params) => void admin.handleReorderCategory(params)}
+        onSave={() => void admin.handleSaveCategoryOrder()}
       />
 
       <ConfirmationDrawer

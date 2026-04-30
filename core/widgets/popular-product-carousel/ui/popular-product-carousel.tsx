@@ -43,6 +43,8 @@ export const PopularProductCarousel: React.FC<Props> = ({
     query: {
       initialData: initialProducts,
       staleTime: 60_000,
+      refetchOnMount: true,
+      refetchOnWindowFocus: false,
     },
   });
 

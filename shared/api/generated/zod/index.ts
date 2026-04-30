@@ -2545,6 +2545,56 @@ export const CategoryControllerGetProductCardsByCategoryResponse = zod.object({
 
 
 /**
+ * Принимает итоговый порядок категорий и атомарно пересобирает позиции без цепочки относительных перемещений.
+ * @summary Сохранить порядок категорий
+ */
+export const categoryControllerUpdatePositionsBodyCategoriesItemPositionMin = 0;
+
+
+
+export const CategoryControllerUpdatePositionsBody = zod.object({
+  "categories": zod.array(zod.object({
+  "id": zod.uuid().describe('ID категории'),
+  "position": zod.number().min(categoryControllerUpdatePositionsBodyCategoriesItemPositionMin).describe('Итоговая позиция категории в списке')
+})).describe('Итоговый порядок категорий')
+})
+
+export const CategoryControllerUpdatePositionsResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "parentId": zod.string().nullable(),
+  "position": zod.number(),
+  "name": zod.string(),
+  "imageMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "descriptor": zod.string().nullable(),
+  "discount": zod.number().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const CategoryControllerUpdatePositionsResponse = zod.array(CategoryControllerUpdatePositionsResponseItem)
+
+
+/**
  * Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.
  * @summary Изменить позицию категории
  */

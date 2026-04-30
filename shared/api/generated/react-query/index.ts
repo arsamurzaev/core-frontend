@@ -1198,6 +1198,21 @@ export interface CreateCategoryDtoReq {
   products?: CategoryProductInputDtoReq[];
 }
 
+export interface UpdateCategoryPositionItemDtoReq {
+  /** ID категории */
+  id: string;
+  /**
+   * Итоговая позиция категории в списке
+   * @minimum 0
+   */
+  position: number;
+}
+
+export interface UpdateCategoryPositionsDtoReq {
+  /** Итоговый порядок категорий */
+  categories: UpdateCategoryPositionItemDtoReq[];
+}
+
 export interface UpdateCategoryDtoReq {
   name?: string;
   imageMediaId?: string;
@@ -7066,6 +7081,71 @@ export function useCategoryControllerGetProductCardsByCategory<TData = Awaited<R
 
 
 
+/**
+ * Принимает итоговый порядок категорий и атомарно пересобирает позиции без цепочки относительных перемещений.
+ * @summary Сохранить порядок категорий
+ */
+export const categoryControllerUpdatePositions = (
+    updateCategoryPositionsDtoReq: UpdateCategoryPositionsDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CategoryDto[]>(
+      {url: `/category/positions`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCategoryPositionsDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCategoryControllerUpdatePositionsMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerUpdatePositions>>, TError,{data: UpdateCategoryPositionsDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof categoryControllerUpdatePositions>>, TError,{data: UpdateCategoryPositionsDtoReq}, TContext> => {
+
+const mutationKey = ['categoryControllerUpdatePositions'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerUpdatePositions>>, {data: UpdateCategoryPositionsDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  categoryControllerUpdatePositions(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CategoryControllerUpdatePositionsMutationResult = NonNullable<Awaited<ReturnType<typeof categoryControllerUpdatePositions>>>
+    export type CategoryControllerUpdatePositionsMutationBody = UpdateCategoryPositionsDtoReq
+    export type CategoryControllerUpdatePositionsMutationError = void
+
+    /**
+ * @summary Сохранить порядок категорий
+ */
+export const useCategoryControllerUpdatePositions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerUpdatePositions>>, TError,{data: UpdateCategoryPositionsDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof categoryControllerUpdatePositions>>,
+        TError,
+        {data: UpdateCategoryPositionsDtoReq},
+        TContext
+      > => {
+      return useMutation(getCategoryControllerUpdatePositionsMutationOptions(options), queryClient);
+    }
+    
 /**
  * Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.
  * @summary Изменить позицию категории
