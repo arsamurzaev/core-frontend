@@ -1,5 +1,6 @@
 "use client";
 import { ApiClientError } from "@/shared/api/client";
+import { setCatalogId } from "@/shared/api/client-request";
 import {
   type CatalogContactDto,
   type CatalogContactDtoType,
@@ -114,6 +115,12 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
         : query.error
           ? "error"
           : "missing";
+
+  React.useEffect(() => {
+    if (catalog?.id) {
+      setCatalogId(catalog.id);
+    }
+  }, [catalog?.id]);
 
   const value = useMemo<CatalogStateValue>(
     () => ({

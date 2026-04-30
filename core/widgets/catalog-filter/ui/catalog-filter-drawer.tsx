@@ -138,6 +138,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
     open: drawerOpen,
     patchDraft,
     setOpen,
+    shouldUseBrands,
     toggleArrayDraftValue,
   } = useCatalogFilterDrawer({
     open,
@@ -195,16 +196,20 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
 
               <hr />
 
-              <FilterSection title="Бренды">
-                <FilterList
-                  items={brands}
-                  isLoading={drawerOpen && brandsQuery.isLoading}
-                  selectedItems={draft.brands}
-                  onToggle={(id) => toggleArrayDraftValue("brands", id)}
-                />
-              </FilterSection>
+              {shouldUseBrands ? (
+                <>
+                  <FilterSection title="Бренды">
+                    <FilterList
+                      items={brands}
+                      isLoading={drawerOpen && brandsQuery.isLoading}
+                      selectedItems={draft.brands}
+                      onToggle={(id) => toggleArrayDraftValue("brands", id)}
+                    />
+                  </FilterSection>
 
-              <hr />
+                  <hr />
+                </>
+              ) : null}
 
               <FilterSection title="Цена">
                 <div className="flex flex-wrap gap-4 sm:gap-8 [&_input]:max-w-[140px]">

@@ -6,6 +6,7 @@ import type {
 } from "@/shared/api/generated/react-query";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
+import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
 
@@ -92,7 +93,9 @@ export function buildProductDrawerViewModel(params: {
   });
 
   return {
-    brandName: toOptionalTrimmedString(displayProduct?.brand?.name),
+    brandName: supportsCatalogBrands(catalog)
+      ? toOptionalTrimmedString(displayProduct?.brand?.name)
+      : null,
     currency,
     description,
     displayName: displayProduct?.name ?? "Товар",

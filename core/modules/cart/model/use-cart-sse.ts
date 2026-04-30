@@ -202,6 +202,7 @@ export function useCartSse({
     };
   }, [
     clearStoredPublicAccess,
+    activeCart?.id,
     handleSseConnected,
     handleSseCartStatusChanged,
     handleSseCartUpdated,

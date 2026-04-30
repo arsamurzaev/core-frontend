@@ -32,14 +32,31 @@ function getCookie(name: string): string | null {
 
 const CATALOG_ID_STORAGE_KEY = "catalog_id";
 
+function getCatalogIdStorageKeyForCurrentHost(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return `${CATALOG_ID_STORAGE_KEY}:${window.location.host}`;
+}
+
 export function setCatalogId(catalogId: string): void {
   if (typeof window !== "undefined") {
+    const hostStorageKey = getCatalogIdStorageKeyForCurrentHost();
+    if (hostStorageKey) {
+      localStorage.setItem(hostStorageKey, catalogId);
+    }
     localStorage.setItem(CATALOG_ID_STORAGE_KEY, catalogId);
   }
 }
 
 export function getStoredCatalogId(): string | null {
   if (typeof window === "undefined") return null;
+  const hostStorageKey = getCatalogIdStorageKeyForCurrentHost();
+  if (hostStorageKey) {
+    const hostCatalogId = localStorage.getItem(hostStorageKey);
+    if (hostCatalogId) return hostCatalogId;
+  }
   return localStorage.getItem(CATALOG_ID_STORAGE_KEY);
 }
 

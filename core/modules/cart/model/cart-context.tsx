@@ -632,7 +632,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       isHydrated &&
       mode === "public" &&
       Boolean(storedPublicAccess?.publicKey && storedPublicAccess.checkoutKey),
-    refetchInterval: mode === "public" && isCatalogManager ? 5_000 : false,
+    refetchInterval: false,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
     retry: (failureCount, error) => {

@@ -9,6 +9,9 @@ export type CatalogLike = {
   name?: string
   slug?: string
   domain?: string | null
+  type?: {
+    code?: string | null
+  } | null
   config?: {
     status?: string | null
     logoUrl?: string | null

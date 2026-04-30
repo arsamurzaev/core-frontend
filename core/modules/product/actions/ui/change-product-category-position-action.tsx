@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/shared/ui/popover";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, X } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
@@ -159,11 +159,27 @@ export const ChangeProductCategoryPositionAction: React.FC<
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-64 space-y-3"
+        className="relative w-64 space-y-3 pr-10"
         onClick={(event) => {
           event.stopPropagation();
         }}
       >
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          disabled={updateCategoryPosition.isPending}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setOpen(false);
+          }}
+          className="absolute top-2 right-2 size-7 rounded-full p-0"
+          aria-label="Закрыть"
+        >
+          <X className="size-4" />
+        </Button>
+
         <PopoverHeader className="space-y-1">
           <PopoverTitle>Позиция в категории</PopoverTitle>
           <PopoverDescription>

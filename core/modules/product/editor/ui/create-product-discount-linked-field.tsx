@@ -2,9 +2,15 @@
 
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { clamp } from "@/shared/lib/math";
-import { cn } from "@/shared/lib/utils";
+import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
-import { Input } from "@/shared/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/shared/ui/input-group";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { type Path } from "react-hook-form";
 import React from "react";
 
@@ -55,6 +61,8 @@ export function CreateProductDiscountLinkedField({
   readOnly,
   relatedAttributeId,
 }: CreateProductDiscountLinkedFieldProps) {
+  const { catalog } = useCatalogState();
+  const suffix = mode === "discount" ? "%" : getCatalogCurrency(catalog, "₽");
   const relatedFieldName = React.useMemo<Path<CreateProductFormValues> | null>(
     () =>
       relatedAttributeId
@@ -85,23 +93,30 @@ export function CreateProductDiscountLinkedField({
   const inputProps = fieldConfig.inputProps ?? {};
 
   return (
-    <Input
-      id={id}
-      type={typeof inputProps.type === "string" ? inputProps.type : "number"}
-      value={toInputValue(controllerField.value)}
-      onChange={handleChange}
-      onBlur={controllerField.onBlur}
-      disabled={disabled}
-      readOnly={readOnly}
-      placeholder={placeholder}
-      min={fieldConfig.min}
-      max={fieldConfig.max}
-      step={fieldConfig.step}
-      minLength={fieldConfig.minLength}
-      maxLength={fieldConfig.maxLength}
-      className={cn("text-center", fieldConfig.controlClassName)}
-      {...inputProps}
-    />
+    <InputGroup>
+      <InputGroupInput
+        id={id}
+        type={typeof inputProps.type === "string" ? inputProps.type : "number"}
+        value={toInputValue(controllerField.value)}
+        onChange={handleChange}
+        onBlur={controllerField.onBlur}
+        disabled={disabled}
+        readOnly={readOnly}
+        placeholder={placeholder}
+        min={fieldConfig.min}
+        max={fieldConfig.max}
+        step={fieldConfig.step}
+        minLength={fieldConfig.minLength}
+        maxLength={fieldConfig.maxLength}
+        className={cn("text-center", fieldConfig.controlClassName)}
+        {...inputProps}
+      />
+      <InputGroupAddon align="inline-end" aria-hidden>
+        <InputGroupText className="min-w-5 justify-center">
+          {suffix}
+        </InputGroupText>
+      </InputGroupAddon>
+    </InputGroup>
   );
 }
 

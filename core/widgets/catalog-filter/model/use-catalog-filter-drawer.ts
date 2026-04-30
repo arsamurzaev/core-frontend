@@ -10,6 +10,8 @@ import {
 } from "@/core/widgets/catalog-filter/model/catalog-filter-drawer";
 import { useBrandControllerGetAll } from "@/shared/api/generated/react-query";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
+import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";
 
 interface UseCatalogFilterDrawerParams {
@@ -25,6 +27,8 @@ export function useCatalogFilterDrawer({
   onOpenChange,
   queryState,
 }: UseCatalogFilterDrawerParams) {
+  const { catalog } = useCatalogState();
+  const shouldUseBrands = supportsCatalogBrands(catalog);
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = React.useCallback(
@@ -42,13 +46,13 @@ export function useCatalogFilterDrawer({
   );
   const brandsQuery = useBrandControllerGetAll({
     query: {
-      enabled: open,
+      enabled: open && shouldUseBrands,
       staleTime: 60_000,
     },
   });
   const brands = React.useMemo<CatalogFilterItem[]>(
-    () => brandsQuery.data ?? [],
-    [brandsQuery.data],
+    () => (shouldUseBrands ? (brandsQuery.data ?? []) : []),
+    [brandsQuery.data, shouldUseBrands],
   );
 
   React.useEffect(() => {
@@ -56,8 +60,13 @@ export function useCatalogFilterDrawer({
       return;
     }
 
-    setDraft(createCatalogFilterDraftFromQueryState(queryState));
-  }, [open, queryState]);
+    setDraft(
+      createCatalogFilterDraftFromQueryState({
+        ...queryState,
+        brands: shouldUseBrands ? queryState.brands : [],
+      }),
+    );
+  }, [open, queryState, shouldUseBrands]);
 
   const patchDraft = React.useCallback(
     (patch: CatalogFilterPatch) => {
@@ -110,9 +119,14 @@ export function useCatalogFilterDrawer({
   }, [onApply, queryState, setOpen]);
 
   const handleSubmit = React.useCallback(() => {
-    onApply(normalizeCatalogFilterDraft(draft));
+    onApply(
+      normalizeCatalogFilterDraft({
+        ...draft,
+        brands: shouldUseBrands ? draft.brands : [],
+      }),
+    );
     setOpen(false);
-  }, [draft, onApply, setOpen]);
+  }, [draft, onApply, setOpen, shouldUseBrands]);
 
   return {
     brands,
@@ -123,6 +137,7 @@ export function useCatalogFilterDrawer({
     open,
     patchDraft,
     setOpen,
+    shouldUseBrands,
     toggleArrayDraftValue,
     toggleBooleanDraftValue,
   };

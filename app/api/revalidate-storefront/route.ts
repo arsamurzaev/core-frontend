@@ -1,4 +1,7 @@
-﻿import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
+import {
+  getCurrentCatalogServer,
+  resolveServerForwardedHost,
+} from "@/shared/api/server/get-current-catalog";
 import { getCurrentSessionServerUncached } from "@/shared/api/server/get-current-session";
 import { revalidateStorefrontCacheByHost } from "@/shared/api/server/storefront-cache";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
@@ -15,13 +18,13 @@ function csrfTokensMatch(a: string, b: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  const currentCatalog = await getCurrentCatalogServer().catch(() => null);
+  const scopedCsrfCookie = currentCatalog?.id
+    ? request.cookies.get(`${CATALOG_CSRF_COOKIE_PREFIX}${currentCatalog.id}`)
+        ?.value
+    : null;
   const csrfCookie =
-    request.cookies.get(CSRF_COOKIE_NAME)?.value ??
-    request.cookies
-      .getAll()
-      .find((cookie) => cookie.name.startsWith(CATALOG_CSRF_COOKIE_PREFIX))
-      ?.value ??
-    null;
+    scopedCsrfCookie ?? request.cookies.get(CSRF_COOKIE_NAME)?.value ?? null;
   const csrfHeader = request.headers.get(CSRF_HEADER_NAME);
 
   if (!csrfCookie || !csrfHeader || !csrfTokensMatch(csrfCookie, csrfHeader)) {

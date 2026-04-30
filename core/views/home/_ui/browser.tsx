@@ -19,7 +19,9 @@ import {
   type CatalogFilterQueryState,
 } from "@/shared/lib/catalog-filter-query";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
+import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
 import { cn } from "@/shared/lib/utils";
+import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
@@ -81,6 +83,7 @@ export const Browser: React.FC<BrowserProps> = ({
   className,
   initialCategories = [],
 }) => {
+  const catalog = useCatalog();
   const {
     queryState,
     isFilterActive,
@@ -99,6 +102,20 @@ export const Browser: React.FC<BrowserProps> = ({
     [categoriesQuery.data],
   );
   const { user } = useSession();
+  const supportsBrands = supportsCatalogBrands(catalog);
+  const effectiveQueryState = React.useMemo(
+    () => ({
+      ...queryState,
+      brands: supportsBrands ? queryState.brands : [],
+    }),
+    [queryState, supportsBrands],
+  );
+  const effectiveIsFilterActive = React.useMemo(
+    () =>
+      Boolean(effectiveQueryState.filter) ||
+      getCatalogActiveFiltersCount(effectiveQueryState) > 0,
+    [effectiveQueryState],
+  );
   const canManageCategories = isCatalogManagerRole(user?.role);
   const categoryAdmin = useCategoryAdmin({
     categories,
@@ -110,18 +127,18 @@ export const Browser: React.FC<BrowserProps> = ({
     handleCategoryBarClick,
   } = useCategoryScrollNavigation({
     categories,
-    isCatalogTab: queryState.tab === "catalog",
-    isFilterActive,
+    isCatalogTab: effectiveQueryState.tab === "catalog",
+    isFilterActive: effectiveIsFilterActive,
     pageSize: CATEGORY_PRODUCTS_PAGE_SIZE,
   });
   const shouldShowCategoryCardsLoading =
     categoriesQuery.isLoading && categories.length === 0;
   const activeFiltersCount = React.useMemo(
-    () => getCatalogActiveFiltersCount(queryState),
-    [queryState],
+    () => getCatalogActiveFiltersCount(effectiveQueryState),
+    [effectiveQueryState],
   );
   const shouldShowAdminActions =
-    canManageCategories && queryState.tab === "categories";
+    canManageCategories && effectiveQueryState.tab === "categories";
   const shouldRenderAdminDrawers =
     canManageCategories &&
     (categoryAdmin.isCreateOpen ||
@@ -133,6 +150,12 @@ export const Browser: React.FC<BrowserProps> = ({
   );
 
   React.useEffect(() => {
+    if (!supportsBrands && queryState.brands.length > 0) {
+      handleFilterToggle({ brands: [] });
+    }
+  }, [handleFilterToggle, queryState.brands.length, supportsBrands]);
+
+  React.useEffect(() => {
     if (!shouldRenderAdminDrawers) {
       return;
     }
@@ -140,8 +163,8 @@ export const Browser: React.FC<BrowserProps> = ({
     setHasMountedAdminDrawers(true);
   }, [shouldRenderAdminDrawers]);
   const filterBottomRow =
-    queryState.tab === "catalog" ? (
-      !isFilterActive ? (
+    effectiveQueryState.tab === "catalog" ? (
+      !effectiveIsFilterActive ? (
         <CategoryBarList
           items={categories}
           isLoading={categoriesQuery.isLoading}
@@ -164,18 +187,18 @@ export const Browser: React.FC<BrowserProps> = ({
       className={cn("space-y-4 rounded-xl", className)}
     >
       <Tabs
-        value={queryState.tab}
+        value={effectiveQueryState.tab}
         onValueChange={handleTabChange}
         className="space-y-4"
       >
-        <CatalogTabsToggle tab={queryState.tab} />
+        <CatalogTabsToggle tab={effectiveQueryState.tab} />
 
         <FilterBar
-          tab={<CatalogTabsToggle tab={queryState.tab} />}
-          searchTerm={queryState.searchTerm}
+          tab={<CatalogTabsToggle tab={effectiveQueryState.tab} />}
+          searchTerm={effectiveQueryState.searchTerm}
           filterAction={
             <div className="flex items-center gap-2">
-              {isFilterActive ? (
+              {effectiveIsFilterActive ? (
                 <Button
                   type="button"
                   className="h-10 rounded-full px-4 whitespace-nowrap"
@@ -185,7 +208,7 @@ export const Browser: React.FC<BrowserProps> = ({
                 </Button>
               ) : null}
               <LazyCatalogFilterDrawer
-                queryState={queryState}
+                queryState={effectiveQueryState}
                 categories={categories}
                 isCategoriesLoading={categoriesQuery.isLoading}
                 activeFiltersCount={activeFiltersCount}
@@ -205,11 +228,11 @@ export const Browser: React.FC<BrowserProps> = ({
             <CatalogProductsPanel
               className="w-1/2 shrink-0 space-y-7.5"
               contentClassName="m-1"
-              collapsed={queryState.tab === "categories"}
+              collapsed={effectiveQueryState.tab === "categories"}
               categories={categories}
               isCategoriesLoading={categoriesQuery.isLoading}
-              isFilterActive={isFilterActive}
-              queryState={queryState}
+              isFilterActive={effectiveIsFilterActive}
+              queryState={effectiveQueryState}
               activeCategoryId={activeCategoryId}
               isProgrammaticScroll={isProgrammaticScroll}
               programmaticScrollTargetId={programmaticScrollTargetId}

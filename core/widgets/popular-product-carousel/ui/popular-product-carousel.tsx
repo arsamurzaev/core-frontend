@@ -3,6 +3,7 @@
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
 import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
+import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
@@ -18,6 +19,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/shared/ui/carousel";
+import { useSession } from "@/shared/providers/session-provider";
 import React from "react";
 import { PopularProductCarouselSkeleton } from "./skeleton/popular-product-carousel-skeleton";
 
@@ -34,6 +36,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [isMounted, setIsMounted] = React.useState(false);
   const { quantityByProductId, shouldUseCartUi } = useCart();
+  const { isAuthenticated } = useSession();
   const shouldRenderCartUi = isMounted && shouldUseCartUi;
 
   const { isLoading, data } = useProductControllerGetPopularCards({
@@ -132,6 +135,11 @@ export const PopularProductCarousel: React.FC<Props> = ({
                         <CartProductCardFooterAction
                           product={product}
                           isDetailed
+                        />
+                      ) : !shouldRenderCartUi && isAuthenticated ? (
+                        <ToggleProductPopularAction
+                          productId={product.id}
+                          isPopular={Boolean(product.isPopular)}
                         />
                       ) : undefined
                     }

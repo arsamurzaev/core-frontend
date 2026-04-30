@@ -17,6 +17,8 @@ import {
   useBrandControllerGetAll,
   useCategoryControllerGetAll,
 } from "@/shared/api/generated/react-query";
+import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import React from "react";
@@ -53,8 +55,11 @@ export function useProductFormFields({
   isActive = false,
   includeCategories = true,
 }: UseProductFormFieldsParams) {
+  const { catalog } = useCatalogState();
+  const shouldUseBrands = supportsCatalogBrands(catalog);
   const brandsQuery = useBrandControllerGetAll({
     query: {
+      enabled: shouldUseBrands,
       staleTime: 60_000,
       refetchOnWindowFocus: false,
     },
@@ -96,13 +101,15 @@ export function useProductFormFields({
 
   const brandOptions = React.useMemo(
     () =>
-      [...(brandsQuery.data ?? [])]
+      shouldUseBrands
+        ? [...(brandsQuery.data ?? [])]
         .sort((left, right) => left.name.localeCompare(right.name, "ru"))
         .map((brand) => ({
           label: brand.name,
           value: brand.id,
-        })),
-    [brandsQuery.data],
+        }))
+        : [],
+    [brandsQuery.data, shouldUseBrands],
   );
 
   const categoryOptions = React.useMemo(
@@ -134,18 +141,20 @@ export function useProductFormFields({
   const baseFormFields = React.useMemo(
     () => {
       const customFields = [
-        {
-          name: "brandId",
-          label: "Бренд",
-          component: CreateProductBrandField,
-          options: brandOptions,
-          placeholder: "Выбрать бренд",
-          hideError: true,
-          orientation: "horizontal",
-          labelClassName: CREATE_PRODUCT_FORM_LABEL_CLASS,
-          className: CREATE_PRODUCT_FORM_FIELD_CLASS,
-          layout: { colSpan: 2, order: 40 },
-        },
+        shouldUseBrands
+          ? {
+              name: "brandId",
+              label: "Бренд",
+              component: CreateProductBrandField,
+              options: brandOptions,
+              placeholder: "Выбрать бренд",
+              hideError: true,
+              orientation: "horizontal",
+              labelClassName: CREATE_PRODUCT_FORM_LABEL_CLASS,
+              className: CREATE_PRODUCT_FORM_FIELD_CLASS,
+              layout: { colSpan: 2, order: 40 },
+            }
+          : null,
         includeCategories
           ? {
               name: "categoryIds",
@@ -177,8 +186,20 @@ export function useProductFormFields({
         customFields as ReturnType<typeof buildCreateProductFormFields>[number][],
       );
     },
-    [brandOptions, categoryOptions, includeCategories, visibleAttributes],
+    [
+      brandOptions,
+      categoryOptions,
+      includeCategories,
+      shouldUseBrands,
+      visibleAttributes,
+    ],
   );
+
+  React.useEffect(() => {
+    if (!shouldUseBrands) {
+      form.setValue("brandId", undefined);
+    }
+  }, [form, shouldUseBrands]);
 
   const formFields = React.useMemo(() => {
     const discountAttribute =

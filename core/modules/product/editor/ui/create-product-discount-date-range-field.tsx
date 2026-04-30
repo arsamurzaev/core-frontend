@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { CalendarIcon, Trash2 } from "lucide-react";
+import { CalendarIcon, Trash2, X } from "lucide-react";
 import { type Path, useWatch } from "react-hook-form";
 import { type DateRange } from "react-day-picker";
 import React from "react";
@@ -53,6 +53,9 @@ export function CreateProductDiscountDateRangeField({
   relatedAttributeId,
 }: CreateProductDiscountDateRangeFieldProps) {
   const [open, setOpen] = React.useState(false);
+  const [draftRange, setDraftRange] = React.useState<DateRange | undefined>(
+    undefined,
+  );
 
   const relatedFieldName = React.useMemo<Path<CreateProductFormValues>>(
     () => `attributes.${relatedAttributeId}` as Path<CreateProductFormValues>,
@@ -75,6 +78,12 @@ export function CreateProductDiscountDateRangeField({
     return { from, to };
   }, [controllerField.value, relatedFieldValue]);
 
+  React.useEffect(() => {
+    if (open) {
+      setDraftRange(range);
+    }
+  }, [open, range]);
+
   const setRangeValue = React.useCallback(
     (nextRange: DateRange | undefined) => {
       form.setValue(
@@ -95,14 +104,20 @@ export function CreateProductDiscountDateRangeField({
 
   const handleSelect = React.useCallback(
     (nextRange: DateRange | undefined) => {
-      setRangeValue(nextRange);
-
-      if (nextRange?.from && nextRange.to) {
-        setOpen(false);
-      }
+      setDraftRange(nextRange);
     },
-    [setRangeValue],
+    [],
   );
+
+  const handleSave = React.useCallback(() => {
+    setRangeValue(draftRange);
+    setOpen(false);
+  }, [draftRange, setRangeValue]);
+
+  const handleClose = React.useCallback(() => {
+    setDraftRange(range);
+    setOpen(false);
+  }, [range]);
 
   const handleClear = React.useCallback(() => {
     setRangeValue(undefined);
@@ -127,15 +142,50 @@ export function CreateProductDiscountDateRangeField({
             <span className="truncate">{formatDateRangeLabel(range)}</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent
+          className="w-auto p-0"
+          align="start"
+          onInteractOutside={(event) => {
+            event.preventDefault();
+          }}
+          onEscapeKeyDown={(event) => {
+            event.preventDefault();
+          }}
+        >
+          <div className="flex items-center justify-between border-b px-3 py-2">
+            <p className="text-sm font-medium">Период скидки</p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7 rounded-full"
+              onClick={handleClose}
+              aria-label="Закрыть"
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
           <Calendar
             locale={ru}
             mode="range"
-            defaultMonth={range?.from}
-            selected={range}
+            defaultMonth={draftRange?.from ?? range?.from}
+            selected={draftRange}
             onSelect={handleSelect}
             numberOfMonths={2}
           />
+          <div className="flex justify-end gap-2 border-t px-3 py-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setDraftRange(undefined)}
+            >
+              Очистить
+            </Button>
+            <Button type="button" size="sm" onClick={handleSave}>
+              Сохранить
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
 
