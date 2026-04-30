@@ -5684,7 +5684,8 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
  * @summary SSE stream for the current cart
  */
 export const CartControllerSseCurrentHeader = zod.object({
-  "last-event-id": zod.string().optional()
+  "last-event-id": zod.string(),
+  "Last-Event-ID": zod.string().optional().describe('Last received Redis Stream event id for SSE replay')
 })
 
 
@@ -6080,7 +6081,8 @@ export const CartControllerSsePublicQueryParams = zod.object({
 })
 
 export const CartControllerSsePublicHeader = zod.object({
-  "last-event-id": zod.string().optional()
+  "last-event-id": zod.string(),
+  "Last-Event-ID": zod.string().optional().describe('Last received Redis Stream event id for SSE replay')
 })
 
 
