@@ -14,6 +14,7 @@ import {
 } from "./react-query/index";
 
 export interface CartSseConnectedEvent {
+  id?: string;
   type: "connected";
   data: {
     cartId: string;
@@ -22,28 +23,39 @@ export interface CartSseConnectedEvent {
 }
 
 export interface CartSsePingEvent {
+  id?: string;
   type: "ping";
   data: {
     timestamp: string;
   };
 }
 
+export interface CartSseSnapshotEvent {
+  id?: string;
+  type: "cart.snapshot";
+  data: CartDto;
+}
+
 export interface CartSseUpdatedEvent {
+  id?: string;
   type: "cart.updated";
   data: CartDto;
 }
 
 export interface CartSseStatusChangedEvent {
+  id?: string;
   type: "cart.status_changed";
   data: CartDto;
 }
 
 export interface CartSseDetachedEvent {
+  id?: string;
   type: "cart.detached";
   data: unknown;
 }
 
 export interface CartSseUnknownEvent {
+  id?: string;
   type: string;
   data: unknown;
 }
@@ -51,6 +63,7 @@ export interface CartSseUnknownEvent {
 export type CartSseEvent =
   | CartSseConnectedEvent
   | CartSsePingEvent
+  | CartSseSnapshotEvent
   | CartSseUpdatedEvent
   | CartSseStatusChangedEvent
   | CartSseDetachedEvent
@@ -67,6 +80,7 @@ export class CartSseConnectionError extends Error {
 }
 
 interface ConnectCartSseOptions {
+  lastEventId?: string | null;
   onEvent: (event: CartSseEvent) => void;
   signal?: AbortSignal;
 }
@@ -76,12 +90,16 @@ function toAbsoluteApiUrl(path: string, params?: Record<string, unknown>) {
   return new URL(resolvedPath, API_BASE_URL).toString();
 }
 
-async function createSseHeaders() {
+async function createSseHeaders(lastEventId?: string | null) {
   const headers = new Headers({ Accept: "text/event-stream" });
   const forwardedHost = await getForwardedHost();
 
   if (forwardedHost) {
     headers.set(FORWARDED_HOST_HEADER, forwardedHost);
+  }
+
+  if (lastEventId) {
+    headers.set("Last-Event-ID", lastEventId);
   }
 
   return headers;
@@ -98,9 +116,15 @@ function parseCartSseChunk(chunk: string): CartSseEvent | null {
   }
 
   let eventType = "message";
+  let eventId: string | undefined;
   const dataLines: string[] = [];
 
   for (const line of lines) {
+    if (line.startsWith("id:")) {
+      eventId = line.slice("id:".length).trim() || undefined;
+      continue;
+    }
+
     if (line.startsWith("event:")) {
       eventType = line.slice("event:".length).trim();
       continue;
@@ -122,11 +146,13 @@ function parseCartSseChunk(chunk: string): CartSseEvent | null {
 
   try {
     return {
+      ...(eventId ? { id: eventId } : {}),
       type: eventType,
       data: JSON.parse(rawData) as unknown,
     } as CartSseEvent;
   } catch {
     return {
+      ...(eventId ? { id: eventId } : {}),
       type: eventType,
       data: rawData,
     };
@@ -140,7 +166,7 @@ async function connectCartSse(
   const response = await fetch(url, {
     method: "GET",
     credentials: "include",
-    headers: await createSseHeaders(),
+    headers: await createSseHeaders(options.lastEventId),
     cache: "no-store",
     signal: options.signal,
   });

@@ -1,65 +1,45 @@
 "use client";
 
-import {
-  CategoryDto,
-} from "@/shared/api/generated/react-query";
-import { useQueryClient } from "@tanstack/react-query";
+import { CategoryDto } from "@/shared/api/generated/react-query";
 import React from "react";
-import {
-  PROGRAMMATIC_SCROLL_ALIGN_SETTLE_DELAY_MS,
-  PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX,
-  PROGRAMMATIC_SCROLL_DATA_WAIT_DELAY_MS,
-  PROGRAMMATIC_SCROLL_MAX_SETTLE_ATTEMPTS,
-  PROGRAMMATIC_SCROLL_MIN_ALIGN_DELTA_PX,
-} from "./category-scroll";
+import { CATEGORY_SCROLL_ALIGN_TOLERANCE_PX } from "./category-scroll";
 import {
   alignCategorySectionToLine,
   getActiveCategoryLineY,
   invalidateCategoryScrollCache,
-  isCategoryProgrammaticTargetReached,
   resolveActiveCategoryIdByLine,
 } from "./category-scroll-navigation-dom";
-import {
-  getCategoryFirstPageState,
-  hasCategoryFirstPageLoaded,
-  prefetchCategoryFirstPage,
-} from "./category-scroll-navigation-query";
 
 interface UseCategoryScrollNavigationParams {
   categories: CategoryDto[];
   isCatalogTab: boolean;
   isFilterActive: boolean;
-  pageSize: number;
 }
 
 interface UseCategoryScrollNavigationResult {
   activeCategoryId: string | null;
-  isProgrammaticScroll: boolean;
-  programmaticScrollTargetId: string | null;
+  isCategoryLoadingBlocked: boolean;
+  loadAllowedCategoryId: string | null;
   handleCategoryBarClick: (item: { id: string }) => void;
+  handleCategoryFirstPageLoaded: (categoryId: string) => void;
 }
-
-const PROGRAMMATIC_SCROLL_MAX_WAIT_FOR_DATA_ATTEMPTS = 48;
 
 export function useCategoryScrollNavigation({
   categories,
   isCatalogTab,
   isFilterActive,
-  pageSize,
 }: UseCategoryScrollNavigationParams): UseCategoryScrollNavigationResult {
-  const queryClient = useQueryClient();
   const activeCategoryIdRef = React.useRef<string | null>(null);
-  const pendingScrollCategoryIdRef = React.useRef<string | null>(null);
-  const syncActiveCategoryRafRef = React.useRef<number | null>(null);
-  const programmaticScrollSettleTimerRef = React.useRef<number | null>(null);
-  const programmaticScrollSettleAttemptsRef = React.useRef(0);
-  const programmaticScrollTargetIdRef = React.useRef<string | null>(null);
-  const programmaticScrollRequiresFirstPageRef = React.useRef(false);
-  const programmaticScrollLockRef = React.useRef(false);
-  const [activeCategoryId, setActiveCategoryId] = React.useState<string | null>(null);
-  const [pendingScrollCategoryId, setPendingScrollCategoryId] = React.useState<string | null>(null);
-  const [programmaticScrollTargetId, setProgrammaticScrollTargetId] = React.useState<string | null>(null);
-  const [isProgrammaticScrollLocked, setIsProgrammaticScrollLocked] = React.useState(false);
+  const syncRafRef = React.useRef<number | null>(null);
+  const [jumpTargetCategoryId, setJumpTargetCategoryId] = React.useState<
+    string | null
+  >(null);
+  const [loadAllowedCategoryId, setLoadAllowedCategoryId] = React.useState<
+    string | null
+  >(null);
+  const [activeCategoryId, setActiveCategoryId] = React.useState<string | null>(
+    null,
+  );
 
   const isCatalogViewEnabled = isCatalogTab && !isFilterActive;
   const categoryIds = React.useMemo(
@@ -67,160 +47,89 @@ export function useCategoryScrollNavigation({
     [categories],
   );
 
-  React.useEffect(() => {
-    activeCategoryIdRef.current = activeCategoryId;
-  }, [activeCategoryId]);
-
-  React.useEffect(() => {
-    pendingScrollCategoryIdRef.current = pendingScrollCategoryId;
-  }, [pendingScrollCategoryId]);
-
-  const clearProgrammaticScrollSettle = React.useCallback(() => {
-    if (programmaticScrollSettleTimerRef.current === null) {
+  const setActiveCategory = React.useCallback((categoryId: string | null) => {
+    if (activeCategoryIdRef.current === categoryId) {
       return;
     }
 
-    window.clearTimeout(programmaticScrollSettleTimerRef.current);
-    programmaticScrollSettleTimerRef.current = null;
+    activeCategoryIdRef.current = categoryId;
+    setActiveCategoryId(categoryId);
   }, []);
 
-  const resetProgrammaticScrollState = React.useCallback(() => {
-    pendingScrollCategoryIdRef.current = null;
-    setPendingScrollCategoryId(null);
-    programmaticScrollTargetIdRef.current = null;
-    programmaticScrollRequiresFirstPageRef.current = false;
-    setProgrammaticScrollTargetId(null);
-    programmaticScrollSettleAttemptsRef.current = 0;
-    programmaticScrollLockRef.current = false;
-    setIsProgrammaticScrollLocked(false);
-    clearProgrammaticScrollSettle();
-  }, [clearProgrammaticScrollSettle]);
-
-  React.useEffect(() => {
-    if (categories.length === 0) {
-      activeCategoryIdRef.current = null;
-      setActiveCategoryId(null);
-      resetProgrammaticScrollState();
-      return;
-    }
-
-    const categoryIdSet = new Set(categories.map((category) => category.id));
-    const nextActiveCategoryId =
-      activeCategoryIdRef.current && categoryIdSet.has(activeCategoryIdRef.current)
-        ? activeCategoryIdRef.current
-        : categories[0]?.id ?? null;
-    const nextPendingCategoryId =
-      pendingScrollCategoryIdRef.current && categoryIdSet.has(pendingScrollCategoryIdRef.current)
-        ? pendingScrollCategoryIdRef.current
-        : null;
-
-    activeCategoryIdRef.current = nextActiveCategoryId;
-    setActiveCategoryId(nextActiveCategoryId);
-    pendingScrollCategoryIdRef.current = nextPendingCategoryId;
-    setPendingScrollCategoryId(nextPendingCategoryId);
-
-    const targetId = programmaticScrollTargetIdRef.current;
-    if (targetId && !categoryIdSet.has(targetId)) {
-      resetProgrammaticScrollState();
-    }
-  }, [categories, resetProgrammaticScrollState]);
-
-  const alignCategorySection = React.useCallback(
-    (categoryId: string, behavior: ScrollBehavior, minDeltaPx = 0) => {
-      return alignCategorySectionToLine({ categoryId, behavior, minDeltaPx });
-    },
-    [],
-  );
-
-  const resolveActiveCategoryByLine = React.useCallback(
-    (lineY: number): string | null => {
-      return resolveActiveCategoryIdByLine({
-        categoryIds,
-        currentActiveCategoryId: activeCategoryIdRef.current,
-        lineY,
-      });
-    },
-    [categoryIds],
-  );
-
-  const isProgrammaticTargetReached = React.useCallback(
-    (targetId: string): boolean => {
-      return isCategoryProgrammaticTargetReached({ categoryIds, targetId });
-    },
-    [categoryIds],
-  );
-
-  const isCategoryActiveAtLine = React.useCallback(
-    (categoryId: string): boolean => {
-      const lineY = getActiveCategoryLineY();
-      return resolveActiveCategoryByLine(lineY) === categoryId;
-    },
-    [resolveActiveCategoryByLine],
-  );
-
   const syncActiveCategoryByViewport = React.useCallback(() => {
-    if (!isCatalogViewEnabled || categories.length === 0) {
+    if (!isCatalogViewEnabled || categoryIds.length === 0) {
       return;
     }
 
     const lineY = getActiveCategoryLineY();
-    const nextActiveCategoryId = resolveActiveCategoryByLine(lineY);
+    const nextActiveCategoryId = resolveActiveCategoryIdByLine({
+      categoryIds,
+      currentActiveCategoryId: activeCategoryIdRef.current,
+      lineY,
+    });
 
-    if (!nextActiveCategoryId) {
-      return;
-    }
+    if (nextActiveCategoryId) {
+      if (jumpTargetCategoryId) {
+        if (nextActiveCategoryId === jumpTargetCategoryId) {
+          setLoadAllowedCategoryId(jumpTargetCategoryId);
+        }
 
-    const pendingId = pendingScrollCategoryIdRef.current;
-    if (programmaticScrollLockRef.current) {
-      if (pendingId && activeCategoryIdRef.current !== pendingId) {
-        activeCategoryIdRef.current = pendingId;
-        setActiveCategoryId(pendingId);
+        return;
       }
-      return;
+
+      setActiveCategory(nextActiveCategoryId);
     }
-
-    if (activeCategoryIdRef.current !== nextActiveCategoryId) {
-      activeCategoryIdRef.current = nextActiveCategoryId;
-      setActiveCategoryId(nextActiveCategoryId);
-    }
-
-    if (pendingId) {
-      pendingScrollCategoryIdRef.current = null;
-      setPendingScrollCategoryId(null);
-    }
-  }, [categories.length, isCatalogViewEnabled, resolveActiveCategoryByLine]);
-
-  const getCategoryFirstPageStatus = React.useCallback(
-    (categoryId: string) =>
-      getCategoryFirstPageState({ categoryId, pageSize, queryClient }),
-    [pageSize, queryClient],
-  );
-
-  const hasLoadedCategoryFirstPage = React.useCallback(
-    (categoryId: string) =>
-      hasCategoryFirstPageLoaded({ categoryId, pageSize, queryClient }),
-    [pageSize, queryClient],
-  );
+  }, [
+    categoryIds,
+    isCatalogViewEnabled,
+    jumpTargetCategoryId,
+    setActiveCategory,
+  ]);
 
   const scheduleSyncActiveCategoryByViewport = React.useCallback(() => {
-    if (syncActiveCategoryRafRef.current !== null) {
+    if (syncRafRef.current !== null) {
       return;
     }
 
-    syncActiveCategoryRafRef.current = window.requestAnimationFrame(() => {
-      syncActiveCategoryRafRef.current = null;
+    syncRafRef.current = window.requestAnimationFrame(() => {
+      syncRafRef.current = null;
       syncActiveCategoryByViewport();
     });
   }, [syncActiveCategoryByViewport]);
 
   React.useEffect(() => {
-    if (!isCatalogViewEnabled || categories.length === 0) {
+    if (categories.length === 0) {
+      activeCategoryIdRef.current = null;
+      setActiveCategoryId(null);
+      setJumpTargetCategoryId(null);
+      setLoadAllowedCategoryId(null);
+      return;
+    }
+
+    const categoryIdSet = new Set(categoryIds);
+    const currentActiveCategoryId = activeCategoryIdRef.current;
+    const nextActiveCategoryId =
+      currentActiveCategoryId && categoryIdSet.has(currentActiveCategoryId)
+        ? currentActiveCategoryId
+        : categories[0]?.id ?? null;
+
+    activeCategoryIdRef.current = nextActiveCategoryId;
+    setActiveCategoryId(nextActiveCategoryId);
+
+    if (jumpTargetCategoryId && !categoryIdSet.has(jumpTargetCategoryId)) {
+      setJumpTargetCategoryId(null);
+      setLoadAllowedCategoryId(null);
+    }
+  }, [categories, categoryIds, jumpTargetCategoryId]);
+
+  React.useEffect(() => {
+    if (!isCatalogViewEnabled || categoryIds.length === 0) {
       return;
     }
 
     scheduleSyncActiveCategoryByViewport();
 
-    const handleSync = () => {
+    const handleScroll = () => {
       scheduleSyncActiveCategoryByViewport();
     };
 
@@ -229,7 +138,7 @@ export function useCategoryScrollNavigation({
       scheduleSyncActiveCategoryByViewport();
     };
 
-    window.addEventListener("scroll", handleSync, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleResize);
 
     const scrollTarget = document.getElementById("scroll-tab-element");
@@ -241,120 +150,38 @@ export function useCategoryScrollNavigation({
     }
 
     return () => {
-      window.removeEventListener("scroll", handleSync);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
       resizeObserver?.disconnect();
 
-      if (syncActiveCategoryRafRef.current !== null) {
-        window.cancelAnimationFrame(syncActiveCategoryRafRef.current);
-        syncActiveCategoryRafRef.current = null;
+      if (syncRafRef.current !== null) {
+        window.cancelAnimationFrame(syncRafRef.current);
+        syncRafRef.current = null;
       }
     };
-  }, [categories.length, isCatalogViewEnabled, scheduleSyncActiveCategoryByViewport]);
-
-  const releaseProgrammaticScrollLock = React.useCallback(
-    (targetId: string) => {
-      if (programmaticScrollTargetIdRef.current !== targetId) {
-        return;
-      }
-
-      activeCategoryIdRef.current = targetId;
-      setActiveCategoryId(targetId);
-      resetProgrammaticScrollState();
-      scheduleSyncActiveCategoryByViewport();
-    },
-    [resetProgrammaticScrollState, scheduleSyncActiveCategoryByViewport],
-  );
-
-  const abortProgrammaticScroll = React.useCallback(() => {
-    resetProgrammaticScrollState();
-    syncActiveCategoryByViewport();
-    scheduleSyncActiveCategoryByViewport();
   }, [
-    resetProgrammaticScrollState,
+    categoryIds.length,
+    isCatalogViewEnabled,
     scheduleSyncActiveCategoryByViewport,
-    syncActiveCategoryByViewport,
   ]);
 
-  const scheduleProgrammaticScrollSettle = React.useCallback(() => {
-    clearProgrammaticScrollSettle();
-
-    const targetId = programmaticScrollTargetIdRef.current;
-    if (!targetId || !programmaticScrollLockRef.current) {
+  React.useEffect(() => {
+    if (isCatalogViewEnabled) {
       return;
     }
 
-    const runAttempt = () => {
-      const currentTargetId = programmaticScrollTargetIdRef.current;
-      if (!currentTargetId || currentTargetId !== targetId || !programmaticScrollLockRef.current) {
-        return;
+    setJumpTargetCategoryId(null);
+    setLoadAllowedCategoryId(null);
+  }, [isCatalogViewEnabled]);
+
+  React.useEffect(() => {
+    return () => {
+      if (syncRafRef.current !== null) {
+        window.cancelAnimationFrame(syncRafRef.current);
+        syncRafRef.current = null;
       }
-
-      if (programmaticScrollRequiresFirstPageRef.current) {
-        const firstPageState = getCategoryFirstPageStatus(targetId);
-
-        if (firstPageState !== "loaded") {
-          if (firstPageState === "error") {
-            abortProgrammaticScroll();
-            return;
-          }
-
-          if (programmaticScrollSettleAttemptsRef.current >= PROGRAMMATIC_SCROLL_MAX_WAIT_FOR_DATA_ATTEMPTS) {
-            abortProgrammaticScroll();
-            return;
-          }
-
-          programmaticScrollSettleAttemptsRef.current += 1;
-          programmaticScrollSettleTimerRef.current = window.setTimeout(
-            runAttempt,
-            PROGRAMMATIC_SCROLL_DATA_WAIT_DELAY_MS,
-          );
-          return;
-        }
-
-        programmaticScrollRequiresFirstPageRef.current = false;
-        programmaticScrollSettleAttemptsRef.current = 0;
-        setProgrammaticScrollTargetId(targetId);
-        programmaticScrollSettleTimerRef.current = window.setTimeout(runAttempt, 0);
-        return;
-      }
-
-      if (isProgrammaticTargetReached(targetId)) {
-        releaseProgrammaticScrollLock(targetId);
-        return;
-      }
-
-      alignCategorySection(targetId, "auto", PROGRAMMATIC_SCROLL_MIN_ALIGN_DELTA_PX);
-
-      if (isProgrammaticTargetReached(targetId)) {
-        releaseProgrammaticScrollLock(targetId);
-        return;
-      }
-
-      if (programmaticScrollSettleAttemptsRef.current >= PROGRAMMATIC_SCROLL_MAX_SETTLE_ATTEMPTS) {
-        releaseProgrammaticScrollLock(targetId);
-        return;
-      }
-
-      programmaticScrollSettleAttemptsRef.current += 1;
-      programmaticScrollSettleTimerRef.current = window.setTimeout(
-        runAttempt,
-        PROGRAMMATIC_SCROLL_ALIGN_SETTLE_DELAY_MS,
-      );
     };
-
-    programmaticScrollSettleTimerRef.current = window.setTimeout(
-      runAttempt,
-      PROGRAMMATIC_SCROLL_ALIGN_SETTLE_DELAY_MS,
-    );
-  }, [
-    alignCategorySection,
-    abortProgrammaticScroll,
-    clearProgrammaticScrollSettle,
-    getCategoryFirstPageStatus,
-    isProgrammaticTargetReached,
-    releaseProgrammaticScrollLock,
-  ]);
+  }, []);
 
   const handleCategoryBarClick = React.useCallback(
     (item: { id: string }) => {
@@ -362,114 +189,64 @@ export function useCategoryScrollNavigation({
         return;
       }
 
-      if (activeCategoryIdRef.current === item.id && isCategoryActiveAtLine(item.id)) {
-        resetProgrammaticScrollState();
-        scheduleSyncActiveCategoryByViewport();
-        return;
-      }
+      const isAlreadyActive = activeCategoryIdRef.current === item.id;
+      setActiveCategory(item.id);
 
-      activeCategoryIdRef.current = item.id;
-      setActiveCategoryId(item.id);
-      pendingScrollCategoryIdRef.current = item.id;
-      setPendingScrollCategoryId(item.id);
-      programmaticScrollTargetIdRef.current = item.id;
-      programmaticScrollSettleAttemptsRef.current = 0;
-      programmaticScrollLockRef.current = true;
-      setIsProgrammaticScrollLocked(true);
-
-      const hasWarmData = hasLoadedCategoryFirstPage(item.id);
-      setProgrammaticScrollTargetId(hasWarmData ? item.id : null);
-      programmaticScrollRequiresFirstPageRef.current = !hasWarmData;
-
-      if (!hasWarmData) {
-        void prefetchCategoryFirstPage({
+      if (isAlreadyActive) {
+        setJumpTargetCategoryId(null);
+        setLoadAllowedCategoryId(null);
+        alignCategorySectionToLine({
           categoryId: item.id,
-          pageSize,
-          queryClient,
-        }).catch(() => undefined);
-
+          behavior: "auto",
+          minDeltaPx: CATEGORY_SCROLL_ALIGN_TOLERANCE_PX,
+        });
         scheduleSyncActiveCategoryByViewport();
-        scheduleProgrammaticScrollSettle();
         return;
       }
 
-      const alignResult = alignCategorySection(
-        item.id,
-        "auto",
-        PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX,
-      );
+      setJumpTargetCategoryId(item.id);
+      setLoadAllowedCategoryId(null);
+      const alignResult = alignCategorySectionToLine({
+        categoryId: item.id,
+        behavior: "auto",
+        minDeltaPx: CATEGORY_SCROLL_ALIGN_TOLERANCE_PX,
+      });
 
       if (!alignResult.found) {
-        resetProgrammaticScrollState();
+        setJumpTargetCategoryId(null);
+        setLoadAllowedCategoryId(null);
         scheduleSyncActiveCategoryByViewport();
         return;
       }
 
       scheduleSyncActiveCategoryByViewport();
-      scheduleProgrammaticScrollSettle();
     },
     [
-      alignCategorySection,
       categoryIds,
-      hasLoadedCategoryFirstPage,
       isCatalogViewEnabled,
-      isCategoryActiveAtLine,
-      pageSize,
-      queryClient,
-      resetProgrammaticScrollState,
-      scheduleProgrammaticScrollSettle,
       scheduleSyncActiveCategoryByViewport,
+      setActiveCategory,
     ],
   );
 
-  React.useEffect(() => {
-    if (!isProgrammaticScrollLocked || !isCatalogTab) {
-      return;
-    }
-
-    const handleResize = () => {
-      invalidateCategoryScrollCache();
-      scheduleProgrammaticScrollSettle();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    programmaticScrollSettleAttemptsRef.current = 0;
-    scheduleProgrammaticScrollSettle();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearProgrammaticScrollSettle();
-    };
-  }, [
-    clearProgrammaticScrollSettle,
-    isCatalogTab,
-    isProgrammaticScrollLocked,
-    scheduleProgrammaticScrollSettle,
-  ]);
-
-  React.useEffect(() => {
-    if (!isProgrammaticScrollLocked || isCatalogTab) {
-      return;
-    }
-
-    resetProgrammaticScrollState();
-  }, [isCatalogTab, isProgrammaticScrollLocked, resetProgrammaticScrollState]);
-
-  React.useEffect(() => {
-    return () => {
-      clearProgrammaticScrollSettle();
-      if (syncActiveCategoryRafRef.current !== null) {
-        window.cancelAnimationFrame(syncActiveCategoryRafRef.current);
-        syncActiveCategoryRafRef.current = null;
+  const handleCategoryFirstPageLoaded = React.useCallback(
+    (categoryId: string) => {
+      if (jumpTargetCategoryId !== categoryId) {
+        return;
       }
-    };
-  }, [clearProgrammaticScrollSettle]);
+
+      setJumpTargetCategoryId(null);
+      setLoadAllowedCategoryId(null);
+      scheduleSyncActiveCategoryByViewport();
+    },
+    [jumpTargetCategoryId, scheduleSyncActiveCategoryByViewport],
+  );
 
   return {
     activeCategoryId,
-    isProgrammaticScroll: isProgrammaticScrollLocked,
-    programmaticScrollTargetId,
+    isCategoryLoadingBlocked: jumpTargetCategoryId !== null,
+    loadAllowedCategoryId,
     handleCategoryBarClick,
+    handleCategoryFirstPageLoaded,
   };
 }

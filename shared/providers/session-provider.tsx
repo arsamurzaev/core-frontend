@@ -6,7 +6,10 @@ import {
   useAuthControllerMe,
   type AuthUserDto,
 } from "@/shared/api/generated/react-query";
-import { getStoredCatalogId } from "@/shared/api/client-request";
+import {
+  clearCatalogSession,
+  getStoredCatalogId,
+} from "@/shared/api/client-request";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { type SessionBootstrapState } from "@/shared/providers/session-bootstrap";
 import React, {
@@ -81,13 +84,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const initialCsrfCookiePresent = initialSession?.csrfCookiePresent ?? null;
-  const [deferInitialAuthQuery, setDeferInitialAuthQuery] = useState(
-    Boolean(
-      initialSession?.resolved &&
-        initialSession.csrfCookiePresent &&
-        !initialSession.authData,
-    ),
-  );
+  const [deferInitialAuthQuery, setDeferInitialAuthQuery] = useState(false);
   const [csrfCookiePresent, setCsrfCookiePresent] = useState<boolean | null>(
     initialCsrfCookiePresent,
   );
@@ -145,6 +142,17 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   });
 
   const unauthorized = isUnauthorized(query.error);
+
+  useEffect(() => {
+    if (!unauthorized) {
+      return;
+    }
+
+    clearCatalogSession();
+    setCsrfCookiePresent(false);
+    setDeferInitialAuthQuery(false);
+  }, [unauthorized]);
+
   const user =
     unauthorized || deferInitialAuthQuery
       ? null

@@ -2,7 +2,7 @@
 
 import {
   AuthUserDtoRole,
-  useAuthControllerLogin,
+  useCatalogAuthControllerLogin,
 } from "@/shared/api/generated/react-query";
 import { setCatalogId } from "@/shared/api/client-request";
 import { cn } from "@/shared/lib/utils";
@@ -41,7 +41,7 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
     },
   });
 
-  const loginMutation = useAuthControllerLogin();
+  const loginMutation = useCatalogAuthControllerLogin();
 
   const onSubmit = form.handleSubmit(async (data: LoginFormValues) => {
     const payload = {

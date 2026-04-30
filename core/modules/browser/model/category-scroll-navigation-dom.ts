@@ -5,8 +5,6 @@ import {
   type AlignCategorySectionResult,
   FILTER_BAR_SCROLL_OFFSET,
   getCategorySectionId,
-  PAGE_END_EPSILON_PX,
-  PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX,
 } from "./category-scroll";
 
 interface CategorySectionSnapshot {
@@ -40,9 +38,6 @@ export function invalidateCategoryScrollCache(): void {
 }
 
 export function getActiveCategoryLineY(): number {
-  if (cachedLineY !== null) {
-    return cachedLineY;
-  }
   const filterBar = document.getElementById("catalog-filter-bar");
   cachedLineY = (filterBar?.getBoundingClientRect().bottom ?? 0) + FILTER_BAR_SCROLL_OFFSET;
   return cachedLineY;
@@ -152,42 +147,4 @@ export function resolveActiveCategoryIdByLine(params: {
   }
 
   return candidateId;
-}
-
-export function isCategoryProgrammaticTargetReached(params: {
-  categoryIds: string[];
-  targetId: string;
-}): boolean {
-  const { categoryIds, targetId } = params;
-  const lineY = getActiveCategoryLineY();
-  const target = document.getElementById(getCategorySectionId(targetId));
-
-  if (!target) {
-    return false;
-  }
-
-  const targetRect = target.getBoundingClientRect();
-  const distanceToLine = Math.abs(targetRect.top - lineY);
-
-  if (distanceToLine <= PROGRAMMATIC_SCROLL_ALIGN_TOLERANCE_PX) {
-    return true;
-  }
-
-  const lastCategoryId = categoryIds[categoryIds.length - 1] ?? null;
-  if (targetId !== lastCategoryId) {
-    return false;
-  }
-
-  const isAtPageBottom =
-    window.scrollY + window.innerHeight >=
-    document.documentElement.scrollHeight - PAGE_END_EPSILON_PX;
-
-  if (!isAtPageBottom) {
-    return false;
-  }
-
-  const isTargetVisible =
-    targetRect.top < window.innerHeight && targetRect.bottom > 0;
-
-  return isTargetVisible;
 }

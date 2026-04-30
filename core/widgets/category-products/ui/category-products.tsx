@@ -32,18 +32,19 @@ interface CategoryProductsProps {
   category: CategoryDto;
   sectionId: string;
   initiallyActivated?: boolean;
+  activationEnabled?: boolean;
   forceActivation?: boolean;
-  allowActivation?: boolean;
-  allowLoadMore?: boolean;
+  showInitialSkeleton?: boolean;
+  onFirstPageLoaded?: () => void;
 }
 
 interface UncategorizedProductsProps {
   className?: string;
   sectionId: string;
   initiallyActivated?: boolean;
+  activationEnabled?: boolean;
   forceActivation?: boolean;
-  allowActivation?: boolean;
-  allowLoadMore?: boolean;
+  showInitialSkeleton?: boolean;
 }
 
 interface ProductSectionItem {
@@ -65,9 +66,10 @@ interface ProductSectionProps {
   queryKey: readonly unknown[];
   queryFn: (cursor: string | undefined) => Promise<ProductSectionPage>;
   initiallyActivated?: boolean;
+  activationEnabled?: boolean;
   forceActivation?: boolean;
-  allowActivation?: boolean;
-  allowLoadMore?: boolean;
+  showInitialSkeleton?: boolean;
+  onFirstPageLoaded?: () => void;
   hideWhenEmpty?: boolean;
 }
 
@@ -155,9 +157,10 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   queryKey,
   queryFn,
   initiallyActivated = false,
+  activationEnabled = true,
   forceActivation = false,
-  allowActivation = true,
-  allowLoadMore = true,
+  showInitialSkeleton = true,
+  onFirstPageLoaded,
   hideWhenEmpty = false,
 }) => {
   const { isDetailed, hasHydrated } = useProductCardViewMode();
@@ -180,14 +183,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   }, [initiallyActivated, isActivated]);
 
   React.useEffect(() => {
-    if (!initiallyActivated || hasReachedViewport) {
-      return;
-    }
-
-    setHasReachedViewport(true);
-  }, [hasReachedViewport, initiallyActivated]);
-
-  React.useEffect(() => {
     if (!forceActivation || isActivated) {
       return;
     }
@@ -196,11 +191,15 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   }, [forceActivation, isActivated]);
 
   React.useEffect(() => {
-    if (isActivated) {
+    if (!initiallyActivated || hasReachedViewport) {
       return;
     }
 
-    if (!allowActivation) {
+    setHasReachedViewport(true);
+  }, [hasReachedViewport, initiallyActivated]);
+
+  React.useEffect(() => {
+    if (isActivated || !activationEnabled) {
       return;
     }
 
@@ -230,7 +229,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [allowActivation, isActivated]);
+  }, [activationEnabled, isActivated]);
 
   React.useEffect(() => {
     if (hasReachedViewport) {
@@ -272,10 +271,17 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       initialPageParam: undefined as string | undefined,
       getNextPageParam: (lastPage: ProductSectionPage) =>
         lastPage.nextCursor ?? undefined,
-      enabled: isActivated,
+      enabled: isActivated && activationEnabled,
     });
 
   const hasLoadedFirstPage = Boolean(data?.pages?.length);
+  React.useEffect(() => {
+    if (!hasLoadedFirstPage) {
+      return;
+    }
+
+    onFirstPageLoaded?.();
+  }, [hasLoadedFirstPage, onFirstPageLoaded]);
   const products = React.useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
@@ -306,7 +312,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 
     return rows;
   }, [columns, products]);
-  const shouldRenderLoaderRow = allowLoadMore && hasNextPage;
+  const shouldRenderLoaderRow = activationEnabled && hasNextPage;
   const loaderSkeletonCount = isDetailed ? 1 : Math.max(1, columns);
   const rowEstimateSize = React.useMemo(() => {
     if (isDetailed) {
@@ -337,6 +343,8 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const initialSkeletonCount = isDetailed
     ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
     : GRID_INITIAL_SKELETON_ITEMS_COUNT;
+  const shouldRenderInitialSkeleton =
+    showInitialSkeleton && hasHydrated && hasReachedViewport;
   const measureList = React.useCallback(() => {
     const list = listRef.current;
 
@@ -427,8 +435,8 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     const lastVisibleRow = virtualRows.at(-1);
 
     if (
-      !allowLoadMore ||
       !isActivated ||
+      !activationEnabled ||
       !hasNextPage ||
       isFetchingNextPage ||
       !lastVisibleRow
@@ -443,7 +451,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       void fetchNextPage();
     }
   }, [
-    allowLoadMore,
+    activationEnabled,
     fetchNextPage,
     hasNextPage,
     isActivated,
@@ -463,7 +471,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
       </h2>
       <div ref={listRef} style={{ overflowAnchor: "none" }}>
         {!hasLoadedFirstPage ? (
-          hasHydrated && hasReachedViewport ? (
+          shouldRenderInitialSkeleton ? (
             <ul className={listClassName}>
               {Array.from({ length: initialSkeletonCount }, (_, index) => (
                 <ProductCardSkeleton
@@ -546,9 +554,10 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
   category,
   sectionId,
   initiallyActivated = false,
+  activationEnabled = true,
   forceActivation = false,
-  allowActivation = true,
-  allowLoadMore = true,
+  showInitialSkeleton = true,
+  onFirstPageLoaded,
 }) => {
   const queryKey = React.useMemo(
     () =>
@@ -591,9 +600,10 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
       queryKey={queryKey}
       queryFn={queryFn}
       initiallyActivated={initiallyActivated}
+      activationEnabled={activationEnabled}
       forceActivation={forceActivation}
-      allowActivation={allowActivation}
-      allowLoadMore={allowLoadMore}
+      showInitialSkeleton={showInitialSkeleton}
+      onFirstPageLoaded={onFirstPageLoaded}
     />
   );
 };
@@ -602,9 +612,9 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
   className,
   sectionId,
   initiallyActivated = false,
+  activationEnabled = true,
   forceActivation = false,
-  allowActivation = true,
-  allowLoadMore = true,
+  showInitialSkeleton = true,
 }) => {
   const queryKey = React.useMemo(
     () =>
@@ -640,9 +650,9 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
       queryKey={queryKey}
       queryFn={queryFn}
       initiallyActivated={initiallyActivated}
+      activationEnabled={activationEnabled}
       forceActivation={forceActivation}
-      allowActivation={allowActivation}
-      allowLoadMore={allowLoadMore}
+      showInitialSkeleton={showInitialSkeleton}
       hideWhenEmpty
     />
   );

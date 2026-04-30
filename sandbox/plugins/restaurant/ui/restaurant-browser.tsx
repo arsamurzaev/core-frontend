@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { CatalogProductsPanel } from "@/core/modules/browser/ui/catalog-products-panel";
-import { CATEGORY_PRODUCTS_PAGE_SIZE } from "@/core/widgets/category-products/ui/category-products";
 import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
 import {
   type CategoryDto,
@@ -40,14 +39,14 @@ export const RestaurantBrowser: React.FC<RestaurantBrowserProps> = ({
 
   const {
     activeCategoryId,
-    isProgrammaticScroll,
-    programmaticScrollTargetId,
+    isCategoryLoadingBlocked,
+    loadAllowedCategoryId,
     handleCategoryBarClick,
+    handleCategoryFirstPageLoaded,
   } = useCategoryScrollNavigation({
     categories,
     isCatalogTab: true,
     isFilterActive,
-    pageSize: CATEGORY_PRODUCTS_PAGE_SIZE,
   });
 
   const bottomRow = !isFilterActive ? (
@@ -76,9 +75,9 @@ export const RestaurantBrowser: React.FC<RestaurantBrowserProps> = ({
         isCategoriesLoading={categoriesQuery.isLoading}
         isFilterActive={isFilterActive}
         queryState={queryState}
-        activeCategoryId={activeCategoryId}
-        isProgrammaticScroll={isProgrammaticScroll}
-        programmaticScrollTargetId={programmaticScrollTargetId}
+        isCategoryLoadingBlocked={isCategoryLoadingBlocked}
+        loadAllowedCategoryId={loadAllowedCategoryId}
+        onCategoryFirstPageLoaded={handleCategoryFirstPageLoaded}
         loadingSectionsCount={CATEGORY_LOADING_SECTIONS_COUNT}
       />
     </section>

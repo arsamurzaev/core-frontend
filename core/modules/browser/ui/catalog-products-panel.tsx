@@ -27,9 +27,9 @@ interface CatalogProductsPanelProps {
   isCategoriesLoading: boolean;
   isFilterActive: boolean;
   queryState: CatalogFilterQueryState;
-  activeCategoryId: string | null;
-  isProgrammaticScroll: boolean;
-  programmaticScrollTargetId: string | null;
+  isCategoryLoadingBlocked?: boolean;
+  loadAllowedCategoryId?: string | null;
+  onCategoryFirstPageLoaded?: (categoryId: string) => void;
   loadingSectionsCount?: number;
 }
 
@@ -63,19 +63,16 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
   isCategoriesLoading,
   isFilterActive,
   queryState,
-  activeCategoryId,
-  isProgrammaticScroll,
-  programmaticScrollTargetId,
+  isCategoryLoadingBlocked = false,
+  loadAllowedCategoryId = null,
+  onCategoryFirstPageLoaded,
   loadingSectionsCount = 3,
 }) => {
   const shouldShowLoading =
     !isFilterActive && isCategoriesLoading && categories.length === 0;
 
   return (
-    <div
-      className={className}
-      style={{ overflowAnchor: isProgrammaticScroll ? "none" : undefined }}
-    >
+    <div className={className}>
       <div className={cn(contentClassName, collapsed && "h-0")}>
         {isFilterActive ? (
           <FilterProducts queryState={queryState} />
@@ -93,16 +90,18 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
                 category={category}
                 sectionId={getCategorySectionId(category.id)}
                 initiallyActivated={index === 0}
-                forceActivation={
-                  isProgrammaticScroll
-                    ? programmaticScrollTargetId === category.id
-                    : activeCategoryId === category.id
+                activationEnabled={
+                  !isCategoryLoadingBlocked ||
+                  loadAllowedCategoryId === category.id
                 }
-                allowActivation={
-                  !isProgrammaticScroll ||
-                  programmaticScrollTargetId === category.id
+                forceActivation={loadAllowedCategoryId === category.id}
+                showInitialSkeleton={
+                  !isCategoryLoadingBlocked ||
+                  loadAllowedCategoryId === category.id
                 }
-                allowLoadMore={!isProgrammaticScroll}
+                onFirstPageLoaded={() =>
+                  onCategoryFirstPageLoaded?.(category.id)
+                }
               />
             ))}
             <UncategorizedProducts

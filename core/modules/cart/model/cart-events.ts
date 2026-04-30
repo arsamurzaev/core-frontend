@@ -21,6 +21,12 @@ export function isCartUpdatedEvent(
   return event.type === "cart.updated";
 }
 
+export function isCartSnapshotEvent(
+  event: CartRealtimeEvent,
+): event is { type: "cart.snapshot"; data: CartDto } {
+  return event.type === "cart.snapshot";
+}
+
 export function isCartStatusChangedEvent(
   event: CartRealtimeEvent,
 ): event is { type: "cart.status_changed"; data: CartDto } {

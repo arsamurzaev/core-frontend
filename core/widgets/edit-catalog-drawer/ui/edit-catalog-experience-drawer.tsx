@@ -3,6 +3,7 @@
 import {
   buildCatalogExperienceSummary,
   CATALOG_EXPERIENCE_OPTIONS,
+  type CatalogExperienceOption,
   normalizeCatalogExperienceModes,
   resolveCatalogExperienceDefaultMode,
   type CatalogExperienceMode,
@@ -30,7 +31,11 @@ import React from "react";
 import { toast } from "sonner";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 
-function buildModeUrl(mode: CatalogExperienceMode): string {
+function buildModeUrl(mode: CatalogExperienceMode, isDefaultMode: boolean): string {
+  if (isDefaultMode) {
+    return resolveCurrentAbsoluteUrl("/");
+  }
+
   const params = new URLSearchParams({ mode });
   return resolveCurrentAbsoluteUrl(`/?${params.toString()}`);
 }
@@ -46,12 +51,33 @@ function useQrDataUrl(url: string): string | null {
   return dataUrl;
 }
 
-function ModeLinkRow({ mode, title }: { mode: CatalogExperienceMode; title: string }) {
+function ModeLinkRow({
+  disabled,
+  isDefaultMode,
+  isEnabled,
+  isLastSelected,
+  onToggle,
+  option,
+}: {
+  disabled?: boolean;
+  isDefaultMode: boolean;
+  isEnabled: boolean;
+  isLastSelected: boolean;
+  onToggle: (checked: boolean) => void;
+  option: CatalogExperienceOption;
+}) {
   const [copied, setCopied] = React.useState(false);
-  const url = React.useMemo(() => buildModeUrl(mode), [mode]);
+  const url = React.useMemo(
+    () => buildModeUrl(option.value, isDefaultMode),
+    [isDefaultMode, option.value],
+  );
   const qrDataUrl = useQrDataUrl(url);
 
   const handleCopy = React.useCallback(async () => {
+    if (!isEnabled) {
+      return;
+    }
+
     try {
       await copyTextToClipboard(url);
       setCopied(true);
@@ -60,17 +86,43 @@ function ModeLinkRow({ mode, title }: { mode: CatalogExperienceMode; title: stri
     } catch {
       toast.error("Не удалось скопировать ссылку.");
     }
-  }, [url]);
+  }, [isEnabled, url]);
 
   const handleOpen = React.useCallback(() => {
+    if (!isEnabled) {
+      return;
+    }
+
     window.open(url, "_blank", "noopener,noreferrer");
-  }, [url]);
+  }, [isEnabled, url]);
 
   return (
     <div className="flex items-center gap-2 rounded-2xl border border-black/10 px-4 py-3">
+      <Switch
+        checked={isEnabled}
+        disabled={disabled || isLastSelected}
+        className="shrink-0 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+        onCheckedChange={onToggle}
+      />
+
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-foreground">{title}</p>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">{url}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-sm font-medium text-foreground">{option.title}</p>
+          {isDefaultMode ? (
+            <Badge variant="secondary" className="bg-green-500/10 text-green-700">
+              По умолчанию
+            </Badge>
+          ) : null}
+          {!isEnabled ? (
+            <Badge variant="secondary" className="bg-red-500/10 text-red-700">
+              Выключен
+            </Badge>
+          ) : null}
+        </div>
+        <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
+          {option.description}
+        </p>
+        <p className="mt-1 truncate text-xs text-muted-foreground">{url}</p>
       </div>
 
       <Button
@@ -78,6 +130,7 @@ function ModeLinkRow({ mode, title }: { mode: CatalogExperienceMode; title: stri
         variant="ghost"
         size="icon"
         className="shrink-0"
+        disabled={!isEnabled}
         onClick={() => void handleCopy()}
         title="Скопировать ссылку"
       >
@@ -93,6 +146,7 @@ function ModeLinkRow({ mode, title }: { mode: CatalogExperienceMode; title: stri
         variant="ghost"
         size="icon"
         className="shrink-0"
+        disabled={!isEnabled}
         onClick={handleOpen}
         title="Открыть в новой вкладке"
       >
@@ -106,23 +160,24 @@ function ModeLinkRow({ mode, title }: { mode: CatalogExperienceMode; title: stri
             variant="ghost"
             size="icon"
             className="shrink-0"
+            disabled={!isEnabled}
             title="Показать QR-код"
           >
             <QrCode className="size-4" />
           </Button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-auto p-4">
-          <p className="mb-3 text-sm font-medium">{title}</p>
+          <p className="mb-3 text-sm font-medium">{option.title}</p>
           {qrDataUrl ? (
             <>
               <img
                 src={qrDataUrl}
-                alt={`QR-код для режима ${title}`}
+                alt={`QR-код для режима ${option.title}`}
                 className="size-48 rounded-lg"
               />
               <a
                 href={qrDataUrl}
-                download={`qr-${mode.toLowerCase()}.png`}
+                download={`qr-${option.value.toLowerCase()}.png`}
                 className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
               >
                 <Download className="size-4" />
@@ -282,59 +337,11 @@ export const EditCatalogExperienceDrawer: React.FC<
             <div className="space-y-6">
               <section className="space-y-3">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Доступные сценарии</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Можно включить один или несколько вариантов работы каталога.
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  {CATALOG_EXPERIENCE_OPTIONS.map((option) => {
-                    const isChecked = allowedModes.includes(option.value);
-                    const isLastSelected = isChecked && allowedModes.length === 1;
-
-                    return (
-                      <label
-                        key={option.value}
-                        className="flex w-full cursor-pointer items-start gap-3 rounded-2xl border border-black/10 px-4 py-4 transition-colors hover:bg-muted/30"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-foreground">
-                                {option.title}
-                              </p>
-                              <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
-                                {option.description}
-                              </p>
-                            </div>
-                            <Switch
-                              checked={isChecked}
-                              disabled={disabled || isLastSelected}
-                              className="shrink-0"
-                              onCheckedChange={(checked) =>
-                                handleAllowedModeChange(option.value, checked)
-                              }
-                            />
-                          </div>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-
-                {allowedModesError ? (
-                  <FieldError>{allowedModesError}</FieldError>
-                ) : null}
-              </section>
-
-              <section className="space-y-3">
-                <div className="space-y-1">
                   <h3 className="text-sm font-semibold">
                     Что открывать по умолчанию
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Этот вариант будет открываться первым, если клиент не выбрал другой формат по ссылке.
+                    Этот вариант будет открываться по ссылке без дополнительных параметров.
                   </p>
                 </div>
 
@@ -384,29 +391,34 @@ export const EditCatalogExperienceDrawer: React.FC<
                 <div className="space-y-1">
                   <h3 className="text-sm font-semibold">Ссылки для клиентов</h3>
                   <p className="text-sm text-muted-foreground">
-                    Готовые ссылки с нужным сценарием — скопируйте и отправьте клиентам.
+                    Включайте нужные сценарии прямо в списке. Зелёный переключатель — доступен, красный — выключен.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  {allowedModes.map((mode) => {
-                    const option = CATALOG_EXPERIENCE_OPTIONS.find(
-                      (item) => item.value === mode,
-                    );
-
-                    if (!option) {
-                      return null;
-                    }
+                  {CATALOG_EXPERIENCE_OPTIONS.map((option) => {
+                    const isEnabled = allowedModes.includes(option.value);
+                    const isLastSelected = isEnabled && allowedModes.length === 1;
 
                     return (
                       <ModeLinkRow
-                        key={mode}
-                        mode={mode}
-                        title={option.title}
+                        key={option.value}
+                        disabled={disabled}
+                        isDefaultMode={option.value === defaultMode}
+                        isEnabled={isEnabled}
+                        isLastSelected={isLastSelected}
+                        onToggle={(checked) =>
+                          handleAllowedModeChange(option.value, checked)
+                        }
+                        option={option}
                       />
                     );
                   })}
                 </div>
+
+                {allowedModesError ? (
+                  <FieldError>{allowedModesError}</FieldError>
+                ) : null}
               </section>
             </div>
           </DrawerScrollArea>

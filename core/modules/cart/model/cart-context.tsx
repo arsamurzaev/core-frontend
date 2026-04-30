@@ -301,6 +301,31 @@ function mergeCartRealtimeStatus(
   };
 }
 
+function getCartRealtimeVersion(cart: CartDto | null | undefined): number {
+  if (!cart) {
+    return 0;
+  }
+
+  const updatedAt = Date.parse(cart.updatedAt);
+  const statusChangedAt = Date.parse(cart.statusChangedAt);
+
+  return Math.max(
+    Number.isFinite(updatedAt) ? updatedAt : 0,
+    Number.isFinite(statusChangedAt) ? statusChangedAt : 0,
+  );
+}
+
+function isStaleRealtimeCart(
+  nextCart: CartDto | null,
+  previousCart: CartDto | null | undefined,
+): boolean {
+  if (!nextCart || !previousCart || nextCart.id !== previousCart.id) {
+    return false;
+  }
+
+  return getCartRealtimeVersion(nextCart) < getCartRealtimeVersion(previousCart);
+}
+
 function formatSharePrice(value: number) {
   return Intl.NumberFormat("ru-RU").format(value);
 }
@@ -698,9 +723,13 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       : "Заказ";
   }, [catalog.name]);
   const setCurrentCartData = React.useCallback(
-    (cart: CartDto | null) => {
+    (cart: CartDto | null, options?: { ignoreStale?: boolean }) => {
       const previousCart =
         queryClient.getQueryData<CartDto | null>(cartQueryKeys.current);
+      if (options?.ignoreStale && isStaleRealtimeCart(cart, previousCart)) {
+        return;
+      }
+
       const nextCart = mergeCartRealtimeStatus(cart, previousCart);
 
       if (nextCart) {
@@ -716,13 +745,21 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   );
 
   const setPublicCartData = React.useCallback(
-    (access: CartPublicAccess | null, cart: CartDto | null) => {
+    (
+      access: CartPublicAccess | null,
+      cart: CartDto | null,
+      options?: { ignoreStale?: boolean },
+    ) => {
       if (!access) {
         return;
       }
 
       const queryKey = cartQueryKeys.public(access.publicKey, access.checkoutKey);
       const previousCart = queryClient.getQueryData<CartDto | null>(queryKey);
+      if (options?.ignoreStale && isStaleRealtimeCart(cart, previousCart)) {
+        return;
+      }
+
       const nextCart = mergeCartRealtimeStatus(cart, previousCart);
 
       queryClient.setQueryData(
@@ -736,27 +773,13 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   const handleSseCartUpdated = React.useCallback(
     (cart: CartDto, access?: CartPublicAccess | null) => {
       if (access) {
-        setPublicCartData(access, cart);
+        setPublicCartData(access, cart, { ignoreStale: true });
         return;
       }
 
-      setCurrentCartData(cart);
+      setCurrentCartData(cart, { ignoreStale: true });
     },
     [setCurrentCartData, setPublicCartData],
-  );
-
-  const handleSseConnected = React.useCallback(
-    (access?: CartPublicAccess | null) => {
-      if (access) {
-        void queryClient.invalidateQueries({
-          queryKey: cartQueryKeys.public(access.publicKey, access.checkoutKey),
-        });
-        return;
-      }
-
-      void queryClient.invalidateQueries({ queryKey: cartQueryKeys.current });
-    },
-    [queryClient],
   );
 
   const dismissPublicCart = React.useCallback(
@@ -817,9 +840,9 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   const handleSseCartStatusChanged = React.useCallback(
     (cart: CartDto, access?: CartPublicAccess | null) => {
       if (access) {
-        setPublicCartData(access, cart);
+        setPublicCartData(access, cart, { ignoreStale: true });
       } else {
-        setCurrentCartData(cart);
+        setCurrentCartData(cart, { ignoreStale: true });
       }
 
       if (cart.status === "CONVERTED" && !isCatalogManagerRole(user?.role)) {
@@ -906,8 +929,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
       return { previousCart };
     },
-    onSuccess: setCurrentCartData,
-    onError: (error, _params, context) => {
+    onSuccess: (cart) => setCurrentCartData(cart),
+    onError: (error, _params, context: CartMutationContext | undefined) => {
       if (isCartNotFoundError(error)) {
         clearStoredCurrentCart();
         currentCartNotFoundHandledRef.current = true;
@@ -979,7 +1002,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       const response = await cartControllerRemoveCurrentItem(itemId);
       return response.cart;
     },
-    onSuccess: setCurrentCartData,
+    onSuccess: (cart) => setCurrentCartData(cart),
     onError: (error) => {
       if (isCartNotFoundError(error)) {
         clearStoredCurrentCart();
@@ -1058,7 +1081,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   useCartSse({
     activeCart,
     clearStoredPublicAccess,
-    handleSseConnected,
     handleSseCartStatusChanged,
     handleSseCartUpdated,
     isHydrated,

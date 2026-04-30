@@ -5681,6 +5681,14 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
 
 
 /**
+ * @summary SSE stream for the current cart
+ */
+export const CartControllerSseCurrentHeader = zod.object({
+  "last-event-id": zod.string().optional()
+})
+
+
+/**
  * @summary Issue a checkoutKey for a public cart
  */
 export const CartControllerCreateCheckoutKeyParams = zod.object({
@@ -6069,6 +6077,10 @@ export const CartControllerSsePublicParams = zod.object({
 
 export const CartControllerSsePublicQueryParams = zod.object({
   "checkoutKey": zod.string().describe('SSE access key for the public cart')
+})
+
+export const CartControllerSsePublicHeader = zod.object({
+  "last-event-id": zod.string().optional()
 })
 
 

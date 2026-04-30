@@ -7,7 +7,6 @@ import { useCategoryAdmin } from "@/core/widgets/category-admin/model/use-catego
 import { CategoryAdminBarActions } from "@/core/widgets/category-admin/ui/category-admin-bar-actions";
 import { CategoryAdminCardAction } from "@/core/widgets/category-admin/ui/category-admin-card-action";
 import { LazyCatalogFilterDrawer } from "@/core/widgets/catalog-filter/ui/lazy-catalog-filter-drawer";
-import { CATEGORY_PRODUCTS_PAGE_SIZE } from "@/core/widgets/category-products/ui/category-products";
 import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
 import { FilterBar } from "@/core/widgets/filter-bar/ui/filter-bar";
 import {
@@ -86,7 +85,6 @@ export const Browser: React.FC<BrowserProps> = ({
   const catalog = useCatalog();
   const {
     queryState,
-    isFilterActive,
     swipeTranslatePercent,
     handleTabChange,
     handleFilterToggle,
@@ -122,14 +120,14 @@ export const Browser: React.FC<BrowserProps> = ({
   });
   const {
     activeCategoryId,
-    isProgrammaticScroll,
-    programmaticScrollTargetId,
+    isCategoryLoadingBlocked,
+    loadAllowedCategoryId,
     handleCategoryBarClick,
+    handleCategoryFirstPageLoaded,
   } = useCategoryScrollNavigation({
     categories,
     isCatalogTab: effectiveQueryState.tab === "catalog",
     isFilterActive: effectiveIsFilterActive,
-    pageSize: CATEGORY_PRODUCTS_PAGE_SIZE,
   });
   const shouldShowCategoryCardsLoading =
     categoriesQuery.isLoading && categories.length === 0;
@@ -233,9 +231,9 @@ export const Browser: React.FC<BrowserProps> = ({
               isCategoriesLoading={categoriesQuery.isLoading}
               isFilterActive={effectiveIsFilterActive}
               queryState={effectiveQueryState}
-              activeCategoryId={activeCategoryId}
-              isProgrammaticScroll={isProgrammaticScroll}
-              programmaticScrollTargetId={programmaticScrollTargetId}
+              isCategoryLoadingBlocked={isCategoryLoadingBlocked}
+              loadAllowedCategoryId={loadAllowedCategoryId}
+              onCategoryFirstPageLoaded={handleCategoryFirstPageLoaded}
               loadingSectionsCount={CATEGORY_LOADING_SECTIONS_COUNT}
             />
 
