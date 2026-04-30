@@ -27,9 +27,7 @@ interface CatalogProductsPanelProps {
   isCategoriesLoading: boolean;
   isFilterActive: boolean;
   queryState: CatalogFilterQueryState;
-  isCategoryLoadingBlocked?: boolean;
-  loadAllowedCategoryId?: string | null;
-  onCategoryFirstPageLoaded?: (categoryId: string) => void;
+  navigationTargetCategoryId?: string | null;
   loadingSectionsCount?: number;
 }
 
@@ -63,9 +61,7 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
   isCategoriesLoading,
   isFilterActive,
   queryState,
-  isCategoryLoadingBlocked = false,
-  loadAllowedCategoryId = null,
-  onCategoryFirstPageLoaded,
+  navigationTargetCategoryId = null,
   loadingSectionsCount = 3,
 }) => {
   const shouldShowLoading =
@@ -91,22 +87,21 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
                 sectionId={getCategorySectionId(category.id)}
                 initiallyActivated={index === 0}
                 activationEnabled={
-                  !isCategoryLoadingBlocked ||
-                  loadAllowedCategoryId === category.id
+                  !navigationTargetCategoryId ||
+                  navigationTargetCategoryId === category.id
                 }
-                forceActivation={loadAllowedCategoryId === category.id}
+                forceActivation={navigationTargetCategoryId === category.id}
                 showInitialSkeleton={
-                  !isCategoryLoadingBlocked ||
-                  loadAllowedCategoryId === category.id
-                }
-                onFirstPageLoaded={() =>
-                  onCategoryFirstPageLoaded?.(category.id)
+                  !navigationTargetCategoryId ||
+                  navigationTargetCategoryId === category.id
                 }
               />
             ))}
             <UncategorizedProducts
               sectionId={UNCATEGORIZED_PRODUCTS_SECTION_ID}
               initiallyActivated={categories.length === 0}
+              activationEnabled={!navigationTargetCategoryId}
+              showInitialSkeleton={!navigationTargetCategoryId}
             />
           </>
         )}

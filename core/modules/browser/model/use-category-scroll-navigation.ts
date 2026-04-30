@@ -2,7 +2,12 @@
 
 import { CategoryDto } from "@/shared/api/generated/react-query";
 import React from "react";
-import { CATEGORY_SCROLL_ALIGN_TOLERANCE_PX } from "./category-scroll";
+import { flushSync } from "react-dom";
+import {
+  CATEGORY_SCROLL_ALIGN_TOLERANCE_PX,
+  CATEGORY_SCROLL_REALIGN_ATTEMPTS,
+  CATEGORY_SCROLL_REALIGN_DELAY_MS,
+} from "./category-scroll";
 import {
   alignCategorySectionToLine,
   getActiveCategoryLineY,
@@ -18,10 +23,8 @@ interface UseCategoryScrollNavigationParams {
 
 interface UseCategoryScrollNavigationResult {
   activeCategoryId: string | null;
-  isCategoryLoadingBlocked: boolean;
-  loadAllowedCategoryId: string | null;
+  navigationTargetCategoryId: string | null;
   handleCategoryBarClick: (item: { id: string }) => void;
-  handleCategoryFirstPageLoaded: (categoryId: string) => void;
 }
 
 export function useCategoryScrollNavigation({
@@ -31,12 +34,9 @@ export function useCategoryScrollNavigation({
 }: UseCategoryScrollNavigationParams): UseCategoryScrollNavigationResult {
   const activeCategoryIdRef = React.useRef<string | null>(null);
   const syncRafRef = React.useRef<number | null>(null);
-  const [jumpTargetCategoryId, setJumpTargetCategoryId] = React.useState<
-    string | null
-  >(null);
-  const [loadAllowedCategoryId, setLoadAllowedCategoryId] = React.useState<
-    string | null
-  >(null);
+  const realignTimerRef = React.useRef<number | null>(null);
+  const [navigationTargetCategoryId, setNavigationTargetCategoryId] =
+    React.useState<string | null>(null);
   const [activeCategoryId, setActiveCategoryId] = React.useState<string | null>(
     null,
   );
@@ -69,22 +69,9 @@ export function useCategoryScrollNavigation({
     });
 
     if (nextActiveCategoryId) {
-      if (jumpTargetCategoryId) {
-        if (nextActiveCategoryId === jumpTargetCategoryId) {
-          setLoadAllowedCategoryId(jumpTargetCategoryId);
-        }
-
-        return;
-      }
-
       setActiveCategory(nextActiveCategoryId);
     }
-  }, [
-    categoryIds,
-    isCatalogViewEnabled,
-    jumpTargetCategoryId,
-    setActiveCategory,
-  ]);
+  }, [categoryIds, isCatalogViewEnabled, setActiveCategory]);
 
   const scheduleSyncActiveCategoryByViewport = React.useCallback(() => {
     if (syncRafRef.current !== null) {
@@ -97,12 +84,76 @@ export function useCategoryScrollNavigation({
     });
   }, [syncActiveCategoryByViewport]);
 
+  const syncActiveCategoryAfterLayout = React.useCallback(() => {
+    requestAnimationFrame(() => {
+      syncActiveCategoryByViewport();
+    });
+  }, [syncActiveCategoryByViewport]);
+
+  const clearRealignTimer = React.useCallback(() => {
+    if (realignTimerRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(realignTimerRef.current);
+    realignTimerRef.current = null;
+  }, []);
+
+  const alignCategoryInstantly = React.useCallback((categoryId: string) => {
+    invalidateCategoryScrollCache();
+    return alignCategorySectionToLine({
+      categoryId,
+      behavior: "instant",
+      minDeltaPx: CATEGORY_SCROLL_ALIGN_TOLERANCE_PX,
+    });
+  }, []);
+
+  const scheduleCategoryRealign = React.useCallback(
+    (categoryId: string) => {
+      clearRealignTimer();
+
+      let attempts = 0;
+
+      const realign = () => {
+        const result = alignCategoryInstantly(categoryId);
+        scheduleSyncActiveCategoryByViewport();
+
+        if (
+          !result.found ||
+          result.distanceToLine <= CATEGORY_SCROLL_ALIGN_TOLERANCE_PX ||
+          attempts >= CATEGORY_SCROLL_REALIGN_ATTEMPTS
+        ) {
+          realignTimerRef.current = null;
+          setNavigationTargetCategoryId(null);
+          syncActiveCategoryAfterLayout();
+          return;
+        }
+
+        attempts += 1;
+        realignTimerRef.current = window.setTimeout(
+          realign,
+          CATEGORY_SCROLL_REALIGN_DELAY_MS,
+        );
+      };
+
+      realignTimerRef.current = window.setTimeout(
+        realign,
+        CATEGORY_SCROLL_REALIGN_DELAY_MS,
+      );
+    },
+    [
+      alignCategoryInstantly,
+      clearRealignTimer,
+      scheduleSyncActiveCategoryByViewport,
+      syncActiveCategoryAfterLayout,
+    ],
+  );
+
   React.useEffect(() => {
     if (categories.length === 0) {
       activeCategoryIdRef.current = null;
       setActiveCategoryId(null);
-      setJumpTargetCategoryId(null);
-      setLoadAllowedCategoryId(null);
+      setNavigationTargetCategoryId(null);
       return;
     }
 
@@ -116,11 +167,13 @@ export function useCategoryScrollNavigation({
     activeCategoryIdRef.current = nextActiveCategoryId;
     setActiveCategoryId(nextActiveCategoryId);
 
-    if (jumpTargetCategoryId && !categoryIdSet.has(jumpTargetCategoryId)) {
-      setJumpTargetCategoryId(null);
-      setLoadAllowedCategoryId(null);
+    if (
+      navigationTargetCategoryId &&
+      !categoryIdSet.has(navigationTargetCategoryId)
+    ) {
+      setNavigationTargetCategoryId(null);
     }
-  }, [categories, categoryIds, jumpTargetCategoryId]);
+  }, [categories, categoryIds, navigationTargetCategoryId]);
 
   React.useEffect(() => {
     if (!isCatalogViewEnabled || categoryIds.length === 0) {
@@ -166,22 +219,16 @@ export function useCategoryScrollNavigation({
   ]);
 
   React.useEffect(() => {
-    if (isCatalogViewEnabled) {
-      return;
-    }
-
-    setJumpTargetCategoryId(null);
-    setLoadAllowedCategoryId(null);
-  }, [isCatalogViewEnabled]);
-
-  React.useEffect(() => {
     return () => {
       if (syncRafRef.current !== null) {
         window.cancelAnimationFrame(syncRafRef.current);
         syncRafRef.current = null;
       }
+
+      clearRealignTimer();
+      setNavigationTargetCategoryId(null);
     };
-  }, []);
+  }, [clearRealignTimer]);
 
   const handleCategoryBarClick = React.useCallback(
     (item: { id: string }) => {
@@ -190,63 +237,48 @@ export function useCategoryScrollNavigation({
       }
 
       const isAlreadyActive = activeCategoryIdRef.current === item.id;
-      setActiveCategory(item.id);
 
       if (isAlreadyActive) {
-        setJumpTargetCategoryId(null);
-        setLoadAllowedCategoryId(null);
-        alignCategorySectionToLine({
-          categoryId: item.id,
-          behavior: "auto",
-          minDeltaPx: CATEGORY_SCROLL_ALIGN_TOLERANCE_PX,
+        flushSync(() => {
+          setNavigationTargetCategoryId(null);
+          setActiveCategory(item.id);
         });
-        scheduleSyncActiveCategoryByViewport();
+        alignCategoryInstantly(item.id);
+        scheduleCategoryRealign(item.id);
+        syncActiveCategoryAfterLayout();
         return;
       }
 
-      setJumpTargetCategoryId(item.id);
-      setLoadAllowedCategoryId(null);
-      const alignResult = alignCategorySectionToLine({
-        categoryId: item.id,
-        behavior: "auto",
-        minDeltaPx: CATEGORY_SCROLL_ALIGN_TOLERANCE_PX,
+      flushSync(() => {
+        setNavigationTargetCategoryId(item.id);
+        setActiveCategory(item.id);
       });
+      const alignResult = alignCategoryInstantly(item.id);
 
       if (!alignResult.found) {
-        setJumpTargetCategoryId(null);
-        setLoadAllowedCategoryId(null);
-        scheduleSyncActiveCategoryByViewport();
+        flushSync(() => {
+          setNavigationTargetCategoryId(null);
+        });
+        syncActiveCategoryAfterLayout();
         return;
       }
 
-      scheduleSyncActiveCategoryByViewport();
+      scheduleCategoryRealign(item.id);
+      syncActiveCategoryAfterLayout();
     },
     [
+      alignCategoryInstantly,
       categoryIds,
       isCatalogViewEnabled,
-      scheduleSyncActiveCategoryByViewport,
+      scheduleCategoryRealign,
       setActiveCategory,
+      syncActiveCategoryAfterLayout,
     ],
-  );
-
-  const handleCategoryFirstPageLoaded = React.useCallback(
-    (categoryId: string) => {
-      if (jumpTargetCategoryId !== categoryId) {
-        return;
-      }
-
-      setJumpTargetCategoryId(null);
-      setLoadAllowedCategoryId(null);
-      scheduleSyncActiveCategoryByViewport();
-    },
-    [jumpTargetCategoryId, scheduleSyncActiveCategoryByViewport],
   );
 
   return {
     activeCategoryId,
-    isCategoryLoadingBlocked: jumpTargetCategoryId !== null,
-    loadAllowedCategoryId,
+    navigationTargetCategoryId,
     handleCategoryBarClick,
-    handleCategoryFirstPageLoaded,
   };
 }

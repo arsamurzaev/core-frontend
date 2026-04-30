@@ -120,10 +120,8 @@ export const Browser: React.FC<BrowserProps> = ({
   });
   const {
     activeCategoryId,
-    isCategoryLoadingBlocked,
-    loadAllowedCategoryId,
+    navigationTargetCategoryId,
     handleCategoryBarClick,
-    handleCategoryFirstPageLoaded,
   } = useCategoryScrollNavigation({
     categories,
     isCatalogTab: effectiveQueryState.tab === "catalog",
@@ -231,9 +229,7 @@ export const Browser: React.FC<BrowserProps> = ({
               isCategoriesLoading={categoriesQuery.isLoading}
               isFilterActive={effectiveIsFilterActive}
               queryState={effectiveQueryState}
-              isCategoryLoadingBlocked={isCategoryLoadingBlocked}
-              loadAllowedCategoryId={loadAllowedCategoryId}
-              onCategoryFirstPageLoaded={handleCategoryFirstPageLoaded}
+              navigationTargetCategoryId={navigationTargetCategoryId}
               loadingSectionsCount={CATEGORY_LOADING_SECTIONS_COUNT}
             />
 

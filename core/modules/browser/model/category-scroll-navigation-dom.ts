@@ -2,6 +2,7 @@
 
 import {
   ACTIVE_CATEGORY_HYSTERESIS_PX,
+  ACTIVE_CATEGORY_LINE_OFFSET,
   type AlignCategorySectionResult,
   FILTER_BAR_SCROLL_OFFSET,
   getCategorySectionId,
@@ -39,17 +40,24 @@ export function invalidateCategoryScrollCache(): void {
 
 export function getActiveCategoryLineY(): number {
   const filterBar = document.getElementById("catalog-filter-bar");
-  cachedLineY = (filterBar?.getBoundingClientRect().bottom ?? 0) + FILTER_BAR_SCROLL_OFFSET;
+  cachedLineY =
+    (filterBar?.getBoundingClientRect().bottom ?? 0) +
+    ACTIVE_CATEGORY_LINE_OFFSET;
   return cachedLineY;
 }
 
-export function alignCategorySectionToLine(params: {
-  categoryId: string;
+function getCategoryAlignLineY(): number {
+  const filterBar = document.getElementById("catalog-filter-bar");
+  return (filterBar?.getBoundingClientRect().bottom ?? 0) + FILTER_BAR_SCROLL_OFFSET;
+}
+
+export function alignElementToFilterBar(params: {
+  elementId: string;
   behavior: ScrollBehavior;
   minDeltaPx?: number;
 }): AlignCategorySectionResult {
-  const { categoryId, behavior, minDeltaPx = 0 } = params;
-  const target = document.getElementById(getCategorySectionId(categoryId));
+  const { elementId, behavior, minDeltaPx = 0 } = params;
+  const target = document.getElementById(elementId);
 
   if (!target) {
     return {
@@ -59,7 +67,7 @@ export function alignCategorySectionToLine(params: {
     };
   }
 
-  const deltaY = target.getBoundingClientRect().top - getActiveCategoryLineY();
+  const deltaY = target.getBoundingClientRect().top - getCategoryAlignLineY();
   const distanceToLine = Math.abs(deltaY);
 
   if (distanceToLine <= minDeltaPx) {
@@ -91,6 +99,18 @@ export function alignCategorySectionToLine(params: {
     didScroll: true,
     distanceToLine,
   };
+}
+
+export function alignCategorySectionToLine(params: {
+  categoryId: string;
+  behavior: ScrollBehavior;
+  minDeltaPx?: number;
+}): AlignCategorySectionResult {
+  return alignElementToFilterBar({
+    elementId: getCategorySectionId(params.categoryId),
+    behavior: params.behavior,
+    minDeltaPx: params.minDeltaPx,
+  });
 }
 
 export function resolveActiveCategoryIdByLine(params: {

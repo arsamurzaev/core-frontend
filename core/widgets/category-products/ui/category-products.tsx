@@ -35,7 +35,6 @@ interface CategoryProductsProps {
   activationEnabled?: boolean;
   forceActivation?: boolean;
   showInitialSkeleton?: boolean;
-  onFirstPageLoaded?: () => void;
 }
 
 interface UncategorizedProductsProps {
@@ -69,7 +68,6 @@ interface ProductSectionProps {
   activationEnabled?: boolean;
   forceActivation?: boolean;
   showInitialSkeleton?: boolean;
-  onFirstPageLoaded?: () => void;
   hideWhenEmpty?: boolean;
 }
 
@@ -160,7 +158,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   activationEnabled = true,
   forceActivation = false,
   showInitialSkeleton = true,
-  onFirstPageLoaded,
   hideWhenEmpty = false,
 }) => {
   const { isDetailed, hasHydrated } = useProductCardViewMode();
@@ -183,12 +180,18 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   }, [initiallyActivated, isActivated]);
 
   React.useEffect(() => {
-    if (!forceActivation || isActivated) {
+    if (!forceActivation) {
       return;
     }
 
-    setIsActivated(true);
-  }, [forceActivation, isActivated]);
+    if (!isActivated) {
+      setIsActivated(true);
+    }
+
+    if (!hasReachedViewport) {
+      setHasReachedViewport(true);
+    }
+  }, [forceActivation, hasReachedViewport, isActivated]);
 
   React.useEffect(() => {
     if (!initiallyActivated || hasReachedViewport) {
@@ -198,7 +201,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     setHasReachedViewport(true);
   }, [hasReachedViewport, initiallyActivated]);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (isActivated || !activationEnabled) {
       return;
     }
@@ -221,7 +224,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
           observer.disconnect();
         }
       },
-      { rootMargin: "260px 0px" },
+      { rootMargin: "0px" },
     );
 
     observer.observe(heading);
@@ -232,7 +235,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   }, [activationEnabled, isActivated]);
 
   React.useEffect(() => {
-    if (hasReachedViewport) {
+    if (hasReachedViewport || !activationEnabled) {
       return;
     }
 
@@ -254,7 +257,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
           observer.disconnect();
         }
       },
-      { rootMargin: "80px 0px" },
+      { rootMargin: "0px" },
     );
 
     observer.observe(heading);
@@ -262,7 +265,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [hasReachedViewport]);
+  }, [activationEnabled, hasReachedViewport]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
@@ -275,13 +278,6 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     });
 
   const hasLoadedFirstPage = Boolean(data?.pages?.length);
-  React.useEffect(() => {
-    if (!hasLoadedFirstPage) {
-      return;
-    }
-
-    onFirstPageLoaded?.();
-  }, [hasLoadedFirstPage, onFirstPageLoaded]);
   const products = React.useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
@@ -557,7 +553,6 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
   activationEnabled = true,
   forceActivation = false,
   showInitialSkeleton = true,
-  onFirstPageLoaded,
 }) => {
   const queryKey = React.useMemo(
     () =>
@@ -603,7 +598,6 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
       activationEnabled={activationEnabled}
       forceActivation={forceActivation}
       showInitialSkeleton={showInitialSkeleton}
-      onFirstPageLoaded={onFirstPageLoaded}
     />
   );
 };

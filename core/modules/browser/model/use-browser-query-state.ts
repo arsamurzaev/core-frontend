@@ -10,6 +10,14 @@ import {
 } from "@/shared/lib/catalog-filter-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
+import {
+  CATEGORY_SECTION_ID_PREFIX,
+  FILTER_PRODUCTS_RESULTS_SECTION_ID,
+} from "./category-scroll";
+import {
+  alignElementToFilterBar,
+  invalidateCategoryScrollCache,
+} from "./category-scroll-navigation-dom";
 
 export type CatalogFilterValuePatch = Partial<
   Pick<
@@ -43,6 +51,40 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
     pathname: string;
     query: string;
   } | null>(null);
+
+  const scrollToContentStart = React.useCallback((isNextFilterActive: boolean) => {
+    const getTargetElementId = () => {
+      if (isNextFilterActive) {
+        return document.getElementById(FILTER_PRODUCTS_RESULTS_SECTION_ID)?.id;
+      }
+
+      return (
+        document.querySelector<HTMLElement>(
+          `[id^="${CATEGORY_SECTION_ID_PREFIX}-"]`,
+        )?.id ?? document.getElementById("uncategorized-products-section")?.id
+      );
+    };
+
+    const scroll = () => {
+      const targetElementId = getTargetElementId();
+
+      if (!targetElementId) {
+        return;
+      }
+
+      invalidateCategoryScrollCache();
+      alignElementToFilterBar({
+        elementId: targetElementId,
+        behavior: "instant",
+        minDeltaPx: 1,
+      });
+    };
+
+    scroll();
+    requestAnimationFrame(scroll);
+    window.setTimeout(scroll, 80);
+    window.setTimeout(scroll, 180);
+  }, []);
 
   const queryState = React.useMemo(
     () => parseCatalogFilterQueryState(searchParams),
@@ -108,8 +150,17 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
       router.replace(query ? `${pathname}?${query}` : pathname, {
         scroll: false,
       });
+
+      scrollToContentStart(hasActiveCatalogFilters(nextState));
     },
-    [isFilterActive, pathname, queryState, router, searchParams],
+    [
+      isFilterActive,
+      pathname,
+      queryState,
+      router,
+      scrollToContentStart,
+      searchParams,
+    ],
   );
 
   React.useEffect(() => {
@@ -131,20 +182,8 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
       return;
     }
 
-    const target = document.getElementById("scroll-tab-element");
-    if (!target) {
-      return;
-    }
-
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    target.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "start",
-    });
-  }, [pathnameKey, queryKey]);
+    scrollToContentStart(isFilterActive);
+  }, [isFilterActive, pathnameKey, queryKey, scrollToContentStart]);
 
   return {
     queryState,

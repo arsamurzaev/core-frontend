@@ -39,10 +39,8 @@ export const RestaurantBrowser: React.FC<RestaurantBrowserProps> = ({
 
   const {
     activeCategoryId,
-    isCategoryLoadingBlocked,
-    loadAllowedCategoryId,
+    navigationTargetCategoryId,
     handleCategoryBarClick,
-    handleCategoryFirstPageLoaded,
   } = useCategoryScrollNavigation({
     categories,
     isCatalogTab: true,
@@ -75,9 +73,7 @@ export const RestaurantBrowser: React.FC<RestaurantBrowserProps> = ({
         isCategoriesLoading={categoriesQuery.isLoading}
         isFilterActive={isFilterActive}
         queryState={queryState}
-        isCategoryLoadingBlocked={isCategoryLoadingBlocked}
-        loadAllowedCategoryId={loadAllowedCategoryId}
-        onCategoryFirstPageLoaded={handleCategoryFirstPageLoaded}
+        navigationTargetCategoryId={navigationTargetCategoryId}
         loadingSectionsCount={CATEGORY_LOADING_SECTIONS_COUNT}
       />
     </section>

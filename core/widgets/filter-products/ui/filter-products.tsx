@@ -14,6 +14,7 @@ import {
 } from "@/core/modules/product/model/use-product-card-view-mode";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
+import { FILTER_PRODUCTS_RESULTS_SECTION_ID } from "@/core/modules/browser/model/category-scroll";
 import {
   DETAILED_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
   GRID_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
@@ -45,6 +46,7 @@ interface FilterProductListSectionProps {
   layoutVersion: string;
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
   products: FilterSectionProduct[];
+  sectionId?: string;
   sectionKey: string;
 }
 
@@ -123,6 +125,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   layoutVersion,
   loadMoreRef,
   products,
+  sectionId,
   sectionKey,
 }) => {
   const { isAuthenticated } = useSession();
@@ -276,7 +279,7 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
   }, [rowVirtualizer]);
 
   return (
-    <div className="space-y-6">
+    <div id={sectionId} className="space-y-6">
       <h2 className="pl-1 text-left text-xl font-bold">{heading}</h2>
 
       {isLoading ? (
@@ -399,6 +402,7 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
   return (
     <div className={cn("space-y-6", className)}>
       <FilterProductListSection
+        sectionId={FILTER_PRODUCTS_RESULTS_SECTION_ID}
         sectionKey="filter-results"
         heading="Результаты фильтра"
         emptyText="По вашему запросу ничего не найдено"
