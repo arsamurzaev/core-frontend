@@ -1,5 +1,8 @@
 ﻿"use client";
 
+import { useActiveCategoryIntersection } from "@/core/modules/browser/model/use-active-category-intersection";
+import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
+import { useCategoryClickActivationDelay } from "@/core/modules/browser/model/use-category-click-activation-delay";
 import { CatalogProductsPanel } from "@/core/modules/browser/ui/catalog-products-panel";
 import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
 import {
@@ -8,8 +11,6 @@ import {
 } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import React from "react";
-import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
-import { useCategoryScrollNavigation } from "@/core/modules/browser/model/use-category-scroll-navigation";
 import { RestaurantFilterBar } from "./restaurant-filter-bar";
 
 interface RestaurantBrowserProps {
@@ -36,23 +37,21 @@ export const RestaurantBrowser: React.FC<RestaurantBrowserProps> = ({
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
-
-  const {
-    activeCategoryId,
-    navigationTargetCategoryId,
-    handleCategoryBarClick,
-  } = useCategoryScrollNavigation({
+  const { activeCategoryId } = useActiveCategoryIntersection({
     categories,
-    isCatalogTab: true,
-    isFilterActive,
+    enabled: !isFilterActive,
   });
-
+  const categoryClickActivation = useCategoryClickActivationDelay({
+    enabled: !isFilterActive,
+  });
+  const visibleActiveCategoryId =
+    categoryClickActivation.activationBlockedCategoryId ?? activeCategoryId;
   const bottomRow = !isFilterActive ? (
     <CategoryBarList
       items={categories}
       isLoading={categoriesQuery.isLoading}
-      activeCategoryId={activeCategoryId}
-      onCategoryClick={handleCategoryBarClick}
+      activeCategoryId={visibleActiveCategoryId}
+      onCategoryClick={categoryClickActivation.handleCategoryClick}
     />
   ) : null;
 
@@ -73,7 +72,12 @@ export const RestaurantBrowser: React.FC<RestaurantBrowserProps> = ({
         isCategoriesLoading={categoriesQuery.isLoading}
         isFilterActive={isFilterActive}
         queryState={queryState}
-        navigationTargetCategoryId={navigationTargetCategoryId}
+        activationBlockedCategoryId={
+          categoryClickActivation.activationBlockedCategoryId
+        }
+        forceActivatedCategoryId={
+          categoryClickActivation.forceActivatedCategoryId
+        }
         loadingSectionsCount={CATEGORY_LOADING_SECTIONS_COUNT}
       />
     </section>

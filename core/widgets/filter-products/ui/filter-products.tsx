@@ -7,20 +7,19 @@ import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
 import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
+import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import {
   PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
   PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
   useProductCardViewMode,
 } from "@/core/modules/product/model/use-product-card-view-mode";
-import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
-import { FILTER_PRODUCTS_RESULTS_SECTION_ID } from "@/core/modules/browser/model/category-scroll";
 import {
   DETAILED_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
   GRID_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
 } from "@/core/widgets/filter-products/model/filter-products";
-import { useFilterRecommendations } from "@/core/widgets/filter-products/model/use-filter-recommendations";
 import { useFilterProducts } from "@/core/widgets/filter-products/model/use-filter-products";
+import { useFilterRecommendations } from "@/core/widgets/filter-products/model/use-filter-recommendations";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import { cn } from "@/shared/lib/utils";
 import { useSession } from "@/shared/providers/session-provider";
@@ -73,9 +72,19 @@ interface FilterProductCardProps {
 }
 
 const FilterProductCard = React.memo(
-  ({ product, isDetailed, shouldUseCartUi, isAuthenticated, quantity }: FilterProductCardProps) => (
+  ({
+    product,
+    isDetailed,
+    shouldUseCartUi,
+    isAuthenticated,
+    quantity,
+  }: FilterProductCardProps) => (
     <article className="relative">
-      <ProductLink slug={product.slug} product={product} className="block h-full">
+      <ProductLink
+        slug={product.slug}
+        product={product}
+        className="block h-full"
+      >
         <ProductCard
           data={product}
           isDetailed={isDetailed}
@@ -94,7 +103,10 @@ const FilterProductCard = React.memo(
           hidePriceWhenFooterAction={shouldUseCartUi}
           footerAction={
             shouldUseCartUi && quantity > 0 ? (
-              <CartProductCardFooterAction product={product} isDetailed={isDetailed} />
+              <CartProductCardFooterAction
+                product={product}
+                isDetailed={isDetailed}
+              />
             ) : !shouldUseCartUi && isAuthenticated ? (
               <ToggleProductPopularAction
                 productId={product.id}
@@ -305,51 +317,54 @@ const FilterProductListSection: React.FC<FilterProductListSectionProps> = ({
                 const isLoaderRow = !rowItems;
 
                 return (
-                <div
-                  key={virtualRow.key}
-                  data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
-                  className="absolute top-0 left-0 w-full"
-                  style={{
-                    transform: `translateY(${
-                      virtualRow.start - rowVirtualizer.options.scrollMargin
-                    }px)`,
-                  }}
-                >
-                  {isLoaderRow ? (
-                    <div
-                      className="grid gap-4"
-                      style={{
-                        gridTemplateColumns: `repeat(${loaderSkeletonCount}, minmax(0, 1fr))`,
-                      }}
-                    >
-                      {Array.from({ length: loaderSkeletonCount }, (_, index) => (
-                        <ProductCardSkeleton
-                          key={`${sectionKey}-next-${index}`}
-                          isDetailed={isDetailed}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div
-                      className="grid gap-4"
-                      style={{
-                        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-                      }}
-                    >
-                      {rowItems.map((product) => (
-                        <FilterProductCard
-                          key={product.id}
-                          product={product}
-                          isDetailed={isDetailed}
-                          shouldUseCartUi={shouldUseCartUi}
-                          isAuthenticated={isAuthenticated}
-                          quantity={quantityByProductId[product.id] ?? 0}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  <div
+                    key={virtualRow.key}
+                    data-index={virtualRow.index}
+                    ref={rowVirtualizer.measureElement}
+                    className="absolute top-0 left-0 w-full"
+                    style={{
+                      transform: `translateY(${
+                        virtualRow.start - rowVirtualizer.options.scrollMargin
+                      }px)`,
+                    }}
+                  >
+                    {isLoaderRow ? (
+                      <div
+                        className="grid gap-4"
+                        style={{
+                          gridTemplateColumns: `repeat(${loaderSkeletonCount}, minmax(0, 1fr))`,
+                        }}
+                      >
+                        {Array.from(
+                          { length: loaderSkeletonCount },
+                          (_, index) => (
+                            <ProductCardSkeleton
+                              key={`${sectionKey}-next-${index}`}
+                              isDetailed={isDetailed}
+                            />
+                          ),
+                        )}
+                      </div>
+                    ) : (
+                      <div
+                        className="grid gap-4"
+                        style={{
+                          gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+                        }}
+                      >
+                        {rowItems.map((product) => (
+                          <FilterProductCard
+                            key={product.id}
+                            product={product}
+                            isDetailed={isDetailed}
+                            shouldUseCartUi={shouldUseCartUi}
+                            isAuthenticated={isAuthenticated}
+                            quantity={quantityByProductId[product.id] ?? 0}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -402,7 +417,6 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
   return (
     <div className={cn("space-y-6", className)}>
       <FilterProductListSection
-        sectionId={FILTER_PRODUCTS_RESULTS_SECTION_ID}
         sectionKey="filter-results"
         heading="Результаты фильтра"
         emptyText="По вашему запросу ничего не найдено"

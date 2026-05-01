@@ -20,7 +20,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({
   useIOSScrollFix();
   return (
     <ReactQueryProvider>
-      <SessionProvider initialSession={initialSession}>
+      <SessionProvider
+        currentCatalogId={initialCatalog?.id ?? null}
+        initialSession={initialSession}
+      >
         <CatalogProvider initialCatalog={initialCatalog}>{children}</CatalogProvider>
       </SessionProvider>
     </ReactQueryProvider>

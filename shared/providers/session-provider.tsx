@@ -50,10 +50,16 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-function hasCsrfCookie(): boolean {
+function hasCsrfCookie(currentCatalogId?: string | null): boolean {
+  if (currentCatalogId) {
+    return getCookie(`catalog_csrf_${currentCatalogId}`) !== null;
+  }
+
   if (getCookie(CSRF_COOKIE_NAME) !== null) return true;
-  const catalogId = getStoredCatalogId();
-  if (catalogId) return getCookie(`catalog_csrf_${catalogId}`) !== null;
+  const storedCatalogId = getStoredCatalogId();
+  if (storedCatalogId) {
+    return getCookie(`catalog_csrf_${storedCatalogId}`) !== null;
+  }
   return false;
 }
 
@@ -75,11 +81,13 @@ function readMutationKey(value: unknown): string | null {
 }
 
 type SessionProviderProps = PropsWithChildren<{
+  currentCatalogId?: string | null;
   initialSession?: SessionBootstrapState | null;
 }>;
 
 export const SessionProvider: React.FC<SessionProviderProps> = ({
   children,
+  currentCatalogId,
   initialSession,
 }) => {
   const queryClient = useQueryClient();
@@ -90,7 +98,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   );
 
   const updateCsrfCookie = useCallback(() => {
-    const hasCookie = hasCsrfCookie();
+    const hasCookie = hasCsrfCookie(currentCatalogId);
     setCsrfCookiePresent((prev) => {
       if (hasCookie) return true;
       // Don't flip true→false based solely on document.cookie:
@@ -101,7 +109,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       return hasCookie;
     });
     return hasCookie;
-  }, []);
+  }, [currentCatalogId]);
 
   useEffect(() => {
     const update = () => {
@@ -149,8 +157,10 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     }
 
     clearCatalogSession();
-    setCsrfCookiePresent(false);
-    setDeferInitialAuthQuery(false);
+    queueMicrotask(() => {
+      setCsrfCookiePresent(false);
+      setDeferInitialAuthQuery(false);
+    });
   }, [unauthorized]);
 
   const user =

@@ -8,13 +8,16 @@ import { cache } from "react";
 const CSRF_COOKIE_NAME = "csrf";
 const CATALOG_CSRF_COOKIE_PREFIX = "catalog_csrf_";
 
-async function loadCurrentSessionServer(): Promise<SessionBootstrapState> {
+async function loadCurrentSessionServer(
+  currentCatalogId?: string | null,
+): Promise<SessionBootstrapState> {
   const cookieStore = await cookies();
-  const csrfCookiePresent =
-    cookieStore.has(CSRF_COOKIE_NAME) ||
-    cookieStore
-      .getAll()
-      .some((cookie) => cookie.name.startsWith(CATALOG_CSRF_COOKIE_PREFIX));
+  const csrfCookiePresent = currentCatalogId
+    ? cookieStore.has(`${CATALOG_CSRF_COOKIE_PREFIX}${currentCatalogId}`)
+    : cookieStore.has(CSRF_COOKIE_NAME) ||
+      cookieStore
+        .getAll()
+        .some((cookie) => cookie.name.startsWith(CATALOG_CSRF_COOKIE_PREFIX));
   const cookieHeader = cookieStore.toString();
 
   if (!csrfCookiePresent || !cookieHeader) {
@@ -59,12 +62,14 @@ async function loadCurrentSessionServer(): Promise<SessionBootstrapState> {
   }
 }
 
-export async function getCurrentSessionServerUncached(): Promise<SessionBootstrapState> {
-  return loadCurrentSessionServer();
+export async function getCurrentSessionServerUncached(
+  currentCatalogId?: string | null,
+): Promise<SessionBootstrapState> {
+  return loadCurrentSessionServer(currentCatalogId);
 }
 
 export const getCurrentSessionServer = cache(
-  async (): Promise<SessionBootstrapState> => {
-    return loadCurrentSessionServer();
+  async (currentCatalogId?: string | null): Promise<SessionBootstrapState> => {
+    return loadCurrentSessionServer(currentCatalogId);
   },
 );

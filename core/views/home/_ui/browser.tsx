@@ -26,8 +26,9 @@ import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import dynamic from "next/dynamic";
 import React from "react";
+import { useActiveCategoryIntersection } from "@/core/modules/browser/model/use-active-category-intersection";
 import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
-import { useCategoryScrollNavigation } from "@/core/modules/browser/model/use-category-scroll-navigation";
+import { useCategoryClickActivationDelay } from "@/core/modules/browser/model/use-category-click-activation-delay";
 
 const CategoryAdminDrawersDynamic = dynamic(
   () =>
@@ -118,15 +119,15 @@ export const Browser: React.FC<BrowserProps> = ({
   const categoryAdmin = useCategoryAdmin({
     categories,
   });
-  const {
-    activeCategoryId,
-    navigationTargetCategoryId,
-    handleCategoryBarClick,
-  } = useCategoryScrollNavigation({
+  const { activeCategoryId } = useActiveCategoryIntersection({
     categories,
-    isCatalogTab: effectiveQueryState.tab === "catalog",
-    isFilterActive: effectiveIsFilterActive,
+    enabled: effectiveQueryState.tab === "catalog" && !effectiveIsFilterActive,
   });
+  const categoryClickActivation = useCategoryClickActivationDelay({
+    enabled: effectiveQueryState.tab === "catalog" && !effectiveIsFilterActive,
+  });
+  const visibleActiveCategoryId =
+    categoryClickActivation.activationBlockedCategoryId ?? activeCategoryId;
   const shouldShowCategoryCardsLoading =
     categoriesQuery.isLoading && categories.length === 0;
   const activeFiltersCount = React.useMemo(
@@ -164,8 +165,8 @@ export const Browser: React.FC<BrowserProps> = ({
         <CategoryBarList
           items={categories}
           isLoading={categoriesQuery.isLoading}
-          activeCategoryId={activeCategoryId}
-          onCategoryClick={handleCategoryBarClick}
+          activeCategoryId={visibleActiveCategoryId}
+          onCategoryClick={categoryClickActivation.handleCategoryClick}
         />
       ) : null
     ) : shouldShowAdminActions ? (
@@ -229,7 +230,12 @@ export const Browser: React.FC<BrowserProps> = ({
               isCategoriesLoading={categoriesQuery.isLoading}
               isFilterActive={effectiveIsFilterActive}
               queryState={effectiveQueryState}
-              navigationTargetCategoryId={navigationTargetCategoryId}
+              activationBlockedCategoryId={
+                categoryClickActivation.activationBlockedCategoryId
+              }
+              forceActivatedCategoryId={
+                categoryClickActivation.forceActivatedCategoryId
+              }
               loadingSectionsCount={CATEGORY_LOADING_SECTIONS_COUNT}
             />
 

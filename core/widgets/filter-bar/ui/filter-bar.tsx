@@ -43,6 +43,7 @@ export const FilterBar: React.FC<Props> = ({
   onFilterToggle,
 }) => {
   const { isDetailed, toggleMode } = useProductCardViewMode();
+  const stableHeightRef = React.useRef(120);
   const {
     handleApplyFilters,
     isSticky,
@@ -53,6 +54,33 @@ export const FilterBar: React.FC<Props> = ({
     onFilterToggle,
     searchTerm,
   });
+
+  React.useLayoutEffect(() => {
+    const node = stickyRef.current;
+
+    if (!node || typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    const updateHeight = () => {
+      stableHeightRef.current = Math.max(
+        stableHeightRef.current,
+        Math.ceil(node.getBoundingClientRect().height),
+      );
+      document.documentElement.style.setProperty(
+        "--catalog-filter-bar-height",
+        `${stableHeightRef.current}px`,
+      );
+    };
+    const observer = new ResizeObserver(updateHeight);
+
+    updateHeight();
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [stickyRef]);
 
   return (
     <div
@@ -120,17 +148,18 @@ export const FilterBar: React.FC<Props> = ({
           />
         </Button>
 
-        {!hideFilter && (filterAction ? (
-          <div className="shrink-0">{filterAction}</div>
-        ) : (
-          <Button
-            variant="ghost"
-            className="shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full"
-            onClick={handleApplyFilters}
-          >
-            <SlidersVertical size={20} />
-          </Button>
-        ))}
+        {!hideFilter &&
+          (filterAction ? (
+            <div className="shrink-0">{filterAction}</div>
+          ) : (
+            <Button
+              variant="ghost"
+              className="shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full"
+              onClick={handleApplyFilters}
+            >
+              <SlidersVertical size={20} />
+            </Button>
+          ))}
       </div>
 
       {bottomRow ? <div className="mt-3">{bottomRow}</div> : null}

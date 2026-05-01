@@ -27,7 +27,8 @@ interface CatalogProductsPanelProps {
   isCategoriesLoading: boolean;
   isFilterActive: boolean;
   queryState: CatalogFilterQueryState;
-  navigationTargetCategoryId?: string | null;
+  activationBlockedCategoryId?: string | null;
+  forceActivatedCategoryId?: string | null;
   loadingSectionsCount?: number;
 }
 
@@ -61,7 +62,8 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
   isCategoriesLoading,
   isFilterActive,
   queryState,
-  navigationTargetCategoryId = null,
+  activationBlockedCategoryId = null,
+  forceActivatedCategoryId = null,
   loadingSectionsCount = 3,
 }) => {
   const shouldShowLoading =
@@ -85,23 +87,14 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
                 key={category.id}
                 category={category}
                 sectionId={getCategorySectionId(category.id)}
+                activationBlocked={activationBlockedCategoryId === category.id}
+                forceActivated={forceActivatedCategoryId === category.id}
                 initiallyActivated={index === 0}
-                activationEnabled={
-                  !navigationTargetCategoryId ||
-                  navigationTargetCategoryId === category.id
-                }
-                forceActivation={navigationTargetCategoryId === category.id}
-                showInitialSkeleton={
-                  !navigationTargetCategoryId ||
-                  navigationTargetCategoryId === category.id
-                }
               />
             ))}
             <UncategorizedProducts
               sectionId={UNCATEGORIZED_PRODUCTS_SECTION_ID}
               initiallyActivated={categories.length === 0}
-              activationEnabled={!navigationTargetCategoryId}
-              showInitialSkeleton={!navigationTargetCategoryId}
             />
           </>
         )}

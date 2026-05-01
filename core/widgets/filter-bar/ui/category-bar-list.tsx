@@ -122,6 +122,7 @@ export const CategoryBarList: React.FC<Props> = ({
           return (
             <Button
               key={item.id}
+              type="button"
               ref={(node) => {
                 if (node) {
                   itemRefsRef.current.set(item.id, node);
@@ -130,10 +131,12 @@ export const CategoryBarList: React.FC<Props> = ({
 
                 itemRefsRef.current.delete(item.id);
               }}
-              type="button"
               variant={isActive ? "default" : "secondary"}
-              className="h-9 w-fit shrink-0 rounded-full px-4 py-2 text-sm"
+              aria-current={isActive ? "true" : undefined}
               onClick={() => onCategoryClick?.(item, index)}
+              className={cn(
+                "h-9 w-fit shrink-0 rounded-full px-4 py-2 text-sm",
+              )}
             >
               {item.name}
             </Button>

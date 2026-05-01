@@ -46,15 +46,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [data, initialSession] = await Promise.all([
-    getCurrentCatalogServer(),
-    getCurrentSessionServer(),
-  ]);
+  const data = await getCurrentCatalogServer();
 
   if (!data) {
     notFound();
   }
 
+  const initialSession = await getCurrentSessionServer(data.id);
   const structuredData = getCatalogStructuredData(data);
   const htmlLang = getCatalogHtmlLang(data);
 

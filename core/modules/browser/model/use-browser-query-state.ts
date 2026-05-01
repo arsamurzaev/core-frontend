@@ -14,10 +14,6 @@ import {
   CATEGORY_SECTION_ID_PREFIX,
   FILTER_PRODUCTS_RESULTS_SECTION_ID,
 } from "./category-scroll";
-import {
-  alignElementToFilterBar,
-  invalidateCategoryScrollCache,
-} from "./category-scroll-navigation-dom";
 
 export type CatalogFilterValuePatch = Partial<
   Pick<
@@ -72,12 +68,21 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
         return;
       }
 
-      invalidateCategoryScrollCache();
-      alignElementToFilterBar({
-        elementId: targetElementId,
-        behavior: "instant",
-        minDeltaPx: 1,
-      });
+      const targetElement = document.getElementById(targetElementId);
+
+      if (!targetElement) {
+        return;
+      }
+
+      const filterBarBottom =
+        document.getElementById("catalog-filter-bar")?.getBoundingClientRect()
+          .bottom ?? 0;
+      const nextTop = Math.max(
+        0,
+        window.scrollY + targetElement.getBoundingClientRect().top - filterBarBottom,
+      );
+
+      window.scrollTo({ top: nextTop, behavior: "instant" });
     };
 
     scroll();

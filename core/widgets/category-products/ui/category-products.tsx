@@ -14,6 +14,7 @@ import {
   useProductCardViewMode,
 } from "@/core/modules/product/model/use-product-card-view-mode";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
+import { CATEGORY_SECTION_SCROLL_MARGIN_TOP } from "@/core/modules/browser/model/category-scroll";
 import {
   CategoryDto,
   ProductWithAttributesDto,
@@ -31,19 +32,15 @@ interface CategoryProductsProps {
   className?: string;
   category: CategoryDto;
   sectionId: string;
+  activationBlocked?: boolean;
+  forceActivated?: boolean;
   initiallyActivated?: boolean;
-  activationEnabled?: boolean;
-  forceActivation?: boolean;
-  showInitialSkeleton?: boolean;
 }
 
 interface UncategorizedProductsProps {
   className?: string;
   sectionId: string;
   initiallyActivated?: boolean;
-  activationEnabled?: boolean;
-  forceActivation?: boolean;
-  showInitialSkeleton?: boolean;
 }
 
 interface ProductSectionItem {
@@ -63,19 +60,21 @@ interface ProductSectionProps {
   title: string;
   sectionId: string;
   queryKey: readonly unknown[];
-  queryFn: (cursor: string | undefined) => Promise<ProductSectionPage>;
+  queryFn: (
+    cursor: string | undefined,
+    signal: AbortSignal,
+  ) => Promise<ProductSectionPage>;
+  activationBlocked?: boolean;
+  forceActivated?: boolean;
   initiallyActivated?: boolean;
-  activationEnabled?: boolean;
-  forceActivation?: boolean;
-  showInitialSkeleton?: boolean;
   hideWhenEmpty?: boolean;
 }
 
 export const CATEGORY_PRODUCTS_PAGE_SIZE = 32;
 export const UNCATEGORIZED_PRODUCTS_SECTION_ID =
   "uncategorized-products-section";
-const GRID_INITIAL_SKELETON_ITEMS_COUNT = CATEGORY_PRODUCTS_PAGE_SIZE / 2;
-const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 8;
+const GRID_INITIAL_SKELETON_ITEMS_COUNT = 4;
+const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 2;
 const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
 const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX = 360;
@@ -83,7 +82,11 @@ const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 390;
 const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 300;
 const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 136;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
-const PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS = 8;
+const PRODUCT_SECTION_LOAD_MORE_ROOT_MARGIN_PX = 160;
+const PRODUCT_SECTION_LOAD_MORE_MIN_TOP_RATIO = 0.55;
+const PRODUCT_SECTION_MIN_HEIGHT_PX =
+  GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX * 2 + PRODUCT_CARD_GAP_PX;
+const PRODUCT_SECTION_ACTIVATION_ROOT_MARGIN = "0px 0px -70% 0px";
 const PRODUCT_SECTION_VIRTUAL_OVERSCAN = 4;
 const PRODUCT_SECTION_LOADER_ROW_KEY = "__loader__";
 const UNCATEGORIZED_QUERY_PARAMS = {
@@ -154,10 +157,9 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   sectionId,
   queryKey,
   queryFn,
+  activationBlocked = false,
+  forceActivated = false,
   initiallyActivated = false,
-  activationEnabled = true,
-  forceActivation = false,
-  showInitialSkeleton = true,
   hideWhenEmpty = false,
 }) => {
   const { isDetailed, hasHydrated } = useProductCardViewMode();
@@ -165,6 +167,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const { shouldUseCartUi } = useCart();
   const headingRef = React.useRef<HTMLHeadingElement | null>(null);
   const listRef = React.useRef<HTMLDivElement | null>(null);
+  const loadMoreRef = React.useRef<HTMLDivElement | null>(null);
   const [isActivated, setIsActivated] = React.useState(initiallyActivated);
   const [hasReachedViewport, setHasReachedViewport] =
     React.useState(initiallyActivated);
@@ -172,70 +175,29 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const [scrollMargin, setScrollMargin] = React.useState(0);
 
   React.useEffect(() => {
-    if (!initiallyActivated || isActivated) {
+    if (!initiallyActivated || activationBlocked) {
       return;
     }
 
-    setIsActivated(true);
-  }, [initiallyActivated, isActivated]);
-
-  React.useEffect(() => {
-    if (!forceActivation) {
-      return;
-    }
-
-    if (!isActivated) {
+    if (!hasReachedViewport || !isActivated) {
+      setHasReachedViewport(true);
       setIsActivated(true);
     }
-
-    if (!hasReachedViewport) {
-      setHasReachedViewport(true);
-    }
-  }, [forceActivation, hasReachedViewport, isActivated]);
+  }, [activationBlocked, hasReachedViewport, initiallyActivated, isActivated]);
 
   React.useEffect(() => {
-    if (!initiallyActivated || hasReachedViewport) {
+    if (!forceActivated) {
       return;
     }
 
-    setHasReachedViewport(true);
-  }, [hasReachedViewport, initiallyActivated]);
+    React.startTransition(() => {
+      setHasReachedViewport(true);
+      setIsActivated(true);
+    });
+  }, [forceActivated]);
 
   React.useLayoutEffect(() => {
-    if (isActivated || !activationEnabled) {
-      return;
-    }
-
-    const heading = headingRef.current;
-
-    if (!heading) {
-      return;
-    }
-
-    if (typeof IntersectionObserver === "undefined") {
-      setIsActivated(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          React.startTransition(() => setIsActivated(true));
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "0px" },
-    );
-
-    observer.observe(heading);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [activationEnabled, isActivated]);
-
-  React.useEffect(() => {
-    if (hasReachedViewport || !activationEnabled) {
+    if (activationBlocked || (hasReachedViewport && isActivated)) {
       return;
     }
 
@@ -247,17 +209,21 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 
     if (typeof IntersectionObserver === "undefined") {
       setHasReachedViewport(true);
+      setIsActivated(true);
       return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          React.startTransition(() => setHasReachedViewport(true));
+          React.startTransition(() => {
+            setHasReachedViewport(true);
+            setIsActivated(true);
+          });
           observer.disconnect();
         }
       },
-      { rootMargin: "0px" },
+      { rootMargin: PRODUCT_SECTION_ACTIVATION_ROOT_MARGIN },
     );
 
     observer.observe(heading);
@@ -265,19 +231,21 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [activationEnabled, hasReachedViewport]);
+  }, [activationBlocked, hasReachedViewport, isActivated]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey,
-      queryFn: ({ pageParam }) => queryFn(pageParam as string | undefined),
+      queryFn: ({ pageParam, signal }) =>
+        queryFn(pageParam as string | undefined, signal),
       initialPageParam: undefined as string | undefined,
       getNextPageParam: (lastPage: ProductSectionPage) =>
         lastPage.nextCursor ?? undefined,
-      enabled: isActivated && activationEnabled,
+      enabled: isActivated && !activationBlocked,
     });
 
   const hasLoadedFirstPage = Boolean(data?.pages?.length);
+
   const products = React.useMemo(
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
@@ -308,7 +276,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
 
     return rows;
   }, [columns, products]);
-  const shouldRenderLoaderRow = activationEnabled && hasNextPage;
+  const shouldRenderLoaderRow = hasNextPage;
   const loaderSkeletonCount = isDetailed ? 1 : Math.max(1, columns);
   const rowEstimateSize = React.useMemo(() => {
     if (isDetailed) {
@@ -340,7 +308,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
     ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
     : GRID_INITIAL_SKELETON_ITEMS_COUNT;
   const shouldRenderInitialSkeleton =
-    showInitialSkeleton && hasHydrated && hasReachedViewport;
+    hasHydrated && hasReachedViewport;
   const measureList = React.useCallback(() => {
     const list = listRef.current;
 
@@ -428,41 +396,72 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   }, [rowVirtualizer]);
 
   React.useEffect(() => {
-    const lastVisibleRow = virtualRows.at(-1);
-
     if (
       !isActivated ||
-      !activationEnabled ||
+      !hasLoadedFirstPage ||
       !hasNextPage ||
-      isFetchingNextPage ||
-      !lastVisibleRow
+      isFetchingNextPage
     ) {
       return;
     }
 
-    if (
-      lastVisibleRow.index >=
-      productRows.length - PRODUCT_SECTION_LOAD_MORE_THRESHOLD_ROWS
-    ) {
-      void fetchNextPage();
+    const sentinel = loadMoreRef.current;
+
+    if (!sentinel || typeof IntersectionObserver === "undefined") {
+      return;
     }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const minTop =
+          window.innerHeight * PRODUCT_SECTION_LOAD_MORE_MIN_TOP_RATIO;
+        const shouldLoadMore = entries.some(
+          (entry) => entry.isIntersecting && entry.boundingClientRect.top >= minTop,
+        );
+
+        if (shouldLoadMore) {
+          void fetchNextPage();
+        }
+      },
+      {
+        root: null,
+        rootMargin: `0px 0px ${PRODUCT_SECTION_LOAD_MORE_ROOT_MARGIN_PX}px 0px`,
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
   }, [
-    activationEnabled,
     fetchNextPage,
+    hasLoadedFirstPage,
     hasNextPage,
     isActivated,
     isFetchingNextPage,
-    productRows.length,
-    virtualRows,
   ]);
 
-  if (hideWhenEmpty && hasLoadedFirstPage && products.length === 0) {
+  const isEmptyAfterLoad = hasLoadedFirstPage && products.length === 0;
+
+  if (hideWhenEmpty && isEmptyAfterLoad) {
     return null;
   }
 
   return (
-    <div id={sectionId} className={cn("space-y-7.5 min-h-90", className)}>
-      <h2 ref={headingRef} className="pl-1 text-left text-xl font-bold">
+    <div
+      id={sectionId}
+      className={cn("space-y-7.5 min-h-90", className)}
+      style={{
+        minHeight: PRODUCT_SECTION_MIN_HEIGHT_PX,
+        scrollMarginTop: CATEGORY_SECTION_SCROLL_MARGIN_TOP,
+      }}
+    >
+      <h2
+        ref={headingRef}
+        className="pl-1 text-left text-xl font-bold"
+      >
         {title}
       </h2>
       <div ref={listRef} style={{ overflowAnchor: "none" }}>
@@ -477,6 +476,10 @@ const ProductSection: React.FC<ProductSectionProps> = ({
               ))}
             </ul>
           ) : null
+        ) : isEmptyAfterLoad ? (
+          <div className="text-muted-foreground flex min-h-40 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm">
+            В этой категории пока нет товаров
+          </div>
         ) : (
           <div
             className="relative w-full"
@@ -540,7 +543,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
           </div>
         )}
       </div>
-      <div aria-hidden className="h-px w-full" />
+      <div ref={loadMoreRef} aria-hidden className="h-px w-full" />
     </div>
   );
 };
@@ -549,10 +552,9 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
   className,
   category,
   sectionId,
+  activationBlocked = false,
+  forceActivated = false,
   initiallyActivated = false,
-  activationEnabled = true,
-  forceActivation = false,
-  showInitialSkeleton = true,
 }) => {
   const queryKey = React.useMemo(
     () =>
@@ -565,13 +567,17 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
   );
 
   const queryFn = React.useCallback(
-    async (cursor: string | undefined): Promise<ProductSectionPage> => {
+    async (
+      cursor: string | undefined,
+      signal: AbortSignal,
+    ): Promise<ProductSectionPage> => {
       const page = await categoryControllerGetProductCardsByCategory(
         category.id,
         {
           cursor,
           limit: CATEGORY_PRODUCTS_PAGE_SIZE,
         },
+        signal,
       );
 
       return {
@@ -594,10 +600,9 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
       sectionId={sectionId}
       queryKey={queryKey}
       queryFn={queryFn}
+      activationBlocked={activationBlocked}
+      forceActivated={forceActivated}
       initiallyActivated={initiallyActivated}
-      activationEnabled={activationEnabled}
-      forceActivation={forceActivation}
-      showInitialSkeleton={showInitialSkeleton}
     />
   );
 };
@@ -606,9 +611,6 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
   className,
   sectionId,
   initiallyActivated = false,
-  activationEnabled = true,
-  forceActivation = false,
-  showInitialSkeleton = true,
 }) => {
   const queryKey = React.useMemo(
     () =>
@@ -619,11 +621,17 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
   );
 
   const queryFn = React.useCallback(
-    async (cursor: string | undefined): Promise<ProductSectionPage> => {
-      const page = await productControllerGetUncategorizedInfiniteCards({
-        ...UNCATEGORIZED_QUERY_PARAMS,
-        cursor,
-      });
+    async (
+      cursor: string | undefined,
+      signal: AbortSignal,
+    ): Promise<ProductSectionPage> => {
+      const page = await productControllerGetUncategorizedInfiniteCards(
+        {
+          ...UNCATEGORIZED_QUERY_PARAMS,
+          cursor,
+        },
+        signal,
+      );
 
       return {
         nextCursor: page.nextCursor,
@@ -644,9 +652,6 @@ export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
       queryKey={queryKey}
       queryFn={queryFn}
       initiallyActivated={initiallyActivated}
-      activationEnabled={activationEnabled}
-      forceActivation={forceActivation}
-      showInitialSkeleton={showInitialSkeleton}
       hideWhenEmpty
     />
   );
