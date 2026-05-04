@@ -49,7 +49,7 @@ function KreatiWordmark() {
 
 export function ShareDrawerBrand() {
   return (
-    <h3 className="flex flex-col items-center text-center text-sm text-[#8C8C8C]">
+    <h3 className="flex flex-col items-center text-center text-sm text-[#8C8C8C] pb-5">
       разработано на платформе
       <br />
       <Link

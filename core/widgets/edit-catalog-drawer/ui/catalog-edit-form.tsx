@@ -12,6 +12,8 @@ import {
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
 import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
 import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-integrations-drawer";
+import { EditCatalogPasswordDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-password-drawer";
+import { EditCatalogSessionsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer";
 import { FieldError } from "@/shared/ui/field";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -180,6 +182,13 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
         >
           <EditCatalogExperienceDrawer form={form} disabled={disabled} />
         </CatalogEditTextRow>
+      </div>
+
+      <hr className="w-full" />
+
+      <div className="grid w-full gap-3 px-5">
+        <EditCatalogPasswordDrawer disabled={disabled} />
+        <EditCatalogSessionsDrawer disabled={disabled} />
       </div>
 
       <hr className="w-full" />

@@ -75,10 +75,71 @@ export interface AuthLoginResponseDto {
   catalogId?: string | null;
 }
 
+export interface ChangePasswordDtoReq {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface AuthCatalogLoginResponseDto {
   ok: boolean;
   user: AuthUserDto;
   catalogId: string;
+}
+
+export interface AuthSessionBrowserDto {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  version?: string | null;
+}
+
+export interface AuthSessionOsDto {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  version?: string | null;
+}
+
+export interface AuthSessionDeviceDto {
+  /** @nullable */
+  type?: string | null;
+  /** @nullable */
+  vendor?: string | null;
+  /** @nullable */
+  model?: string | null;
+}
+
+export interface AuthSessionGeoDto {
+  /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  region?: string | null;
+}
+
+export interface AuthSessionClientDto {
+  /** @nullable */
+  ip?: string | null;
+  browser?: AuthSessionBrowserDto | null;
+  os?: AuthSessionOsDto | null;
+  device?: AuthSessionDeviceDto | null;
+  geo?: AuthSessionGeoDto | null;
+}
+
+export interface AuthSessionDto {
+  id: string;
+  isCurrent: boolean;
+  isPrimary: boolean;
+  createdAt: string;
+  /** @nullable */
+  expiresAt?: string | null;
+  /** @nullable */
+  ttlSeconds?: number | null;
+  client: AuthSessionClientDto;
+}
+
+export interface AuthSessionsResponseDto {
+  ok: boolean;
+  sessions: AuthSessionDto[];
 }
 
 export type AdminCatalogConfigListItemDtoStatus = typeof AdminCatalogConfigListItemDtoStatus[keyof typeof AdminCatalogConfigListItemDtoStatus];
@@ -2674,6 +2735,70 @@ export function useAuthControllerMe<TData = Awaited<ReturnType<typeof authContro
 
 
 /**
+ * @summary Change current user password
+ */
+export const authControllerChangePassword = (
+    changePasswordDtoReq: ChangePasswordDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/auth/change-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: changePasswordDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getAuthControllerChangePasswordMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof authControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext> => {
+
+const mutationKey = ['authControllerChangePassword'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerChangePassword>>, {data: ChangePasswordDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authControllerChangePassword(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthControllerChangePasswordMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerChangePassword>>>
+    export type AuthControllerChangePasswordMutationBody = ChangePasswordDtoReq
+    export type AuthControllerChangePasswordMutationError = void
+
+    /**
+ * @summary Change current user password
+ */
+export const useAuthControllerChangePassword = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authControllerChangePassword>>,
+        TError,
+        {data: ChangePasswordDtoReq},
+        TContext
+      > => {
+      return useMutation(getAuthControllerChangePasswordMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Logout
  */
 export const authControllerLogout = (
@@ -2797,6 +2922,285 @@ export const useCatalogAuthControllerLogin = <TError = void,
         TContext
       > => {
       return useMutation(getCatalogAuthControllerLoginMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Change current catalog user password
+ */
+export const catalogAuthControllerChangePassword = (
+    changePasswordDtoReq: ChangePasswordDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/auth/change-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: changePasswordDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAuthControllerChangePasswordMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAuthControllerChangePassword'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAuthControllerChangePassword>>, {data: ChangePasswordDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAuthControllerChangePassword(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAuthControllerChangePasswordMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAuthControllerChangePassword>>>
+    export type CatalogAuthControllerChangePasswordMutationBody = ChangePasswordDtoReq
+    export type CatalogAuthControllerChangePasswordMutationError = void
+
+    /**
+ * @summary Change current catalog user password
+ */
+export const useCatalogAuthControllerChangePassword = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAuthControllerChangePassword>>,
+        TError,
+        {data: ChangePasswordDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAuthControllerChangePasswordMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary List current catalog user sessions
+ */
+export const catalogAuthControllerSessionsList = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<AuthSessionsResponseDto>(
+      {url: `/catalog/auth/sessions`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAuthControllerSessionsListQueryKey = () => {
+    return [
+    `/catalog/auth/sessions`
+    ] as const;
+    }
+
+    
+export const getCatalogAuthControllerSessionsListQueryOptions = <TData = Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAuthControllerSessionsListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>> = ({ signal }) => catalogAuthControllerSessionsList(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAuthControllerSessionsListQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>>
+export type CatalogAuthControllerSessionsListQueryError = void
+
+
+export function useCatalogAuthControllerSessionsList<TData = Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAuthControllerSessionsList<TData = Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAuthControllerSessionsList<TData = Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List current catalog user sessions
+ */
+
+export function useCatalogAuthControllerSessionsList<TData = Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAuthControllerSessionsListQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Revoke all other catalog user sessions
+ */
+export const catalogAuthControllerRevokeOtherSessions = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/auth/sessions/revoke-others`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAuthControllerRevokeOtherSessionsMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAuthControllerRevokeOtherSessions'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>, void> = () => {
+          
+
+          return  catalogAuthControllerRevokeOtherSessions()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAuthControllerRevokeOtherSessionsMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>>
+    
+    export type CatalogAuthControllerRevokeOtherSessionsMutationError = void
+
+    /**
+ * @summary Revoke all other catalog user sessions
+ */
+export const useCatalogAuthControllerRevokeOtherSessions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAuthControllerRevokeOtherSessionsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Revoke one catalog user session
+ */
+export const catalogAuthControllerRevokeSession = (
+    sid: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/auth/sessions/${sid}/revoke`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAuthControllerRevokeSessionMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>, TError,{sid: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>, TError,{sid: string}, TContext> => {
+
+const mutationKey = ['catalogAuthControllerRevokeSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>, {sid: string}> = (props) => {
+          const {sid} = props ?? {};
+
+          return  catalogAuthControllerRevokeSession(sid,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAuthControllerRevokeSessionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>>
+    
+    export type CatalogAuthControllerRevokeSessionMutationError = void
+
+    /**
+ * @summary Revoke one catalog user session
+ */
+export const useCatalogAuthControllerRevokeSession = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>, TError,{sid: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>,
+        TError,
+        {sid: string},
+        TContext
+      > => {
+      return useMutation(getCatalogAuthControllerRevokeSessionMutationOptions(options), queryClient);
     }
     
 /**

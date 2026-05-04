@@ -16,6 +16,10 @@ interface ProductDrawerImageCarouselProps {
   productName: string;
 }
 
+function getImageUrlsSignature(imageUrls: string[]): string {
+  return imageUrls.join("\u0000");
+}
+
 export function ProductDrawerImageCarousel({
   imageUrls,
   isLoading,
@@ -23,6 +27,9 @@ export function ProductDrawerImageCarousel({
 }: ProductDrawerImageCarouselProps) {
   const [api, setApi] = React.useState<CarouselApi | null>(null);
   const [currentIndex, setCurrentIndex] = React.useState(0);
+  const [visibleImageUrls, setVisibleImageUrls] = React.useState(imageUrls);
+  const incomingImageUrlsSignature = getImageUrlsSignature(imageUrls);
+  const visibleImageUrlsSignature = getImageUrlsSignature(visibleImageUrls);
 
   React.useEffect(() => {
     if (!api) {
@@ -45,8 +52,51 @@ export function ProductDrawerImageCarousel({
   }, [api]);
 
   React.useEffect(() => {
+    if (incomingImageUrlsSignature === visibleImageUrlsSignature) {
+      return;
+    }
+
+    let isCancelled = false;
+    const nextPrimaryImageUrl = imageUrls[0];
     setCurrentIndex(0);
-  }, [imageUrls]);
+    api?.scrollTo(0, true);
+
+    if (!nextPrimaryImageUrl || typeof window === "undefined") {
+      setVisibleImageUrls(imageUrls);
+      return;
+    }
+
+    const preloadImage = new window.Image();
+    const showIncomingImages = () => {
+      if (!isCancelled) {
+        setVisibleImageUrls(imageUrls);
+      }
+    };
+
+    preloadImage.decoding = "async";
+
+    if (preloadImage.decode) {
+      preloadImage.src = nextPrimaryImageUrl;
+      preloadImage.decode().then(showIncomingImages, showIncomingImages);
+    } else {
+      preloadImage.onload = showIncomingImages;
+      preloadImage.onerror = showIncomingImages;
+      preloadImage.src = nextPrimaryImageUrl;
+
+      if (preloadImage.complete) {
+        showIncomingImages();
+      }
+    }
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    api,
+    imageUrls,
+    incomingImageUrlsSignature,
+    visibleImageUrlsSignature,
+  ]);
 
   if (isLoading) {
     return (
@@ -63,18 +113,20 @@ export function ProductDrawerImageCarousel({
 
   return (
     <Carousel
-      opts={{ loop: imageUrls.length > 1 }}
+      opts={{ loop: visibleImageUrls.length > 1 }}
       setApi={setApi}
       className="w-full space-y-3"
     >
       <CarouselContent className="-ml-0">
-        {imageUrls.map((imageUrl, index) => (
+        {visibleImageUrls.map((imageUrl, index) => (
           <CarouselItem key={`${imageUrl}-${index}`} className="pl-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              loading="lazy"
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
               src={imageUrl}
               alt={productName}
+              decoding="async"
               className="aspect-[3/4] w-full object-contain"
             />
           </CarouselItem>
@@ -82,7 +134,7 @@ export function ProductDrawerImageCarousel({
       </CarouselContent>
 
       <ul className="flex justify-center min-h-2 gap-1 px-4 pb-1">
-        {imageUrls.map((_, index) => (
+        {visibleImageUrls.map((_, index) => (
           <li
             key={index}
             className={cn(

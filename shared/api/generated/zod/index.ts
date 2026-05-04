@@ -81,6 +81,19 @@ export const AuthControllerMeResponse = zod.object({
 
 
 /**
+ * @summary Change current user password
+ */
+export const AuthControllerChangePasswordBody = zod.object({
+  "currentPassword": zod.string(),
+  "newPassword": zod.string()
+})
+
+export const AuthControllerChangePasswordResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
  * @summary Logout
  */
 export const AuthControllerLogoutResponse = zod.object({
@@ -105,6 +118,75 @@ export const CatalogAuthControllerLoginResponse = zod.object({
   "role": zod.enum(['CATALOG', 'USER', 'ADMIN'])
 }),
   "catalogId": zod.string()
+})
+
+
+/**
+ * @summary Change current catalog user password
+ */
+export const CatalogAuthControllerChangePasswordBody = zod.object({
+  "currentPassword": zod.string(),
+  "newPassword": zod.string()
+})
+
+export const CatalogAuthControllerChangePasswordResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary List current catalog user sessions
+ */
+export const CatalogAuthControllerSessionsListResponse = zod.object({
+  "ok": zod.boolean(),
+  "sessions": zod.array(zod.object({
+  "id": zod.string(),
+  "isCurrent": zod.boolean(),
+  "isPrimary": zod.boolean(),
+  "createdAt": zod.string(),
+  "expiresAt": zod.string().nullish(),
+  "ttlSeconds": zod.number().nullish(),
+  "client": zod.object({
+  "ip": zod.string().nullish(),
+  "browser": zod.object({
+  "name": zod.string().nullish(),
+  "version": zod.string().nullish()
+}).nullish(),
+  "os": zod.object({
+  "name": zod.string().nullish(),
+  "version": zod.string().nullish()
+}).nullish(),
+  "device": zod.object({
+  "type": zod.string().nullish(),
+  "vendor": zod.string().nullish(),
+  "model": zod.string().nullish()
+}).nullish(),
+  "geo": zod.object({
+  "city": zod.string().nullish(),
+  "region": zod.string().nullish()
+}).nullish()
+})
+}))
+})
+
+
+/**
+ * @summary Revoke all other catalog user sessions
+ */
+export const CatalogAuthControllerRevokeOtherSessionsResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Revoke one catalog user session
+ */
+export const CatalogAuthControllerRevokeSessionParams = zod.object({
+  "sid": zod.string().describe('Session ID')
+})
+
+export const CatalogAuthControllerRevokeSessionResponse = zod.object({
+  "ok": zod.boolean()
 })
 
 

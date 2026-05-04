@@ -8,6 +8,7 @@ import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
+import { title } from "process";
 
 type ProductDrawerEntity = ProductWithAttributesDto | ProductWithDetailsDto;
 
@@ -20,7 +21,9 @@ function parseOptionalDate(value: unknown): Date | undefined {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 }
 
-function getProductImageUrls(product: ProductDrawerEntity | null | undefined): string[] {
+function getProductImageUrls(
+  product: ProductDrawerEntity | null | undefined,
+): string[] {
   const urls =
     product?.media
       ?.slice()
@@ -31,7 +34,9 @@ function getProductImageUrls(product: ProductDrawerEntity | null | undefined): s
   return urls.length > 0 ? urls : ["/not-found-photo.png"];
 }
 
-function getVariantsSummary(product: ProductDrawerEntity | null | undefined): string | null {
+function getVariantsSummary(
+  product: ProductDrawerEntity | null | undefined,
+): string | null {
   if (!product || !("variants" in product)) {
     return null;
   }
@@ -42,7 +47,9 @@ function getVariantsSummary(product: ProductDrawerEntity | null | undefined): st
     const value = (variant.attributes ?? [])
       .map(
         (attribute) =>
-          attribute.enumValue?.displayName ?? attribute.enumValue?.value ?? null,
+          attribute.enumValue?.displayName ??
+          attribute.enumValue?.value ??
+          null,
       )
       .filter((item): item is string => Boolean(item))
       .join(" / ");
@@ -78,15 +85,16 @@ export function buildProductDrawerViewModel(params: {
   const displayProduct = product ?? previewProduct ?? null;
   const attrs = resolveAttributes(displayProduct?.productAttributes);
 
-  const subtitle =
-    typeof attrs.subtitle === "string" ? attrs.subtitle : "";
+  const subtitle = typeof attrs.subtitle === "string" ? attrs.subtitle : "";
   const description =
     typeof attrs.description === "string" ? attrs.description : "";
   const currency =
-    toOptionalTrimmedString(attrs.currency) ?? getCatalogCurrency(catalog, "RUB");
+    toOptionalTrimmedString(attrs.currency) ??
+    getCatalogCurrency(catalog, "RUB");
 
   const discount = toNumberValue(attrs.discount ?? null) ?? 0;
-  const discountedPrice = toNumberValue(attrs.discountedPrice ?? null) ?? undefined;
+  const discountedPrice =
+    toNumberValue(attrs.discountedPrice ?? null) ?? undefined;
   const discountStartAt = parseOptionalDate(attrs.discountStartAt);
   const discountEndAt = parseOptionalDate(attrs.discountEndAt);
 
@@ -112,7 +120,7 @@ export function buildProductDrawerViewModel(params: {
     hasError: isError || (!isLoading && !displayProduct),
     imageUrls: getProductImageUrls(displayProduct),
     price,
-    shareText: subtitle || description || undefined,
+    shareText: title || undefined,
     subtitle,
     variantsSummary: getVariantsSummary(displayProduct),
   };

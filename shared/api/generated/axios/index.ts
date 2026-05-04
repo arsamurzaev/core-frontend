@@ -56,10 +56,71 @@ export interface AuthLoginResponseDto {
   catalogId?: string | null;
 }
 
+export interface ChangePasswordDtoReq {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface AuthCatalogLoginResponseDto {
   ok: boolean;
   user: AuthUserDto;
   catalogId: string;
+}
+
+export interface AuthSessionBrowserDto {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  version?: string | null;
+}
+
+export interface AuthSessionOsDto {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  version?: string | null;
+}
+
+export interface AuthSessionDeviceDto {
+  /** @nullable */
+  type?: string | null;
+  /** @nullable */
+  vendor?: string | null;
+  /** @nullable */
+  model?: string | null;
+}
+
+export interface AuthSessionGeoDto {
+  /** @nullable */
+  city?: string | null;
+  /** @nullable */
+  region?: string | null;
+}
+
+export interface AuthSessionClientDto {
+  /** @nullable */
+  ip?: string | null;
+  browser?: AuthSessionBrowserDto | null;
+  os?: AuthSessionOsDto | null;
+  device?: AuthSessionDeviceDto | null;
+  geo?: AuthSessionGeoDto | null;
+}
+
+export interface AuthSessionDto {
+  id: string;
+  isCurrent: boolean;
+  isPrimary: boolean;
+  createdAt: string;
+  /** @nullable */
+  expiresAt?: string | null;
+  /** @nullable */
+  ttlSeconds?: number | null;
+  client: AuthSessionClientDto;
+}
+
+export interface AuthSessionsResponseDto {
+  ok: boolean;
+  sessions: AuthSessionDto[];
 }
 
 export type AdminCatalogConfigListItemDtoStatus = typeof AdminCatalogConfigListItemDtoStatus[keyof typeof AdminCatalogConfigListItemDtoStatus];
@@ -2348,6 +2409,20 @@ const authControllerMe = (
     }
   
 /**
+ * @summary Change current user password
+ */
+const authControllerChangePassword = (
+    changePasswordDtoReq: ChangePasswordDtoReq,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/auth/change-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: changePasswordDtoReq
+    },
+      );
+    }
+  
+/**
  * @summary Logout
  */
 const authControllerLogout = (
@@ -2369,6 +2444,56 @@ const catalogAuthControllerLogin = (
       {url: `/catalog/auth/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: loginDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Change current catalog user password
+ */
+const catalogAuthControllerChangePassword = (
+    changePasswordDtoReq: ChangePasswordDtoReq,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/auth/change-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: changePasswordDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary List current catalog user sessions
+ */
+const catalogAuthControllerSessionsList = (
+    
+ ) => {
+      return mutator<AuthSessionsResponseDto>(
+      {url: `/catalog/auth/sessions`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Revoke all other catalog user sessions
+ */
+const catalogAuthControllerRevokeOtherSessions = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/auth/sessions/revoke-others`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Revoke one catalog user session
+ */
+const catalogAuthControllerRevokeSession = (
+    sid: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/auth/sessions/${sid}/revoke`, method: 'POST'
     },
       );
     }
@@ -3836,14 +3961,19 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerLogout,catalogAuthControllerLogin,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
 export type AuthControllerLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['authControllerLogin']>>>
 export type AuthControllerMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['authControllerMe']>>>
+export type AuthControllerChangePasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['authControllerChangePassword']>>>
 export type AuthControllerLogoutResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['authControllerLogout']>>>
 export type CatalogAuthControllerLoginResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAuthControllerLogin']>>>
+export type CatalogAuthControllerChangePasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAuthControllerChangePassword']>>>
+export type CatalogAuthControllerSessionsListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAuthControllerSessionsList']>>>
+export type CatalogAuthControllerRevokeOtherSessionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAuthControllerRevokeOtherSessions']>>>
+export type CatalogAuthControllerRevokeSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAuthControllerRevokeSession']>>>
 export type HandoffControllerExchangeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['handoffControllerExchange']>>>
 export type AdminControllerGetCatalogsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerGetCatalogs']>>>
 export type AdminControllerCreateCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerCreateCatalog']>>>

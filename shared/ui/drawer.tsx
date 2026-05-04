@@ -136,7 +136,7 @@ function DrawerContent({
         className={cn(
           "group/drawer-content bg-background fixed z-50 flex flex-col outline-none",
           // iOS height correctness + safe area bottom
-          "max-h-[92dvh] pb-[calc(16px+env(safe-area-inset-bottom))]",
+          "max-h-[92dvh] pb-[safe-area-inset-bottom]",
 
           // top
           "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0",

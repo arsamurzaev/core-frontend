@@ -41,8 +41,13 @@ export const CatalogSearchField: React.FC<CatalogSearchFieldProps> = ({
       )}
     >
       <Input
+        type="search"
+        name="catalog-search"
         value={value}
         autoFocus={autoFocus}
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Поиск"
