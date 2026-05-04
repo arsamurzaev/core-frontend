@@ -103,7 +103,6 @@ export function ConfirmationDrawer({
   onConfirm,
   onCancel,
   onError,
-  tone = "default",
   confirmVariant,
   cancelVariant = "secondary",
   confirmSize = "full",
@@ -125,8 +124,7 @@ export function ConfirmationDrawer({
   bodyClassName,
   footerClassName,
 }: ConfirmationDrawerProps) {
-  const computedConfirmVariant =
-    confirmVariant ?? (tone === "destructive" ? "destructive" : "default");
+  const computedConfirmVariant = confirmVariant ?? "default";
   const {
     actualOpen,
     handleCancel,
