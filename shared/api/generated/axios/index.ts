@@ -980,6 +980,7 @@ export interface CategoryDto {
   /** @nullable */
   parentId: string | null;
   position: number;
+  productCount: number;
   name: string;
   imageMedia: MediaDto | null;
   /** @nullable */
@@ -1010,6 +1011,7 @@ export interface CategoryWithRelationsDto {
   /** @nullable */
   parentId: string | null;
   position: number;
+  productCount: number;
   name: string;
   imageMedia: MediaDto | null;
   /** @nullable */

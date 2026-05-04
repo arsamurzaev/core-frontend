@@ -10,8 +10,6 @@ import {
 } from "@/core/widgets/catalog-filter/model/catalog-filter-drawer";
 import { useBrandControllerGetAll } from "@/shared/api/generated/react-query";
 import { type CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
-import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
-import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";
 
 interface UseCatalogFilterDrawerParams {
@@ -19,6 +17,7 @@ interface UseCatalogFilterDrawerParams {
   onApply: (patch?: CatalogFilterPatch) => void;
   onOpenChange?: (open: boolean) => void;
   queryState: CatalogFilterQueryState;
+  shouldUseBrands?: boolean;
 }
 
 export function useCatalogFilterDrawer({
@@ -26,9 +25,8 @@ export function useCatalogFilterDrawer({
   onApply,
   onOpenChange,
   queryState,
+  shouldUseBrands = true,
 }: UseCatalogFilterDrawerParams) {
-  const { catalog } = useCatalogState();
-  const shouldUseBrands = supportsCatalogBrands(catalog);
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = React.useCallback(

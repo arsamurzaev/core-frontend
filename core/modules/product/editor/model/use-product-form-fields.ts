@@ -17,8 +17,6 @@ import {
   useBrandControllerGetAll,
   useCategoryControllerGetAll,
 } from "@/shared/api/generated/react-query";
-import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
-import { useCatalogState } from "@/shared/providers/catalog-provider";
 
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import React from "react";
@@ -47,6 +45,7 @@ export interface UseProductFormFieldsParams {
   sourceAttributes: AttributeDto[] | null | undefined;
   isActive?: boolean;
   includeCategories?: boolean;
+  supportsBrands?: boolean;
 }
 
 export function useProductFormFields({
@@ -54,9 +53,9 @@ export function useProductFormFields({
   sourceAttributes,
   isActive = false,
   includeCategories = true,
+  supportsBrands = true,
 }: UseProductFormFieldsParams) {
-  const { catalog } = useCatalogState();
-  const shouldUseBrands = supportsCatalogBrands(catalog);
+  const shouldUseBrands = supportsBrands;
   const brandsQuery = useBrandControllerGetAll({
     query: {
       enabled: shouldUseBrands,

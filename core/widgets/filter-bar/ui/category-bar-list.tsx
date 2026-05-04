@@ -3,6 +3,7 @@
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Skeleton } from "@/shared/ui/skeleton";
+import useEmblaCarousel from "embla-carousel-react";
 import React from "react";
 
 export type CategoryBarItem = {
@@ -25,7 +26,11 @@ export const CategoryBarList: React.FC<Props> = ({
   activeCategoryId,
   onCategoryClick,
 }) => {
-  const scrollContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    containScroll: "trimSnaps",
+    dragFree: true,
+  });
   const itemRefsRef = React.useRef(new Map<string, HTMLButtonElement>());
   const scrollFrameRef = React.useRef<number | null>(null);
   const skeletonWidths = React.useMemo(
@@ -39,7 +44,15 @@ export const CategoryBarList: React.FC<Props> = ({
   );
 
   React.useEffect(() => {
-    if (!activeCategoryId || activeIndex < 0) {
+    if (!emblaApi || items.length === 0) {
+      return;
+    }
+
+    emblaApi.reInit();
+  }, [emblaApi, items.length]);
+
+  React.useEffect(() => {
+    if (!emblaApi || !activeCategoryId || activeIndex < 0) {
       return;
     }
 
@@ -49,35 +62,8 @@ export const CategoryBarList: React.FC<Props> = ({
 
     scrollFrameRef.current = window.requestAnimationFrame(() => {
       scrollFrameRef.current = null;
-      const container = scrollContainerRef.current;
-      const activeItem = itemRefsRef.current.get(activeCategoryId);
 
-      if (!container || !activeItem) {
-        return;
-      }
-
-      const containerRect = container.getBoundingClientRect();
-      const activeItemRect = activeItem.getBoundingClientRect();
-      const scrollPadding = 8;
-      const leftOverflow =
-        activeItemRect.left - containerRect.left - scrollPadding;
-      const rightOverflow =
-        activeItemRect.right - containerRect.right + scrollPadding;
-
-      if (leftOverflow < 0) {
-        container.scrollTo({
-          left: container.scrollLeft + leftOverflow,
-          behavior: "auto",
-        });
-        return;
-      }
-
-      if (rightOverflow > 0) {
-        container.scrollTo({
-          left: container.scrollLeft + rightOverflow,
-          behavior: "auto",
-        });
-      }
+      emblaApi.scrollTo(activeIndex);
     });
 
     return () => {
@@ -86,7 +72,7 @@ export const CategoryBarList: React.FC<Props> = ({
         scrollFrameRef.current = null;
       }
     };
-  }, [activeCategoryId, activeIndex]);
+  }, [activeCategoryId, activeIndex, emblaApi]);
 
   if (isLoading && items.length === 0) {
     return (
@@ -109,13 +95,13 @@ export const CategoryBarList: React.FC<Props> = ({
 
   return (
     <div
-      ref={scrollContainerRef}
+      ref={emblaRef}
       className={cn(
-        "w-full overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "w-full cursor-grab overflow-hidden active:cursor-grabbing",
         className,
       )}
     >
-      <div className="flex w-max gap-2">
+      <div className="flex touch-pan-y gap-2 [touch-action:pan-y_pinch-zoom]">
         {items.map((item, index) => {
           const isActive = activeIndex === index;
 
@@ -135,7 +121,7 @@ export const CategoryBarList: React.FC<Props> = ({
               aria-current={isActive ? "true" : undefined}
               onClick={() => onCategoryClick?.(item, index)}
               className={cn(
-                "h-9 w-fit shrink-0 rounded-full px-4 py-2 text-sm",
+                "h-9 min-w-0 shrink-0 grow-0 basis-auto rounded-full px-4 py-2 text-sm",
               )}
             >
               {item.name}

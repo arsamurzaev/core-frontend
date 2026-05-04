@@ -1,5 +1,5 @@
 import { CartProvider } from "@/core/modules/cart/model/cart-context";
-import { ProductDrawerInstantHost } from "@/core/widgets/product-drawer/ui/product-drawer-instant-host";
+import { PluginProductDrawerInstantHost } from "@/sandbox/ui/plugin-product-drawer-instant-host";
 
 export default function StorefrontLayout({
   children,
@@ -11,7 +11,7 @@ export default function StorefrontLayout({
   return (
     <CartProvider>
       {children}
-      <ProductDrawerInstantHost />
+      <PluginProductDrawerInstantHost />
       {drawer}
     </CartProvider>
   );

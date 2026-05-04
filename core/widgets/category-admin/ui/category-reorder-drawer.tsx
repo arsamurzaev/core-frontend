@@ -46,6 +46,26 @@ interface CategoryReorderItemProps {
   disabled?: boolean;
 }
 
+function formatCategoryProductCount(count: number) {
+  const normalizedCount = Math.max(0, count);
+  const lastDigit = normalizedCount % 10;
+  const lastTwoDigits = normalizedCount % 100;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return `${normalizedCount} товаров`;
+  }
+
+  if (lastDigit === 1) {
+    return `${normalizedCount} товар`;
+  }
+
+  if (lastDigit >= 2 && lastDigit <= 4) {
+    return `${normalizedCount} товара`;
+  }
+
+  return `${normalizedCount} товаров`;
+}
+
 const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
   category,
   index,
@@ -106,6 +126,9 @@ const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
                 {category.descriptor}
               </p>
             ) : null}
+            <p className="text-muted-foreground truncate text-xs sm:text-sm">
+              {formatCategoryProductCount(category.productCount ?? 0)}
+            </p>
           </div>
         </div>
       </CardContent>

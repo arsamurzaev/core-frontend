@@ -38,7 +38,9 @@ function getMissingProductMessage(params: {
 export function useEditProductDrawer(
   productId: string,
   onExternalOpenChange?: (open: boolean) => void,
+  params: { supportsBrands?: boolean } = {},
 ) {
+  const { supportsBrands = true } = params;
   const { type } = useCatalog();
   const queryClient = useQueryClient();
   const updateProduct = useProductControllerUpdate();
@@ -63,6 +65,7 @@ export function useEditProductDrawer(
       form,
       sourceAttributes: type.attributes,
       isActive: open,
+      supportsBrands,
     },
   );
 
@@ -203,4 +206,3 @@ export function useEditProductDrawer(
     uploadedMediaIds: imageEditor.uploadedMediaIds,
   };
 }
-

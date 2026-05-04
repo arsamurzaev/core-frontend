@@ -1,7 +1,7 @@
 "use client";
 
-import { useShareDrawer } from "@/core/widgets/share-drawer/model/use-share-drawer";
 import { type ShareDrawerProps } from "@/core/widgets/share-drawer/model/share-drawer-types";
+import { useShareDrawer } from "@/core/widgets/share-drawer/model/use-share-drawer";
 import { ShareActionTile } from "@/core/widgets/share-drawer/ui/share-action-tile";
 import { ShareDrawerBrand } from "@/core/widgets/share-drawer/ui/share-drawer-brand";
 import { ShareDrawerConfirmContent } from "@/core/widgets/share-drawer/ui/share-drawer-confirm-content";
@@ -82,7 +82,7 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
       open={resolvedOpen}
       onOpenChange={handleOpenChange}
     >
-      <AppDrawer.Content className="max-h-[40%] min-h-[490px] bg-[#F2F2F7] text-center">
+      <AppDrawer.Content className="bg-[#F2F2F7] text-center">
         <ShareDrawerHeader title={resolvedDrawerTitle} />
 
         <div className="space-y-8">
@@ -108,7 +108,10 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
             </div>
           ) : null}
 
-          <ShareDrawerSocialList items={socialItems} onItemClick={closeDrawer} />
+          <ShareDrawerSocialList
+            items={socialItems}
+            onItemClick={closeDrawer}
+          />
 
           <p>
             <span className="text-xs">или вы можете</span>

@@ -1,9 +1,9 @@
 import { CatalogBrowser } from "@/sandbox/ui/catalog-browser";
 import { BackgroundImage } from "@/core/views/home/_ui/background-image";
 import { PluginCartDrawer } from "@/sandbox/ui/plugin-cart-drawer";
-import { EditProductDrawerHostProvider } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
+import { CatalogHeader } from "@/sandbox/ui/catalog-header";
+import { PluginEditProductDrawerHostProvider } from "@/sandbox/ui/plugin-edit-product-drawer-host-provider";
 import { Footer } from "@/core/widgets/footer/ui/footer";
-import { Header } from "@/core/widgets/header/ui/header";
 import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel/ui/popular-product-carousel";
 import { getHomePageDataServer } from "@/shared/api/server/get-home-page-data";
 import { cn } from "@/shared/lib/utils";
@@ -21,16 +21,16 @@ export const HomeContent = async ({ className }: Props) => {
     <main className={cn(className)}>
       <ContentContainer>
         <BackgroundImage />
-        <EditProductDrawerHostProvider>
+        <PluginEditProductDrawerHostProvider>
           <div rel="content" className="space-y-8 px-2.5">
-            <Header />
+            <CatalogHeader />
             <Suspense>
               <PopularProductCarousel initialProducts={popularProducts} />
               <CatalogBrowser initialCategories={categories} />
             </Suspense>
             <Footer />
           </div>
-        </EditProductDrawerHostProvider>
+        </PluginEditProductDrawerHostProvider>
         <PluginCartDrawer />
       </ContentContainer>
     </main>

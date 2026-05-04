@@ -17,6 +17,8 @@ import { toast } from "sonner";
 
 const SNAP_POINTS = ["111px", 1] as const;
 const CART_DRAWER_SCROLL_LOCK_CLASS = "cart-drawer-scroll-lock";
+const DEFAULT_COMMENT_PLACEHOLDER =
+  "Укажите пожелания к заказу: характеристики, замену, упаковку, доставку или другие важные детали.";
 const CHECKOUT_CART_STATUSES = new Set([
   "SHARED",
   "IN_PROGRESS",
@@ -34,9 +36,15 @@ function getErrorMessage(error: unknown): string {
 
 interface CartDrawerProps {
   actionRenderer?: (productId: string) => React.ReactNode;
+  commentPlaceholder?: string;
+  supportsBrands?: boolean;
 }
 
-export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
+export const CartDrawer: React.FC<CartDrawerProps> = ({
+  actionRenderer,
+  commentPlaceholder = DEFAULT_COMMENT_PLACEHOLDER,
+  supportsBrands = true,
+}) => {
   const {
     autoExpandPublicCartAccessKey,
     canShare,
@@ -80,7 +88,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const hasSharedCart = Boolean(
     publicAccessPublicKey && publicAccessCheckoutKey,
   );
-  const isCheckoutCartStatus = status ? CHECKOUT_CART_STATUSES.has(status) : false;
+  const isCheckoutCartStatus = status
+    ? CHECKOUT_CART_STATUSES.has(status)
+    : false;
   const shouldKeepEmptySharedCartOpen =
     isPublicMode ||
     hasPublicCartLink ||
@@ -90,8 +100,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
   const shouldHideDrawer =
     !shouldUseCartUi || (!hasItems && !shouldKeepEmptySharedCartOpen);
   const isCommentLocked =
-    isManagedPublicCart || isPublicMode || hasSharedCart || hasPreparedShareOrder;
-  const displayedComment = isCommentLocked ? (cart?.comment ?? comment) : comment;
+    isManagedPublicCart ||
+    isPublicMode ||
+    hasSharedCart ||
+    hasPreparedShareOrder;
+  const displayedComment = isCommentLocked
+    ? (cart?.comment ?? comment)
+    : comment;
   const publicCartAccessKey =
     isPublicMode && publicAccessPublicKey && publicAccessCheckoutKey
       ? `${publicAccessPublicKey}:${publicAccessCheckoutKey}`
@@ -104,7 +119,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
     setHasPreparedShareOrder(false);
     setComment("");
   }, [cart?.id]);
-
 
   React.useEffect(() => {
     if (!publicCartAccessKey) {
@@ -272,6 +286,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
             <DrawerScrollArea>
               <CartDrawerContent
                 comment={displayedComment}
+                commentPlaceholder={commentPlaceholder}
                 isLoading={isLoading}
                 isManagedPublicCart={isManagedPublicCart}
                 isCommentLocked={isCommentLocked}
@@ -313,6 +328,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ actionRenderer }) => {
           open={isProductDrawerOpen}
           product={selectedProduct}
           productSlug={selectedProduct.slug}
+          supportsBrands={supportsBrands}
           onOpenChange={handleProductDrawerOpenChange}
           onAfterClose={handleProductDrawerAfterClose}
         />

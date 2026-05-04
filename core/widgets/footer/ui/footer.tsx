@@ -6,14 +6,13 @@ import {
   getDaysUntilSubscriptionEnd,
 } from "@/core/widgets/footer/model/subscription-status";
 import { useSubscriptionWarning } from "@/core/widgets/footer/model/use-subscription-warning";
-import { SupportDrawer } from "@/core/widgets/footer/ui/support-drawer";
 import { SubscriptionReminderDrawer } from "@/core/widgets/footer/ui/subscription-reminder-drawer";
+import { SupportDrawer } from "@/core/widgets/footer/ui/support-drawer";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
-import { KreatiLogo } from "@/shared/ui/icons/kreati-logo";
-import Link from "next/link";
 import React from "react";
+import { ShareDrawerBrand } from "../../share-drawer/ui/share-drawer-brand";
 
 const PLATFORM_URL = "https://catalog.kreati.ru";
 
@@ -22,20 +21,7 @@ interface Props {
 }
 
 const FooterBrand: React.FC = () => {
-  return (
-    <h3 className="text-muted-foreground flex flex-col items-center justify-center gap-1 text-center text-sm">
-      <span>Разработано на платформе</span>
-      <Link
-        href={PLATFORM_URL}
-        target="_blank"
-        rel="noreferrer"
-        className="text-foreground inline-flex items-center gap-2"
-      >
-        <KreatiLogo className="h-8 w-auto" />
-        <span className="text-base font-medium">Kreati</span>
-      </Link>
-    </h3>
-  );
+  return <ShareDrawerBrand />;
 };
 
 const SubscriptionStatusCard: React.FC<{
@@ -91,13 +77,16 @@ export const Footer: React.FC<Props> = ({ className }) => {
     [subscriptionEndsAt],
   );
 
-  const { open: warningOpen, setOpen: setWarningOpen, message } =
-    useSubscriptionWarning({
-      catalogId: catalog?.id,
-      daysRemaining,
-      isAdmin: canOpenSupport,
-      subscriptionEndsAt,
-    });
+  const {
+    open: warningOpen,
+    setOpen: setWarningOpen,
+    message,
+  } = useSubscriptionWarning({
+    catalogId: catalog?.id,
+    daysRemaining,
+    isAdmin: canOpenSupport,
+    subscriptionEndsAt,
+  });
 
   const handleRenewClick = React.useCallback(() => {
     setWarningOpen(false);

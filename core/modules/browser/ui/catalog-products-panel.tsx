@@ -7,9 +7,11 @@ import {
   useProductCardViewMode,
 } from "@/core/modules/product/model/use-product-card-view-mode";
 import {
-  CategoryProducts,
-  UNCATEGORIZED_PRODUCTS_SECTION_ID,
-  UncategorizedProducts,
+  CATALOG_PRODUCTS_SECTION_ID,
+  CATEGORY_SECTION_SCROLL_MARGIN_TOP,
+} from "@/core/modules/browser/model/category-scroll";
+import {
+  VirtualizedCategoryProducts,
 } from "@/core/widgets/category-products/ui/category-products";
 import { FilterProducts } from "@/core/widgets/filter-products/ui/filter-products";
 import type { CategoryDto } from "@/shared/api/generated/react-query";
@@ -17,7 +19,6 @@ import type { CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query"
 import { cn } from "@/shared/lib/utils";
 import { Skeleton } from "@/shared/ui/skeleton";
 import React from "react";
-import { getCategorySectionId } from "../model/category-scroll";
 
 interface CatalogProductsPanelProps {
   className?: string;
@@ -71,7 +72,15 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
 
   return (
     <div className={className}>
-      <div className={cn(contentClassName, collapsed && "h-0")}>
+      <div
+        id={!isFilterActive ? CATALOG_PRODUCTS_SECTION_ID : undefined}
+        className={cn(contentClassName, collapsed && "h-0")}
+        style={
+          !isFilterActive
+            ? { scrollMarginTop: CATEGORY_SECTION_SCROLL_MARGIN_TOP }
+            : undefined
+        }
+      >
         {isFilterActive ? (
           <FilterProducts queryState={queryState} />
         ) : shouldShowLoading ? (
@@ -81,22 +90,11 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
             />
           ))
         ) : (
-          <>
-            {categories.map((category, index) => (
-              <CategoryProducts
-                key={category.id}
-                category={category}
-                sectionId={getCategorySectionId(category.id)}
-                activationBlocked={activationBlockedCategoryId === category.id}
-                forceActivated={forceActivatedCategoryId === category.id}
-                initiallyActivated={index === 0}
-              />
-            ))}
-            <UncategorizedProducts
-              sectionId={UNCATEGORIZED_PRODUCTS_SECTION_ID}
-              initiallyActivated={categories.length === 0}
-            />
-          </>
+          <VirtualizedCategoryProducts
+            categories={categories}
+            activationBlockedCategoryId={activationBlockedCategoryId}
+            forceActivatedCategoryId={forceActivatedCategoryId}
+          />
         )}
       </div>
     </div>

@@ -2112,6 +2112,7 @@ export const CategoryControllerGetAllResponseItem = zod.object({
   "catalogId": zod.string(),
   "parentId": zod.string().nullable(),
   "position": zod.number(),
+  "productCount": zod.number(),
   "name": zod.string(),
   "imageMedia": zod.object({
   "id": zod.string(),
@@ -2171,6 +2172,7 @@ export const CategoryControllerGetByIdResponse = zod.object({
   "catalogId": zod.string(),
   "parentId": zod.string().nullable(),
   "position": zod.number(),
+  "productCount": zod.number(),
   "name": zod.string(),
   "imageMedia": zod.object({
   "id": zod.string(),
@@ -2256,6 +2258,7 @@ export const CategoryControllerUpdateResponse = zod.object({
   "catalogId": zod.string(),
   "parentId": zod.string().nullable(),
   "position": zod.number(),
+  "productCount": zod.number(),
   "name": zod.string(),
   "imageMedia": zod.object({
   "id": zod.string(),
@@ -2564,6 +2567,7 @@ export const CategoryControllerUpdatePositionsResponseItem = zod.object({
   "catalogId": zod.string(),
   "parentId": zod.string().nullable(),
   "position": zod.number(),
+  "productCount": zod.number(),
   "name": zod.string(),
   "imageMedia": zod.object({
   "id": zod.string(),
@@ -2615,6 +2619,7 @@ export const CategoryControllerUpdatePositionResponse = zod.object({
   "catalogId": zod.string(),
   "parentId": zod.string().nullable(),
   "position": zod.number(),
+  "productCount": zod.number(),
   "name": zod.string(),
   "imageMedia": zod.object({
   "id": zod.string(),

@@ -14,23 +14,54 @@ interface UseCategoryClickActivationDelayResult {
   handleCategoryClick: (category: { id: string }) => void;
 }
 
-const CATEGORY_CLICK_ACTIVATION_DELAY_MS = 200;
+const CATEGORY_CLICK_ACTIVATION_SETTLE_FRAMES = 1;
 
 export function useCategoryClickActivationDelay({
   enabled = true,
 }: UseCategoryClickActivationDelayParams = {}): UseCategoryClickActivationDelayResult {
-  const timerRef = React.useRef<number | null>(null);
+  const frameRef = React.useRef<number | null>(null);
   const [activationBlockedCategoryId, setActivationBlockedCategoryId] =
     React.useState<string | null>(null);
   const [forceActivatedCategoryId, setForceActivatedCategoryId] =
     React.useState<string | null>(null);
 
-  const clearTimer = React.useCallback(() => {
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
+  const cancelScrollWatcher = React.useCallback(() => {
+    if (frameRef.current !== null) {
+      window.cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
     }
   }, []);
+
+  const finishScrollActivation = React.useCallback(
+    (categoryId: string) => {
+      cancelScrollWatcher();
+      setActivationBlockedCategoryId((currentCategoryId) =>
+        currentCategoryId === categoryId ? null : currentCategoryId,
+      );
+      setForceActivatedCategoryId(categoryId);
+    },
+    [cancelScrollWatcher],
+  );
+
+  const scheduleScrollActivation = React.useCallback(
+    (categoryId: string) => {
+      let frameCount = 0;
+
+      const tick = () => {
+        frameCount += 1;
+
+        if (frameCount >= CATEGORY_CLICK_ACTIVATION_SETTLE_FRAMES) {
+          finishScrollActivation(categoryId);
+          return;
+        }
+
+        frameRef.current = window.requestAnimationFrame(tick);
+      };
+
+      frameRef.current = window.requestAnimationFrame(tick);
+    },
+    [finishScrollActivation],
+  );
 
   const handleCategoryClick = React.useCallback(
     (category: { id: string }) => {
@@ -38,22 +69,30 @@ export function useCategoryClickActivationDelay({
         return;
       }
 
-      clearTimer();
+      cancelScrollWatcher();
 
       flushSync(() => {
         setActivationBlockedCategoryId(category.id);
         setForceActivatedCategoryId(null);
       });
 
-      scrollCategorySectionIntoView(category.id);
+      const didScroll = scrollCategorySectionIntoView(category.id, {
+        behavior: "instant",
+      });
 
-      timerRef.current = window.setTimeout(() => {
-        timerRef.current = null;
-        setActivationBlockedCategoryId(null);
-        setForceActivatedCategoryId(category.id);
-      }, CATEGORY_CLICK_ACTIVATION_DELAY_MS);
+      if (!didScroll) {
+        finishScrollActivation(category.id);
+        return;
+      }
+
+      scheduleScrollActivation(category.id);
     },
-    [clearTimer, enabled],
+    [
+      cancelScrollWatcher,
+      enabled,
+      finishScrollActivation,
+      scheduleScrollActivation,
+    ],
   );
 
   React.useEffect(() => {
@@ -61,16 +100,16 @@ export function useCategoryClickActivationDelay({
       return;
     }
 
-    clearTimer();
+    cancelScrollWatcher();
     setActivationBlockedCategoryId(null);
     setForceActivatedCategoryId(null);
-  }, [clearTimer, enabled]);
+  }, [cancelScrollWatcher, enabled]);
 
   React.useEffect(() => {
     return () => {
-      clearTimer();
+      cancelScrollWatcher();
     };
-  }, [clearTimer]);
+  }, [cancelScrollWatcher]);
 
   return {
     activationBlockedCategoryId,

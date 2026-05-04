@@ -10,7 +10,7 @@ import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { Badge } from "@/shared/ui/badge";
 import React from "react";
 import { buildProductCardPluginModel } from "../plugins/build-model";
-import { resolveProductCardPlugin } from "../plugins/resolve";
+import type { ResolvedProductCardPlugin } from "../plugins/contracts";
 import { ProductCard } from "./product-card";
 
 type ProductCardBaseProps = Omit<React.ComponentProps<typeof ProductCard>, "data">;
@@ -18,8 +18,16 @@ type ProductCardEntity = ProductWithAttributesDto | ProductWithDetailsDto;
 
 interface ProductCardWithPluginsProps extends ProductCardBaseProps {
   data: ProductCardEntity;
+  plugin?: ResolvedProductCardPlugin;
   pluginContainerClassName?: string;
 }
+
+const DEFAULT_PRODUCT_CARD_PLUGIN: ResolvedProductCardPlugin = {
+  key: "default",
+  attributes: [],
+  showVariants: true,
+  badges: [],
+};
 
 function toProductWithAttributesDto(
   data: ProductCardEntity,
@@ -53,10 +61,10 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
   actions,
   footerAction,
   isDetailed,
+  plugin = DEFAULT_PRODUCT_CARD_PLUGIN,
   pluginContainerClassName,
 }) => {
   const { catalog } = useCatalogState();
-  const plugin = resolveProductCardPlugin(catalog?.type.code);
   const model = React.useMemo(
     () => buildProductCardPluginModel(data, catalog, plugin),
     [catalog, data, plugin],

@@ -26,6 +26,7 @@ export interface CatalogFilterDrawerProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   queryState: CatalogFilterQueryState;
+  shouldUseBrands?: boolean;
   trigger?: React.ReactNode;
 }
 
@@ -127,6 +128,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
   open,
   onOpenChange,
   queryState,
+  shouldUseBrands = true,
   trigger,
 }) => {
   const {
@@ -138,13 +140,14 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
     open: drawerOpen,
     patchDraft,
     setOpen,
-    shouldUseBrands,
+    shouldUseBrands: resolvedShouldUseBrands,
     toggleArrayDraftValue,
   } = useCatalogFilterDrawer({
     open,
     onApply,
     onOpenChange,
     queryState,
+    shouldUseBrands,
   });
   const popularCheckboxId = React.useId();
   const discountCheckboxId = React.useId();
@@ -196,7 +199,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
 
               <hr />
 
-              {shouldUseBrands ? (
+              {resolvedShouldUseBrands ? (
                 <>
                   <FilterSection title="Бренды">
                     <FilterList

@@ -2,9 +2,7 @@
 
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
-import {
-  buildProductDrawerViewModel,
-} from "@/core/widgets/product-drawer/model/product-drawer-view";
+import { buildProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { useProductDrawerAfterClose } from "@/core/widgets/product-drawer/model/use-product-drawer-after-close";
 import { ProductDetailsPanel } from "@/core/widgets/product-drawer/ui/product-details-panel";
 import {
@@ -28,6 +26,7 @@ interface ProductDrawerProps {
   initialProduct?: ProductWithDetailsDto | null;
   previewProduct?: ProductWithAttributesDto | null;
   product?: ProductWithDetailsDto | null;
+  supportsBrands?: boolean;
   className?: string;
   onOpenChange: (open: boolean) => void;
   onAfterClose?: () => void;
@@ -39,6 +38,7 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   initialProduct,
   previewProduct,
   product,
+  supportsBrands = true,
   className,
   onOpenChange,
   onAfterClose,
@@ -56,7 +56,9 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
     },
   );
   const resolvedProduct = product ?? data ?? initialProduct ?? null;
-  const resolvedPreviewProduct = resolvedProduct ? null : (previewProduct ?? null);
+  const resolvedPreviewProduct = resolvedProduct
+    ? null
+    : (previewProduct ?? null);
   const shouldShowSkeleton = isLoading && !resolvedPreviewProduct;
 
   const viewModel = React.useMemo(
@@ -67,8 +69,16 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
         isLoading: shouldShowSkeleton,
         previewProduct: resolvedPreviewProduct,
         product: resolvedProduct ?? undefined,
+        supportsBrands,
       }),
-    [catalog, isError, resolvedPreviewProduct, resolvedProduct, shouldShowSkeleton],
+    [
+      catalog,
+      isError,
+      resolvedPreviewProduct,
+      resolvedProduct,
+      shouldShowSkeleton,
+      supportsBrands,
+    ],
   );
 
   const handleCloseAnimationEnd = useProductDrawerAfterClose({
@@ -83,7 +93,7 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
         onAnimationEnd={handleCloseAnimationEnd}
         onTransitionEnd={handleCloseAnimationEnd}
         className={cn(
-          "mx-auto w-full max-w-[30rem] rounded-t-2xl border bg-background shadow-custom",
+          "mx-auto w-full data-[vaul-drawer-direction=bottom]:max-w-120 rounded-t-2xl border bg-background shadow-custom",
           className,
         )}
       >

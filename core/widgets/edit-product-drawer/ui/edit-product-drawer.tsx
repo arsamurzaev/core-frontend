@@ -14,12 +14,14 @@ interface EditProductDrawerProps {
   productId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  supportsBrands?: boolean;
 }
 
 export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
   productId,
   open,
   onOpenChange,
+  supportsBrands = true,
 }) => {
   const {
     cropperApplyLabel,
@@ -54,7 +56,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
     removeItem,
     uploadState,
     uploadedMediaIds,
-  } = useEditProductDrawer(productId, onOpenChange);
+  } = useEditProductDrawer(productId, onOpenChange, { supportsBrands });
 
   React.useEffect(() => {
     handleOpenChange(open);

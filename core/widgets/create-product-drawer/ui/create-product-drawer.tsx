@@ -11,6 +11,7 @@ interface CreateProductDrawerProps {
   className?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  supportsBrands?: boolean;
   trigger?: React.ReactNode;
 }
 
@@ -18,6 +19,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
   className,
   open,
   onOpenChange,
+  supportsBrands = true,
   trigger,
 }) => {
   const {
@@ -54,6 +56,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
   } = useCreateProductDrawer({
     open,
     onOpenChange,
+    supportsBrands,
   });
 
   const resolvedTrigger =

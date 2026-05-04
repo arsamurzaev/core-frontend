@@ -18,9 +18,7 @@ import {
   type CatalogFilterQueryState,
 } from "@/shared/lib/catalog-filter-query";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
-import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
 import { cn } from "@/shared/lib/utils";
-import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
@@ -44,6 +42,7 @@ const CategoryAdminDrawersDynamic = dynamic(
 interface BrowserProps {
   className?: string;
   initialCategories?: CategoryDto[];
+  supportsBrands?: boolean;
 }
 
 const CATEGORY_LOADING_SECTIONS_COUNT = 3;
@@ -82,8 +81,8 @@ const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({ tab }) => {
 export const Browser: React.FC<BrowserProps> = ({
   className,
   initialCategories = [],
+  supportsBrands = true,
 }) => {
-  const catalog = useCatalog();
   const {
     queryState,
     swipeTranslatePercent,
@@ -101,7 +100,6 @@ export const Browser: React.FC<BrowserProps> = ({
     [categoriesQuery.data],
   );
   const { user } = useSession();
-  const supportsBrands = supportsCatalogBrands(catalog);
   const effectiveQueryState = React.useMemo(
     () => ({
       ...queryState,
@@ -127,7 +125,9 @@ export const Browser: React.FC<BrowserProps> = ({
     enabled: effectiveQueryState.tab === "catalog" && !effectiveIsFilterActive,
   });
   const visibleActiveCategoryId =
-    categoryClickActivation.activationBlockedCategoryId ?? activeCategoryId;
+    categoryClickActivation.activationBlockedCategoryId ??
+    categoryClickActivation.forceActivatedCategoryId ??
+    activeCategoryId;
   const shouldShowCategoryCardsLoading =
     categoriesQuery.isLoading && categories.length === 0;
   const activeFiltersCount = React.useMemo(
@@ -209,6 +209,7 @@ export const Browser: React.FC<BrowserProps> = ({
                 categories={categories}
                 isCategoriesLoading={categoriesQuery.isLoading}
                 activeFiltersCount={activeFiltersCount}
+                shouldUseBrands={supportsBrands}
                 onApply={handleFilterToggle}
               />
             </div>

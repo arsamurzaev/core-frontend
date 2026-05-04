@@ -45,7 +45,9 @@ export const RestaurantBrowser: React.FC<RestaurantBrowserProps> = ({
     enabled: !isFilterActive,
   });
   const visibleActiveCategoryId =
-    categoryClickActivation.activationBlockedCategoryId ?? activeCategoryId;
+    categoryClickActivation.activationBlockedCategoryId ??
+    categoryClickActivation.forceActivatedCategoryId ??
+    activeCategoryId;
   const bottomRow = !isFilterActive ? (
     <CategoryBarList
       items={categories}

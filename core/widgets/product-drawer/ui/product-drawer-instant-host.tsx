@@ -26,7 +26,13 @@ interface InstantDrawerState {
   previewProduct?: ProductWithAttributesDto | null;
 }
 
-export const ProductDrawerInstantHost: React.FC = () => {
+interface ProductDrawerInstantHostProps {
+  supportsBrands?: boolean;
+}
+
+export const ProductDrawerInstantHost: React.FC<
+  ProductDrawerInstantHostProps
+> = ({ supportsBrands = true }) => {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -115,7 +121,7 @@ export const ProductDrawerInstantHost: React.FC = () => {
 
     setState(null);
 
-    if (!pathname.includes("/product/") && !pathname.includes("/products/")) {
+    if (!pathname.includes("/product/")) {
       return;
     }
 
@@ -144,6 +150,7 @@ export const ProductDrawerInstantHost: React.FC = () => {
       productSlug={state.productSlug}
       initialProduct={state.initialProduct}
       previewProduct={state.previewProduct}
+      supportsBrands={supportsBrands}
       onOpenChange={handleOpenChange}
       onAfterClose={handleAfterClose}
     />

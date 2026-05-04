@@ -157,11 +157,6 @@ textarea::-webkit-scrollbar {
   overscroll-behavior: contain;
 }
 
-/* 3) safe-area снизу для iPhone */
-[data-vaul-content] {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
 /* 4) если используешь rounded corners — клиппинг на внешнем */
 [data-vaul-shell] {
   overflow: hidden;
@@ -171,11 +166,6 @@ textarea::-webkit-scrollbar {
 [data-slot="drawer-scroll-area"] {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-}
-
-/* safe-area снизу уже в классе, но можно оставить и тут */
-[data-slot="drawer-content"] {
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
 html.cart-drawer-scroll-lock,

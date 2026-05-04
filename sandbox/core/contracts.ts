@@ -4,6 +4,7 @@ import type React from "react";
 export interface BrowserProps {
   className?: string;
   initialCategories?: CategoryDto[];
+  supportsBrands?: boolean;
 }
 
 /**

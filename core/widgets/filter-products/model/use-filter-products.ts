@@ -27,7 +27,6 @@ interface UseFilterProductsParams {
 }
 
 export function useFilterProducts({ queryState }: UseFilterProductsParams) {
-  const loadMoreRef = React.useRef<HTMLDivElement | null>(null);
   const requestParams = React.useMemo<ProductControllerGetInfiniteCardsParams>(
     () => buildFilterRequestParams(queryState),
     [queryState],
@@ -89,37 +88,12 @@ export function useFilterProducts({ queryState }: UseFilterProductsParams) {
     [data],
   );
 
-  React.useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) {
-      return;
-    }
-
-    const target = loadMoreRef.current;
-    if (!target || typeof IntersectionObserver === "undefined") {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          void fetchNextPage();
-        }
-      },
-      { rootMargin: "900px 0px" },
-    );
-
-    observer.observe(target);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
   return {
+    fetchNextPage,
+    hasNextPage,
     isEnabled,
     isFetchingNextPage,
     isLoading,
-    loadMoreRef,
     products,
   };
 }

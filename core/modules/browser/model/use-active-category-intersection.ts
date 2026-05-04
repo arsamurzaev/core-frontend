@@ -13,9 +13,10 @@ interface UseActiveCategoryIntersectionResult {
   activeCategoryId: string | null;
 }
 
-const ACTIVATION_ZONE_HEIGHT_PX = 24;
+const ACTIVATION_LINE_OFFSET_PX = 24;
 const FILTER_BAR_ELEMENT_ID = "catalog-filter-bar";
 const FILTER_BAR_HEIGHT_CSS_VARIABLE = "--catalog-filter-bar-height";
+const VIRTUAL_CATEGORY_ROW_SELECTOR = "[data-catalog-category-id]";
 
 function getFilterBarHeightFromCssVariable(): number | null {
   const value = getComputedStyle(document.documentElement)
@@ -27,22 +28,15 @@ function getFilterBarHeightFromCssVariable(): number | null {
 }
 
 function getActivationLineY(): number {
-  return (
-    getFilterBarHeightFromCssVariable() ??
-    document.getElementById(FILTER_BAR_ELEMENT_ID)?.getBoundingClientRect()
-      .bottom ?? 0
-  );
-}
+  const filterBarBottom = document
+    .getElementById(FILTER_BAR_ELEMENT_ID)
+    ?.getBoundingClientRect().bottom;
 
-function getObserverRootMargin(): string {
-  const viewportHeight = window.innerHeight;
-  const lineY = Math.min(Math.max(getActivationLineY(), 0), viewportHeight);
-  const bottomInset = Math.max(
-    viewportHeight - lineY - ACTIVATION_ZONE_HEIGHT_PX,
-    0,
-  );
+  if (typeof filterBarBottom === "number" && filterBarBottom > 0) {
+    return filterBarBottom;
+  }
 
-  return `-${lineY}px 0px -${bottomInset}px 0px`;
+  return getFilterBarHeightFromCssVariable() ?? 0;
 }
 
 export function useActiveCategoryIntersection({
@@ -84,85 +78,108 @@ export function useActiveCategoryIntersection({
       return;
     }
 
-    if (typeof IntersectionObserver === "undefined") {
-      setActiveCategoryId(categories[0]?.id ?? null);
-      return;
-    }
-
-    let observer: IntersectionObserver | null = null;
     let rebuildFrame: number | null = null;
 
-    const disconnectObserver = () => {
-      observer?.disconnect();
-      observer = null;
-    };
-
-    const buildObserver = () => {
-      disconnectObserver();
-
-      observer = new IntersectionObserver(
-        (entries) => {
-          const intersectingCategoryIds = entries
-            .filter((entry) => entry.isIntersecting)
-            .map((entry) => {
-              const elementId = entry.target.id;
-              return categories.find(
-                (category) => getCategorySectionId(category.id) === elementId,
-              )?.id;
-            })
-            .filter((categoryId): categoryId is string =>
-              Boolean(categoryId),
-            );
-
-          if (intersectingCategoryIds.length === 0) {
-            return;
-          }
-
-          const nextActiveCategoryId = intersectingCategoryIds.reduce(
-            (bestCategoryId, categoryId) => {
-              const bestIndex = categoryIndexById.get(bestCategoryId) ?? -1;
-              const currentIndex = categoryIndexById.get(categoryId) ?? -1;
-
-              return currentIndex >= bestIndex ? categoryId : bestCategoryId;
-            },
-          );
-
-          setActiveCategoryId((currentCategoryId) =>
-            currentCategoryId === nextActiveCategoryId
-              ? currentCategoryId
-              : nextActiveCategoryId,
-          );
-        },
-        {
-          root: null,
-          rootMargin: getObserverRootMargin(),
-          threshold: 0,
-        },
+    const resolveActiveCategoryIdFromVirtualRows = (
+      activationLineY: number,
+    ): string | null => {
+      const renderedRows = Array.from(
+        document.querySelectorAll<HTMLElement>(VIRTUAL_CATEGORY_ROW_SELECTOR),
       );
 
-      categories.forEach((category) => {
+      if (renderedRows.length === 0) {
+        return null;
+      }
+
+      let nextActiveCategoryId = categories[0]?.id ?? null;
+
+      for (const row of renderedRows) {
+        const categoryId = row.dataset.catalogCategoryId;
+
+        if (!categoryId || !categoryIndexById.has(categoryId)) {
+          continue;
+        }
+
+        const rect = row.getBoundingClientRect();
+
+        if (rect.top <= activationLineY && rect.bottom > activationLineY) {
+          return categoryId;
+        }
+
+        if (rect.top <= activationLineY) {
+          nextActiveCategoryId = categoryId;
+          continue;
+        }
+
+        break;
+      }
+
+      return nextActiveCategoryId;
+    };
+
+    const resolveActiveCategoryId = () => {
+      const activationLineY = Math.min(
+        Math.max(getActivationLineY() + ACTIVATION_LINE_OFFSET_PX, 0),
+        window.innerHeight,
+      );
+      const virtualRowCategoryId =
+        resolveActiveCategoryIdFromVirtualRows(activationLineY);
+
+      if (virtualRowCategoryId) {
+        return virtualRowCategoryId;
+      }
+
+      let nextActiveCategoryId = categories[0]?.id ?? null;
+
+      for (const category of categories) {
         const section = document.getElementById(
           getCategorySectionId(category.id),
         );
 
-        if (section) {
-          observer?.observe(section);
+        if (!section) {
+          continue;
         }
-      });
+
+        const rect = section.getBoundingClientRect();
+
+        if (rect.top <= activationLineY && rect.bottom > activationLineY) {
+          return category.id;
+        }
+
+        if (rect.top <= activationLineY) {
+          nextActiveCategoryId = category.id;
+          continue;
+        }
+
+        break;
+      }
+
+      return nextActiveCategoryId;
+    };
+
+    const updateActiveCategory = () => {
+      rebuildFrame = null;
+      const nextActiveCategoryId = resolveActiveCategoryId();
+
+      setActiveCategoryId((currentCategoryId) =>
+        currentCategoryId === nextActiveCategoryId
+          ? currentCategoryId
+          : nextActiveCategoryId,
+      );
     };
 
     const scheduleRebuild = () => {
       if (rebuildFrame !== null) {
-        window.cancelAnimationFrame(rebuildFrame);
+        return;
       }
 
       rebuildFrame = window.requestAnimationFrame(() => {
-        rebuildFrame = null;
-        buildObserver();
+        updateActiveCategory();
       });
     };
 
-    buildObserver();
+    updateActiveCategory();
+    window.addEventListener("scroll", scheduleRebuild, { passive: true });
     window.addEventListener("resize", scheduleRebuild);
 
     const filterBar = document.getElementById(FILTER_BAR_ELEMENT_ID);
@@ -180,9 +197,9 @@ export function useActiveCategoryIntersection({
         window.cancelAnimationFrame(rebuildFrame);
       }
 
+      window.removeEventListener("scroll", scheduleRebuild);
       window.removeEventListener("resize", scheduleRebuild);
       resizeObserver?.disconnect();
-      disconnectObserver();
     };
   }, [categories, categoryIdsKey, categoryIndexById, enabled]);
 

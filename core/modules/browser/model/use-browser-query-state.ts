@@ -11,8 +11,10 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import {
+  CATALOG_PRODUCTS_SECTION_ID,
   CATEGORY_SECTION_ID_PREFIX,
   FILTER_PRODUCTS_RESULTS_SECTION_ID,
+  getCategorySectionScrollTargetOffset,
 } from "./category-scroll";
 
 export type CatalogFilterValuePatch = Partial<
@@ -49,44 +51,42 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
   } | null>(null);
 
   const scrollToContentStart = React.useCallback((isNextFilterActive: boolean) => {
-    const getTargetElementId = () => {
+    const getTargetElement = () => {
       if (isNextFilterActive) {
-        return document.getElementById(FILTER_PRODUCTS_RESULTS_SECTION_ID)?.id;
+        return document.getElementById(FILTER_PRODUCTS_RESULTS_SECTION_ID);
       }
 
       return (
+        document.getElementById(CATALOG_PRODUCTS_SECTION_ID) ??
         document.querySelector<HTMLElement>(
           `[id^="${CATEGORY_SECTION_ID_PREFIX}-"]`,
-        )?.id ?? document.getElementById("uncategorized-products-section")?.id
+        ) ??
+        document.getElementById("uncategorized-products-section")
       );
     };
 
     const scroll = () => {
-      const targetElementId = getTargetElementId();
-
-      if (!targetElementId) {
-        return;
-      }
-
-      const targetElement = document.getElementById(targetElementId);
+      const targetElement = getTargetElement();
 
       if (!targetElement) {
         return;
       }
 
-      const filterBarBottom =
-        document.getElementById("catalog-filter-bar")?.getBoundingClientRect()
-          .bottom ?? 0;
       const nextTop = Math.max(
         0,
-        window.scrollY + targetElement.getBoundingClientRect().top - filterBarBottom,
+        window.scrollY +
+          targetElement.getBoundingClientRect().top -
+          getCategorySectionScrollTargetOffset(),
       );
 
       window.scrollTo({ top: nextTop, behavior: "instant" });
     };
 
     scroll();
-    requestAnimationFrame(scroll);
+    requestAnimationFrame(() => {
+      scroll();
+      requestAnimationFrame(scroll);
+    });
     window.setTimeout(scroll, 80);
     window.setTimeout(scroll, 180);
   }, []);

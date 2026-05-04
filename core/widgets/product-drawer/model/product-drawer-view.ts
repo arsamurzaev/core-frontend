@@ -6,7 +6,6 @@ import type {
 } from "@/shared/api/generated/react-query";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
-import { supportsCatalogBrands } from "@/shared/lib/catalog-type";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
 
@@ -66,8 +65,16 @@ export function buildProductDrawerViewModel(params: {
   isLoading: boolean;
   previewProduct?: ProductWithAttributesDto | null;
   product: ProductWithDetailsDto | null | undefined;
+  supportsBrands?: boolean;
 }) {
-  const { catalog, isError, isLoading, previewProduct, product } = params;
+  const {
+    catalog,
+    isError,
+    isLoading,
+    previewProduct,
+    product,
+    supportsBrands = true,
+  } = params;
   const displayProduct = product ?? previewProduct ?? null;
   const attrs = resolveAttributes(displayProduct?.productAttributes);
 
@@ -93,7 +100,7 @@ export function buildProductDrawerViewModel(params: {
   });
 
   return {
-    brandName: supportsCatalogBrands(catalog)
+    brandName: supportsBrands
       ? toOptionalTrimmedString(displayProduct?.brand?.name)
       : null,
     currency,

@@ -21,7 +21,7 @@ interface UseFilterBarParams {
   searchTerm?: string;
 }
 
-const SEARCH_SYNC_DELAY_MS = 400;
+const SEARCH_SYNC_DELAY_MS = 800;
 
 function normalizeSearchValue(value: string): string | undefined {
   const trimmed = value.trim();
@@ -107,15 +107,14 @@ export function useFilterBar({
   React.useEffect(() => {
     clearSearchSyncTimeout();
 
+    if (
+      normalizeSearchValue(searchTerm ?? "") === normalizeSearchValue(searchValue)
+    ) {
+      return clearSearchSyncTimeout;
+    }
+
     searchTimeoutRef.current = setTimeout(() => {
       searchTimeoutRef.current = null;
-
-      if (
-        normalizeSearchValue(searchTerm ?? "") ===
-        normalizeSearchValue(searchValue)
-      ) {
-        return;
-      }
 
       onFilterToggle?.({
         searchTerm: normalizeSearchValue(searchValue),

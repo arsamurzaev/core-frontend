@@ -11,6 +11,7 @@ const CART_DRAWER_SKELETON_ITEMS_COUNT = 3;
 
 interface CartDrawerContentProps {
   comment: string;
+  commentPlaceholder: string;
   isLoading?: boolean;
   isManagedPublicCart: boolean;
   isCommentLocked?: boolean;
@@ -68,6 +69,7 @@ const CartDrawerContentSkeleton: React.FC = () => {
 
 export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   comment,
+  commentPlaceholder,
   isLoading = false,
   isManagedPublicCart,
   isCommentLocked = false,
@@ -145,7 +147,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
               value={comment}
               onChange={(event) => onCommentChange(event.target.value)}
               className="border-muted shadow-custom min-h-25 rounded-lg border p-3"
-              placeholder="Укажите в этом поле желаемые характеристики или пожелания. Например: размер S футболки, серый цвет ковра, 38 размер балеток, чёрный пылесос"
+              placeholder={commentPlaceholder}
             />
           </div>
         </>

@@ -17,10 +17,15 @@ import { useForm } from "react-hook-form";
 interface UseCreateProductDrawerParams {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  supportsBrands?: boolean;
 }
 
 export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}) {
-  const { open: controlledOpen, onOpenChange } = params;
+  const {
+    open: controlledOpen,
+    onOpenChange,
+    supportsBrands = true,
+  } = params;
   const { type } = useCatalog();
   const queryClient = useQueryClient();
   const createProduct = useProductControllerCreate();
@@ -49,6 +54,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
       form,
       sourceAttributes: type.attributes,
       isActive: open,
+      supportsBrands,
     },
   );
 
@@ -115,4 +121,3 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     uploadedMediaIds: imageEditor.uploadedMediaIds,
   };
 }
-

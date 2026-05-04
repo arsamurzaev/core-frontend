@@ -17,9 +17,13 @@ import { toast } from "sonner";
 
 interface Props {
   className?: string;
+  supportsBrands?: boolean;
 }
 
-export const Header: React.FC<Props> = ({ className }) => {
+export const Header: React.FC<Props> = ({
+  className,
+  supportsBrands = true,
+}) => {
   const { name, config } = useCatalog();
   const about = config?.about;
   const logoMedia = config?.logoMedia;
@@ -117,7 +121,7 @@ export const Header: React.FC<Props> = ({ className }) => {
           <Skeleton className="h-10 w-full" />
         ) : isAuthenticated ? (
           <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
-            <LazyCreateProductDrawerTrigger />
+            <LazyCreateProductDrawerTrigger supportsBrands={supportsBrands} />
             <Button onClick={handleCopyCatalogLink} variant="outline" size="sm">
               Поделиться каталогом
             </Button>
