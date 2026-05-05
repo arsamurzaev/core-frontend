@@ -2189,21 +2189,6 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
 /**
  * @summary List current catalog domains
  */
-export const CatalogDomainDnsRecordDto = zod.object({
-  "type": zod.string(),
-  "name": zod.string(),
-  "value": zod.string(),
-  "required": zod.boolean(),
-  "description": zod.string().optional()
-})
-export const CatalogDomainVerificationDto = zod.object({
-  "txtRecord": CatalogDomainDnsRecordDto,
-  "routingRecords": zod.array(CatalogDomainDnsRecordDto),
-  "wwwRecord": CatalogDomainDnsRecordDto.nullish(),
-  "expectedHosts": zod.array(zod.string()),
-  "instructions": zod.array(zod.string()),
-  "recheckAfterSeconds": zod.number()
-})
 export const CatalogDomainControllerListResponseItem = zod.object({
   "id": zod.string(),
   "catalogId": zod.string(),
@@ -2213,7 +2198,32 @@ export const CatalogDomainControllerListResponseItem = zod.object({
   "redirectToPrimary": zod.boolean(),
   "includeWww": zod.boolean(),
   "verificationToken": zod.string(),
-  "verification": CatalogDomainVerificationDto,
+  "verification": zod.object({
+  "txtRecord": zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+}),
+  "routingRecords": zod.array(zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+})),
+  "wwwRecord": zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+}).nullish(),
+  "expectedHosts": zod.array(zod.string()),
+  "instructions": zod.array(zod.string()),
+  "recheckAfterSeconds": zod.number()
+}),
   "nextCheckAfterSeconds": zod.number(),
   "nextCheckAt": zod.iso.datetime({}),
   "message": zod.string(),
@@ -2247,7 +2257,32 @@ export const CatalogDomainControllerCheckResponse = zod.object({
   "ok": zod.boolean(),
   "status": zod.string(),
   "error": zod.string().nullish(),
-  "verification": CatalogDomainVerificationDto,
+  "verification": zod.object({
+  "txtRecord": zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+}),
+  "routingRecords": zod.array(zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+})),
+  "wwwRecord": zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+}).nullish(),
+  "expectedHosts": zod.array(zod.string()),
+  "instructions": zod.array(zod.string()),
+  "recheckAfterSeconds": zod.number()
+}),
   "nextCheckAfterSeconds": zod.number(),
   "nextCheckAt": zod.iso.datetime({}),
   "message": zod.string()
@@ -2270,7 +2305,32 @@ export const CatalogDomainControllerDisableResponse = zod.object({
   "redirectToPrimary": zod.boolean(),
   "includeWww": zod.boolean(),
   "verificationToken": zod.string(),
-  "verification": CatalogDomainVerificationDto,
+  "verification": zod.object({
+  "txtRecord": zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+}),
+  "routingRecords": zod.array(zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+})),
+  "wwwRecord": zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+}).nullish(),
+  "expectedHosts": zod.array(zod.string()),
+  "instructions": zod.array(zod.string()),
+  "recheckAfterSeconds": zod.number()
+}),
   "nextCheckAfterSeconds": zod.number(),
   "nextCheckAt": zod.iso.datetime({}),
   "message": zod.string(),

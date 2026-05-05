@@ -1035,17 +1035,6 @@ export interface CatalogCreateResponseDto {
   domain: string | null;
 }
 
-export type CatalogDomainDtoStatus = typeof CatalogDomainDtoStatus[keyof typeof CatalogDomainDtoStatus];
-
-
-export const CatalogDomainDtoStatus = {
-  PENDING_DNS: 'PENDING_DNS',
-  DNS_VERIFIED: 'DNS_VERIFIED',
-  ACTIVE: 'ACTIVE',
-  FAILED: 'FAILED',
-  DISABLED: 'DISABLED',
-} as const;
-
 export interface CatalogDomainDnsRecordDto {
   type: string;
   name: string;
@@ -1057,12 +1046,22 @@ export interface CatalogDomainDnsRecordDto {
 export interface CatalogDomainVerificationDto {
   txtRecord: CatalogDomainDnsRecordDto;
   routingRecords: CatalogDomainDnsRecordDto[];
-  /** @nullable */
   wwwRecord?: CatalogDomainDnsRecordDto | null;
   expectedHosts: string[];
   instructions: string[];
   recheckAfterSeconds: number;
 }
+
+export type CatalogDomainDtoStatus = typeof CatalogDomainDtoStatus[keyof typeof CatalogDomainDtoStatus];
+
+
+export const CatalogDomainDtoStatus = {
+  PENDING_DNS: 'PENDING_DNS',
+  DNS_VERIFIED: 'DNS_VERIFIED',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DISABLED: 'DISABLED',
+} as const;
 
 export interface CatalogDomainDto {
   id: string;
@@ -2415,14 +2414,14 @@ export const getGatewayService = () => {
  * @summary Получить все типы
  */
 const typeControllerGetAll = (
-
+    
  ) => {
       return mutator<TypeDto[]>(
       {url: `/type/get-all`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * Создание нового типа.
  * @summary Создание типа
@@ -2437,7 +2436,7 @@ const typeControllerCreate = (
     },
       );
     }
-
+  
 /**
  * Удаление
  * @summary Удаление типа
@@ -2450,7 +2449,7 @@ const typeControllerDelete = (
     },
       );
     }
-
+  
 /**
  * @summary Login
  */
@@ -2464,19 +2463,19 @@ const authControllerLogin = (
     },
       );
     }
-
+  
 /**
  * @summary Get current user
  */
 const authControllerMe = (
-
+    
  ) => {
       return mutator<AuthLoginResponseDto>(
       {url: `/auth/me`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Change current user password
  */
@@ -2490,19 +2489,19 @@ const authControllerChangePassword = (
     },
       );
     }
-
+  
 /**
  * @summary Logout
  */
 const authControllerLogout = (
-
+    
  ) => {
       return mutator<OkResponseDto>(
       {url: `/auth/logout`, method: 'POST'
     },
       );
     }
-
+  
 /**
  * @summary Catalog login
  */
@@ -2516,7 +2515,7 @@ const catalogAuthControllerLogin = (
     },
       );
     }
-
+  
 /**
  * @summary Change current catalog user password
  */
@@ -2530,31 +2529,31 @@ const catalogAuthControllerChangePassword = (
     },
       );
     }
-
+  
 /**
  * @summary List current catalog user sessions
  */
 const catalogAuthControllerSessionsList = (
-
+    
  ) => {
       return mutator<AuthSessionsResponseDto>(
       {url: `/catalog/auth/sessions`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Revoke all other catalog user sessions
  */
 const catalogAuthControllerRevokeOtherSessions = (
-
+    
  ) => {
       return mutator<OkResponseDto>(
       {url: `/catalog/auth/sessions/revoke-others`, method: 'POST'
     },
       );
     }
-
+  
 /**
  * @summary Revoke one catalog user session
  */
@@ -2566,7 +2565,7 @@ const catalogAuthControllerRevokeSession = (
     },
       );
     }
-
+  
 /**
  * @summary Exchange handoff token and redirect
  */
@@ -2579,7 +2578,7 @@ const handoffControllerExchange = (
     },
       );
     }
-
+  
 /**
  * @summary Получить список каталогов для админки
  */
@@ -2592,7 +2591,7 @@ const adminControllerGetCatalogs = (
     },
       );
     }
-
+  
 /**
  * @summary Create catalog with generated owner credentials
  */
@@ -2606,7 +2605,7 @@ const adminControllerCreateCatalog = (
     },
       );
     }
-
+  
 /**
  * @summary Duplicate catalog with generated owner credentials
  */
@@ -2621,7 +2620,7 @@ const adminControllerDuplicateCatalog = (
     },
       );
     }
-
+  
 /**
  * @summary Редактировать каталог
  */
@@ -2636,7 +2635,7 @@ const adminControllerUpdateCatalog = (
     },
       );
     }
-
+  
 /**
  * @summary Удалить каталог через soft-delete
  */
@@ -2648,7 +2647,7 @@ const adminControllerDeleteCatalog = (
     },
       );
     }
-
+  
 /**
  * @summary Восстановить soft-deleted каталог
  */
@@ -2660,19 +2659,19 @@ const adminControllerRestoreCatalog = (
     },
       );
     }
-
+  
 /**
  * @summary Получить список типов каталогов для админки
  */
 const adminControllerGetTypes = (
-
+    
  ) => {
       return mutator<AdminTypeListItemDto[]>(
       {url: `/admin/types`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Получить список родов деятельности для админки
  */
@@ -2685,7 +2684,7 @@ const adminControllerGetActivities = (
     },
       );
     }
-
+  
 /**
  * @summary Создать род деятельности
  */
@@ -2699,19 +2698,19 @@ const adminControllerCreateActivity = (
     },
       );
     }
-
+  
 /**
  * @summary Получить список промокодов для админки
  */
 const adminControllerGetPromoCodes = (
-
+    
  ) => {
       return mutator<AdminPromoCodeListItemDto[]>(
       {url: `/admin/promo-codes`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Создать промокод
  */
@@ -2725,7 +2724,7 @@ const adminControllerCreatePromoCode = (
     },
       );
     }
-
+  
 /**
  * @summary Получить список оплат каталога
  */
@@ -2737,7 +2736,7 @@ const adminControllerGetCatalogPayments = (
     },
       );
     }
-
+  
 /**
  * @summary Получить список оплат промокода
  */
@@ -2749,7 +2748,7 @@ const adminControllerGetPromoCodePayments = (
     },
       );
     }
-
+  
 /**
  * @summary Создать оплату промокода для каталога
  */
@@ -2775,7 +2774,7 @@ formData.append(`proof`, adminControllerCreateCatalogPromoPaymentBody.proof);
     },
       );
     }
-
+  
 /**
  * @summary Создать оплату подписки для каталога
  */
@@ -2800,7 +2799,7 @@ formData.append(`proof`, adminControllerCreateCatalogSubscriptionPaymentBody.pro
     },
       );
     }
-
+  
 /**
  * Перекидывает на страницу каталога в SSO
  * @summary Переброс на SSO
@@ -2815,7 +2814,7 @@ const adminSsoControllerEnter = (
     },
       );
     }
-
+  
 /**
  * @summary Получить presigned URL для загрузки
  */
@@ -2829,7 +2828,7 @@ const s3ControllerPresignUpload = (
     },
       );
     }
-
+  
 /**
  * @summary Получить presigned POST для загрузки с лимитом размера
  */
@@ -2843,7 +2842,7 @@ const s3ControllerPresignPostUpload = (
     },
       );
     }
-
+  
 /**
  * @summary Начать multipart загрузку
  */
@@ -2857,7 +2856,7 @@ const s3ControllerStartMultipart = (
     },
       );
     }
-
+  
 /**
  * @summary Получить URL для загрузки части
  */
@@ -2871,7 +2870,7 @@ const s3ControllerPresignMultipartPart = (
     },
       );
     }
-
+  
 /**
  * @summary Завершить multipart загрузку и поставить обработку в очередь
  */
@@ -2885,7 +2884,7 @@ const s3ControllerCompleteMultipart = (
     },
       );
     }
-
+  
 /**
  * @summary Отменить multipart загрузку
  */
@@ -2899,7 +2898,7 @@ const s3ControllerAbortMultipart = (
     },
       );
     }
-
+  
 /**
  * Поддерживаются оба формата тела запроса: key или items.
  * @summary Поставить в очередь обработку загруженных файлов
@@ -2914,7 +2913,7 @@ const s3ControllerEnqueueFromS3 = (
     },
       );
     }
-
+  
 /**
  * @summary Статус загрузки изображений
  */
@@ -2926,7 +2925,7 @@ const s3ControllerGetQueueStatus = (
     },
       );
     }
-
+  
 /**
  * @summary Стрим статуса загрузки (SSE)
  */
@@ -2938,7 +2937,7 @@ const s3ControllerStreamQueue = (
     },
       );
     }
-
+  
 /**
  * @summary List attributes by type
  */
@@ -2950,7 +2949,7 @@ const attributeControllerGetByType = (
     },
       );
     }
-
+  
 /**
  * @summary Get attribute by id
  */
@@ -2962,7 +2961,7 @@ const attributeControllerGetById = (
     },
       );
     }
-
+  
 /**
  * @summary Update attribute
  */
@@ -2977,7 +2976,7 @@ const attributeControllerUpdate = (
     },
       );
     }
-
+  
 /**
  * @summary Delete attribute
  */
@@ -2989,7 +2988,7 @@ const attributeControllerRemove = (
     },
       );
     }
-
+  
 /**
  * @summary Create attribute
  */
@@ -3003,7 +3002,7 @@ const attributeControllerCreate = (
     },
       );
     }
-
+  
 /**
  * @summary List enum values
  */
@@ -3015,7 +3014,7 @@ const attributeControllerGetEnumValues = (
     },
       );
     }
-
+  
 /**
  * @summary Create enum value
  */
@@ -3030,7 +3029,7 @@ const attributeControllerCreateEnumValue = (
     },
       );
     }
-
+  
 /**
  * @summary Update enum value
  */
@@ -3046,7 +3045,7 @@ const attributeControllerUpdateEnumValue = (
     },
       );
     }
-
+  
 /**
  * @summary Delete enum value
  */
@@ -3059,19 +3058,19 @@ const attributeControllerRemoveEnumValue = (
     },
       );
     }
-
+  
 /**
  * @summary List brands
  */
 const brandControllerGetAll = (
-
+    
  ) => {
       return mutator<BrandDto[]>(
       {url: `/brand`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Create brand
  */
@@ -3085,7 +3084,7 @@ const brandControllerCreate = (
     },
       );
     }
-
+  
 /**
  * @summary Get brand by id
  */
@@ -3097,7 +3096,7 @@ const brandControllerGetById = (
     },
       );
     }
-
+  
 /**
  * @summary Update brand
  */
@@ -3112,7 +3111,7 @@ const brandControllerUpdate = (
     },
       );
     }
-
+  
 /**
  * @summary Delete brand
  */
@@ -3124,7 +3123,7 @@ const brandControllerRemove = (
     },
       );
     }
-
+  
 /**
  * @summary Регистрация пользователя
  */
@@ -3138,19 +3137,19 @@ const userControllerRegister = (
     },
       );
     }
-
+  
 /**
  * @summary Get current catalog
  */
 const catalogControllerGetCurrent = (
-
+    
  ) => {
       return mutator<CatalogCurrentDto>(
       {url: `/catalog/current`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Update current catalog
  */
@@ -3164,43 +3163,43 @@ const catalogControllerUpdateCurrent = (
     },
       );
     }
-
+  
 /**
  * @summary Get current catalog shell
  */
 const catalogControllerGetCurrentShell = (
-
+    
  ) => {
       return mutator<CatalogCurrentShellDto>(
       {url: `/catalog/current/shell`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Get current catalog type schema
  */
 const catalogControllerGetCurrentTypeSchema = (
-
+    
  ) => {
       return mutator<CatalogTypeDto>(
       {url: `/catalog/current/type-schema`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary List catalogs
  */
 const catalogControllerGetAll = (
-
+    
  ) => {
       return mutator<CatalogDto[]>(
       {url: `/catalog`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Create catalog
  */
@@ -3214,7 +3213,7 @@ const catalogControllerCreate = (
     },
       );
     }
-
+  
 /**
  * @summary Get catalog by id
  */
@@ -3226,7 +3225,7 @@ const catalogControllerGetById = (
     },
       );
     }
-
+  
 /**
  * @summary Update catalog by id
  */
@@ -3241,19 +3240,19 @@ const catalogControllerUpdateById = (
     },
       );
     }
-
+  
 /**
  * @summary List current catalog domains
  */
 const catalogDomainControllerList = (
-
+    
  ) => {
       return mutator<CatalogDomainDto[]>(
       {url: `/catalog/current/domains`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Attach domain to current catalog
  */
@@ -3267,7 +3266,7 @@ const catalogDomainControllerCreate = (
     },
       );
     }
-
+  
 /**
  * @summary Check DNS and activate current catalog domain
  */
@@ -3279,7 +3278,7 @@ const catalogDomainControllerCheck = (
     },
       );
     }
-
+  
 /**
  * @summary Disable current catalog domain
  */
@@ -3291,19 +3290,19 @@ const catalogDomainControllerDisable = (
     },
       );
     }
-
+  
 /**
  * @summary List categories
  */
 const categoryControllerGetAll = (
-
+    
  ) => {
       return mutator<CategoryDto[]>(
       {url: `/category`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Create category
  */
@@ -3317,7 +3316,7 @@ const categoryControllerCreate = (
     },
       );
     }
-
+  
 /**
  * @summary Get category by id
  */
@@ -3329,7 +3328,7 @@ const categoryControllerGetById = (
     },
       );
     }
-
+  
 /**
  * @summary Update category
  */
@@ -3344,7 +3343,7 @@ const categoryControllerUpdate = (
     },
       );
     }
-
+  
 /**
  * @summary Delete category
  */
@@ -3356,7 +3355,7 @@ const categoryControllerRemove = (
     },
       );
     }
-
+  
 /**
  * Для media.variants внутри product.media возвращается только variant с назначением card.
  * @summary List category products (infinite)
@@ -3371,7 +3370,7 @@ const categoryControllerGetProductsByCategory = (
     },
       );
     }
-
+  
 /**
  * Возвращает карточки товаров категории с productAttributes, но без variants.
  * @summary List category product cards (infinite)
@@ -3386,7 +3385,7 @@ const categoryControllerGetProductCardsByCategory = (
     },
       );
     }
-
+  
 /**
  * Принимает итоговый порядок категорий и атомарно пересобирает позиции без цепочки относительных перемещений.
  * @summary Сохранить порядок категорий
@@ -3401,7 +3400,7 @@ const categoryControllerUpdatePositions = (
     },
       );
     }
-
+  
 /**
  * Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.
  * @summary Изменить позицию категории
@@ -3417,20 +3416,20 @@ const categoryControllerUpdatePosition = (
     },
       );
     }
-
+  
 /**
  * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 const productControllerGetAll = (
-
+    
  ) => {
       return mutator<ProductWithAttributesDto[]>(
       {url: `/product`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории). При необходимости можно сразу передать variants.
  * @summary Создать товар
@@ -3445,7 +3444,7 @@ const productControllerCreate = (
     },
       );
     }
-
+  
 /**
  * Возвращает карточки товаров с productAttributes, но без variants. Поддерживает те же фильтры, что и /product/infinite.
  * @summary Лёгкий card-feed товаров (бесконечный скролл)
@@ -3459,7 +3458,7 @@ const productControllerGetInfiniteCards = (
     },
       );
     }
-
+  
 /**
  * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
  * @summary Список товаров с фильтрами (бесконечный скролл)
@@ -3473,7 +3472,7 @@ const productControllerGetInfinite = (
     },
       );
     }
-
+  
 /**
  * Возвращает карточки рекомендаций с productAttributes, но без variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
  * @summary Лёгкий card-feed рекомендаций
@@ -3487,7 +3486,7 @@ const productControllerGetRecommendationsInfiniteCards = (
     },
       );
     }
-
+  
 /**
  * Временная реализация: возвращает товары, которые не попадают в текущий фильтр. Поддерживает те же query-параметры и deterministic seed, что и /product/infinite.
  * @summary Список рекомендаций под фильтром (бесконечный скролл)
@@ -3501,20 +3500,20 @@ const productControllerGetRecommendationsInfinite = (
     },
       );
     }
-
+  
 /**
  * Возвращает популярные товары с productAttributes, но без variants.
  * @summary Лёгкий список популярных товаров
  */
 const productControllerGetPopularCards = (
-
+    
  ) => {
       return mutator<ProductWithAttributesDto[]>(
       {url: `/product/cards/popular`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * Возвращает карточки товаров без активной категории с productAttributes, но без variants.
  * @summary Лёгкий список товаров без категории
@@ -3528,7 +3527,7 @@ const productControllerGetUncategorizedInfiniteCards = (
     },
       );
     }
-
+  
 /**
  * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров без категории (бесконечный скролл)
@@ -3542,20 +3541,20 @@ const productControllerGetUncategorizedInfinite = (
     },
       );
     }
-
+  
 /**
  * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 const productControllerGetPopular = (
-
+    
  ) => {
       return mutator<ProductWithAttributesDto[]>(
       {url: `/product/popular`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по slug
@@ -3568,7 +3567,7 @@ const productControllerGetBySlug = (
     },
       );
     }
-
+  
 /**
  * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
  * @summary Получить товар по id
@@ -3581,7 +3580,7 @@ const productControllerGetById = (
     },
       );
     }
-
+  
 /**
  * Для замены привязок товара передайте массив categories. Для изменения позиции товара внутри одной категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Обновить товар
@@ -3597,7 +3596,7 @@ const productControllerUpdate = (
     },
       );
     }
-
+  
 /**
  * @summary Удалить товар
  */
@@ -3609,7 +3608,7 @@ const productControllerRemove = (
     },
       );
     }
-
+  
 /**
  * Создает копию товара со всеми медиа, атрибутами, вариантами и категориями. Новый товар создается со status=HIDDEN.
  * @summary Дублировать товар
@@ -3622,7 +3621,7 @@ const productControllerDuplicate = (
     },
       );
     }
-
+  
 /**
  * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
  * @summary Изменить позицию товара в категории
@@ -3638,7 +3637,7 @@ const productControllerUpdateCategoryPosition = (
     },
       );
     }
-
+  
 /**
  * Переключает статус товара между ACTIVE и HIDDEN. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Переключить статус товара
@@ -3651,7 +3650,7 @@ const productControllerToggleStatus = (
     },
       );
     }
-
+  
 /**
  * Переключает флаг isPopular у товара. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Переключить популярность товара
@@ -3664,7 +3663,7 @@ const productControllerTogglePopular = (
     },
       );
     }
-
+  
 /**
  * В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Создать/заменить вариации товара
@@ -3680,19 +3679,19 @@ const productControllerSetVariants = (
     },
       );
     }
-
+  
 /**
  * @summary Получить настройки интеграции MoySklad
  */
 const integrationControllerGetMoySklad = (
-
+    
  ) => {
       return mutator<MoySkladIntegrationDto>(
       {url: `/integration/moysklad`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Создать или заменить настройки MoySklad
  */
@@ -3706,7 +3705,7 @@ const integrationControllerUpsertMoySklad = (
     },
       );
     }
-
+  
 /**
  * @summary Обновить настройки MoySklad
  */
@@ -3720,31 +3719,31 @@ const integrationControllerUpdateMoySklad = (
     },
       );
     }
-
+  
 /**
  * @summary Удалить настройки MoySklad
  */
 const integrationControllerRemoveMoySklad = (
-
+    
  ) => {
       return mutator<OkResponseDto>(
       {url: `/integration/moysklad`, method: 'DELETE'
     },
       );
     }
-
+  
 /**
  * @summary Получить статус интеграции MoySklad
  */
 const integrationControllerGetMoySkladStatus = (
-
+    
  ) => {
       return mutator<MoySkladIntegrationStatusDto>(
       {url: `/integration/moysklad/status`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Получить историю sync MoySklad
  */
@@ -3757,7 +3756,7 @@ const integrationControllerGetMoySkladRuns = (
     },
       );
     }
-
+  
 /**
  * @summary Проверить подключение к MoySklad
  */
@@ -3771,31 +3770,31 @@ const integrationControllerTestMoySkladConnection = (
     },
       );
     }
-
+  
 /**
  * @summary Поставить полный sync MoySklad в очередь
  */
 const integrationControllerSyncMoySkladCatalog = (
-
+    
  ) => {
       return mutator<MoySkladQueuedSyncDto>(
       {url: `/integration/moysklad/sync`, method: 'POST'
     },
       );
     }
-
+  
 /**
  * @summary Отменить текущий sync MoySklad
  */
 const integrationControllerCancelMoySkladSync = (
-
+    
  ) => {
       return mutator<OkResponseDto>(
       {url: `/integration/moysklad/sync`, method: 'DELETE'
     },
       );
     }
-
+  
 /**
  * @summary Поставить sync одного товара MoySklad в очередь
  */
@@ -3807,31 +3806,31 @@ const integrationControllerSyncMoySkladProduct = (
     },
       );
     }
-
+  
 /**
  * @summary Create or return the current cart by cookie token
  */
 const cartControllerCreateOrGetCurrent = (
-
+    
  ) => {
       return mutator<CartResponseDto>(
       {url: `/cart/current`, method: 'POST'
     },
       );
     }
-
+  
 /**
  * @summary Get the current cart by cookie token
  */
 const cartControllerGetCurrent = (
-
+    
  ) => {
       return mutator<CartResponseDto>(
       {url: `/cart/current`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Issue a public key for the current cart
  */
@@ -3845,7 +3844,7 @@ const cartControllerShareCurrent = (
     },
       );
     }
-
+  
 /**
  * @summary Upsert an item in the current cart
  */
@@ -3859,7 +3858,7 @@ const cartControllerUpsertCurrentItem = (
     },
       );
     }
-
+  
 /**
  * @summary Remove an item from the current cart
  */
@@ -3871,19 +3870,19 @@ const cartControllerRemoveCurrentItem = (
     },
       );
     }
-
+  
 /**
  * @summary SSE stream for the current cart
  */
 const cartControllerSseCurrent = (
-
+    
  ) => {
       return mutator<string>(
       {url: `/cart/current/sse`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Issue a checkoutKey for a public cart
  */
@@ -3895,7 +3894,7 @@ const cartControllerCreateCheckoutKey = (
     },
       );
     }
-
+  
 /**
  * @summary Get a public cart by checkoutKey
  */
@@ -3909,7 +3908,7 @@ const cartControllerGetPublicCart = (
     },
       );
     }
-
+  
 /**
  * @summary Mark a cart as being processed by a manager
  */
@@ -3921,7 +3920,7 @@ const cartControllerStartManagerSession = (
     },
       );
     }
-
+  
 /**
  * @summary Refresh manager presence for a cart
  */
@@ -3933,7 +3932,7 @@ const cartControllerHeartbeatManagerSession = (
     },
       );
     }
-
+  
 /**
  * @summary Move a cart to PAUSED after manager processing
  */
@@ -3945,7 +3944,7 @@ const cartControllerReleaseManagerSession = (
     },
       );
     }
-
+  
 /**
  * @summary Convert a shared cart to a completed order
  */
@@ -3957,7 +3956,7 @@ const cartControllerCompleteManagerOrder = (
     },
       );
     }
-
+  
 /**
  * @summary Upsert an item in a public cart
  */
@@ -3972,7 +3971,7 @@ const cartControllerUpsertPublicItem = (
     },
       );
     }
-
+  
 /**
  * @summary Remove an item from a public cart
  */
@@ -3987,7 +3986,7 @@ const cartControllerRemovePublicItem = (
     },
       );
     }
-
+  
 /**
  * @summary SSE stream for a public cart
  */
@@ -4001,19 +4000,19 @@ const cartControllerSsePublic = (
     },
       );
     }
-
+  
 /**
  * @summary List seo settings
  */
 const seoControllerGetAll = (
-
+    
  ) => {
       return mutator<SeoDto[]>(
       {url: `/seo`, method: 'GET'
     },
       );
     }
-
+  
 /**
  * @summary Create seo setting
  */
@@ -4027,7 +4026,7 @@ const seoControllerCreate = (
     },
       );
     }
-
+  
 /**
  * @summary Get seo setting by entity
  */
@@ -4040,7 +4039,7 @@ const seoControllerGetByEntity = (
     },
       );
     }
-
+  
 /**
  * @summary Get seo setting by id
  */
@@ -4052,7 +4051,7 @@ const seoControllerGetById = (
     },
       );
     }
-
+  
 /**
  * @summary Update seo setting
  */
@@ -4067,7 +4066,7 @@ const seoControllerUpdate = (
     },
       );
     }
-
+  
 /**
  * @summary Delete seo setting
  */
@@ -4079,7 +4078,7 @@ const seoControllerRemove = (
     },
       );
     }
-
+  
 return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
