@@ -3,6 +3,7 @@ import {
   resolveServerForwardedHost,
 } from "@/shared/api/server/get-current-catalog";
 import { getCurrentSessionServer } from "@/shared/api/server/get-current-session";
+import { YandexMetrika } from "@/shared/analytics/yandex-metrika";
 import {
   buildCatalogMetadata,
   getCatalogHtmlLang,
@@ -55,6 +56,9 @@ export default async function RootLayout({
   const initialSession = await getCurrentSessionServer(data.id);
   const structuredData = getCatalogStructuredData(data);
   const htmlLang = getCatalogHtmlLang(data);
+  const yandexMetrikaCounterIds = data.metrics
+    .filter((metric) => metric.provider === "YANDEX")
+    .map((metric) => metric.counterId);
 
   return (
     <html lang={htmlLang}>
@@ -72,6 +76,7 @@ export default async function RootLayout({
         </AppProvider>
         <ConfirmationProvider />
         <Toaster />
+        <YandexMetrika counterIds={yandexMetrikaCounterIds} />
       </body>
     </html>
   );

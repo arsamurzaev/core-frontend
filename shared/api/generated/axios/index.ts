@@ -760,6 +760,28 @@ export interface CatalogSettingsDto {
   yandexVerification: string | null;
 }
 
+export type CatalogMetricDtoProvider = typeof CatalogMetricDtoProvider[keyof typeof CatalogMetricDtoProvider];
+
+
+export const CatalogMetricDtoProvider = {
+  YANDEX: 'YANDEX',
+} as const;
+
+export type CatalogMetricDtoScope = typeof CatalogMetricDtoScope[keyof typeof CatalogMetricDtoScope];
+
+
+export const CatalogMetricDtoScope = {
+  GLOBAL: 'GLOBAL',
+  MAIN: 'MAIN',
+  CATALOG: 'CATALOG',
+} as const;
+
+export interface CatalogMetricDto {
+  provider: CatalogMetricDtoProvider;
+  scope: CatalogMetricDtoScope;
+  counterId: string;
+}
+
 export type CatalogContactDtoType = typeof CatalogContactDtoType[keyof typeof CatalogContactDtoType];
 
 
@@ -898,6 +920,7 @@ export interface CatalogCurrentDto {
   subscriptionEndsAt?: string | null;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
+  metrics: CatalogMetricDto[];
   contacts: CatalogContactDto[];
   seo: SeoDto | null;
   type: CatalogTypeDto;
@@ -922,6 +945,7 @@ export interface CatalogCurrentShellDto {
   subscriptionEndsAt?: string | null;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
+  metrics: CatalogMetricDto[];
   contacts: CatalogContactDto[];
   seo: SeoDto | null;
 }
@@ -1011,6 +1035,7 @@ export interface CatalogDto {
   subscriptionEndsAt?: string | null;
   config: CatalogConfigDto | null;
   settings: CatalogSettingsDto | null;
+  metrics: CatalogMetricDto[];
 }
 
 export interface CreateCatalogDtoReq {

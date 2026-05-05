@@ -1366,6 +1366,11 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
 }).nullable(),
+  "metrics": zod.array(zod.object({
+  "provider": zod.enum(['YANDEX']),
+  "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
+  "counterId": zod.string()
+})),
   "contacts": zod.array(zod.object({
   "id": zod.string(),
   "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
@@ -1598,6 +1603,11 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
 }).nullable(),
+  "metrics": zod.array(zod.object({
+  "provider": zod.enum(['YANDEX']),
+  "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
+  "counterId": zod.string()
+})),
   "contacts": zod.array(zod.object({
   "id": zod.string(),
   "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
@@ -1775,6 +1785,11 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
 }).nullable(),
+  "metrics": zod.array(zod.object({
+  "provider": zod.enum(['YANDEX']),
+  "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
+  "counterId": zod.string()
+})),
   "contacts": zod.array(zod.object({
   "id": zod.string(),
   "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
@@ -1985,7 +2000,12 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
-}).nullable()
+}).nullable(),
+  "metrics": zod.array(zod.object({
+  "provider": zod.enum(['YANDEX']),
+  "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
+  "counterId": zod.string()
+}))
 })
 export const CatalogControllerGetAllResponse = zod.array(CatalogControllerGetAllResponseItem)
 
@@ -2078,7 +2098,12 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
-}).nullable()
+}).nullable(),
+  "metrics": zod.array(zod.object({
+  "provider": zod.enum(['YANDEX']),
+  "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
+  "counterId": zod.string()
+}))
 })
 
 
@@ -2182,7 +2207,12 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "googleVerification": zod.string().nullable(),
   "yandexVerification": zod.string().nullable()
-}).nullable()
+}).nullable(),
+  "metrics": zod.array(zod.object({
+  "provider": zod.enum(['YANDEX']),
+  "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
+  "counterId": zod.string()
+}))
 })
 
 
