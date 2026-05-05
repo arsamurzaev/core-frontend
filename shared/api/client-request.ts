@@ -5,6 +5,10 @@ function normalizeBaseUrl(url: string): string {
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
+function isAbsoluteUrl(url: string): boolean {
+  return /^[a-z][a-z\d+\-.]*:\/\//i.test(url);
+}
+
 export const API_BASE_URL = normalizeBaseUrl(
   typeof window === "undefined"
     ? (process.env.API_BASE_URL ?? "http://localhost:4000")
@@ -13,6 +17,7 @@ export const API_BASE_URL = normalizeBaseUrl(
 export const FORWARDED_HOST_HEADER = "x-forwarded-host";
 
 const CSRF_COOKIE_NAME = "csrf";
+const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
 const CSRF_HEADER_NAME = "X-CSRF-Token";
 
 export type ApiHeaders = Record<string, string>;
@@ -73,19 +78,18 @@ function expireCookie(name: string): void {
 
 export function clearCatalogSession(): void {
   if (typeof window === "undefined") return;
-  const catalogId = getStoredCatalogId();
-  if (catalogId) {
-    expireCookie(`catalog_csrf_${catalogId}`);
-  }
   expireCookie(CSRF_COOKIE_NAME);
+  expireCookie(ADMIN_CSRF_COOKIE_NAME);
+  const hostStorageKey = getCatalogIdStorageKeyForCurrentHost();
+  if (hostStorageKey) {
+    localStorage.removeItem(hostStorageKey);
+  }
   localStorage.removeItem(CATALOG_ID_STORAGE_KEY);
 }
 
 function findCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
-  const catalogId = getStoredCatalogId();
-  if (catalogId) return getCookie(`catalog_csrf_${catalogId}`);
-  return getCookie(CSRF_COOKIE_NAME);
+  return getCookie(CSRF_COOKIE_NAME) ?? getCookie(ADMIN_CSRF_COOKIE_NAME);
 }
 
 export function withCsrf(headers: ApiHeaders = {}): ApiHeaders {
@@ -138,20 +142,44 @@ export function buildUrl(
   url: string,
   params?: Record<string, unknown>,
 ): string {
-  if (!params || Object.keys(params).length === 0) {
-    return url;
-  }
+  const target = new URL(url, "http://catalog.local");
 
-  const target = new URL(url, API_BASE_URL);
-  for (const [key, value] of Object.entries(params)) {
-    if (value === undefined || value === null) {
-      continue;
+  if (params && Object.keys(params).length > 0) {
+    for (const [key, value] of Object.entries(params)) {
+      if (value === undefined || value === null) {
+        continue;
+      }
+
+      target.searchParams.set(key, String(value));
     }
-
-    target.searchParams.set(key, String(value));
   }
 
-  return target.toString();
+  if (isAbsoluteUrl(url)) {
+    return target.toString();
+  }
+
+  return `${target.pathname}${target.search}`;
+}
+
+export function buildAbsoluteApiUrl(
+  url: string,
+  params?: Record<string, unknown>,
+): string {
+  if (isAbsoluteUrl(url)) {
+    return buildUrl(url, params);
+  }
+
+  const path = buildUrl(url, params);
+
+  if (isAbsoluteUrl(API_BASE_URL)) {
+    return `${API_BASE_URL}${path}`;
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}${API_BASE_URL}${path}`;
+  }
+
+  return `${API_BASE_URL}${path}`;
 }
 
 export function normalizeResponseData<T>(response: AxiosResponse<T>): T {

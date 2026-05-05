@@ -1054,6 +1054,75 @@ export interface CatalogCreateResponseDto {
   domain: string | null;
 }
 
+export type CatalogDomainDtoStatus = typeof CatalogDomainDtoStatus[keyof typeof CatalogDomainDtoStatus];
+
+
+export const CatalogDomainDtoStatus = {
+  PENDING_DNS: 'PENDING_DNS',
+  DNS_VERIFIED: 'DNS_VERIFIED',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface CatalogDomainDnsRecordDto {
+  type: string;
+  name: string;
+  value: string;
+  required: boolean;
+  description?: string;
+}
+
+export interface CatalogDomainVerificationDto {
+  txtRecord: CatalogDomainDnsRecordDto;
+  routingRecords: CatalogDomainDnsRecordDto[];
+  /** @nullable */
+  wwwRecord?: CatalogDomainDnsRecordDto | null;
+  expectedHosts: string[];
+  instructions: string[];
+  recheckAfterSeconds: number;
+}
+
+export interface CatalogDomainDto {
+  id: string;
+  catalogId: string;
+  hostname: string;
+  status: CatalogDomainDtoStatus;
+  isPrimary: boolean;
+  redirectToPrimary: boolean;
+  includeWww: boolean;
+  verificationToken: string;
+  verification: CatalogDomainVerificationDto;
+  nextCheckAfterSeconds: number;
+  nextCheckAt: string;
+  message: string;
+  /** @nullable */
+  lastCheckedAt?: string | null;
+  /** @nullable */
+  lastError?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateCatalogDomainDtoReq {
+  hostname: string;
+  /** Also allow www.<domain> for TLS and DNS checks */
+  includeWww?: boolean;
+  isPrimary?: boolean;
+  redirectToPrimary?: boolean;
+}
+
+export interface CatalogDomainCheckDto {
+  ok: boolean;
+  status: string;
+  /** @nullable */
+  error?: string | null;
+  verification: CatalogDomainVerificationDto;
+  nextCheckAfterSeconds: number;
+  nextCheckAt: string;
+  message: string;
+}
+
 export interface CategoryDto {
   id: string;
   catalogId: string;
@@ -2364,17 +2433,17 @@ checkoutKey: string;
  * @summary Получить все типы
  */
 export const typeControllerGetAll = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<TypeDto[]>(
       {url: `/type/get-all`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -2384,7 +2453,7 @@ export const getTypeControllerGetAllQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getTypeControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof typeControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof typeControllerGetAll>>, TError, TData>>, }
 ) => {
 
@@ -2392,13 +2461,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getTypeControllerGetAllQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof typeControllerGetAll>>> = ({ signal }) => typeControllerGetAll(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof typeControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -2437,7 +2506,7 @@ export function useTypeControllerGetAll<TData = Awaited<ReturnType<typeof typeCo
 
 export function useTypeControllerGetAll<TData = Awaited<ReturnType<typeof typeControllerGetAll>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof typeControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getTypeControllerGetAllQueryOptions(options)
@@ -2459,8 +2528,8 @@ export const typeControllerCreate = (
     createTypeDtoReq: CreateTypeDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<TypeDto>(
       {url: `/type`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -2468,7 +2537,7 @@ export const typeControllerCreate = (
     },
       );
     }
-  
+
 
 
 export const getTypeControllerCreateMutationOptions = <TError = unknown,
@@ -2482,7 +2551,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof typeControllerCreate>>, {data: CreateTypeDtoReq}> = (props) => {
@@ -2493,7 +2562,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -2515,7 +2584,7 @@ export const useTypeControllerCreate = <TError = unknown,
       > => {
       return useMutation(getTypeControllerCreateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Удаление
  * @summary Удаление типа
@@ -2524,14 +2593,14 @@ export const typeControllerDelete = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/type/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getTypeControllerDeleteMutationOptions = <TError = unknown,
@@ -2545,7 +2614,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof typeControllerDelete>>, {id: string}> = (props) => {
@@ -2556,13 +2625,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type TypeControllerDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof typeControllerDelete>>>
-    
+
     export type TypeControllerDeleteMutationError = unknown
 
     /**
@@ -2578,7 +2647,7 @@ export const useTypeControllerDelete = <TError = unknown,
       > => {
       return useMutation(getTypeControllerDeleteMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Login
  */
@@ -2586,8 +2655,8 @@ export const authControllerLogin = (
     loginDtoReq: LoginDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AuthLoginResponseDto>(
       {url: `/auth/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -2595,7 +2664,7 @@ export const authControllerLogin = (
     },
       );
     }
-  
+
 
 
 export const getAuthControllerLoginMutationOptions = <TError = void,
@@ -2609,7 +2678,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerLogin>>, {data: LoginDtoReq}> = (props) => {
@@ -2620,7 +2689,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -2642,22 +2711,22 @@ export const useAuthControllerLogin = <TError = void,
       > => {
       return useMutation(getAuthControllerLoginMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get current user
  */
 export const authControllerMe = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AuthLoginResponseDto>(
       {url: `/auth/me`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -2667,7 +2736,7 @@ export const getAuthControllerMeQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getAuthControllerMeQueryOptions = <TData = Awaited<ReturnType<typeof authControllerMe>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerMe>>, TError, TData>>, }
 ) => {
 
@@ -2675,13 +2744,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAuthControllerMeQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof authControllerMe>>> = ({ signal }) => authControllerMe(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof authControllerMe>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -2720,7 +2789,7 @@ export function useAuthControllerMe<TData = Awaited<ReturnType<typeof authContro
 
 export function useAuthControllerMe<TData = Awaited<ReturnType<typeof authControllerMe>>, TError = void>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof authControllerMe>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAuthControllerMeQueryOptions(options)
@@ -2741,8 +2810,8 @@ export const authControllerChangePassword = (
     changePasswordDtoReq: ChangePasswordDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/auth/change-password`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -2750,7 +2819,7 @@ export const authControllerChangePassword = (
     },
       );
     }
-  
+
 
 
 export const getAuthControllerChangePasswordMutationOptions = <TError = void,
@@ -2764,7 +2833,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerChangePassword>>, {data: ChangePasswordDtoReq}> = (props) => {
@@ -2775,7 +2844,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -2797,22 +2866,22 @@ export const useAuthControllerChangePassword = <TError = void,
       > => {
       return useMutation(getAuthControllerChangePasswordMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Logout
  */
 export const authControllerLogout = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/auth/logout`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getAuthControllerLogoutMutationOptions = <TError = void,
@@ -2826,24 +2895,24 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authControllerLogout>>, void> = () => {
-          
+
 
           return  authControllerLogout()
         }
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type AuthControllerLogoutMutationResult = NonNullable<Awaited<ReturnType<typeof authControllerLogout>>>
-    
+
     export type AuthControllerLogoutMutationError = void
 
     /**
@@ -2859,7 +2928,7 @@ export const useAuthControllerLogout = <TError = void,
       > => {
       return useMutation(getAuthControllerLogoutMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Catalog login
  */
@@ -2867,8 +2936,8 @@ export const catalogAuthControllerLogin = (
     loginDtoReq: LoginDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AuthCatalogLoginResponseDto>(
       {url: `/catalog/auth/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -2876,7 +2945,7 @@ export const catalogAuthControllerLogin = (
     },
       );
     }
-  
+
 
 
 export const getCatalogAuthControllerLoginMutationOptions = <TError = void,
@@ -2890,7 +2959,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAuthControllerLogin>>, {data: LoginDtoReq}> = (props) => {
@@ -2901,7 +2970,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -2923,7 +2992,7 @@ export const useCatalogAuthControllerLogin = <TError = void,
       > => {
       return useMutation(getCatalogAuthControllerLoginMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Change current catalog user password
  */
@@ -2931,8 +3000,8 @@ export const catalogAuthControllerChangePassword = (
     changePasswordDtoReq: ChangePasswordDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/catalog/auth/change-password`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -2940,7 +3009,7 @@ export const catalogAuthControllerChangePassword = (
     },
       );
     }
-  
+
 
 
 export const getCatalogAuthControllerChangePasswordMutationOptions = <TError = void,
@@ -2954,7 +3023,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAuthControllerChangePassword>>, {data: ChangePasswordDtoReq}> = (props) => {
@@ -2965,7 +3034,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -2987,22 +3056,22 @@ export const useCatalogAuthControllerChangePassword = <TError = void,
       > => {
       return useMutation(getCatalogAuthControllerChangePasswordMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary List current catalog user sessions
  */
 export const catalogAuthControllerSessionsList = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AuthSessionsResponseDto>(
       {url: `/catalog/auth/sessions`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -3012,7 +3081,7 @@ export const getCatalogAuthControllerSessionsListQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCatalogAuthControllerSessionsListQueryOptions = <TData = Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData>>, }
 ) => {
 
@@ -3020,13 +3089,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCatalogAuthControllerSessionsListQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>> = ({ signal }) => catalogAuthControllerSessionsList(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -3065,7 +3134,7 @@ export function useCatalogAuthControllerSessionsList<TData = Awaited<ReturnType<
 
 export function useCatalogAuthControllerSessionsList<TData = Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError = void>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAuthControllerSessionsList>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCatalogAuthControllerSessionsListQueryOptions(options)
@@ -3083,17 +3152,17 @@ export function useCatalogAuthControllerSessionsList<TData = Awaited<ReturnType<
  * @summary Revoke all other catalog user sessions
  */
 export const catalogAuthControllerRevokeOtherSessions = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/catalog/auth/sessions/revoke-others`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCatalogAuthControllerRevokeOtherSessionsMutationOptions = <TError = void,
@@ -3107,24 +3176,24 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>, void> = () => {
-          
+
 
           return  catalogAuthControllerRevokeOtherSessions()
         }
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CatalogAuthControllerRevokeOtherSessionsMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAuthControllerRevokeOtherSessions>>>
-    
+
     export type CatalogAuthControllerRevokeOtherSessionsMutationError = void
 
     /**
@@ -3140,7 +3209,7 @@ export const useCatalogAuthControllerRevokeOtherSessions = <TError = void,
       > => {
       return useMutation(getCatalogAuthControllerRevokeOtherSessionsMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Revoke one catalog user session
  */
@@ -3148,14 +3217,14 @@ export const catalogAuthControllerRevokeSession = (
     sid: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/catalog/auth/sessions/${sid}/revoke`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCatalogAuthControllerRevokeSessionMutationOptions = <TError = void,
@@ -3169,7 +3238,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>, {sid: string}> = (props) => {
@@ -3180,13 +3249,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CatalogAuthControllerRevokeSessionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAuthControllerRevokeSession>>>
-    
+
     export type CatalogAuthControllerRevokeSessionMutationError = void
 
     /**
@@ -3202,7 +3271,7 @@ export const useCatalogAuthControllerRevokeSession = <TError = void,
       > => {
       return useMutation(getCatalogAuthControllerRevokeSessionMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Exchange handoff token and redirect
  */
@@ -3210,15 +3279,15 @@ export const handoffControllerExchange = (
     params: HandoffControllerExchangeParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<unknown>(
       {url: `/auth/handoff`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -3228,7 +3297,7 @@ export const getHandoffControllerExchangeQueryKey = (params?: HandoffControllerE
     ] as const;
     }
 
-    
+
 export const getHandoffControllerExchangeQueryOptions = <TData = Awaited<ReturnType<typeof handoffControllerExchange>>, TError = void>(params: HandoffControllerExchangeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof handoffControllerExchange>>, TError, TData>>, }
 ) => {
 
@@ -3236,13 +3305,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getHandoffControllerExchangeQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof handoffControllerExchange>>> = ({ signal }) => handoffControllerExchange(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof handoffControllerExchange>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -3281,7 +3350,7 @@ export function useHandoffControllerExchange<TData = Awaited<ReturnType<typeof h
 
 export function useHandoffControllerExchange<TData = Awaited<ReturnType<typeof handoffControllerExchange>>, TError = void>(
  params: HandoffControllerExchangeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof handoffControllerExchange>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getHandoffControllerExchangeQueryOptions(params,options)
@@ -3302,15 +3371,15 @@ export const adminControllerGetCatalogs = (
     params?: AdminControllerGetCatalogsParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminCatalogListItemDto[]>(
       {url: `/admin/catalogs`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -3320,7 +3389,7 @@ export const getAdminControllerGetCatalogsQueryKey = (params?: AdminControllerGe
     ] as const;
     }
 
-    
+
 export const getAdminControllerGetCatalogsQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerGetCatalogs>>, TError = unknown>(params?: AdminControllerGetCatalogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetCatalogs>>, TError, TData>>, }
 ) => {
 
@@ -3328,13 +3397,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetCatalogsQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetCatalogs>>> = ({ signal }) => adminControllerGetCatalogs(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetCatalogs>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -3373,7 +3442,7 @@ export function useAdminControllerGetCatalogs<TData = Awaited<ReturnType<typeof 
 
 export function useAdminControllerGetCatalogs<TData = Awaited<ReturnType<typeof adminControllerGetCatalogs>>, TError = unknown>(
  params?: AdminControllerGetCatalogsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetCatalogs>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAdminControllerGetCatalogsQueryOptions(params,options)
@@ -3394,8 +3463,8 @@ export const adminControllerCreateCatalog = (
     adminCreateCatalogDtoReq: AdminCreateCatalogDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminCreateCatalogResponseDto>(
       {url: `/admin/catalogs`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -3403,7 +3472,7 @@ export const adminControllerCreateCatalog = (
     },
       );
     }
-  
+
 
 
 export const getAdminControllerCreateCatalogMutationOptions = <TError = unknown,
@@ -3417,7 +3486,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerCreateCatalog>>, {data: AdminCreateCatalogDtoReq}> = (props) => {
@@ -3428,7 +3497,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -3450,7 +3519,7 @@ export const useAdminControllerCreateCatalog = <TError = unknown,
       > => {
       return useMutation(getAdminControllerCreateCatalogMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Duplicate catalog with generated owner credentials
  */
@@ -3459,8 +3528,8 @@ export const adminControllerDuplicateCatalog = (
     adminDuplicateCatalogDtoReq: AdminDuplicateCatalogDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminCreateCatalogResponseDto>(
       {url: `/admin/catalogs/${id}/duplicate`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -3468,7 +3537,7 @@ export const adminControllerDuplicateCatalog = (
     },
       );
     }
-  
+
 
 
 export const getAdminControllerDuplicateCatalogMutationOptions = <TError = unknown,
@@ -3482,7 +3551,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerDuplicateCatalog>>, {id: string;data: AdminDuplicateCatalogDtoReq}> = (props) => {
@@ -3493,7 +3562,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -3515,7 +3584,7 @@ export const useAdminControllerDuplicateCatalog = <TError = unknown,
       > => {
       return useMutation(getAdminControllerDuplicateCatalogMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Редактировать каталог
  */
@@ -3524,8 +3593,8 @@ export const adminControllerUpdateCatalog = (
     adminUpdateCatalogDtoReq: AdminUpdateCatalogDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminCatalogListItemDto>(
       {url: `/admin/catalogs/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -3533,7 +3602,7 @@ export const adminControllerUpdateCatalog = (
     },
       );
     }
-  
+
 
 
 export const getAdminControllerUpdateCatalogMutationOptions = <TError = unknown,
@@ -3547,7 +3616,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerUpdateCatalog>>, {id: string;data: AdminUpdateCatalogDtoReq}> = (props) => {
@@ -3558,7 +3627,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -3580,7 +3649,7 @@ export const useAdminControllerUpdateCatalog = <TError = unknown,
       > => {
       return useMutation(getAdminControllerUpdateCatalogMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Удалить каталог через soft-delete
  */
@@ -3588,14 +3657,14 @@ export const adminControllerDeleteCatalog = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminCatalogListItemDto>(
       {url: `/admin/catalogs/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getAdminControllerDeleteCatalogMutationOptions = <TError = unknown,
@@ -3609,7 +3678,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerDeleteCatalog>>, {id: string}> = (props) => {
@@ -3620,13 +3689,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type AdminControllerDeleteCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof adminControllerDeleteCatalog>>>
-    
+
     export type AdminControllerDeleteCatalogMutationError = unknown
 
     /**
@@ -3642,7 +3711,7 @@ export const useAdminControllerDeleteCatalog = <TError = unknown,
       > => {
       return useMutation(getAdminControllerDeleteCatalogMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Восстановить soft-deleted каталог
  */
@@ -3650,14 +3719,14 @@ export const adminControllerRestoreCatalog = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminCatalogListItemDto>(
       {url: `/admin/catalogs/${id}/restore`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getAdminControllerRestoreCatalogMutationOptions = <TError = unknown,
@@ -3671,7 +3740,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerRestoreCatalog>>, {id: string}> = (props) => {
@@ -3682,13 +3751,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type AdminControllerRestoreCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof adminControllerRestoreCatalog>>>
-    
+
     export type AdminControllerRestoreCatalogMutationError = unknown
 
     /**
@@ -3704,22 +3773,22 @@ export const useAdminControllerRestoreCatalog = <TError = unknown,
       > => {
       return useMutation(getAdminControllerRestoreCatalogMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Получить список типов каталогов для админки
  */
 export const adminControllerGetTypes = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminTypeListItemDto[]>(
       {url: `/admin/types`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -3729,7 +3798,7 @@ export const getAdminControllerGetTypesQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getAdminControllerGetTypesQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerGetTypes>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetTypes>>, TError, TData>>, }
 ) => {
 
@@ -3737,13 +3806,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetTypesQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetTypes>>> = ({ signal }) => adminControllerGetTypes(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetTypes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -3782,7 +3851,7 @@ export function useAdminControllerGetTypes<TData = Awaited<ReturnType<typeof adm
 
 export function useAdminControllerGetTypes<TData = Awaited<ReturnType<typeof adminControllerGetTypes>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetTypes>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAdminControllerGetTypesQueryOptions(options)
@@ -3803,15 +3872,15 @@ export const adminControllerGetActivities = (
     params: AdminControllerGetActivitiesParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminActivityListItemDto[]>(
       {url: `/admin/activities`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -3821,7 +3890,7 @@ export const getAdminControllerGetActivitiesQueryKey = (params?: AdminController
     ] as const;
     }
 
-    
+
 export const getAdminControllerGetActivitiesQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerGetActivities>>, TError = unknown>(params: AdminControllerGetActivitiesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetActivities>>, TError, TData>>, }
 ) => {
 
@@ -3829,13 +3898,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetActivitiesQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetActivities>>> = ({ signal }) => adminControllerGetActivities(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetActivities>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -3874,7 +3943,7 @@ export function useAdminControllerGetActivities<TData = Awaited<ReturnType<typeo
 
 export function useAdminControllerGetActivities<TData = Awaited<ReturnType<typeof adminControllerGetActivities>>, TError = unknown>(
  params: AdminControllerGetActivitiesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetActivities>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAdminControllerGetActivitiesQueryOptions(params,options)
@@ -3895,8 +3964,8 @@ export const adminControllerCreateActivity = (
     adminCreateActivityDtoReq: AdminCreateActivityDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminActivityListItemDto>(
       {url: `/admin/activities`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -3904,7 +3973,7 @@ export const adminControllerCreateActivity = (
     },
       );
     }
-  
+
 
 
 export const getAdminControllerCreateActivityMutationOptions = <TError = unknown,
@@ -3918,7 +3987,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerCreateActivity>>, {data: AdminCreateActivityDtoReq}> = (props) => {
@@ -3929,7 +3998,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -3951,22 +4020,22 @@ export const useAdminControllerCreateActivity = <TError = unknown,
       > => {
       return useMutation(getAdminControllerCreateActivityMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Получить список промокодов для админки
  */
 export const adminControllerGetPromoCodes = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminPromoCodeListItemDto[]>(
       {url: `/admin/promo-codes`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -3976,7 +4045,7 @@ export const getAdminControllerGetPromoCodesQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getAdminControllerGetPromoCodesQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerGetPromoCodes>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetPromoCodes>>, TError, TData>>, }
 ) => {
 
@@ -3984,13 +4053,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetPromoCodesQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetPromoCodes>>> = ({ signal }) => adminControllerGetPromoCodes(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetPromoCodes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -4029,7 +4098,7 @@ export function useAdminControllerGetPromoCodes<TData = Awaited<ReturnType<typeo
 
 export function useAdminControllerGetPromoCodes<TData = Awaited<ReturnType<typeof adminControllerGetPromoCodes>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetPromoCodes>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAdminControllerGetPromoCodesQueryOptions(options)
@@ -4050,8 +4119,8 @@ export const adminControllerCreatePromoCode = (
     adminCreatePromoCodeDtoReq: AdminCreatePromoCodeDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminPromoCodeListItemDto>(
       {url: `/admin/promo-codes`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4059,7 +4128,7 @@ export const adminControllerCreatePromoCode = (
     },
       );
     }
-  
+
 
 
 export const getAdminControllerCreatePromoCodeMutationOptions = <TError = unknown,
@@ -4073,7 +4142,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerCreatePromoCode>>, {data: AdminCreatePromoCodeDtoReq}> = (props) => {
@@ -4084,7 +4153,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4106,7 +4175,7 @@ export const useAdminControllerCreatePromoCode = <TError = unknown,
       > => {
       return useMutation(getAdminControllerCreatePromoCodeMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Получить список оплат каталога
  */
@@ -4114,14 +4183,14 @@ export const adminControllerGetCatalogPayments = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminPaymentDto[]>(
       {url: `/admin/catalogs/${id}/payments`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -4131,7 +4200,7 @@ export const getAdminControllerGetCatalogPaymentsQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getAdminControllerGetCatalogPaymentsQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerGetCatalogPayments>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetCatalogPayments>>, TError, TData>>, }
 ) => {
 
@@ -4139,13 +4208,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetCatalogPaymentsQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetCatalogPayments>>> = ({ signal }) => adminControllerGetCatalogPayments(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetCatalogPayments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -4184,7 +4253,7 @@ export function useAdminControllerGetCatalogPayments<TData = Awaited<ReturnType<
 
 export function useAdminControllerGetCatalogPayments<TData = Awaited<ReturnType<typeof adminControllerGetCatalogPayments>>, TError = unknown>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetCatalogPayments>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAdminControllerGetCatalogPaymentsQueryOptions(id,options)
@@ -4205,14 +4274,14 @@ export const adminControllerGetPromoCodePayments = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AdminPaymentDto[]>(
       {url: `/admin/promo-codes/${id}/payments`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -4222,7 +4291,7 @@ export const getAdminControllerGetPromoCodePaymentsQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getAdminControllerGetPromoCodePaymentsQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerGetPromoCodePayments>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetPromoCodePayments>>, TError, TData>>, }
 ) => {
 
@@ -4230,13 +4299,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAdminControllerGetPromoCodePaymentsQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerGetPromoCodePayments>>> = ({ signal }) => adminControllerGetPromoCodePayments(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetPromoCodePayments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -4275,7 +4344,7 @@ export function useAdminControllerGetPromoCodePayments<TData = Awaited<ReturnTyp
 
 export function useAdminControllerGetPromoCodePayments<TData = Awaited<ReturnType<typeof adminControllerGetPromoCodePayments>>, TError = unknown>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerGetPromoCodePayments>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAdminControllerGetPromoCodePaymentsQueryOptions(id,options)
@@ -4297,7 +4366,7 @@ export const adminControllerCreateCatalogPromoPayment = (
     adminControllerCreateCatalogPromoPaymentBody: AdminControllerCreateCatalogPromoPaymentBody,
  signal?: AbortSignal
 ) => {
-      
+
       const formData = new FormData();
 formData.append(`promoCodeId`, adminControllerCreateCatalogPromoPaymentBody.promoCodeId);
 if(adminControllerCreateCatalogPromoPaymentBody.amount !== undefined) {
@@ -4317,7 +4386,7 @@ formData.append(`proof`, adminControllerCreateCatalogPromoPaymentBody.proof);
     },
       );
     }
-  
+
 
 
 export const getAdminControllerCreateCatalogPromoPaymentMutationOptions = <TError = unknown,
@@ -4331,7 +4400,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerCreateCatalogPromoPayment>>, {id: string;data: AdminControllerCreateCatalogPromoPaymentBody}> = (props) => {
@@ -4342,7 +4411,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4364,7 +4433,7 @@ export const useAdminControllerCreateCatalogPromoPayment = <TError = unknown,
       > => {
       return useMutation(getAdminControllerCreateCatalogPromoPaymentMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Создать оплату подписки для каталога
  */
@@ -4373,7 +4442,7 @@ export const adminControllerCreateCatalogSubscriptionPayment = (
     adminControllerCreateCatalogSubscriptionPaymentBody: AdminControllerCreateCatalogSubscriptionPaymentBody,
  signal?: AbortSignal
 ) => {
-      
+
       const formData = new FormData();
 if(adminControllerCreateCatalogSubscriptionPaymentBody.amount !== undefined) {
  formData.append(`amount`, adminControllerCreateCatalogSubscriptionPaymentBody.amount.toString())
@@ -4392,7 +4461,7 @@ formData.append(`proof`, adminControllerCreateCatalogSubscriptionPaymentBody.pro
     },
       );
     }
-  
+
 
 
 export const getAdminControllerCreateCatalogSubscriptionPaymentMutationOptions = <TError = unknown,
@@ -4406,7 +4475,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerCreateCatalogSubscriptionPayment>>, {id: string;data: AdminControllerCreateCatalogSubscriptionPaymentBody}> = (props) => {
@@ -4417,7 +4486,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4439,7 +4508,7 @@ export const useAdminControllerCreateCatalogSubscriptionPayment = <TError = unkn
       > => {
       return useMutation(getAdminControllerCreateCatalogSubscriptionPaymentMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Перекидывает на страницу каталога в SSO
  * @summary Переброс на SSO
@@ -4449,15 +4518,15 @@ export const adminSsoControllerEnter = (
     params?: AdminSsoControllerEnterParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<unknown>(
       {url: `/admin/sso/catalog/${catalogId}`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -4468,7 +4537,7 @@ export const getAdminSsoControllerEnterQueryKey = (catalogId: string,
     ] as const;
     }
 
-    
+
 export const getAdminSsoControllerEnterQueryOptions = <TData = Awaited<ReturnType<typeof adminSsoControllerEnter>>, TError = void>(catalogId: string,
     params?: AdminSsoControllerEnterParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminSsoControllerEnter>>, TError, TData>>, }
 ) => {
@@ -4477,13 +4546,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAdminSsoControllerEnterQueryKey(catalogId,params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof adminSsoControllerEnter>>> = ({ signal }) => adminSsoControllerEnter(catalogId,params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(catalogId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminSsoControllerEnter>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -4526,7 +4595,7 @@ export function useAdminSsoControllerEnter<TData = Awaited<ReturnType<typeof adm
 export function useAdminSsoControllerEnter<TData = Awaited<ReturnType<typeof adminSsoControllerEnter>>, TError = void>(
  catalogId: string,
     params?: AdminSsoControllerEnterParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminSsoControllerEnter>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAdminSsoControllerEnterQueryOptions(catalogId,params,options)
@@ -4547,8 +4616,8 @@ export const s3ControllerPresignUpload = (
     presignUploadDtoReq: PresignUploadDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<PresignUploadResponseDto>(
       {url: `/s3/images/presign`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4556,7 +4625,7 @@ export const s3ControllerPresignUpload = (
     },
       );
     }
-  
+
 
 
 export const getS3ControllerPresignUploadMutationOptions = <TError = void,
@@ -4570,7 +4639,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignUpload>>, {data: PresignUploadDtoReq}> = (props) => {
@@ -4581,7 +4650,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4603,7 +4672,7 @@ export const useS3ControllerPresignUpload = <TError = void,
       > => {
       return useMutation(getS3ControllerPresignUploadMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Получить presigned POST для загрузки с лимитом размера
  */
@@ -4611,8 +4680,8 @@ export const s3ControllerPresignPostUpload = (
     presignPostUploadDtoReq: PresignPostUploadDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<PresignPostUploadResponseDto>(
       {url: `/s3/images/presign-post`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4620,7 +4689,7 @@ export const s3ControllerPresignPostUpload = (
     },
       );
     }
-  
+
 
 
 export const getS3ControllerPresignPostUploadMutationOptions = <TError = void,
@@ -4634,7 +4703,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignPostUpload>>, {data: PresignPostUploadDtoReq}> = (props) => {
@@ -4645,7 +4714,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4667,7 +4736,7 @@ export const useS3ControllerPresignPostUpload = <TError = void,
       > => {
       return useMutation(getS3ControllerPresignPostUploadMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Начать multipart загрузку
  */
@@ -4675,8 +4744,8 @@ export const s3ControllerStartMultipart = (
     multipartStartDtoReq: MultipartStartDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MultipartStartResponseDto>(
       {url: `/s3/images/multipart/start`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4684,7 +4753,7 @@ export const s3ControllerStartMultipart = (
     },
       );
     }
-  
+
 
 
 export const getS3ControllerStartMultipartMutationOptions = <TError = void,
@@ -4698,7 +4767,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerStartMultipart>>, {data: MultipartStartDtoReq}> = (props) => {
@@ -4709,7 +4778,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4731,7 +4800,7 @@ export const useS3ControllerStartMultipart = <TError = void,
       > => {
       return useMutation(getS3ControllerStartMultipartMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Получить URL для загрузки части
  */
@@ -4739,8 +4808,8 @@ export const s3ControllerPresignMultipartPart = (
     multipartPartDtoReq: MultipartPartDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MultipartPartResponseDto>(
       {url: `/s3/images/multipart/part`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4748,7 +4817,7 @@ export const s3ControllerPresignMultipartPart = (
     },
       );
     }
-  
+
 
 
 export const getS3ControllerPresignMultipartPartMutationOptions = <TError = void,
@@ -4762,7 +4831,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerPresignMultipartPart>>, {data: MultipartPartDtoReq}> = (props) => {
@@ -4773,7 +4842,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4795,7 +4864,7 @@ export const useS3ControllerPresignMultipartPart = <TError = void,
       > => {
       return useMutation(getS3ControllerPresignMultipartPartMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Завершить multipart загрузку и поставить обработку в очередь
  */
@@ -4803,8 +4872,8 @@ export const s3ControllerCompleteMultipart = (
     multipartCompleteDtoReq: MultipartCompleteDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MultipartCompleteResponseDto>(
       {url: `/s3/images/multipart/complete`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4812,7 +4881,7 @@ export const s3ControllerCompleteMultipart = (
     },
       );
     }
-  
+
 
 
 export const getS3ControllerCompleteMultipartMutationOptions = <TError = void,
@@ -4826,7 +4895,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerCompleteMultipart>>, {data: MultipartCompleteDtoReq}> = (props) => {
@@ -4837,7 +4906,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4859,7 +4928,7 @@ export const useS3ControllerCompleteMultipart = <TError = void,
       > => {
       return useMutation(getS3ControllerCompleteMultipartMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Отменить multipart загрузку
  */
@@ -4867,8 +4936,8 @@ export const s3ControllerAbortMultipart = (
     multipartAbortDtoReq: MultipartAbortDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<void>(
       {url: `/s3/images/multipart/abort`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4876,7 +4945,7 @@ export const s3ControllerAbortMultipart = (
     },
       );
     }
-  
+
 
 
 export const getS3ControllerAbortMultipartMutationOptions = <TError = void,
@@ -4890,7 +4959,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerAbortMultipart>>, {data: MultipartAbortDtoReq}> = (props) => {
@@ -4901,7 +4970,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4923,7 +4992,7 @@ export const useS3ControllerAbortMultipart = <TError = void,
       > => {
       return useMutation(getS3ControllerAbortMultipartMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Поддерживаются оба формата тела запроса: key или items.
  * @summary Поставить в очередь обработку загруженных файлов
@@ -4932,8 +5001,8 @@ export const s3ControllerEnqueueFromS3 = (
     s3ControllerEnqueueFromS3Body: S3ControllerEnqueueFromS3Body,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<UploadQueueResponseDto>(
       {url: `/s3/images/queue/complete`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -4941,7 +5010,7 @@ export const s3ControllerEnqueueFromS3 = (
     },
       );
     }
-  
+
 
 
 export const getS3ControllerEnqueueFromS3MutationOptions = <TError = void,
@@ -4955,7 +5024,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof s3ControllerEnqueueFromS3>>, {data: S3ControllerEnqueueFromS3Body}> = (props) => {
@@ -4966,7 +5035,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -4988,7 +5057,7 @@ export const useS3ControllerEnqueueFromS3 = <TError = void,
       > => {
       return useMutation(getS3ControllerEnqueueFromS3MutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Статус загрузки изображений
  */
@@ -4996,14 +5065,14 @@ export const s3ControllerGetQueueStatus = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<UploadQueueStatusDto>(
       {url: `/s3/images/queue/${id}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -5013,7 +5082,7 @@ export const getS3ControllerGetQueueStatusQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getS3ControllerGetQueueStatusQueryOptions = <TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
 ) => {
 
@@ -5021,13 +5090,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getS3ControllerGetQueueStatusQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>> = ({ signal }) => s3ControllerGetQueueStatus(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -5066,7 +5135,7 @@ export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof 
 
 export function useS3ControllerGetQueueStatus<TData = Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError = void>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerGetQueueStatus>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getS3ControllerGetQueueStatusQueryOptions(id,options)
@@ -5087,14 +5156,14 @@ export const s3ControllerStreamQueue = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<UploadQueueStatusDto>(
       {url: `/s3/images/queue/${id}/stream`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -5104,7 +5173,7 @@ export const getS3ControllerStreamQueueQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getS3ControllerStreamQueueQueryOptions = <TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
 ) => {
 
@@ -5112,13 +5181,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getS3ControllerStreamQueueQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof s3ControllerStreamQueue>>> = ({ signal }) => s3ControllerStreamQueue(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -5157,7 +5226,7 @@ export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3C
 
 export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError = unknown>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof s3ControllerStreamQueue>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getS3ControllerStreamQueueQueryOptions(id,options)
@@ -5178,14 +5247,14 @@ export const attributeControllerGetByType = (
     typeId: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AttributeDto[]>(
       {url: `/attribute/type/${typeId}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -5195,7 +5264,7 @@ export const getAttributeControllerGetByTypeQueryKey = (typeId: string,) => {
     ] as const;
     }
 
-    
+
 export const getAttributeControllerGetByTypeQueryOptions = <TData = Awaited<ReturnType<typeof attributeControllerGetByType>>, TError = unknown>(typeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetByType>>, TError, TData>>, }
 ) => {
 
@@ -5203,13 +5272,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAttributeControllerGetByTypeQueryKey(typeId);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof attributeControllerGetByType>>> = ({ signal }) => attributeControllerGetByType(typeId, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(typeId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetByType>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -5248,7 +5317,7 @@ export function useAttributeControllerGetByType<TData = Awaited<ReturnType<typeo
 
 export function useAttributeControllerGetByType<TData = Awaited<ReturnType<typeof attributeControllerGetByType>>, TError = unknown>(
  typeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetByType>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAttributeControllerGetByTypeQueryOptions(typeId,options)
@@ -5269,14 +5338,14 @@ export const attributeControllerGetById = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AttributeDto>(
       {url: `/attribute/${id}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -5286,7 +5355,7 @@ export const getAttributeControllerGetByIdQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getAttributeControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof attributeControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetById>>, TError, TData>>, }
 ) => {
 
@@ -5294,13 +5363,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAttributeControllerGetByIdQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof attributeControllerGetById>>> = ({ signal }) => attributeControllerGetById(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -5339,7 +5408,7 @@ export function useAttributeControllerGetById<TData = Awaited<ReturnType<typeof 
 
 export function useAttributeControllerGetById<TData = Awaited<ReturnType<typeof attributeControllerGetById>>, TError = unknown>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAttributeControllerGetByIdQueryOptions(id,options)
@@ -5361,8 +5430,8 @@ export const attributeControllerUpdate = (
     updateAttributeDtoReq: UpdateAttributeDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AttributeDto>(
       {url: `/attribute/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -5370,7 +5439,7 @@ export const attributeControllerUpdate = (
     },
       );
     }
-  
+
 
 
 export const getAttributeControllerUpdateMutationOptions = <TError = unknown,
@@ -5384,7 +5453,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof attributeControllerUpdate>>, {id: string;data: UpdateAttributeDtoReq}> = (props) => {
@@ -5395,7 +5464,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -5417,7 +5486,7 @@ export const useAttributeControllerUpdate = <TError = unknown,
       > => {
       return useMutation(getAttributeControllerUpdateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Delete attribute
  */
@@ -5425,14 +5494,14 @@ export const attributeControllerRemove = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/attribute/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getAttributeControllerRemoveMutationOptions = <TError = unknown,
@@ -5446,7 +5515,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof attributeControllerRemove>>, {id: string}> = (props) => {
@@ -5457,13 +5526,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type AttributeControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof attributeControllerRemove>>>
-    
+
     export type AttributeControllerRemoveMutationError = unknown
 
     /**
@@ -5479,7 +5548,7 @@ export const useAttributeControllerRemove = <TError = unknown,
       > => {
       return useMutation(getAttributeControllerRemoveMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Create attribute
  */
@@ -5487,8 +5556,8 @@ export const attributeControllerCreate = (
     createAttributeDtoReq: CreateAttributeDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AttributeDto>(
       {url: `/attribute`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -5496,7 +5565,7 @@ export const attributeControllerCreate = (
     },
       );
     }
-  
+
 
 
 export const getAttributeControllerCreateMutationOptions = <TError = unknown,
@@ -5510,7 +5579,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof attributeControllerCreate>>, {data: CreateAttributeDtoReq}> = (props) => {
@@ -5521,7 +5590,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -5543,7 +5612,7 @@ export const useAttributeControllerCreate = <TError = unknown,
       > => {
       return useMutation(getAttributeControllerCreateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary List enum values
  */
@@ -5551,14 +5620,14 @@ export const attributeControllerGetEnumValues = (
     attributeId: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AttributeEnumValueDto[]>(
       {url: `/attribute/${attributeId}/enum`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -5568,7 +5637,7 @@ export const getAttributeControllerGetEnumValuesQueryKey = (attributeId: string,
     ] as const;
     }
 
-    
+
 export const getAttributeControllerGetEnumValuesQueryOptions = <TData = Awaited<ReturnType<typeof attributeControllerGetEnumValues>>, TError = unknown>(attributeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetEnumValues>>, TError, TData>>, }
 ) => {
 
@@ -5576,13 +5645,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getAttributeControllerGetEnumValuesQueryKey(attributeId);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof attributeControllerGetEnumValues>>> = ({ signal }) => attributeControllerGetEnumValues(attributeId, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(attributeId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetEnumValues>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -5621,7 +5690,7 @@ export function useAttributeControllerGetEnumValues<TData = Awaited<ReturnType<t
 
 export function useAttributeControllerGetEnumValues<TData = Awaited<ReturnType<typeof attributeControllerGetEnumValues>>, TError = unknown>(
  attributeId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof attributeControllerGetEnumValues>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getAttributeControllerGetEnumValuesQueryOptions(attributeId,options)
@@ -5643,8 +5712,8 @@ export const attributeControllerCreateEnumValue = (
     createAttributeEnumDtoReq: CreateAttributeEnumDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AttributeEnumValueDto>(
       {url: `/attribute/${attributeId}/enum`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -5652,7 +5721,7 @@ export const attributeControllerCreateEnumValue = (
     },
       );
     }
-  
+
 
 
 export const getAttributeControllerCreateEnumValueMutationOptions = <TError = unknown,
@@ -5666,7 +5735,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof attributeControllerCreateEnumValue>>, {attributeId: string;data: CreateAttributeEnumDtoReq}> = (props) => {
@@ -5677,7 +5746,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -5699,7 +5768,7 @@ export const useAttributeControllerCreateEnumValue = <TError = unknown,
       > => {
       return useMutation(getAttributeControllerCreateEnumValueMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Update enum value
  */
@@ -5709,8 +5778,8 @@ export const attributeControllerUpdateEnumValue = (
     updateAttributeEnumDtoReq: UpdateAttributeEnumDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<AttributeEnumValueDto>(
       {url: `/attribute/${attributeId}/enum/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -5718,7 +5787,7 @@ export const attributeControllerUpdateEnumValue = (
     },
       );
     }
-  
+
 
 
 export const getAttributeControllerUpdateEnumValueMutationOptions = <TError = unknown,
@@ -5732,7 +5801,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof attributeControllerUpdateEnumValue>>, {attributeId: string;id: string;data: UpdateAttributeEnumDtoReq}> = (props) => {
@@ -5743,7 +5812,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -5765,7 +5834,7 @@ export const useAttributeControllerUpdateEnumValue = <TError = unknown,
       > => {
       return useMutation(getAttributeControllerUpdateEnumValueMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Delete enum value
  */
@@ -5774,14 +5843,14 @@ export const attributeControllerRemoveEnumValue = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/attribute/${attributeId}/enum/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getAttributeControllerRemoveEnumValueMutationOptions = <TError = unknown,
@@ -5795,7 +5864,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof attributeControllerRemoveEnumValue>>, {attributeId: string;id: string}> = (props) => {
@@ -5806,13 +5875,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type AttributeControllerRemoveEnumValueMutationResult = NonNullable<Awaited<ReturnType<typeof attributeControllerRemoveEnumValue>>>
-    
+
     export type AttributeControllerRemoveEnumValueMutationError = unknown
 
     /**
@@ -5828,22 +5897,22 @@ export const useAttributeControllerRemoveEnumValue = <TError = unknown,
       > => {
       return useMutation(getAttributeControllerRemoveEnumValueMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary List brands
  */
 export const brandControllerGetAll = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<BrandDto[]>(
       {url: `/brand`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -5853,7 +5922,7 @@ export const getBrandControllerGetAllQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getBrandControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof brandControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData>>, }
 ) => {
 
@@ -5861,13 +5930,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getBrandControllerGetAllQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof brandControllerGetAll>>> = ({ signal }) => brandControllerGetAll(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -5906,7 +5975,7 @@ export function useBrandControllerGetAll<TData = Awaited<ReturnType<typeof brand
 
 export function useBrandControllerGetAll<TData = Awaited<ReturnType<typeof brandControllerGetAll>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getBrandControllerGetAllQueryOptions(options)
@@ -5927,8 +5996,8 @@ export const brandControllerCreate = (
     createBrandDtoReq: CreateBrandDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<BrandDto>(
       {url: `/brand`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -5936,7 +6005,7 @@ export const brandControllerCreate = (
     },
       );
     }
-  
+
 
 
 export const getBrandControllerCreateMutationOptions = <TError = void,
@@ -5950,7 +6019,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof brandControllerCreate>>, {data: CreateBrandDtoReq}> = (props) => {
@@ -5961,7 +6030,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -5983,7 +6052,7 @@ export const useBrandControllerCreate = <TError = void,
       > => {
       return useMutation(getBrandControllerCreateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get brand by id
  */
@@ -5991,14 +6060,14 @@ export const brandControllerGetById = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<BrandDto>(
       {url: `/brand/${id}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -6008,7 +6077,7 @@ export const getBrandControllerGetByIdQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getBrandControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof brandControllerGetById>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData>>, }
 ) => {
 
@@ -6016,13 +6085,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getBrandControllerGetByIdQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof brandControllerGetById>>> = ({ signal }) => brandControllerGetById(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -6061,7 +6130,7 @@ export function useBrandControllerGetById<TData = Awaited<ReturnType<typeof bran
 
 export function useBrandControllerGetById<TData = Awaited<ReturnType<typeof brandControllerGetById>>, TError = void>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof brandControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getBrandControllerGetByIdQueryOptions(id,options)
@@ -6083,8 +6152,8 @@ export const brandControllerUpdate = (
     updateBrandDtoReq: UpdateBrandDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<BrandDto>(
       {url: `/brand/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -6092,7 +6161,7 @@ export const brandControllerUpdate = (
     },
       );
     }
-  
+
 
 
 export const getBrandControllerUpdateMutationOptions = <TError = void,
@@ -6106,7 +6175,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof brandControllerUpdate>>, {id: string;data: UpdateBrandDtoReq}> = (props) => {
@@ -6117,7 +6186,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -6139,7 +6208,7 @@ export const useBrandControllerUpdate = <TError = void,
       > => {
       return useMutation(getBrandControllerUpdateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Delete brand
  */
@@ -6147,14 +6216,14 @@ export const brandControllerRemove = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/brand/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getBrandControllerRemoveMutationOptions = <TError = void,
@@ -6168,7 +6237,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof brandControllerRemove>>, {id: string}> = (props) => {
@@ -6179,13 +6248,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type BrandControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof brandControllerRemove>>>
-    
+
     export type BrandControllerRemoveMutationError = void
 
     /**
@@ -6201,7 +6270,7 @@ export const useBrandControllerRemove = <TError = void,
       > => {
       return useMutation(getBrandControllerRemoveMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Регистрация пользователя
  */
@@ -6209,8 +6278,8 @@ export const userControllerRegister = (
     createUserDtoReq: CreateUserDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/user/register`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -6218,7 +6287,7 @@ export const userControllerRegister = (
     },
       );
     }
-  
+
 
 
 export const getUserControllerRegisterMutationOptions = <TError = unknown,
@@ -6232,7 +6301,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof userControllerRegister>>, {data: CreateUserDtoReq}> = (props) => {
@@ -6243,7 +6312,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -6265,22 +6334,22 @@ export const useUserControllerRegister = <TError = unknown,
       > => {
       return useMutation(getUserControllerRegisterMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get current catalog
  */
 export const catalogControllerGetCurrent = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogCurrentDto>(
       {url: `/catalog/current`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -6290,7 +6359,7 @@ export const getCatalogControllerGetCurrentQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCatalogControllerGetCurrentQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetCurrent>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrent>>, TError, TData>>, }
 ) => {
 
@@ -6298,13 +6367,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetCurrentQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetCurrent>>> = ({ signal }) => catalogControllerGetCurrent(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrent>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -6343,7 +6412,7 @@ export function useCatalogControllerGetCurrent<TData = Awaited<ReturnType<typeof
 
 export function useCatalogControllerGetCurrent<TData = Awaited<ReturnType<typeof catalogControllerGetCurrent>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrent>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCatalogControllerGetCurrentQueryOptions(options)
@@ -6364,8 +6433,8 @@ export const catalogControllerUpdateCurrent = (
     updateCatalogDtoReq: UpdateCatalogDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogCurrentShellDto>(
       {url: `/catalog/current`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -6373,7 +6442,7 @@ export const catalogControllerUpdateCurrent = (
     },
       );
     }
-  
+
 
 
 export const getCatalogControllerUpdateCurrentMutationOptions = <TError = unknown,
@@ -6387,7 +6456,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogControllerUpdateCurrent>>, {data: UpdateCatalogDtoReq}> = (props) => {
@@ -6398,7 +6467,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -6420,22 +6489,22 @@ export const useCatalogControllerUpdateCurrent = <TError = unknown,
       > => {
       return useMutation(getCatalogControllerUpdateCurrentMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get current catalog shell
  */
 export const catalogControllerGetCurrentShell = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogCurrentShellDto>(
       {url: `/catalog/current/shell`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -6445,7 +6514,7 @@ export const getCatalogControllerGetCurrentShellQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCatalogControllerGetCurrentShellQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData>>, }
 ) => {
 
@@ -6453,13 +6522,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetCurrentShellQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>> = ({ signal }) => catalogControllerGetCurrentShell(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -6498,7 +6567,7 @@ export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<t
 
 export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentShell>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCatalogControllerGetCurrentShellQueryOptions(options)
@@ -6516,17 +6585,17 @@ export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<t
  * @summary Get current catalog type schema
  */
 export const catalogControllerGetCurrentTypeSchema = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogTypeDto>(
       {url: `/catalog/current/type-schema`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -6536,7 +6605,7 @@ export const getCatalogControllerGetCurrentTypeSchemaQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCatalogControllerGetCurrentTypeSchemaQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData>>, }
 ) => {
 
@@ -6544,13 +6613,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetCurrentTypeSchemaQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>> = ({ signal }) => catalogControllerGetCurrentTypeSchema(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -6589,7 +6658,7 @@ export function useCatalogControllerGetCurrentTypeSchema<TData = Awaited<ReturnT
 
 export function useCatalogControllerGetCurrentTypeSchema<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentTypeSchema>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCatalogControllerGetCurrentTypeSchemaQueryOptions(options)
@@ -6607,17 +6676,17 @@ export function useCatalogControllerGetCurrentTypeSchema<TData = Awaited<ReturnT
  * @summary List catalogs
  */
 export const catalogControllerGetAll = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogDto[]>(
       {url: `/catalog`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -6627,7 +6696,7 @@ export const getCatalogControllerGetAllQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCatalogControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetAll>>, TError, TData>>, }
 ) => {
 
@@ -6635,13 +6704,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetAllQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetAll>>> = ({ signal }) => catalogControllerGetAll(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -6680,7 +6749,7 @@ export function useCatalogControllerGetAll<TData = Awaited<ReturnType<typeof cat
 
 export function useCatalogControllerGetAll<TData = Awaited<ReturnType<typeof catalogControllerGetAll>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCatalogControllerGetAllQueryOptions(options)
@@ -6701,8 +6770,8 @@ export const catalogControllerCreate = (
     createCatalogDtoReq: CreateCatalogDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogCreateResponseDto>(
       {url: `/catalog`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -6710,7 +6779,7 @@ export const catalogControllerCreate = (
     },
       );
     }
-  
+
 
 
 export const getCatalogControllerCreateMutationOptions = <TError = unknown,
@@ -6724,7 +6793,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogControllerCreate>>, {data: CreateCatalogDtoReq}> = (props) => {
@@ -6735,7 +6804,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -6757,7 +6826,7 @@ export const useCatalogControllerCreate = <TError = unknown,
       > => {
       return useMutation(getCatalogControllerCreateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get catalog by id
  */
@@ -6765,14 +6834,14 @@ export const catalogControllerGetById = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogDto>(
       {url: `/catalog/${id}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -6782,7 +6851,7 @@ export const getCatalogControllerGetByIdQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getCatalogControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetById>>, TError, TData>>, }
 ) => {
 
@@ -6790,13 +6859,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetByIdQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetById>>> = ({ signal }) => catalogControllerGetById(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -6835,7 +6904,7 @@ export function useCatalogControllerGetById<TData = Awaited<ReturnType<typeof ca
 
 export function useCatalogControllerGetById<TData = Awaited<ReturnType<typeof catalogControllerGetById>>, TError = unknown>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCatalogControllerGetByIdQueryOptions(id,options)
@@ -6857,8 +6926,8 @@ export const catalogControllerUpdateById = (
     updateCatalogDtoReq: UpdateCatalogDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CatalogDto>(
       {url: `/catalog/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -6866,7 +6935,7 @@ export const catalogControllerUpdateById = (
     },
       );
     }
-  
+
 
 
 export const getCatalogControllerUpdateByIdMutationOptions = <TError = unknown,
@@ -6880,7 +6949,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogControllerUpdateById>>, {id: string;data: UpdateCatalogDtoReq}> = (props) => {
@@ -6891,7 +6960,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -6913,22 +6982,301 @@ export const useCatalogControllerUpdateById = <TError = unknown,
       > => {
       return useMutation(getCatalogControllerUpdateByIdMutationOptions(options), queryClient);
     }
-    
+
+/**
+ * @summary List current catalog domains
+ */
+export const catalogDomainControllerList = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogDomainDto[]>(
+      {url: `/catalog/current/domains`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogDomainControllerListQueryKey = () => {
+    return [
+    `/catalog/current/domains`
+    ] as const;
+    }
+
+
+export const getCatalogDomainControllerListQueryOptions = <TData = Awaited<ReturnType<typeof catalogDomainControllerList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogDomainControllerList>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogDomainControllerListQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogDomainControllerList>>> = ({ signal }) => catalogDomainControllerList(signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogDomainControllerList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogDomainControllerListQueryResult = NonNullable<Awaited<ReturnType<typeof catalogDomainControllerList>>>
+export type CatalogDomainControllerListQueryError = unknown
+
+
+export function useCatalogDomainControllerList<TData = Awaited<ReturnType<typeof catalogDomainControllerList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogDomainControllerList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogDomainControllerList>>,
+          TError,
+          Awaited<ReturnType<typeof catalogDomainControllerList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogDomainControllerList<TData = Awaited<ReturnType<typeof catalogDomainControllerList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogDomainControllerList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogDomainControllerList>>,
+          TError,
+          Awaited<ReturnType<typeof catalogDomainControllerList>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogDomainControllerList<TData = Awaited<ReturnType<typeof catalogDomainControllerList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogDomainControllerList>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List current catalog domains
+ */
+
+export function useCatalogDomainControllerList<TData = Awaited<ReturnType<typeof catalogDomainControllerList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogDomainControllerList>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogDomainControllerListQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Attach domain to current catalog
+ */
+export const catalogDomainControllerCreate = (
+    createCatalogDomainDtoReq: CreateCatalogDomainDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogDomainDto>(
+      {url: `/catalog/current/domains`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogDomainDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogDomainControllerCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerCreate>>, TError,{data: CreateCatalogDomainDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerCreate>>, TError,{data: CreateCatalogDomainDtoReq}, TContext> => {
+
+const mutationKey = ['catalogDomainControllerCreate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogDomainControllerCreate>>, {data: CreateCatalogDomainDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogDomainControllerCreate(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogDomainControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof catalogDomainControllerCreate>>>
+    export type CatalogDomainControllerCreateMutationBody = CreateCatalogDomainDtoReq
+    export type CatalogDomainControllerCreateMutationError = unknown
+
+    /**
+ * @summary Attach domain to current catalog
+ */
+export const useCatalogDomainControllerCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerCreate>>, TError,{data: CreateCatalogDomainDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogDomainControllerCreate>>,
+        TError,
+        {data: CreateCatalogDomainDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogDomainControllerCreateMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Check DNS and activate current catalog domain
+ */
+export const catalogDomainControllerCheck = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogDomainCheckDto>(
+      {url: `/catalog/current/domains/${id}/check`, method: 'POST', signal
+    },
+      );
+    }
+
+
+
+export const getCatalogDomainControllerCheckMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerCheck>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerCheck>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogDomainControllerCheck'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogDomainControllerCheck>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogDomainControllerCheck(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogDomainControllerCheckMutationResult = NonNullable<Awaited<ReturnType<typeof catalogDomainControllerCheck>>>
+
+    export type CatalogDomainControllerCheckMutationError = unknown
+
+    /**
+ * @summary Check DNS and activate current catalog domain
+ */
+export const useCatalogDomainControllerCheck = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerCheck>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogDomainControllerCheck>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogDomainControllerCheckMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Disable current catalog domain
+ */
+export const catalogDomainControllerDisable = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogDomainDto>(
+      {url: `/catalog/current/domains/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+export const getCatalogDomainControllerDisableMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerDisable>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerDisable>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogDomainControllerDisable'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogDomainControllerDisable>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogDomainControllerDisable(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogDomainControllerDisableMutationResult = NonNullable<Awaited<ReturnType<typeof catalogDomainControllerDisable>>>
+
+    export type CatalogDomainControllerDisableMutationError = unknown
+
+    /**
+ * @summary Disable current catalog domain
+ */
+export const useCatalogDomainControllerDisable = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogDomainControllerDisable>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogDomainControllerDisable>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogDomainControllerDisableMutationOptions(options), queryClient);
+    }
+
 /**
  * @summary List categories
  */
 export const categoryControllerGetAll = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryDto[]>(
       {url: `/category`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -6938,7 +7286,7 @@ export const getCategoryControllerGetAllQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCategoryControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
 ) => {
 
@@ -6946,13 +7294,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCategoryControllerGetAllQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof categoryControllerGetAll>>> = ({ signal }) => categoryControllerGetAll(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -6991,7 +7339,7 @@ export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof ca
 
 export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCategoryControllerGetAllQueryOptions(options)
@@ -7012,8 +7360,8 @@ export const categoryControllerCreate = (
     createCategoryDtoReq: CreateCategoryDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryDto>(
       {url: `/category`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -7021,7 +7369,7 @@ export const categoryControllerCreate = (
     },
       );
     }
-  
+
 
 
 export const getCategoryControllerCreateMutationOptions = <TError = void,
@@ -7035,7 +7383,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerCreate>>, {data: CreateCategoryDtoReq}> = (props) => {
@@ -7046,7 +7394,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -7068,7 +7416,7 @@ export const useCategoryControllerCreate = <TError = void,
       > => {
       return useMutation(getCategoryControllerCreateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get category by id
  */
@@ -7076,14 +7424,14 @@ export const categoryControllerGetById = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryWithRelationsDto>(
       {url: `/category/${id}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -7093,7 +7441,7 @@ export const getCategoryControllerGetByIdQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getCategoryControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof categoryControllerGetById>>, TError = void>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetById>>, TError, TData>>, }
 ) => {
 
@@ -7101,13 +7449,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCategoryControllerGetByIdQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof categoryControllerGetById>>> = ({ signal }) => categoryControllerGetById(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -7146,7 +7494,7 @@ export function useCategoryControllerGetById<TData = Awaited<ReturnType<typeof c
 
 export function useCategoryControllerGetById<TData = Awaited<ReturnType<typeof categoryControllerGetById>>, TError = void>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCategoryControllerGetByIdQueryOptions(id,options)
@@ -7168,8 +7516,8 @@ export const categoryControllerUpdate = (
     updateCategoryDtoReq: UpdateCategoryDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryWithRelationsDto>(
       {url: `/category/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -7177,7 +7525,7 @@ export const categoryControllerUpdate = (
     },
       );
     }
-  
+
 
 
 export const getCategoryControllerUpdateMutationOptions = <TError = void,
@@ -7191,7 +7539,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerUpdate>>, {id: string;data: UpdateCategoryDtoReq}> = (props) => {
@@ -7202,7 +7550,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -7224,7 +7572,7 @@ export const useCategoryControllerUpdate = <TError = void,
       > => {
       return useMutation(getCategoryControllerUpdateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Delete category
  */
@@ -7232,14 +7580,14 @@ export const categoryControllerRemove = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/category/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getCategoryControllerRemoveMutationOptions = <TError = void,
@@ -7253,7 +7601,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerRemove>>, {id: string}> = (props) => {
@@ -7264,13 +7612,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CategoryControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof categoryControllerRemove>>>
-    
+
     export type CategoryControllerRemoveMutationError = void
 
     /**
@@ -7286,7 +7634,7 @@ export const useCategoryControllerRemove = <TError = void,
       > => {
       return useMutation(getCategoryControllerRemoveMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Для media.variants внутри product.media возвращается только variant с назначением card.
  * @summary List category products (infinite)
@@ -7296,15 +7644,15 @@ export const categoryControllerGetProductsByCategory = (
     params?: CategoryControllerGetProductsByCategoryParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryProductsPageDto>(
       {url: `/category/${id}/products/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -7315,7 +7663,7 @@ export const getCategoryControllerGetProductsByCategoryQueryKey = (id: string,
     ] as const;
     }
 
-    
+
 export const getCategoryControllerGetProductsByCategoryQueryOptions = <TData = Awaited<ReturnType<typeof categoryControllerGetProductsByCategory>>, TError = void>(id: string,
     params?: CategoryControllerGetProductsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductsByCategory>>, TError, TData>>, }
 ) => {
@@ -7324,13 +7672,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCategoryControllerGetProductsByCategoryQueryKey(id,params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof categoryControllerGetProductsByCategory>>> = ({ signal }) => categoryControllerGetProductsByCategory(id,params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductsByCategory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -7373,7 +7721,7 @@ export function useCategoryControllerGetProductsByCategory<TData = Awaited<Retur
 export function useCategoryControllerGetProductsByCategory<TData = Awaited<ReturnType<typeof categoryControllerGetProductsByCategory>>, TError = void>(
  id: string,
     params?: CategoryControllerGetProductsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductsByCategory>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCategoryControllerGetProductsByCategoryQueryOptions(id,params,options)
@@ -7396,15 +7744,15 @@ export const categoryControllerGetProductCardsByCategory = (
     params?: CategoryControllerGetProductCardsByCategoryParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryProductsCardPageDto>(
       {url: `/category/${id}/products/cards/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -7415,7 +7763,7 @@ export const getCategoryControllerGetProductCardsByCategoryQueryKey = (id: strin
     ] as const;
     }
 
-    
+
 export const getCategoryControllerGetProductCardsByCategoryQueryOptions = <TData = Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError = void>(id: string,
     params?: CategoryControllerGetProductCardsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData>>, }
 ) => {
@@ -7424,13 +7772,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCategoryControllerGetProductCardsByCategoryQueryKey(id,params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>> = ({ signal }) => categoryControllerGetProductCardsByCategory(id,params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -7473,7 +7821,7 @@ export function useCategoryControllerGetProductCardsByCategory<TData = Awaited<R
 export function useCategoryControllerGetProductCardsByCategory<TData = Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError = void>(
  id: string,
     params?: CategoryControllerGetProductCardsByCategoryParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetProductCardsByCategory>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCategoryControllerGetProductCardsByCategoryQueryOptions(id,params,options)
@@ -7495,8 +7843,8 @@ export const categoryControllerUpdatePositions = (
     updateCategoryPositionsDtoReq: UpdateCategoryPositionsDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryDto[]>(
       {url: `/category/positions`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -7504,7 +7852,7 @@ export const categoryControllerUpdatePositions = (
     },
       );
     }
-  
+
 
 
 export const getCategoryControllerUpdatePositionsMutationOptions = <TError = void,
@@ -7518,7 +7866,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerUpdatePositions>>, {data: UpdateCategoryPositionsDtoReq}> = (props) => {
@@ -7529,7 +7877,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -7551,7 +7899,7 @@ export const useCategoryControllerUpdatePositions = <TError = void,
       > => {
       return useMutation(getCategoryControllerUpdatePositionsMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.
  * @summary Изменить позицию категории
@@ -7561,8 +7909,8 @@ export const categoryControllerUpdatePosition = (
     updateCategoryPositionDtoReq: UpdateCategoryPositionDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CategoryWithRelationsDto>(
       {url: `/category/${id}/position`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -7570,7 +7918,7 @@ export const categoryControllerUpdatePosition = (
     },
       );
     }
-  
+
 
 
 export const getCategoryControllerUpdatePositionMutationOptions = <TError = void,
@@ -7584,7 +7932,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerUpdatePosition>>, {id: string;data: UpdateCategoryPositionDtoReq}> = (props) => {
@@ -7595,7 +7943,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -7617,23 +7965,23 @@ export const useCategoryControllerUpdatePosition = <TError = void,
       > => {
       return useMutation(getCategoryControllerUpdatePositionMutationOptions(options), queryClient);
     }
-    
+
 /**
  * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 export const productControllerGetAll = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductWithAttributesDto[]>(
       {url: `/product`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -7643,7 +7991,7 @@ export const getProductControllerGetAllQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getProductControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
 ) => {
 
@@ -7651,13 +7999,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetAllQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetAll>>> = ({ signal }) => productControllerGetAll(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -7696,7 +8044,7 @@ export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof pro
 
 export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetAllQueryOptions(options)
@@ -7718,8 +8066,8 @@ export const productControllerCreate = (
     createProductDtoReq: CreateProductDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductCreateResponseDto>(
       {url: `/product`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -7727,7 +8075,7 @@ export const productControllerCreate = (
     },
       );
     }
-  
+
 
 
 export const getProductControllerCreateMutationOptions = <TError = unknown,
@@ -7741,7 +8089,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerCreate>>, {data: CreateProductDtoReq}> = (props) => {
@@ -7752,7 +8100,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -7774,7 +8122,7 @@ export const useProductControllerCreate = <TError = unknown,
       > => {
       return useMutation(getProductControllerCreateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Возвращает карточки товаров с productAttributes, но без variants. Поддерживает те же фильтры, что и /product/infinite.
  * @summary Лёгкий card-feed товаров (бесконечный скролл)
@@ -7783,15 +8131,15 @@ export const productControllerGetInfiniteCards = (
     params?: ProductControllerGetInfiniteCardsParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductCardPageDto>(
       {url: `/product/cards/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -7801,7 +8149,7 @@ export const getProductControllerGetInfiniteCardsQueryKey = (params?: ProductCon
     ] as const;
     }
 
-    
+
 export const getProductControllerGetInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
 ) => {
 
@@ -7809,13 +8157,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteCardsQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>> = ({ signal }) => productControllerGetInfiniteCards(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -7854,7 +8202,7 @@ export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<
 
 export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
  params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetInfiniteCardsQueryOptions(params,options)
@@ -7876,15 +8224,15 @@ export const productControllerGetInfinite = (
     params?: ProductControllerGetInfiniteParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductInfinitePageDto>(
       {url: `/product/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -7894,7 +8242,7 @@ export const getProductControllerGetInfiniteQueryKey = (params?: ProductControll
     ] as const;
     }
 
-    
+
 export const getProductControllerGetInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
 ) => {
 
@@ -7902,13 +8250,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfinite>>> = ({ signal }) => productControllerGetInfinite(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -7947,7 +8295,7 @@ export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeo
 
 export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
  params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetInfiniteQueryOptions(params,options)
@@ -7969,15 +8317,15 @@ export const productControllerGetRecommendationsInfiniteCards = (
     params?: ProductControllerGetRecommendationsInfiniteCardsParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductCardPageDto>(
       {url: `/product/cards/recommendations/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -7987,7 +8335,7 @@ export const getProductControllerGetRecommendationsInfiniteCardsQueryKey = (para
     ] as const;
     }
 
-    
+
 export const getProductControllerGetRecommendationsInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
 ) => {
 
@@ -7995,13 +8343,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetRecommendationsInfiniteCardsQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>> = ({ signal }) => productControllerGetRecommendationsInfiniteCards(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8040,7 +8388,7 @@ export function useProductControllerGetRecommendationsInfiniteCards<TData = Awai
 
 export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
  params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetRecommendationsInfiniteCardsQueryOptions(params,options)
@@ -8062,15 +8410,15 @@ export const productControllerGetRecommendationsInfinite = (
     params?: ProductControllerGetRecommendationsInfiniteParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductInfinitePageDto>(
       {url: `/product/recommendations/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -8080,7 +8428,7 @@ export const getProductControllerGetRecommendationsInfiniteQueryKey = (params?: 
     ] as const;
     }
 
-    
+
 export const getProductControllerGetRecommendationsInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
 ) => {
 
@@ -8088,13 +8436,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetRecommendationsInfiniteQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>> = ({ signal }) => productControllerGetRecommendationsInfinite(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8133,7 +8481,7 @@ export function useProductControllerGetRecommendationsInfinite<TData = Awaited<R
 
 export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
  params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetRecommendationsInfiniteQueryOptions(params,options)
@@ -8152,17 +8500,17 @@ export function useProductControllerGetRecommendationsInfinite<TData = Awaited<R
  * @summary Лёгкий список популярных товаров
  */
 export const productControllerGetPopularCards = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductWithAttributesDto[]>(
       {url: `/product/cards/popular`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -8172,7 +8520,7 @@ export const getProductControllerGetPopularCardsQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getProductControllerGetPopularCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
 ) => {
 
@@ -8180,13 +8528,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetPopularCardsQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetPopularCards>>> = ({ signal }) => productControllerGetPopularCards(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8225,7 +8573,7 @@ export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<t
 
 export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetPopularCardsQueryOptions(options)
@@ -8247,15 +8595,15 @@ export const productControllerGetUncategorizedInfiniteCards = (
     params?: ProductControllerGetUncategorizedInfiniteCardsParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductCursorCardPageDto>(
       {url: `/product/cards/uncategorized/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -8265,7 +8613,7 @@ export const getProductControllerGetUncategorizedInfiniteCardsQueryKey = (params
     ] as const;
     }
 
-    
+
 export const getProductControllerGetUncategorizedInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
 ) => {
 
@@ -8273,13 +8621,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetUncategorizedInfiniteCardsQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>> = ({ signal }) => productControllerGetUncategorizedInfiniteCards(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8318,7 +8666,7 @@ export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaite
 
 export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
  params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetUncategorizedInfiniteCardsQueryOptions(params,options)
@@ -8340,15 +8688,15 @@ export const productControllerGetUncategorizedInfinite = (
     params?: ProductControllerGetUncategorizedInfiniteParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductCursorPageDto>(
       {url: `/product/uncategorized/infinite`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -8358,7 +8706,7 @@ export const getProductControllerGetUncategorizedInfiniteQueryKey = (params?: Pr
     ] as const;
     }
 
-    
+
 export const getProductControllerGetUncategorizedInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
 ) => {
 
@@ -8366,13 +8714,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetUncategorizedInfiniteQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>> = ({ signal }) => productControllerGetUncategorizedInfinite(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8411,7 +8759,7 @@ export function useProductControllerGetUncategorizedInfinite<TData = Awaited<Ret
 
 export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
  params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetUncategorizedInfiniteQueryOptions(params,options)
@@ -8430,17 +8778,17 @@ export function useProductControllerGetUncategorizedInfinite<TData = Awaited<Ret
  * @summary Список популярных товаров
  */
 export const productControllerGetPopular = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductWithAttributesDto[]>(
       {url: `/product/popular`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -8450,7 +8798,7 @@ export const getProductControllerGetPopularQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getProductControllerGetPopularQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
 ) => {
 
@@ -8458,13 +8806,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetPopularQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetPopular>>> = ({ signal }) => productControllerGetPopular(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8503,7 +8851,7 @@ export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof
 
 export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetPopularQueryOptions(options)
@@ -8525,14 +8873,14 @@ export const productControllerGetBySlug = (
     slug: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductWithDetailsDto>(
       {url: `/product/slug/${slug}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -8542,7 +8890,7 @@ export const getProductControllerGetBySlugQueryKey = (slug: string,) => {
     ] as const;
     }
 
-    
+
 export const getProductControllerGetBySlugQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
 ) => {
 
@@ -8550,13 +8898,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetBySlugQueryKey(slug);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetBySlug>>> = ({ signal }) => productControllerGetBySlug(slug, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8595,7 +8943,7 @@ export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof 
 
 export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
  slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetBySlugQueryOptions(slug,options)
@@ -8617,14 +8965,14 @@ export const productControllerGetById = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductWithDetailsDto>(
       {url: `/product/${id}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -8634,7 +8982,7 @@ export const getProductControllerGetByIdQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getProductControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
 ) => {
 
@@ -8642,13 +8990,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getProductControllerGetByIdQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetById>>> = ({ signal }) => productControllerGetById(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -8687,7 +9035,7 @@ export function useProductControllerGetById<TData = Awaited<ReturnType<typeof pr
 
 export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getProductControllerGetByIdQueryOptions(id,options)
@@ -8710,8 +9058,8 @@ export const productControllerUpdate = (
     updateProductDtoReq: UpdateProductDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductUpdateResponseDto>(
       {url: `/product/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -8719,7 +9067,7 @@ export const productControllerUpdate = (
     },
       );
     }
-  
+
 
 
 export const getProductControllerUpdateMutationOptions = <TError = unknown,
@@ -8733,7 +9081,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerUpdate>>, {id: string;data: UpdateProductDtoReq}> = (props) => {
@@ -8744,7 +9092,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -8766,7 +9114,7 @@ export const useProductControllerUpdate = <TError = unknown,
       > => {
       return useMutation(getProductControllerUpdateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Удалить товар
  */
@@ -8774,14 +9122,14 @@ export const productControllerRemove = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/product/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getProductControllerRemoveMutationOptions = <TError = unknown,
@@ -8795,7 +9143,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRemove>>, {id: string}> = (props) => {
@@ -8806,13 +9154,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type ProductControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRemove>>>
-    
+
     export type ProductControllerRemoveMutationError = unknown
 
     /**
@@ -8828,7 +9176,7 @@ export const useProductControllerRemove = <TError = unknown,
       > => {
       return useMutation(getProductControllerRemoveMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Создает копию товара со всеми медиа, атрибутами, вариантами и категориями. Новый товар создается со status=HIDDEN.
  * @summary Дублировать товар
@@ -8837,14 +9185,14 @@ export const productControllerDuplicate = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductCreateResponseDto>(
       {url: `/product/${id}/duplicate`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getProductControllerDuplicateMutationOptions = <TError = unknown,
@@ -8858,7 +9206,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerDuplicate>>, {id: string}> = (props) => {
@@ -8869,13 +9217,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type ProductControllerDuplicateMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerDuplicate>>>
-    
+
     export type ProductControllerDuplicateMutationError = unknown
 
     /**
@@ -8891,7 +9239,7 @@ export const useProductControllerDuplicate = <TError = unknown,
       > => {
       return useMutation(getProductControllerDuplicateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
  * @summary Изменить позицию товара в категории
@@ -8901,8 +9249,8 @@ export const productControllerUpdateCategoryPosition = (
     updateProductCategoryPositionDtoReq: UpdateProductCategoryPositionDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductUpdateResponseDto>(
       {url: `/product/${id}/category-position`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -8910,7 +9258,7 @@ export const productControllerUpdateCategoryPosition = (
     },
       );
     }
-  
+
 
 
 export const getProductControllerUpdateCategoryPositionMutationOptions = <TError = unknown,
@@ -8924,7 +9272,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, {id: string;data: UpdateProductCategoryPositionDtoReq}> = (props) => {
@@ -8935,7 +9283,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -8957,7 +9305,7 @@ export const useProductControllerUpdateCategoryPosition = <TError = unknown,
       > => {
       return useMutation(getProductControllerUpdateCategoryPositionMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Переключает статус товара между ACTIVE и HIDDEN. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Переключить статус товара
@@ -8966,14 +9314,14 @@ export const productControllerToggleStatus = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductUpdateResponseDto>(
       {url: `/product/${id}/toggle-status`, method: 'PATCH', signal
     },
       );
     }
-  
+
 
 
 export const getProductControllerToggleStatusMutationOptions = <TError = unknown,
@@ -8987,7 +9335,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerToggleStatus>>, {id: string}> = (props) => {
@@ -8998,13 +9346,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type ProductControllerToggleStatusMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerToggleStatus>>>
-    
+
     export type ProductControllerToggleStatusMutationError = unknown
 
     /**
@@ -9020,7 +9368,7 @@ export const useProductControllerToggleStatus = <TError = unknown,
       > => {
       return useMutation(getProductControllerToggleStatusMutationOptions(options), queryClient);
     }
-    
+
 /**
  * Переключает флаг isPopular у товара. В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Переключить популярность товара
@@ -9029,14 +9377,14 @@ export const productControllerTogglePopular = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductUpdateResponseDto>(
       {url: `/product/${id}/toggle-popular`, method: 'PATCH', signal
     },
       );
     }
-  
+
 
 
 export const getProductControllerTogglePopularMutationOptions = <TError = unknown,
@@ -9050,7 +9398,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerTogglePopular>>, {id: string}> = (props) => {
@@ -9061,13 +9409,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type ProductControllerTogglePopularMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerTogglePopular>>>
-    
+
     export type ProductControllerTogglePopularMutationError = unknown
 
     /**
@@ -9083,7 +9431,7 @@ export const useProductControllerTogglePopular = <TError = unknown,
       > => {
       return useMutation(getProductControllerTogglePopularMutationOptions(options), queryClient);
     }
-    
+
 /**
  * В ответе media.variants возвращаются варианты thumb и detail.
  * @summary Создать/заменить вариации товара
@@ -9093,8 +9441,8 @@ export const productControllerSetVariants = (
     setProductVariantsDtoReq: SetProductVariantsDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ProductVariantsResponseDto>(
       {url: `/product/${id}/variants`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -9102,7 +9450,7 @@ export const productControllerSetVariants = (
     },
       );
     }
-  
+
 
 
 export const getProductControllerSetVariantsMutationOptions = <TError = unknown,
@@ -9116,7 +9464,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerSetVariants>>, {id: string;data: SetProductVariantsDtoReq}> = (props) => {
@@ -9127,7 +9475,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -9149,22 +9497,22 @@ export const useProductControllerSetVariants = <TError = unknown,
       > => {
       return useMutation(getProductControllerSetVariantsMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Получить настройки интеграции MoySklad
  */
 export const integrationControllerGetMoySklad = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladIntegrationDto>(
       {url: `/integration/moysklad`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -9174,7 +9522,7 @@ export const getIntegrationControllerGetMoySkladQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getIntegrationControllerGetMoySkladQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
 ) => {
 
@@ -9182,13 +9530,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>> = ({ signal }) => integrationControllerGetMoySklad(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -9227,7 +9575,7 @@ export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<t
 
 export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getIntegrationControllerGetMoySkladQueryOptions(options)
@@ -9248,8 +9596,8 @@ export const integrationControllerUpsertMoySklad = (
     upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladIntegrationDto>(
       {url: `/integration/moysklad`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
@@ -9257,7 +9605,7 @@ export const integrationControllerUpsertMoySklad = (
     },
       );
     }
-  
+
 
 
 export const getIntegrationControllerUpsertMoySkladMutationOptions = <TError = unknown,
@@ -9271,7 +9619,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, {data: UpsertMoySkladIntegrationDtoReq}> = (props) => {
@@ -9282,7 +9630,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -9304,7 +9652,7 @@ export const useIntegrationControllerUpsertMoySklad = <TError = unknown,
       > => {
       return useMutation(getIntegrationControllerUpsertMoySkladMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Обновить настройки MoySklad
  */
@@ -9312,8 +9660,8 @@ export const integrationControllerUpdateMoySklad = (
     updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladIntegrationDto>(
       {url: `/integration/moysklad`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -9321,7 +9669,7 @@ export const integrationControllerUpdateMoySklad = (
     },
       );
     }
-  
+
 
 
 export const getIntegrationControllerUpdateMoySkladMutationOptions = <TError = unknown,
@@ -9335,7 +9683,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, {data: UpdateMoySkladIntegrationDtoReq}> = (props) => {
@@ -9346,7 +9694,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -9368,22 +9716,22 @@ export const useIntegrationControllerUpdateMoySklad = <TError = unknown,
       > => {
       return useMutation(getIntegrationControllerUpdateMoySkladMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Удалить настройки MoySklad
  */
 export const integrationControllerRemoveMoySklad = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/integration/moysklad`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getIntegrationControllerRemoveMoySkladMutationOptions = <TError = unknown,
@@ -9397,24 +9745,24 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, void> = () => {
-          
+
 
           return  integrationControllerRemoveMoySklad()
         }
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type IntegrationControllerRemoveMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>>
-    
+
     export type IntegrationControllerRemoveMoySkladMutationError = unknown
 
     /**
@@ -9430,22 +9778,22 @@ export const useIntegrationControllerRemoveMoySklad = <TError = unknown,
       > => {
       return useMutation(getIntegrationControllerRemoveMoySkladMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Получить статус интеграции MoySklad
  */
 export const integrationControllerGetMoySkladStatus = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladIntegrationStatusDto>(
       {url: `/integration/moysklad/status`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -9455,7 +9803,7 @@ export const getIntegrationControllerGetMoySkladStatusQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getIntegrationControllerGetMoySkladStatusQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
 ) => {
 
@@ -9463,13 +9811,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladStatusQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>> = ({ signal }) => integrationControllerGetMoySkladStatus(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -9508,7 +9856,7 @@ export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<Return
 
 export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getIntegrationControllerGetMoySkladStatusQueryOptions(options)
@@ -9529,15 +9877,15 @@ export const integrationControllerGetMoySkladRuns = (
     params?: IntegrationControllerGetMoySkladRunsParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladSyncRunDto[]>(
       {url: `/integration/moysklad/runs`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -9547,7 +9895,7 @@ export const getIntegrationControllerGetMoySkladRunsQueryKey = (params?: Integra
     ] as const;
     }
 
-    
+
 export const getIntegrationControllerGetMoySkladRunsQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
 ) => {
 
@@ -9555,13 +9903,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladRunsQueryKey(params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>> = ({ signal }) => integrationControllerGetMoySkladRuns(params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -9600,7 +9948,7 @@ export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnTy
 
 export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
  params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getIntegrationControllerGetMoySkladRunsQueryOptions(params,options)
@@ -9621,8 +9969,8 @@ export const integrationControllerTestMoySkladConnection = (
     testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladTestConnectionDto>(
       {url: `/integration/moysklad/test-connection`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -9630,7 +9978,7 @@ export const integrationControllerTestMoySkladConnection = (
     },
       );
     }
-  
+
 
 
 export const getIntegrationControllerTestMoySkladConnectionMutationOptions = <TError = unknown,
@@ -9644,7 +9992,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, {data: TestMoySkladConnectionDtoReq}> = (props) => {
@@ -9655,7 +10003,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -9677,22 +10025,22 @@ export const useIntegrationControllerTestMoySkladConnection = <TError = unknown,
       > => {
       return useMutation(getIntegrationControllerTestMoySkladConnectionMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Поставить полный sync MoySklad в очередь
  */
 export const integrationControllerSyncMoySkladCatalog = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladQueuedSyncDto>(
       {url: `/integration/moysklad/sync`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getIntegrationControllerSyncMoySkladCatalogMutationOptions = <TError = unknown,
@@ -9706,24 +10054,24 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, void> = () => {
-          
+
 
           return  integrationControllerSyncMoySkladCatalog()
         }
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type IntegrationControllerSyncMoySkladCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>>
-    
+
     export type IntegrationControllerSyncMoySkladCatalogMutationError = unknown
 
     /**
@@ -9739,22 +10087,22 @@ export const useIntegrationControllerSyncMoySkladCatalog = <TError = unknown,
       > => {
       return useMutation(getIntegrationControllerSyncMoySkladCatalogMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Отменить текущий sync MoySklad
  */
 export const integrationControllerCancelMoySkladSync = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/integration/moysklad/sync`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getIntegrationControllerCancelMoySkladSyncMutationOptions = <TError = unknown,
@@ -9768,24 +10116,24 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, void> = () => {
-          
+
 
           return  integrationControllerCancelMoySkladSync()
         }
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type IntegrationControllerCancelMoySkladSyncMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>>
-    
+
     export type IntegrationControllerCancelMoySkladSyncMutationError = unknown
 
     /**
@@ -9801,7 +10149,7 @@ export const useIntegrationControllerCancelMoySkladSync = <TError = unknown,
       > => {
       return useMutation(getIntegrationControllerCancelMoySkladSyncMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Поставить sync одного товара MoySklad в очередь
  */
@@ -9809,14 +10157,14 @@ export const integrationControllerSyncMoySkladProduct = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<MoySkladQueuedSyncDto>(
       {url: `/integration/moysklad/sync-product/${id}`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getIntegrationControllerSyncMoySkladProductMutationOptions = <TError = unknown,
@@ -9830,7 +10178,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, {id: string}> = (props) => {
@@ -9841,13 +10189,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type IntegrationControllerSyncMoySkladProductMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>>
-    
+
     export type IntegrationControllerSyncMoySkladProductMutationError = unknown
 
     /**
@@ -9863,22 +10211,22 @@ export const useIntegrationControllerSyncMoySkladProduct = <TError = unknown,
       > => {
       return useMutation(getIntegrationControllerSyncMoySkladProductMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Create or return the current cart by cookie token
  */
 export const cartControllerCreateOrGetCurrent = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/current`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerCreateOrGetCurrentMutationOptions = <TError = unknown,
@@ -9892,24 +10240,24 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerCreateOrGetCurrent>>, void> = () => {
-          
+
 
           return  cartControllerCreateOrGetCurrent()
         }
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerCreateOrGetCurrentMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerCreateOrGetCurrent>>>
-    
+
     export type CartControllerCreateOrGetCurrentMutationError = unknown
 
     /**
@@ -9925,22 +10273,22 @@ export const useCartControllerCreateOrGetCurrent = <TError = unknown,
       > => {
       return useMutation(getCartControllerCreateOrGetCurrentMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get the current cart by cookie token
  */
 export const cartControllerGetCurrent = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/current`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -9950,7 +10298,7 @@ export const getCartControllerGetCurrentQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCartControllerGetCurrentQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerGetCurrent>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetCurrent>>, TError, TData>>, }
 ) => {
 
@@ -9958,13 +10306,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCartControllerGetCurrentQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerGetCurrent>>> = ({ signal }) => cartControllerGetCurrent(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetCurrent>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -10003,7 +10351,7 @@ export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof ca
 
 export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof cartControllerGetCurrent>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetCurrent>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCartControllerGetCurrentQueryOptions(options)
@@ -10024,8 +10372,8 @@ export const cartControllerShareCurrent = (
     shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<ShareCartResponseDto>(
       {url: `/cart/current/share`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -10033,7 +10381,7 @@ export const cartControllerShareCurrent = (
     },
       );
     }
-  
+
 
 
 export const getCartControllerShareCurrentMutationOptions = <TError = unknown,
@@ -10047,7 +10395,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerShareCurrent>>, {data: ShareCurrentCartDtoReq}> = (props) => {
@@ -10058,7 +10406,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -10080,7 +10428,7 @@ export const useCartControllerShareCurrent = <TError = unknown,
       > => {
       return useMutation(getCartControllerShareCurrentMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Upsert an item in the current cart
  */
@@ -10088,8 +10436,8 @@ export const cartControllerUpsertCurrentItem = (
     upsertCartItemDtoReq: UpsertCartItemDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/current/items`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
@@ -10097,7 +10445,7 @@ export const cartControllerUpsertCurrentItem = (
     },
       );
     }
-  
+
 
 
 export const getCartControllerUpsertCurrentItemMutationOptions = <TError = unknown,
@@ -10111,7 +10459,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerUpsertCurrentItem>>, {data: UpsertCartItemDtoReq}> = (props) => {
@@ -10122,7 +10470,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -10144,7 +10492,7 @@ export const useCartControllerUpsertCurrentItem = <TError = unknown,
       > => {
       return useMutation(getCartControllerUpsertCurrentItemMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Remove an item from the current cart
  */
@@ -10152,14 +10500,14 @@ export const cartControllerRemoveCurrentItem = (
     itemId: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/current/items/${itemId}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerRemoveCurrentItemMutationOptions = <TError = unknown,
@@ -10173,7 +10521,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerRemoveCurrentItem>>, {itemId: string}> = (props) => {
@@ -10184,13 +10532,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerRemoveCurrentItemMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerRemoveCurrentItem>>>
-    
+
     export type CartControllerRemoveCurrentItemMutationError = unknown
 
     /**
@@ -10206,22 +10554,22 @@ export const useCartControllerRemoveCurrentItem = <TError = unknown,
       > => {
       return useMutation(getCartControllerRemoveCurrentItemMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary SSE stream for the current cart
  */
 export const cartControllerSseCurrent = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<string>(
       {url: `/cart/current/sse`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -10231,7 +10579,7 @@ export const getCartControllerSseCurrentQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getCartControllerSseCurrentQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerSseCurrent>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSseCurrent>>, TError, TData>>, }
 ) => {
 
@@ -10239,13 +10587,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCartControllerSseCurrentQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerSseCurrent>>> = ({ signal }) => cartControllerSseCurrent(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof cartControllerSseCurrent>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -10284,7 +10632,7 @@ export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof ca
 
 export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof cartControllerSseCurrent>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSseCurrent>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCartControllerSseCurrentQueryOptions(options)
@@ -10305,14 +10653,14 @@ export const cartControllerCreateCheckoutKey = (
     publicKey: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CheckoutCartResponseDto>(
       {url: `/cart/public/${publicKey}/checkout`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerCreateCheckoutKeyMutationOptions = <TError = unknown,
@@ -10326,7 +10674,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>, {publicKey: string}> = (props) => {
@@ -10337,13 +10685,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerCreateCheckoutKeyMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>>
-    
+
     export type CartControllerCreateCheckoutKeyMutationError = unknown
 
     /**
@@ -10359,7 +10707,7 @@ export const useCartControllerCreateCheckoutKey = <TError = unknown,
       > => {
       return useMutation(getCartControllerCreateCheckoutKeyMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get a public cart by checkoutKey
  */
@@ -10368,15 +10716,15 @@ export const cartControllerGetPublicCart = (
     params: CartControllerGetPublicCartParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/public/${publicKey}`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -10387,7 +10735,7 @@ export const getCartControllerGetPublicCartQueryKey = (publicKey: string,
     ] as const;
     }
 
-    
+
 export const getCartControllerGetPublicCartQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(publicKey: string,
     params: CartControllerGetPublicCartParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
 ) => {
@@ -10396,13 +10744,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCartControllerGetPublicCartQueryKey(publicKey,params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerGetPublicCart>>> = ({ signal }) => cartControllerGetPublicCart(publicKey,params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(publicKey), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -10445,7 +10793,7 @@ export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof
 export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(
  publicKey: string,
     params: CartControllerGetPublicCartParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCartControllerGetPublicCartQueryOptions(publicKey,params,options)
@@ -10466,14 +10814,14 @@ export const cartControllerStartManagerSession = (
     publicKey: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/public/${publicKey}/manager/start`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerStartManagerSessionMutationOptions = <TError = unknown,
@@ -10487,7 +10835,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerStartManagerSession>>, {publicKey: string}> = (props) => {
@@ -10498,13 +10846,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerStartManagerSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerStartManagerSession>>>
-    
+
     export type CartControllerStartManagerSessionMutationError = unknown
 
     /**
@@ -10520,7 +10868,7 @@ export const useCartControllerStartManagerSession = <TError = unknown,
       > => {
       return useMutation(getCartControllerStartManagerSessionMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Refresh manager presence for a cart
  */
@@ -10528,14 +10876,14 @@ export const cartControllerHeartbeatManagerSession = (
     publicKey: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/public/${publicKey}/manager/heartbeat`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerHeartbeatManagerSessionMutationOptions = <TError = unknown,
@@ -10549,7 +10897,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>, {publicKey: string}> = (props) => {
@@ -10560,13 +10908,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerHeartbeatManagerSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>>
-    
+
     export type CartControllerHeartbeatManagerSessionMutationError = unknown
 
     /**
@@ -10582,7 +10930,7 @@ export const useCartControllerHeartbeatManagerSession = <TError = unknown,
       > => {
       return useMutation(getCartControllerHeartbeatManagerSessionMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Move a cart to PAUSED after manager processing
  */
@@ -10590,14 +10938,14 @@ export const cartControllerReleaseManagerSession = (
     publicKey: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/public/${publicKey}/manager/release`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerReleaseManagerSessionMutationOptions = <TError = unknown,
@@ -10611,7 +10959,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>, {publicKey: string}> = (props) => {
@@ -10622,13 +10970,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerReleaseManagerSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>>
-    
+
     export type CartControllerReleaseManagerSessionMutationError = unknown
 
     /**
@@ -10644,7 +10992,7 @@ export const useCartControllerReleaseManagerSession = <TError = unknown,
       > => {
       return useMutation(getCartControllerReleaseManagerSessionMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Convert a shared cart to a completed order
  */
@@ -10652,14 +11000,14 @@ export const cartControllerCompleteManagerOrder = (
     publicKey: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CompleteCartOrderResponseDto>(
       {url: `/cart/public/${publicKey}/manager/complete`, method: 'POST', signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerCompleteManagerOrderMutationOptions = <TError = unknown,
@@ -10673,7 +11021,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>, {publicKey: string}> = (props) => {
@@ -10684,13 +11032,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerCompleteManagerOrderMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>>
-    
+
     export type CartControllerCompleteManagerOrderMutationError = unknown
 
     /**
@@ -10706,7 +11054,7 @@ export const useCartControllerCompleteManagerOrder = <TError = unknown,
       > => {
       return useMutation(getCartControllerCompleteManagerOrderMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Upsert an item in a public cart
  */
@@ -10715,8 +11063,8 @@ export const cartControllerUpsertPublicItem = (
     publicUpsertCartItemDtoReq: PublicUpsertCartItemDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/public/${publicKey}/items`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
@@ -10724,7 +11072,7 @@ export const cartControllerUpsertPublicItem = (
     },
       );
     }
-  
+
 
 
 export const getCartControllerUpsertPublicItemMutationOptions = <TError = unknown,
@@ -10738,7 +11086,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerUpsertPublicItem>>, {publicKey: string;data: PublicUpsertCartItemDtoReq}> = (props) => {
@@ -10749,7 +11097,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -10771,7 +11119,7 @@ export const useCartControllerUpsertPublicItem = <TError = unknown,
       > => {
       return useMutation(getCartControllerUpsertPublicItemMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Remove an item from a public cart
  */
@@ -10781,15 +11129,15 @@ export const cartControllerRemovePublicItem = (
     params: CartControllerRemovePublicItemParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<CartResponseDto>(
       {url: `/cart/public/${publicKey}/items/${itemId}`, method: 'DELETE',
         params, signal
     },
       );
     }
-  
+
 
 
 export const getCartControllerRemovePublicItemMutationOptions = <TError = unknown,
@@ -10803,7 +11151,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, {publicKey: string;itemId: string;params: CartControllerRemovePublicItemParams}> = (props) => {
@@ -10814,13 +11162,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type CartControllerRemovePublicItemMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>>
-    
+
     export type CartControllerRemovePublicItemMutationError = unknown
 
     /**
@@ -10836,7 +11184,7 @@ export const useCartControllerRemovePublicItem = <TError = unknown,
       > => {
       return useMutation(getCartControllerRemovePublicItemMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary SSE stream for a public cart
  */
@@ -10845,15 +11193,15 @@ export const cartControllerSsePublic = (
     params: CartControllerSsePublicParams,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<string>(
       {url: `/cart/public/${publicKey}/sse`, method: 'GET',
         params, signal
     },
       );
     }
-  
+
 
 
 
@@ -10864,7 +11212,7 @@ export const getCartControllerSsePublicQueryKey = (publicKey: string,
     ] as const;
     }
 
-    
+
 export const getCartControllerSsePublicQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(publicKey: string,
     params: CartControllerSsePublicParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
 ) => {
@@ -10873,13 +11221,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCartControllerSsePublicQueryKey(publicKey,params);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerSsePublic>>> = ({ signal }) => cartControllerSsePublic(publicKey,params, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(publicKey), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -10922,7 +11270,7 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
 export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(
  publicKey: string,
     params: CartControllerSsePublicParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCartControllerSsePublicQueryOptions(publicKey,params,options)
@@ -10940,17 +11288,17 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
  * @summary List seo settings
  */
 export const seoControllerGetAll = (
-    
+
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<SeoDto[]>(
       {url: `/seo`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -10960,7 +11308,7 @@ export const getSeoControllerGetAllQueryKey = () => {
     ] as const;
     }
 
-    
+
 export const getSeoControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
 ) => {
 
@@ -10968,13 +11316,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetAllQueryKey();
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetAll>>> = ({ signal }) => seoControllerGetAll(signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -11013,7 +11361,7 @@ export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoCont
 
 export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getSeoControllerGetAllQueryOptions(options)
@@ -11034,8 +11382,8 @@ export const seoControllerCreate = (
     createSeoDtoReq: CreateSeoDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<SeoDto>(
       {url: `/seo`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
@@ -11043,7 +11391,7 @@ export const seoControllerCreate = (
     },
       );
     }
-  
+
 
 
 export const getSeoControllerCreateMutationOptions = <TError = unknown,
@@ -11057,7 +11405,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerCreate>>, {data: CreateSeoDtoReq}> = (props) => {
@@ -11068,7 +11416,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -11090,7 +11438,7 @@ export const useSeoControllerCreate = <TError = unknown,
       > => {
       return useMutation(getSeoControllerCreateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Get seo setting by entity
  */
@@ -11099,14 +11447,14 @@ export const seoControllerGetByEntity = (
     entityId: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<SeoDto>(
       {url: `/seo/entity/${entityType}/${entityId}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -11117,7 +11465,7 @@ export const getSeoControllerGetByEntityQueryKey = (entityType: string,
     ] as const;
     }
 
-    
+
 export const getSeoControllerGetByEntityQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(entityType: string,
     entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
 ) => {
@@ -11126,13 +11474,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetByEntityQueryKey(entityType,entityId);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetByEntity>>> = ({ signal }) => seoControllerGetByEntity(entityType,entityId, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(entityType && entityId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -11175,7 +11523,7 @@ export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof se
 export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
  entityType: string,
     entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getSeoControllerGetByEntityQueryOptions(entityType,entityId,options)
@@ -11196,14 +11544,14 @@ export const seoControllerGetById = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<SeoDto>(
       {url: `/seo/${id}`, method: 'GET', signal
     },
       );
     }
-  
+
 
 
 
@@ -11213,7 +11561,7 @@ export const getSeoControllerGetByIdQueryKey = (id: string,) => {
     ] as const;
     }
 
-    
+
 export const getSeoControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
 ) => {
 
@@ -11221,13 +11569,13 @@ const {query: queryOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetByIdQueryKey(id);
 
-  
+
 
     const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetById>>> = ({ signal }) => seoControllerGetById(id, signal);
 
-      
 
-      
+
+
 
    return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
@@ -11266,7 +11614,7 @@ export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoCon
 
 export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
  id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient 
+ , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getSeoControllerGetByIdQueryOptions(id,options)
@@ -11288,8 +11636,8 @@ export const seoControllerUpdate = (
     updateSeoDtoReq: UpdateSeoDtoReq,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<SeoDto>(
       {url: `/seo/${id}`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
@@ -11297,7 +11645,7 @@ export const seoControllerUpdate = (
     },
       );
     }
-  
+
 
 
 export const getSeoControllerUpdateMutationOptions = <TError = unknown,
@@ -11311,7 +11659,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerUpdate>>, {id: string;data: UpdateSeoDtoReq}> = (props) => {
@@ -11322,7 +11670,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
@@ -11344,7 +11692,7 @@ export const useSeoControllerUpdate = <TError = unknown,
       > => {
       return useMutation(getSeoControllerUpdateMutationOptions(options), queryClient);
     }
-    
+
 /**
  * @summary Delete seo setting
  */
@@ -11352,14 +11700,14 @@ export const seoControllerRemove = (
     id: string,
  signal?: AbortSignal
 ) => {
-      
-      
+
+
       return mutator<OkResponseDto>(
       {url: `/seo/${id}`, method: 'DELETE', signal
     },
       );
     }
-  
+
 
 
 export const getSeoControllerRemoveMutationOptions = <TError = unknown,
@@ -11373,7 +11721,7 @@ const {mutation: mutationOptions} = options ?
       : {...options, mutation: {...options.mutation, mutationKey}}
       : {mutation: { mutationKey, }};
 
-      
+
 
 
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerRemove>>, {id: string}> = (props) => {
@@ -11384,13 +11732,13 @@ const {mutation: mutationOptions} = options ?
 
 
 
-        
+
 
 
   return  { mutationFn, ...mutationOptions }}
 
     export type SeoControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof seoControllerRemove>>>
-    
+
     export type SeoControllerRemoveMutationError = unknown
 
     /**

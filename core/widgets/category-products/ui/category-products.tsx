@@ -9,8 +9,6 @@ import { ProductCardSkeleton } from "@/core/modules/product/entities/product-car
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import {
-  PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
-  PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
   useProductCardViewMode,
 } from "@/core/modules/product/model/use-product-card-view-mode";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
@@ -44,21 +42,6 @@ interface VirtualizedCategoryProductsProps {
   forceActivatedCategoryId?: string | null;
 }
 
-interface CategoryProductsProps {
-  className?: string;
-  category: CategoryDto;
-  sectionId: string;
-  activationBlocked?: boolean;
-  forceActivated?: boolean;
-  initiallyActivated?: boolean;
-}
-
-interface UncategorizedProductsProps {
-  className?: string;
-  sectionId: string;
-  initiallyActivated?: boolean;
-}
-
 interface ProductSectionItem {
   categoryId?: string;
   categoryPosition?: number;
@@ -69,21 +52,6 @@ interface ProductSectionItem {
 interface ProductSectionPage {
   items: ProductSectionItem[];
   nextCursor: string | null;
-}
-
-interface ProductSectionProps {
-  className?: string;
-  title: string;
-  sectionId: string;
-  queryKey: readonly unknown[];
-  queryFn: (
-    cursor: string | undefined,
-    signal: AbortSignal,
-  ) => Promise<ProductSectionPage>;
-  activationBlocked?: boolean;
-  forceActivated?: boolean;
-  initiallyActivated?: boolean;
-  hideWhenEmpty?: boolean;
 }
 
 export const CATEGORY_PRODUCTS_PAGE_SIZE = 32;
@@ -100,11 +68,9 @@ const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 340;
 const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 124;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const CATEGORY_HEADING_ROW_ESTIMATE_PX = 40;
-const PRODUCT_SECTION_LOAD_MORE_ROOT_MARGIN_PX = 480;
 const VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN = 2;
-const PRODUCT_SECTION_MIN_HEIGHT_PX =
-  GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX * 2 + PRODUCT_CARD_GAP_PX;
-const PRODUCT_SECTION_ACTIVATION_ROOT_MARGIN = "0px 0px 480px 0px";
+const CATALOG_END_SCROLL_RUNWAY_EXTRA_PX = 24;
+const CATALOG_END_SCROLL_RUNWAY_MAX_PX = 320;
 const UNCATEGORIZED_QUERY_PARAMS = {
   limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
 };
@@ -299,222 +265,6 @@ const ProductSectionDataController: React.FC<ProductSectionDataControllerProps> 
   }, [onSnapshot, section.key]);
 
   return null;
-};
-
-const ProductSection: React.FC<ProductSectionProps> = ({
-  className,
-  title,
-  sectionId,
-  queryKey,
-  queryFn,
-  activationBlocked = false,
-  forceActivated = false,
-  initiallyActivated = false,
-  hideWhenEmpty = false,
-}) => {
-  const { isDetailed, hasHydrated } = useProductCardViewMode();
-  const { isAuthenticated } = useSession();
-  const { shouldUseCartUi } = useCart();
-  const headingRef = React.useRef<HTMLHeadingElement | null>(null);
-  const loadMoreRef = React.useRef<HTMLDivElement | null>(null);
-  const [isActivated, setIsActivated] = React.useState(initiallyActivated);
-  const [hasReachedViewport, setHasReachedViewport] =
-    React.useState(initiallyActivated);
-
-  React.useEffect(() => {
-    if (!initiallyActivated || activationBlocked) {
-      return;
-    }
-
-    if (!hasReachedViewport || !isActivated) {
-      setHasReachedViewport(true);
-      setIsActivated(true);
-    }
-  }, [activationBlocked, hasReachedViewport, initiallyActivated, isActivated]);
-
-  React.useEffect(() => {
-    if (!forceActivated) {
-      return;
-    }
-
-    React.startTransition(() => {
-      setHasReachedViewport(true);
-      setIsActivated(true);
-    });
-  }, [forceActivated]);
-
-  React.useLayoutEffect(() => {
-    if (activationBlocked || (hasReachedViewport && isActivated)) {
-      return;
-    }
-
-    const heading = headingRef.current;
-
-    if (!heading) {
-      return;
-    }
-
-    if (typeof IntersectionObserver === "undefined") {
-      setHasReachedViewport(true);
-      setIsActivated(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          React.startTransition(() => {
-            setHasReachedViewport(true);
-            setIsActivated(true);
-          });
-          observer.disconnect();
-        }
-      },
-      { rootMargin: PRODUCT_SECTION_ACTIVATION_ROOT_MARGIN },
-    );
-
-    observer.observe(heading);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [activationBlocked, hasReachedViewport, isActivated]);
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey,
-      queryFn: ({ pageParam, signal }) =>
-        queryFn(pageParam as string | undefined, signal),
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: (lastPage: ProductSectionPage) =>
-        lastPage.nextCursor ?? undefined,
-      enabled: isActivated,
-    });
-
-  const hasLoadedFirstPage = Boolean(data?.pages?.length);
-
-  const products = React.useMemo(
-    () => data?.pages.flatMap((page) => page.items) ?? [],
-    [data],
-  );
-  const listClassName = isDetailed
-    ? PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME
-    : PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME;
-  const initialSkeletonCount = isDetailed
-    ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
-    : GRID_INITIAL_SKELETON_ITEMS_COUNT;
-  const nextPageSkeletonCount = isDetailed
-    ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
-    : GRID_INITIAL_SKELETON_ITEMS_COUNT;
-  const shouldRenderInitialSkeleton =
-    hasHydrated && hasReachedViewport;
-
-  React.useEffect(() => {
-    if (
-      !isActivated ||
-      !hasLoadedFirstPage ||
-      !hasNextPage ||
-      isFetchingNextPage
-    ) {
-      return;
-    }
-
-    const sentinel = loadMoreRef.current;
-
-    if (!sentinel || typeof IntersectionObserver === "undefined") {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const shouldLoadMore = entries.some((entry) => entry.isIntersecting);
-
-        if (shouldLoadMore) {
-          void fetchNextPage();
-        }
-      },
-      {
-        root: null,
-        rootMargin: `0px 0px ${PRODUCT_SECTION_LOAD_MORE_ROOT_MARGIN_PX}px 0px`,
-        threshold: 0,
-      },
-    );
-
-    observer.observe(sentinel);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [
-    fetchNextPage,
-    hasLoadedFirstPage,
-    hasNextPage,
-    isActivated,
-    isFetchingNextPage,
-  ]);
-
-  const isEmptyAfterLoad = hasLoadedFirstPage && products.length === 0;
-
-  if (hideWhenEmpty && isEmptyAfterLoad) {
-    return null;
-  }
-
-  return (
-    <div
-      id={sectionId}
-      className={cn("space-y-7.5 min-h-90", className)}
-      style={{
-        minHeight: PRODUCT_SECTION_MIN_HEIGHT_PX,
-        scrollMarginTop: CATEGORY_SECTION_SCROLL_MARGIN_TOP,
-      }}
-    >
-      <h2
-        ref={headingRef}
-        className="pl-1 text-left text-xl font-bold"
-      >
-        {title}
-      </h2>
-      <div>
-        {!hasLoadedFirstPage ? (
-          shouldRenderInitialSkeleton ? (
-            <ul className={listClassName}>
-              {Array.from({ length: initialSkeletonCount }, (_, index) => (
-                <ProductCardSkeleton
-                  key={`initial-skeleton-${index}`}
-                  isDetailed={isDetailed}
-                />
-              ))}
-            </ul>
-          ) : null
-        ) : isEmptyAfterLoad ? (
-          <div className="text-muted-foreground flex min-h-40 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm">
-            В этой категории пока нет товаров
-          </div>
-        ) : (
-          <div className={listClassName}>
-            {products.map((item, itemIndex) => (
-              <ProductSectionCard
-                key={`${sectionId}:${item.categoryPosition ?? "na"}:${item.key ?? item.product.id}:${itemIndex}`}
-                item={item}
-                isDetailed={isDetailed}
-                shouldUseCartUi={shouldUseCartUi}
-                isAuthenticated={isAuthenticated}
-              />
-            ))}
-            {isFetchingNextPage
-              ? Array.from({ length: nextPageSkeletonCount }, (_, index) => (
-                  <ProductCardSkeleton
-                    key={`${sectionId}-next-page-${index}`}
-                    isDetailed={isDetailed}
-                  />
-                ))
-              : null}
-          </div>
-        )}
-      </div>
-      <div ref={loadMoreRef} aria-hidden className="h-px w-full" />
-    </div>
-  );
 };
 
 export const VirtualizedCategoryProducts: React.FC<
@@ -956,7 +706,43 @@ export const VirtualizedCategoryProducts: React.FC<
     (index: number) => rows[index]?.key ?? `virtual-row-${index}`,
     [rows],
   );
-  const paddingEnd = Math.max(viewportHeight - scrollPaddingStart, 0);
+  const lastSectionEstimatedSize = React.useMemo(() => {
+    const lastRow = rows[rows.length - 1];
+
+    if (!lastRow) {
+      return 0;
+    }
+
+    const firstLastSectionRowIndex = rows.findIndex(
+      (row) => row.sectionKey === lastRow.sectionKey,
+    );
+
+    if (firstLastSectionRowIndex < 0) {
+      return 0;
+    }
+
+    let size = 0;
+
+    for (let index = firstLastSectionRowIndex; index < rows.length; index += 1) {
+      size += estimateRowSize(index);
+
+      if (index > firstLastSectionRowIndex) {
+        size += PRODUCT_CARD_GAP_PX;
+      }
+    }
+
+    return size;
+  }, [estimateRowSize, rows]);
+  const paddingEnd = Math.min(
+    CATALOG_END_SCROLL_RUNWAY_MAX_PX,
+    Math.max(
+      0,
+      viewportHeight -
+        scrollPaddingStart -
+        lastSectionEstimatedSize +
+        CATALOG_END_SCROLL_RUNWAY_EXTRA_PX,
+    ),
+  );
   const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
     estimateSize: estimateRowSize,
@@ -1284,114 +1070,5 @@ export const VirtualizedCategoryProducts: React.FC<
         </div>
       </div>
     </>
-  );
-};
-
-export const CategoryProducts: React.FC<CategoryProductsProps> = ({
-  className,
-  category,
-  sectionId,
-  activationBlocked = false,
-  forceActivated = false,
-  initiallyActivated = false,
-}) => {
-  const queryKey = React.useMemo(
-    () =>
-      [
-        "category-products-infinite",
-        category.id,
-        CATEGORY_PRODUCTS_PAGE_SIZE,
-      ] as const,
-    [category.id],
-  );
-
-  const queryFn = React.useCallback(
-    async (
-      cursor: string | undefined,
-      signal: AbortSignal,
-    ): Promise<ProductSectionPage> => {
-      const page = await categoryControllerGetProductCardsByCategory(
-        category.id,
-        {
-          cursor,
-          limit: CATEGORY_PRODUCTS_PAGE_SIZE,
-        },
-        signal,
-      );
-
-      return {
-        nextCursor: page.nextCursor,
-        items: page.items.map(({ productId, product, position }) => ({
-          categoryId: category.id,
-          categoryPosition: position,
-          key: productId ?? product.id,
-          product,
-        })),
-      };
-    },
-    [category.id],
-  );
-
-  return (
-    <ProductSection
-      className={className}
-      title={category.name}
-      sectionId={sectionId}
-      queryKey={queryKey}
-      queryFn={queryFn}
-      activationBlocked={activationBlocked}
-      forceActivated={forceActivated}
-      initiallyActivated={initiallyActivated}
-    />
-  );
-};
-
-export const UncategorizedProducts: React.FC<UncategorizedProductsProps> = ({
-  className,
-  sectionId,
-  initiallyActivated = false,
-}) => {
-  const queryKey = React.useMemo(
-    () =>
-      getProductControllerGetUncategorizedInfiniteCardsQueryKey(
-        UNCATEGORIZED_QUERY_PARAMS,
-      ),
-    [],
-  );
-
-  const queryFn = React.useCallback(
-    async (
-      cursor: string | undefined,
-      signal: AbortSignal,
-    ): Promise<ProductSectionPage> => {
-      const page = await productControllerGetUncategorizedInfiniteCards(
-        {
-          ...UNCATEGORIZED_QUERY_PARAMS,
-          cursor,
-        },
-        signal,
-      );
-
-      return {
-        nextCursor: page.nextCursor,
-        items: page.items.map((product) => ({
-          key: product.id,
-          product,
-        })),
-      };
-    },
-    [],
-  );
-
-  return (
-    <ProductSection
-      className={className}
-      title="Остальное"
-      sectionId={sectionId}
-      queryKey={queryKey}
-      queryFn={queryFn}
-      initiallyActivated={initiallyActivated}
-      hideWhenEmpty
-    />
   );
 };

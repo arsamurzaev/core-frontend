@@ -8,12 +8,9 @@ import {
   cartControllerStartManagerSession,
   type CartDto,
 } from "@/shared/api/generated/react-query";
-import {
-  API_BASE_URL,
-  FORWARDED_HOST_HEADER,
-} from "@/shared/api/client";
+import { FORWARDED_HOST_HEADER } from "@/shared/api/client";
 import { normalizeForwardedHost } from "@/shared/api/forwarded-host";
-import { withCsrf } from "@/shared/api/client-request";
+import { buildAbsoluteApiUrl, withCsrf } from "@/shared/api/client-request";
 import {
   isCartNotFoundError,
   isCartUnauthorizedError,
@@ -33,22 +30,22 @@ function releaseManagerSessionWithKeepalive(publicKey: string) {
     headers.set(FORWARDED_HOST_HEADER, forwardedHost);
   }
 
-  void fetch(
-    new URL(`/cart/public/${publicKey}/manager/release`, API_BASE_URL).toString(),
-    {
-      method: "POST",
-      credentials: "include",
-      headers,
-      keepalive: true,
-      cache: "no-store",
-    },
-  ).catch(() => undefined);
+  void fetch(buildAbsoluteApiUrl(`/cart/public/${publicKey}/manager/release`), {
+    method: "POST",
+    credentials: "include",
+    headers,
+    keepalive: true,
+    cache: "no-store",
+  }).catch(() => undefined);
 }
 
 type UseCartManagerSessionParams = {
   isHydrated: boolean;
   isManagedPublicCart: boolean;
-  setPublicCartData: (access: CartPublicAccess | null, cart: CartDto | null) => void;
+  setPublicCartData: (
+    access: CartPublicAccess | null,
+    cart: CartDto | null,
+  ) => void;
   storedPublicAccess: CartPublicAccess | null;
   userId?: string | null;
   userRole?: string | null;
@@ -62,7 +59,8 @@ export function useCartManagerSession({
   userId,
   userRole,
 }: UseCartManagerSessionParams): { isManagerSessionLoading: boolean } {
-  const [isManagerSessionLoading, setIsManagerSessionLoading] = React.useState(false);
+  const [isManagerSessionLoading, setIsManagerSessionLoading] =
+    React.useState(false);
 
   React.useEffect(() => {
     if (!isHydrated || !isManagedPublicCart || !storedPublicAccess) {
@@ -132,7 +130,9 @@ export function useCartManagerSession({
       setIsManagerSessionLoading(true);
 
       try {
-        const response = await cartControllerStartManagerSession(access.publicKey);
+        const response = await cartControllerStartManagerSession(
+          access.publicKey,
+        );
 
         if (isDisposed) {
           return;
@@ -171,7 +171,14 @@ export function useCartManagerSession({
       releaseManagerSession();
       clearHeartbeat();
     };
-  }, [isHydrated, isManagedPublicCart, setPublicCartData, storedPublicAccess, userId, userRole]);
+  }, [
+    isHydrated,
+    isManagedPublicCart,
+    setPublicCartData,
+    storedPublicAccess,
+    userId,
+    userRole,
+  ]);
 
   return { isManagerSessionLoading };
 }

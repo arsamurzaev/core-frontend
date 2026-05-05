@@ -2187,6 +2187,101 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
 
 
 /**
+ * @summary List current catalog domains
+ */
+export const CatalogDomainDnsRecordDto = zod.object({
+  "type": zod.string(),
+  "name": zod.string(),
+  "value": zod.string(),
+  "required": zod.boolean(),
+  "description": zod.string().optional()
+})
+export const CatalogDomainVerificationDto = zod.object({
+  "txtRecord": CatalogDomainDnsRecordDto,
+  "routingRecords": zod.array(CatalogDomainDnsRecordDto),
+  "wwwRecord": CatalogDomainDnsRecordDto.nullish(),
+  "expectedHosts": zod.array(zod.string()),
+  "instructions": zod.array(zod.string()),
+  "recheckAfterSeconds": zod.number()
+})
+export const CatalogDomainControllerListResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "hostname": zod.string(),
+  "status": zod.enum(['PENDING_DNS', 'DNS_VERIFIED', 'ACTIVE', 'FAILED', 'DISABLED']),
+  "isPrimary": zod.boolean(),
+  "redirectToPrimary": zod.boolean(),
+  "includeWww": zod.boolean(),
+  "verificationToken": zod.string(),
+  "verification": CatalogDomainVerificationDto,
+  "nextCheckAfterSeconds": zod.number(),
+  "nextCheckAt": zod.iso.datetime({}),
+  "message": zod.string(),
+  "lastCheckedAt": zod.iso.datetime({}).nullish(),
+  "lastError": zod.string().nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional()
+})
+export const CatalogDomainControllerListResponse = zod.array(CatalogDomainControllerListResponseItem)
+
+
+/**
+ * @summary Attach domain to current catalog
+ */
+export const CatalogDomainControllerCreateBody = zod.object({
+  "hostname": zod.string(),
+  "includeWww": zod.boolean().optional().describe('Also allow www.<domain> for TLS and DNS checks'),
+  "isPrimary": zod.boolean().optional(),
+  "redirectToPrimary": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Check DNS and activate current catalog domain
+ */
+export const CatalogDomainControllerCheckParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogDomainControllerCheckResponse = zod.object({
+  "ok": zod.boolean(),
+  "status": zod.string(),
+  "error": zod.string().nullish(),
+  "verification": CatalogDomainVerificationDto,
+  "nextCheckAfterSeconds": zod.number(),
+  "nextCheckAt": zod.iso.datetime({}),
+  "message": zod.string()
+})
+
+
+/**
+ * @summary Disable current catalog domain
+ */
+export const CatalogDomainControllerDisableParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogDomainControllerDisableResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "hostname": zod.string(),
+  "status": zod.enum(['PENDING_DNS', 'DNS_VERIFIED', 'ACTIVE', 'FAILED', 'DISABLED']),
+  "isPrimary": zod.boolean(),
+  "redirectToPrimary": zod.boolean(),
+  "includeWww": zod.boolean(),
+  "verificationToken": zod.string(),
+  "verification": CatalogDomainVerificationDto,
+  "nextCheckAfterSeconds": zod.number(),
+  "nextCheckAt": zod.iso.datetime({}),
+  "message": zod.string(),
+  "lastCheckedAt": zod.iso.datetime({}).nullish(),
+  "lastError": zod.string().nullish(),
+  "createdAt": zod.iso.datetime({}).optional(),
+  "updatedAt": zod.iso.datetime({}).optional()
+})
+
+
+/**
  * @summary List categories
  */
 export const CategoryControllerGetAllResponseItem = zod.object({

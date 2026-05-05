@@ -1,8 +1,5 @@
-import {
-  API_BASE_URL,
-  FORWARDED_HOST_HEADER,
-  getForwardedHost,
-} from "@/shared/api/client";
+import { FORWARDED_HOST_HEADER, getForwardedHost } from "@/shared/api/client";
+import { buildAbsoluteApiUrl } from "@/shared/api/client-request";
 import {
   type UploadQueueStatusDto,
   s3ControllerGetQueueStatus,
@@ -101,7 +98,9 @@ export async function streamQueueStatus(
   jobId: string,
   onUpdate: (status: UploadQueueStatusDto) => void,
 ): Promise<UploadQueueStatusDto> {
-  const url = `${API_BASE_URL}/s3/images/queue/${encodeURIComponent(jobId)}/stream`;
+  const url = buildAbsoluteApiUrl(
+    `/s3/images/queue/${encodeURIComponent(jobId)}/stream`,
+  );
   const headers = new Headers({ Accept: "text/event-stream" });
   const forwardedHost = await getForwardedHost();
 
@@ -142,7 +141,10 @@ export async function streamQueueStatus(
       lastStatus = status;
       onUpdate(status);
 
-      if (isQueueDoneStatus(status.status) || isQueueErrorStatus(status.status)) {
+      if (
+        isQueueDoneStatus(status.status) ||
+        isQueueErrorStatus(status.status)
+      ) {
         await reader.cancel();
         return status;
       }

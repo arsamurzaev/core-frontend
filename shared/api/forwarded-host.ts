@@ -1,5 +1,5 @@
 const DEFAULT_FORWARDED_HOST =
-  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "econom.myctlg-update.ru";
+  process.env.NEXT_PUBLIC_FORWARDED_HOST ?? "itminot.myctlg-update.ru";
 
 function extractHostname(host: string): string {
   const normalizedHost = host.trim().toLowerCase();

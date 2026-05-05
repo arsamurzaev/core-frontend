@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  API_BASE_URL,
-  FORWARDED_HOST_HEADER,
-  getForwardedHost,
-} from "@/shared/api/client";
-import { buildUrl } from "@/shared/api/client-request";
+import { FORWARDED_HOST_HEADER, getForwardedHost } from "@/shared/api/client";
+import { buildAbsoluteApiUrl } from "@/shared/api/client-request";
 import {
   type CartControllerSsePublicParams,
   type CartDto,
@@ -86,8 +82,7 @@ interface ConnectCartSseOptions {
 }
 
 function toAbsoluteApiUrl(path: string, params?: Record<string, unknown>) {
-  const resolvedPath = buildUrl(path, params);
-  return new URL(resolvedPath, API_BASE_URL).toString();
+  return buildAbsoluteApiUrl(path, params);
 }
 
 async function createSseHeaders(lastEventId?: string | null) {
@@ -224,10 +219,7 @@ export function buildCartControllerSsePublicUrl(
     params,
   );
 
-  return toAbsoluteApiUrl(
-    path,
-    (queryParams ?? {}) as Record<string, unknown>,
-  );
+  return toAbsoluteApiUrl(path, (queryParams ?? {}) as Record<string, unknown>);
 }
 
 export async function connectCartControllerSseCurrent(
@@ -241,5 +233,8 @@ export async function connectCartControllerSsePublic(
   params: CartControllerSsePublicParams,
   options: ConnectCartSseOptions,
 ) {
-  return connectCartSse(buildCartControllerSsePublicUrl(publicKey, params), options);
+  return connectCartSse(
+    buildCartControllerSsePublicUrl(publicKey, params),
+    options,
+  );
 }

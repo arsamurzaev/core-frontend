@@ -6,10 +6,7 @@ import {
   useAuthControllerMe,
   type AuthUserDto,
 } from "@/shared/api/generated/react-query";
-import {
-  clearCatalogSession,
-  getStoredCatalogId,
-} from "@/shared/api/client-request";
+import { clearCatalogSession } from "@/shared/api/client-request";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { type SessionBootstrapState } from "@/shared/providers/session-bootstrap";
 import React, {
@@ -23,6 +20,7 @@ import React, {
 type SessionStatus = "loading" | "authenticated" | "unauthenticated" | "error";
 
 const CSRF_COOKIE_NAME = "csrf";
+const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
 const COOKIE_CHECK_INTERVAL_MS = 30_000;
 const AUTH_MUTATION_KEYS = new Set([
   "authControllerLogin",
@@ -50,16 +48,9 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-function hasCsrfCookie(currentCatalogId?: string | null): boolean {
-  if (currentCatalogId) {
-    return getCookie(`catalog_csrf_${currentCatalogId}`) !== null;
-  }
-
+function hasCsrfCookie(_currentCatalogId?: string | null): boolean {
   if (getCookie(CSRF_COOKIE_NAME) !== null) return true;
-  const storedCatalogId = getStoredCatalogId();
-  if (storedCatalogId) {
-    return getCookie(`catalog_csrf_${storedCatalogId}`) !== null;
-  }
+  if (getCookie(ADMIN_CSRF_COOKIE_NAME) !== null) return true;
   return false;
 }
 
@@ -164,9 +155,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
   }, [unauthorized]);
 
   const user =
-    unauthorized || deferInitialAuthQuery
-      ? null
-      : (query.data?.user ?? null);
+    unauthorized || deferInitialAuthQuery ? null : (query.data?.user ?? null);
 
   const status: SessionStatus =
     csrfCookiePresent === null
@@ -174,17 +163,19 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       : deferInitialAuthQuery
         ? "unauthenticated"
         : query.isLoading && !query.data
-        ? "loading"
-        : query.error && !unauthorized
-          ? "error"
-          : user
-            ? "authenticated"
-            : "unauthenticated";
+          ? "loading"
+          : query.error && !unauthorized
+            ? "error"
+            : user
+              ? "authenticated"
+              : "unauthenticated";
 
   const syncSession = useCallback(async () => {
     updateCsrfCookie();
     setDeferInitialAuthQuery(false);
-    await queryClient.invalidateQueries({ queryKey: getAuthControllerMeQueryKey() });
+    await queryClient.invalidateQueries({
+      queryKey: getAuthControllerMeQueryKey(),
+    });
     return query.refetch();
   }, [query, queryClient, updateCsrfCookie]);
 

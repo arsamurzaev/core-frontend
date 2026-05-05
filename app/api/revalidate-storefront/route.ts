@@ -9,7 +9,7 @@ import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 const CSRF_COOKIE_NAME = "csrf";
-const CATALOG_CSRF_COOKIE_PREFIX = "catalog_csrf_";
+const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 
 function csrfTokensMatch(a: string, b: string): boolean {
@@ -19,12 +19,10 @@ function csrfTokensMatch(a: string, b: string): boolean {
 
 export async function POST(request: NextRequest) {
   const currentCatalog = await getCurrentCatalogServer().catch(() => null);
-  const scopedCsrfCookie = currentCatalog?.id
-    ? request.cookies.get(`${CATALOG_CSRF_COOKIE_PREFIX}${currentCatalog.id}`)
-        ?.value
-    : null;
   const csrfCookie =
-    scopedCsrfCookie ?? request.cookies.get(CSRF_COOKIE_NAME)?.value ?? null;
+    request.cookies.get(CSRF_COOKIE_NAME)?.value ??
+    request.cookies.get(ADMIN_CSRF_COOKIE_NAME)?.value ??
+    null;
   const csrfHeader = request.headers.get(CSRF_HEADER_NAME);
 
   if (!csrfCookie || !csrfHeader || !csrfTokensMatch(csrfCookie, csrfHeader)) {
@@ -34,7 +32,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const session = await getCurrentSessionServerUncached();
+  const session = await getCurrentSessionServerUncached(
+    currentCatalog?.id ?? null,
+  );
   const role = session.authData?.user.role;
 
   if (!isCatalogManagerRole(role)) {

@@ -1,4 +1,8 @@
-import { ApiClientError, FORWARDED_HOST_HEADER, mutator } from "@/shared/api/client";
+import {
+  ApiClientError,
+  FORWARDED_HOST_HEADER,
+  mutator,
+} from "@/shared/api/client";
 import type { AuthControllerMeQueryResult } from "@/shared/api/generated/react-query";
 import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import type { SessionBootstrapState } from "@/shared/providers/session-bootstrap";
@@ -6,18 +10,15 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 const CSRF_COOKIE_NAME = "csrf";
-const CATALOG_CSRF_COOKIE_PREFIX = "catalog_csrf_";
+const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
 
 async function loadCurrentSessionServer(
-  currentCatalogId?: string | null,
+  _currentCatalogId?: string | null,
 ): Promise<SessionBootstrapState> {
   const cookieStore = await cookies();
-  const csrfCookiePresent = currentCatalogId
-    ? cookieStore.has(`${CATALOG_CSRF_COOKIE_PREFIX}${currentCatalogId}`)
-    : cookieStore.has(CSRF_COOKIE_NAME) ||
-      cookieStore
-        .getAll()
-        .some((cookie) => cookie.name.startsWith(CATALOG_CSRF_COOKIE_PREFIX));
+  const csrfCookiePresent =
+    cookieStore.has(CSRF_COOKIE_NAME) ||
+    cookieStore.has(ADMIN_CSRF_COOKIE_NAME);
   const cookieHeader = cookieStore.toString();
 
   if (!csrfCookiePresent || !cookieHeader) {

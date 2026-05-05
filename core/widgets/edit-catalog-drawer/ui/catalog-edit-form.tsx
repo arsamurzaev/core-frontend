@@ -10,6 +10,7 @@ import {
   type CatalogEditTextareaControllerConfig,
 } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-textarea-controller";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
+import { EditCatalogDomainsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-domains-drawer";
 import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
 import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-integrations-drawer";
 import { EditCatalogPasswordDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-password-drawer";
@@ -189,6 +190,7 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
       <div className="grid w-full gap-3 px-5">
         <EditCatalogPasswordDrawer disabled={disabled} />
         <EditCatalogSessionsDrawer disabled={disabled} />
+        <EditCatalogDomainsDrawer disabled={disabled} />
       </div>
 
       <hr className="w-full" />
