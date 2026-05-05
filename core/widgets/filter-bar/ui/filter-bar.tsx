@@ -28,6 +28,7 @@ interface Props {
   searchTerm?: string;
   filterAction?: ReactNode;
   hideFilter?: boolean;
+  isFilterActive?: boolean;
   stickySearchMode?: "dialog" | "inline";
   onFilterToggle?: (patch?: CatalogFilterValuePatch) => void;
 }
@@ -39,6 +40,7 @@ export const FilterBar: React.FC<Props> = ({
   searchTerm,
   filterAction,
   hideFilter,
+  isFilterActive = false,
   stickySearchMode = "dialog",
   onFilterToggle,
 }) => {
@@ -54,6 +56,7 @@ export const FilterBar: React.FC<Props> = ({
     onFilterToggle,
     searchTerm,
   });
+  const shouldUseFilteredStickyLayout = isSticky && isFilterActive;
 
   React.useLayoutEffect(() => {
     const node = stickyRef.current;
@@ -92,8 +95,10 @@ export const FilterBar: React.FC<Props> = ({
         className,
       )}
     >
-      <div className="flex gap-5">
-        {isSticky && stickySearchMode === "dialog" ? (
+      <div className={cn("flex gap-5", shouldUseFilteredStickyLayout && "gap-2")}>
+        {isSticky &&
+        stickySearchMode === "dialog" &&
+        !shouldUseFilteredStickyLayout ? (
           <>
             {tab}
             <Dialog>
@@ -128,25 +133,28 @@ export const FilterBar: React.FC<Props> = ({
         ) : (
           <CatalogSearchField
             value={searchValue}
+            className={cn(shouldUseFilteredStickyLayout && "min-w-0")}
             onChange={setSearchValue}
             onSubmit={handleApplyFilters}
           />
         )}
 
-        <Button
-          variant="ghost"
-          className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full"
-          aria-label={
-            isDetailed ? "Переключить на сетку" : "Переключить на список"
-          }
-          onClick={toggleMode}
-        >
-          <Grid2X2 size={20} className={cn(isDetailed && "hidden")} />
-          <StretchHorizontal
-            size={20}
-            className={cn(!isDetailed && "hidden")}
-          />
-        </Button>
+        {!shouldUseFilteredStickyLayout ? (
+          <Button
+            variant="ghost"
+            className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full"
+            aria-label={
+              isDetailed ? "Переключить на сетку" : "Переключить на список"
+            }
+            onClick={toggleMode}
+          >
+            <Grid2X2 size={20} className={cn(isDetailed && "hidden")} />
+            <StretchHorizontal
+              size={20}
+              className={cn(!isDetailed && "hidden")}
+            />
+          </Button>
+        ) : null}
 
         {!hideFilter &&
           (filterAction ? (

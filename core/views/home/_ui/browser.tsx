@@ -193,6 +193,7 @@ export const Browser: React.FC<BrowserProps> = ({
         <FilterBar
           tab={<CatalogTabsToggle tab={effectiveQueryState.tab} />}
           searchTerm={effectiveQueryState.searchTerm}
+          isFilterActive={effectiveIsFilterActive}
           filterAction={
             <div className="flex items-center gap-2">
               {effectiveIsFilterActive ? (
