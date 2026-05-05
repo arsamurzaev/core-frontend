@@ -3,12 +3,12 @@
 import {
   CatalogDomainDtoStatus,
   getCatalogDomainControllerListQueryKey,
-  type CatalogDomainDnsRecordDto,
-  type CatalogDomainDto,
   useCatalogDomainControllerCheck,
   useCatalogDomainControllerCreate,
   useCatalogDomainControllerDisable,
   useCatalogDomainControllerList,
+  type CatalogDomainDnsRecordDto,
+  type CatalogDomainDto,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
@@ -250,7 +250,9 @@ function DomainCard({
           <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <Clock3 className="size-4" />
             <span>Последняя проверка: {formatDate(domain.lastCheckedAt)}</span>
-            <span>Повтор: через {formatRecheckSeconds(domain.nextCheckAfterSeconds)}</span>
+            <span>
+              Повтор: через {formatRecheckSeconds(domain.nextCheckAfterSeconds)}
+            </span>
           </div>
         </div>
       </div>
@@ -344,9 +346,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
     (domain) => domain.status === CatalogDomainDtoStatus.ACTIVE,
   ).length;
   const isMutating =
-    createDomain.isPending ||
-    checkDomain.isPending ||
-    disableDomain.isPending;
+    createDomain.isPending || checkDomain.isPending || disableDomain.isPending;
 
   const refreshDomains = React.useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey });
@@ -375,7 +375,9 @@ export const EditCatalogDomainsDrawer: React.FC<{
         },
       });
       setHostname("");
-      toast.success("Домен добавлен. Добавьте DNS-записи и запустите проверку.");
+      toast.success(
+        "Домен добавлен. Добавьте DNS-записи и запустите проверку.",
+      );
       await refreshDomains();
     } catch (error) {
       toast.error(extractApiErrorMessage(error));
@@ -465,7 +467,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
                   <Input
                     value={hostname}
                     disabled={isMutating}
-                    placeholder="kingsname.ru"
+                    placeholder="example.ru"
                     inputMode="url"
                     onChange={(event) => setHostname(event.target.value)}
                   />
