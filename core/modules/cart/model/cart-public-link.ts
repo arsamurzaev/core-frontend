@@ -1,19 +1,19 @@
 "use client";
 
 export interface CartPublicAccess {
-  checkoutKey: string;
   publicKey: string;
   rawLink: string;
 }
 
-const CART_QUERY_PARAM_CANDIDATES = ["cart", "cartLink", "cartUrl"] as const;
-const PUBLIC_KEY_QUERY_PARAM_CANDIDATES = [
+const CART_ACCESS_QUERY_PARAM = "c";
+const LEGACY_CART_QUERY_PARAM_CANDIDATES = [
+  "cart",
+  "cartLink",
+  "cartUrl",
+] as const;
+const LEGACY_PUBLIC_KEY_QUERY_PARAM_CANDIDATES = [
   "cartPublicKey",
   "publicKey",
-] as const;
-const CHECKOUT_KEY_QUERY_PARAM_CANDIDATES = [
-  "cartCheckoutKey",
-  "checkoutKey",
 ] as const;
 
 function getSafeBaseUrl(): string {
@@ -33,10 +33,15 @@ function normalizeValue(value: string | null | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
-function buildRawLink(publicKey: string, checkoutKey: string): string {
-  const target = new URL(`/cart/public/${publicKey}`, getSafeBaseUrl());
-  target.searchParams.set("checkoutKey", checkoutKey);
-  return `${target.pathname}${target.search}`;
+function buildRawLink(publicKey: string): string {
+  return `/?${CART_ACCESS_QUERY_PARAM}=${encodeURIComponent(publicKey)}`;
+}
+
+function createAccess(publicKey: string): CartPublicAccess {
+  return {
+    publicKey,
+    rawLink: buildRawLink(publicKey),
+  };
 }
 
 function parseNestedCartValue(value: string): CartPublicAccess | null {
@@ -69,19 +74,16 @@ export function parseCartPublicAccessFromLink(
       return nestedAccess;
     }
 
-    const match = source.pathname.match(/\/cart\/public\/([^/?#]+)/i);
-    const publicKey = normalizeValue(match?.[1]);
-    const checkoutKey = normalizeValue(source.searchParams.get("checkoutKey"));
-
-    if (!publicKey || !checkoutKey) {
-      return null;
+    const shortKey = normalizeValue(
+      source.searchParams.get(CART_ACCESS_QUERY_PARAM),
+    );
+    if (shortKey) {
+      return createAccess(shortKey);
     }
 
-    return {
-      checkoutKey,
-      publicKey,
-      rawLink: buildRawLink(publicKey, checkoutKey),
-    };
+    const match = source.pathname.match(/\/cart\/public\/([^/?#]+)/i);
+    const publicKey = normalizeValue(match?.[1]);
+    return publicKey ? createAccess(publicKey) : null;
   } catch {
     return null;
   }
@@ -90,29 +92,23 @@ export function parseCartPublicAccessFromLink(
 export function parseCartPublicAccessFromSearchParams(
   searchParams: Pick<URLSearchParams, "get">,
 ): CartPublicAccess | null {
-  for (const key of CART_QUERY_PARAM_CANDIDATES) {
+  const shortKey = normalizeValue(searchParams.get(CART_ACCESS_QUERY_PARAM));
+  if (shortKey) {
+    return createAccess(shortKey);
+  }
+
+  for (const key of LEGACY_CART_QUERY_PARAM_CANDIDATES) {
     const access = parseCartPublicAccessFromLink(searchParams.get(key));
     if (access) {
       return access;
     }
   }
 
-  const publicKey = PUBLIC_KEY_QUERY_PARAM_CANDIDATES.map((key) =>
-    normalizeValue(searchParams.get(key)),
-  ).find(Boolean);
-  const checkoutKey = CHECKOUT_KEY_QUERY_PARAM_CANDIDATES.map((key) =>
+  const publicKey = LEGACY_PUBLIC_KEY_QUERY_PARAM_CANDIDATES.map((key) =>
     normalizeValue(searchParams.get(key)),
   ).find(Boolean);
 
-  if (!publicKey || !checkoutKey) {
-    return null;
-  }
-
-  return {
-    checkoutKey,
-    publicKey,
-    rawLink: buildRawLink(publicKey, checkoutKey),
-  };
+  return publicKey ? createAccess(publicKey) : null;
 }
 
 export function removeCartPublicAccessParams(
@@ -120,17 +116,18 @@ export function removeCartPublicAccessParams(
 ): URLSearchParams {
   const nextParams = new URLSearchParams(searchParams.toString());
 
-  for (const key of CART_QUERY_PARAM_CANDIDATES) {
+  nextParams.delete(CART_ACCESS_QUERY_PARAM);
+
+  for (const key of LEGACY_CART_QUERY_PARAM_CANDIDATES) {
     nextParams.delete(key);
   }
 
-  for (const key of PUBLIC_KEY_QUERY_PARAM_CANDIDATES) {
+  for (const key of LEGACY_PUBLIC_KEY_QUERY_PARAM_CANDIDATES) {
     nextParams.delete(key);
   }
 
-  for (const key of CHECKOUT_KEY_QUERY_PARAM_CANDIDATES) {
-    nextParams.delete(key);
-  }
+  nextParams.delete("cartCheckoutKey");
+  nextParams.delete("checkoutKey");
 
   return nextParams;
 }
@@ -153,20 +150,16 @@ export function deserializeCartPublicAccess(
 
   try {
     const parsed = JSON.parse(normalized) as Partial<CartPublicAccess>;
-    if (
-      typeof parsed.publicKey !== "string" ||
-      typeof parsed.checkoutKey !== "string"
-    ) {
+    if (typeof parsed.publicKey !== "string") {
       return null;
     }
 
     return {
       publicKey: parsed.publicKey,
-      checkoutKey: parsed.checkoutKey,
       rawLink:
         typeof parsed.rawLink === "string"
           ? parsed.rawLink
-          : buildRawLink(parsed.publicKey, parsed.checkoutKey),
+          : buildRawLink(parsed.publicKey),
     };
   } catch {
     return parseCartPublicAccessFromLink(normalized);
@@ -175,6 +168,6 @@ export function deserializeCartPublicAccess(
 
 export function buildCartShareUrl(access: CartPublicAccess, baseUrl: string) {
   const target = new URL(baseUrl, getSafeBaseUrl());
-  target.searchParams.set("cart", access.rawLink);
+  target.searchParams.set(CART_ACCESS_QUERY_PARAM, access.publicKey);
   return target.toString();
 }

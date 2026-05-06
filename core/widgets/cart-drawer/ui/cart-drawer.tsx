@@ -83,11 +83,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     pathname?.startsWith("/product/") ?? false;
   const isFullyExpanded = snapPoint === 1;
   const publicAccessPublicKey = publicAccess?.publicKey ?? null;
-  const publicAccessCheckoutKey = publicAccess?.checkoutKey ?? null;
   const hasPublicCartLink = Boolean(cart?.publicKey);
-  const hasSharedCart = Boolean(
-    publicAccessPublicKey && publicAccessCheckoutKey,
-  );
+  const hasSharedCart = Boolean(publicAccessPublicKey);
   const isCheckoutCartStatus = status
     ? CHECKOUT_CART_STATUSES.has(status)
     : false;
@@ -108,8 +105,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     ? (cart?.comment ?? comment)
     : comment;
   const publicCartAccessKey =
-    isPublicMode && publicAccessPublicKey && publicAccessCheckoutKey
-      ? `${publicAccessPublicKey}:${publicAccessCheckoutKey}`
+    isPublicMode && publicAccessPublicKey
+      ? publicAccessPublicKey
       : null;
   const shouldAutoExpandPublicCart =
     Boolean(publicCartAccessKey) &&

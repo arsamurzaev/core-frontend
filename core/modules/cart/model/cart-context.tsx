@@ -30,7 +30,6 @@ import { type CartMode } from "@/core/modules/cart/model/cart-constants";
 import {
   cartControllerCompleteManagerOrder,
   cartControllerCreateOrGetCurrent,
-  cartControllerCreateCheckoutKey,
   cartControllerGetCurrent,
   cartControllerGetPublicCart,
   cartControllerRemoveCurrentItem,
@@ -633,11 +632,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
   const publicCartQuery = useQuery({
     queryKey:
-      storedPublicAccess?.publicKey && storedPublicAccess.checkoutKey
-        ? cartQueryKeys.public(
-            storedPublicAccess.publicKey,
-            storedPublicAccess.checkoutKey,
-          )
+      storedPublicAccess?.publicKey
+        ? cartQueryKeys.public(storedPublicAccess.publicKey)
         : ["cart", "public", "empty"],
     queryFn: async (): Promise<CartDto | null> => {
       if (!storedPublicAccess) {
@@ -646,9 +642,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
       const response = await cartControllerGetPublicCart(
         storedPublicAccess.publicKey,
-        {
-          checkoutKey: storedPublicAccess.checkoutKey,
-        },
+        {},
       );
 
       return response.cart;
@@ -656,7 +650,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     enabled:
       isHydrated &&
       mode === "public" &&
-      Boolean(storedPublicAccess?.publicKey && storedPublicAccess.checkoutKey),
+      Boolean(storedPublicAccess?.publicKey),
     refetchInterval: false,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
@@ -682,10 +676,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     }
 
     queryClient.removeQueries({
-      queryKey: cartQueryKeys.public(
-        storedPublicAccess.publicKey,
-        storedPublicAccess.checkoutKey,
-      ),
+      queryKey: cartQueryKeys.public(storedPublicAccess.publicKey),
     });
     notifyPublicCartUnavailable();
   }, [
@@ -754,7 +745,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
         return;
       }
 
-      const queryKey = cartQueryKeys.public(access.publicKey, access.checkoutKey);
+      const queryKey = cartQueryKeys.public(access.publicKey);
       const previousCart = queryClient.getQueryData<CartDto | null>(queryKey);
       if (options?.ignoreStale && isStaleRealtimeCart(cart, previousCart)) {
         return;
@@ -789,7 +780,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       }
 
       queryClient.removeQueries({
-        queryKey: cartQueryKeys.public(access.publicKey, access.checkoutKey),
+        queryKey: cartQueryKeys.public(access.publicKey),
       });
       clearStoredPublicAccess();
     },
@@ -809,7 +800,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       try {
         if (access) {
           queryClient.removeQueries({
-            queryKey: cartQueryKeys.public(access.publicKey, access.checkoutKey),
+            queryKey: cartQueryKeys.public(access.publicKey),
           });
         }
 
@@ -953,7 +944,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       const response = await cartControllerUpsertPublicItem(params.access.publicKey, {
         productId: params.productId,
         quantity: params.quantity,
-        checkoutKey: params.access.checkoutKey,
         ...(params.variantId ? { variantId: params.variantId } : {}),
       });
 
@@ -966,10 +956,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       setPublicCartData(access, cart);
     },
     onMutate: async (params): Promise<CartMutationContext> => {
-      const queryKey = cartQueryKeys.public(
-        params.access.publicKey,
-        params.access.checkoutKey,
-      );
+      const queryKey = cartQueryKeys.public(params.access.publicKey);
       await queryClient.cancelQueries({ queryKey });
       const previousCart = queryClient.getQueryData<CartDto | null>(queryKey);
       const optimisticCart = createOptimisticCart({
@@ -1020,9 +1007,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       const response = await cartControllerRemovePublicItem(
         params.access.publicKey,
         params.itemId,
-        {
-          checkoutKey: params.access.checkoutKey,
-        },
+        {},
       );
 
       return {
@@ -1048,13 +1033,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     },
   });
 
-  const createCheckoutKeyMutation = useMutation({
-    mutationFn: async (publicKey: string) => cartControllerCreateCheckoutKey(publicKey),
-    onSuccess: (response) => {
-      setCurrentCartData(response.cart);
-    },
-  });
-
   const completeManagerOrderMutation = useMutation({
     mutationFn: async (access: CartPublicAccess) => {
       const response = await cartControllerCompleteManagerOrder(access.publicKey);
@@ -1066,7 +1044,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     },
     onSuccess: ({ access }) => {
       queryClient.removeQueries({
-        queryKey: cartQueryKeys.public(access.publicKey, access.checkoutKey),
+        queryKey: cartQueryKeys.public(access.publicKey),
       });
       clearStoredPublicAccess();
     },
@@ -1206,11 +1184,9 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
         throw new Error("Не удалось подготовить публичную корзину.");
       }
 
-      const checkout = await createCheckoutKeyMutation.mutateAsync(publicKey);
       access = {
-        checkoutKey: checkout.checkoutKey,
         publicKey,
-        rawLink: `/cart/public/${publicKey}?checkoutKey=${checkout.checkoutKey}`,
+        rawLink: `/?c=${encodeURIComponent(publicKey)}`,
       };
     }
 
@@ -1232,7 +1208,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       url: shareUrl,
     };
   }, [
-    createCheckoutKeyMutation,
     items,
     shareCurrentCartMutation,
     shareCurrency,
@@ -1257,7 +1232,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     removeCurrentItemMutation.isPending ||
     removePublicItemMutation.isPending ||
     shareCurrentCartMutation.isPending ||
-    createCheckoutKeyMutation.isPending ||
     completeManagerOrderMutation.isPending ||
     isManagerSessionLoading;
 

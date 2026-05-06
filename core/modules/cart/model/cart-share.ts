@@ -26,11 +26,11 @@ export function buildShareBaseUrl(): string {
 export function getPublicAccessKey(
   access: CartPublicAccess | null | undefined,
 ) {
-  if (!access?.publicKey || !access.checkoutKey) {
+  if (!access?.publicKey) {
     return null;
   }
 
-  return `${access.publicKey}:${access.checkoutKey}`;
+  return access.publicKey;
 }
 
 export function buildLegacyCartShareText(params: {

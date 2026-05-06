@@ -1,6 +1,6 @@
-// shared/components/SlotErrorBoundary.tsx
 "use client";
 
+import { getUserFacingError } from "@/shared/lib/user-facing-error";
 import { Component, ReactNode } from "react";
 
 interface Props {
@@ -30,10 +30,15 @@ export class SlotErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const userFacingError = getUserFacingError(this.state.error);
+
       return (
         this.props.fallback || (
-          <div className="p-2 text-xs text-muted-foreground">
-            Ошибка загрузки компонента
+          <div className="rounded-md border bg-secondary/60 p-3 text-sm">
+            <p className="font-medium">{userFacingError.title}</p>
+            <p className="mt-1 text-xs leading-5 text-neutral-500">
+              {userFacingError.description}
+            </p>
           </div>
         )
       );

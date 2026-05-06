@@ -1951,7 +1951,7 @@ export interface CheckoutCartResponseDto {
   ok: boolean;
   cart: CartDto;
   publicKey: string;
-  checkoutKey: string;
+  checkoutKey?: string;
 }
 
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
@@ -1990,7 +1990,7 @@ export interface PublicUpsertCartItemDtoReq {
   variantId?: string;
   /** 0 = удалить позицию из корзины */
   quantity: number;
-  checkoutKey: string;
+  checkoutKey?: string;
 }
 
 export type CreateSeoDtoReqHreflang = { [key: string]: unknown };
@@ -2416,21 +2416,21 @@ export type CartControllerGetPublicCartParams = {
 /**
  * Read/write key for the public cart
  */
-checkoutKey: string;
+checkoutKey?: string;
 };
 
 export type CartControllerRemovePublicItemParams = {
 /**
  * Write key for the public cart
  */
-checkoutKey: string;
+checkoutKey?: string;
 };
 
 export type CartControllerSsePublicParams = {
 /**
  * SSE access key for the public cart
  */
-checkoutKey: string;
+checkoutKey?: string;
 };
 
 export const getGatewayService = () => {

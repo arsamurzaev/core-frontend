@@ -1,7 +1,10 @@
-import type { CatalogCurrentDto, MediaDto } from "@/shared/api/generated/react-query";
+import type {
+  CatalogCurrentDto,
+  MediaDto,
+} from "@/shared/api/generated/react-query";
 import type { Metadata } from "next";
 
-const DEFAULT_CATALOG_TITLE = "Catalog Frontend";
+const DEFAULT_CATALOG_TITLE = "Мой Каталог";
 const DEFAULT_CATALOG_DESCRIPTION =
   "Клиент каталога с корзиной, фильтрами и управлением товарами.";
 
@@ -52,7 +55,9 @@ function resolveMetadataBase(
   }
 
   return new URL(
-    /^https?:\/\//i.test(resolvedHost) ? resolvedHost : `https://${resolvedHost}`,
+    /^https?:\/\//i.test(resolvedHost)
+      ? resolvedHost
+      : `https://${resolvedHost}`,
   );
 }
 
@@ -243,7 +248,8 @@ export function buildCatalogMetadata(
   const metadataBase = resolveMetadataBase(forwardedHost, catalog.domain);
   const siteName = normalizeText(catalog.name) ?? DEFAULT_CATALOG_TITLE;
   const title = normalizeText(catalog.seo?.title) ?? siteName;
-  const description = resolveDescription(catalog) ?? DEFAULT_CATALOG_DESCRIPTION;
+  const description =
+    resolveDescription(catalog) ?? DEFAULT_CATALOG_DESCRIPTION;
   const canonicalUrl = resolveCanonicalUrl(catalog, metadataBase);
   const ogUrl = normalizeText(catalog.seo?.ogUrl);
   const ogImage = resolveSocialImage(
@@ -251,15 +257,21 @@ export function buildCatalogMetadata(
     metadataBase,
   );
   const twitterImage = resolveSocialImage(
-    catalog.seo?.twitterMedia ?? catalog.seo?.ogMedia ?? catalog.config?.logoMedia,
+    catalog.seo?.twitterMedia ??
+      catalog.seo?.ogMedia ??
+      catalog.config?.logoMedia,
     metadataBase,
   );
   const twitterCard = resolveTwitterCard(
     catalog.seo?.twitterCard,
     Boolean(twitterImage),
   );
-  const googleVerification = normalizeText(catalog.settings?.googleVerification);
-  const yandexVerification = normalizeText(catalog.settings?.yandexVerification);
+  const googleVerification = normalizeText(
+    catalog.settings?.googleVerification,
+  );
+  const yandexVerification = normalizeText(
+    catalog.settings?.yandexVerification,
+  );
   const rawRobots = normalizeText(catalog.seo?.robots);
   const iconDescriptor = resolveIconDescriptor(
     catalog.seo?.faviconMedia ?? catalog.config?.logoMedia,
@@ -311,7 +323,8 @@ export function buildCatalogMetadata(
       site: normalizeText(catalog.seo?.twitterSite) ?? undefined,
       creator: normalizeText(catalog.seo?.twitterCreator) ?? undefined,
       title: normalizeText(catalog.seo?.twitterTitle) ?? title,
-      description: normalizeText(catalog.seo?.twitterDescription) ?? description,
+      description:
+        normalizeText(catalog.seo?.twitterDescription) ?? description,
       images: twitterImage ? [twitterImage] : undefined,
     },
     other: parseOtherMeta(catalog.seo?.extras),

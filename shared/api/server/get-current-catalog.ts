@@ -1,5 +1,9 @@
+import {
+  ApiClientError,
+  FORWARDED_HOST_HEADER,
+  mutator,
+} from "@/shared/api/client";
 import { type CatalogControllerGetCurrentQueryResult } from "@/shared/api/generated/react-query";
-import { FORWARDED_HOST_HEADER, mutator } from "@/shared/api/client";
 import {
   DEFAULT_FORWARDED_HOST,
   normalizeForwardedHost,
@@ -9,6 +13,12 @@ import { unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 
 const STOREFRONT_SERVER_REVALIDATE_SECONDS = 15;
+
+type CurrentCatalogServerResult = CatalogControllerGetCurrentQueryResult | null;
+
+function isCurrentCatalogNotFoundError(error: unknown): boolean {
+  return error instanceof ApiClientError && error.status === 404;
+}
 
 export async function resolveServerForwardedHost(): Promise<string> {
   try {
@@ -33,18 +43,26 @@ export async function resolveServerForwardedHost(): Promise<string> {
   return DEFAULT_FORWARDED_HOST;
 }
 
-export async function getCurrentCatalogServer(): Promise<CatalogControllerGetCurrentQueryResult> {
+export async function getCurrentCatalogServer(): Promise<CurrentCatalogServerResult> {
   const forwardedHost = await resolveServerForwardedHost();
 
   const getCachedCurrentCatalogByHost = unstable_cache(
-    async (): Promise<CatalogControllerGetCurrentQueryResult> => {
-      return mutator<CatalogControllerGetCurrentQueryResult>({
-        url: "/catalog/current",
-        method: "GET",
-        headers: {
-          [FORWARDED_HOST_HEADER]: forwardedHost,
-        },
-      });
+    async (): Promise<CurrentCatalogServerResult> => {
+      try {
+        return await mutator<CatalogControllerGetCurrentQueryResult>({
+          url: "/catalog/current",
+          method: "GET",
+          headers: {
+            [FORWARDED_HOST_HEADER]: forwardedHost,
+          },
+        });
+      } catch (error) {
+        if (isCurrentCatalogNotFoundError(error)) {
+          return null;
+        }
+
+        throw error;
+      }
     },
     ["catalog-current-by-host", forwardedHost],
     {
