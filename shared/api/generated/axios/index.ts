@@ -1947,13 +1947,6 @@ export interface UpsertCartItemDtoReq {
   quantity: number;
 }
 
-export interface CheckoutCartResponseDto {
-  ok: boolean;
-  cart: CartDto;
-  publicKey: string;
-  checkoutKey?: string;
-}
-
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 
@@ -1990,7 +1983,6 @@ export interface PublicUpsertCartItemDtoReq {
   variantId?: string;
   /** 0 = удалить позицию из корзины */
   quantity: number;
-  checkoutKey?: string;
 }
 
 export type CreateSeoDtoReqHreflang = { [key: string]: unknown };
@@ -2410,27 +2402,6 @@ export type IntegrationControllerGetMoySkladRunsParams = {
  * Сколько последних запусков вернуть
  */
 limit?: number;
-};
-
-export type CartControllerGetPublicCartParams = {
-/**
- * Read/write key for the public cart
- */
-checkoutKey?: string;
-};
-
-export type CartControllerRemovePublicItemParams = {
-/**
- * Write key for the public cart
- */
-checkoutKey?: string;
-};
-
-export type CartControllerSsePublicParams = {
-/**
- * SSE access key for the public cart
- */
-checkoutKey?: string;
 };
 
 export const getGatewayService = () => {
@@ -3909,27 +3880,13 @@ const cartControllerSseCurrent = (
     }
   
 /**
- * @summary Issue a checkoutKey for a public cart
- */
-const cartControllerCreateCheckoutKey = (
-    publicKey: string,
- ) => {
-      return mutator<CheckoutCartResponseDto>(
-      {url: `/cart/public/${publicKey}/checkout`, method: 'POST'
-    },
-      );
-    }
-  
-/**
- * @summary Get a public cart by checkoutKey
+ * @summary Get a public cart by public key
  */
 const cartControllerGetPublicCart = (
     publicKey: string,
-    params: CartControllerGetPublicCartParams,
  ) => {
       return mutator<CartResponseDto>(
-      {url: `/cart/public/${publicKey}`, method: 'GET',
-        params
+      {url: `/cart/public/${publicKey}`, method: 'GET'
     },
       );
     }
@@ -4003,11 +3960,9 @@ const cartControllerUpsertPublicItem = (
 const cartControllerRemovePublicItem = (
     publicKey: string,
     itemId: string,
-    params: CartControllerRemovePublicItemParams,
  ) => {
       return mutator<CartResponseDto>(
-      {url: `/cart/public/${publicKey}/items/${itemId}`, method: 'DELETE',
-        params
+      {url: `/cart/public/${publicKey}/items/${itemId}`, method: 'DELETE'
     },
       );
     }
@@ -4017,11 +3972,9 @@ const cartControllerRemovePublicItem = (
  */
 const cartControllerSsePublic = (
     publicKey: string,
-    params: CartControllerSsePublicParams,
  ) => {
       return mutator<string>(
-      {url: `/cart/public/${publicKey}/sse`, method: 'GET',
-        params
+      {url: `/cart/public/${publicKey}/sse`, method: 'GET'
     },
       );
     }
@@ -4104,7 +4057,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerCreateCheckoutKey,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -4214,7 +4167,6 @@ export type CartControllerShareCurrentResult = NonNullable<Awaited<ReturnType<Re
 export type CartControllerUpsertCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerUpsertCurrentItem']>>>
 export type CartControllerRemoveCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerRemoveCurrentItem']>>>
 export type CartControllerSseCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSseCurrent']>>>
-export type CartControllerCreateCheckoutKeyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCreateCheckoutKey']>>>
 export type CartControllerGetPublicCartResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetPublicCart']>>>
 export type CartControllerStartManagerSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerStartManagerSession']>>>
 export type CartControllerHeartbeatManagerSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerHeartbeatManagerSession']>>>

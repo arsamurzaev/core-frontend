@@ -5962,64 +5962,10 @@ export const CartControllerSseCurrentHeader = zod.object({
 
 
 /**
- * @summary Issue a checkoutKey for a public cart
- */
-export const CartControllerCreateCheckoutKeyParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
-})
-
-export const CartControllerCreateCheckoutKeyResponse = zod.object({
-  "ok": zod.boolean(),
-  "cart": zod.object({
-  "id": zod.uuid(),
-  "catalogId": zod.uuid(),
-  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
-  "statusMessage": zod.string().nullable(),
-  "statusChangedAt": zod.iso.datetime({}),
-  "publicKey": zod.string().nullable(),
-  "checkoutAt": zod.iso.datetime({}).nullable(),
-  "comment": zod.string().nullable(),
-  "assignedManagerId": zod.uuid().nullable(),
-  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
-  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
-  "closedAt": zod.iso.datetime({}).nullable(),
-  "items": zod.array(zod.object({
-  "id": zod.uuid(),
-  "productId": zod.uuid(),
-  "variantId": zod.uuid().nullable(),
-  "quantity": zod.number(),
-  "product": zod.object({
-  "id": zod.uuid(),
-  "name": zod.string(),
-  "slug": zod.string(),
-  "price": zod.number()
-}),
-  "lineTotal": zod.number(),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-})),
-  "totals": zod.object({
-  "itemsCount": zod.number(),
-  "subtotal": zod.number(),
-  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
-}),
-  "createdAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
-}),
-  "publicKey": zod.string(),
-  "checkoutKey": zod.string()
-})
-
-
-/**
- * @summary Get a public cart by checkoutKey
+ * @summary Get a public cart by public key
  */
 export const CartControllerGetPublicCartParams = zod.object({
   "publicKey": zod.string().describe('Public cart key')
-})
-
-export const CartControllerGetPublicCartQueryParams = zod.object({
-  "checkoutKey": zod.string().describe('Read\/write key for the public cart')
 })
 
 export const CartControllerGetPublicCartResponse = zod.object({
@@ -6243,8 +6189,7 @@ export const CartControllerUpsertPublicItemParams = zod.object({
 export const CartControllerUpsertPublicItemBody = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().optional(),
-  "quantity": zod.number().describe('0 = удалить позицию из корзины'),
-  "checkoutKey": zod.string()
+  "quantity": zod.number().describe('0 = удалить позицию из корзины')
 })
 
 export const CartControllerUpsertPublicItemResponse = zod.object({
@@ -6296,10 +6241,6 @@ export const CartControllerRemovePublicItemParams = zod.object({
   "itemId": zod.string().describe('Cart item id')
 })
 
-export const CartControllerRemovePublicItemQueryParams = zod.object({
-  "checkoutKey": zod.string().describe('Write key for the public cart')
-})
-
 export const CartControllerRemovePublicItemResponse = zod.object({
   "ok": zod.boolean(),
   "cart": zod.object({
@@ -6346,10 +6287,6 @@ export const CartControllerRemovePublicItemResponse = zod.object({
  */
 export const CartControllerSsePublicParams = zod.object({
   "publicKey": zod.string().describe('Public cart key')
-})
-
-export const CartControllerSsePublicQueryParams = zod.object({
-  "checkoutKey": zod.string().describe('SSE access key for the public cart')
 })
 
 export const CartControllerSsePublicHeader = zod.object({

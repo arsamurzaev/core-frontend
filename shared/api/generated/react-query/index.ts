@@ -1966,13 +1966,6 @@ export interface UpsertCartItemDtoReq {
   quantity: number;
 }
 
-export interface CheckoutCartResponseDto {
-  ok: boolean;
-  cart: CartDto;
-  publicKey: string;
-  checkoutKey?: string;
-}
-
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 
@@ -2009,7 +2002,6 @@ export interface PublicUpsertCartItemDtoReq {
   variantId?: string;
   /** 0 = удалить позицию из корзины */
   quantity: number;
-  checkoutKey?: string;
 }
 
 export type CreateSeoDtoReqHreflang = { [key: string]: unknown };
@@ -2429,27 +2421,6 @@ export type IntegrationControllerGetMoySkladRunsParams = {
  * Сколько последних запусков вернуть
  */
 limit?: number;
-};
-
-export type CartControllerGetPublicCartParams = {
-/**
- * Read/write key for the public cart
- */
-checkoutKey?: string;
-};
-
-export type CartControllerRemovePublicItemParams = {
-/**
- * Write key for the public cart
- */
-checkoutKey?: string;
-};
-
-export type CartControllerSsePublicParams = {
-/**
- * SSE access key for the public cart
- */
-checkoutKey?: string;
 };
 
 /**
@@ -10671,80 +10642,16 @@ export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof ca
 
 
 /**
- * @summary Issue a checkoutKey for a public cart
- */
-export const cartControllerCreateCheckoutKey = (
-    publicKey: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<CheckoutCartResponseDto>(
-      {url: `/cart/public/${publicKey}/checkout`, method: 'POST', signal
-    },
-      );
-    }
-  
-
-
-export const getCartControllerCreateCheckoutKeyMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>, TError,{publicKey: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>, TError,{publicKey: string}, TContext> => {
-
-const mutationKey = ['cartControllerCreateCheckoutKey'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>, {publicKey: string}> = (props) => {
-          const {publicKey} = props ?? {};
-
-          return  cartControllerCreateCheckoutKey(publicKey,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CartControllerCreateCheckoutKeyMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>>
-    
-    export type CartControllerCreateCheckoutKeyMutationError = unknown
-
-    /**
- * @summary Issue a checkoutKey for a public cart
- */
-export const useCartControllerCreateCheckoutKey = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>, TError,{publicKey: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof cartControllerCreateCheckoutKey>>,
-        TError,
-        {publicKey: string},
-        TContext
-      > => {
-      return useMutation(getCartControllerCreateCheckoutKeyMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Get a public cart by checkoutKey
+ * @summary Get a public cart by public key
  */
 export const cartControllerGetPublicCart = (
     publicKey: string,
-    params: CartControllerGetPublicCartParams,
  signal?: AbortSignal
 ) => {
       
       
       return mutator<CartResponseDto>(
-      {url: `/cart/public/${publicKey}`, method: 'GET',
-        params, signal
+      {url: `/cart/public/${publicKey}`, method: 'GET', signal
     },
       );
     }
@@ -10752,25 +10659,23 @@ export const cartControllerGetPublicCart = (
 
 
 
-export const getCartControllerGetPublicCartQueryKey = (publicKey: string,
-    params?: CartControllerGetPublicCartParams,) => {
+export const getCartControllerGetPublicCartQueryKey = (publicKey: string,) => {
     return [
-    `/cart/public/${publicKey}`, ...(params ? [params] : [])
+    `/cart/public/${publicKey}`
     ] as const;
     }
 
     
-export const getCartControllerGetPublicCartQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(publicKey: string,
-    params: CartControllerGetPublicCartParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
+export const getCartControllerGetPublicCartQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getCartControllerGetPublicCartQueryKey(publicKey,params);
+  const queryKey =  queryOptions?.queryKey ?? getCartControllerGetPublicCartQueryKey(publicKey);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerGetPublicCart>>> = ({ signal }) => cartControllerGetPublicCart(publicKey,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerGetPublicCart>>> = ({ signal }) => cartControllerGetPublicCart(publicKey, signal);
 
       
 
@@ -10784,8 +10689,7 @@ export type CartControllerGetPublicCartQueryError = unknown
 
 
 export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerGetPublicCartParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>> & Pick<
+ publicKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof cartControllerGetPublicCart>>,
           TError,
@@ -10795,8 +10699,7 @@ export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerGetPublicCartParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>> & Pick<
+ publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof cartControllerGetPublicCart>>,
           TError,
@@ -10806,21 +10709,19 @@ export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerGetPublicCartParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
+ publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get a public cart by checkoutKey
+ * @summary Get a public cart by public key
  */
 
 export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerGetPublicCartParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
+ publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getCartControllerGetPublicCartQueryOptions(publicKey,params,options)
+  const queryOptions = getCartControllerGetPublicCartQueryOptions(publicKey,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -11150,14 +11051,12 @@ export const useCartControllerUpsertPublicItem = <TError = unknown,
 export const cartControllerRemovePublicItem = (
     publicKey: string,
     itemId: string,
-    params: CartControllerRemovePublicItemParams,
  signal?: AbortSignal
 ) => {
       
       
       return mutator<CartResponseDto>(
-      {url: `/cart/public/${publicKey}/items/${itemId}`, method: 'DELETE',
-        params, signal
+      {url: `/cart/public/${publicKey}/items/${itemId}`, method: 'DELETE', signal
     },
       );
     }
@@ -11165,8 +11064,8 @@ export const cartControllerRemovePublicItem = (
 
 
 export const getCartControllerRemovePublicItemMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string;params: CartControllerRemovePublicItemParams}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string;params: CartControllerRemovePublicItemParams}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string}, TContext> => {
 
 const mutationKey = ['cartControllerRemovePublicItem'];
 const {mutation: mutationOptions} = options ?
@@ -11178,10 +11077,10 @@ const {mutation: mutationOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, {publicKey: string;itemId: string;params: CartControllerRemovePublicItemParams}> = (props) => {
-          const {publicKey,itemId,params} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, {publicKey: string;itemId: string}> = (props) => {
+          const {publicKey,itemId} = props ?? {};
 
-          return  cartControllerRemovePublicItem(publicKey,itemId,params,)
+          return  cartControllerRemovePublicItem(publicKey,itemId,)
         }
 
 
@@ -11199,11 +11098,11 @@ const {mutation: mutationOptions} = options ?
  * @summary Remove an item from a public cart
  */
 export const useCartControllerRemovePublicItem = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string;params: CartControllerRemovePublicItemParams}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof cartControllerRemovePublicItem>>,
         TError,
-        {publicKey: string;itemId: string;params: CartControllerRemovePublicItemParams},
+        {publicKey: string;itemId: string},
         TContext
       > => {
       return useMutation(getCartControllerRemovePublicItemMutationOptions(options), queryClient);
@@ -11214,14 +11113,12 @@ export const useCartControllerRemovePublicItem = <TError = unknown,
  */
 export const cartControllerSsePublic = (
     publicKey: string,
-    params: CartControllerSsePublicParams,
  signal?: AbortSignal
 ) => {
       
       
       return mutator<string>(
-      {url: `/cart/public/${publicKey}/sse`, method: 'GET',
-        params, signal
+      {url: `/cart/public/${publicKey}/sse`, method: 'GET', signal
     },
       );
     }
@@ -11229,25 +11126,23 @@ export const cartControllerSsePublic = (
 
 
 
-export const getCartControllerSsePublicQueryKey = (publicKey: string,
-    params?: CartControllerSsePublicParams,) => {
+export const getCartControllerSsePublicQueryKey = (publicKey: string,) => {
     return [
-    `/cart/public/${publicKey}/sse`, ...(params ? [params] : [])
+    `/cart/public/${publicKey}/sse`
     ] as const;
     }
 
     
-export const getCartControllerSsePublicQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(publicKey: string,
-    params: CartControllerSsePublicParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
+export const getCartControllerSsePublicQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getCartControllerSsePublicQueryKey(publicKey,params);
+  const queryKey =  queryOptions?.queryKey ?? getCartControllerSsePublicQueryKey(publicKey);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerSsePublic>>> = ({ signal }) => cartControllerSsePublic(publicKey,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerSsePublic>>> = ({ signal }) => cartControllerSsePublic(publicKey, signal);
 
       
 
@@ -11261,8 +11156,7 @@ export type CartControllerSsePublicQueryError = unknown
 
 
 export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerSsePublicParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>> & Pick<
+ publicKey: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof cartControllerSsePublic>>,
           TError,
@@ -11272,8 +11166,7 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerSsePublicParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>> & Pick<
+ publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof cartControllerSsePublic>>,
           TError,
@@ -11283,8 +11176,7 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerSsePublicParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
+ publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -11292,12 +11184,11 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
  */
 
 export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(
- publicKey: string,
-    params: CartControllerSsePublicParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
+ publicKey: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerSsePublic>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getCartControllerSsePublicQueryOptions(publicKey,params,options)
+  const queryOptions = getCartControllerSsePublicQueryOptions(publicKey,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
