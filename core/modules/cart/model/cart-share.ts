@@ -6,6 +6,32 @@ function formatSharePrice(value: number) {
   return Intl.NumberFormat("ru-RU").format(value);
 }
 
+function getShareProductName(name: string) {
+  const trimmedName = name.trim();
+
+  if (!trimmedName.endsWith(")")) {
+    return trimmedName;
+  }
+
+  let depth = 0;
+
+  for (let index = trimmedName.length - 1; index >= 0; index -= 1) {
+    const char = trimmedName[index];
+
+    if (char === ")") {
+      depth += 1;
+    } else if (char === "(") {
+      depth -= 1;
+
+      if (depth === 0) {
+        return trimmedName.slice(0, index).trim() || trimmedName;
+      }
+    }
+  }
+
+  return trimmedName;
+}
+
 function formatShareMoney(value: number, currency: string) {
   const normalizedCurrency = currency.trim();
   const formattedValue = formatSharePrice(value);
@@ -47,7 +73,7 @@ export function buildLegacyCartShareText(params: {
   const normalizedComment = comment?.trim();
   const productsText = items
     .map((item) => {
-      const productLabel = item.name;
+      const productLabel = getShareProductName(item.name);
 
       return `•${productLabel} - ${item.quantity} шт.`;
     })
