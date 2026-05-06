@@ -7,8 +7,10 @@ import { CartDrawerHeader } from "@/core/widgets/cart-drawer/ui/cart-drawer-head
 import { ProductDrawer } from "@/core/widgets/product-drawer/ui/product-drawer";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
+import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
+import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { usePathname } from "next/navigation";
@@ -27,6 +29,36 @@ const CHECKOUT_CART_STATUSES = new Set([
   "CANCELLED",
   "EXPIRED",
 ]);
+
+const ManagerOrderStartBar: React.FC<{
+  disabled: boolean;
+  onStart: () => Promise<void>;
+}> = ({ disabled, onStart }) => {
+  const handleStart = React.useCallback(async () => {
+    try {
+      await onStart();
+      toast.success("Корзина создана. Теперь можно добавлять товары.");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  }, [onStart]);
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-180 px-2 pb-2">
+      <div className="shadow-custom rounded-t-2xl border bg-background px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+        <Button
+          type="button"
+          className="w-full justify-center"
+          disabled={disabled}
+          onClick={() => void handleStart()}
+          size="full"
+        >
+          + Создать корзину
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error
@@ -47,6 +79,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 }) => {
   const {
     autoExpandPublicCartAccessKey,
+    canCreateManagerOrder,
     canShare,
     cart,
     clearCart,
@@ -54,16 +87,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     detachPublicCart,
     isBusy,
     isLoading,
+    isManagerOrderCart,
     isManagedPublicCart,
     isPublicMode,
     items,
     prepareShareOrder,
     publicAccess,
+    startManagerOrder,
     status,
     statusMessage,
     shouldUseCartUi,
     totals,
   } = useCart();
+  const { hasBlockingDrawer } = useDrawerCoordinator();
   const catalog = useCatalog();
   const pathname = usePathname();
   const currency = items[0]?.currency ?? getCatalogCurrency(catalog, "RUB");
@@ -96,6 +132,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     isCheckoutCartStatus;
   const shouldHideDrawer =
     !shouldUseCartUi || (!hasItems && !shouldKeepEmptySharedCartOpen);
+  const shouldShowManagerOrderStartBar =
+    canCreateManagerOrder && !shouldUseCartUi;
+  const shouldSuspendManagerCartDrawer =
+    hasBlockingDrawer && isManagerOrderCart;
   const isCommentLocked =
     isManagedPublicCart ||
     isPublicMode ||
@@ -217,9 +257,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       return;
     }
 
-    await completeManagedOrder();
+    await completeManagedOrder(comment);
     toast.success("Заказ завершен.");
-  }, [completeManagedOrder]);
+  }, [comment, completeManagedOrder]);
 
   const handleOpenProduct = React.useCallback(
     (product: ProductWithDetailsDto) => {
@@ -240,7 +280,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     setSelectedProduct(null);
   }, []);
 
-  if (shouldHideDrawer) {
+  if (shouldHideDrawer || shouldSuspendManagerCartDrawer) {
+    if (shouldShowManagerOrderStartBar) {
+      return (
+        <ManagerOrderStartBar
+          disabled={isBusy}
+          onStart={startManagerOrder}
+        />
+      );
+    }
+
     return null;
   }
 
@@ -304,7 +353,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               hasSharedCart={hasSharedCart}
               hasItems={hasItems}
               isBusy={isBusy}
-              isManagedPublicCart={isManagedPublicCart}
+              isManagedPublicCart={isManagerOrderCart}
               onCollapse={
                 !canShare && !isManagedPublicCart && isFullyExpanded
                   ? () => setSnapPoint(SNAP_POINTS[0])

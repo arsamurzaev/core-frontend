@@ -2,6 +2,7 @@
 
 import { SUBSCRIPTION_PLANS } from "@/core/widgets/footer/model/subscription-plans";
 import type { SubscriptionPlan } from "@/core/widgets/footer/model/subscription-plans";
+import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/ui/carousel";
@@ -65,6 +66,16 @@ export const SubscriptionReminderDrawer: React.FC<SubscriptionReminderDrawerProp
   onRenewClick,
   open,
 }) => {
+  const { registerBlockingDrawer } = useDrawerCoordinator();
+
+  React.useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    return registerBlockingDrawer("subscription-warning");
+  }, [open, registerBlockingDrawer]);
+
   return (
     <AppDrawer open={open} onOpenChange={onOpenChange}>
       <AppDrawer.Content className="max-h-fit pb-10">

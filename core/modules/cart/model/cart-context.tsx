@@ -46,6 +46,7 @@ import { toNumberValue } from "@/shared/lib/attributes";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogMode } from "@/shared/lib/catalog-mode";
+import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
 import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
@@ -67,9 +68,10 @@ export interface CartSharePayload {
 
 interface CartContextValue {
   autoExpandPublicCartAccessKey: string | null;
+  canCreateManagerOrder: boolean;
   cart: CartDto | null;
   clearCart: () => Promise<void>;
-  completeManagedOrder: () => Promise<CompletedOrderDto>;
+  completeManagedOrder: (comment?: string) => Promise<CompletedOrderDto>;
   decrementProduct: (productId: string, product?: CartProductSnapshot) => Promise<void>;
   detachPublicCart: () => void;
   incrementProduct: (productId: string, product?: CartProductSnapshot) => Promise<void>;
@@ -81,6 +83,7 @@ interface CartContextValue {
   isBusy: boolean;
   isHydrated: boolean;
   isLoading: boolean;
+  isManagerOrderCart: boolean;
   isManagedPublicCart: boolean;
   isOwnSharedCart: boolean;
   isPublicMode: boolean;
@@ -91,6 +94,7 @@ interface CartContextValue {
   canShare: boolean;
   quantityByProductId: Record<string, number>;
   shouldUseCartUi: boolean;
+  startManagerOrder: () => Promise<void>;
   status: CartDto["status"] | null;
   statusMessage: string | null;
   totals: {
@@ -105,6 +109,7 @@ const CartContext = createStrictContext<CartContextValue>();
 
 const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   autoExpandPublicCartAccessKey: null,
+  canCreateManagerOrder: false,
   cart: null,
   clearCart: async () => {},
   completeManagedOrder: async () => {
@@ -117,6 +122,7 @@ const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   isBusy: false,
   isHydrated: false,
   isLoading: true,
+  isManagerOrderCart: false,
   isManagedPublicCart: false,
   isOwnSharedCart: false,
   isPublicMode: false,
@@ -129,6 +135,7 @@ const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   publicAccess: null,
   quantityByProductId: {},
   shouldUseCartUi: false,
+  startManagerOrder: async () => {},
   status: null,
   statusMessage: null,
   totals: {
@@ -148,6 +155,8 @@ type CartMutationContext = {
   previousCart: CartDto | null | undefined;
 };
 
+const MANAGER_ORDER_CATALOG_TYPES = new Set(["wholesale", "whosale"]);
+
 function CartProviderFallback({
   children,
 }: React.PropsWithChildren) {
@@ -160,6 +169,10 @@ function CartProviderFallback({
 
 function buildCurrentCartStorageKey(catalogId: string): string {
   return `catalog-current-cart:${catalogId}`;
+}
+
+function buildManagerOrderStorageKey(catalogId: string): string {
+  return `catalog-manager-order:${catalogId}`;
 }
 
 function normalizeVariantId(variantId?: string | null): string | undefined {
@@ -415,6 +428,10 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     () => buildCurrentCartStorageKey(catalog.id),
     [catalog.id],
   );
+  const managerOrderStorageKey = React.useMemo(
+    () => buildManagerOrderStorageKey(catalog.id),
+    [catalog.id],
+  );
   const fallbackCurrency = React.useMemo(
     () => getCatalogCurrency(catalog, "RUB"),
     [catalog],
@@ -422,6 +439,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   const [storedPublicAccess, setStoredPublicAccess] =
     React.useState<CartPublicAccess | null>(null);
   const [hasStoredCurrentCart, setHasStoredCurrentCart] = React.useState(false);
+  const [hasActiveManagerOrder, setHasActiveManagerOrder] =
+    React.useState(false);
   const [autoExpandPublicCartAccessKey, setAutoExpandPublicCartAccessKey] =
     React.useState<string | null>(null);
   const [isHydrated, setIsHydrated] = React.useState(false);
@@ -446,6 +465,22 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
     setHasStoredCurrentCart(true);
   }, [currentCartStorageKey]);
+
+  const persistActiveManagerOrder = React.useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(managerOrderStorageKey, "1");
+    }
+
+    setHasActiveManagerOrder(true);
+  }, [managerOrderStorageKey]);
+
+  const clearActiveManagerOrder = React.useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(managerOrderStorageKey);
+    }
+
+    setHasActiveManagerOrder(false);
+  }, [managerOrderStorageKey]);
 
   const clearStoredCurrentCart = React.useCallback(() => {
     if (typeof window !== "undefined") {
@@ -492,8 +527,11 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     setHasStoredCurrentCart(
       window.localStorage.getItem(currentCartStorageKey) === "1",
     );
+    setHasActiveManagerOrder(
+      window.localStorage.getItem(managerOrderStorageKey) === "1",
+    );
     setIsHydrated(true);
-  }, [currentCartStorageKey, storageKey]);
+  }, [currentCartStorageKey, managerOrderStorageKey, storageKey]);
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -540,11 +578,18 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     });
   }, [isHydrated, pathname, persistPublicAccess, router, searchParams]);
 
+  const isCatalogManager = Boolean(user && isCatalogManagerRole(user.role));
+  const canCreateManagerOrder =
+    isCatalogManager &&
+    MANAGER_ORDER_CATALOG_TYPES.has(getCatalogTypeCode(catalog));
+
   const shouldEnableCurrentCartQuery =
     isHydrated &&
     hasStoredCurrentCart &&
     !isSessionLoading &&
-    (!isAuthenticated || Boolean(storedPublicAccess));
+    (!isAuthenticated ||
+      Boolean(storedPublicAccess) ||
+      (canCreateManagerOrder && hasActiveManagerOrder));
 
   const currentCartQuery = useQuery({
     queryKey: cartQueryKeys.current,
@@ -589,8 +634,10 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
     currentCartNotFoundHandledRef.current = true;
     clearStoredCurrentCart();
+    clearActiveManagerOrder();
     queryClient.removeQueries({ queryKey: cartQueryKeys.current });
   }, [
+    clearActiveManagerOrder,
     clearStoredCurrentCart,
     currentCartQuery.data,
     currentCartQuery.isFetched,
@@ -628,8 +675,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
   const mode: CartMode =
     storedPublicAccess && !isOwnSharedCart ? "public" : "current";
-  const isCatalogManager = Boolean(user && isCatalogManagerRole(user.role));
-
   const publicCartQuery = useQuery({
     queryKey:
       storedPublicAccess?.publicKey
@@ -702,9 +747,15 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   const shouldUseCartUi =
     isHydrated &&
     catalogMode !== "BROWSE" &&
-    (mode === "public" || (!isSessionLoading && !isAuthenticated));
-  const canShare = shouldUseCartUi && catalogMode === "DELIVERY";
+    (mode === "public" ||
+      (canCreateManagerOrder && hasActiveManagerOrder) ||
+      (!isSessionLoading && !isAuthenticated));
+  const canShare =
+    shouldUseCartUi && catalogMode === "DELIVERY" && !canCreateManagerOrder;
   const isManagedPublicCart = mode === "public" && isCatalogManager;
+  const isManagerOrderCart =
+    isManagedPublicCart ||
+    (mode === "current" && canCreateManagerOrder && hasActiveManagerOrder);
   const shareCurrency = items[0]?.currency ?? fallbackCurrency;
   const shareTitle = React.useMemo(() => {
     const normalizedCatalogName = catalog.name?.trim();
@@ -1031,6 +1082,14 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     },
   });
 
+  const startManagerOrderMutation = useMutation({
+    mutationFn: () => cartControllerCreateOrGetCurrent(),
+    onSuccess: (response) => {
+      persistActiveManagerOrder();
+      setCurrentCartData(response.cart);
+    },
+  });
+
   const completeManagerOrderMutation = useMutation({
     mutationFn: async (access: CartPublicAccess) => {
       const response = await cartControllerCompleteManagerOrder(access.publicKey);
@@ -1157,9 +1216,20 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     for (const item of activeCart.items) {
       await removeCurrentItemMutation.mutateAsync(item.id);
     }
+
+    if (canCreateManagerOrder && hasActiveManagerOrder) {
+      clearActiveManagerOrder();
+      clearStoredCurrentCart();
+      queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+    }
   }, [
     activeCart,
+    canCreateManagerOrder,
+    clearActiveManagerOrder,
+    clearStoredCurrentCart,
+    hasActiveManagerOrder,
     mode,
+    queryClient,
     removeCurrentItemMutation,
     removePublicItemMutation,
     storedPublicAccess,
@@ -1215,14 +1285,55 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     totals.subtotal,
   ]);
 
-  const completeManagedOrder = React.useCallback(async () => {
-    if (!storedPublicAccess) {
-      throw new Error("Публичная корзина не найдена.");
+  const startManagerOrder = React.useCallback(async () => {
+    if (!canCreateManagerOrder) {
+      return;
     }
 
-    const result = await completeManagerOrderMutation.mutateAsync(storedPublicAccess);
+    await startManagerOrderMutation.mutateAsync();
+  }, [canCreateManagerOrder, startManagerOrderMutation]);
+
+  const completeManagedOrder = React.useCallback(async (comment?: string) => {
+    let access = storedPublicAccess;
+    const shouldResetCurrentCartAfterComplete = !access;
+
+    if (!access) {
+      if (!items.length) {
+        throw new Error("Нельзя завершить пустую корзину.");
+      }
+
+      const shared = await shareCurrentCartMutation.mutateAsync(
+        comment?.trim() || undefined,
+      );
+      const publicKey = shared.publicKey || shared.cart.publicKey;
+      if (!publicKey) {
+        throw new Error("Не удалось подготовить заказ.");
+      }
+
+      access = {
+        publicKey,
+        rawLink: `/?c=${encodeURIComponent(publicKey)}`,
+      };
+    }
+
+    const result = await completeManagerOrderMutation.mutateAsync(access);
+
+    if (shouldResetCurrentCartAfterComplete) {
+      clearActiveManagerOrder();
+      clearStoredCurrentCart();
+      queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+    }
+
     return result.order;
-  }, [completeManagerOrderMutation, storedPublicAccess]);
+  }, [
+    clearActiveManagerOrder,
+    clearStoredCurrentCart,
+    completeManagerOrderMutation,
+    items.length,
+    queryClient,
+    shareCurrentCartMutation,
+    storedPublicAccess,
+  ]);
 
   const isBusy =
     upsertCurrentItemMutation.isPending ||
@@ -1230,12 +1341,14 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     removeCurrentItemMutation.isPending ||
     removePublicItemMutation.isPending ||
     shareCurrentCartMutation.isPending ||
+    startManagerOrderMutation.isPending ||
     completeManagerOrderMutation.isPending ||
     isManagerSessionLoading;
 
   const value = React.useMemo<CartContextValue>(
     () => ({
       autoExpandPublicCartAccessKey,
+      canCreateManagerOrder,
       canShare,
       cart: activeCart,
       clearCart,
@@ -1250,6 +1363,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
         isSessionLoading ||
         activeCartLoading ||
         (!activeCart && Boolean(activeCartError)),
+      isManagerOrderCart,
       isManagedPublicCart,
       isOwnSharedCart,
       isPublicMode: mode === "public",
@@ -1259,6 +1373,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       publicAccess: storedPublicAccess,
       quantityByProductId,
       shouldUseCartUi,
+      startManagerOrder,
       status: activeCartStatus,
       statusMessage: activeCartStatusMessage,
       totals,
@@ -1270,6 +1385,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       activeCartStatus,
       activeCartStatusMessage,
       autoExpandPublicCartAccessKey,
+      canCreateManagerOrder,
       canShare,
       clearCart,
       clearStoredPublicAccess,
@@ -1280,6 +1396,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       isBusy,
       isHydrated,
       isSessionLoading,
+      isManagerOrderCart,
       isManagedPublicCart,
       isOwnSharedCart,
       items,
@@ -1287,6 +1404,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       prepareShareOrder,
       quantityByProductId,
       shouldUseCartUi,
+      startManagerOrder,
       storedPublicAccess,
       totals,
     ],

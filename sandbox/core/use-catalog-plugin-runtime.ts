@@ -11,7 +11,7 @@ export function useCatalogPluginRuntime() {
   const canManageCatalog = isCatalogManagerRole(user?.role);
 
   const Browser = !canManageCatalog ? plugin?.browser?.Component : undefined;
-  const CartCardAction = !canManageCatalog ? plugin?.cart?.CardAction : undefined;
+  const CartCardAction = plugin?.cart?.CardAction;
 
   const renderCartCardAction = React.useCallback(
     (productId: string) =>

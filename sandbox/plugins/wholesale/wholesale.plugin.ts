@@ -22,7 +22,7 @@ const WholesaleCartCardAction = dynamic(
 );
 
 export const wholesalePlugin: CatalogPlugin = {
-  typeCode: "wholesale",
+  typeCode: ["wholesale", "whosale"],
   cart: {
     CardAction: WholesaleCartCardAction,
   },
