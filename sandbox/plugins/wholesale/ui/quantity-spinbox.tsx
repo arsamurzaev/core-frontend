@@ -4,6 +4,7 @@ import { useCart } from "@/core/modules/cart/model/cart-context";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
+import { confirm } from "@/shared/ui/confirmation";
 import React from "react";
 
 interface QuantitySpinboxProps {
@@ -99,11 +100,33 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
     setInputValue(raw);
   };
 
-  const handleBlur = () => {
+  const handleBlur = async () => {
     suppressNextCardClick();
     suppressNextDocumentClick();
     const parsed = parseInt(inputValue, 10);
-    const clamped = !parsed || parsed < 1 ? 1 : Math.min(parsed, 999);
+
+    if (!parsed || parsed < 1) {
+      const isConfirmed = await confirm({
+        title: "Удалить товар из корзины?",
+        description: "Товар будет удален из текущей корзины.",
+        confirmText: "Удалить",
+        cancelText: "Отмена",
+      });
+
+      if (!isConfirmed) {
+        setInputValue(String(quantity));
+        return;
+      }
+
+      if (quantity > 0) {
+        void setProductQuantity(productId, 0);
+      }
+
+      setInputValue("0");
+      return;
+    }
+
+    const clamped = Math.min(parsed, 999);
 
     if (clamped !== quantity) {
       void setProductQuantity(productId, clamped);
@@ -125,19 +148,12 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
     <div
       ref={rootRef}
       onClick={handleGuardedClick}
-      onClickCapture={handleGuardedClick}
       onMouseDown={handleInteractiveEvent}
-      onMouseDownCapture={handleInteractiveEvent}
       onMouseUp={handleInteractiveEvent}
-      onMouseUpCapture={handleInteractiveEvent}
       onPointerDown={handleInteractiveEvent}
-      onPointerDownCapture={handleInteractiveEvent}
       onPointerUp={handleInteractiveEvent}
-      onPointerUpCapture={handleInteractiveEvent}
       onTouchEnd={handleInteractiveEvent}
-      onTouchEndCapture={handleInteractiveEvent}
       onTouchStart={handleInteractiveEvent}
-      onTouchStartCapture={handleInteractiveEvent}
       className={cn(
         "bg-secondary flex cursor-default items-center justify-center rounded-full",
         className,

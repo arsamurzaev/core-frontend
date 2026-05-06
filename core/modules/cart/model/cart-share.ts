@@ -47,9 +47,7 @@ export function buildLegacyCartShareText(params: {
   const normalizedComment = comment?.trim();
   const productsText = items
     .map((item) => {
-      const productLabel = item.subtitle
-        ? `${item.name} (${item.subtitle})`
-        : item.name;
+      const productLabel = item.name;
 
       return `•${productLabel} - ${item.quantity} шт.`;
     })
