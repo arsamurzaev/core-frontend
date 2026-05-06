@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Legacy archive, excluded from active maintenance.
     "w-old/**",
+    // Local utility script for counting source lines, not app code.
+    "count.js",
   ]),
 ]);
 

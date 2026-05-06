@@ -642,7 +642,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
 
       const response = await cartControllerGetPublicCart(
         storedPublicAccess.publicKey,
-        {},
       );
 
       return response.cart;
@@ -1007,7 +1006,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       const response = await cartControllerRemovePublicItem(
         params.access.publicKey,
         params.itemId,
-        {},
       );
 
       return {

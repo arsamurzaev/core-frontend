@@ -222,7 +222,6 @@ export function useCartSse({
         if (mode === "public" && storedPublicAccess) {
           await connectCartControllerSsePublic(
             storedPublicAccess.publicKey,
-            {},
             {
               lastEventId,
               signal: connectionAbortController.signal,
