@@ -6,6 +6,7 @@ import { useIOSScrollFix } from "@/shared/lib/use-ios-scroll-fix";
 import ReactQueryProvider from "./react-query-provider";
 import { SessionProvider } from "./session-provider";
 import { CatalogProvider } from "./catalog-provider";
+import { SubscriptionAccessGate } from "./subscription-access-gate";
 
 type AppProviderProps = PropsWithChildren<{
   initialCatalog?: CatalogControllerGetCurrentQueryResult | null;
@@ -24,7 +25,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         currentCatalogId={initialCatalog?.id ?? null}
         initialSession={initialSession}
       >
-        <CatalogProvider initialCatalog={initialCatalog}>{children}</CatalogProvider>
+        <CatalogProvider initialCatalog={initialCatalog}>
+          <SubscriptionAccessGate>{children}</SubscriptionAccessGate>
+        </CatalogProvider>
       </SessionProvider>
     </ReactQueryProvider>
   );
