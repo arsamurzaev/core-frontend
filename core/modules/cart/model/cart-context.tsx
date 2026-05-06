@@ -48,6 +48,7 @@ import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogMode } from "@/shared/lib/catalog-mode";
 import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
 import { getCatalogCurrency } from "@/shared/lib/utils";
+import { apiClient } from "@/shared/api/client";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import {
@@ -72,6 +73,7 @@ interface CartContextValue {
   cart: CartDto | null;
   clearCart: () => Promise<void>;
   completeManagedOrder: (comment?: string) => Promise<CompletedOrderDto>;
+  deleteCurrentCart: () => Promise<void>;
   decrementProduct: (productId: string, product?: CartProductSnapshot) => Promise<void>;
   detachPublicCart: () => void;
   incrementProduct: (productId: string, product?: CartProductSnapshot) => Promise<void>;
@@ -115,6 +117,7 @@ const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   completeManagedOrder: async () => {
     throw new Error("Корзина еще не готова.");
   },
+  deleteCurrentCart: async () => {},
   decrementProduct: async () => {},
   detachPublicCart: () => {},
   incrementProduct: async () => {},
@@ -1074,6 +1077,30 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     },
   });
 
+  const deleteCurrentCartMutation = useMutation({
+    mutationFn: () => apiClient.delete<void>("/cart/current"),
+    onSuccess: () => {
+      clearActiveManagerOrder();
+      clearStoredCurrentCart();
+      if (
+        activeCart?.publicKey &&
+        storedPublicAccess?.publicKey === activeCart.publicKey
+      ) {
+        clearStoredPublicAccess();
+      }
+      currentCartNotFoundHandledRef.current = true;
+      queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+    },
+    onError: (error) => {
+      if (isCartNotFoundError(error)) {
+        clearActiveManagerOrder();
+        clearStoredCurrentCart();
+        currentCartNotFoundHandledRef.current = true;
+        queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+      }
+    },
+  });
+
   const shareCurrentCartMutation = useMutation({
     mutationFn: async (comment?: string) =>
       cartControllerShareCurrent(comment ? { comment } : undefined),
@@ -1235,6 +1262,30 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     storedPublicAccess,
   ]);
 
+  const deleteCurrentCart = React.useCallback(async () => {
+    if (mode === "public") {
+      clearStoredPublicAccess();
+      return;
+    }
+
+    if (!activeCart) {
+      clearActiveManagerOrder();
+      clearStoredCurrentCart();
+      queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+      return;
+    }
+
+    await deleteCurrentCartMutation.mutateAsync();
+  }, [
+    activeCart,
+    clearActiveManagerOrder,
+    clearStoredCurrentCart,
+    clearStoredPublicAccess,
+    deleteCurrentCartMutation,
+    mode,
+    queryClient,
+  ]);
+
   const prepareShareOrder = React.useCallback(async (comment?: string): Promise<CartSharePayload> => {
     if (!items.length) {
       throw new Error("Нельзя поделиться пустой корзиной.");
@@ -1340,6 +1391,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     upsertPublicItemMutation.isPending ||
     removeCurrentItemMutation.isPending ||
     removePublicItemMutation.isPending ||
+    deleteCurrentCartMutation.isPending ||
     shareCurrentCartMutation.isPending ||
     startManagerOrderMutation.isPending ||
     completeManagerOrderMutation.isPending ||
@@ -1353,6 +1405,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       cart: activeCart,
       clearCart,
       completeManagedOrder,
+      deleteCurrentCart,
       decrementProduct,
       detachPublicCart: clearStoredPublicAccess,
       incrementProduct,
@@ -1390,6 +1443,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       clearCart,
       clearStoredPublicAccess,
       completeManagedOrder,
+      deleteCurrentCart,
       decrementProduct,
       incrementProduct,
       setProductQuantity,

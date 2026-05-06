@@ -9,7 +9,7 @@ import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 const CSRF_COOKIE_NAME = "csrf";
-const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
+const ADMIN_CSRF_COOKIE_NAME = "acrsf";
 const CSRF_HEADER_NAME = "x-csrf-token";
 
 function csrfTokensMatch(a: string, b: string): boolean {

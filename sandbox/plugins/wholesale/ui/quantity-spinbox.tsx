@@ -20,29 +20,90 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
   const { setProductQuantity } = useCart();
 
   const [inputValue, setInputValue] = React.useState(String(quantity));
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const suppressCardClickUntilRef = React.useRef(0);
+  const suppressDocumentClickUntilRef = React.useRef(0);
 
   React.useEffect(() => {
     setInputValue(String(quantity));
   }, [quantity]);
 
-  const handleStopPropagation = (e: React.SyntheticEvent) => {
+  React.useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (Date.now() > suppressDocumentClickUntilRef.current) {
+        return;
+      }
+
+      const target = event.target;
+      const root = rootRef.current;
+
+      if (!(target instanceof Node) || root?.contains(target)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
+
+    document.addEventListener("click", handleDocumentClick, true);
+
+    return () => {
+      document.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, []);
+
+  const suppressNextCardClick = React.useCallback(() => {
+    suppressCardClickUntilRef.current = Date.now() + 700;
+  }, []);
+
+  const suppressNextDocumentClick = React.useCallback(() => {
+    suppressDocumentClickUntilRef.current = Date.now() + 700;
+  }, []);
+
+  const handleInteractiveEvent = React.useCallback(
+    (e: React.SyntheticEvent) => {
+      suppressNextCardClick();
+      e.stopPropagation();
+    },
+    [suppressNextCardClick],
+  );
+
+  const handleGuardedClick = React.useCallback((e: React.SyntheticEvent) => {
+    if (Date.now() <= suppressCardClickUntilRef.current) {
+      e.preventDefault();
+    }
+
     e.stopPropagation();
+  }, []);
+
+  const selectInputValue = React.useCallback((input: HTMLInputElement) => {
+    window.requestAnimationFrame(() => {
+      input.select();
+    });
+  }, []);
+
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    suppressNextCardClick();
+    e.stopPropagation();
+    selectInputValue(e.currentTarget);
+  };
+
+  const handleInputClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    handleGuardedClick(e);
+    selectInputValue(e.currentTarget);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    suppressNextCardClick();
     const raw = e.target.value.replace(/\D/g, "").slice(0, 3);
     setInputValue(raw);
   };
 
   const handleBlur = () => {
+    suppressNextCardClick();
+    suppressNextDocumentClick();
     const parsed = parseInt(inputValue, 10);
-
-    if (!parsed || parsed < 1) {
-      setInputValue(String(quantity));
-      return;
-    }
-
-    const clamped = Math.min(parsed, 999);
+    const clamped = !parsed || parsed < 1 ? 1 : Math.min(parsed, 999);
 
     if (clamped !== quantity) {
       void setProductQuantity(productId, clamped);
@@ -52,6 +113,9 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    suppressNextCardClick();
+    e.stopPropagation();
+
     if (e.key === "Enter") {
       e.currentTarget.blur();
     }
@@ -59,8 +123,21 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
 
   return (
     <div
-      onClick={handleStopPropagation}
-      onPointerDown={handleStopPropagation}
+      ref={rootRef}
+      onClick={handleGuardedClick}
+      onClickCapture={handleGuardedClick}
+      onMouseDown={handleInteractiveEvent}
+      onMouseDownCapture={handleInteractiveEvent}
+      onMouseUp={handleInteractiveEvent}
+      onMouseUpCapture={handleInteractiveEvent}
+      onPointerDown={handleInteractiveEvent}
+      onPointerDownCapture={handleInteractiveEvent}
+      onPointerUp={handleInteractiveEvent}
+      onPointerUpCapture={handleInteractiveEvent}
+      onTouchEnd={handleInteractiveEvent}
+      onTouchEndCapture={handleInteractiveEvent}
+      onTouchStart={handleInteractiveEvent}
+      onTouchStartCapture={handleInteractiveEvent}
       className={cn(
         "bg-secondary flex cursor-default items-center justify-center rounded-full",
         className,
@@ -75,6 +152,7 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          suppressNextCardClick();
           void handleDecrement();
         }}
       >
@@ -85,11 +163,17 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
         type="text"
         inputMode="numeric"
         value={inputValue}
+        onClick={handleInputClick}
+        onFocus={handleInputFocus}
         onChange={handleInputChange}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
+        onMouseDown={handleInteractiveEvent}
+        onPointerDown={handleInteractiveEvent}
+        onTouchEnd={handleInteractiveEvent}
+        onTouchStart={handleInteractiveEvent}
         disabled={isBusy}
-        className="w-[2.75rem] bg-transparent text-center text-sm font-medium outline-none"
+        className="w-[2.75rem] bg-white h-7 rounded-sm text-center text-sm font-medium outline-none"
         aria-label="Количество товара"
       />
 
@@ -102,6 +186,7 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          suppressNextCardClick();
           void handleIncrement();
         }}
       >

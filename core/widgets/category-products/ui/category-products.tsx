@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  CATEGORY_SECTION_SCROLL_MARGIN_TOP,
+  getCategorySectionId,
+  getCategorySectionScrollOffset,
+  getCategorySectionScrollTargetOffset,
+  registerCategorySectionScroller,
+} from "@/core/modules/browser/model/category-scroll";
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
 import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
@@ -8,17 +15,8 @@ import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
-import {
-  useProductCardViewMode,
-} from "@/core/modules/product/model/use-product-card-view-mode";
+import { useProductCardViewMode } from "@/core/modules/product/model/use-product-card-view-mode";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
-import {
-  CATEGORY_SECTION_SCROLL_MARGIN_TOP,
-  getCategorySectionId,
-  getCategorySectionScrollOffset,
-  getCategorySectionScrollTargetOffset,
-  registerCategorySectionScroller,
-} from "@/core/modules/browser/model/category-scroll";
 import {
   CategoryDto,
   ProductWithAttributesDto,
@@ -68,6 +66,7 @@ const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 340;
 const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 124;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const CATEGORY_HEADING_ROW_ESTIMATE_PX = 40;
+const EMPTY_CATEGORY_ROW_HEIGHT_PX = 320;
 const VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN = 2;
 const CATALOG_END_SCROLL_RUNWAY_EXTRA_PX = 24;
 const CATALOG_END_SCROLL_RUNWAY_MAX_PX = 320;
@@ -83,11 +82,20 @@ interface ProductSectionCardProps {
 }
 
 const ProductSectionCard = React.memo(
-  ({ item, isDetailed, shouldUseCartUi, isAuthenticated }: ProductSectionCardProps) => {
+  ({
+    item,
+    isDetailed,
+    shouldUseCartUi,
+    isAuthenticated,
+  }: ProductSectionCardProps) => {
     const { product, categoryId, categoryPosition } = item;
     return (
       <article className="relative h-full">
-        <ProductLink slug={product.slug} product={product} className="block h-full">
+        <ProductLink
+          slug={product.slug}
+          product={product}
+          className="block h-full"
+        >
           <ProductCard
             data={product}
             isDetailed={isDetailed}
@@ -108,7 +116,10 @@ const ProductSectionCard = React.memo(
             hidePriceWhenFooterAction={shouldUseCartUi}
             footerAction={
               shouldUseCartUi ? (
-                <CartProductCardFooterAction product={product} isDetailed={isDetailed} />
+                <CartProductCardFooterAction
+                  product={product}
+                  isDetailed={isDetailed}
+                />
               ) : !shouldUseCartUi && isAuthenticated ? (
                 <ToggleProductPopularAction
                   productId={product.id}
@@ -216,11 +227,9 @@ interface ProductSectionDataControllerProps {
   section: VirtualProductSectionDefinition;
 }
 
-const ProductSectionDataController: React.FC<ProductSectionDataControllerProps> = ({
-  enabled,
-  onSnapshot,
-  section,
-}) => {
+const ProductSectionDataController: React.FC<
+  ProductSectionDataControllerProps
+> = ({ enabled, onSnapshot, section }) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery({
       queryKey: section.queryKey,
@@ -368,8 +377,9 @@ export const VirtualizedCategoryProducts: React.FC<
     Record<string, ProductSectionQuerySnapshot>
   >({});
   const querySnapshotsRef = React.useRef(querySnapshots);
-  const rowVirtualizerRef =
-    React.useRef<Virtualizer<Window, Element> | null>(null);
+  const rowVirtualizerRef = React.useRef<Virtualizer<Window, Element> | null>(
+    null,
+  );
   const categoryStartIndexByIdRef = React.useRef(new Map<string, number>());
   const requestedNextPageSectionKeysRef = React.useRef(new Set<string>());
   const columns = React.useMemo(() => {
@@ -483,10 +493,7 @@ export const VirtualizedCategoryProducts: React.FC<
   ]);
 
   const handleSnapshot = React.useCallback(
-    (
-      sectionKey: string,
-      snapshot: ProductSectionQuerySnapshot | null,
-    ) => {
+    (sectionKey: string, snapshot: ProductSectionQuerySnapshot | null) => {
       const currentSnapshot = querySnapshotsRef.current[sectionKey];
 
       if (!snapshot) {
@@ -633,9 +640,7 @@ export const VirtualizedCategoryProducts: React.FC<
       previousValue === nextListWidth ? previousValue : nextListWidth,
     );
     setViewportHeight((previousValue) =>
-      previousValue === nextViewportHeight
-        ? previousValue
-        : nextViewportHeight,
+      previousValue === nextViewportHeight ? previousValue : nextViewportHeight,
     );
     setScrollMargin((previousValue) =>
       previousValue === nextScrollMargin ? previousValue : nextScrollMargin,
@@ -691,7 +696,7 @@ export const VirtualizedCategoryProducts: React.FC<
       }
 
       if (row.type === "empty") {
-        return 160;
+        return EMPTY_CATEGORY_ROW_HEIGHT_PX;
       }
 
       if (row.type === "loader" && !row.isFetchingNextPage) {
@@ -723,7 +728,11 @@ export const VirtualizedCategoryProducts: React.FC<
 
     let size = 0;
 
-    for (let index = firstLastSectionRowIndex; index < rows.length; index += 1) {
+    for (
+      let index = firstLastSectionRowIndex;
+      index < rows.length;
+      index += 1
+    ) {
       size += estimateRowSize(index);
 
       if (index > firstLastSectionRowIndex) {
@@ -851,7 +860,11 @@ export const VirtualizedCategoryProducts: React.FC<
 
       return true;
     });
-  }, [activateSectionKeys, alignCategoryHeadingAfterVirtualScroll, measureList]);
+  }, [
+    activateSectionKeys,
+    alignCategoryHeadingAfterVirtualScroll,
+    measureList,
+  ]);
 
   React.useEffect(() => {
     if (activationBlockedCategoryId) {
@@ -1017,7 +1030,10 @@ export const VirtualizedCategoryProducts: React.FC<
                     />
                   )
                 ) : row.type === "empty" ? (
-                  <div className="text-muted-foreground flex min-h-40 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm">
+                  <div
+                    className="text-muted-foreground flex items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm"
+                    style={{ height: EMPTY_CATEGORY_ROW_HEIGHT_PX }}
+                  >
                     В этой категории пока нет товаров
                   </div>
                 ) : row.type === "products" ? (
@@ -1037,14 +1053,17 @@ export const VirtualizedCategoryProducts: React.FC<
                         isAuthenticated={isAuthenticated}
                       />
                     ))}
-                    {Array.from({ length: row.placeholderCount }, (_, index) => (
-                      <ProductCardSkeleton
-                        key={`${row.sectionKey}:placeholder:${
-                          row.startProductIndex + row.items.length + index
-                        }`}
-                        isDetailed={isDetailed}
-                      />
-                    ))}
+                    {Array.from(
+                      { length: row.placeholderCount },
+                      (_, index) => (
+                        <ProductCardSkeleton
+                          key={`${row.sectionKey}:placeholder:${
+                            row.startProductIndex + row.items.length + index
+                          }`}
+                          isDetailed={isDetailed}
+                        />
+                      ),
+                    )}
                   </div>
                 ) : row.isFetchingNextPage ? (
                   <div

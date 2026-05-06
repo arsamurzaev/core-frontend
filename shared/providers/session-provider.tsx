@@ -20,7 +20,7 @@ import React, {
 type SessionStatus = "loading" | "authenticated" | "unauthenticated" | "error";
 
 const CSRF_COOKIE_NAME = "csrf";
-const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
+const ADMIN_CSRF_COOKIE_NAME = "acrsf";
 const COOKIE_CHECK_INTERVAL_MS = 30_000;
 const AUTH_MUTATION_KEYS = new Set([
   "authControllerLogin",

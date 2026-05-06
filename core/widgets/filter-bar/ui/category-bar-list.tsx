@@ -63,7 +63,7 @@ export const CategoryBarList: React.FC<Props> = ({
     scrollFrameRef.current = window.requestAnimationFrame(() => {
       scrollFrameRef.current = null;
 
-      emblaApi.scrollTo(activeIndex);
+      emblaApi.scrollTo(Math.max(activeIndex - 1, 0));
     });
 
     return () => {
@@ -101,7 +101,7 @@ export const CategoryBarList: React.FC<Props> = ({
         className,
       )}
     >
-      <div className="flex touch-pan-y gap-2 [touch-action:pan-y_pinch-zoom]">
+      <div className="flex touch-pan-y gap-2 pr-4 [touch-action:pan-y_pinch-zoom]">
         {items.map((item, index) => {
           const isActive = activeIndex === index;
 
@@ -122,6 +122,7 @@ export const CategoryBarList: React.FC<Props> = ({
               onClick={() => onCategoryClick?.(item, index)}
               className={cn(
                 "h-9 min-w-0 shrink-0 grow-0 basis-auto rounded-full px-4 py-2 text-sm",
+                !isActive && "shadow-none",
               )}
             >
               {item.name}

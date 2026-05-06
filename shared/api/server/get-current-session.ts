@@ -10,15 +10,14 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 const CSRF_COOKIE_NAME = "csrf";
-const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
+const ADMIN_CSRF_COOKIE_NAME = "acrsf";
 
 async function loadCurrentSessionServer(
   _currentCatalogId?: string | null,
 ): Promise<SessionBootstrapState> {
   const cookieStore = await cookies();
   const csrfCookiePresent =
-    cookieStore.has(CSRF_COOKIE_NAME) ||
-    cookieStore.has(ADMIN_CSRF_COOKIE_NAME);
+    cookieStore.has(CSRF_COOKIE_NAME) || cookieStore.has(ADMIN_CSRF_COOKIE_NAME);
   const cookieHeader = cookieStore.toString();
 
   if (!csrfCookiePresent || !cookieHeader) {

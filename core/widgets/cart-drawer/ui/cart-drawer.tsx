@@ -7,8 +7,8 @@ import { CartDrawerHeader } from "@/core/widgets/cart-drawer/ui/cart-drawer-head
 import { ProductDrawer } from "@/core/widgets/product-drawer/ui/product-drawer";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
-import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";
 import { useCatalog } from "@/shared/providers/catalog-provider";
+import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
@@ -44,7 +44,7 @@ const ManagerOrderStartBar: React.FC<{
   }, [onStart]);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-180 px-2 pb-2">
+    <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-180 px-2">
       <div className="shadow-custom rounded-t-2xl border bg-background px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
         <Button
           type="button"
@@ -53,7 +53,7 @@ const ManagerOrderStartBar: React.FC<{
           onClick={() => void handleStart()}
           size="full"
         >
-          + Создать корзину
+          + Создать заказ
         </Button>
       </div>
     </div>
@@ -82,8 +82,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     canCreateManagerOrder,
     canShare,
     cart,
-    clearCart,
     completeManagedOrder,
+    deleteCurrentCart,
     detachPublicCart,
     isBusy,
     isLoading,
@@ -121,6 +121,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const publicAccessPublicKey = publicAccess?.publicKey ?? null;
   const hasPublicCartLink = Boolean(cart?.publicKey);
   const hasSharedCart = Boolean(publicAccessPublicKey);
+  const canDeleteCurrentCart =
+    !isPublicMode && Boolean(cart) && (hasItems || hasPublicCartLink);
   const isCheckoutCartStatus = status
     ? CHECKOUT_CART_STATUSES.has(status)
     : false;
@@ -145,9 +147,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     ? (cart?.comment ?? comment)
     : comment;
   const publicCartAccessKey =
-    isPublicMode && publicAccessPublicKey
-      ? publicAccessPublicKey
-      : null;
+    isPublicMode && publicAccessPublicKey ? publicAccessPublicKey : null;
   const shouldAutoExpandPublicCart =
     Boolean(publicCartAccessKey) &&
     autoExpandPublicCartAccessKey === publicCartAccessKey;
@@ -216,13 +216,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     }
 
     if (!hasItems) {
-      return;
+      if (!canDeleteCurrentCart) {
+        return;
+      }
     }
 
+    const isAssignedToManager =
+      cart?.status === "IN_PROGRESS" || Boolean(cart?.assignedManagerId);
+    const isSharedCurrentCart = Boolean(cart?.publicKey);
     const isConfirmed = await confirm({
-      title: "Очистить корзину?",
-      description: "Все товары будут удалены из текущей корзины.",
-      confirmText: "Очистить",
+      title: "Удалить корзину?",
+      description: isAssignedToManager
+        ? "Корзина уже в работе у менеджера, поэтому она только отвяжется от вас."
+        : isSharedCurrentCart
+          ? "Корзина и публичная ссылка будут удалены. Восстановить товары не получится."
+          : "Корзина будет удалена полностью. Восстановить товары не получится.",
+      confirmText: "Удалить",
       cancelText: "Отмена",
     });
 
@@ -231,13 +240,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     }
 
     try {
+      await deleteCurrentCart();
       setSnapPoint(SNAP_POINTS[0]);
-      await clearCart();
+      toast.success(
+        isAssignedToManager ? "Корзина отвязана." : "Корзина удалена.",
+      );
     } catch (error) {
       toast.error(getErrorMessage(error));
     }
   }, [
-    clearCart,
+    canDeleteCurrentCart,
+    cart?.assignedManagerId,
+    cart?.publicKey,
+    cart?.status,
+    deleteCurrentCart,
     detachPublicCart,
     hasItems,
     isManagedPublicCart,
@@ -283,10 +299,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   if (shouldHideDrawer || shouldSuspendManagerCartDrawer) {
     if (shouldShowManagerOrderStartBar) {
       return (
-        <ManagerOrderStartBar
-          disabled={isBusy}
-          onStart={startManagerOrder}
-        />
+        <ManagerOrderStartBar disabled={isBusy} onStart={startManagerOrder} />
       );
     }
 
@@ -319,7 +332,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           >
             <CartDrawerHeader
               currency={currency}
-              hasAction={!isManagedPublicCart && (isPublicMode || hasItems)}
+              hasAction={
+                !isManagedPublicCart && (isPublicMode || canDeleteCurrentCart)
+              }
               hasDiscount={totals.hasDiscount}
               onActionClick={() => void handleHeaderAction()}
               price={totals.subtotal}

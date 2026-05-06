@@ -15,11 +15,13 @@ interface UseCategoryClickActivationDelayResult {
 }
 
 const CATEGORY_CLICK_ACTIVATION_SETTLE_FRAMES = 1;
+const FORCED_ACTIVATION_SCROLL_GRACE_MS = 250;
 
 export function useCategoryClickActivationDelay({
   enabled = true,
 }: UseCategoryClickActivationDelayParams = {}): UseCategoryClickActivationDelayResult {
   const frameRef = React.useRef<number | null>(null);
+  const forcedActivationStartedAtRef = React.useRef(0);
   const [activationBlockedCategoryId, setActivationBlockedCategoryId] =
     React.useState<string | null>(null);
   const [forceActivatedCategoryId, setForceActivatedCategoryId] =
@@ -38,6 +40,7 @@ export function useCategoryClickActivationDelay({
       setActivationBlockedCategoryId((currentCategoryId) =>
         currentCategoryId === categoryId ? null : currentCategoryId,
       );
+      forcedActivationStartedAtRef.current = Date.now();
       setForceActivatedCategoryId(categoryId);
     },
     [cancelScrollWatcher],
@@ -100,10 +103,44 @@ export function useCategoryClickActivationDelay({
       return;
     }
 
+    forcedActivationStartedAtRef.current = 0;
     cancelScrollWatcher();
     setActivationBlockedCategoryId(null);
     setForceActivatedCategoryId(null);
   }, [cancelScrollWatcher, enabled]);
+
+  React.useEffect(() => {
+    if (!enabled || !forceActivatedCategoryId || typeof window === "undefined") {
+      return;
+    }
+
+    const releaseForcedActivation = () => {
+      const elapsed = Date.now() - forcedActivationStartedAtRef.current;
+
+      if (elapsed < FORCED_ACTIVATION_SCROLL_GRACE_MS) {
+        return;
+      }
+
+      forcedActivationStartedAtRef.current = 0;
+      setForceActivatedCategoryId(null);
+    };
+
+    window.addEventListener("scroll", releaseForcedActivation, {
+      passive: true,
+    });
+    window.addEventListener("wheel", releaseForcedActivation, {
+      passive: true,
+    });
+    window.addEventListener("touchmove", releaseForcedActivation, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", releaseForcedActivation);
+      window.removeEventListener("wheel", releaseForcedActivation);
+      window.removeEventListener("touchmove", releaseForcedActivation);
+    };
+  }, [enabled, forceActivatedCategoryId]);
 
   React.useEffect(() => {
     return () => {

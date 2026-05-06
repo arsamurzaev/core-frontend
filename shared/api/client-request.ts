@@ -19,7 +19,7 @@ export const API_BASE_URL = normalizeBaseUrl(
 export const FORWARDED_HOST_HEADER = "x-forwarded-host";
 
 const CSRF_COOKIE_NAME = "csrf";
-const ADMIN_CSRF_COOKIE_NAME = "admin_csrf";
+const ADMIN_CSRF_COOKIE_NAME = "acrsf";
 const CSRF_HEADER_NAME = "X-CSRF-Token";
 
 export type ApiHeaders = Record<string, string>;

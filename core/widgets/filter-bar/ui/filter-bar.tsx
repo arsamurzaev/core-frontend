@@ -90,12 +90,20 @@ export const FilterBar: React.FC<Props> = ({
       id="catalog-filter-bar"
       ref={stickyRef}
       className={cn(
-        "sticky top-0 z-20 rounded-b-2xl bg-white p-0 transition-shadow duration-200 ease-out",
-        isSticky && "-mx-2.5 p-4 shadow-custom",
+        "sticky top-0 z-20 rounded-b-2xl border border-transparent bg-white",
+        "transition-[margin,padding,border-color,border-radius,box-shadow,background-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        isSticky &&
+          "-mx-2.5 translate-y-0 rounded-b-3xl border-black/5 bg-white/95 px-4 py-3 shadow-custom backdrop-blur",
         className,
       )}
     >
-      <div className={cn("flex gap-5", shouldUseFilteredStickyLayout && "gap-2")}>
+      <div
+        className={cn(
+          "flex gap-5 transition-[gap,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          isSticky && "translate-y-0",
+          shouldUseFilteredStickyLayout && "gap-2",
+        )}
+      >
         {isSticky &&
         stickySearchMode === "dialog" &&
         !shouldUseFilteredStickyLayout ? (
@@ -106,7 +114,7 @@ export const FilterBar: React.FC<Props> = ({
                 <Button
                   type="button"
                   variant="ghost"
-                  className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full"
+                  className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
                   aria-label="Открыть поиск"
                 >
                   <Search size={20} />
@@ -142,7 +150,7 @@ export const FilterBar: React.FC<Props> = ({
         {!shouldUseFilteredStickyLayout ? (
           <Button
             variant="ghost"
-            className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full"
+            className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
             aria-label={
               isDetailed ? "Переключить на сетку" : "Переключить на список"
             }
@@ -162,7 +170,7 @@ export const FilterBar: React.FC<Props> = ({
           ) : (
             <Button
               variant="ghost"
-              className="shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full"
+              className="shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
               onClick={handleApplyFilters}
             >
               <SlidersVertical size={20} />
@@ -170,7 +178,16 @@ export const FilterBar: React.FC<Props> = ({
           ))}
       </div>
 
-      {bottomRow ? <div className="mt-3">{bottomRow}</div> : null}
+      {bottomRow ? (
+        <div
+          className={cn(
+            "mt-3 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            isSticky ? "translate-y-0 opacity-100" : "translate-y-1 opacity-95",
+          )}
+        >
+          {bottomRow}
+        </div>
+      ) : null}
     </div>
   );
 };
