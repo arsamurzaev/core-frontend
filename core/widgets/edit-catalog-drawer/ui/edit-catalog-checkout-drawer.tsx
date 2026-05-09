@@ -32,6 +32,17 @@ type EditCatalogCheckoutDrawerProps = {
   onSave?: () => Promise<boolean>;
 };
 
+const CHECKOUT_CONTACT_FORM_FIELDS: Partial<
+  Record<CatalogContactDtoType, keyof CatalogEditFormValues>
+> = {
+  [CatalogContactDtoType.PHONE]: "phone",
+  [CatalogContactDtoType.WHATSAPP]: "whatsapp",
+  [CatalogContactDtoType.SMS]: "message",
+  [CatalogContactDtoType.TELEGRAM]: "telegram",
+  [CatalogContactDtoType.BIP]: "bip",
+  [CatalogContactDtoType.MAX]: "max",
+};
+
 function getContactLabel(type: CatalogContactDtoType): string {
   switch (type) {
     case CatalogContactDtoType.PHONE:
@@ -147,6 +158,64 @@ function getMethodContactsCount(
   ).length;
 }
 
+function getGeneralCheckoutContacts(
+  form: UseFormReturn<CatalogEditFormValues>,
+): CheckoutContactValues {
+  return CHECKOUT_CONTACT_TYPES.reduce<CheckoutContactValues>((acc, type) => {
+    const fieldName = CHECKOUT_CONTACT_FORM_FIELDS[type];
+    const value = fieldName ? form.getValues(fieldName) : "";
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      acc[type] = value;
+    }
+
+    return acc;
+  }, {});
+}
+
+function mergeGeneralContactsIntoCheckoutMethods(params: {
+  checkout: CheckoutConfig;
+  form: UseFormReturn<CatalogEditFormValues>;
+}) {
+  const generalContacts = getGeneralCheckoutContacts(params.form);
+
+  if (Object.keys(generalContacts).length === 0) {
+    return;
+  }
+
+  const currentContacts = params.form.getValues("checkoutContacts") ?? {};
+  let hasChanges = false;
+  const nextContacts: Partial<Record<CheckoutMethod, CheckoutContactValues>> = {
+    ...currentContacts,
+  };
+
+  for (const method of params.checkout.availableMethods) {
+    const methodContacts = { ...(currentContacts[method] ?? {}) };
+
+    for (const type of CHECKOUT_CONTACT_TYPES) {
+      const currentValue = methodContacts[type];
+      const generalValue = generalContacts[type];
+
+      if (
+        (!currentValue || currentValue.trim().length === 0) &&
+        generalValue
+      ) {
+        methodContacts[type] = generalValue;
+        hasChanges = true;
+      }
+    }
+
+    nextContacts[method] = methodContacts;
+  }
+
+  if (hasChanges) {
+    params.form.setValue("checkoutContacts", nextContacts, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }
+}
+
 export const EditCatalogCheckoutDrawer: React.FC<
   EditCatalogCheckoutDrawerProps
 > = ({ form, checkoutConfig, disabled = false, isSaving = false, onSave }) => {
@@ -195,6 +264,16 @@ export const EditCatalogCheckoutDrawer: React.FC<
     },
     [checkout.availableMethods, form],
   );
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      setOpen(nextOpen);
+
+      if (nextOpen) {
+        mergeGeneralContactsIntoCheckoutMethods({ checkout, form });
+      }
+    },
+    [checkout, form],
+  );
   const handleSave = React.useCallback(async () => {
     const isSaved = await onSave?.();
     if (isSaved) {
@@ -205,7 +284,7 @@ export const EditCatalogCheckoutDrawer: React.FC<
   return (
     <AppDrawer
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={handleOpenChange}
       dismissible={!disabled && !isSaving}
       trigger={
         <Button

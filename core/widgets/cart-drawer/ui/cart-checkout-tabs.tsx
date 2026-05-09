@@ -9,6 +9,7 @@ import {
   type CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
 import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { MapPin } from "lucide-react";
 import React from "react";
@@ -35,6 +36,16 @@ function updateCheckoutData(
   }
 
   return { ...data, [key]: value };
+}
+
+function formatTimeTextInput(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
 }
 
 function CheckoutLocationDisplay({ location }: { location: CheckoutLocation }) {
@@ -135,18 +146,24 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
         </TabsList>
 
         <TabsContent value="DELIVERY" className="pt-3">
-          <Input
-            value={data.address ?? ""}
-            onChange={(event) =>
-              onChange(
-                "DELIVERY",
-                updateCheckoutData(data, "address", event.target.value),
-              )
-            }
-            disabled={disabled}
-            placeholder="Адрес доставки"
-            className="border border-black/10"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="cart-checkout-delivery-address">
+              Укажите адрес доставки
+            </Label>
+            <Input
+              id="cart-checkout-delivery-address"
+              value={data.address ?? ""}
+              onChange={(event) =>
+                onChange(
+                  "DELIVERY",
+                  updateCheckoutData(data, "address", event.target.value),
+                )
+              }
+              disabled={disabled}
+              placeholder="Город, улица 1"
+              className="border border-black/10"
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="PICKUP" className="pt-3">
@@ -156,32 +173,51 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
         <TabsContent value="PREORDER" className="space-y-3 pt-3">
           <CheckoutLocationDisplay location={location} />
 
-          <Input
-            type="number"
-            min={1}
-            value={data.personsCount ?? ""}
-            onChange={(event) =>
-              onChange(
-                "PREORDER",
-                updateCheckoutData(data, "personsCount", event.target.value),
-              )
-            }
-            disabled={disabled}
-            placeholder="Количество человек"
-            className="border border-black/10"
-          />
-          <Input
-            type="time"
-            value={data.visitTime ?? ""}
-            onChange={(event) =>
-              onChange(
-                "PREORDER",
-                updateCheckoutData(data, "visitTime", event.target.value),
-              )
-            }
-            disabled={disabled}
-            className="border border-black/10"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="cart-checkout-preorder-persons">
+              Укажите кол-во гостей
+            </Label>
+            <Input
+              id="cart-checkout-preorder-persons"
+              type="number"
+              min={1}
+              value={data.personsCount ?? ""}
+              onChange={(event) =>
+                onChange(
+                  "PREORDER",
+                  updateCheckoutData(data, "personsCount", event.target.value),
+                )
+              }
+              disabled={disabled}
+              placeholder="4"
+              className="border border-black/10"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cart-checkout-preorder-time">
+              Укажите время посещения
+            </Label>
+            <Input
+              id="cart-checkout-preorder-time"
+              type="text"
+              inputMode="numeric"
+              maxLength={5}
+              value={data.visitTime ?? ""}
+              onChange={(event) =>
+                onChange(
+                  "PREORDER",
+                  updateCheckoutData(
+                    data,
+                    "visitTime",
+                    formatTimeTextInput(event.target.value),
+                  ),
+                )
+              }
+              disabled={disabled}
+              placeholder="16:00"
+              className="border border-black/10"
+            />
+          </div>
         </TabsContent>
       </Tabs>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
