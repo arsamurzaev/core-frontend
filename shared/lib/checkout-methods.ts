@@ -93,7 +93,7 @@ export const METHOD_FIELDS: Record<CheckoutMethod, CheckoutField[]> = {
 };
 
 export function resolveCheckoutAvailableMethods(): CheckoutMethod[] {
-  return ["DELIVERY"];
+  return ["DELIVERY", "PICKUP"];
 }
 
 export function getCatalogCheckoutConfig(

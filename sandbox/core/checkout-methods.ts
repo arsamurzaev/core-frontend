@@ -1,25 +1,24 @@
 import type { CatalogCurrentDto } from "@/shared/api/generated/react-query";
 import {
   getCatalogCheckoutConfig,
+  resolveCheckoutAvailableMethods,
   type CheckoutConfig,
   type CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
 import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
 
+const CATALOG_TYPES_WITH_PREORDER = new Set(["restaurant", "cafe"]);
+
 export function resolveSandboxCheckoutAvailableMethods(
   catalog: Pick<CatalogCurrentDto, "type">,
 ): CheckoutMethod[] {
-  const code = getCatalogTypeCode(catalog)?.trim().toLowerCase();
+  const baseMethods = resolveCheckoutAvailableMethods();
 
-  if (code === "restaurant" || code === "cafe") {
-    return ["DELIVERY", "PICKUP", "PREORDER"];
+  if (CATALOG_TYPES_WITH_PREORDER.has(getCatalogTypeCode(catalog))) {
+    return [...baseMethods, "PREORDER"];
   }
 
-  if (code === "clothing" || code === "clothes") {
-    return ["PICKUP"];
-  }
-
-  return ["DELIVERY"];
+  return baseMethods;
 }
 
 export function getSandboxCatalogCheckoutConfig(
