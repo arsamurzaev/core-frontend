@@ -27,6 +27,7 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
   copyMode,
   copySuccessMessage,
   appendUrlToMessage,
+  contactsOverride,
   open,
   onOpenChange,
 }) => {
@@ -72,6 +73,7 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
     copyMode,
     copySuccessMessage,
     appendUrlToMessage,
+    contactsOverride,
     messengerConfirmContent,
   });
 

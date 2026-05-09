@@ -23,19 +23,19 @@ import {
   getStatusDescription,
 } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-status";
 import {
-  getIntegrationControllerGetMoySkladQueryKey,
-  getIntegrationControllerGetMoySkladRunsQueryKey,
-  getIntegrationControllerGetMoySkladStatusQueryKey,
+  getCatalogAdvancedSettingsControllerGetMoySkladQueryKey,
+  getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryKey,
+  getCatalogAdvancedSettingsControllerGetMoySkladStatusQueryKey,
   type MoySkladIntegrationStatusDto,
   type UpdateMoySkladIntegrationDtoReq,
   type UpsertMoySkladIntegrationDtoReq,
-  useIntegrationControllerCancelMoySkladSync,
-  useIntegrationControllerGetMoySkladRuns,
-  useIntegrationControllerGetMoySkladStatus,
-  useIntegrationControllerSyncMoySkladCatalog,
-  useIntegrationControllerTestMoySkladConnection,
-  useIntegrationControllerUpdateMoySklad,
-  useIntegrationControllerUpsertMoySklad,
+  useCatalogAdvancedSettingsControllerCancelMoySkladSync,
+  useCatalogAdvancedSettingsControllerGetMoySkladRuns,
+  useCatalogAdvancedSettingsControllerGetMoySkladStatus,
+  useCatalogAdvancedSettingsControllerSyncMoySkladCatalog,
+  useCatalogAdvancedSettingsControllerTestMoySkladConnection,
+  useCatalogAdvancedSettingsControllerUpdateMoySklad,
+  useCatalogAdvancedSettingsControllerUpsertMoySklad,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -71,13 +71,13 @@ async function refreshIntegrationQueries(
 ) {
   await Promise.all([
     queryClient.invalidateQueries({
-      queryKey: getIntegrationControllerGetMoySkladStatusQueryKey(),
+      queryKey: getCatalogAdvancedSettingsControllerGetMoySkladStatusQueryKey(),
     }),
     queryClient.invalidateQueries({
-      queryKey: getIntegrationControllerGetMoySkladQueryKey(),
+      queryKey: getCatalogAdvancedSettingsControllerGetMoySkladQueryKey(),
     }),
     queryClient.invalidateQueries({
-      queryKey: getIntegrationControllerGetMoySkladRunsQueryKey(),
+      queryKey: getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryKey(),
     }),
   ]);
 }
@@ -88,18 +88,21 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
   const queryClient = useQueryClient();
   const [open, setOpen] = React.useState(false);
 
-  const statusQuery = useIntegrationControllerGetMoySkladStatus({
+  const statusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
     query: { staleTime: 30_000 },
   });
-  const runsQuery = useIntegrationControllerGetMoySkladRuns(
+  const runsQuery = useCatalogAdvancedSettingsControllerGetMoySkladRuns(
     { limit: RUNS_LIMIT },
     { query: { enabled: open, staleTime: 30_000 } },
   );
-  const upsertMutation = useIntegrationControllerUpsertMoySklad();
-  const updateMutation = useIntegrationControllerUpdateMoySklad();
-  const testConnectionMutation = useIntegrationControllerTestMoySkladConnection();
-  const syncCatalogMutation = useIntegrationControllerSyncMoySkladCatalog();
-  const cancelSyncMutation = useIntegrationControllerCancelMoySkladSync();
+  const upsertMutation = useCatalogAdvancedSettingsControllerUpsertMoySklad();
+  const updateMutation = useCatalogAdvancedSettingsControllerUpdateMoySklad();
+  const testConnectionMutation =
+    useCatalogAdvancedSettingsControllerTestMoySkladConnection();
+  const syncCatalogMutation =
+    useCatalogAdvancedSettingsControllerSyncMoySkladCatalog();
+  const cancelSyncMutation =
+    useCatalogAdvancedSettingsControllerCancelMoySkladSync();
 
   const [formState, setFormState] =
     React.useState<MoySkladFormState>(resolveInitialFormState);

@@ -23,7 +23,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/shared/ui/popover";
-import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
 import { Switch } from "@/shared/ui/switch";
 import { Check, ChevronRight, Copy, Download, ExternalLink, QrCode } from "lucide-react";
 import QRCodeLib from "qrcode";
@@ -56,6 +55,7 @@ function ModeLinkRow({
   isDefaultMode,
   isEnabled,
   isLastSelected,
+  onDefaultChange,
   onToggle,
   option,
 }: {
@@ -63,6 +63,7 @@ function ModeLinkRow({
   isDefaultMode: boolean;
   isEnabled: boolean;
   isLastSelected: boolean;
+  onDefaultChange: () => void;
   onToggle: (checked: boolean) => void;
   option: CatalogExperienceOption;
 }) {
@@ -97,100 +98,124 @@ function ModeLinkRow({
   }, [isEnabled, url]);
 
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-black/10 px-4 py-3">
-      <Switch
-        checked={isEnabled}
-        disabled={disabled || isLastSelected}
-        className="shrink-0 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
-        onCheckedChange={onToggle}
-      />
+    <div className="rounded-2xl border border-black/10 px-4 py-3">
+      <div className="flex items-start gap-3">
+        <Switch
+          checked={isEnabled}
+          disabled={disabled || isLastSelected}
+          className="mt-0.5 shrink-0 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+          onCheckedChange={onToggle}
+        />
 
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-medium text-foreground">{option.title}</p>
-          {isDefaultMode ? (
-            <Badge variant="secondary" className="bg-green-500/10 text-green-700">
-              По умолчанию
-            </Badge>
-          ) : null}
-          {!isEnabled ? (
-            <Badge variant="secondary" className="bg-red-500/10 text-red-700">
-              Выключен
-            </Badge>
-          ) : null}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-medium text-foreground">{option.title}</p>
+            {isDefaultMode ? (
+              <Badge variant="secondary" className="bg-green-500/10 text-green-700">
+                По умолчанию
+              </Badge>
+            ) : null}
+            {!isEnabled ? (
+              <Badge variant="secondary" className="bg-red-500/10 text-red-700">
+                Выключен
+              </Badge>
+            ) : null}
+          </div>
+          <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
+            {option.description}
+          </p>
+          <p className="mt-1 truncate text-xs text-muted-foreground">{url}</p>
         </div>
-        <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
-          {option.description}
-        </p>
-        <p className="mt-1 truncate text-xs text-muted-foreground">{url}</p>
-      </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="shrink-0"
-        disabled={!isEnabled}
-        onClick={() => void handleCopy()}
-        title="Скопировать ссылку"
-      >
-        {copied ? (
-          <Check className="size-4 text-green-500" />
-        ) : (
-          <Copy className="size-4" />
-        )}
-      </Button>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="shrink-0"
-        disabled={!isEnabled}
-        onClick={handleOpen}
-        title="Открыть в новой вкладке"
-      >
-        <ExternalLink className="size-4" />
-      </Button>
-
-      <Popover>
-        <PopoverTrigger asChild>
+        <div className="flex shrink-0 items-center gap-1">
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="shrink-0"
             disabled={!isEnabled}
-            title="Показать QR-код"
+            onClick={() => void handleCopy()}
+            title="Скопировать ссылку"
           >
-            <QrCode className="size-4" />
+            {copied ? (
+              <Check className="size-4 text-green-500" />
+            ) : (
+              <Copy className="size-4" />
+            )}
           </Button>
-        </PopoverTrigger>
-        <PopoverContent align="end" className="w-auto p-4">
-          <p className="mb-3 text-sm font-medium">{option.title}</p>
-          {qrDataUrl ? (
-            <>
-              <img
-                src={qrDataUrl}
-                alt={`QR-код для режима ${option.title}`}
-                className="size-48 rounded-lg"
-              />
-              <a
-                href={qrDataUrl}
-                download={`qr-${option.value.toLowerCase()}.png`}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={!isEnabled}
+            onClick={handleOpen}
+            title="Открыть в новой вкладке"
+          >
+            <ExternalLink className="size-4" />
+          </Button>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                disabled={!isEnabled}
+                title="Показать QR-код"
               >
-                <Download className="size-4" />
-                Скачать PNG
-              </a>
-            </>
-          ) : (
-            <div className="flex size-48 items-center justify-center text-muted-foreground">
-              <QrCode className="size-8 animate-pulse" />
-            </div>
-          )}
-        </PopoverContent>
-      </Popover>
+                <QrCode className="size-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-auto p-4">
+              <p className="mb-3 text-sm font-medium">{option.title}</p>
+              {qrDataUrl ? (
+                <>
+                  <img
+                    src={qrDataUrl}
+                    alt={`QR-код для режима ${option.title}`}
+                    className="size-48 rounded-lg"
+                  />
+                  <a
+                    href={qrDataUrl}
+                    download={`qr-${option.value.toLowerCase()}.png`}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                  >
+                    <Download className="size-4" />
+                    Скачать PNG
+                  </a>
+                </>
+              ) : (
+                <div className="flex size-48 items-center justify-center text-muted-foreground">
+                  <QrCode className="size-8 animate-pulse" />
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        aria-pressed={isDefaultMode}
+        disabled={disabled || !isEnabled}
+        onClick={onDefaultChange}
+        className="mt-3 flex w-full items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/30 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <span
+          aria-hidden="true"
+          className="flex size-4 shrink-0 items-center justify-center rounded-full border border-primary"
+        >
+          {isDefaultMode ? (
+            <span className="size-2 rounded-full bg-primary" />
+          ) : null}
+        </span>
+        <span className="font-medium text-foreground">
+          Открывать по умолчанию
+        </span>
+        <span className="min-w-0 flex-1 truncate text-muted-foreground">
+          ссылка без параметров
+        </span>
+      </button>
     </div>
   );
 }
@@ -198,6 +223,8 @@ function ModeLinkRow({
 type EditCatalogExperienceDrawerProps = {
   form: UseFormReturn<CatalogEditFormValues>;
   disabled?: boolean;
+  isSaving?: boolean;
+  onSave?: () => Promise<boolean>;
 };
 
 function buildNextAllowedModes(params: {
@@ -216,7 +243,8 @@ function buildNextAllowedModes(params: {
 
 export const EditCatalogExperienceDrawer: React.FC<
   EditCatalogExperienceDrawerProps
-> = ({ form, disabled = false }) => {
+> = ({ form, disabled = false, isSaving = false, onSave }) => {
+  const [open, setOpen] = React.useState(false);
   const allowedModesValue = useWatch({
     control: form.control,
     name: "allowedModes",
@@ -293,10 +321,18 @@ export const EditCatalogExperienceDrawer: React.FC<
     },
     [allowedModes, form],
   );
+  const handleSave = React.useCallback(async () => {
+    const isSaved = await onSave?.();
+    if (isSaved) {
+      setOpen(false);
+    }
+  }, [onSave]);
 
   return (
     <AppDrawer
-      dismissible={!disabled}
+      open={open}
+      onOpenChange={setOpen}
+      dismissible={!disabled && !isSaving}
       trigger={
         <Button
           type="button"
@@ -306,9 +342,6 @@ export const EditCatalogExperienceDrawer: React.FC<
         >
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">
-                Сценарий заказа
-              </span>
               <Badge
                 variant="secondary"
                 className="max-w-full wrap-break-word text-left whitespace-normal"
@@ -329,7 +362,7 @@ export const EditCatalogExperienceDrawer: React.FC<
           <AppDrawer.Header
             title="Сценарий заказа"
             description="Выберите, как клиенты будут пользоваться каталогом: оформлять доставку, только смотреть каталог или собирать заказ для зала."
-            withCloseButton={!disabled}
+            withCloseButton={!disabled && !isSaving}
           />
           <hr />
 
@@ -337,61 +370,9 @@ export const EditCatalogExperienceDrawer: React.FC<
             <div className="space-y-6">
               <section className="space-y-3">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">
-                    Что открывать по умолчанию
-                  </h3>
+                  <h3 className="text-sm font-semibold">Режимы заказа</h3>
                   <p className="text-sm text-muted-foreground">
-                    Этот вариант будет открываться по ссылке без дополнительных параметров.
-                  </p>
-                </div>
-
-                <RadioGroup
-                  value={defaultMode}
-                  onValueChange={handleDefaultModeChange}
-                  className="space-y-3"
-                >
-                  {allowedModes.map((mode) => {
-                    const option = CATALOG_EXPERIENCE_OPTIONS.find(
-                      (item) => item.value === mode,
-                    );
-
-                    if (!option) {
-                      return null;
-                    }
-
-                    return (
-                      <label
-                        key={mode}
-                        className="flex w-full cursor-pointer items-start gap-3 rounded-2xl border border-black/10 px-4 py-4 transition-colors hover:bg-muted/30"
-                      >
-                        <RadioGroupItem
-                          value={mode}
-                          disabled={disabled}
-                          className="mt-0.5"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground">
-                            {option.title}
-                          </p>
-                          <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
-                            {option.description}
-                          </p>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </RadioGroup>
-
-                {defaultModeError ? (
-                  <FieldError>{defaultModeError}</FieldError>
-                ) : null}
-              </section>
-
-              <section className="space-y-3">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Ссылки для клиентов</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Включайте нужные сценарии прямо в списке. Зелёный переключатель — доступен, красный — выключен.
+                    Включайте нужные сценарии и выберите, что открывать по ссылке без параметров.
                   </p>
                 </div>
 
@@ -407,6 +388,7 @@ export const EditCatalogExperienceDrawer: React.FC<
                         isDefaultMode={option.value === defaultMode}
                         isEnabled={isEnabled}
                         isLastSelected={isLastSelected}
+                        onDefaultChange={() => handleDefaultModeChange(option.value)}
                         onToggle={(checked) =>
                           handleAllowedModeChange(option.value, checked)
                         }
@@ -419,13 +401,19 @@ export const EditCatalogExperienceDrawer: React.FC<
                 {allowedModesError ? (
                   <FieldError>{allowedModesError}</FieldError>
                 ) : null}
+                {defaultModeError ? (
+                  <FieldError>{defaultModeError}</FieldError>
+                ) : null}
               </section>
             </div>
           </DrawerScrollArea>
 
           <AppDrawer.Footer
             className="border-t"
-            btnText="Готово"
+            btnText="Сохранить"
+            isAutoClose={false}
+            loading={isSaving}
+            handleClick={() => void handleSave()}
             buttonType="button"
           />
         </div>

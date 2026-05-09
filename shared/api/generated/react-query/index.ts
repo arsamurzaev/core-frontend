@@ -239,6 +239,16 @@ export interface AdminPromoCodeListItemDto {
   paymentsCount?: number;
 }
 
+export interface AdminCatalogChildListItemDto {
+  id: string;
+  slug: string;
+  /** @nullable */
+  domain: string | null;
+  name: string;
+  /** @nullable */
+  deleteAt?: string | null;
+}
+
 export interface AdminCatalogListItemDto {
   id: string;
   slug: string;
@@ -271,6 +281,7 @@ export interface AdminCatalogListItemDto {
   logoMedia: MediaDto | null;
   type: AdminTypeListItemDto;
   promoCode: AdminPromoCodeListItemDto | null;
+  children: AdminCatalogChildListItemDto[];
 }
 
 export type AdminCreateCatalogDtoReqStatus = typeof AdminCreateCatalogDtoReqStatus[keyof typeof AdminCreateCatalogDtoReqStatus];
@@ -295,11 +306,6 @@ export interface AdminCreateCatalogDtoReq {
   status: AdminCreateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug: string;
-  /**
-   * Custom domain.
-   * @nullable
-   */
-  domain?: string | null;
   parentId?: string;
   /** Trial license duration in days. */
   trialLicenseDays?: number;
@@ -338,11 +344,6 @@ export interface AdminDuplicateCatalogDtoReq {
   status: AdminDuplicateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug: string;
-  /**
-   * New custom domain. Source domain is never copied.
-   * @nullable
-   */
-  domain?: string | null;
 }
 
 export type AdminUpdateCatalogDtoReqStatus = typeof AdminUpdateCatalogDtoReqStatus[keyof typeof AdminUpdateCatalogDtoReqStatus];
@@ -367,11 +368,6 @@ export interface AdminUpdateCatalogDtoReq {
   status?: AdminUpdateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug?: string;
-  /**
-   * Custom domain. Pass null to clear.
-   * @nullable
-   */
-  domain?: string | null;
   /** @nullable */
   parentId?: string | null;
   /** @nullable */
@@ -726,6 +722,255 @@ export interface CreateUserDtoReq {
   regionalityIds?: string[];
 }
 
+export interface CatalogDomainDnsRecordDto {
+  type: string;
+  name: string;
+  value: string;
+  required: boolean;
+  description?: string;
+}
+
+export interface CatalogDomainVerificationDto {
+  txtRecord: CatalogDomainDnsRecordDto;
+  routingRecords: CatalogDomainDnsRecordDto[];
+  wwwRecord?: CatalogDomainDnsRecordDto | null;
+  expectedHosts: string[];
+  instructions: string[];
+  recheckAfterSeconds: number;
+}
+
+export type CatalogDomainDtoStatus = typeof CatalogDomainDtoStatus[keyof typeof CatalogDomainDtoStatus];
+
+
+export const CatalogDomainDtoStatus = {
+  PENDING_DNS: 'PENDING_DNS',
+  DNS_VERIFIED: 'DNS_VERIFIED',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface CatalogDomainDto {
+  id: string;
+  catalogId: string;
+  hostname: string;
+  status: CatalogDomainDtoStatus;
+  isPrimary: boolean;
+  redirectToPrimary: boolean;
+  includeWww: boolean;
+  verificationToken: string;
+  verification: CatalogDomainVerificationDto;
+  nextCheckAfterSeconds: number;
+  nextCheckAt: string;
+  message: string;
+  /** @nullable */
+  lastCheckedAt?: string | null;
+  /** @nullable */
+  lastError?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateCatalogDomainDtoReq {
+  hostname: string;
+  /** Also allow www.<domain> for TLS and DNS checks */
+  includeWww?: boolean;
+  isPrimary?: boolean;
+  redirectToPrimary?: boolean;
+}
+
+export interface CatalogDomainCheckDto {
+  ok: boolean;
+  status: string;
+  /** @nullable */
+  error?: string | null;
+  verification: CatalogDomainVerificationDto;
+  nextCheckAfterSeconds: number;
+  nextCheckAt: string;
+  message: string;
+}
+
+export interface CatalogYandexMetrikaDto {
+  /** @nullable */
+  counterId: string | null;
+}
+
+export interface UpdateCatalogYandexMetrikaDtoReq {
+  /** Yandex Metrika counter id for CATALOG scope. */
+  counterId: string;
+}
+
+export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
+
+
+export const MoySkladIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
+
+
+export const MoySkladIntegrationDtoLastSyncStatus = {
+  IDLE: 'IDLE',
+  SYNCING: 'SYNCING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+} as const;
+
+export interface MoySkladIntegrationDto {
+  provider: MoySkladIntegrationDtoProvider;
+  isActive: boolean;
+  hasToken: boolean;
+  /** @nullable */
+  tokenPreview: string | null;
+  priceTypeName: string;
+  importImages: boolean;
+  syncStock: boolean;
+  scheduleEnabled: boolean;
+  /** @nullable */
+  schedulePattern: string | null;
+  scheduleTimezone: string;
+  lastSyncStatus: MoySkladIntegrationDtoLastSyncStatus;
+  /** @nullable */
+  syncStartedAt: string | null;
+  /** @nullable */
+  lastSyncAt: string | null;
+  /** @nullable */
+  lastSyncError: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof typeof MoySkladSyncRunDtoProvider];
+
+
+export const MoySkladSyncRunDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
+
+
+export const MoySkladSyncRunDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+} as const;
+
+export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof typeof MoySkladSyncRunDtoTrigger];
+
+
+export const MoySkladSyncRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+} as const;
+
+export type MoySkladSyncRunDtoStatus = typeof MoySkladSyncRunDtoStatus[keyof typeof MoySkladSyncRunDtoStatus];
+
+
+export const MoySkladSyncRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface MoySkladSyncRunDto {
+  id: string;
+  provider: MoySkladSyncRunDtoProvider;
+  mode: MoySkladSyncRunDtoMode;
+  trigger: MoySkladSyncRunDtoTrigger;
+  status: MoySkladSyncRunDtoStatus;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  imagesImported: number;
+  /** @nullable */
+  durationMs: number | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MoySkladIntegrationStatusDto {
+  configured: boolean;
+  integration: MoySkladIntegrationDto | null;
+  activeRun: MoySkladSyncRunDto | null;
+  lastRun: MoySkladSyncRunDto | null;
+}
+
+export interface UpsertMoySkladIntegrationDtoReq {
+  token: string;
+  isActive?: boolean;
+  priceTypeName?: string;
+  importImages?: boolean;
+  syncStock?: boolean;
+  scheduleEnabled?: boolean;
+  schedulePattern?: string;
+  scheduleTimezone?: string;
+}
+
+export interface UpdateMoySkladIntegrationDtoReq {
+  token?: string;
+  isActive?: boolean;
+  priceTypeName?: string;
+  importImages?: boolean;
+  syncStock?: boolean;
+  scheduleEnabled?: boolean;
+  schedulePattern?: string;
+  scheduleTimezone?: string;
+}
+
+export interface TestMoySkladConnectionDtoReq {
+  token?: string;
+}
+
+export interface MoySkladTestConnectionDto {
+  ok: boolean;
+}
+
+export type MoySkladQueuedSyncDtoMode = typeof MoySkladQueuedSyncDtoMode[keyof typeof MoySkladQueuedSyncDtoMode];
+
+
+export const MoySkladQueuedSyncDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+} as const;
+
+export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[keyof typeof MoySkladQueuedSyncDtoTrigger];
+
+
+export const MoySkladQueuedSyncDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+} as const;
+
+export interface MoySkladQueuedSyncDto {
+  ok: boolean;
+  queued: boolean;
+  runId: string;
+  jobId: string;
+  mode: MoySkladQueuedSyncDtoMode;
+  trigger: MoySkladQueuedSyncDtoTrigger;
+}
+
 export type CatalogConfigDtoStatus = typeof CatalogConfigDtoStatus[keyof typeof CatalogConfigDtoStatus];
 
 
@@ -751,6 +996,35 @@ export interface CatalogConfigDto {
   note: string | null;
 }
 
+export type CatalogCheckoutConfigDtoAvailableMethodsItem = typeof CatalogCheckoutConfigDtoAvailableMethodsItem[keyof typeof CatalogCheckoutConfigDtoAvailableMethodsItem];
+
+
+export const CatalogCheckoutConfigDtoAvailableMethodsItem = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+export type CatalogCheckoutConfigDtoEnabledMethodsItem = typeof CatalogCheckoutConfigDtoEnabledMethodsItem[keyof typeof CatalogCheckoutConfigDtoEnabledMethodsItem];
+
+
+export const CatalogCheckoutConfigDtoEnabledMethodsItem = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+export type CatalogCheckoutConfigDtoMethodContacts = { [key: string]: unknown };
+
+export type CatalogCheckoutConfigDtoMethodFields = { [key: string]: unknown };
+
+export interface CatalogCheckoutConfigDto {
+  availableMethods: CatalogCheckoutConfigDtoAvailableMethodsItem[];
+  enabledMethods: CatalogCheckoutConfigDtoEnabledMethodsItem[];
+  methodContacts: CatalogCheckoutConfigDtoMethodContacts;
+  methodFields: CatalogCheckoutConfigDtoMethodFields;
+}
+
 export type CatalogSettingsDtoDefaultMode = typeof CatalogSettingsDtoDefaultMode[keyof typeof CatalogSettingsDtoDefaultMode];
 
 
@@ -773,6 +1047,9 @@ export interface CatalogSettingsDto {
   isActive: boolean;
   defaultMode: CatalogSettingsDtoDefaultMode;
   allowedModes: CatalogSettingsDtoAllowedModesItem[];
+  /** @nullable */
+  address: string | null;
+  checkout: CatalogCheckoutConfigDto;
   /** @nullable */
   googleVerification: string | null;
   /** @nullable */
@@ -1007,6 +1284,12 @@ export const UpdateCatalogDtoReqAllowedModesItem = {
   HALL: 'HALL',
 } as const;
 
+/**
+ * Checkout methods settings for cart flow.
+ * @nullable
+ */
+export type UpdateCatalogDtoReqCheckout = { [key: string]: unknown } | null;
+
 export interface UpdateCatalogDtoReq {
   slug?: string;
   /** @nullable */
@@ -1025,8 +1308,15 @@ export interface UpdateCatalogDtoReq {
   bgMediaId?: string;
   note?: string;
   isActive?: boolean;
+  /** @nullable */
+  address?: string | null;
   defaultMode?: UpdateCatalogDtoReqDefaultMode;
   allowedModes?: UpdateCatalogDtoReqAllowedModesItem[];
+  /**
+   * Checkout methods settings for cart flow.
+   * @nullable
+   */
+  checkout?: UpdateCatalogDtoReqCheckout;
   /** @nullable */
   googleVerification?: string | null;
   /** @nullable */
@@ -1077,74 +1367,6 @@ export interface CatalogCreateResponseDto {
   slug: string;
   /** @nullable */
   domain: string | null;
-}
-
-export interface CatalogDomainDnsRecordDto {
-  type: string;
-  name: string;
-  value: string;
-  required: boolean;
-  description?: string;
-}
-
-export interface CatalogDomainVerificationDto {
-  txtRecord: CatalogDomainDnsRecordDto;
-  routingRecords: CatalogDomainDnsRecordDto[];
-  wwwRecord?: CatalogDomainDnsRecordDto | null;
-  expectedHosts: string[];
-  instructions: string[];
-  recheckAfterSeconds: number;
-}
-
-export type CatalogDomainDtoStatus = typeof CatalogDomainDtoStatus[keyof typeof CatalogDomainDtoStatus];
-
-
-export const CatalogDomainDtoStatus = {
-  PENDING_DNS: 'PENDING_DNS',
-  DNS_VERIFIED: 'DNS_VERIFIED',
-  ACTIVE: 'ACTIVE',
-  FAILED: 'FAILED',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface CatalogDomainDto {
-  id: string;
-  catalogId: string;
-  hostname: string;
-  status: CatalogDomainDtoStatus;
-  isPrimary: boolean;
-  redirectToPrimary: boolean;
-  includeWww: boolean;
-  verificationToken: string;
-  verification: CatalogDomainVerificationDto;
-  nextCheckAfterSeconds: number;
-  nextCheckAt: string;
-  message: string;
-  /** @nullable */
-  lastCheckedAt?: string | null;
-  /** @nullable */
-  lastError?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface CreateCatalogDomainDtoReq {
-  hostname: string;
-  /** Also allow www.<domain> for TLS and DNS checks */
-  includeWww?: boolean;
-  isPrimary?: boolean;
-  redirectToPrimary?: boolean;
-}
-
-export interface CatalogDomainCheckDto {
-  ok: boolean;
-  status: string;
-  /** @nullable */
-  error?: string | null;
-  verification: CatalogDomainVerificationDto;
-  nextCheckAfterSeconds: number;
-  nextCheckAt: string;
-  message: string;
 }
 
 export interface CategoryDto {
@@ -1706,177 +1928,6 @@ export interface ProductVariantsResponseDto {
   ok: boolean;
 }
 
-export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
-
-
-export const MoySkladIntegrationDtoProvider = {
-  MOYSKLAD: 'MOYSKLAD',
-} as const;
-
-export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
-
-
-export const MoySkladIntegrationDtoLastSyncStatus = {
-  IDLE: 'IDLE',
-  SYNCING: 'SYNCING',
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR',
-} as const;
-
-export interface MoySkladIntegrationDto {
-  provider: MoySkladIntegrationDtoProvider;
-  isActive: boolean;
-  hasToken: boolean;
-  /** @nullable */
-  tokenPreview: string | null;
-  priceTypeName: string;
-  importImages: boolean;
-  syncStock: boolean;
-  scheduleEnabled: boolean;
-  /** @nullable */
-  schedulePattern: string | null;
-  scheduleTimezone: string;
-  lastSyncStatus: MoySkladIntegrationDtoLastSyncStatus;
-  /** @nullable */
-  syncStartedAt: string | null;
-  /** @nullable */
-  lastSyncAt: string | null;
-  /** @nullable */
-  lastSyncError: string | null;
-  totalProducts: number;
-  createdProducts: number;
-  updatedProducts: number;
-  deletedProducts: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof typeof MoySkladSyncRunDtoProvider];
-
-
-export const MoySkladSyncRunDtoProvider = {
-  MOYSKLAD: 'MOYSKLAD',
-} as const;
-
-export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
-
-
-export const MoySkladSyncRunDtoMode = {
-  FULL: 'FULL',
-  PRODUCT: 'PRODUCT',
-} as const;
-
-export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof typeof MoySkladSyncRunDtoTrigger];
-
-
-export const MoySkladSyncRunDtoTrigger = {
-  MANUAL: 'MANUAL',
-  SCHEDULED: 'SCHEDULED',
-} as const;
-
-export type MoySkladSyncRunDtoStatus = typeof MoySkladSyncRunDtoStatus[keyof typeof MoySkladSyncRunDtoStatus];
-
-
-export const MoySkladSyncRunDtoStatus = {
-  PENDING: 'PENDING',
-  RUNNING: 'RUNNING',
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR',
-  SKIPPED: 'SKIPPED',
-} as const;
-
-export interface MoySkladSyncRunDto {
-  id: string;
-  provider: MoySkladSyncRunDtoProvider;
-  mode: MoySkladSyncRunDtoMode;
-  trigger: MoySkladSyncRunDtoTrigger;
-  status: MoySkladSyncRunDtoStatus;
-  /** @nullable */
-  jobId: string | null;
-  /** @nullable */
-  productId: string | null;
-  /** @nullable */
-  externalId: string | null;
-  /** @nullable */
-  error: string | null;
-  totalProducts: number;
-  createdProducts: number;
-  updatedProducts: number;
-  deletedProducts: number;
-  imagesImported: number;
-  /** @nullable */
-  durationMs: number | null;
-  requestedAt: string;
-  /** @nullable */
-  startedAt: string | null;
-  /** @nullable */
-  finishedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MoySkladIntegrationStatusDto {
-  configured: boolean;
-  integration: MoySkladIntegrationDto | null;
-  activeRun: MoySkladSyncRunDto | null;
-  lastRun: MoySkladSyncRunDto | null;
-}
-
-export interface UpsertMoySkladIntegrationDtoReq {
-  token: string;
-  isActive?: boolean;
-  priceTypeName?: string;
-  importImages?: boolean;
-  syncStock?: boolean;
-  scheduleEnabled?: boolean;
-  schedulePattern?: string;
-  scheduleTimezone?: string;
-}
-
-export interface UpdateMoySkladIntegrationDtoReq {
-  token?: string;
-  isActive?: boolean;
-  priceTypeName?: string;
-  importImages?: boolean;
-  syncStock?: boolean;
-  scheduleEnabled?: boolean;
-  schedulePattern?: string;
-  scheduleTimezone?: string;
-}
-
-export interface TestMoySkladConnectionDtoReq {
-  token?: string;
-}
-
-export interface MoySkladTestConnectionDto {
-  ok: boolean;
-}
-
-export type MoySkladQueuedSyncDtoMode = typeof MoySkladQueuedSyncDtoMode[keyof typeof MoySkladQueuedSyncDtoMode];
-
-
-export const MoySkladQueuedSyncDtoMode = {
-  FULL: 'FULL',
-  PRODUCT: 'PRODUCT',
-} as const;
-
-export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[keyof typeof MoySkladQueuedSyncDtoTrigger];
-
-
-export const MoySkladQueuedSyncDtoTrigger = {
-  MANUAL: 'MANUAL',
-  SCHEDULED: 'SCHEDULED',
-} as const;
-
-export interface MoySkladQueuedSyncDto {
-  ok: boolean;
-  queued: boolean;
-  runId: string;
-  jobId: string;
-  mode: MoySkladQueuedSyncDtoMode;
-  trigger: MoySkladQueuedSyncDtoTrigger;
-}
-
 export type CartStatus = typeof CartStatus[keyof typeof CartStatus];
 
 
@@ -1916,6 +1967,28 @@ export interface CartTotalsDto {
   total: number;
 }
 
+/**
+ * @nullable
+ */
+export type CartDtoCheckoutMethod = typeof CartDtoCheckoutMethod[keyof typeof CartDtoCheckoutMethod] | null;
+
+
+export const CartDtoCheckoutMethod = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CartDtoCheckoutData = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CartDtoCheckoutContacts = { [key: string]: unknown } | null;
+
 export interface CartDto {
   id: string;
   catalogId: string;
@@ -1929,6 +2002,12 @@ export interface CartDto {
   checkoutAt: string | null;
   /** @nullable */
   comment: string | null;
+  /** @nullable */
+  checkoutMethod: CartDtoCheckoutMethod;
+  /** @nullable */
+  checkoutData: CartDtoCheckoutData;
+  /** @nullable */
+  checkoutContacts: CartDtoCheckoutContacts;
   /** @nullable */
   assignedManagerId: string | null;
   /** @nullable */
@@ -1948,9 +2027,22 @@ export interface CartResponseDto {
   cart: CartDto;
 }
 
+export type ShareCurrentCartDtoReqCheckoutMethod = typeof ShareCurrentCartDtoReqCheckoutMethod[keyof typeof ShareCurrentCartDtoReqCheckoutMethod];
+
+
+export const ShareCurrentCartDtoReqCheckoutMethod = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+export type ShareCurrentCartDtoReqCheckoutData = { [key: string]: unknown };
+
 export interface ShareCurrentCartDtoReq {
   /** @maxLength 1000 */
   comment?: string;
+  checkoutMethod?: ShareCurrentCartDtoReqCheckoutMethod;
+  checkoutData?: ShareCurrentCartDtoReqCheckoutData;
 }
 
 export interface ShareCartResponseDto {
@@ -1983,11 +2075,39 @@ export interface CompletedOrderItemDto {
   unitPrice: number;
 }
 
+/**
+ * @nullable
+ */
+export type CompletedOrderDtoCheckoutMethod = typeof CompletedOrderDtoCheckoutMethod[keyof typeof CompletedOrderDtoCheckoutMethod] | null;
+
+
+export const CompletedOrderDtoCheckoutMethod = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CompletedOrderDtoCheckoutData = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CompletedOrderDtoCheckoutContacts = { [key: string]: unknown } | null;
+
 export interface CompletedOrderDto {
   id: string;
   status: OrderStatus;
   catalogId: string;
   totalAmount: number;
+  /** @nullable */
+  checkoutMethod: CompletedOrderDtoCheckoutMethod;
+  /** @nullable */
+  checkoutData: CompletedOrderDtoCheckoutData;
+  /** @nullable */
+  checkoutContacts: CompletedOrderDtoCheckoutContacts;
   items: CompletedOrderItemDto[];
   createdAt: string;
 }
@@ -2178,6 +2298,20 @@ export type S3ControllerEnqueueFromS3Body = {
   key: string;
 } | {
   items: UploadFromS3ItemDtoReq[];
+};
+
+export type CatalogAdvancedSettingsControllerGetMoySkladRunsParams = {
+/**
+ * Сколько последних запусков вернуть
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetMoySkladRunsParams = {
+/**
+ * Сколько последних запусков вернуть
+ */
+limit?: number;
 };
 
 export type CategoryControllerGetProductsByCategoryParams = {
@@ -2414,13 +2548,6 @@ cursor?: string;
  * Размер страницы (1-50), по умолчанию 24
  */
 limit?: string;
-};
-
-export type IntegrationControllerGetMoySkladRunsParams = {
-/**
- * Сколько последних запусков вернуть
- */
-limit?: number;
 };
 
 /**
@@ -6331,6 +6458,1433 @@ export const useUserControllerRegister = <TError = unknown,
     }
     
 /**
+ * @summary Change current catalog advanced settings password
+ */
+export const catalogAdvancedSettingsControllerChangePassword = (
+    changePasswordDtoReq: ChangePasswordDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: changePasswordDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerChangePasswordMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerChangePassword'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerChangePassword>>, {data: ChangePasswordDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerChangePassword(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerChangePasswordMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerChangePassword>>>
+    export type CatalogAdvancedSettingsControllerChangePasswordMutationBody = ChangePasswordDtoReq
+    export type CatalogAdvancedSettingsControllerChangePasswordMutationError = void
+
+    /**
+ * @summary Change current catalog advanced settings password
+ */
+export const useCatalogAdvancedSettingsControllerChangePassword = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerChangePassword>>, TError,{data: ChangePasswordDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerChangePassword>>,
+        TError,
+        {data: ChangePasswordDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerChangePasswordMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary List current catalog advanced settings sessions
+ */
+export const catalogAdvancedSettingsControllerListSessions = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<AuthSessionsResponseDto>(
+      {url: `/catalog/current/advanced-settings/sessions`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerListSessionsQueryKey = () => {
+    return [
+    `/catalog/current/advanced-settings/sessions`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerListSessionsQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerListSessionsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>> = ({ signal }) => catalogAdvancedSettingsControllerListSessions(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerListSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>>
+export type CatalogAdvancedSettingsControllerListSessionsQueryError = void
+
+
+export function useCatalogAdvancedSettingsControllerListSessions<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError = void>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerListSessions<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerListSessions<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List current catalog advanced settings sessions
+ */
+
+export function useCatalogAdvancedSettingsControllerListSessions<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError = void>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSessions>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerListSessionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Revoke other catalog advanced settings sessions
+ */
+export const catalogAdvancedSettingsControllerRevokeOtherSessions = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/sessions/revoke-others`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerRevokeOtherSessionsMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeOtherSessions>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeOtherSessions>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerRevokeOtherSessions'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeOtherSessions>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerRevokeOtherSessions()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerRevokeOtherSessionsMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeOtherSessions>>>
+    
+    export type CatalogAdvancedSettingsControllerRevokeOtherSessionsMutationError = void
+
+    /**
+ * @summary Revoke other catalog advanced settings sessions
+ */
+export const useCatalogAdvancedSettingsControllerRevokeOtherSessions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeOtherSessions>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeOtherSessions>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerRevokeOtherSessionsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Revoke catalog advanced settings session
+ */
+export const catalogAdvancedSettingsControllerRevokeSession = (
+    sid: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/sessions/${sid}/revoke`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerRevokeSessionMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeSession>>, TError,{sid: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeSession>>, TError,{sid: string}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerRevokeSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeSession>>, {sid: string}> = (props) => {
+          const {sid} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerRevokeSession(sid,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerRevokeSessionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeSession>>>
+    
+    export type CatalogAdvancedSettingsControllerRevokeSessionMutationError = void
+
+    /**
+ * @summary Revoke catalog advanced settings session
+ */
+export const useCatalogAdvancedSettingsControllerRevokeSession = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeSession>>, TError,{sid: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRevokeSession>>,
+        TError,
+        {sid: string},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerRevokeSessionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary List current catalog advanced settings domains
+ */
+export const catalogAdvancedSettingsControllerListDomains = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogDomainDto[]>(
+      {url: `/catalog/current/advanced-settings/domains`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerListDomainsQueryKey = () => {
+    return [
+    `/catalog/current/advanced-settings/domains`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerListDomainsQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerListDomainsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>> = ({ signal }) => catalogAdvancedSettingsControllerListDomains(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerListDomainsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>>
+export type CatalogAdvancedSettingsControllerListDomainsQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerListDomains<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerListDomains<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerListDomains<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List current catalog advanced settings domains
+ */
+
+export function useCatalogAdvancedSettingsControllerListDomains<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListDomains>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerListDomainsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Attach advanced settings domain to current catalog
+ */
+export const catalogAdvancedSettingsControllerCreateDomain = (
+    createCatalogDomainDtoReq: CreateCatalogDomainDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogDomainDto>(
+      {url: `/catalog/current/advanced-settings/domains`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogDomainDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerCreateDomainMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateDomain>>, TError,{data: CreateCatalogDomainDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateDomain>>, TError,{data: CreateCatalogDomainDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerCreateDomain'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateDomain>>, {data: CreateCatalogDomainDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerCreateDomain(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerCreateDomainMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateDomain>>>
+    export type CatalogAdvancedSettingsControllerCreateDomainMutationBody = CreateCatalogDomainDtoReq
+    export type CatalogAdvancedSettingsControllerCreateDomainMutationError = unknown
+
+    /**
+ * @summary Attach advanced settings domain to current catalog
+ */
+export const useCatalogAdvancedSettingsControllerCreateDomain = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateDomain>>, TError,{data: CreateCatalogDomainDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateDomain>>,
+        TError,
+        {data: CreateCatalogDomainDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerCreateDomainMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Check advanced settings catalog domain DNS
+ */
+export const catalogAdvancedSettingsControllerCheckDomain = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogDomainCheckDto>(
+      {url: `/catalog/current/advanced-settings/domains/${id}/check`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerCheckDomainMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCheckDomain>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCheckDomain>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerCheckDomain'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCheckDomain>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerCheckDomain(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerCheckDomainMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCheckDomain>>>
+    
+    export type CatalogAdvancedSettingsControllerCheckDomainMutationError = unknown
+
+    /**
+ * @summary Check advanced settings catalog domain DNS
+ */
+export const useCatalogAdvancedSettingsControllerCheckDomain = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCheckDomain>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCheckDomain>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerCheckDomainMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Disable advanced settings catalog domain
+ */
+export const catalogAdvancedSettingsControllerDisableDomain = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogDomainDto>(
+      {url: `/catalog/current/advanced-settings/domains/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerDisableDomainMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableDomain>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableDomain>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerDisableDomain'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableDomain>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerDisableDomain(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerDisableDomainMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableDomain>>>
+    
+    export type CatalogAdvancedSettingsControllerDisableDomainMutationError = unknown
+
+    /**
+ * @summary Disable advanced settings catalog domain
+ */
+export const useCatalogAdvancedSettingsControllerDisableDomain = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableDomain>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableDomain>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerDisableDomainMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get catalog scoped Yandex Metrika counter
+ */
+export const catalogAdvancedSettingsControllerGetYandexMetrika = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogYandexMetrikaDto>(
+      {url: `/catalog/current/advanced-settings/metrics/yandex/catalog`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetYandexMetrikaQueryKey = () => {
+    return [
+    `/catalog/current/advanced-settings/metrics/yandex/catalog`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetYandexMetrikaQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetYandexMetrikaQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>> = ({ signal }) => catalogAdvancedSettingsControllerGetYandexMetrika(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetYandexMetrikaQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>>
+export type CatalogAdvancedSettingsControllerGetYandexMetrikaQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetYandexMetrika<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetYandexMetrika<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetYandexMetrika<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get catalog scoped Yandex Metrika counter
+ */
+
+export function useCatalogAdvancedSettingsControllerGetYandexMetrika<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetYandexMetrika>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetYandexMetrikaQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Set catalog scoped Yandex Metrika counter
+ */
+export const catalogAdvancedSettingsControllerUpdateYandexMetrika = (
+    updateCatalogYandexMetrikaDtoReq: UpdateCatalogYandexMetrikaDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogYandexMetrikaDto>(
+      {url: `/catalog/current/advanced-settings/metrics/yandex/catalog`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogYandexMetrikaDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerUpdateYandexMetrikaMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateYandexMetrika>>, TError,{data: UpdateCatalogYandexMetrikaDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateYandexMetrika>>, TError,{data: UpdateCatalogYandexMetrikaDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerUpdateYandexMetrika'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateYandexMetrika>>, {data: UpdateCatalogYandexMetrikaDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerUpdateYandexMetrika(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerUpdateYandexMetrikaMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateYandexMetrika>>>
+    export type CatalogAdvancedSettingsControllerUpdateYandexMetrikaMutationBody = UpdateCatalogYandexMetrikaDtoReq
+    export type CatalogAdvancedSettingsControllerUpdateYandexMetrikaMutationError = unknown
+
+    /**
+ * @summary Set catalog scoped Yandex Metrika counter
+ */
+export const useCatalogAdvancedSettingsControllerUpdateYandexMetrika = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateYandexMetrika>>, TError,{data: UpdateCatalogYandexMetrikaDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateYandexMetrika>>,
+        TError,
+        {data: UpdateCatalogYandexMetrikaDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerUpdateYandexMetrikaMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Remove catalog scoped Yandex Metrika counter
+ */
+export const catalogAdvancedSettingsControllerDeleteYandexMetrika = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/metrics/yandex/catalog`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerDeleteYandexMetrikaMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDeleteYandexMetrika>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDeleteYandexMetrika>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerDeleteYandexMetrika'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDeleteYandexMetrika>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerDeleteYandexMetrika()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerDeleteYandexMetrikaMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDeleteYandexMetrika>>>
+    
+    export type CatalogAdvancedSettingsControllerDeleteYandexMetrikaMutationError = unknown
+
+    /**
+ * @summary Remove catalog scoped Yandex Metrika counter
+ */
+export const useCatalogAdvancedSettingsControllerDeleteYandexMetrika = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDeleteYandexMetrika>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDeleteYandexMetrika>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerDeleteYandexMetrikaMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get advanced settings MoySklad integration
+ */
+export const catalogAdvancedSettingsControllerGetMoySklad = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetMoySkladQueryKey = () => {
+    return [
+    `/catalog/current/advanced-settings/integrations/moysklad`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetMoySkladQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetMoySkladQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>> = ({ signal }) => catalogAdvancedSettingsControllerGetMoySklad(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetMoySkladQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>>
+export type CatalogAdvancedSettingsControllerGetMoySkladQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetMoySklad<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetMoySklad<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetMoySklad<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings MoySklad integration
+ */
+
+export function useCatalogAdvancedSettingsControllerGetMoySklad<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySklad>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetMoySkladQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create or replace advanced settings MoySklad
+ */
+export const catalogAdvancedSettingsControllerUpsertMoySklad = (
+    upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertMoySkladIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerUpsertMoySkladMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerUpsertMoySklad'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertMoySklad>>, {data: UpsertMoySkladIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerUpsertMoySklad(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerUpsertMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertMoySklad>>>
+    export type CatalogAdvancedSettingsControllerUpsertMoySkladMutationBody = UpsertMoySkladIntegrationDtoReq
+    export type CatalogAdvancedSettingsControllerUpsertMoySkladMutationError = unknown
+
+    /**
+ * @summary Create or replace advanced settings MoySklad
+ */
+export const useCatalogAdvancedSettingsControllerUpsertMoySklad = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertMoySklad>>,
+        TError,
+        {data: UpsertMoySkladIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerUpsertMoySkladMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Update advanced settings MoySklad
+ */
+export const catalogAdvancedSettingsControllerUpdateMoySklad = (
+    updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMoySkladIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerUpdateMoySkladMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerUpdateMoySklad'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateMoySklad>>, {data: UpdateMoySkladIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerUpdateMoySklad(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerUpdateMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateMoySklad>>>
+    export type CatalogAdvancedSettingsControllerUpdateMoySkladMutationBody = UpdateMoySkladIntegrationDtoReq
+    export type CatalogAdvancedSettingsControllerUpdateMoySkladMutationError = unknown
+
+    /**
+ * @summary Update advanced settings MoySklad
+ */
+export const useCatalogAdvancedSettingsControllerUpdateMoySklad = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateMoySklad>>,
+        TError,
+        {data: UpdateMoySkladIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerUpdateMoySkladMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Remove advanced settings MoySklad
+ */
+export const catalogAdvancedSettingsControllerRemoveMoySklad = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerRemoveMoySkladMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveMoySklad>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveMoySklad>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerRemoveMoySklad'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveMoySklad>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerRemoveMoySklad()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerRemoveMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveMoySklad>>>
+    
+    export type CatalogAdvancedSettingsControllerRemoveMoySkladMutationError = unknown
+
+    /**
+ * @summary Remove advanced settings MoySklad
+ */
+export const useCatalogAdvancedSettingsControllerRemoveMoySklad = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveMoySklad>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveMoySklad>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerRemoveMoySkladMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get advanced settings MoySklad status
+ */
+export const catalogAdvancedSettingsControllerGetMoySkladStatus = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationStatusDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/status`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetMoySkladStatusQueryKey = () => {
+    return [
+    `/catalog/current/advanced-settings/integrations/moysklad/status`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetMoySkladStatusQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetMoySkladStatusQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>> = ({ signal }) => catalogAdvancedSettingsControllerGetMoySkladStatus(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetMoySkladStatusQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>>
+export type CatalogAdvancedSettingsControllerGetMoySkladStatusQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings MoySklad status
+ */
+
+export function useCatalogAdvancedSettingsControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetMoySkladStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get advanced settings MoySklad sync history
+ */
+export const catalogAdvancedSettingsControllerGetMoySkladRuns = (
+    params?: CatalogAdvancedSettingsControllerGetMoySkladRunsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladSyncRunDto[]>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/runs`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryKey = (params?: CatalogAdvancedSettingsControllerGetMoySkladRunsParams,) => {
+    return [
+    `/catalog/current/advanced-settings/integrations/moysklad/runs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError = unknown>(params?: CatalogAdvancedSettingsControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>> = ({ signal }) => catalogAdvancedSettingsControllerGetMoySkladRuns(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetMoySkladRunsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>>
+export type CatalogAdvancedSettingsControllerGetMoySkladRunsQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError = unknown>(
+ params: undefined |  CatalogAdvancedSettingsControllerGetMoySkladRunsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings MoySklad sync history
+ */
+
+export function useCatalogAdvancedSettingsControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetMoySkladRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Test advanced settings MoySklad connection
+ */
+export const catalogAdvancedSettingsControllerTestMoySkladConnection = (
+    testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladTestConnectionDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testMoySkladConnectionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerTestMoySkladConnectionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerTestMoySkladConnection'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestMoySkladConnection>>, {data: TestMoySkladConnectionDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerTestMoySkladConnection(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerTestMoySkladConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestMoySkladConnection>>>
+    export type CatalogAdvancedSettingsControllerTestMoySkladConnectionMutationBody = TestMoySkladConnectionDtoReq
+    export type CatalogAdvancedSettingsControllerTestMoySkladConnectionMutationError = unknown
+
+    /**
+ * @summary Test advanced settings MoySklad connection
+ */
+export const useCatalogAdvancedSettingsControllerTestMoySkladConnection = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestMoySkladConnection>>,
+        TError,
+        {data: TestMoySkladConnectionDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerTestMoySkladConnectionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue advanced settings MoySklad full sync
+ */
+export const catalogAdvancedSettingsControllerSyncMoySkladCatalog = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/sync`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerSyncMoySkladCatalogMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncMoySkladCatalog>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncMoySkladCatalog>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerSyncMoySkladCatalog'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncMoySkladCatalog>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerSyncMoySkladCatalog()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerSyncMoySkladCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncMoySkladCatalog>>>
+    
+    export type CatalogAdvancedSettingsControllerSyncMoySkladCatalogMutationError = unknown
+
+    /**
+ * @summary Queue advanced settings MoySklad full sync
+ */
+export const useCatalogAdvancedSettingsControllerSyncMoySkladCatalog = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncMoySkladCatalog>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncMoySkladCatalog>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerSyncMoySkladCatalogMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Cancel advanced settings MoySklad sync
+ */
+export const catalogAdvancedSettingsControllerCancelMoySkladSync = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/sync`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerCancelMoySkladSyncMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCancelMoySkladSync>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCancelMoySkladSync>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerCancelMoySkladSync'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCancelMoySkladSync>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerCancelMoySkladSync()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerCancelMoySkladSyncMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCancelMoySkladSync>>>
+    
+    export type CatalogAdvancedSettingsControllerCancelMoySkladSyncMutationError = unknown
+
+    /**
+ * @summary Cancel advanced settings MoySklad sync
+ */
+export const useCatalogAdvancedSettingsControllerCancelMoySkladSync = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCancelMoySkladSync>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCancelMoySkladSync>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerCancelMoySkladSyncMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Get current catalog
  */
 export const catalogControllerGetCurrent = (
@@ -7255,6 +8809,720 @@ export const useCatalogDomainControllerDisable = <TError = unknown,
         TContext
       > => {
       return useMutation(getCatalogDomainControllerDisableMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Получить настройки интеграции MoySklad
+ */
+export const integrationControllerGetMoySklad = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetMoySkladQueryKey = () => {
+    return [
+    `/integration/moysklad`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetMoySkladQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>> = ({ signal }) => integrationControllerGetMoySklad(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetMoySkladQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>>
+export type IntegrationControllerGetMoySkladQueryError = unknown
+
+
+export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить настройки интеграции MoySklad
+ */
+
+export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetMoySkladQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Создать или заменить настройки MoySklad
+ */
+export const integrationControllerUpsertMoySklad = (
+    upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertMoySkladIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerUpsertMoySkladMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['integrationControllerUpsertMoySklad'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, {data: UpsertMoySkladIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  integrationControllerUpsertMoySklad(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerUpsertMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>>
+    export type IntegrationControllerUpsertMoySkladMutationBody = UpsertMoySkladIntegrationDtoReq
+    export type IntegrationControllerUpsertMoySkladMutationError = unknown
+
+    /**
+ * @summary Создать или заменить настройки MoySklad
+ */
+export const useIntegrationControllerUpsertMoySklad = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>,
+        TError,
+        {data: UpsertMoySkladIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerUpsertMoySkladMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Обновить настройки MoySklad
+ */
+export const integrationControllerUpdateMoySklad = (
+    updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMoySkladIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerUpdateMoySkladMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['integrationControllerUpdateMoySklad'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, {data: UpdateMoySkladIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  integrationControllerUpdateMoySklad(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerUpdateMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>>
+    export type IntegrationControllerUpdateMoySkladMutationBody = UpdateMoySkladIntegrationDtoReq
+    export type IntegrationControllerUpdateMoySkladMutationError = unknown
+
+    /**
+ * @summary Обновить настройки MoySklad
+ */
+export const useIntegrationControllerUpdateMoySklad = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>,
+        TError,
+        {data: UpdateMoySkladIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerUpdateMoySkladMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Удалить настройки MoySklad
+ */
+export const integrationControllerRemoveMoySklad = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/moysklad`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerRemoveMoySkladMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerRemoveMoySklad'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, void> = () => {
+          
+
+          return  integrationControllerRemoveMoySklad()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerRemoveMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>>
+    
+    export type IntegrationControllerRemoveMoySkladMutationError = unknown
+
+    /**
+ * @summary Удалить настройки MoySklad
+ */
+export const useIntegrationControllerRemoveMoySklad = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerRemoveMoySkladMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Получить статус интеграции MoySklad
+ */
+export const integrationControllerGetMoySkladStatus = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladIntegrationStatusDto>(
+      {url: `/integration/moysklad/status`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetMoySkladStatusQueryKey = () => {
+    return [
+    `/integration/moysklad/status`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetMoySkladStatusQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladStatusQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>> = ({ signal }) => integrationControllerGetMoySkladStatus(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetMoySkladStatusQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>>
+export type IntegrationControllerGetMoySkladStatusQueryError = unknown
+
+
+export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить статус интеграции MoySklad
+ */
+
+export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetMoySkladStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Получить историю sync MoySklad
+ */
+export const integrationControllerGetMoySkladRuns = (
+    params?: IntegrationControllerGetMoySkladRunsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladSyncRunDto[]>(
+      {url: `/integration/moysklad/runs`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetMoySkladRunsQueryKey = (params?: IntegrationControllerGetMoySkladRunsParams,) => {
+    return [
+    `/integration/moysklad/runs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetMoySkladRunsQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladRunsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>> = ({ signal }) => integrationControllerGetMoySkladRuns(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetMoySkladRunsQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>>
+export type IntegrationControllerGetMoySkladRunsQueryError = unknown
+
+
+export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
+ params: undefined |  IntegrationControllerGetMoySkladRunsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
+ params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
+ params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить историю sync MoySklad
+ */
+
+export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
+ params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetMoySkladRunsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Проверить подключение к MoySklad
+ */
+export const integrationControllerTestMoySkladConnection = (
+    testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladTestConnectionDto>(
+      {url: `/integration/moysklad/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testMoySkladConnectionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerTestMoySkladConnectionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext> => {
+
+const mutationKey = ['integrationControllerTestMoySkladConnection'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, {data: TestMoySkladConnectionDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  integrationControllerTestMoySkladConnection(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerTestMoySkladConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>>
+    export type IntegrationControllerTestMoySkladConnectionMutationBody = TestMoySkladConnectionDtoReq
+    export type IntegrationControllerTestMoySkladConnectionMutationError = unknown
+
+    /**
+ * @summary Проверить подключение к MoySklad
+ */
+export const useIntegrationControllerTestMoySkladConnection = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>,
+        TError,
+        {data: TestMoySkladConnectionDtoReq},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerTestMoySkladConnectionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Поставить полный sync MoySklad в очередь
+ */
+export const integrationControllerSyncMoySkladCatalog = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/integration/moysklad/sync`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerSyncMoySkladCatalogMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerSyncMoySkladCatalog'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, void> = () => {
+          
+
+          return  integrationControllerSyncMoySkladCatalog()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerSyncMoySkladCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>>
+    
+    export type IntegrationControllerSyncMoySkladCatalogMutationError = unknown
+
+    /**
+ * @summary Поставить полный sync MoySklad в очередь
+ */
+export const useIntegrationControllerSyncMoySkladCatalog = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerSyncMoySkladCatalogMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Отменить текущий sync MoySklad
+ */
+export const integrationControllerCancelMoySkladSync = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/moysklad/sync`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerCancelMoySkladSyncMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerCancelMoySkladSync'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, void> = () => {
+          
+
+          return  integrationControllerCancelMoySkladSync()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerCancelMoySkladSyncMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>>
+    
+    export type IntegrationControllerCancelMoySkladSyncMutationError = unknown
+
+    /**
+ * @summary Отменить текущий sync MoySklad
+ */
+export const useIntegrationControllerCancelMoySkladSync = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerCancelMoySkladSyncMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Поставить sync одного товара MoySklad в очередь
+ */
+export const integrationControllerSyncMoySkladProduct = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/integration/moysklad/sync-product/${id}`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerSyncMoySkladProductMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['integrationControllerSyncMoySkladProduct'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  integrationControllerSyncMoySkladProduct(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerSyncMoySkladProductMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>>
+    
+    export type IntegrationControllerSyncMoySkladProductMutationError = unknown
+
+    /**
+ * @summary Поставить sync одного товара MoySklad в очередь
+ */
+export const useIntegrationControllerSyncMoySkladProduct = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerSyncMoySkladProductMutationOptions(options), queryClient);
     }
     
 /**
@@ -9494,720 +11762,6 @@ export const useProductControllerSetVariants = <TError = unknown,
     }
     
 /**
- * @summary Получить настройки интеграции MoySklad
- */
-export const integrationControllerGetMoySklad = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladIntegrationDto>(
-      {url: `/integration/moysklad`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getIntegrationControllerGetMoySkladQueryKey = () => {
-    return [
-    `/integration/moysklad`
-    ] as const;
-    }
-
-    
-export const getIntegrationControllerGetMoySkladQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>> = ({ signal }) => integrationControllerGetMoySklad(signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type IntegrationControllerGetMoySkladQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>>
-export type IntegrationControllerGetMoySkladQueryError = unknown
-
-
-export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>,
-          TError,
-          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>,
-          TError,
-          Awaited<ReturnType<typeof integrationControllerGetMoySklad>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Получить настройки интеграции MoySklad
- */
-
-export function useIntegrationControllerGetMoySklad<TData = Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySklad>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getIntegrationControllerGetMoySkladQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * @summary Создать или заменить настройки MoySklad
- */
-export const integrationControllerUpsertMoySklad = (
-    upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladIntegrationDto>(
-      {url: `/integration/moysklad`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: upsertMoySkladIntegrationDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getIntegrationControllerUpsertMoySkladMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext> => {
-
-const mutationKey = ['integrationControllerUpsertMoySklad'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, {data: UpsertMoySkladIntegrationDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  integrationControllerUpsertMoySklad(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type IntegrationControllerUpsertMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>>
-    export type IntegrationControllerUpsertMoySkladMutationBody = UpsertMoySkladIntegrationDtoReq
-    export type IntegrationControllerUpsertMoySkladMutationError = unknown
-
-    /**
- * @summary Создать или заменить настройки MoySklad
- */
-export const useIntegrationControllerUpsertMoySklad = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>, TError,{data: UpsertMoySkladIntegrationDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof integrationControllerUpsertMoySklad>>,
-        TError,
-        {data: UpsertMoySkladIntegrationDtoReq},
-        TContext
-      > => {
-      return useMutation(getIntegrationControllerUpsertMoySkladMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Обновить настройки MoySklad
- */
-export const integrationControllerUpdateMoySklad = (
-    updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladIntegrationDto>(
-      {url: `/integration/moysklad`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: updateMoySkladIntegrationDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getIntegrationControllerUpdateMoySkladMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext> => {
-
-const mutationKey = ['integrationControllerUpdateMoySklad'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, {data: UpdateMoySkladIntegrationDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  integrationControllerUpdateMoySklad(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type IntegrationControllerUpdateMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>>
-    export type IntegrationControllerUpdateMoySkladMutationBody = UpdateMoySkladIntegrationDtoReq
-    export type IntegrationControllerUpdateMoySkladMutationError = unknown
-
-    /**
- * @summary Обновить настройки MoySklad
- */
-export const useIntegrationControllerUpdateMoySklad = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>, TError,{data: UpdateMoySkladIntegrationDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof integrationControllerUpdateMoySklad>>,
-        TError,
-        {data: UpdateMoySkladIntegrationDtoReq},
-        TContext
-      > => {
-      return useMutation(getIntegrationControllerUpdateMoySkladMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Удалить настройки MoySklad
- */
-export const integrationControllerRemoveMoySklad = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<OkResponseDto>(
-      {url: `/integration/moysklad`, method: 'DELETE', signal
-    },
-      );
-    }
-  
-
-
-export const getIntegrationControllerRemoveMoySkladMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, TError,void, TContext> => {
-
-const mutationKey = ['integrationControllerRemoveMoySklad'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, void> = () => {
-          
-
-          return  integrationControllerRemoveMoySklad()
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type IntegrationControllerRemoveMoySkladMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>>
-    
-    export type IntegrationControllerRemoveMoySkladMutationError = unknown
-
-    /**
- * @summary Удалить настройки MoySklad
- */
-export const useIntegrationControllerRemoveMoySklad = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>, TError,void, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof integrationControllerRemoveMoySklad>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getIntegrationControllerRemoveMoySkladMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Получить статус интеграции MoySklad
- */
-export const integrationControllerGetMoySkladStatus = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladIntegrationStatusDto>(
-      {url: `/integration/moysklad/status`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getIntegrationControllerGetMoySkladStatusQueryKey = () => {
-    return [
-    `/integration/moysklad/status`
-    ] as const;
-    }
-
-    
-export const getIntegrationControllerGetMoySkladStatusQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladStatusQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>> = ({ signal }) => integrationControllerGetMoySkladStatus(signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type IntegrationControllerGetMoySkladStatusQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>>
-export type IntegrationControllerGetMoySkladStatusQueryError = unknown
-
-
-export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>,
-          TError,
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>,
-          TError,
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Получить статус интеграции MoySklad
- */
-
-export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladStatus>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getIntegrationControllerGetMoySkladStatusQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * @summary Получить историю sync MoySklad
- */
-export const integrationControllerGetMoySkladRuns = (
-    params?: IntegrationControllerGetMoySkladRunsParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladSyncRunDto[]>(
-      {url: `/integration/moysklad/runs`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getIntegrationControllerGetMoySkladRunsQueryKey = (params?: IntegrationControllerGetMoySkladRunsParams,) => {
-    return [
-    `/integration/moysklad/runs`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getIntegrationControllerGetMoySkladRunsQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetMoySkladRunsQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>> = ({ signal }) => integrationControllerGetMoySkladRuns(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type IntegrationControllerGetMoySkladRunsQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>>
-export type IntegrationControllerGetMoySkladRunsQueryError = unknown
-
-
-export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
- params: undefined |  IntegrationControllerGetMoySkladRunsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>,
-          TError,
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
- params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>,
-          TError,
-          Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
- params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Получить историю sync MoySklad
- */
-
-export function useIntegrationControllerGetMoySkladRuns<TData = Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError = unknown>(
- params?: IntegrationControllerGetMoySkladRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetMoySkladRuns>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getIntegrationControllerGetMoySkladRunsQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * @summary Проверить подключение к MoySklad
- */
-export const integrationControllerTestMoySkladConnection = (
-    testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladTestConnectionDto>(
-      {url: `/integration/moysklad/test-connection`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: testMoySkladConnectionDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getIntegrationControllerTestMoySkladConnectionMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext> => {
-
-const mutationKey = ['integrationControllerTestMoySkladConnection'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, {data: TestMoySkladConnectionDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  integrationControllerTestMoySkladConnection(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type IntegrationControllerTestMoySkladConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>>
-    export type IntegrationControllerTestMoySkladConnectionMutationBody = TestMoySkladConnectionDtoReq
-    export type IntegrationControllerTestMoySkladConnectionMutationError = unknown
-
-    /**
- * @summary Проверить подключение к MoySklad
- */
-export const useIntegrationControllerTestMoySkladConnection = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>, TError,{data: TestMoySkladConnectionDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof integrationControllerTestMoySkladConnection>>,
-        TError,
-        {data: TestMoySkladConnectionDtoReq},
-        TContext
-      > => {
-      return useMutation(getIntegrationControllerTestMoySkladConnectionMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Поставить полный sync MoySklad в очередь
- */
-export const integrationControllerSyncMoySkladCatalog = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladQueuedSyncDto>(
-      {url: `/integration/moysklad/sync`, method: 'POST', signal
-    },
-      );
-    }
-  
-
-
-export const getIntegrationControllerSyncMoySkladCatalogMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, TError,void, TContext> => {
-
-const mutationKey = ['integrationControllerSyncMoySkladCatalog'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, void> = () => {
-          
-
-          return  integrationControllerSyncMoySkladCatalog()
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type IntegrationControllerSyncMoySkladCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>>
-    
-    export type IntegrationControllerSyncMoySkladCatalogMutationError = unknown
-
-    /**
- * @summary Поставить полный sync MoySklad в очередь
- */
-export const useIntegrationControllerSyncMoySkladCatalog = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>, TError,void, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof integrationControllerSyncMoySkladCatalog>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getIntegrationControllerSyncMoySkladCatalogMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Отменить текущий sync MoySklad
- */
-export const integrationControllerCancelMoySkladSync = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<OkResponseDto>(
-      {url: `/integration/moysklad/sync`, method: 'DELETE', signal
-    },
-      );
-    }
-  
-
-
-export const getIntegrationControllerCancelMoySkladSyncMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, TError,void, TContext> => {
-
-const mutationKey = ['integrationControllerCancelMoySkladSync'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, void> = () => {
-          
-
-          return  integrationControllerCancelMoySkladSync()
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type IntegrationControllerCancelMoySkladSyncMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>>
-    
-    export type IntegrationControllerCancelMoySkladSyncMutationError = unknown
-
-    /**
- * @summary Отменить текущий sync MoySklad
- */
-export const useIntegrationControllerCancelMoySkladSync = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>, TError,void, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof integrationControllerCancelMoySkladSync>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getIntegrationControllerCancelMoySkladSyncMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Поставить sync одного товара MoySklad в очередь
- */
-export const integrationControllerSyncMoySkladProduct = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<MoySkladQueuedSyncDto>(
-      {url: `/integration/moysklad/sync-product/${id}`, method: 'POST', signal
-    },
-      );
-    }
-  
-
-
-export const getIntegrationControllerSyncMoySkladProductMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, TError,{id: string}, TContext> => {
-
-const mutationKey = ['integrationControllerSyncMoySkladProduct'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
-
-          return  integrationControllerSyncMoySkladProduct(id,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type IntegrationControllerSyncMoySkladProductMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>>
-    
-    export type IntegrationControllerSyncMoySkladProductMutationError = unknown
-
-    /**
- * @summary Поставить sync одного товара MoySklad в очередь
- */
-export const useIntegrationControllerSyncMoySkladProduct = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>, TError,{id: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof integrationControllerSyncMoySkladProduct>>,
-        TError,
-        {id: string},
-        TContext
-      > => {
-      return useMutation(getIntegrationControllerSyncMoySkladProductMutationOptions(options), queryClient);
-    }
-    
-/**
  * @summary Create or return the current cart by cookie token
  */
 export const cartControllerCreateOrGetCurrent = (
@@ -10360,6 +11914,68 @@ export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof ca
 
 
 
+/**
+ * @summary Delete or detach the current cart by cookie token
+ */
+export const cartControllerDeleteCurrent = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/cart/current`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerDeleteCurrentMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerDeleteCurrent>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerDeleteCurrent>>, TError,void, TContext> => {
+
+const mutationKey = ['cartControllerDeleteCurrent'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerDeleteCurrent>>, void> = () => {
+          
+
+          return  cartControllerDeleteCurrent()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerDeleteCurrentMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerDeleteCurrent>>>
+    
+    export type CartControllerDeleteCurrentMutationError = unknown
+
+    /**
+ * @summary Delete or detach the current cart by cookie token
+ */
+export const useCartControllerDeleteCurrent = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerDeleteCurrent>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerDeleteCurrent>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCartControllerDeleteCurrentMutationOptions(options), queryClient);
+    }
+    
 /**
  * @summary Issue a public key for the current cart
  */

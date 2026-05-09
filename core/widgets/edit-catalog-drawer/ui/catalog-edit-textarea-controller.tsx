@@ -10,7 +10,7 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 
-type CatalogEditTextareaFieldName = "name" | "about" | "description";
+type CatalogEditTextareaFieldName = "name" | "about" | "description" | "address";
 
 export type CatalogEditTextareaControllerConfig = {
   label: string;

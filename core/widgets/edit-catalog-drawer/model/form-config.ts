@@ -11,6 +11,13 @@ import {
   resolveCatalogExperienceDefaultMode,
   type CatalogExperienceMode,
 } from "@/core/widgets/edit-catalog-drawer/model/catalog-experience";
+import {
+  CHECKOUT_METHODS,
+  getCatalogCheckoutConfig,
+  type CheckoutConfig,
+  type CheckoutContactValues,
+  type CheckoutMethod,
+} from "@/shared/lib/checkout-methods";
 import { normalizePhoneValue } from "@/shared/lib/phone";
 import {
   type FieldErrors,
@@ -29,6 +36,7 @@ export type CatalogEditFormValues = {
   name: string;
   about: string;
   description: string;
+  address: string;
   phone: string;
   message: string;
   email: string;
@@ -39,11 +47,13 @@ export type CatalogEditFormValues = {
   map: string;
   defaultMode: CatalogExperienceMode;
   allowedModes: CatalogExperienceMode[];
+  checkoutEnabledMethods: CheckoutMethod[];
+  checkoutContacts: Partial<Record<CheckoutMethod, CheckoutContactValues>>;
   logoFile?: File;
   bgFile?: File;
 };
 
-type CatalogEditTextFieldName = "name" | "about" | "description";
+type CatalogEditTextFieldName = "name" | "about" | "description" | "address";
 type CatalogEditContactFieldName = keyof Pick<
   CatalogEditFormValues,
   "phone" | "message" | "email" | "whatsapp" | "telegram" | "max" | "bip" | "map"
@@ -192,6 +202,18 @@ function validateCatalogEditExperienceSettings(
   }
 }
 
+function validateCatalogCheckoutSettings(
+  errors: FieldErrors<CatalogEditFormValues>,
+  values: CatalogEditFormValues,
+) {
+  if (values.checkoutEnabledMethods.length === 0) {
+    errors.checkoutEnabledMethods = createFieldError(
+      "Выберите хотя бы один способ оформления.",
+    );
+    return;
+  }
+}
+
 function buildCatalogEditFormErrors(
   values: CatalogEditFormValues,
 ): FieldErrors<CatalogEditFormValues> {
@@ -224,6 +246,7 @@ function buildCatalogEditFormErrors(
 
   validateCatalogEditContacts(errors, values);
   validateCatalogEditExperienceSettings(errors, values);
+  validateCatalogCheckoutSettings(errors, values);
 
   return errors;
 }
@@ -236,11 +259,22 @@ export function normalizeCatalogEditFormValues(
     values.defaultMode,
     allowedModes,
   );
+  const rawCheckoutEnabledMethods = Array.isArray(values.checkoutEnabledMethods)
+    ? values.checkoutEnabledMethods
+    : [];
+  const checkoutEnabledMethods = Array.from(
+    new Set(
+      rawCheckoutEnabledMethods.filter((method) =>
+        CHECKOUT_METHODS.includes(method),
+      ),
+    ),
+  );
 
   return {
     name: normalizeText(values.name),
     about: normalizeText(values.about),
     description: normalizeText(values.description),
+    address: normalizeText(values.address),
     phone: normalizeText(values.phone),
     message: normalizeText(values.message),
     email: normalizeText(values.email),
@@ -251,6 +285,8 @@ export function normalizeCatalogEditFormValues(
     map: normalizeText(values.map),
     defaultMode,
     allowedModes,
+    checkoutEnabledMethods,
+    checkoutContacts: values.checkoutContacts ?? {},
     logoFile: normalizeOptionalFile(values.logoFile),
     bgFile: normalizeOptionalFile(values.bgFile),
   };
@@ -378,8 +414,13 @@ function normalizeUrlContact(value: string): string | undefined {
 
 export function buildCatalogEditFormDefaultValues(
   catalog: CatalogCurrentDto,
+  options: {
+    checkoutConfig?: CheckoutConfig;
+  } = {},
 ): CatalogEditFormValues {
   const experience = getCatalogExperienceDefaultValues(catalog);
+  const checkout = options.checkoutConfig ?? getCatalogCheckoutConfig(catalog);
+  const settings = catalog.settings as { address?: string | null } | null;
 
   return {
     name: catalog.name ?? "",
@@ -388,6 +429,7 @@ export function buildCatalogEditFormDefaultValues(
       typeof catalog.config?.description === "string"
         ? catalog.config.description
         : "",
+    address: typeof settings?.address === "string" ? settings.address : "",
     phone: getCatalogContactValue(catalog, CatalogContactDtoType.PHONE),
     message: getCatalogContactValue(catalog, CatalogContactDtoType.SMS),
     email: getCatalogContactValue(catalog, CatalogContactDtoType.EMAIL),
@@ -398,6 +440,8 @@ export function buildCatalogEditFormDefaultValues(
     map: getCatalogContactValue(catalog, CatalogContactDtoType.MAP),
     defaultMode: experience.defaultMode,
     allowedModes: experience.allowedModes,
+    checkoutEnabledMethods: checkout.enabledMethods,
+    checkoutContacts: checkout.methodContacts,
     logoFile: undefined,
     bgFile: undefined,
   };
@@ -443,10 +487,15 @@ export function buildCatalogEditUpdatePayload(
     name: normalizeText(values.name),
     about: normalizeText(values.about),
     description: normalizeText(values.description),
+    address: normalizeText(values.address),
     defaultMode: values.defaultMode,
     allowedModes: values.allowedModes,
+    checkout: {
+      enabledMethods: values.checkoutEnabledMethods,
+      methodContacts: values.checkoutContacts,
+    },
     contacts,
     ...(logoMediaId ? { logoMediaId } : {}),
     ...(bgMediaId ? { bgMediaId } : {}),
-  };
+  } as UpdateCatalogDtoReq;
 }

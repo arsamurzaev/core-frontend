@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  useCatalogAuthControllerChangePassword,
+  useCatalogAdvancedSettingsControllerChangePassword,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -69,7 +69,7 @@ export const EditCatalogPasswordDrawer: React.FC<
   const [open, setOpen] = React.useState(false);
   const [values, setValues] = React.useState<PasswordFormValues>(initialValues);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const changePassword = useCatalogAuthControllerChangePassword();
+  const changePassword = useCatalogAdvancedSettingsControllerChangePassword();
   const isPending = changePassword.isPending;
 
   const handleOpenChange = React.useCallback((nextOpen: boolean) => {
@@ -108,7 +108,7 @@ export const EditCatalogPasswordDrawer: React.FC<
         },
       });
 
-      toast.success("Пароль успешно изменен.");
+      toast.success("Пароль для каталога изменён.");
       handleOpenChange(false);
     } catch (error) {
       const message = extractApiErrorMessage(error);
@@ -146,7 +146,7 @@ export const EditCatalogPasswordDrawer: React.FC<
               <Badge variant="secondary">Безопасность</Badge>
             </div>
             <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
-              Измените пароль для входа в управление каталогом.
+              Обновите пароль для входа в настройки текущего каталога.
             </p>
           </div>
           <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
@@ -157,7 +157,7 @@ export const EditCatalogPasswordDrawer: React.FC<
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Смена пароля"
-            description="Укажите текущий пароль и новый пароль для входа."
+            description="Введите текущий пароль и задайте новый пароль для доступа к настройкам каталога."
             withCloseButton={!isPending}
           />
           <hr />
@@ -239,7 +239,7 @@ export const EditCatalogPasswordDrawer: React.FC<
             className="border-t"
             isAutoClose={false}
             loading={isPending}
-            btnText="Изменить пароль"
+            btnText="Сохранить пароль"
             handleClick={() => {
               const form = document.getElementById("catalog-password-form");
 

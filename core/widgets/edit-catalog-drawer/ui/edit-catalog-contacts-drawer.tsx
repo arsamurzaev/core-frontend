@@ -18,16 +18,27 @@ import { Controller, type UseFormReturn } from "react-hook-form";
 type EditCatalogContactsDrawerProps = {
   form: UseFormReturn<CatalogEditFormValues>;
   disabled?: boolean;
+  isSaving?: boolean;
+  onSave?: () => Promise<boolean>;
 };
 
 export const EditCatalogContactsDrawer: React.FC<
   EditCatalogContactsDrawerProps
-> = ({ form, disabled = false }) => {
+> = ({ form, disabled = false, isSaving = false, onSave }) => {
+  const [open, setOpen] = React.useState(false);
   const { contactValues, hasContacts } = useEditCatalogContactValues(form);
+  const handleSave = React.useCallback(async () => {
+    const isSaved = await onSave?.();
+    if (isSaved) {
+      setOpen(false);
+    }
+  }, [onSave]);
 
   return (
     <AppDrawer
-      dismissible={!disabled}
+      open={open}
+      onOpenChange={setOpen}
+      dismissible={!disabled && !isSaving}
       trigger={
         <Button
           type="button"
@@ -50,7 +61,7 @@ export const EditCatalogContactsDrawer: React.FC<
           <AppDrawer.Header
             title="Контакты"
             description={CONTACT_DRAWER_DESCRIPTION}
-            withCloseButton={!disabled}
+            withCloseButton={!disabled && !isSaving}
           />
           <hr />
 
@@ -76,7 +87,10 @@ export const EditCatalogContactsDrawer: React.FC<
 
           <AppDrawer.Footer
             className="border-t"
-            btnText="Готово"
+            btnText="Сохранить"
+            isAutoClose={false}
+            loading={isSaving}
+            handleClick={() => void handleSave()}
             buttonType="button"
           />
         </div>

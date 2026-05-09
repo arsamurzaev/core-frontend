@@ -37,6 +37,10 @@ interface UseEditCatalogSubmitParams {
   updateCatalog: EditCatalogUpdateMutation;
 }
 
+type EditCatalogSubmitOptions = {
+  closeAfterSave?: boolean;
+};
+
 export function useEditCatalogSubmit({
   catalogId,
   closeDrawer,
@@ -50,15 +54,17 @@ export function useEditCatalogSubmit({
   setUploadState,
   updateCatalog,
 }: UseEditCatalogSubmitParams) {
-  return React.useCallback(async () => {
+  return React.useCallback(async (options: EditCatalogSubmitOptions = {}) => {
+    const { closeAfterSave = true } = options;
+
     if (isSubmitting) {
-      return;
+      return false;
     }
 
     const isValid = await form.trigger();
     if (!isValid) {
       setErrorMessage("Форма содержит некорректные данные профиля.");
-      return;
+      return false;
     }
 
     setIsSubmitting(true);
@@ -81,9 +87,12 @@ export function useEditCatalogSubmit({
       await invalidateCatalogEditQueries(queryClient);
 
       resetFeedback();
-      closeDrawer();
+      if (closeAfterSave) {
+        closeDrawer();
+      }
       router.refresh();
       toast.success("Профиль каталога успешно обновлен.");
+      return true;
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -93,6 +102,7 @@ export function useEditCatalogSubmit({
         message,
       }));
       toast.error(message);
+      return false;
     } finally {
       setIsSubmitting(false);
     }

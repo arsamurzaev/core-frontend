@@ -4,6 +4,7 @@ import { LazyCreateProductDrawerTrigger } from "@/core/widgets/header/ui/lazy-cr
 import { LazyEditCatalogDrawerTrigger } from "@/core/widgets/header/ui/lazy-edit-catalog-drawer-trigger";
 import { LazyShareDrawerTrigger } from "@/core/widgets/share-drawer/ui/lazy-share-drawer-trigger";
 import { useAuthControllerLogout } from "@/shared/api/generated/react-query";
+import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
@@ -17,11 +18,13 @@ import { toast } from "sonner";
 
 interface Props {
   className?: string;
+  checkoutConfig?: CheckoutConfig;
   supportsBrands?: boolean;
 }
 
 export const Header: React.FC<Props> = ({
   className,
+  checkoutConfig,
   supportsBrands = true,
 }) => {
   const { name, config } = useCatalog();
@@ -79,7 +82,9 @@ export const Header: React.FC<Props> = ({
                 className="absolute inset-0 h-full w-full object-contain"
               />
             </div>
-            {isAuthenticated ? <LazyEditCatalogDrawerTrigger /> : null}
+            {isAuthenticated ? (
+              <LazyEditCatalogDrawerTrigger checkoutConfig={checkoutConfig} />
+            ) : null}
           </div>
 
           <div className="pt-6 flex-1">

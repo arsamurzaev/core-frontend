@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType, ReactNode } from "react";
+import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 
 export interface ShareDrawerProps {
   className?: string;
@@ -14,6 +15,7 @@ export interface ShareDrawerProps {
   copyMode?: "message" | "url";
   copySuccessMessage?: string;
   appendUrlToMessage?: boolean;
+  contactsOverride?: Partial<Record<CatalogContactDtoType, string>>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }

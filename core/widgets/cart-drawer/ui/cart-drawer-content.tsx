@@ -1,8 +1,15 @@
 "use client";
 
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import { CartCheckoutTabs } from "@/core/widgets/cart-drawer/ui/cart-checkout-tabs";
 import { CartCardList } from "@/core/widgets/cart-drawer/ui/cart-card-list";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
+import type {
+  CheckoutConfig,
+  CheckoutData,
+  CheckoutLocation,
+  CheckoutMethod,
+} from "@/shared/lib/checkout-methods";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Textarea } from "@/shared/ui/textarea";
 import React from "react";
@@ -12,6 +19,12 @@ const CART_DRAWER_SKELETON_ITEMS_COUNT = 3;
 interface CartDrawerContentProps {
   comment: string;
   commentPlaceholder: string;
+  checkoutConfig: CheckoutConfig;
+  checkoutData: CheckoutData;
+  checkoutError?: string | null;
+  checkoutLocked?: boolean;
+  checkoutLocation: CheckoutLocation;
+  checkoutMethod: CheckoutMethod;
   isLoading?: boolean;
   isManagedPublicCart: boolean;
   isCommentLocked?: boolean;
@@ -19,6 +32,7 @@ interface CartDrawerContentProps {
   items: CartItemView[];
   actionRenderer?: (productId: string) => React.ReactNode;
   onCommentChange: (comment: string) => void;
+  onCheckoutChange: (method: CheckoutMethod, data: CheckoutData) => void;
   onItemClick: (product: ProductWithDetailsDto) => void;
   status: string | null;
   statusMessage: string | null;
@@ -70,6 +84,12 @@ const CartDrawerContentSkeleton: React.FC = () => {
 export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   comment,
   commentPlaceholder,
+  checkoutConfig,
+  checkoutData,
+  checkoutError,
+  checkoutLocked = false,
+  checkoutLocation,
+  checkoutMethod,
   isLoading = false,
   isManagedPublicCart,
   isCommentLocked = false,
@@ -77,6 +97,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   items,
   actionRenderer,
   onCommentChange,
+  onCheckoutChange,
   onItemClick,
   status,
   statusMessage,
@@ -89,6 +110,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
     Boolean(statusMessage?.trim());
   const shouldShowCommentEditor = !isCommentLocked;
   const shouldShowReadonlyComment = isCommentLocked && Boolean(normalizedComment);
+  const shouldShowReadonlyCheckout = isCommentLocked;
 
   return (
     <div className="my-2 space-y-6 overflow-y-auto px-2 py-2">
@@ -134,6 +156,17 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
 
       {!isLoading && hasItems && shouldShowCommentEditor ? (
         <>
+          <CartCheckoutTabs
+            config={checkoutConfig}
+            data={checkoutData}
+            disabled={isManagedPublicCart || isPublicMode}
+            error={checkoutError}
+            location={checkoutLocation}
+            locked={checkoutLocked}
+            method={checkoutMethod}
+            onChange={onCheckoutChange}
+          />
+
           <p className="text-sm">
             Пожалуйста, впишите в поле ваши пожелания или комментарий к заказу.
             Это нужно для того, чтобы мы лучше поняли, что нужно вам.
@@ -153,11 +186,23 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
         </>
       ) : null}
 
-      {!isLoading && hasItems && shouldShowReadonlyComment ? (
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold">Комментарий:</h3>
-          <p className="whitespace-pre-wrap text-sm">{normalizedComment}</p>
-        </div>
+      {!isLoading && hasItems && shouldShowReadonlyCheckout ? (
+        <>
+          <CartCheckoutTabs
+            config={checkoutConfig}
+            data={checkoutData}
+            location={checkoutLocation}
+            locked
+            method={checkoutMethod}
+            onChange={onCheckoutChange}
+          />
+          {shouldShowReadonlyComment ? (
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold">Комментарий:</h3>
+              <p className="whitespace-pre-wrap text-sm">{normalizedComment}</p>
+            </div>
+          ) : null}
+        </>
       ) : null}
     </div>
   );

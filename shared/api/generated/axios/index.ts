@@ -220,6 +220,16 @@ export interface AdminPromoCodeListItemDto {
   paymentsCount?: number;
 }
 
+export interface AdminCatalogChildListItemDto {
+  id: string;
+  slug: string;
+  /** @nullable */
+  domain: string | null;
+  name: string;
+  /** @nullable */
+  deleteAt?: string | null;
+}
+
 export interface AdminCatalogListItemDto {
   id: string;
   slug: string;
@@ -252,6 +262,7 @@ export interface AdminCatalogListItemDto {
   logoMedia: MediaDto | null;
   type: AdminTypeListItemDto;
   promoCode: AdminPromoCodeListItemDto | null;
+  children: AdminCatalogChildListItemDto[];
 }
 
 export type AdminCreateCatalogDtoReqStatus = typeof AdminCreateCatalogDtoReqStatus[keyof typeof AdminCreateCatalogDtoReqStatus];
@@ -276,11 +287,6 @@ export interface AdminCreateCatalogDtoReq {
   status: AdminCreateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug: string;
-  /**
-   * Custom domain.
-   * @nullable
-   */
-  domain?: string | null;
   parentId?: string;
   /** Trial license duration in days. */
   trialLicenseDays?: number;
@@ -319,11 +325,6 @@ export interface AdminDuplicateCatalogDtoReq {
   status: AdminDuplicateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug: string;
-  /**
-   * New custom domain. Source domain is never copied.
-   * @nullable
-   */
-  domain?: string | null;
 }
 
 export type AdminUpdateCatalogDtoReqStatus = typeof AdminUpdateCatalogDtoReqStatus[keyof typeof AdminUpdateCatalogDtoReqStatus];
@@ -348,11 +349,6 @@ export interface AdminUpdateCatalogDtoReq {
   status?: AdminUpdateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug?: string;
-  /**
-   * Custom domain. Pass null to clear.
-   * @nullable
-   */
-  domain?: string | null;
   /** @nullable */
   parentId?: string | null;
   /** @nullable */
@@ -707,6 +703,255 @@ export interface CreateUserDtoReq {
   regionalityIds?: string[];
 }
 
+export interface CatalogDomainDnsRecordDto {
+  type: string;
+  name: string;
+  value: string;
+  required: boolean;
+  description?: string;
+}
+
+export interface CatalogDomainVerificationDto {
+  txtRecord: CatalogDomainDnsRecordDto;
+  routingRecords: CatalogDomainDnsRecordDto[];
+  wwwRecord?: CatalogDomainDnsRecordDto | null;
+  expectedHosts: string[];
+  instructions: string[];
+  recheckAfterSeconds: number;
+}
+
+export type CatalogDomainDtoStatus = typeof CatalogDomainDtoStatus[keyof typeof CatalogDomainDtoStatus];
+
+
+export const CatalogDomainDtoStatus = {
+  PENDING_DNS: 'PENDING_DNS',
+  DNS_VERIFIED: 'DNS_VERIFIED',
+  ACTIVE: 'ACTIVE',
+  FAILED: 'FAILED',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface CatalogDomainDto {
+  id: string;
+  catalogId: string;
+  hostname: string;
+  status: CatalogDomainDtoStatus;
+  isPrimary: boolean;
+  redirectToPrimary: boolean;
+  includeWww: boolean;
+  verificationToken: string;
+  verification: CatalogDomainVerificationDto;
+  nextCheckAfterSeconds: number;
+  nextCheckAt: string;
+  message: string;
+  /** @nullable */
+  lastCheckedAt?: string | null;
+  /** @nullable */
+  lastError?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateCatalogDomainDtoReq {
+  hostname: string;
+  /** Also allow www.<domain> for TLS and DNS checks */
+  includeWww?: boolean;
+  isPrimary?: boolean;
+  redirectToPrimary?: boolean;
+}
+
+export interface CatalogDomainCheckDto {
+  ok: boolean;
+  status: string;
+  /** @nullable */
+  error?: string | null;
+  verification: CatalogDomainVerificationDto;
+  nextCheckAfterSeconds: number;
+  nextCheckAt: string;
+  message: string;
+}
+
+export interface CatalogYandexMetrikaDto {
+  /** @nullable */
+  counterId: string | null;
+}
+
+export interface UpdateCatalogYandexMetrikaDtoReq {
+  /** Yandex Metrika counter id for CATALOG scope. */
+  counterId: string;
+}
+
+export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
+
+
+export const MoySkladIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
+
+
+export const MoySkladIntegrationDtoLastSyncStatus = {
+  IDLE: 'IDLE',
+  SYNCING: 'SYNCING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+} as const;
+
+export interface MoySkladIntegrationDto {
+  provider: MoySkladIntegrationDtoProvider;
+  isActive: boolean;
+  hasToken: boolean;
+  /** @nullable */
+  tokenPreview: string | null;
+  priceTypeName: string;
+  importImages: boolean;
+  syncStock: boolean;
+  scheduleEnabled: boolean;
+  /** @nullable */
+  schedulePattern: string | null;
+  scheduleTimezone: string;
+  lastSyncStatus: MoySkladIntegrationDtoLastSyncStatus;
+  /** @nullable */
+  syncStartedAt: string | null;
+  /** @nullable */
+  lastSyncAt: string | null;
+  /** @nullable */
+  lastSyncError: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof typeof MoySkladSyncRunDtoProvider];
+
+
+export const MoySkladSyncRunDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
+
+
+export const MoySkladSyncRunDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+} as const;
+
+export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof typeof MoySkladSyncRunDtoTrigger];
+
+
+export const MoySkladSyncRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+} as const;
+
+export type MoySkladSyncRunDtoStatus = typeof MoySkladSyncRunDtoStatus[keyof typeof MoySkladSyncRunDtoStatus];
+
+
+export const MoySkladSyncRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface MoySkladSyncRunDto {
+  id: string;
+  provider: MoySkladSyncRunDtoProvider;
+  mode: MoySkladSyncRunDtoMode;
+  trigger: MoySkladSyncRunDtoTrigger;
+  status: MoySkladSyncRunDtoStatus;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  imagesImported: number;
+  /** @nullable */
+  durationMs: number | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MoySkladIntegrationStatusDto {
+  configured: boolean;
+  integration: MoySkladIntegrationDto | null;
+  activeRun: MoySkladSyncRunDto | null;
+  lastRun: MoySkladSyncRunDto | null;
+}
+
+export interface UpsertMoySkladIntegrationDtoReq {
+  token: string;
+  isActive?: boolean;
+  priceTypeName?: string;
+  importImages?: boolean;
+  syncStock?: boolean;
+  scheduleEnabled?: boolean;
+  schedulePattern?: string;
+  scheduleTimezone?: string;
+}
+
+export interface UpdateMoySkladIntegrationDtoReq {
+  token?: string;
+  isActive?: boolean;
+  priceTypeName?: string;
+  importImages?: boolean;
+  syncStock?: boolean;
+  scheduleEnabled?: boolean;
+  schedulePattern?: string;
+  scheduleTimezone?: string;
+}
+
+export interface TestMoySkladConnectionDtoReq {
+  token?: string;
+}
+
+export interface MoySkladTestConnectionDto {
+  ok: boolean;
+}
+
+export type MoySkladQueuedSyncDtoMode = typeof MoySkladQueuedSyncDtoMode[keyof typeof MoySkladQueuedSyncDtoMode];
+
+
+export const MoySkladQueuedSyncDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+} as const;
+
+export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[keyof typeof MoySkladQueuedSyncDtoTrigger];
+
+
+export const MoySkladQueuedSyncDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+} as const;
+
+export interface MoySkladQueuedSyncDto {
+  ok: boolean;
+  queued: boolean;
+  runId: string;
+  jobId: string;
+  mode: MoySkladQueuedSyncDtoMode;
+  trigger: MoySkladQueuedSyncDtoTrigger;
+}
+
 export type CatalogConfigDtoStatus = typeof CatalogConfigDtoStatus[keyof typeof CatalogConfigDtoStatus];
 
 
@@ -732,6 +977,35 @@ export interface CatalogConfigDto {
   note: string | null;
 }
 
+export type CatalogCheckoutConfigDtoAvailableMethodsItem = typeof CatalogCheckoutConfigDtoAvailableMethodsItem[keyof typeof CatalogCheckoutConfigDtoAvailableMethodsItem];
+
+
+export const CatalogCheckoutConfigDtoAvailableMethodsItem = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+export type CatalogCheckoutConfigDtoEnabledMethodsItem = typeof CatalogCheckoutConfigDtoEnabledMethodsItem[keyof typeof CatalogCheckoutConfigDtoEnabledMethodsItem];
+
+
+export const CatalogCheckoutConfigDtoEnabledMethodsItem = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+export type CatalogCheckoutConfigDtoMethodContacts = { [key: string]: unknown };
+
+export type CatalogCheckoutConfigDtoMethodFields = { [key: string]: unknown };
+
+export interface CatalogCheckoutConfigDto {
+  availableMethods: CatalogCheckoutConfigDtoAvailableMethodsItem[];
+  enabledMethods: CatalogCheckoutConfigDtoEnabledMethodsItem[];
+  methodContacts: CatalogCheckoutConfigDtoMethodContacts;
+  methodFields: CatalogCheckoutConfigDtoMethodFields;
+}
+
 export type CatalogSettingsDtoDefaultMode = typeof CatalogSettingsDtoDefaultMode[keyof typeof CatalogSettingsDtoDefaultMode];
 
 
@@ -754,6 +1028,9 @@ export interface CatalogSettingsDto {
   isActive: boolean;
   defaultMode: CatalogSettingsDtoDefaultMode;
   allowedModes: CatalogSettingsDtoAllowedModesItem[];
+  /** @nullable */
+  address: string | null;
+  checkout: CatalogCheckoutConfigDto;
   /** @nullable */
   googleVerification: string | null;
   /** @nullable */
@@ -988,6 +1265,12 @@ export const UpdateCatalogDtoReqAllowedModesItem = {
   HALL: 'HALL',
 } as const;
 
+/**
+ * Checkout methods settings for cart flow.
+ * @nullable
+ */
+export type UpdateCatalogDtoReqCheckout = { [key: string]: unknown } | null;
+
 export interface UpdateCatalogDtoReq {
   slug?: string;
   /** @nullable */
@@ -1006,8 +1289,15 @@ export interface UpdateCatalogDtoReq {
   bgMediaId?: string;
   note?: string;
   isActive?: boolean;
+  /** @nullable */
+  address?: string | null;
   defaultMode?: UpdateCatalogDtoReqDefaultMode;
   allowedModes?: UpdateCatalogDtoReqAllowedModesItem[];
+  /**
+   * Checkout methods settings for cart flow.
+   * @nullable
+   */
+  checkout?: UpdateCatalogDtoReqCheckout;
   /** @nullable */
   googleVerification?: string | null;
   /** @nullable */
@@ -1058,74 +1348,6 @@ export interface CatalogCreateResponseDto {
   slug: string;
   /** @nullable */
   domain: string | null;
-}
-
-export interface CatalogDomainDnsRecordDto {
-  type: string;
-  name: string;
-  value: string;
-  required: boolean;
-  description?: string;
-}
-
-export interface CatalogDomainVerificationDto {
-  txtRecord: CatalogDomainDnsRecordDto;
-  routingRecords: CatalogDomainDnsRecordDto[];
-  wwwRecord?: CatalogDomainDnsRecordDto | null;
-  expectedHosts: string[];
-  instructions: string[];
-  recheckAfterSeconds: number;
-}
-
-export type CatalogDomainDtoStatus = typeof CatalogDomainDtoStatus[keyof typeof CatalogDomainDtoStatus];
-
-
-export const CatalogDomainDtoStatus = {
-  PENDING_DNS: 'PENDING_DNS',
-  DNS_VERIFIED: 'DNS_VERIFIED',
-  ACTIVE: 'ACTIVE',
-  FAILED: 'FAILED',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface CatalogDomainDto {
-  id: string;
-  catalogId: string;
-  hostname: string;
-  status: CatalogDomainDtoStatus;
-  isPrimary: boolean;
-  redirectToPrimary: boolean;
-  includeWww: boolean;
-  verificationToken: string;
-  verification: CatalogDomainVerificationDto;
-  nextCheckAfterSeconds: number;
-  nextCheckAt: string;
-  message: string;
-  /** @nullable */
-  lastCheckedAt?: string | null;
-  /** @nullable */
-  lastError?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface CreateCatalogDomainDtoReq {
-  hostname: string;
-  /** Also allow www.<domain> for TLS and DNS checks */
-  includeWww?: boolean;
-  isPrimary?: boolean;
-  redirectToPrimary?: boolean;
-}
-
-export interface CatalogDomainCheckDto {
-  ok: boolean;
-  status: string;
-  /** @nullable */
-  error?: string | null;
-  verification: CatalogDomainVerificationDto;
-  nextCheckAfterSeconds: number;
-  nextCheckAt: string;
-  message: string;
 }
 
 export interface CategoryDto {
@@ -1687,177 +1909,6 @@ export interface ProductVariantsResponseDto {
   ok: boolean;
 }
 
-export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
-
-
-export const MoySkladIntegrationDtoProvider = {
-  MOYSKLAD: 'MOYSKLAD',
-} as const;
-
-export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
-
-
-export const MoySkladIntegrationDtoLastSyncStatus = {
-  IDLE: 'IDLE',
-  SYNCING: 'SYNCING',
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR',
-} as const;
-
-export interface MoySkladIntegrationDto {
-  provider: MoySkladIntegrationDtoProvider;
-  isActive: boolean;
-  hasToken: boolean;
-  /** @nullable */
-  tokenPreview: string | null;
-  priceTypeName: string;
-  importImages: boolean;
-  syncStock: boolean;
-  scheduleEnabled: boolean;
-  /** @nullable */
-  schedulePattern: string | null;
-  scheduleTimezone: string;
-  lastSyncStatus: MoySkladIntegrationDtoLastSyncStatus;
-  /** @nullable */
-  syncStartedAt: string | null;
-  /** @nullable */
-  lastSyncAt: string | null;
-  /** @nullable */
-  lastSyncError: string | null;
-  totalProducts: number;
-  createdProducts: number;
-  updatedProducts: number;
-  deletedProducts: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof typeof MoySkladSyncRunDtoProvider];
-
-
-export const MoySkladSyncRunDtoProvider = {
-  MOYSKLAD: 'MOYSKLAD',
-} as const;
-
-export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
-
-
-export const MoySkladSyncRunDtoMode = {
-  FULL: 'FULL',
-  PRODUCT: 'PRODUCT',
-} as const;
-
-export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof typeof MoySkladSyncRunDtoTrigger];
-
-
-export const MoySkladSyncRunDtoTrigger = {
-  MANUAL: 'MANUAL',
-  SCHEDULED: 'SCHEDULED',
-} as const;
-
-export type MoySkladSyncRunDtoStatus = typeof MoySkladSyncRunDtoStatus[keyof typeof MoySkladSyncRunDtoStatus];
-
-
-export const MoySkladSyncRunDtoStatus = {
-  PENDING: 'PENDING',
-  RUNNING: 'RUNNING',
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR',
-  SKIPPED: 'SKIPPED',
-} as const;
-
-export interface MoySkladSyncRunDto {
-  id: string;
-  provider: MoySkladSyncRunDtoProvider;
-  mode: MoySkladSyncRunDtoMode;
-  trigger: MoySkladSyncRunDtoTrigger;
-  status: MoySkladSyncRunDtoStatus;
-  /** @nullable */
-  jobId: string | null;
-  /** @nullable */
-  productId: string | null;
-  /** @nullable */
-  externalId: string | null;
-  /** @nullable */
-  error: string | null;
-  totalProducts: number;
-  createdProducts: number;
-  updatedProducts: number;
-  deletedProducts: number;
-  imagesImported: number;
-  /** @nullable */
-  durationMs: number | null;
-  requestedAt: string;
-  /** @nullable */
-  startedAt: string | null;
-  /** @nullable */
-  finishedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MoySkladIntegrationStatusDto {
-  configured: boolean;
-  integration: MoySkladIntegrationDto | null;
-  activeRun: MoySkladSyncRunDto | null;
-  lastRun: MoySkladSyncRunDto | null;
-}
-
-export interface UpsertMoySkladIntegrationDtoReq {
-  token: string;
-  isActive?: boolean;
-  priceTypeName?: string;
-  importImages?: boolean;
-  syncStock?: boolean;
-  scheduleEnabled?: boolean;
-  schedulePattern?: string;
-  scheduleTimezone?: string;
-}
-
-export interface UpdateMoySkladIntegrationDtoReq {
-  token?: string;
-  isActive?: boolean;
-  priceTypeName?: string;
-  importImages?: boolean;
-  syncStock?: boolean;
-  scheduleEnabled?: boolean;
-  schedulePattern?: string;
-  scheduleTimezone?: string;
-}
-
-export interface TestMoySkladConnectionDtoReq {
-  token?: string;
-}
-
-export interface MoySkladTestConnectionDto {
-  ok: boolean;
-}
-
-export type MoySkladQueuedSyncDtoMode = typeof MoySkladQueuedSyncDtoMode[keyof typeof MoySkladQueuedSyncDtoMode];
-
-
-export const MoySkladQueuedSyncDtoMode = {
-  FULL: 'FULL',
-  PRODUCT: 'PRODUCT',
-} as const;
-
-export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[keyof typeof MoySkladQueuedSyncDtoTrigger];
-
-
-export const MoySkladQueuedSyncDtoTrigger = {
-  MANUAL: 'MANUAL',
-  SCHEDULED: 'SCHEDULED',
-} as const;
-
-export interface MoySkladQueuedSyncDto {
-  ok: boolean;
-  queued: boolean;
-  runId: string;
-  jobId: string;
-  mode: MoySkladQueuedSyncDtoMode;
-  trigger: MoySkladQueuedSyncDtoTrigger;
-}
-
 export type CartStatus = typeof CartStatus[keyof typeof CartStatus];
 
 
@@ -1897,6 +1948,28 @@ export interface CartTotalsDto {
   total: number;
 }
 
+/**
+ * @nullable
+ */
+export type CartDtoCheckoutMethod = typeof CartDtoCheckoutMethod[keyof typeof CartDtoCheckoutMethod] | null;
+
+
+export const CartDtoCheckoutMethod = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CartDtoCheckoutData = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CartDtoCheckoutContacts = { [key: string]: unknown } | null;
+
 export interface CartDto {
   id: string;
   catalogId: string;
@@ -1910,6 +1983,12 @@ export interface CartDto {
   checkoutAt: string | null;
   /** @nullable */
   comment: string | null;
+  /** @nullable */
+  checkoutMethod: CartDtoCheckoutMethod;
+  /** @nullable */
+  checkoutData: CartDtoCheckoutData;
+  /** @nullable */
+  checkoutContacts: CartDtoCheckoutContacts;
   /** @nullable */
   assignedManagerId: string | null;
   /** @nullable */
@@ -1929,9 +2008,22 @@ export interface CartResponseDto {
   cart: CartDto;
 }
 
+export type ShareCurrentCartDtoReqCheckoutMethod = typeof ShareCurrentCartDtoReqCheckoutMethod[keyof typeof ShareCurrentCartDtoReqCheckoutMethod];
+
+
+export const ShareCurrentCartDtoReqCheckoutMethod = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+export type ShareCurrentCartDtoReqCheckoutData = { [key: string]: unknown };
+
 export interface ShareCurrentCartDtoReq {
   /** @maxLength 1000 */
   comment?: string;
+  checkoutMethod?: ShareCurrentCartDtoReqCheckoutMethod;
+  checkoutData?: ShareCurrentCartDtoReqCheckoutData;
 }
 
 export interface ShareCartResponseDto {
@@ -1964,11 +2056,39 @@ export interface CompletedOrderItemDto {
   unitPrice: number;
 }
 
+/**
+ * @nullable
+ */
+export type CompletedOrderDtoCheckoutMethod = typeof CompletedOrderDtoCheckoutMethod[keyof typeof CompletedOrderDtoCheckoutMethod] | null;
+
+
+export const CompletedOrderDtoCheckoutMethod = {
+  DELIVERY: 'DELIVERY',
+  PICKUP: 'PICKUP',
+  PREORDER: 'PREORDER',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CompletedOrderDtoCheckoutData = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CompletedOrderDtoCheckoutContacts = { [key: string]: unknown } | null;
+
 export interface CompletedOrderDto {
   id: string;
   status: OrderStatus;
   catalogId: string;
   totalAmount: number;
+  /** @nullable */
+  checkoutMethod: CompletedOrderDtoCheckoutMethod;
+  /** @nullable */
+  checkoutData: CompletedOrderDtoCheckoutData;
+  /** @nullable */
+  checkoutContacts: CompletedOrderDtoCheckoutContacts;
   items: CompletedOrderItemDto[];
   createdAt: string;
 }
@@ -2159,6 +2279,20 @@ export type S3ControllerEnqueueFromS3Body = {
   key: string;
 } | {
   items: UploadFromS3ItemDtoReq[];
+};
+
+export type CatalogAdvancedSettingsControllerGetMoySkladRunsParams = {
+/**
+ * Сколько последних запусков вернуть
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetMoySkladRunsParams = {
+/**
+ * Сколько последних запусков вернуть
+ */
+limit?: number;
 };
 
 export type CategoryControllerGetProductsByCategoryParams = {
@@ -2395,13 +2529,6 @@ cursor?: string;
  * Размер страницы (1-50), по умолчанию 24
  */
 limit?: string;
-};
-
-export type IntegrationControllerGetMoySkladRunsParams = {
-/**
- * Сколько последних запусков вернуть
- */
-limit?: number;
 };
 
 export const getGatewayService = () => {
@@ -3135,6 +3262,259 @@ const userControllerRegister = (
     }
   
 /**
+ * @summary Change current catalog advanced settings password
+ */
+const catalogAdvancedSettingsControllerChangePassword = (
+    changePasswordDtoReq: ChangePasswordDtoReq,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: changePasswordDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary List current catalog advanced settings sessions
+ */
+const catalogAdvancedSettingsControllerListSessions = (
+    
+ ) => {
+      return mutator<AuthSessionsResponseDto>(
+      {url: `/catalog/current/advanced-settings/sessions`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Revoke other catalog advanced settings sessions
+ */
+const catalogAdvancedSettingsControllerRevokeOtherSessions = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/sessions/revoke-others`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Revoke catalog advanced settings session
+ */
+const catalogAdvancedSettingsControllerRevokeSession = (
+    sid: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/sessions/${sid}/revoke`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary List current catalog advanced settings domains
+ */
+const catalogAdvancedSettingsControllerListDomains = (
+    
+ ) => {
+      return mutator<CatalogDomainDto[]>(
+      {url: `/catalog/current/advanced-settings/domains`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Attach advanced settings domain to current catalog
+ */
+const catalogAdvancedSettingsControllerCreateDomain = (
+    createCatalogDomainDtoReq: CreateCatalogDomainDtoReq,
+ ) => {
+      return mutator<CatalogDomainDto>(
+      {url: `/catalog/current/advanced-settings/domains`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogDomainDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Check advanced settings catalog domain DNS
+ */
+const catalogAdvancedSettingsControllerCheckDomain = (
+    id: string,
+ ) => {
+      return mutator<CatalogDomainCheckDto>(
+      {url: `/catalog/current/advanced-settings/domains/${id}/check`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Disable advanced settings catalog domain
+ */
+const catalogAdvancedSettingsControllerDisableDomain = (
+    id: string,
+ ) => {
+      return mutator<CatalogDomainDto>(
+      {url: `/catalog/current/advanced-settings/domains/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Get catalog scoped Yandex Metrika counter
+ */
+const catalogAdvancedSettingsControllerGetYandexMetrika = (
+    
+ ) => {
+      return mutator<CatalogYandexMetrikaDto>(
+      {url: `/catalog/current/advanced-settings/metrics/yandex/catalog`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Set catalog scoped Yandex Metrika counter
+ */
+const catalogAdvancedSettingsControllerUpdateYandexMetrika = (
+    updateCatalogYandexMetrikaDtoReq: UpdateCatalogYandexMetrikaDtoReq,
+ ) => {
+      return mutator<CatalogYandexMetrikaDto>(
+      {url: `/catalog/current/advanced-settings/metrics/yandex/catalog`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogYandexMetrikaDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Remove catalog scoped Yandex Metrika counter
+ */
+const catalogAdvancedSettingsControllerDeleteYandexMetrika = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/metrics/yandex/catalog`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings MoySklad integration
+ */
+const catalogAdvancedSettingsControllerGetMoySklad = (
+    
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create or replace advanced settings MoySklad
+ */
+const catalogAdvancedSettingsControllerUpsertMoySklad = (
+    upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertMoySkladIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Update advanced settings MoySklad
+ */
+const catalogAdvancedSettingsControllerUpdateMoySklad = (
+    updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMoySkladIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Remove advanced settings MoySklad
+ */
+const catalogAdvancedSettingsControllerRemoveMoySklad = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings MoySklad status
+ */
+const catalogAdvancedSettingsControllerGetMoySkladStatus = (
+    
+ ) => {
+      return mutator<MoySkladIntegrationStatusDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/status`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings MoySklad sync history
+ */
+const catalogAdvancedSettingsControllerGetMoySkladRuns = (
+    params?: CatalogAdvancedSettingsControllerGetMoySkladRunsParams,
+ ) => {
+      return mutator<MoySkladSyncRunDto[]>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/runs`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Test advanced settings MoySklad connection
+ */
+const catalogAdvancedSettingsControllerTestMoySkladConnection = (
+    testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
+ ) => {
+      return mutator<MoySkladTestConnectionDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testMoySkladConnectionDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Queue advanced settings MoySklad full sync
+ */
+const catalogAdvancedSettingsControllerSyncMoySkladCatalog = (
+    
+ ) => {
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/sync`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Cancel advanced settings MoySklad sync
+ */
+const catalogAdvancedSettingsControllerCancelMoySkladSync = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/moysklad/sync`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
  * @summary Get current catalog
  */
 const catalogControllerGetCurrent = (
@@ -3283,6 +3663,133 @@ const catalogDomainControllerDisable = (
  ) => {
       return mutator<CatalogDomainDto>(
       {url: `/catalog/current/domains/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Получить настройки интеграции MoySklad
+ */
+const integrationControllerGetMoySklad = (
+    
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Создать или заменить настройки MoySklad
+ */
+const integrationControllerUpsertMoySklad = (
+    upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertMoySkladIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Обновить настройки MoySklad
+ */
+const integrationControllerUpdateMoySklad = (
+    updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
+ ) => {
+      return mutator<MoySkladIntegrationDto>(
+      {url: `/integration/moysklad`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateMoySkladIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Удалить настройки MoySklad
+ */
+const integrationControllerRemoveMoySklad = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/moysklad`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Получить статус интеграции MoySklad
+ */
+const integrationControllerGetMoySkladStatus = (
+    
+ ) => {
+      return mutator<MoySkladIntegrationStatusDto>(
+      {url: `/integration/moysklad/status`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Получить историю sync MoySklad
+ */
+const integrationControllerGetMoySkladRuns = (
+    params?: IntegrationControllerGetMoySkladRunsParams,
+ ) => {
+      return mutator<MoySkladSyncRunDto[]>(
+      {url: `/integration/moysklad/runs`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Проверить подключение к MoySklad
+ */
+const integrationControllerTestMoySkladConnection = (
+    testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
+ ) => {
+      return mutator<MoySkladTestConnectionDto>(
+      {url: `/integration/moysklad/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testMoySkladConnectionDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Поставить полный sync MoySklad в очередь
+ */
+const integrationControllerSyncMoySkladCatalog = (
+    
+ ) => {
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/integration/moysklad/sync`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Отменить текущий sync MoySklad
+ */
+const integrationControllerCancelMoySkladSync = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/moysklad/sync`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Поставить sync одного товара MoySklad в очередь
+ */
+const integrationControllerSyncMoySkladProduct = (
+    id: string,
+ ) => {
+      return mutator<MoySkladQueuedSyncDto>(
+      {url: `/integration/moysklad/sync-product/${id}`, method: 'POST'
     },
       );
     }
@@ -3677,133 +4184,6 @@ const productControllerSetVariants = (
     }
   
 /**
- * @summary Получить настройки интеграции MoySklad
- */
-const integrationControllerGetMoySklad = (
-    
- ) => {
-      return mutator<MoySkladIntegrationDto>(
-      {url: `/integration/moysklad`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * @summary Создать или заменить настройки MoySklad
- */
-const integrationControllerUpsertMoySklad = (
-    upsertMoySkladIntegrationDtoReq: UpsertMoySkladIntegrationDtoReq,
- ) => {
-      return mutator<MoySkladIntegrationDto>(
-      {url: `/integration/moysklad`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: upsertMoySkladIntegrationDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Обновить настройки MoySklad
- */
-const integrationControllerUpdateMoySklad = (
-    updateMoySkladIntegrationDtoReq: UpdateMoySkladIntegrationDtoReq,
- ) => {
-      return mutator<MoySkladIntegrationDto>(
-      {url: `/integration/moysklad`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: updateMoySkladIntegrationDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Удалить настройки MoySklad
- */
-const integrationControllerRemoveMoySklad = (
-    
- ) => {
-      return mutator<OkResponseDto>(
-      {url: `/integration/moysklad`, method: 'DELETE'
-    },
-      );
-    }
-  
-/**
- * @summary Получить статус интеграции MoySklad
- */
-const integrationControllerGetMoySkladStatus = (
-    
- ) => {
-      return mutator<MoySkladIntegrationStatusDto>(
-      {url: `/integration/moysklad/status`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * @summary Получить историю sync MoySklad
- */
-const integrationControllerGetMoySkladRuns = (
-    params?: IntegrationControllerGetMoySkladRunsParams,
- ) => {
-      return mutator<MoySkladSyncRunDto[]>(
-      {url: `/integration/moysklad/runs`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * @summary Проверить подключение к MoySklad
- */
-const integrationControllerTestMoySkladConnection = (
-    testMoySkladConnectionDtoReq: TestMoySkladConnectionDtoReq,
- ) => {
-      return mutator<MoySkladTestConnectionDto>(
-      {url: `/integration/moysklad/test-connection`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: testMoySkladConnectionDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Поставить полный sync MoySklad в очередь
- */
-const integrationControllerSyncMoySkladCatalog = (
-    
- ) => {
-      return mutator<MoySkladQueuedSyncDto>(
-      {url: `/integration/moysklad/sync`, method: 'POST'
-    },
-      );
-    }
-  
-/**
- * @summary Отменить текущий sync MoySklad
- */
-const integrationControllerCancelMoySkladSync = (
-    
- ) => {
-      return mutator<OkResponseDto>(
-      {url: `/integration/moysklad/sync`, method: 'DELETE'
-    },
-      );
-    }
-  
-/**
- * @summary Поставить sync одного товара MoySklad в очередь
- */
-const integrationControllerSyncMoySkladProduct = (
-    id: string,
- ) => {
-      return mutator<MoySkladQueuedSyncDto>(
-      {url: `/integration/moysklad/sync-product/${id}`, method: 'POST'
-    },
-      );
-    }
-  
-/**
  * @summary Create or return the current cart by cookie token
  */
 const cartControllerCreateOrGetCurrent = (
@@ -3823,6 +4203,18 @@ const cartControllerGetCurrent = (
  ) => {
       return mutator<CartResponseDto>(
       {url: `/cart/current`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Delete or detach the current cart by cookie token
+ */
+const cartControllerDeleteCurrent = (
+    
+ ) => {
+      return mutator<void>(
+      {url: `/cart/current`, method: 'DELETE'
     },
       );
     }
@@ -4057,7 +4449,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -4111,6 +4503,26 @@ export type BrandControllerGetByIdResult = NonNullable<Awaited<ReturnType<Return
 export type BrandControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['brandControllerUpdate']>>>
 export type BrandControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['brandControllerRemove']>>>
 export type UserControllerRegisterResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['userControllerRegister']>>>
+export type CatalogAdvancedSettingsControllerChangePasswordResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerChangePassword']>>>
+export type CatalogAdvancedSettingsControllerListSessionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerListSessions']>>>
+export type CatalogAdvancedSettingsControllerRevokeOtherSessionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerRevokeOtherSessions']>>>
+export type CatalogAdvancedSettingsControllerRevokeSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerRevokeSession']>>>
+export type CatalogAdvancedSettingsControllerListDomainsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerListDomains']>>>
+export type CatalogAdvancedSettingsControllerCreateDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerCreateDomain']>>>
+export type CatalogAdvancedSettingsControllerCheckDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerCheckDomain']>>>
+export type CatalogAdvancedSettingsControllerDisableDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerDisableDomain']>>>
+export type CatalogAdvancedSettingsControllerGetYandexMetrikaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetYandexMetrika']>>>
+export type CatalogAdvancedSettingsControllerUpdateYandexMetrikaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerUpdateYandexMetrika']>>>
+export type CatalogAdvancedSettingsControllerDeleteYandexMetrikaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerDeleteYandexMetrika']>>>
+export type CatalogAdvancedSettingsControllerGetMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetMoySklad']>>>
+export type CatalogAdvancedSettingsControllerUpsertMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerUpsertMoySklad']>>>
+export type CatalogAdvancedSettingsControllerUpdateMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerUpdateMoySklad']>>>
+export type CatalogAdvancedSettingsControllerRemoveMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerRemoveMoySklad']>>>
+export type CatalogAdvancedSettingsControllerGetMoySkladStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetMoySkladStatus']>>>
+export type CatalogAdvancedSettingsControllerGetMoySkladRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetMoySkladRuns']>>>
+export type CatalogAdvancedSettingsControllerTestMoySkladConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerTestMoySkladConnection']>>>
+export type CatalogAdvancedSettingsControllerSyncMoySkladCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerSyncMoySkladCatalog']>>>
+export type CatalogAdvancedSettingsControllerCancelMoySkladSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerCancelMoySkladSync']>>>
 export type CatalogControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrent']>>>
 export type CatalogControllerUpdateCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerUpdateCurrent']>>>
 export type CatalogControllerGetCurrentShellResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrentShell']>>>
@@ -4123,6 +4535,16 @@ export type CatalogDomainControllerListResult = NonNullable<Awaited<ReturnType<R
 export type CatalogDomainControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogDomainControllerCreate']>>>
 export type CatalogDomainControllerCheckResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogDomainControllerCheck']>>>
 export type CatalogDomainControllerDisableResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogDomainControllerDisable']>>>
+export type IntegrationControllerGetMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySklad']>>>
+export type IntegrationControllerUpsertMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpsertMoySklad']>>>
+export type IntegrationControllerUpdateMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpdateMoySklad']>>>
+export type IntegrationControllerRemoveMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRemoveMoySklad']>>>
+export type IntegrationControllerGetMoySkladStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladStatus']>>>
+export type IntegrationControllerGetMoySkladRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladRuns']>>>
+export type IntegrationControllerTestMoySkladConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerTestMoySkladConnection']>>>
+export type IntegrationControllerSyncMoySkladCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladCatalog']>>>
+export type IntegrationControllerCancelMoySkladSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerCancelMoySkladSync']>>>
+export type IntegrationControllerSyncMoySkladProductResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladProduct']>>>
 export type CategoryControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetAll']>>>
 export type CategoryControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerCreate']>>>
 export type CategoryControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetById']>>>
@@ -4151,18 +4573,9 @@ export type ProductControllerUpdateCategoryPositionResult = NonNullable<Awaited<
 export type ProductControllerToggleStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerToggleStatus']>>>
 export type ProductControllerTogglePopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerTogglePopular']>>>
 export type ProductControllerSetVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariants']>>>
-export type IntegrationControllerGetMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySklad']>>>
-export type IntegrationControllerUpsertMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpsertMoySklad']>>>
-export type IntegrationControllerUpdateMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpdateMoySklad']>>>
-export type IntegrationControllerRemoveMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRemoveMoySklad']>>>
-export type IntegrationControllerGetMoySkladStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladStatus']>>>
-export type IntegrationControllerGetMoySkladRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladRuns']>>>
-export type IntegrationControllerTestMoySkladConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerTestMoySkladConnection']>>>
-export type IntegrationControllerSyncMoySkladCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladCatalog']>>>
-export type IntegrationControllerCancelMoySkladSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerCancelMoySkladSync']>>>
-export type IntegrationControllerSyncMoySkladProductResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladProduct']>>>
 export type CartControllerCreateOrGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCreateOrGetCurrent']>>>
 export type CartControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetCurrent']>>>
+export type CartControllerDeleteCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerDeleteCurrent']>>>
 export type CartControllerShareCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerShareCurrent']>>>
 export type CartControllerUpsertCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerUpsertCurrentItem']>>>
 export type CartControllerRemoveCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerRemoveCurrentItem']>>>

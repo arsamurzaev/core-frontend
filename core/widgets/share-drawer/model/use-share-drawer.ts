@@ -8,6 +8,7 @@ import {
   buildShareMessage,
   getShareDrawerTitle,
   resolveCurrentAbsoluteUrl,
+  type ShareDrawerContactSource,
 } from "@/core/widgets/share-drawer/model/share-drawer-helpers";
 import { type ShareDrawerMessengerType } from "@/core/widgets/share-drawer/model/share-drawer-types";
 import { CatalogContactDtoType } from "@/shared/api/generated/react-query";
@@ -30,6 +31,7 @@ interface UseShareDrawerParams {
   copyMode?: "message" | "url";
   copySuccessMessage?: string;
   appendUrlToMessage?: boolean;
+  contactsOverride?: Partial<Record<CatalogContactDtoType, string>>;
   messengerConfirmContent: React.ReactNode;
 }
 
@@ -45,6 +47,7 @@ export function useShareDrawer({
   copyMode = "url",
   copySuccessMessage,
   appendUrlToMessage = true,
+  contactsOverride,
   messengerConfirmContent,
 }: UseShareDrawerParams) {
   const catalog = useCatalog();
@@ -52,6 +55,15 @@ export function useShareDrawer({
   const searchParams = useSearchParams();
   const isShareMode = mode === "share";
   const search = searchParams.toString();
+  const contactSource = React.useMemo<ShareDrawerContactSource>(
+    () =>
+      contactsOverride
+        ? {
+            getContactValue: (type) => contactsOverride[type],
+          }
+        : catalog,
+    [catalog, contactsOverride],
+  );
 
   const currentPathWithQuery = React.useMemo(() => {
     const normalizedPathname = normalizeText(pathname) ?? "/";
@@ -144,7 +156,7 @@ export function useShareDrawer({
         type === "max" ? CatalogContactDtoType.MAX : CatalogContactDtoType.BIP;
       const href = buildCatalogContactHref({
         type: contactType,
-        value: catalog.getContactValue(contactType),
+        value: contactSource.getContactValue(contactType),
       });
 
       if (!href) {
@@ -184,32 +196,32 @@ export function useShareDrawer({
         );
       }
     },
-    [catalog, isShareMode, messengerConfirmContent, shareMessage, text],
+    [contactSource, isShareMode, messengerConfirmContent, shareMessage, text],
   );
 
   const primaryActions = React.useMemo(
     () =>
       buildShareDrawerPrimaryActions({
-        catalog,
+        catalog: contactSource,
         isShareMode,
         shareMessage,
       }),
-    [catalog, isShareMode, shareMessage],
+    [contactSource, isShareMode, shareMessage],
   );
 
   const secondaryActions = React.useMemo(
     () =>
       buildShareDrawerSecondaryActions({
-        catalog,
+        catalog: contactSource,
         isShareMode,
         onMessengerAction: handleMessengerAction,
       }),
-    [catalog, handleMessengerAction, isShareMode],
+    [contactSource, handleMessengerAction, isShareMode],
   );
 
   const socialItems = React.useMemo(
-    () => buildShareDrawerSocialItems(catalog),
-    [catalog],
+    () => buildShareDrawerSocialItems(contactSource),
+    [contactSource],
   );
 
   return {

@@ -46,7 +46,8 @@ export const SubscriptionAccessGate: React.FC<SubscriptionAccessGateProps> = ({
   const pathname = usePathname();
   const { catalog } = useCatalogState();
   const { isLoading, user } = useSession();
-  const isLoginPage = pathname === "/auth/login";
+  const isLoginPage =
+    pathname === "/auth/login" || pathname === "/auth/sign-in";
   const isExpired = isSubscriptionExpired(catalog);
 
   if (!isExpired || isLoginPage || isCatalogManagerRole(user?.role)) {

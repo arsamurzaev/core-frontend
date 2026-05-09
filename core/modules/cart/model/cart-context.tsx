@@ -42,6 +42,12 @@ import {
   type CompletedOrderDto,
   type ProductWithAttributesDto,
 } from "@/shared/api/generated/react-query";
+import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
+import {
+  buildCheckoutSummary,
+  type CheckoutData,
+  type CheckoutMethod,
+} from "@/shared/lib/checkout-methods";
 import { toNumberValue } from "@/shared/lib/attributes";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
@@ -62,17 +68,25 @@ import { toast } from "sonner";
 
 
 export interface CartSharePayload {
+  contactsOverride?: Partial<Record<CatalogContactDtoType, string>>;
   text: string;
   title?: string;
   url: string;
 }
+
+export type PrepareShareOrderInput = {
+  checkoutData?: CheckoutData;
+  checkoutMethod?: CheckoutMethod;
+  checkoutSummary?: string[];
+  comment?: string;
+};
 
 interface CartContextValue {
   autoExpandPublicCartAccessKey: string | null;
   canCreateManagerOrder: boolean;
   cart: CartDto | null;
   clearCart: () => Promise<void>;
-  completeManagedOrder: (comment?: string) => Promise<CompletedOrderDto>;
+  completeManagedOrder: (input?: PrepareShareOrderInput | string) => Promise<CompletedOrderDto>;
   deleteCurrentCart: () => Promise<void>;
   decrementProduct: (productId: string, product?: CartProductSnapshot) => Promise<void>;
   detachPublicCart: () => void;
@@ -91,7 +105,7 @@ interface CartContextValue {
   isPublicMode: boolean;
   items: CartItemView[];
   mode: CartMode;
-  prepareShareOrder: (comment?: string) => Promise<CartSharePayload>;
+  prepareShareOrder: (input?: PrepareShareOrderInput | string) => Promise<CartSharePayload>;
   publicAccess: CartPublicAccess | null;
   canShare: boolean;
   quantityByProductId: Record<string, number>;
@@ -154,6 +168,12 @@ export type CartProductSnapshot = Pick<
   "id" | "name" | "price" | "slug"
 >;
 
+type CartDtoWithCheckout = CartDto & {
+  checkoutContacts?: Partial<Record<CatalogContactDtoType, string>> | null;
+  checkoutData?: CheckoutData | null;
+  checkoutMethod?: CheckoutMethod | null;
+};
+
 type CartMutationContext = {
   previousCart: CartDto | null | undefined;
 };
@@ -185,6 +205,12 @@ function normalizeVariantId(variantId?: string | null): string | undefined {
 
   const trimmed = variantId.trim();
   return trimmed || undefined;
+}
+
+function getCartCheckoutContacts(
+  cart: CartDto | null | undefined,
+): Partial<Record<CatalogContactDtoType, string>> | undefined {
+  return (cart as CartDtoWithCheckout | null | undefined)?.checkoutContacts ?? undefined;
 }
 
 function createOptimisticCart(params: {
@@ -224,6 +250,9 @@ function createOptimisticCart(params: {
       statusChangedAt: now,
       publicKey: null,
       checkoutAt: null,
+      checkoutMethod: null,
+      checkoutData: null,
+      checkoutContacts: null,
       comment: null,
       assignedManagerId: null,
       managerSessionStartedAt: null,
@@ -405,6 +434,7 @@ function formatShareMoney(value: number, currency: string) {
 }
 
 function buildLegacyCartShareText(params: {
+  checkoutSummary?: string[];
   comment?: string;
   currency: string;
   items: CartItemView[];
@@ -414,7 +444,7 @@ function buildLegacyCartShareText(params: {
   };
   url: string;
 }) {
-  const { comment, currency, items, totals, url } = params;
+  const { checkoutSummary = [], comment, currency, items, totals, url } = params;
   const normalizedComment = comment?.trim();
   const productsText = items
     .map((item) => {
@@ -430,6 +460,7 @@ function buildLegacyCartShareText(params: {
       : `Сумма: ~${formatShareMoney(totals.originalSubtotal, currency)}~ ${formatShareMoney(totals.subtotal, currency)}`;
 
   return ["", url, "", "Заказ:", productsText]
+    .concat(checkoutSummary.length > 0 ? ["", ...checkoutSummary] : [])
     .concat(normalizedComment ? ["", "Комментарий:", normalizedComment] : [])
     .concat(["", priceText])
     .filter((line): line is string => line !== null && line !== undefined)
@@ -1124,8 +1155,20 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
   });
 
   const shareCurrentCartMutation = useMutation({
-    mutationFn: async (comment?: string) =>
-      cartControllerShareCurrent(comment ? { comment } : undefined),
+    mutationFn: async (input?: PrepareShareOrderInput | string) => {
+      const normalizedInput =
+        typeof input === "string" ? { comment: input } : (input ?? {});
+
+      return cartControllerShareCurrent({
+        ...(normalizedInput.comment ? { comment: normalizedInput.comment } : {}),
+        ...(normalizedInput.checkoutMethod
+          ? { checkoutMethod: normalizedInput.checkoutMethod }
+          : {}),
+        ...(normalizedInput.checkoutData
+          ? { checkoutData: normalizedInput.checkoutData }
+          : {}),
+      } as never);
+    },
     onSuccess: (response) => {
       setCurrentCartData(response.cart);
     },
@@ -1308,22 +1351,40 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     queryClient,
   ]);
 
-  const prepareShareOrder = React.useCallback(async (comment?: string): Promise<CartSharePayload> => {
+  const prepareShareOrder = React.useCallback(async (
+    input?: PrepareShareOrderInput | string,
+  ): Promise<CartSharePayload> => {
     if (!items.length) {
       throw new Error("Нельзя поделиться пустой корзиной.");
     }
 
     let access = storedPublicAccess;
-    const normalizedComment = comment?.trim();
+    const shareInput =
+      typeof input === "string" ? { comment: input } : (input ?? {});
+    const normalizedComment = shareInput.comment?.trim();
+    const checkoutSummary =
+      shareInput.checkoutSummary ??
+      (shareInput.checkoutMethod && shareInput.checkoutData
+        ? buildCheckoutSummary({
+            data: shareInput.checkoutData,
+            method: shareInput.checkoutMethod,
+          })
+        : []);
+    let contactsOverride = getCartCheckoutContacts(activeCart);
 
     if (!access) {
       const shared = await shareCurrentCartMutation.mutateAsync(
-        normalizedComment || undefined,
+        {
+          ...shareInput,
+          comment: normalizedComment || undefined,
+        },
       );
       const publicKey = shared.publicKey || shared.cart.publicKey;
       if (!publicKey) {
         throw new Error("Не удалось подготовить публичную корзину.");
       }
+
+      contactsOverride = getCartCheckoutContacts(shared.cart);
 
       access = {
         publicKey,
@@ -1335,7 +1396,9 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     const shareUrl = buildCartShareUrl(access, buildShareBaseUrl());
 
     return {
+      contactsOverride,
       text: buildLegacyCartShareText({
+        checkoutSummary,
         comment: normalizedComment,
         currency: shareCurrency,
         items,
@@ -1349,6 +1412,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
       url: shareUrl,
     };
   }, [
+    activeCart,
     items,
     shareCurrentCartMutation,
     shareCurrency,
@@ -1366,7 +1430,12 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
     await startManagerOrderMutation.mutateAsync();
   }, [canCreateManagerOrder, startManagerOrderMutation]);
 
-  const completeManagedOrder = React.useCallback(async (comment?: string) => {
+  const completeManagedOrder = React.useCallback(async (
+    input?: PrepareShareOrderInput | string,
+  ) => {
+    const shareInput =
+      typeof input === "string" ? { comment: input } : (input ?? {});
+    const normalizedComment = shareInput.comment?.trim();
     let access = storedPublicAccess;
     const shouldResetCurrentCartAfterComplete = !access;
 
@@ -1375,9 +1444,10 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({
         throw new Error("Нельзя завершить пустую корзину.");
       }
 
-      const shared = await shareCurrentCartMutation.mutateAsync(
-        comment?.trim() || undefined,
-      );
+      const shared = await shareCurrentCartMutation.mutateAsync({
+        ...shareInput,
+        comment: normalizedComment || undefined,
+      });
       const publicKey = shared.publicKey || shared.cart.publicKey;
       if (!publicKey) {
         throw new Error("Не удалось подготовить заказ.");

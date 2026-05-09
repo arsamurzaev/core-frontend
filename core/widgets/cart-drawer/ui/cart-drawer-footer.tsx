@@ -2,6 +2,7 @@
 
 import { type CartSharePayload } from "@/core/modules/cart/model/cart-context";
 import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
+import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { DrawerFooter } from "@/shared/ui/drawer";
@@ -17,6 +18,7 @@ interface CartDrawerFooterProps {
   hasItems: boolean;
   isBusy?: boolean;
   isManagedPublicCart: boolean;
+  isShareDisabled?: boolean;
   onCollapse?: () => void;
   onCompleteOrder: () => Promise<void>;
   onSharePrepared?: () => void;
@@ -48,6 +50,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   hasItems,
   isBusy = false,
   isManagedPublicCart,
+  isShareDisabled = false,
   onCollapse,
   onCompleteOrder,
   onSharePrepared,
@@ -121,7 +124,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
             <Button
               type="button"
               className="w-full justify-center"
-              disabled={isBusy || !hasItems}
+              disabled={isBusy || !hasItems || isShareDisabled}
               onClick={() => void handleShare()}
               size="full"
             >
@@ -154,6 +157,11 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
         title={undefined}
         text={sharePayload?.text}
         url={sharePayload?.url}
+        contactsOverride={
+          sharePayload?.contactsOverride as
+            | Partial<Record<CatalogContactDtoType, string>>
+            | undefined
+        }
       />
     </>
   );

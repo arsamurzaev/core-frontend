@@ -2,11 +2,11 @@
 
 import {
   CatalogDomainDtoStatus,
-  getCatalogDomainControllerListQueryKey,
-  useCatalogDomainControllerCheck,
-  useCatalogDomainControllerCreate,
-  useCatalogDomainControllerDisable,
-  useCatalogDomainControllerList,
+  getCatalogAdvancedSettingsControllerListDomainsQueryKey,
+  useCatalogAdvancedSettingsControllerCheckDomain,
+  useCatalogAdvancedSettingsControllerCreateDomain,
+  useCatalogAdvancedSettingsControllerDisableDomain,
+  useCatalogAdvancedSettingsControllerListDomains,
   type CatalogDomainDnsRecordDto,
   type CatalogDomainDto,
 } from "@/shared/api/generated/react-query";
@@ -328,19 +328,19 @@ export const EditCatalogDomainsDrawer: React.FC<{
   const [disablingId, setDisablingId] = React.useState<string | null>(null);
   const queryClient = useQueryClient();
   const queryKey = React.useMemo(
-    () => getCatalogDomainControllerListQueryKey(),
+    () => getCatalogAdvancedSettingsControllerListDomainsQueryKey(),
     [],
   );
 
-  const domainsQuery = useCatalogDomainControllerList({
+  const domainsQuery = useCatalogAdvancedSettingsControllerListDomains({
     query: {
       enabled: open && !disabled,
       staleTime: 30_000,
     },
   });
-  const createDomain = useCatalogDomainControllerCreate();
-  const checkDomain = useCatalogDomainControllerCheck();
-  const disableDomain = useCatalogDomainControllerDisable();
+  const createDomain = useCatalogAdvancedSettingsControllerCreateDomain();
+  const checkDomain = useCatalogAdvancedSettingsControllerCheckDomain();
+  const disableDomain = useCatalogAdvancedSettingsControllerDisableDomain();
   const domains = domainsQuery.data ?? [];
   const activeCount = domains.filter(
     (domain) => domain.status === CatalogDomainDtoStatus.ACTIVE,
@@ -375,9 +375,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
         },
       });
       setHostname("");
-      toast.success(
-        "Домен добавлен. Добавьте DNS-записи и запустите проверку.",
-      );
+      toast.success("Домен добавлен. Добавьте DNS-записи и запустите проверку.");
       await refreshDomains();
     } catch (error) {
       toast.error(extractApiErrorMessage(error));
@@ -443,8 +441,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
               </Badge>
             </div>
             <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
-              Подключите собственный домен через TXT-подтверждение и проверку
-              DNS.
+              Подключите собственный домен к текущему каталогу и проверьте DNS.
             </p>
           </div>
           <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
@@ -455,7 +452,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Домены каталога"
-            description="Добавьте домен, создайте DNS-записи у регистратора и запустите проверку."
+            description="Добавьте домен, создайте DNS-записи у регистратора и запустите проверку подключения."
             withCloseButton={!isMutating}
           />
           <hr />
@@ -513,7 +510,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
               !domainsQuery.isError &&
               domains.length === 0 ? (
                 <div className="rounded-lg border border-black/10 bg-muted/30 p-4 text-sm text-muted-foreground">
-                  К каталогу пока не привязан ни один кастомный домен.
+                  К каталогу пока не привязан ни один собственный домен.
                 </div>
               ) : null}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/shared/ui/button";
+import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import dynamic from "next/dynamic";
 import { Pencil } from "lucide-react";
 import React from "react";
@@ -18,11 +19,12 @@ const EditCatalogDrawerDynamic = dynamic(
 
 interface LazyEditCatalogDrawerTriggerProps {
   className?: string;
+  checkoutConfig?: CheckoutConfig;
 }
 
 export const LazyEditCatalogDrawerTrigger: React.FC<
   LazyEditCatalogDrawerTriggerProps
-> = ({ className }) => {
+> = ({ checkoutConfig, className }) => {
   const [isMounted, setIsMounted] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
@@ -45,6 +47,7 @@ export const LazyEditCatalogDrawerTrigger: React.FC<
       </Button>
       {isMounted ? (
         <EditCatalogDrawerDynamic
+          checkoutConfig={checkoutConfig}
           open={open}
           onOpenChange={setOpen}
           trigger={null}

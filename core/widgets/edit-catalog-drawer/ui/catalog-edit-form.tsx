@@ -9,21 +9,23 @@ import {
   CatalogEditTextareaController,
   type CatalogEditTextareaControllerConfig,
 } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-textarea-controller";
+import { EditCatalogAdvancedSettingsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-advanced-settings-drawer";
+import { EditCatalogCheckoutDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-checkout-drawer";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
-import { EditCatalogDomainsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-domains-drawer";
 import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
-import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-integrations-drawer";
-import { EditCatalogPasswordDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-password-drawer";
-import { EditCatalogSessionsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer";
+import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { FieldError } from "@/shared/ui/field";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
 type CatalogEditFormProps = {
   form: UseFormReturn<CatalogEditFormValues>;
+  checkoutConfig?: CheckoutConfig;
   disabled?: boolean;
+  isSaving?: boolean;
   logoUrl?: string | null;
   bgUrl?: string | null;
+  onSave?: () => Promise<boolean>;
 };
 
 const CATALOG_EDIT_TEXTAREA_FIELDS: CatalogEditTextareaControllerConfig[] = [
@@ -51,6 +53,14 @@ const CATALOG_EDIT_TEXTAREA_FIELDS: CatalogEditTextareaControllerConfig[] = [
     minRows: 4,
     placeholder:
       "Например: г. Грозный, ул. Назарбаева 5. График работы: 10:00 до 18:00.",
+  },
+  {
+    name: "address",
+    label: "Адрес заведения",
+    required: false,
+    maxLength: 500,
+    minRows: 2,
+    placeholder: "Например: г. Грозный, ул. Назарбаева 5",
   },
 ];
 
@@ -126,9 +136,12 @@ function CatalogEditTextRow({
 
 export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
   form,
+  checkoutConfig,
   disabled = false,
+  isSaving = false,
   logoUrl,
   bgUrl,
+  onSave,
 }) => {
   const mediaFields = React.useMemo(
     () => buildCatalogEditMediaFields({ bgUrl, logoUrl }),
@@ -170,7 +183,26 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
           required
           errorMessage={form.formState.errors.phone?.message}
         >
-          <EditCatalogContactsDrawer form={form} disabled={disabled} />
+          <EditCatalogContactsDrawer
+            form={form}
+            disabled={disabled}
+            isSaving={isSaving}
+            onSave={onSave}
+          />
+        </CatalogEditTextRow>
+
+        <CatalogEditTextRow
+          label="Способ заказа"
+          required
+          errorMessage={form.formState.errors.checkoutEnabledMethods?.message}
+        >
+          <EditCatalogCheckoutDrawer
+            form={form}
+            checkoutConfig={checkoutConfig}
+            disabled={disabled}
+            isSaving={isSaving}
+            onSave={onSave}
+          />
         </CatalogEditTextRow>
 
         <CatalogEditTextRow
@@ -181,21 +213,20 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
             form.formState.errors.defaultMode?.message
           }
         >
-          <EditCatalogExperienceDrawer form={form} disabled={disabled} />
+          <EditCatalogExperienceDrawer
+            form={form}
+            disabled={disabled}
+            isSaving={isSaving}
+            onSave={onSave}
+          />
         </CatalogEditTextRow>
       </div>
 
       <hr className="w-full" />
 
-      <div className="grid w-full gap-3 px-5">
-        <EditCatalogPasswordDrawer disabled={disabled} />
-        <EditCatalogSessionsDrawer disabled={disabled} />
-        <EditCatalogDomainsDrawer disabled={disabled} />
+      <div className="w-full px-5">
+        <EditCatalogAdvancedSettingsDrawer disabled={disabled} />
       </div>
-
-      <hr className="w-full" />
-
-      <EditCatalogIntegrationsDrawer disabled={disabled} />
     </div>
   );
 };

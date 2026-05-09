@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  getCatalogAuthControllerSessionsListQueryKey,
+  getCatalogAdvancedSettingsControllerListSessionsQueryKey,
   type AuthSessionDto,
-  useCatalogAuthControllerRevokeOtherSessions,
-  useCatalogAuthControllerRevokeSession,
-  useCatalogAuthControllerSessionsList,
+  useCatalogAdvancedSettingsControllerListSessions,
+  useCatalogAdvancedSettingsControllerRevokeOtherSessions,
+  useCatalogAdvancedSettingsControllerRevokeSession,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -186,21 +186,22 @@ export const EditCatalogSessionsDrawer: React.FC<
 > = ({ disabled = false }) => {
   const [open, setOpen] = React.useState(false);
   const queryClient = useQueryClient();
-  const sessionsQuery = useCatalogAuthControllerSessionsList({
+  const sessionsQuery = useCatalogAdvancedSettingsControllerListSessions({
     query: {
       enabled: !disabled,
       staleTime: 30_000,
     },
   });
-  const revokeSession = useCatalogAuthControllerRevokeSession();
-  const revokeOtherSessions = useCatalogAuthControllerRevokeOtherSessions();
+  const revokeSession = useCatalogAdvancedSettingsControllerRevokeSession();
+  const revokeOtherSessions =
+    useCatalogAdvancedSettingsControllerRevokeOtherSessions();
   const sessions = sessionsQuery.data?.sessions ?? [];
   const otherSessionsCount = sessions.filter(
     (session) => !session.isCurrent,
   ).length;
   const isMutating = revokeSession.isPending || revokeOtherSessions.isPending;
   const queryKey = React.useMemo(
-    () => getCatalogAuthControllerSessionsListQueryKey(),
+    () => getCatalogAdvancedSettingsControllerListSessionsQueryKey(),
     [],
   );
   const refetchSessions = sessionsQuery.refetch;
@@ -261,11 +262,11 @@ export const EditCatalogSessionsDrawer: React.FC<
                 Сессии
               </span>
               <Badge variant="secondary">
-                {sessions.length > 0 ? `${sessions.length} активн.` : "Контроль"}
+                {sessions.length > 0 ? `${sessions.length} активн.` : "Доступ"}
               </Badge>
             </div>
             <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
-              Посмотрите устройства с доступом и сбросьте лишние входы.
+              Посмотрите активные входы и завершите лишние сессии.
             </p>
           </div>
           <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
@@ -276,7 +277,7 @@ export const EditCatalogSessionsDrawer: React.FC<
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Активные сессии"
-            description="Текущая сессия остаётся активной, остальные можно сбросить по одной или все сразу."
+            description="Текущая сессия останется активной, остальные можно завершить по одной или все сразу."
             withCloseButton={!isMutating}
           />
           <hr />

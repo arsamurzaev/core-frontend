@@ -8,7 +8,6 @@ import {
 import { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import { buildCatalogContactHref } from "@/shared/lib/catalog-contacts";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
-import { type CatalogWithContacts } from "@/shared/providers/catalog-provider";
 import {
   CatalogOwnerGeoIcon,
   CatalogOwnerMailIcon,
@@ -18,6 +17,10 @@ import {
 const normalizeText = toOptionalTrimmedString;
 
 export const SHARE_DRAWER_PLATFORM_URL = "https://catalog.kreati.ru";
+
+export type ShareDrawerContactSource = {
+  getContactValue: (type: CatalogContactDtoType) => string | undefined;
+};
 
 export function resolveCurrentAbsoluteUrl(pathOrUrl: string): string {
   if (typeof window === "undefined") {
@@ -65,14 +68,14 @@ function filterAvailableActions(items: Array<ShareActionItem | null>): ShareActi
 }
 
 function hasCatalogContact(
-  catalog: CatalogWithContacts,
+  catalog: ShareDrawerContactSource,
   type: CatalogContactDtoType,
 ): boolean {
   return Boolean(normalizeText(catalog.getContactValue(type)));
 }
 
 export function buildShareDrawerSocialItems(
-  catalog: CatalogWithContacts,
+  catalog: ShareDrawerContactSource,
 ): ShareDrawerSocialItem[] {
   return [
     {
@@ -108,7 +111,7 @@ export function buildShareDrawerSocialItems(
 }
 
 export function buildShareDrawerPrimaryActions(params: {
-  catalog: CatalogWithContacts;
+  catalog: ShareDrawerContactSource;
   isShareMode: boolean;
   shareMessage: string;
 }): ShareActionItem[] {
@@ -187,7 +190,7 @@ export function buildShareDrawerPrimaryActions(params: {
 }
 
 export function buildShareDrawerSecondaryActions(params: {
-  catalog: CatalogWithContacts;
+  catalog: ShareDrawerContactSource;
   isShareMode: boolean;
   onMessengerAction: (type: ShareDrawerMessengerType) => void | Promise<void>;
 }): ShareActionItem[] {

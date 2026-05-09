@@ -2,6 +2,7 @@
 
 import { useEditCatalogDrawer } from "@/core/widgets/edit-catalog-drawer/model/use-edit-catalog-drawer";
 import { CatalogEditForm } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-form";
+import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
@@ -9,12 +10,14 @@ import { Progress } from "@/shared/ui/progress";
 import React from "react";
 
 type EditCatalogDrawerProps = {
+  checkoutConfig?: CheckoutConfig;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   trigger?: React.ReactNode;
 };
 
 export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
+  checkoutConfig,
   open,
   onOpenChange,
   trigger,
@@ -24,12 +27,14 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
     errorMessage,
     form,
     handleOpenChange,
+    handleSaveInPlace,
     handleSubmit,
     isSubmitting,
     logoUrl,
     open: drawerOpen,
     uploadState,
   } = useEditCatalogDrawer({
+    checkoutConfig,
     open,
     onOpenChange,
   });
@@ -62,9 +67,12 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
             <div className="space-y-5">
               <CatalogEditForm
                 form={form}
+                checkoutConfig={checkoutConfig}
                 disabled={isSubmitting}
+                isSaving={isSubmitting}
                 logoUrl={logoUrl}
                 bgUrl={bgUrl}
+                onSave={handleSaveInPlace}
               />
 
               {uploadState.phase !== "idle" ? (

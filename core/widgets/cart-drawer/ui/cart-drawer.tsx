@@ -5,7 +5,20 @@ import { CartDrawerContent } from "@/core/widgets/cart-drawer/ui/cart-drawer-con
 import { CartDrawerFooter } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer";
 import { CartDrawerHeader } from "@/core/widgets/cart-drawer/ui/cart-drawer-header";
 import { ProductDrawer } from "@/core/widgets/product-drawer/ui/product-drawer";
-import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
+import type {
+  CatalogContactDtoType,
+  ProductWithDetailsDto,
+} from "@/shared/api/generated/react-query";
+import {
+  buildCheckoutSummary,
+  getCatalogCheckoutConfig,
+  getCatalogCheckoutLocation,
+  getInitialCheckoutMethod,
+  normalizeCheckoutData,
+  type CheckoutConfig,
+  type CheckoutData,
+  type CheckoutMethod,
+} from "@/shared/lib/checkout-methods";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";
@@ -29,6 +42,20 @@ const CHECKOUT_CART_STATUSES = new Set([
   "CANCELLED",
   "EXPIRED",
 ]);
+
+type CartWithCheckout = {
+  checkoutContacts?: Partial<Record<CatalogContactDtoType, string>> | null;
+  checkoutData?: CheckoutData | null;
+  checkoutMethod?: CheckoutMethod | null;
+};
+
+function getCartCheckoutData(cart: unknown): CheckoutData | null {
+  return (cart as CartWithCheckout | null | undefined)?.checkoutData ?? null;
+}
+
+function getCartCheckoutMethod(cart: unknown): CheckoutMethod | null {
+  return (cart as CartWithCheckout | null | undefined)?.checkoutMethod ?? null;
+}
 
 const ManagerOrderStartBar: React.FC<{
   disabled: boolean;
@@ -68,12 +95,14 @@ function getErrorMessage(error: unknown): string {
 
 interface CartDrawerProps {
   actionRenderer?: (productId: string) => React.ReactNode;
+  checkoutConfig?: CheckoutConfig;
   commentPlaceholder?: string;
   supportsBrands?: boolean;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
   actionRenderer,
+  checkoutConfig: checkoutConfigProp,
   commentPlaceholder = DEFAULT_COMMENT_PLACEHOLDER,
   supportsBrands = true,
 }) => {
@@ -102,8 +131,24 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const { hasBlockingDrawer } = useDrawerCoordinator();
   const catalog = useCatalog();
   const pathname = usePathname();
+  const checkoutConfig = React.useMemo(
+    () => checkoutConfigProp ?? getCatalogCheckoutConfig(catalog),
+    [catalog, checkoutConfigProp],
+  );
+  const checkoutLocation = React.useMemo(
+    () => getCatalogCheckoutLocation(catalog),
+    [catalog],
+  );
+  const initialCheckoutMethod = React.useMemo(
+    () => getInitialCheckoutMethod(checkoutConfig),
+    [checkoutConfig],
+  );
   const currency = items[0]?.currency ?? getCatalogCurrency(catalog, "RUB");
   const [comment, setComment] = React.useState("");
+  const [checkoutMethod, setCheckoutMethod] = React.useState<CheckoutMethod>(
+    initialCheckoutMethod,
+  );
+  const [checkoutData, setCheckoutData] = React.useState<CheckoutData>({});
   const [snapPoint, setSnapPoint] = React.useState<string | number | null>(
     SNAP_POINTS[0],
   );
@@ -143,9 +188,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     isPublicMode ||
     hasSharedCart ||
     hasPreparedShareOrder;
+  const isCheckoutLocked = isCommentLocked;
   const displayedComment = isCommentLocked
     ? (cart?.comment ?? comment)
     : comment;
+  const displayedCheckoutMethod =
+    getCartCheckoutMethod(cart) ?? checkoutMethod;
+  const displayedCheckoutData =
+    (isCheckoutLocked ? getCartCheckoutData(cart) : null) ?? checkoutData;
+  const checkoutValidation = React.useMemo(
+    () =>
+      normalizeCheckoutData({
+        data: checkoutData,
+        location: checkoutLocation,
+        method: checkoutMethod,
+      }),
+    [checkoutData, checkoutLocation, checkoutMethod],
+  );
   const publicCartAccessKey =
     isPublicMode && publicAccessPublicKey ? publicAccessPublicKey : null;
   const shouldAutoExpandPublicCart =
@@ -155,7 +214,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   React.useEffect(() => {
     setHasPreparedShareOrder(false);
     setComment("");
-  }, [cart?.id]);
+    setCheckoutMethod(initialCheckoutMethod);
+    setCheckoutData({});
+  }, [cart?.id, initialCheckoutMethod]);
+
+  React.useEffect(() => {
+    if (checkoutConfig.enabledMethods.includes(checkoutMethod)) {
+      return;
+    }
+
+    setCheckoutMethod(initialCheckoutMethod);
+    setCheckoutData({});
+  }, [checkoutConfig.enabledMethods, checkoutMethod, initialCheckoutMethod]);
 
   React.useEffect(() => {
     if (!publicCartAccessKey) {
@@ -260,6 +330,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     isPublicMode,
   ]);
 
+  const handleCheckoutChange = React.useCallback(
+    (method: CheckoutMethod, data: CheckoutData) => {
+      setCheckoutMethod(method);
+      setCheckoutData(data);
+    },
+    [],
+  );
+
   const handleCompleteOrder = React.useCallback(async () => {
     const isConfirmed = await confirm({
       title: "Завершить заказ?",
@@ -273,9 +351,28 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       return;
     }
 
-    await completeManagedOrder(comment);
+    if (checkoutValidation.error) {
+      toast.error(checkoutValidation.error);
+      return;
+    }
+
+    await completeManagedOrder({
+      checkoutData: checkoutValidation.data,
+      checkoutMethod,
+      checkoutSummary: buildCheckoutSummary({
+        data: checkoutValidation.data,
+        method: checkoutMethod,
+      }),
+      comment,
+    });
     toast.success("Заказ завершен.");
-  }, [comment, completeManagedOrder]);
+  }, [
+    checkoutMethod,
+    checkoutValidation.data,
+    checkoutValidation.error,
+    comment,
+    completeManagedOrder,
+  ]);
 
   const handleOpenProduct = React.useCallback(
     (product: ProductWithDetailsDto) => {
@@ -348,6 +445,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <CartDrawerContent
                 comment={displayedComment}
                 commentPlaceholder={commentPlaceholder}
+                checkoutConfig={checkoutConfig}
+                checkoutData={displayedCheckoutData}
+                checkoutError={checkoutValidation.error}
+                checkoutLocked={isCheckoutLocked}
+                checkoutLocation={checkoutLocation}
+                checkoutMethod={displayedCheckoutMethod}
                 isLoading={isLoading}
                 isManagedPublicCart={isManagedPublicCart}
                 isCommentLocked={isCommentLocked}
@@ -355,6 +458,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 items={items}
                 actionRenderer={actionRenderer}
                 onCommentChange={setComment}
+                onCheckoutChange={handleCheckoutChange}
                 onItemClick={handleOpenProduct}
                 status={status}
                 statusMessage={statusMessage}
@@ -369,6 +473,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               hasItems={hasItems}
               isBusy={isBusy}
               isManagedPublicCart={isManagerOrderCart}
+              isShareDisabled={!isCheckoutLocked && Boolean(checkoutValidation.error)}
               onCollapse={
                 !canShare && !isManagedPublicCart && isFullyExpanded
                   ? () => setSnapPoint(SNAP_POINTS[0])
@@ -376,7 +481,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               }
               onCompleteOrder={handleCompleteOrder}
               onSharePrepared={() => setHasPreparedShareOrder(true)}
-              onShareClick={() => prepareShareOrder(comment)}
+              onShareClick={() =>
+                prepareShareOrder({
+                  checkoutData: isCheckoutLocked
+                    ? displayedCheckoutData
+                    : checkoutValidation.data,
+                  checkoutMethod: displayedCheckoutMethod,
+                  checkoutSummary: buildCheckoutSummary({
+                    data: isCheckoutLocked
+                      ? displayedCheckoutData
+                      : checkoutValidation.data,
+                    method: displayedCheckoutMethod,
+                  }),
+                  comment,
+                })
+              }
               price={totals.subtotal}
               totalPrice={totals.originalSubtotal}
             />
