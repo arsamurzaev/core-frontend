@@ -24,7 +24,7 @@ interface CartDrawerContentProps {
   checkoutError?: string | null;
   checkoutLocked?: boolean;
   checkoutLocation: CheckoutLocation;
-  checkoutMethod: CheckoutMethod;
+  checkoutMethod: CheckoutMethod | null;
   isLoading?: boolean;
   isManagedPublicCart: boolean;
   isCommentLocked?: boolean;
@@ -111,6 +111,8 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   const shouldShowCommentEditor = !isCommentLocked;
   const shouldShowReadonlyComment = isCommentLocked && Boolean(normalizedComment);
   const shouldShowReadonlyCheckout = isCommentLocked;
+  const hasCheckoutMethods =
+    checkoutConfig.enabledMethods.length > 0 && checkoutMethod !== null;
 
   return (
     <div className="my-2 space-y-6 overflow-y-auto px-2 py-2">
@@ -154,7 +156,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
         </div>
       )}
 
-      {!isLoading && hasItems && shouldShowCommentEditor ? (
+      {!isLoading && hasItems && shouldShowCommentEditor && hasCheckoutMethods ? (
         <>
           <CartCheckoutTabs
             config={checkoutConfig}
@@ -186,7 +188,16 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
         </>
       ) : null}
 
-      {!isLoading && hasItems && shouldShowReadonlyCheckout ? (
+      {!isLoading && hasItems && shouldShowCommentEditor && !hasCheckoutMethods ? (
+        <div className="rounded-lg border border-black/10 bg-muted/30 px-4 py-3">
+          <p className="text-sm font-medium">Заказы временно недоступны</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Владелец каталога пока не включил способы оформления заказа.
+          </p>
+        </div>
+      ) : null}
+
+      {!isLoading && hasItems && shouldShowReadonlyCheckout && checkoutMethod ? (
         <>
           <CartCheckoutTabs
             config={checkoutConfig}

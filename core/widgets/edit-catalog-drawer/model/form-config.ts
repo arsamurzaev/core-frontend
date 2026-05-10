@@ -202,18 +202,6 @@ function validateCatalogEditExperienceSettings(
   }
 }
 
-function validateCatalogCheckoutSettings(
-  errors: FieldErrors<CatalogEditFormValues>,
-  values: CatalogEditFormValues,
-) {
-  if (values.checkoutEnabledMethods.length === 0) {
-    errors.checkoutEnabledMethods = createFieldError(
-      "Выберите хотя бы один способ оформления.",
-    );
-    return;
-  }
-}
-
 function buildCatalogEditFormErrors(
   values: CatalogEditFormValues,
 ): FieldErrors<CatalogEditFormValues> {
@@ -246,7 +234,6 @@ function buildCatalogEditFormErrors(
 
   validateCatalogEditContacts(errors, values);
   validateCatalogEditExperienceSettings(errors, values);
-  validateCatalogCheckoutSettings(errors, values);
 
   return errors;
 }

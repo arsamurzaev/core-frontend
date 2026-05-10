@@ -541,6 +541,33 @@ export const AdminControllerDeleteCatalogResponse = zod.object({
 
 
 /**
+ * @summary Soft-delete контент каталога, не удаляя каталог
+ */
+export const AdminControllerDeleteCatalogContentParams = zod.object({
+  "id": zod.string()
+})
+
+export const AdminControllerDeleteCatalogContentResponse = zod.object({
+  "ok": zod.boolean(),
+  "catalogId": zod.string(),
+  "deletedAt": zod.iso.datetime({}),
+  "counts": zod.object({
+  "products": zod.number(),
+  "productVariants": zod.number(),
+  "productAttributes": zod.number(),
+  "variantAttributes": zod.number(),
+  "categories": zod.number(),
+  "brands": zod.number(),
+  "seoSettings": zod.number(),
+  "productMediaLinks": zod.number(),
+  "categoryProductLinks": zod.number(),
+  "integrationProductLinks": zod.number(),
+  "integrationCategoryLinks": zod.number()
+})
+})
+
+
+/**
  * @summary Восстановить soft-deleted каталог
  */
 export const AdminControllerRestoreCatalogParams = zod.object({

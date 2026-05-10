@@ -3,3 +3,7 @@
 export function isCatalogManagerRole(role?: string | null): boolean {
   return role === AuthUserDtoRole.ADMIN || role === AuthUserDtoRole.CATALOG;
 }
+
+export function isGlobalAdminRole(role?: string | null): boolean {
+  return role === AuthUserDtoRole.ADMIN;
+}

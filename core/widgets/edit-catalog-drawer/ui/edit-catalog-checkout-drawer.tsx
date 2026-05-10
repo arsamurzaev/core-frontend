@@ -237,11 +237,15 @@ export const EditCatalogCheckoutDrawer: React.FC<
 
   const summary = React.useMemo(() => {
     const labels = enabledMethods.map((method) => CHECKOUT_METHOD_LABELS[method]);
+    if (labels.length === 0) {
+      return "Все способы выключены";
+    }
+
     return labels.length ? labels.join(", ") : "Настроить способы";
   }, [enabledMethods]);
   const summaryDescription = React.useMemo(() => {
     if (enabledMethods.length === 0) {
-      return "Выберите доступные способы заказа и контакты для них.";
+      return "Заказы временно недоступны: включите хотя бы один способ, когда будете готовы принимать заявки.";
     }
 
     return "Способы заказа и отдельные контакты для выбранных сценариев.";
@@ -252,7 +256,7 @@ export const EditCatalogCheckoutDrawer: React.FC<
       const current = new Set(form.getValues("checkoutEnabledMethods"));
       if (checked) {
         current.add(method);
-      } else if (current.size > 1) {
+      } else {
         current.delete(method);
       }
 
@@ -324,7 +328,6 @@ export const EditCatalogCheckoutDrawer: React.FC<
               <section className="space-y-3">
                 {checkout.availableMethods.map((method) => {
                   const isEnabled = enabledMethods.includes(method);
-                  const isLast = isEnabled && enabledMethods.length === 1;
                   const customContactsCount = getMethodContactsCount(
                     contacts,
                     method,
@@ -338,7 +341,7 @@ export const EditCatalogCheckoutDrawer: React.FC<
                       <div className="flex items-start gap-3">
                         <Switch
                           checked={isEnabled}
-                          disabled={disabled || isLast}
+                          disabled={disabled}
                           onCheckedChange={(checked) =>
                             handleMethodToggle(method, checked)
                           }

@@ -376,6 +376,27 @@ export interface AdminUpdateCatalogDtoReq {
   trialLicenseDays?: number;
 }
 
+export interface AdminDeleteCatalogContentCountsDto {
+  products: number;
+  productVariants: number;
+  productAttributes: number;
+  variantAttributes: number;
+  categories: number;
+  brands: number;
+  seoSettings: number;
+  productMediaLinks: number;
+  categoryProductLinks: number;
+  integrationProductLinks: number;
+  integrationCategoryLinks: number;
+}
+
+export interface AdminDeleteCatalogContentResultDto {
+  ok: boolean;
+  catalogId: string;
+  deletedAt: string;
+  counts: AdminDeleteCatalogContentCountsDto;
+}
+
 export interface AdminActivityListItemDto {
   id: string;
   name: string;
@@ -3832,6 +3853,68 @@ export const useAdminControllerDeleteCatalog = <TError = unknown,
         TContext
       > => {
       return useMutation(getAdminControllerDeleteCatalogMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Soft-delete контент каталога, не удаляя каталог
+ */
+export const adminControllerDeleteCatalogContent = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<AdminDeleteCatalogContentResultDto>(
+      {url: `/admin/catalogs/${id}/content`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getAdminControllerDeleteCatalogContentMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDeleteCatalogContent>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof adminControllerDeleteCatalogContent>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminControllerDeleteCatalogContent'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerDeleteCatalogContent>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminControllerDeleteCatalogContent(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminControllerDeleteCatalogContentMutationResult = NonNullable<Awaited<ReturnType<typeof adminControllerDeleteCatalogContent>>>
+    
+    export type AdminControllerDeleteCatalogContentMutationError = unknown
+
+    /**
+ * @summary Soft-delete контент каталога, не удаляя каталог
+ */
+export const useAdminControllerDeleteCatalogContent = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDeleteCatalogContent>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminControllerDeleteCatalogContent>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getAdminControllerDeleteCatalogContentMutationOptions(options), queryClient);
     }
     
 /**

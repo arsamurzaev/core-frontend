@@ -21,7 +21,7 @@ type CartCheckoutTabsProps = {
   error?: string | null;
   location: CheckoutLocation;
   locked?: boolean;
-  method: CheckoutMethod;
+  method: CheckoutMethod | null;
   onChange: (method: CheckoutMethod, data: CheckoutData) => void;
 };
 
@@ -103,6 +103,10 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
   method,
   onChange,
 }) => {
+  if (!method) {
+    return null;
+  }
+
   if (locked) {
     const lines = buildCheckoutSummary({ data, method });
     return (
@@ -115,6 +119,10 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
         </div>
       </section>
     );
+  }
+
+  if (config.enabledMethods.length === 0) {
+    return null;
   }
 
   return (

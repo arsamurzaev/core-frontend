@@ -6,6 +6,7 @@ import {
   type CatalogCurrentDto,
 } from "@/shared/api/generated/react-query";
 import { normalizeCatalogContacts } from "@/shared/lib/catalog-contacts";
+import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
 
 export type CheckoutMethod = "DELIVERY" | "PICKUP" | "PREORDER";
 
@@ -57,6 +58,18 @@ export const CHECKOUT_METHODS: CheckoutMethod[] = [
   "PREORDER",
 ];
 
+const DEFAULT_AVAILABLE_METHODS: CheckoutMethod[] = ["DELIVERY", "PICKUP"];
+const RESTAURANT_DEFAULT_ENABLED_METHODS: CheckoutMethod[] = [
+  "DELIVERY",
+  "PICKUP",
+];
+const RESTAURANT_TYPE_CODES = new Set(["restaurant", "cafe"]);
+
+function isRestaurantCheckoutType(typeCode?: string | null): boolean {
+  const code = typeCode?.trim().toLowerCase();
+  return Boolean(code && RESTAURANT_TYPE_CODES.has(code));
+}
+
 export const CHECKOUT_CONTACT_TYPES = [
   CatalogContactDtoType.PHONE,
   CatalogContactDtoType.WHATSAPP,
@@ -92,8 +105,27 @@ export const METHOD_FIELDS: Record<CheckoutMethod, CheckoutField[]> = {
   ],
 };
 
-export function resolveCheckoutAvailableMethods(): CheckoutMethod[] {
-  return ["DELIVERY", "PICKUP"];
+export function resolveCheckoutAvailableMethods(
+  typeCode?: string | null,
+): CheckoutMethod[] {
+  if (isRestaurantCheckoutType(typeCode)) {
+    return ["DELIVERY", "PICKUP", "PREORDER"];
+  }
+
+  return DEFAULT_AVAILABLE_METHODS;
+}
+
+export function resolveCheckoutDefaultEnabledMethods(
+  typeCode?: string | null,
+  availableMethods = resolveCheckoutAvailableMethods(typeCode),
+): CheckoutMethod[] {
+  if (isRestaurantCheckoutType(typeCode)) {
+    return RESTAURANT_DEFAULT_ENABLED_METHODS.filter((method) =>
+      availableMethods.includes(method),
+    );
+  }
+
+  return [];
 }
 
 export function getCatalogCheckoutConfig(
@@ -102,16 +134,17 @@ export function getCatalogCheckoutConfig(
     availableMethods?: CheckoutMethod[];
   } = {},
 ): CheckoutConfig {
+  const typeCode = getCatalogTypeCode(catalog);
   const rawCheckout = ((catalog.settings as unknown as {
     checkout?: Partial<CheckoutConfig>;
   } | null)?.checkout ?? {}) as Partial<CheckoutConfig>;
-  const availableMethods = normalizeMethodList(
-    options.availableMethods ?? resolveCheckoutAvailableMethods(),
-    CHECKOUT_METHODS,
+  const availableMethods = normalizeAvailableMethodList(
+    options.availableMethods ?? resolveCheckoutAvailableMethods(typeCode),
   );
-  const enabledMethods = normalizeMethodList(
+  const enabledMethods = normalizeEnabledMethodList(
     rawCheckout.enabledMethods,
     availableMethods,
+    resolveCheckoutDefaultEnabledMethods(typeCode, availableMethods),
   );
 
   return {
@@ -124,8 +157,8 @@ export function getCatalogCheckoutConfig(
 
 export function getInitialCheckoutMethod(
   config: CheckoutConfig,
-): CheckoutMethod {
-  return config.enabledMethods[0] ?? config.availableMethods[0] ?? "DELIVERY";
+): CheckoutMethod | null {
+  return config.enabledMethods[0] ?? null;
 }
 
 export function getCatalogCheckoutLocation(
@@ -264,12 +297,29 @@ export function buildCheckoutSummary(params: {
   return lines;
 }
 
+function normalizeAvailableMethodList(value: unknown): CheckoutMethod[] {
+  const methods = normalizeMethodList(value, CHECKOUT_METHODS);
+  return methods.length > 0 ? methods : DEFAULT_AVAILABLE_METHODS;
+}
+
+function normalizeEnabledMethodList(
+  value: unknown,
+  availableMethods: CheckoutMethod[],
+  fallbackMethods: CheckoutMethod[],
+): CheckoutMethod[] {
+  if (!Array.isArray(value)) {
+    return fallbackMethods;
+  }
+
+  return normalizeMethodList(value, availableMethods);
+}
+
 function normalizeMethodList(
   value: unknown,
   availableMethods: CheckoutMethod[],
 ): CheckoutMethod[] {
   if (!Array.isArray(value)) {
-    return availableMethods;
+    return [];
   }
 
   const methods = Array.from(
@@ -277,7 +327,7 @@ function normalizeMethodList(
   ) as CheckoutMethod[];
   const filtered = methods.filter((method) => availableMethods.includes(method));
 
-  return filtered.length > 0 ? filtered : availableMethods;
+  return filtered;
 }
 
 function normalizeMethodContacts(value: unknown): CheckoutConfig["methodContacts"] {

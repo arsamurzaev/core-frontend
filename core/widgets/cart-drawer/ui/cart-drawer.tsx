@@ -42,6 +42,7 @@ const CHECKOUT_CART_STATUSES = new Set([
   "CANCELLED",
   "EXPIRED",
 ]);
+const CHECKOUT_DISABLED_MESSAGE = "Заказы временно недоступны.";
 
 type CartWithCheckout = {
   checkoutContacts?: Partial<Record<CatalogContactDtoType, string>> | null;
@@ -145,7 +146,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   );
   const currency = items[0]?.currency ?? getCatalogCurrency(catalog, "RUB");
   const [comment, setComment] = React.useState("");
-  const [checkoutMethod, setCheckoutMethod] = React.useState<CheckoutMethod>(
+  const [checkoutMethod, setCheckoutMethod] = React.useState<CheckoutMethod | null>(
     initialCheckoutMethod,
   );
   const [checkoutData, setCheckoutData] = React.useState<CheckoutData>({});
@@ -197,12 +198,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const displayedCheckoutData =
     (isCheckoutLocked ? getCartCheckoutData(cart) : null) ?? checkoutData;
   const checkoutValidation = React.useMemo(
-    () =>
-      normalizeCheckoutData({
+    () => {
+      if (!checkoutMethod) {
+        return { data: {}, error: null };
+      }
+
+      return normalizeCheckoutData({
         data: checkoutData,
         location: checkoutLocation,
         method: checkoutMethod,
-      }),
+      });
+    },
     [checkoutData, checkoutLocation, checkoutMethod],
   );
   const publicCartAccessKey =
@@ -210,6 +216,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const shouldAutoExpandPublicCart =
     Boolean(publicCartAccessKey) &&
     autoExpandPublicCartAccessKey === publicCartAccessKey;
+  const isCheckoutAvailable =
+    checkoutConfig.enabledMethods.length > 0 && checkoutMethod !== null;
 
   React.useEffect(() => {
     setHasPreparedShareOrder(false);
@@ -219,7 +227,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   }, [cart?.id, initialCheckoutMethod]);
 
   React.useEffect(() => {
-    if (checkoutConfig.enabledMethods.includes(checkoutMethod)) {
+    if (checkoutMethod && checkoutConfig.enabledMethods.includes(checkoutMethod)) {
       return;
     }
 
@@ -351,27 +359,38 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       return;
     }
 
-    if (checkoutValidation.error) {
+    if (!isCheckoutLocked && checkoutValidation.error) {
       toast.error(checkoutValidation.error);
       return;
     }
 
+    if (!displayedCheckoutMethod) {
+      toast.error(CHECKOUT_DISABLED_MESSAGE);
+      return;
+    }
+
+    const completeCheckoutData = isCheckoutLocked
+      ? displayedCheckoutData
+      : checkoutValidation.data;
+
     await completeManagedOrder({
-      checkoutData: checkoutValidation.data,
-      checkoutMethod,
+      checkoutData: completeCheckoutData,
+      checkoutMethod: displayedCheckoutMethod,
       checkoutSummary: buildCheckoutSummary({
-        data: checkoutValidation.data,
-        method: checkoutMethod,
+        data: completeCheckoutData,
+        method: displayedCheckoutMethod,
       }),
       comment,
     });
     toast.success("Заказ завершен.");
   }, [
-    checkoutMethod,
     checkoutValidation.data,
     checkoutValidation.error,
     comment,
     completeManagedOrder,
+    displayedCheckoutData,
+    displayedCheckoutMethod,
+    isCheckoutLocked,
   ]);
 
   const handleOpenProduct = React.useCallback(
@@ -473,7 +492,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               hasItems={hasItems}
               isBusy={isBusy}
               isManagedPublicCart={isManagerOrderCart}
-              isShareDisabled={!isCheckoutLocked && Boolean(checkoutValidation.error)}
+              isShareDisabled={
+                !displayedCheckoutMethod ||
+                (!isCheckoutLocked &&
+                  (!isCheckoutAvailable || Boolean(checkoutValidation.error)))
+              }
               onCollapse={
                 !canShare && !isManagedPublicCart && isFullyExpanded
                   ? () => setSnapPoint(SNAP_POINTS[0])
@@ -481,8 +504,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               }
               onCompleteOrder={handleCompleteOrder}
               onSharePrepared={() => setHasPreparedShareOrder(true)}
-              onShareClick={() =>
-                prepareShareOrder({
+              onShareClick={() => {
+                if (!displayedCheckoutMethod) {
+                  throw new Error(CHECKOUT_DISABLED_MESSAGE);
+                }
+
+                return prepareShareOrder({
                   checkoutData: isCheckoutLocked
                     ? displayedCheckoutData
                     : checkoutValidation.data,
@@ -494,8 +521,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     method: displayedCheckoutMethod,
                   }),
                   comment,
-                })
-              }
+                });
+              }}
               price={totals.subtotal}
               totalPrice={totals.originalSubtotal}
             />

@@ -2,9 +2,11 @@
 
 import { LazyCreateProductDrawerTrigger } from "@/core/widgets/header/ui/lazy-create-product-drawer-trigger";
 import { LazyEditCatalogDrawerTrigger } from "@/core/widgets/header/ui/lazy-edit-catalog-drawer-trigger";
+import { LazyGlobalAdminDrawerTrigger } from "@/core/widgets/header/ui/lazy-global-admin-drawer-trigger";
 import { LazyShareDrawerTrigger } from "@/core/widgets/share-drawer/ui/lazy-share-drawer-trigger";
 import { useAuthControllerLogout } from "@/shared/api/generated/react-query";
 import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
+import { isGlobalAdminRole } from "@/shared/lib/catalog-role";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
@@ -31,7 +33,8 @@ export const Header: React.FC<Props> = ({
   const about = config?.about;
   const logoMedia = config?.logoMedia;
   const description = config?.description;
-  const { isAuthenticated, isLoading } = useSession();
+  const { isAuthenticated, isLoading, user } = useSession();
+  const isGlobalAdmin = isGlobalAdminRole(user?.role);
 
   const logoutMutation = useAuthControllerLogout();
 
@@ -133,6 +136,9 @@ export const Header: React.FC<Props> = ({
             <Button size="sm" variant="outline">
               Статистика аккаунта
             </Button>
+            {isGlobalAdmin ? (
+              <LazyGlobalAdminDrawerTrigger className="col-span-2" />
+            ) : null}
           </div>
         ) : (
           <LazyShareDrawerTrigger />
