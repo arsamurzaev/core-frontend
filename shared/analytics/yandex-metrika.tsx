@@ -5,14 +5,20 @@ interface YandexMetrikaProps {
   counterIds: Array<string | null | undefined>;
 }
 
+function normalizeCounterId(counterId: string | null | undefined) {
+  const value = String(counterId ?? "").trim();
+
+  return /^\d+$/.test(value) ? value : null;
+}
+
 function normalizeCounterIds(counterIds: Array<string | null | undefined>) {
   const seen = new Set<string>();
   const normalizedIds: string[] = [];
 
   counterIds.forEach((counterId) => {
-    const value = String(counterId ?? "").trim();
+    const value = normalizeCounterId(counterId);
 
-    if (!/^\d+$/.test(value) || seen.has(value)) {
+    if (!value || seen.has(value)) {
       return;
     }
 
@@ -34,7 +40,7 @@ function buildYandexMetrikaSnippet(counterIds: string[]) {
         if (document.scripts[j].src === r) { return; }
       }
       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=${counterIds[0]}', 'ym');
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js', 'ym');
 
     window.dataLayer = window.dataLayer || [];
     ${idsJson}.forEach(function(counterId) {
