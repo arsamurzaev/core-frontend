@@ -156,18 +156,20 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
         </div>
       )}
 
-      {!isLoading && hasItems && shouldShowCommentEditor && hasCheckoutMethods ? (
+      {!isLoading && hasItems && shouldShowCommentEditor ? (
         <>
-          <CartCheckoutTabs
-            config={checkoutConfig}
-            data={checkoutData}
-            disabled={isManagedPublicCart || isPublicMode}
-            error={checkoutError}
-            location={checkoutLocation}
-            locked={checkoutLocked}
-            method={checkoutMethod}
-            onChange={onCheckoutChange}
-          />
+          {hasCheckoutMethods ? (
+            <CartCheckoutTabs
+              config={checkoutConfig}
+              data={checkoutData}
+              disabled={isManagedPublicCart || isPublicMode}
+              error={checkoutError}
+              location={checkoutLocation}
+              locked={checkoutLocked}
+              method={checkoutMethod}
+              onChange={onCheckoutChange}
+            />
+          ) : null}
 
           <p className="text-sm">
             Пожалуйста, впишите в поле ваши пожелания или комментарий к заказу.
@@ -186,15 +188,6 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
             />
           </div>
         </>
-      ) : null}
-
-      {!isLoading && hasItems && shouldShowCommentEditor && !hasCheckoutMethods ? (
-        <div className="rounded-lg border border-black/10 bg-muted/30 px-4 py-3">
-          <p className="text-sm font-medium">Заказы временно недоступны</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Владелец каталога пока не включил способы оформления заказа.
-          </p>
-        </div>
       ) : null}
 
       {!isLoading && hasItems && shouldShowReadonlyCheckout && checkoutMethod ? (

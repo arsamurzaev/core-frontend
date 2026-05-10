@@ -238,14 +238,14 @@ export const EditCatalogCheckoutDrawer: React.FC<
   const summary = React.useMemo(() => {
     const labels = enabledMethods.map((method) => CHECKOUT_METHOD_LABELS[method]);
     if (labels.length === 0) {
-      return "Все способы выключены";
+      return "Способы выключены";
     }
 
     return labels.length ? labels.join(", ") : "Настроить способы";
   }, [enabledMethods]);
   const summaryDescription = React.useMemo(() => {
     if (enabledMethods.length === 0) {
-      return "Заказы временно недоступны: включите хотя бы один способ, когда будете готовы принимать заявки.";
+      return "Включите нужные способы заказа и контакты для них.";
     }
 
     return "Способы заказа и отдельные контакты для выбранных сценариев.";
