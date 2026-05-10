@@ -46,6 +46,7 @@ export interface UseProductFormFieldsParams {
   isActive?: boolean;
   includeCategories?: boolean;
   supportsBrands?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 export function useProductFormFields({
@@ -54,6 +55,7 @@ export function useProductFormFields({
   isActive = false,
   includeCategories = true,
   supportsBrands = true,
+  supportsCategoryDetails = true,
 }: UseProductFormFieldsParams) {
   const shouldUseBrands = supportsBrands;
   const brandsQuery = useBrandControllerGetAll({
@@ -158,7 +160,13 @@ export function useProductFormFields({
           ? {
               name: "categoryIds",
               label: "Категории",
-              component: CreateProductCategoriesField,
+              component: (
+                props: DynamicFieldRenderProps<CreateProductFormValues>,
+              ) =>
+                React.createElement(CreateProductCategoriesField, {
+                  ...props,
+                  supportsCategoryDetails,
+                }),
               options: categoryOptions,
               placeholder: "Выбрать категорию",
               hideError: true,
@@ -190,6 +198,7 @@ export function useProductFormFields({
       categoryOptions,
       includeCategories,
       shouldUseBrands,
+      supportsCategoryDetails,
       visibleAttributes,
     ],
   );

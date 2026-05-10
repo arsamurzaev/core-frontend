@@ -30,6 +30,7 @@ interface CreateProductCategoryEditorDrawerProps {
   onSubmit: () => void;
   open: boolean;
   descriptor: string;
+  supportsCategoryDetails?: boolean;
   title: string;
   uploadState: CategoryImageUploadState;
   withCloseButton?: boolean;
@@ -51,6 +52,7 @@ export function CreateProductCategoryEditorDrawer({
   onSubmit,
   open,
   descriptor,
+  supportsCategoryDetails = true,
   title,
   uploadState,
   withCloseButton = true,
@@ -79,25 +81,29 @@ export function CreateProductCategoryEditorDrawer({
               />
             </div>
 
-            <CreateProductCategoryImageField
-              file={file}
-              existingUrl={existingUrl}
-              onChange={onFileChange}
-              disabled={disabled}
-            />
-
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Дескриптор:</p>
-              <CharacterLimitedTextarea
-                value={descriptor}
-                onChange={(event) => onDescriptorChange(event.target.value)}
-                placeholder="Например: на любой вкус и цвет"
-                maxLength={MAX_CATEGORY_DESCRIPTOR_LENGTH}
+            {supportsCategoryDetails ? (
+              <CreateProductCategoryImageField
+                file={file}
+                existingUrl={existingUrl}
+                onChange={onFileChange}
                 disabled={disabled}
               />
-            </div>
+            ) : null}
 
-            {uploadState.phase !== "idle" ? (
+            {supportsCategoryDetails ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Дескриптор:</p>
+                <CharacterLimitedTextarea
+                  value={descriptor}
+                  onChange={(event) => onDescriptorChange(event.target.value)}
+                  placeholder="Например: на любой вкус и цвет"
+                  maxLength={MAX_CATEGORY_DESCRIPTOR_LENGTH}
+                  disabled={disabled}
+                />
+              </div>
+            ) : null}
+
+            {supportsCategoryDetails && uploadState.phase !== "idle" ? (
               <div className="space-y-2 rounded-2xl border border-black/10 bg-muted/15 p-4">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span>{uploadState.message}</span>
@@ -123,4 +129,3 @@ export function CreateProductCategoryEditorDrawer({
     </AppDrawer>
   );
 }
-

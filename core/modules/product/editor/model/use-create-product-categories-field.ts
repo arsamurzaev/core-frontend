@@ -19,6 +19,7 @@ interface UseCreateProductCategoriesFieldParams {
   field: DynamicFieldRenderProps["field"];
   options?: FieldOption[];
   readOnly: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 export type { CategoryListItem };
@@ -28,6 +29,7 @@ export function useCreateProductCategoriesField({
   field,
   options,
   readOnly,
+  supportsCategoryDetails = true,
 }: UseCreateProductCategoriesFieldParams) {
   const isControlDisabled = disabled || readOnly;
   const optionList = options ?? EMPTY_FIELD_OPTIONS;
@@ -56,6 +58,7 @@ export function useCreateProductCategoriesField({
     field,
     selectedValues: selectionState.selectedValues,
     setDraftValues: selectionState.setDraftValues,
+    supportsCategoryDetails,
   });
 
   return {

@@ -8,7 +8,10 @@ interface Props {
   index: number;
   handleClick?: (id: string) => void;
   action?: (category: CategoryDto) => React.ReactNode;
+  variant?: CategoryCardVariant;
 }
+
+export type CategoryCardVariant = "default" | "compact";
 
 export const CategoryCard: React.FC<Props> = ({
   className,
@@ -16,7 +19,31 @@ export const CategoryCard: React.FC<Props> = ({
   data,
   handleClick,
   action,
+  variant = "default",
 }) => {
+  if (variant === "compact") {
+    return (
+      <article className="relative p-1">
+        <div
+          className="block h-full bg-transparent p-0"
+          onClick={() => handleClick?.(data.id)}
+        >
+          <div
+            className={cn(
+              "shadow-custom flex min-h-16 w-full items-center rounded-lg border border-black/5 bg-white px-4 py-3 pr-12 text-black",
+              className,
+            )}
+          >
+            <h2 className="truncate text-base font-semibold sm:text-lg">
+              {data.name}
+            </h2>
+          </div>
+        </div>
+        {action?.(data)}
+      </article>
+    );
+  }
+
   return (
     <article className="relative p-1">
       <div

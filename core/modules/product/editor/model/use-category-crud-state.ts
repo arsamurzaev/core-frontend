@@ -28,12 +28,14 @@ interface UseCategoryCrudStateParams {
   field: DynamicFieldRenderProps["field"];
   selectedValues: string[];
   setDraftValues: React.Dispatch<React.SetStateAction<string[]>>;
+  supportsCategoryDetails?: boolean;
 }
 
 export function useCategoryCrudState({
   field,
   selectedValues,
   setDraftValues,
+  supportsCategoryDetails = true,
 }: UseCategoryCrudStateParams) {
   const queryClient = useQueryClient();
   const createCategory = useCategoryControllerCreate();
@@ -87,7 +89,7 @@ export function useCategoryCrudState({
   const handleCreateCategory = React.useCallback(async () => {
     const parsedDraft = parseCategoryEditorDraft({
       name: createName,
-      descriptor: createDescriptor,
+      descriptor: supportsCategoryDetails ? createDescriptor : "",
     });
     if (!parsedDraft.success) {
       toast.error(parsedDraft.errorMessage);
@@ -95,7 +97,7 @@ export function useCategoryCrudState({
     }
 
     try {
-      const imageMediaId = createImageFile
+      const imageMediaId = supportsCategoryDetails && createImageFile
         ? await uploadCategoryImage({
             file: createImageFile,
             onStateChange: setCreateUploadState,
@@ -105,7 +107,9 @@ export function useCategoryCrudState({
       await createCategory.mutateAsync({
         data: {
           name: parsedDraft.values.name,
-          descriptor: parsedDraft.values.descriptor || undefined,
+          ...(supportsCategoryDetails && parsedDraft.values.descriptor
+            ? { descriptor: parsedDraft.values.descriptor }
+            : {}),
           ...(imageMediaId ? { imageMediaId } : {}),
         },
       });
@@ -127,15 +131,21 @@ export function useCategoryCrudState({
     createName,
     invalidateCategories,
     resetCreateForm,
+    supportsCategoryDetails,
   ]);
 
-  const handleStartEdit = React.useCallback((category: CategoryListItem) => {
-    setEditingCategory(category);
-    setEditName(category.name);
-    setEditDescriptor(category.descriptor ?? "");
-    setEditImageFile(undefined);
-    setEditUploadState(IDLE_CATEGORY_IMAGE_UPLOAD_STATE);
-  }, []);
+  const handleStartEdit = React.useCallback(
+    (category: CategoryListItem) => {
+      setEditingCategory(category);
+      setEditName(category.name);
+      setEditDescriptor(
+        supportsCategoryDetails ? (category.descriptor ?? "") : "",
+      );
+      setEditImageFile(undefined);
+      setEditUploadState(IDLE_CATEGORY_IMAGE_UPLOAD_STATE);
+    },
+    [supportsCategoryDetails],
+  );
 
   const handleEditOpenChange = React.useCallback(
     (nextOpen: boolean) => {
@@ -155,7 +165,7 @@ export function useCategoryCrudState({
 
     const parsedDraft = parseCategoryEditorDraft({
       name: editName,
-      descriptor: editDescriptor,
+      descriptor: supportsCategoryDetails ? editDescriptor : "",
     });
     if (!parsedDraft.success) {
       toast.error(parsedDraft.errorMessage);
@@ -163,7 +173,7 @@ export function useCategoryCrudState({
     }
 
     try {
-      const imageMediaId = editImageFile
+      const imageMediaId = supportsCategoryDetails && editImageFile
         ? await uploadCategoryImage({
             file: editImageFile,
             onStateChange: setEditUploadState,
@@ -174,7 +184,9 @@ export function useCategoryCrudState({
         id: editingCategory.id,
         data: {
           name: parsedDraft.values.name,
-          descriptor: parsedDraft.values.descriptor || null,
+          ...(supportsCategoryDetails
+            ? { descriptor: parsedDraft.values.descriptor || null }
+            : {}),
           ...(imageMediaId ? { imageMediaId } : {}),
         },
       });
@@ -195,6 +207,7 @@ export function useCategoryCrudState({
     editingCategory,
     invalidateCategories,
     resetEditForm,
+    supportsCategoryDetails,
     updateCategory,
   ]);
 

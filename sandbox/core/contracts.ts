@@ -1,10 +1,16 @@
 import type { CategoryDto } from "@/shared/api/generated/react-query";
+import type { CategoryCardVariant } from "@/core/modules/category/ui/category-card";
 import type React from "react";
 
 export interface BrowserProps {
   className?: string;
   initialCategories?: CategoryDto[];
+  catalogTabLabel?: string;
+  categoryAdminCreateDescription?: string;
+  categoryAdminEditDescription?: string;
+  categoryCardVariant?: CategoryCardVariant;
   supportsBrands?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 /**

@@ -44,6 +44,7 @@ interface CategoryReorderItemProps {
   isDragging?: boolean;
   isOverlay?: boolean;
   disabled?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 function formatCategoryProductCount(count: number) {
@@ -75,6 +76,7 @@ const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
   isDragging = false,
   isOverlay = false,
   disabled = false,
+  supportsCategoryDetails = true,
 }) => {
   return (
     <Card
@@ -121,7 +123,7 @@ const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
             <h4 className="truncate text-sm font-medium sm:text-base">
               {category.name}
             </h4>
-            {category.descriptor ? (
+            {supportsCategoryDetails && category.descriptor ? (
               <p className="text-muted-foreground truncate text-xs sm:text-sm">
                 {category.descriptor}
               </p>
@@ -141,11 +143,18 @@ interface SortableCategoryReorderItemProps {
   disabled?: boolean;
   index: number;
   isDragging?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 const SortableCategoryReorderItem: React.FC<
   SortableCategoryReorderItemProps
-> = ({ category, disabled = false, index, isDragging = false }) => {
+> = ({
+  category,
+  disabled = false,
+  index,
+  isDragging = false,
+  supportsCategoryDetails = true,
+}) => {
   const {
     attributes,
     listeners,
@@ -189,6 +198,7 @@ const SortableCategoryReorderItem: React.FC<
         handleRef={setActivatorNodeRef}
         isDragging={isBeingDragged}
         disabled={disabled}
+        supportsCategoryDetails={supportsCategoryDetails}
       />
     </div>
   );
@@ -198,12 +208,14 @@ interface CategoryReorderListProps {
   categories: CategoryDto[];
   disabled?: boolean;
   onReorder: (params: { activeId: string; overId: string }) => void;
+  supportsCategoryDetails?: boolean;
 }
 
 const CategoryReorderList: React.FC<CategoryReorderListProps> = ({
   categories,
   disabled = false,
   onReorder,
+  supportsCategoryDetails = true,
 }) => {
   const [activeId, setActiveId] = React.useState<string | null>(null);
 
@@ -277,6 +289,7 @@ const CategoryReorderList: React.FC<CategoryReorderListProps> = ({
             index={activeCategoryIndex}
             isDragging
             isOverlay
+            supportsCategoryDetails={supportsCategoryDetails}
           />
         </div>
       ) : null}
@@ -304,6 +317,7 @@ const CategoryReorderList: React.FC<CategoryReorderListProps> = ({
               disabled={disabled}
               index={index}
               isDragging={!disabled && activeId === category.id}
+              supportsCategoryDetails={supportsCategoryDetails}
             />
           ))}
         </div>
@@ -324,6 +338,7 @@ interface CategoryReorderDrawerProps {
   onReorder: (params: { activeId: string; overId: string }) => void;
   onSave: () => void;
   open: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
@@ -334,6 +349,7 @@ export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
   onReorder,
   onSave,
   open,
+  supportsCategoryDetails = true,
 }) => {
   return (
     <AppDrawer open={open} onOpenChange={onOpenChange} dismissible={!isSaving}>
@@ -352,6 +368,7 @@ export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
                 categories={categories}
                 disabled={isSaving}
                 onReorder={onReorder}
+                supportsCategoryDetails={supportsCategoryDetails}
               />
             ) : (
               <p className="text-sm text-muted-foreground">

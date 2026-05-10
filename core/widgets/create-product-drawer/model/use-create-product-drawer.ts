@@ -18,6 +18,7 @@ interface UseCreateProductDrawerParams {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   supportsBrands?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}) {
@@ -25,6 +26,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     open: controlledOpen,
     onOpenChange,
     supportsBrands = true,
+    supportsCategoryDetails = true,
   } = params;
   const { type } = useCatalog();
   const queryClient = useQueryClient();
@@ -55,6 +57,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
       sourceAttributes: type.attributes,
       isActive: open,
       supportsBrands,
+      supportsCategoryDetails,
     },
   );
 

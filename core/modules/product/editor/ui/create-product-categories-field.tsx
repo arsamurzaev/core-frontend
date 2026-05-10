@@ -1,17 +1,22 @@
 "use client";
 
 import { useCreateProductCategoriesField } from "@/core/modules/product/editor/model/use-create-product-categories-field";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { CreateProductCategorySelectionDrawer } from "@/core/modules/product/editor/ui/create-product-category-selection-drawer";
 import { CreateProductCategoryEditorDrawer } from "@/core/modules/product/editor/ui/create-product-category-editor-drawer";
 import { CreateProductCategoriesSummary } from "@/core/modules/product/editor/ui/create-product-categories-summary";
 import { ConfirmationDrawer } from "@/shared/ui/confirmation-drawer";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
-import { type FieldValues } from "react-hook-form";
 
-export function CreateProductCategoriesField<TValues extends FieldValues>(
-  props: DynamicFieldRenderProps<TValues>,
+interface CreateProductCategoriesFieldProps
+  extends DynamicFieldRenderProps<CreateProductFormValues> {
+  supportsCategoryDetails?: boolean;
+}
+
+export function CreateProductCategoriesField(
+  props: CreateProductCategoriesFieldProps,
 ) {
-  const { field, placeholder } = props;
+  const { field, placeholder, supportsCategoryDetails = true } = props;
   const {
     categoriesQuery,
     categoryList,
@@ -52,7 +57,10 @@ export function CreateProductCategoriesField<TValues extends FieldValues>(
     setIsCreateDrawerOpen,
     setOpen,
     toggleDraftValue,
-  } = useCreateProductCategoriesField(props);
+  } = useCreateProductCategoriesField({
+    ...props,
+    supportsCategoryDetails,
+  });
 
   return (
     <>
@@ -101,6 +109,7 @@ export function CreateProductCategoriesField<TValues extends FieldValues>(
         descriptor={createDescriptor}
         file={createImageFile}
         uploadState={createUploadState}
+        supportsCategoryDetails={supportsCategoryDetails}
         disabled={isCreateBusy}
         loading={isCreateBusy}
         withCloseButton={!isCreateBusy}
@@ -120,6 +129,7 @@ export function CreateProductCategoriesField<TValues extends FieldValues>(
         file={editImageFile}
         existingUrl={editingCategory?.imageUrl}
         uploadState={editUploadState}
+        supportsCategoryDetails={supportsCategoryDetails}
         disabled={isEditBusy}
         loading={isEditBusy}
         withCloseButton={!isEditBusy}

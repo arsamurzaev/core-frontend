@@ -3,7 +3,10 @@
 import { Header } from "@/core/widgets/header/ui/header";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";
-import { supportsCatalogBrands } from "../core/catalog-type-features";
+import {
+  getSandboxCatalogPresentation,
+  supportsCatalogBrands,
+} from "../core/catalog-type-features";
 import { getSandboxCatalogCheckoutConfig } from "../core/checkout-methods";
 
 interface CatalogHeaderProps {
@@ -16,12 +19,19 @@ export const CatalogHeader: React.FC<CatalogHeaderProps> = ({ className }) => {
     () => (catalog ? getSandboxCatalogCheckoutConfig(catalog) : undefined),
     [catalog],
   );
+  const presentation = React.useMemo(
+    () => getSandboxCatalogPresentation(catalog),
+    [catalog],
+  );
 
   return (
     <Header
       className={className}
       checkoutConfig={checkoutConfig}
+      shareButtonLabel={presentation.shareButtonLabel}
+      shareCopySuccessMessage={presentation.copySuccessMessage}
       supportsBrands={supportsCatalogBrands(catalog)}
+      supportsCategoryDetails={presentation.supportsCategoryDetails}
     />
   );
 };

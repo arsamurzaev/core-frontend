@@ -4,9 +4,28 @@ import React from "react";
 
 interface Props {
   className?: string;
+  variant?: "default" | "compact";
 }
 
-export const CategoryCardSkeleton: React.FC<Props> = ({ className }) => {
+export const CategoryCardSkeleton: React.FC<Props> = ({
+  className,
+  variant = "default",
+}) => {
+  if (variant === "compact") {
+    return (
+      <article className="relative p-1" aria-hidden>
+        <div
+          className={cn(
+            "shadow-custom flex min-h-16 w-full items-center rounded-lg border border-black/5 bg-card/60 px-4 py-3",
+            className,
+          )}
+        >
+          <Skeleton className="h-5 w-2/3" />
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article className="relative p-1" aria-hidden>
       <div

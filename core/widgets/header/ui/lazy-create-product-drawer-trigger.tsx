@@ -19,11 +19,12 @@ const CreateProductDrawerDynamic = dynamic(
 interface LazyCreateProductDrawerTriggerProps {
   className?: string;
   supportsBrands?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 export const LazyCreateProductDrawerTrigger: React.FC<
   LazyCreateProductDrawerTriggerProps
-> = ({ className, supportsBrands = true }) => {
+> = ({ className, supportsBrands = true, supportsCategoryDetails = true }) => {
   const [isMounted, setIsMounted] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
@@ -42,6 +43,7 @@ export const LazyCreateProductDrawerTrigger: React.FC<
           open={open}
           onOpenChange={setOpen}
           supportsBrands={supportsBrands}
+          supportsCategoryDetails={supportsCategoryDetails}
           trigger={null}
         />
       ) : null}

@@ -25,8 +25,15 @@ const EditProductDrawerHostContext =
   createStrictContext<EditProductDrawerHostValue>();
 
 export const EditProductDrawerHostProvider: React.FC<
-  React.PropsWithChildren<{ supportsBrands?: boolean }>
-> = ({ children, supportsBrands = true }) => {
+  React.PropsWithChildren<{
+    supportsBrands?: boolean;
+    supportsCategoryDetails?: boolean;
+  }>
+> = ({
+  children,
+  supportsBrands = true,
+  supportsCategoryDetails = true,
+}) => {
   const [isMounted, setIsMounted] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const [productId, setProductId] = React.useState<string | null>(null);
@@ -83,6 +90,7 @@ export const EditProductDrawerHostProvider: React.FC<
           open={isOpen}
           onOpenChange={handleOpenChange}
           supportsBrands={supportsBrands}
+          supportsCategoryDetails={supportsCategoryDetails}
         />
       ) : null}
     </EditProductDrawerHostContext.Provider>

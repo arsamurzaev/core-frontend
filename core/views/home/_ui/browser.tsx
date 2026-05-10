@@ -1,7 +1,10 @@
 ﻿"use client";
 
 import { CatalogProductsPanel } from "@/core/modules/browser/ui/catalog-products-panel";
-import { CategoryCard } from "@/core/modules/category/ui/category-card";
+import {
+  CategoryCard,
+  type CategoryCardVariant,
+} from "@/core/modules/category/ui/category-card";
 import { CategoryCardSkeleton } from "@/core/modules/category/ui/category-card-skeleton";
 import { useCategoryAdmin } from "@/core/widgets/category-admin/model/use-category-admin";
 import { CategoryAdminBarActions } from "@/core/widgets/category-admin/ui/category-admin-bar-actions";
@@ -42,17 +45,26 @@ const CategoryAdminDrawersDynamic = dynamic(
 interface BrowserProps {
   className?: string;
   initialCategories?: CategoryDto[];
+  catalogTabLabel?: string;
+  categoryAdminCreateDescription?: string;
+  categoryAdminEditDescription?: string;
+  categoryCardVariant?: CategoryCardVariant;
   supportsBrands?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 const CATEGORY_LOADING_SECTIONS_COUNT = 3;
 const CATEGORY_LOADING_CARDS_COUNT = 4;
 
 interface CatalogTabsToggleProps {
+  catalogTabLabel?: string;
   tab: CatalogFilterQueryState["tab"];
 }
 
-const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({ tab }) => {
+const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({
+  catalogTabLabel = "Каталог",
+  tab,
+}) => {
   return (
     <TabsList className="relative grid h-10 w-full grid-cols-2 rounded-full p-0.5">
       <span
@@ -66,7 +78,7 @@ const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({ tab }) => {
         value="catalog"
         className="relative z-10 rounded-full text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none"
       >
-        Каталог
+        {catalogTabLabel}
       </TabsTrigger>
       <TabsTrigger
         value="categories"
@@ -81,7 +93,12 @@ const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({ tab }) => {
 export const Browser: React.FC<BrowserProps> = ({
   className,
   initialCategories = [],
+  catalogTabLabel = "Каталог",
+  categoryAdminCreateDescription,
+  categoryAdminEditDescription,
+  categoryCardVariant = "default",
   supportsBrands = true,
+  supportsCategoryDetails = true,
 }) => {
   const {
     queryState,
@@ -116,6 +133,7 @@ export const Browser: React.FC<BrowserProps> = ({
   const canManageCategories = isCatalogManagerRole(user?.role);
   const categoryAdmin = useCategoryAdmin({
     categories,
+    supportsCategoryDetails,
   });
   const { activeCategoryId } = useActiveCategoryIntersection({
     categories,
@@ -188,10 +206,18 @@ export const Browser: React.FC<BrowserProps> = ({
         onValueChange={handleTabChange}
         className="space-y-4"
       >
-        <CatalogTabsToggle tab={effectiveQueryState.tab} />
+        <CatalogTabsToggle
+          catalogTabLabel={catalogTabLabel}
+          tab={effectiveQueryState.tab}
+        />
 
         <FilterBar
-          tab={<CatalogTabsToggle tab={effectiveQueryState.tab} />}
+          tab={
+            <CatalogTabsToggle
+              catalogTabLabel={catalogTabLabel}
+              tab={effectiveQueryState.tab}
+            />
+          }
           searchTerm={effectiveQueryState.searchTerm}
           isFilterActive={effectiveIsFilterActive}
           filterAction={
@@ -247,6 +273,7 @@ export const Browser: React.FC<BrowserProps> = ({
                     (_, index) => (
                       <CategoryCardSkeleton
                         key={`category-card-skeleton-${index}`}
+                        variant={categoryCardVariant}
                       />
                     ),
                   )
@@ -260,6 +287,7 @@ export const Browser: React.FC<BrowserProps> = ({
                       key={category.id}
                       data={category}
                       index={index}
+                      variant={categoryCardVariant}
                       action={
                         canManageCategories
                           ? (currentCategory) => (
@@ -279,7 +307,12 @@ export const Browser: React.FC<BrowserProps> = ({
       </Tabs>
 
       {canManageCategories && hasMountedAdminDrawers ? (
-        <CategoryAdminDrawersDynamic admin={categoryAdmin} />
+        <CategoryAdminDrawersDynamic
+          admin={categoryAdmin}
+          createDescription={categoryAdminCreateDescription}
+          editDescription={categoryAdminEditDescription}
+          supportsCategoryDetails={supportsCategoryDetails}
+        />
       ) : null}
     </section>
   );

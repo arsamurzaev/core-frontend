@@ -10,10 +10,21 @@ import * as React from "react";
 
 interface CategoryAdminDrawersProps {
   admin: UseCategoryAdminResult;
+  createDescription?: string;
+  editDescription?: string;
+  supportsCategoryDetails?: boolean;
 }
+
+const DEFAULT_CREATE_DESCRIPTION =
+  "Создайте новую категорию, чтобы она сразу появилась в каталоге и в карточках выбора.";
+const DEFAULT_EDIT_DESCRIPTION =
+  "Измените название, описание или изображение категории. Обновление сразу попадет в каталог.";
 
 export const CategoryAdminDrawers: React.FC<CategoryAdminDrawersProps> = ({
   admin,
+  createDescription = DEFAULT_CREATE_DESCRIPTION,
+  editDescription = DEFAULT_EDIT_DESCRIPTION,
+  supportsCategoryDetails = true,
 }) => {
   return (
     <>
@@ -27,11 +38,12 @@ export const CategoryAdminDrawers: React.FC<CategoryAdminDrawersProps> = ({
           }
         }}
         title="Редактор категории"
-        description="Создайте новую категорию, чтобы она сразу появилась в каталоге и в карточках выбора."
+        description={createDescription}
         name={admin.createName}
         descriptor={admin.createDescriptor}
         file={admin.createImageFile}
         uploadState={admin.createUploadState}
+        supportsCategoryDetails={supportsCategoryDetails}
         disabled={admin.isCreateBusy}
         loading={admin.isCreateBusy}
         withCloseButton={!admin.isCreateBusy}
@@ -46,11 +58,12 @@ export const CategoryAdminDrawers: React.FC<CategoryAdminDrawersProps> = ({
         open={Boolean(admin.editingCategory)}
         onOpenChange={admin.handleEditOpenChange}
         title="Редактор категории"
-        description="Измените название, описание или изображение категории. Обновление сразу попадет в каталог."
+        description={editDescription}
         name={admin.editName}
         descriptor={admin.editDescriptor}
         file={admin.editImageFile}
         existingUrl={admin.editingCategory?.imageMedia?.url ?? null}
+        supportsCategoryDetails={supportsCategoryDetails}
         headerAction={
           admin.editingCategory ? (
             <Button
@@ -84,6 +97,7 @@ export const CategoryAdminDrawers: React.FC<CategoryAdminDrawersProps> = ({
         categories={admin.reorderCategories}
         hasChanges={admin.hasReorderChanges}
         isSaving={admin.isReorderBusy}
+        supportsCategoryDetails={supportsCategoryDetails}
         onReorder={(params) => void admin.handleReorderCategory(params)}
         onSave={() => void admin.handleSaveCategoryOrder()}
       />

@@ -21,13 +21,19 @@ import { toast } from "sonner";
 interface Props {
   className?: string;
   checkoutConfig?: CheckoutConfig;
+  shareButtonLabel?: string;
+  shareCopySuccessMessage?: string;
   supportsBrands?: boolean;
+  supportsCategoryDetails?: boolean;
 }
 
 export const Header: React.FC<Props> = ({
   className,
   checkoutConfig,
+  shareButtonLabel = "Поделиться каталогом",
+  shareCopySuccessMessage = "Ссылка скопирована в буфер обмена",
   supportsBrands = true,
+  supportsCategoryDetails = true,
 }) => {
   const { name, config } = useCatalog();
   const about = config?.about;
@@ -45,7 +51,7 @@ export const Header: React.FC<Props> = ({
 
     try {
       await navigator.clipboard.writeText(window.location.host);
-      toast.success("Ссылка скопирована в буфер обмена");
+      toast.success(shareCopySuccessMessage);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -129,9 +135,12 @@ export const Header: React.FC<Props> = ({
           <Skeleton className="h-10 w-full" />
         ) : isAuthenticated ? (
           <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
-            <LazyCreateProductDrawerTrigger supportsBrands={supportsBrands} />
+            <LazyCreateProductDrawerTrigger
+              supportsBrands={supportsBrands}
+              supportsCategoryDetails={supportsCategoryDetails}
+            />
             <Button onClick={handleCopyCatalogLink} variant="outline" size="sm">
-              Поделиться каталогом
+              {shareButtonLabel}
             </Button>
             <Button size="sm" variant="outline">
               Статистика аккаунта
