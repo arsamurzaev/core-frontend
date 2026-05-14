@@ -7093,6 +7093,17 @@ export const ProductControllerDuplicateParams = zod.object({
 
 
 /**
+ * Creates or restores a technical default variant only for legacy simple products that do not have real custom variants.
+ * @summary Repair missing technical default variants for current catalog
+ */
+export const ProductControllerRepairMissingDefaultVariantsResponse = zod.object({
+  "checkedProducts": zod.number(),
+  "repairedProducts": zod.number(),
+  "affectedCatalogs": zod.number()
+})
+
+
+/**
  * @summary Preview product type change compatibility without writing
  */
 export const ProductControllerPreviewProductTypeCompatibilityParams = zod.object({

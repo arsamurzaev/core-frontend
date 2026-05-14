@@ -2540,6 +2540,12 @@ export interface ProductCreateResponseDto {
   ok: boolean;
 }
 
+export interface ProductDefaultVariantRepairResponseDto {
+  checkedProducts: number;
+  repairedProducts: number;
+  affectedCatalogs: number;
+}
+
 export interface ProductTypeCompatibilityPreviewDtoReq {
   /**
    * Next product type inside current catalog. Pass null to clear.
@@ -14576,6 +14582,69 @@ export const useProductControllerDuplicate = <TError = unknown,
         TContext
       > => {
       return useMutation(getProductControllerDuplicateMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Creates or restores a technical default variant only for legacy simple products that do not have real custom variants.
+ * @summary Repair missing technical default variants for current catalog
+ */
+export const productControllerRepairMissingDefaultVariants = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductDefaultVariantRepairResponseDto>(
+      {url: `/product/maintenance/default-variants/repair`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerRepairMissingDefaultVariantsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext> => {
+
+const mutationKey = ['productControllerRepairMissingDefaultVariants'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, void> = () => {
+          
+
+          return  productControllerRepairMissingDefaultVariants()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerRepairMissingDefaultVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>>
+    
+    export type ProductControllerRepairMissingDefaultVariantsMutationError = unknown
+
+    /**
+ * @summary Repair missing technical default variants for current catalog
+ */
+export const useProductControllerRepairMissingDefaultVariants = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getProductControllerRepairMissingDefaultVariantsMutationOptions(options), queryClient);
     }
     
 /**
