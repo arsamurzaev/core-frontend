@@ -1,5 +1,6 @@
 "use client";
 
+import { ProductCardRuntime } from "@/core/catalog-runtime/ui";
 import {
   CATEGORY_SECTION_SCROLL_MARGIN_TOP,
   getCategorySectionId,
@@ -11,7 +12,6 @@ import { useCart } from "@/core/modules/cart/model/cart-context";
 import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
 import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
 import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
-import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
@@ -66,10 +66,8 @@ const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 340;
 const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 124;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const CATEGORY_HEADING_ROW_ESTIMATE_PX = 40;
-const EMPTY_CATEGORY_ROW_HEIGHT_PX = 320;
+const EMPTY_CATEGORY_ROW_HEIGHT_PX = 160;
 const VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN = 2;
-const CATALOG_END_SCROLL_RUNWAY_EXTRA_PX = 24;
-const CATALOG_END_SCROLL_RUNWAY_MAX_PX = 320;
 const UNCATEGORIZED_QUERY_PARAMS = {
   limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
 };
@@ -96,13 +94,14 @@ const ProductSectionCard = React.memo(
           product={product}
           className="block h-full"
         >
-          <ProductCard
+          <ProductCardRuntime
             data={product}
             isDetailed={isDetailed}
+            isMoySkladLinked={
+              !shouldUseCartUi && isAuthenticated && isMoySkladProduct(product)
+            }
             actions={
-              shouldUseCartUi ? (
-                <CartProductAction product={product} />
-              ) : isDetailed ? (
+              !shouldUseCartUi && isDetailed ? (
                 <EditProductCardAction
                   categoryId={categoryId}
                   categoryPosition={categoryPosition}
@@ -113,6 +112,7 @@ const ProductSectionCard = React.memo(
               ) : undefined
             }
             className={cn("h-full", isDetailed && "min-h-[160px]")}
+            pluginContainerClassName="h-full"
             hidePriceWhenFooterAction={shouldUseCartUi}
             footerAction={
               shouldUseCartUi ? (
@@ -129,6 +129,7 @@ const ProductSectionCard = React.memo(
             }
           />
         </ProductLink>
+        {shouldUseCartUi ? <CartProductAction product={product} /> : null}
         {!shouldUseCartUi && !isDetailed ? (
           <EditProductCardAction
             categoryId={categoryId}
@@ -289,7 +290,6 @@ export const VirtualizedCategoryProducts: React.FC<
   const { shouldUseCartUi } = useCart();
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [listWidth, setListWidth] = React.useState(0);
-  const [viewportHeight, setViewportHeight] = React.useState(0);
   const [scrollMargin, setScrollMargin] = React.useState(0);
   const [scrollPaddingStart, setScrollPaddingStart] = React.useState(0);
   const sections = React.useMemo<VirtualProductSectionDefinition[]>(() => {
@@ -629,7 +629,6 @@ export const VirtualizedCategoryProducts: React.FC<
     }
 
     const nextListWidth = list.clientWidth;
-    const nextViewportHeight = window.innerHeight;
     const nextScrollMargin = Math.max(
       0,
       Math.round(list.getBoundingClientRect().top + window.scrollY),
@@ -638,9 +637,6 @@ export const VirtualizedCategoryProducts: React.FC<
 
     setListWidth((previousValue) =>
       previousValue === nextListWidth ? previousValue : nextListWidth,
-    );
-    setViewportHeight((previousValue) =>
-      previousValue === nextViewportHeight ? previousValue : nextViewportHeight,
     );
     setScrollMargin((previousValue) =>
       previousValue === nextScrollMargin ? previousValue : nextScrollMargin,
@@ -711,54 +707,13 @@ export const VirtualizedCategoryProducts: React.FC<
     (index: number) => rows[index]?.key ?? `virtual-row-${index}`,
     [rows],
   );
-  const lastSectionEstimatedSize = React.useMemo(() => {
-    const lastRow = rows[rows.length - 1];
-
-    if (!lastRow) {
-      return 0;
-    }
-
-    const firstLastSectionRowIndex = rows.findIndex(
-      (row) => row.sectionKey === lastRow.sectionKey,
-    );
-
-    if (firstLastSectionRowIndex < 0) {
-      return 0;
-    }
-
-    let size = 0;
-
-    for (
-      let index = firstLastSectionRowIndex;
-      index < rows.length;
-      index += 1
-    ) {
-      size += estimateRowSize(index);
-
-      if (index > firstLastSectionRowIndex) {
-        size += PRODUCT_CARD_GAP_PX;
-      }
-    }
-
-    return size;
-  }, [estimateRowSize, rows]);
-  const paddingEnd = Math.min(
-    CATALOG_END_SCROLL_RUNWAY_MAX_PX,
-    Math.max(
-      0,
-      viewportHeight -
-        scrollPaddingStart -
-        lastSectionEstimatedSize +
-        CATALOG_END_SCROLL_RUNWAY_EXTRA_PX,
-    ),
-  );
   const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
     estimateSize: estimateRowSize,
     overscan: VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN,
     scrollMargin,
     scrollPaddingStart,
-    paddingEnd,
+    paddingEnd: 0,
     gap: PRODUCT_CARD_GAP_PX,
     enabled: rows.length > 0,
     getItemKey: getVirtualRowKey,

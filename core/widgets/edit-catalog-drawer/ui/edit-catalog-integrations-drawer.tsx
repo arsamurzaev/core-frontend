@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useCatalogAdvancedSettingsControllerGetMoySkladStatus } from "@/shared/api/generated/react-query";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -38,12 +39,18 @@ function getIntegrationsSummary(params: {
 export const EditCatalogIntegrationsDrawer: React.FC<{
   disabled?: boolean;
 }> = ({ disabled = false }) => {
+  const features = useCatalogCapabilities();
   const [open, setOpen] = React.useState(false);
   const statusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
     query: {
+      enabled: features.canUseMoySkladIntegration,
       staleTime: 30_000,
     },
   });
+
+  if (!features.canUseMoySkladIntegration) {
+    return null;
+  }
 
   const summary = getIntegrationsSummary({
     configured: Boolean(statusQuery.data?.configured),

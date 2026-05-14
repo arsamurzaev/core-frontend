@@ -2,20 +2,30 @@ import Script from "next/script";
 import React from "react";
 
 interface YandexMetrikaProps {
-  counterIds: Array<string | null | undefined>;
+  counterIds?: Array<string | null | undefined> | null;
 }
 
 function normalizeCounterId(counterId: string | null | undefined) {
   const value = String(counterId ?? "").trim();
 
-  return /^\d+$/.test(value) ? value : null;
+  if (!/^\d+$/.test(value)) {
+    return null;
+  }
+
+  const numericValue = Number(value);
+
+  return Number.isSafeInteger(numericValue) && numericValue > 0
+    ? numericValue
+    : null;
 }
 
-function normalizeCounterIds(counterIds: Array<string | null | undefined>) {
-  const seen = new Set<string>();
-  const normalizedIds: string[] = [];
+function normalizeCounterIds(
+  counterIds: Array<string | null | undefined> | null | undefined,
+) {
+  const seen = new Set<number>();
+  const normalizedIds: number[] = [];
 
-  counterIds.forEach((counterId) => {
+  counterIds?.forEach((counterId) => {
     const value = normalizeCounterId(counterId);
 
     if (!value || seen.has(value)) {
@@ -29,8 +39,8 @@ function normalizeCounterIds(counterIds: Array<string | null | undefined>) {
   return normalizedIds;
 }
 
-function buildYandexMetrikaSnippet(counterIds: string[]) {
-  const idsJson = JSON.stringify(counterIds);
+function buildYandexMetrikaSnippet(counterId: number) {
+  const counterIdJson = JSON.stringify(counterId);
 
   return `
     (function(m,e,t,r,i,k,a){
@@ -43,17 +53,15 @@ function buildYandexMetrikaSnippet(counterIds: string[]) {
     })(window, document,'script','https://mc.yandex.ru/metrika/tag.js', 'ym');
 
     window.dataLayer = window.dataLayer || [];
-    ${idsJson}.forEach(function(counterId) {
-      ym(Number(counterId), 'init', {
-        ssr: true,
-        webvisor: true,
-        clickmap: true,
-        ecommerce: "dataLayer",
-        referrer: document.referrer,
-        url: location.href,
-        accurateTrackBounce: true,
-        trackLinks: true
-      });
+    ym(${counterIdJson}, 'init', {
+      ssr: true,
+      webvisor: true,
+      clickmap: true,
+      ecommerce: "dataLayer",
+      referrer: document.referrer,
+      url: location.href,
+      accurateTrackBounce: true,
+      trackLinks: true
     });
   `;
 }
@@ -69,13 +77,16 @@ export const YandexMetrika: React.FC<YandexMetrikaProps> = ({
 
   return (
     <>
-      <Script
-        id="yandex-metrika"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: buildYandexMetrikaSnippet(normalizedCounterIds),
-        }}
-      />
+      {normalizedCounterIds.map((counterId) => (
+        <Script
+          key={counterId}
+          id={`yandex-metrika-${counterId}`}
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: buildYandexMetrikaSnippet(counterId),
+          }}
+        />
+      ))}
       <noscript>
         {normalizedCounterIds.map((counterId) => (
           <div key={counterId}>

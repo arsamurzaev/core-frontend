@@ -6,7 +6,7 @@ import {
   dispatchProductDrawerRouteClose,
   dispatchProductDrawerRouteOpen,
   type ProductDrawerCloseStrategy,
-} from "../model/product-drawer-instant-events";
+} from "@/core/modules/product/model/product-drawer-instant-events";
 
 interface ProductDrawerRouteProps {
   productSlug: string;

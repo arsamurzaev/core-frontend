@@ -32,7 +32,9 @@ interface ProductDetailsPanelProps {
     className?: string;
   }>;
   shareText?: string;
+  saleUnitPicker?: React.ReactNode;
   subtitle: string;
+  variantPicker?: React.ReactNode;
   variantsSummary: string | null;
 }
 
@@ -52,10 +54,12 @@ export function ProductDetailsPanel({
   isLoading,
   price,
   resetKey,
+  saleUnitPicker,
   scrollAreaClassName,
   ScrollAreaComponent = "div",
   shareText,
   subtitle,
+  variantPicker,
   variantsSummary,
 }: ProductDetailsPanelProps) {
   const ScrollArea = ScrollAreaComponent;
@@ -84,6 +88,9 @@ export function ProductDetailsPanel({
               isLoading={isLoading}
             />
           </div>
+
+          {variantPicker}
+          {saleUnitPicker}
 
           <ProductDrawerOverviewMeta
             brandName={brandName}

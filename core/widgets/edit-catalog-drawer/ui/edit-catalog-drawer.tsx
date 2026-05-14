@@ -24,6 +24,7 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
 }) => {
   const {
     bgUrl,
+    checkoutConfig: resolvedCheckoutConfig,
     errorMessage,
     form,
     handleOpenChange,
@@ -67,7 +68,7 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
             <div className="space-y-5">
               <CatalogEditForm
                 form={form}
-                checkoutConfig={checkoutConfig}
+                checkoutConfig={resolvedCheckoutConfig}
                 disabled={isSubmitting}
                 isSaving={isSubmitting}
                 logoUrl={logoUrl}

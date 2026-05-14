@@ -20,6 +20,12 @@ function isProductWithDetails(
   return "variants" in product;
 }
 
+function canShowProductVariants(
+  product: ProductCardEntity,
+): product is ProductWithDetailsDto {
+  return Boolean(product.productType?.id) && isProductWithDetails(product);
+}
+
 function toTextValue(value: ParsedAttributeValue): string | null {
   if (typeof value === "string") {
     const normalized = value.trim();
@@ -48,7 +54,7 @@ function getCatalogAttributeLabel(
 }
 
 function getVariantValuesByKey(product: ProductCardEntity, key: string): string[] {
-  if (!isProductWithDetails(product)) {
+  if (!canShowProductVariants(product)) {
     return [];
   }
 
@@ -71,7 +77,7 @@ function getVariantValuesByKey(product: ProductCardEntity, key: string): string[
 }
 
 function getAllVariantsSummary(product: ProductCardEntity): string | null {
-  if (!isProductWithDetails(product)) {
+  if (!canShowProductVariants(product)) {
     return null;
   }
 

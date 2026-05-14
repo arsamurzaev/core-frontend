@@ -1,9 +1,11 @@
 "use client";
 
+import { startMoySkladSyncProgressToast } from "@/core/modules/integration/model/start-moysklad-sync-progress-toast";
 import { invalidateMoySkladIntegrationQueries } from "@/core/modules/product/actions/model/invalidate-moysklad-integration-queries";
 import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
 import { useIntegrationControllerSyncMoySkladProduct } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,6 +23,7 @@ export const SyncMoySkladProductAction: React.FC<
   SyncMoySkladProductActionProps
 > = ({ disabled = false, onPendingChange, productId }) => {
   const queryClient = useQueryClient();
+  const features = useCatalogCapabilities();
   const syncProductMutation = useIntegrationControllerSyncMoySkladProduct();
 
   React.useEffect(() => {
@@ -31,6 +34,13 @@ export const SyncMoySkladProductAction: React.FC<
     };
   }, [onPendingChange, syncProductMutation.isPending]);
 
+  const refreshProductAndIntegration = React.useCallback(async () => {
+    await Promise.allSettled([
+      invalidateProductQueries(queryClient),
+      invalidateMoySkladIntegrationQueries(queryClient),
+    ]);
+  }, [queryClient]);
+
   const handleClick = React.useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -39,24 +49,33 @@ export const SyncMoySkladProductAction: React.FC<
       void confirm({
         title: "Синхронизировать товар с MoySklad?",
         description:
-          "Текущие данные товара будут обновлены из MoySklad. Актуальные изображения и значения из интеграции перезапишут локальные данные.",
+          "Текущие данные товара будут обновлены из MoySklad. Актуальные изображения, остатки и значения из интеграции перезапишут локальные данные.",
         confirmText: "Запустить sync",
         pendingText: "Ставим sync в очередь...",
         onConfirm: async () => {
-          await syncProductMutation.mutateAsync({ id: productId });
-          await Promise.allSettled([
-            invalidateProductQueries(queryClient),
-            invalidateMoySkladIntegrationQueries(queryClient),
-          ]);
-          toast.success("Sync товара с MoySklad поставлен в очередь.");
+          const queued = await syncProductMutation.mutateAsync({ id: productId });
+          await refreshProductAndIntegration();
+          startMoySkladSyncProgressToast({
+            runId: queued.runId,
+            title: "Синхронизация товара MoySklad",
+            onSettled: refreshProductAndIntegration,
+          });
         },
         onError: (error) => {
           toast.error(extractApiErrorMessage(error));
         },
       });
     },
-    [productId, queryClient, syncProductMutation],
+    [
+      productId,
+      refreshProductAndIntegration,
+      syncProductMutation,
+    ],
   );
+
+  if (!features.canUseMoySkladIntegration) {
+    return null;
+  }
 
   return (
     <Button
@@ -68,7 +87,11 @@ export const SyncMoySkladProductAction: React.FC<
       aria-label="Синхронизировать товар с MoySklad"
     >
       <RefreshCcw
-        className={syncProductMutation.isPending ? "text-muted-foreground size-4 animate-spin" : "text-muted-foreground size-4"}
+        className={
+          syncProductMutation.isPending
+            ? "text-muted-foreground size-4 animate-spin"
+            : "text-muted-foreground size-4"
+        }
       />
     </Button>
   );

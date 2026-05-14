@@ -1,80 +1,88 @@
 "use client";
 
-import type { CartProductSnapshot } from "@/core/modules/cart/model/cart-context";
+import type { CartProductSnapshot } from "@/core/modules/cart/model/cart-context.types";
+import {
+  getCartProductDrawerAddLabel,
+  shouldShowCartProductDrawerAddButton,
+} from "@/core/modules/cart/model/cart-product-drawer-footer-state";
+import { CartProductDrawerAddButton } from "@/core/modules/cart/ui/cart-product-drawer-add-button";
+import { CartQuantityControl } from "@/core/modules/cart/ui/cart-quantity-control";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
 import { Minus, Plus } from "lucide-react";
 import React from "react";
 
 interface CartProductDrawerFooterActionProps {
   className?: string;
+  disabled?: boolean;
+  maxQuantity?: number;
   product?: CartProductSnapshot;
   productId: string;
+  requiresVariantSelection?: boolean;
+  saleUnitId?: string | null;
+  variantId?: string | null;
 }
 
 export const CartProductDrawerFooterAction: React.FC<
   CartProductDrawerFooterActionProps
-> = ({ className, product, productId }) => {
-  const { handleAdd, handleDecrement, handleIncrement, isBusy, quantity } =
-    useCartProductControls(productId, product);
+> = ({
+  className,
+  disabled = false,
+  maxQuantity,
+  product,
+  productId,
+  requiresVariantSelection,
+  saleUnitId,
+  variantId,
+}) => {
+  const {
+    handleAdd,
+    handleDecrement,
+    handleIncrement,
+    isBusy,
+    isIncrementDisabled,
+    quantity,
+  } =
+    useCartProductControls(
+      {
+        productId,
+        saleUnitId,
+        variantId,
+      },
+      product,
+      {
+        maxQuantity,
+        requiresVariantSelection,
+      },
+    );
 
-  if (!quantity) {
+  if (shouldShowCartProductDrawerAddButton(quantity)) {
     return (
-      <Button
-        type="button"
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handleAdd();
-        }}
-        className={cn(
-          "shadow-custom cursor-default bg-secondary/70 disabled:opacity-100",
-          isBusy && "animate-pulse",
-          className,
-        )}
-        variant="secondary"
-        size="icon"
-        aria-label="Добавить в корзину"
-      >
-        <Plus />
-      </Button>
+      <CartProductDrawerAddButton
+        ariaLabel={getCartProductDrawerAddLabel(disabled)}
+        className={className}
+        disabled={disabled || isBusy || isIncrementDisabled}
+        isBusy={isBusy}
+        onAdd={handleAdd}
+      />
     );
   }
 
   return (
-    <div
+    <CartQuantityControl
       className={cn(
         "bg-primary flex min-w-[104px] cursor-default items-center gap-2.5 rounded-full px-2.5 py-3 text-white",
         isBusy && "animate-pulse",
         className,
       )}
-    >
-      <button
-        type="button"
-        disabled={isBusy}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handleDecrement();
-        }}
-        aria-label="Уменьшить количество"
-      >
-        <Minus size={12} />
-      </button>
-      <p className="flex-1 text-center">{quantity}</p>
-      <button
-        type="button"
-        disabled={isBusy}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handleIncrement();
-        }}
-        aria-label="Увеличить количество"
-      >
-        <Plus size={12} />
-      </button>
-    </div>
+      decrementContent={<Minus size={12} />}
+      decrementDisabled={disabled || isBusy}
+      incrementContent={<Plus size={12} />}
+      incrementDisabled={disabled || isBusy || isIncrementDisabled}
+      onDecrement={handleDecrement}
+      onIncrement={handleIncrement}
+      value={quantity}
+      valueClassName="flex-1 text-center"
+    />
   );
 };

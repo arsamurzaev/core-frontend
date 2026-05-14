@@ -1,6 +1,9 @@
 import type { CategoryDto } from "@/shared/api/generated/react-query";
+import type { CategoryCardVariant } from "@/core/modules/category/model/category-card";
 import { cn } from "@/shared/lib/utils";
 import React from "react";
+
+export type { CategoryCardVariant } from "@/core/modules/category/model/category-card";
 
 interface Props {
   className?: string;
@@ -10,8 +13,6 @@ interface Props {
   action?: (category: CategoryDto) => React.ReactNode;
   variant?: CategoryCardVariant;
 }
-
-export type CategoryCardVariant = "default" | "compact";
 
 export const CategoryCard: React.FC<Props> = ({
   className,

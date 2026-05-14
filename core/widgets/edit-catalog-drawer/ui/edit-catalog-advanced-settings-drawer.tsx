@@ -1,10 +1,13 @@
 "use client";
 
 import { EditCatalogDomainsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-domains-drawer";
+import { EditCatalogInventoryDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-inventory-drawer";
 import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-integrations-drawer";
 import { EditCatalogMetrikaDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-metrika-drawer";
 import { EditCatalogPasswordDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-password-drawer";
+import { EditCatalogProductTypesDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-product-types-drawer";
 import { EditCatalogSessionsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button, type ButtonProps } from "@/shared/ui/button";
@@ -49,6 +52,10 @@ DefaultAdvancedSettingsTrigger.displayName = "DefaultAdvancedSettingsTrigger";
 export const EditCatalogAdvancedSettingsDrawer: React.FC<
   EditCatalogAdvancedSettingsDrawerProps
 > = ({ disabled = false }) => {
+  const features = useCatalogCapabilities();
+  const showInventory =
+    features.inventoryMode === "INTERNAL" && features.canUseInternalInventory;
+
   return (
     <AppDrawer
       nested
@@ -70,7 +77,15 @@ export const EditCatalogAdvancedSettingsDrawer: React.FC<
               <EditCatalogSessionsDrawer disabled={disabled} />
               <EditCatalogDomainsDrawer disabled={disabled} />
               <EditCatalogMetrikaDrawer disabled={disabled} />
-              <EditCatalogIntegrationsDrawer disabled={disabled} />
+              {features.canUseProductTypes ? (
+                <EditCatalogProductTypesDrawer disabled={disabled} />
+              ) : null}
+              {features.canUseMoySkladIntegration ? (
+                <EditCatalogIntegrationsDrawer disabled={disabled} />
+              ) : null}
+              {showInventory ? (
+                <EditCatalogInventoryDrawer disabled={disabled} />
+              ) : null}
             </div>
           </DrawerScrollArea>
 

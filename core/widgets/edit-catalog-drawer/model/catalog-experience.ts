@@ -5,6 +5,7 @@ import {
   UpdateCatalogDtoReqAllowedModesItem,
   UpdateCatalogDtoReqDefaultMode,
 } from "@/shared/api/generated/react-query";
+import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
 
 export type CatalogExperienceMode =
   (typeof UpdateCatalogDtoReqDefaultMode)[keyof typeof UpdateCatalogDtoReqDefaultMode];
@@ -15,8 +16,12 @@ export interface CatalogExperienceOption {
   description: string;
 }
 
+type CatalogExperienceSource = Pick<CatalogCurrentDto, "type"> | null | undefined;
+
 export const DEFAULT_CATALOG_EXPERIENCE_MODE =
   UpdateCatalogDtoReqDefaultMode.DELIVERY;
+const HALL_CATALOG_EXPERIENCE_MODE = UpdateCatalogDtoReqDefaultMode.HALL;
+const CATALOG_EXPERIENCE_HALL_TYPE_CODES = new Set(["restaurant", "cafe"]);
 
 export const CATALOG_EXPERIENCE_OPTIONS: CatalogExperienceOption[] = [
   {
@@ -48,16 +53,56 @@ export function isCatalogExperienceMode(
   return CATALOG_EXPERIENCE_OPTION_MAP.has(value as CatalogExperienceMode);
 }
 
+export function canUseHallCatalogExperience(
+  catalog: CatalogExperienceSource,
+): boolean {
+  return CATALOG_EXPERIENCE_HALL_TYPE_CODES.has(getCatalogTypeCode(catalog));
+}
+
+export function getCatalogExperienceOptions(
+  catalog?: CatalogExperienceSource,
+): CatalogExperienceOption[] {
+  if (canUseHallCatalogExperience(catalog)) {
+    return CATALOG_EXPERIENCE_OPTIONS;
+  }
+
+  return CATALOG_EXPERIENCE_OPTIONS.filter(
+    (option) => option.value !== HALL_CATALOG_EXPERIENCE_MODE,
+  );
+}
+
+export function getCatalogExperienceAvailableModes(
+  catalog?: CatalogExperienceSource,
+): CatalogExperienceMode[] {
+  return getCatalogExperienceOptions(catalog).map((option) => option.value);
+}
+
 export function normalizeCatalogExperienceModes(
   values?: readonly string[] | null,
+  options: {
+    availableModes?: readonly CatalogExperienceMode[];
+  } = {},
 ): CatalogExperienceMode[] {
+  const availableModes = options.availableModes?.length
+    ? options.availableModes
+    : CATALOG_EXPERIENCE_OPTIONS.map((option) => option.value);
   const normalized = Array.from(
-    new Set((values ?? []).filter(isCatalogExperienceMode)),
+    new Set(
+      (values ?? [])
+        .filter(isCatalogExperienceMode)
+        .filter((mode) => availableModes.includes(mode)),
+    ),
   );
 
-  return normalized.length > 0
-    ? normalized
-    : [DEFAULT_CATALOG_EXPERIENCE_MODE];
+  if (normalized.length > 0) {
+    return normalized;
+  }
+
+  return [
+    availableModes.includes(DEFAULT_CATALOG_EXPERIENCE_MODE)
+      ? DEFAULT_CATALOG_EXPERIENCE_MODE
+      : (availableModes[0] ?? DEFAULT_CATALOG_EXPERIENCE_MODE),
+  ];
 }
 
 export function resolveCatalogExperienceDefaultMode(
@@ -121,8 +166,10 @@ export function getCatalogExperienceDefaultValues(catalog: CatalogCurrentDto): {
   allowedModes: CatalogExperienceMode[];
   defaultMode: CatalogExperienceMode;
 } {
+  const availableModes = getCatalogExperienceAvailableModes(catalog);
   const allowedModes = normalizeCatalogExperienceModes(
     catalog.settings?.allowedModes,
+    { availableModes },
   );
   const defaultMode = resolveCatalogExperienceDefaultMode(
     catalog.settings?.defaultMode,

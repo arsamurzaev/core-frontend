@@ -24,13 +24,20 @@ import {
   CART_SSE_STALE_TIMEOUT_MS,
   type CartMode,
 } from "@/core/modules/cart/model/cart-constants";
+import { getCartItemSaleUnitId } from "@/core/modules/cart/model/cart-line-key";
 import { type CartDto } from "@/shared/api/generated/react-query";
 
 type UseCartSseParams = {
   activeCart: CartDto | null;
   clearStoredPublicAccess: () => void;
-  handleSseCartStatusChanged: (cart: CartDto, access?: CartPublicAccess | null) => void;
-  handleSseCartUpdated: (cart: CartDto, access?: CartPublicAccess | null) => void;
+  handleSseCartStatusChanged: (
+    cart: CartDto,
+    access?: CartPublicAccess | null,
+  ) => void;
+  handleSseCartUpdated: (
+    cart: CartDto,
+    access?: CartPublicAccess | null,
+  ) => void;
   isHydrated: boolean;
   isLocalCartMutationPending: boolean;
   mode: CartMode;
@@ -38,7 +45,9 @@ type UseCartSseParams = {
   storedPublicAccess: CartPublicAccess | null;
 };
 
-function getCartItemsFingerprint(cart: CartDto | null | undefined): string | null {
+function getCartItemsFingerprint(
+  cart: CartDto | null | undefined,
+): string | null {
   if (!cart) {
     return null;
   }
@@ -46,7 +55,13 @@ function getCartItemsFingerprint(cart: CartDto | null | undefined): string | nul
   return `${cart.id}:${cart.items
     .map(
       (item) =>
-        `${item.id}:${item.productId}:${item.variantId ?? ""}:${item.quantity}`,
+        [
+          item.id,
+          item.productId,
+          item.variantId ?? "",
+          getCartItemSaleUnitId(item) ?? "",
+          item.quantity,
+        ].join(":"),
     )
     .join("|")}`;
 }
@@ -83,6 +98,7 @@ export function useCartSse({
   notifyPublicCartUnavailable,
   storedPublicAccess,
 }: UseCartSseParams): void {
+  const activeCartId = activeCart?.id ?? null;
   const activeCartItemsFingerprintRef = React.useRef<string | null>(null);
   const isLocalCartMutationPendingRef = React.useRef(isLocalCartMutationPending);
 
@@ -103,7 +119,7 @@ export function useCartSse({
       return;
     }
 
-    if (mode === "current" && !activeCart) {
+    if (mode === "current" && !activeCartId) {
       return;
     }
 
@@ -276,7 +292,7 @@ export function useCartSse({
       }
     };
   }, [
-    activeCart?.id,
+    activeCartId,
     clearStoredPublicAccess,
     handleSseCartStatusChanged,
     handleSseCartUpdated,

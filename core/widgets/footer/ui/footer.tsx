@@ -4,7 +4,7 @@ import {
   formatSubscriptionDaysText,
   getCatalogSubscriptionEndsAt,
   getDaysUntilSubscriptionEnd,
-} from "@/core/widgets/footer/model/subscription-status";
+} from "@/shared/lib/subscription-status";
 import { useSubscriptionWarning } from "@/core/widgets/footer/model/use-subscription-warning";
 import { SubscriptionReminderDrawer } from "@/core/widgets/footer/ui/subscription-reminder-drawer";
 import { SupportDrawer } from "@/core/widgets/footer/ui/support-drawer";
@@ -13,8 +13,6 @@ import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import React from "react";
 import { ShareDrawerBrand } from "../../share-drawer/ui/share-drawer-brand";
-
-const PLATFORM_URL = "https://catalog.kreati.ru";
 
 interface Props {
   className?: string;

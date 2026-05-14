@@ -2,7 +2,15 @@
 
 import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
+  CATALOG_FEATURE_LABELS,
+  CATALOG_FEATURES,
+  type CatalogFeature,
+  getCatalogFeatureEntitlements,
+  updateCatalogFeatureEntitlement,
+} from "@/core/widgets/global-admin-drawer/model/catalog-feature-entitlements";
+import {
   getBrandControllerGetAllQueryKey,
+  getCatalogControllerGetCurrentFeaturesQueryKey,
   getCatalogControllerGetCurrentQueryKey,
   getCategoryControllerGetAllQueryKey,
   getProductControllerGetAllQueryKey,
@@ -15,8 +23,16 @@ import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { ConfirmationDrawer } from "@/shared/ui/confirmation-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
-import { useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, DatabaseZap, ShieldAlert, Trash2 } from "lucide-react";
+import { Skeleton } from "@/shared/ui/skeleton";
+import { Switch } from "@/shared/ui/switch";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  AlertTriangle,
+  DatabaseZap,
+  ShieldAlert,
+  SlidersHorizontal,
+  Trash2,
+} from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 
@@ -67,6 +83,10 @@ async function invalidateCatalogContentQueries(
   ]);
 }
 
+function getAdminCatalogFeaturesQueryKey(catalogId: string) {
+  return ["admin", "catalog-features", catalogId] as const;
+}
+
 export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
   open,
   onOpenChange,
@@ -75,11 +95,72 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
   const catalog = useCatalog();
   const queryClient = useQueryClient();
   const deleteContent = useAdminControllerDeleteCatalogContent();
+  const featureQuery = useQuery({
+    queryKey: getAdminCatalogFeaturesQueryKey(catalog.id),
+    queryFn: () => getCatalogFeatureEntitlements(catalog.id),
+    staleTime: 30_000,
+  });
+  const updateFeature = useMutation({
+    mutationFn: (params: { feature: CatalogFeature; enabled: boolean }) =>
+      updateCatalogFeatureEntitlement(catalog.id, {
+        ...params,
+        metadata: { source: "global_admin_drawer" },
+      }),
+    onSuccess: async () => {
+      await Promise.allSettled([
+        queryClient.invalidateQueries({
+          queryKey: getAdminCatalogFeaturesQueryKey(catalog.id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: getCatalogControllerGetCurrentFeaturesQueryKey(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: getCatalogControllerGetCurrentQueryKey(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["/admin/catalogs"],
+        }),
+      ]);
+    },
+  });
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
   const [lastResult, setLastResult] =
     React.useState<AdminDeleteCatalogContentResultDto | null>(null);
 
   const isDeleting = deleteContent.isPending;
+  const featuresByKey = React.useMemo(() => {
+    return new Map(
+      (featureQuery.data?.features ?? []).map((feature) => [
+        feature.feature,
+        feature,
+      ]),
+    );
+  }, [featureQuery.data?.features]);
+  const capabilityItemsByKey = React.useMemo(() => {
+    return new Map(
+      (featureQuery.data?.items ?? []).map((item) => [item.key, item]),
+    );
+  }, [featureQuery.data?.items]);
+  const capabilityDefinitionsByKey = React.useMemo(() => {
+    return new Map(
+      (featureQuery.data?.definitions ?? []).map((definition) => [
+        definition.key,
+        definition,
+      ]),
+    );
+  }, [featureQuery.data?.definitions]);
+  const pendingFeature = updateFeature.variables?.feature ?? null;
+
+  const handleFeatureToggle = React.useCallback(
+    (feature: CatalogFeature, enabled: boolean) => {
+      toast.promise(updateFeature.mutateAsync({ feature, enabled }), {
+        loading: enabled ? "Включаем функцию..." : "Выключаем функцию...",
+        success: enabled ? "Функция включена" : "Функция выключена",
+        error: (error) => extractApiErrorMessage(error),
+      });
+    },
+    [updateFeature],
+  );
 
   const handleDeleteContent = React.useCallback(async () => {
     const result = await deleteContent.mutateAsync({ id: catalog.id });
@@ -138,6 +219,91 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                       {catalog.id}
                     </dd>
                   </dl>
+                </section>
+
+                <section className="space-y-4 rounded-lg border border-black/10 p-4">
+                  <div className="flex items-start gap-3">
+                    <SlidersHorizontal className="mt-0.5 size-5 shrink-0 text-primary" />
+                    <div className="min-w-0 space-y-1">
+                      <h3 className="text-base font-semibold">
+                        Beta-функции каталога
+                      </h3>
+                      <p className="text-sm leading-5 text-muted-foreground">
+                        Включайте новые возможности точечно. Если флаг
+                        выключен, данные не удаляются, но интерфейс и backend
+                        не дают использовать эту функцию.
+                      </p>
+                    </div>
+                  </div>
+
+                  {featureQuery.isLoading ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-14 w-full" />
+                      <Skeleton className="h-14 w-full" />
+                      <Skeleton className="h-14 w-full" />
+                    </div>
+                  ) : featureQuery.isError ? (
+                    <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                      {extractApiErrorMessage(featureQuery.error)}
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-black/10 rounded-md border border-black/10">
+                      {CATALOG_FEATURES.map((feature) => {
+                        const entitlement = featuresByKey.get(feature);
+                        const state = capabilityItemsByKey.get(feature);
+                        const definition = capabilityDefinitionsByKey.get(feature);
+                        const copy = {
+                          title:
+                            definition?.title ?? CATALOG_FEATURE_LABELS[feature].title,
+                          description:
+                            definition?.description ??
+                            CATALOG_FEATURE_LABELS[feature].description,
+                        };
+                        const isPending =
+                          updateFeature.isPending && pendingFeature === feature;
+
+                        return (
+                          <div
+                            key={feature}
+                            className="flex items-center justify-between gap-4 p-3"
+                          >
+                            <div className="min-w-0 space-y-1">
+                              <div className="font-medium">{copy.title}</div>
+                              <div className="text-sm leading-5 text-muted-foreground">
+                                {copy.description}
+                              </div>
+                              {entitlement?.expiresAt ? (
+                                <div className="text-xs text-muted-foreground">
+                                  До {new Date(entitlement.expiresAt).toLocaleDateString("ru-RU")}
+                                </div>
+                              ) : null}
+                              {state?.raw && !state.effective ? (
+                                <div className="text-xs text-destructive">
+                                  Недоступно: {state.disabledReason ?? "проверьте зависимости"}
+                                </div>
+                              ) : null}
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <span className="text-xs text-muted-foreground">
+                                {state?.effective ? "доступно" : "выкл"}
+                              </span>
+                            <Switch
+                              checked={Boolean(entitlement?.enabled)}
+                              disabled={updateFeature.isPending}
+                              aria-label={copy.title}
+                              onCheckedChange={(checked) =>
+                                handleFeatureToggle(feature, checked)
+                              }
+                            />
+                            {isPending ? (
+                              <span className="sr-only">Сохраняем</span>
+                            ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </section>
 
                 <section className="space-y-4 rounded-lg border border-destructive/35 bg-destructive/5 p-4">

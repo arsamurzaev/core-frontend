@@ -29,6 +29,9 @@ interface CreateProductMutation {
 
 interface UseCreateProductSubmitParams {
   closeDrawer: () => void;
+  canUseCatalogSaleUnits: boolean;
+  canUseProductTypes: boolean;
+  canUseProductVariants: boolean;
   createProduct: CreateProductMutation;
   files: File[];
   form: UseFormReturn<CreateProductFormValues>;
@@ -43,6 +46,7 @@ interface UseCreateProductSubmitParams {
   setUploadState: React.Dispatch<React.SetStateAction<UploadState>>;
   setUploadedMediaIds: React.Dispatch<React.SetStateAction<string[]>>;
   uploadedMediaIds: string[];
+  variantAttributes: AttributeDto[];
   visibleAttributes: AttributeDto[];
 }
 
@@ -71,6 +75,9 @@ function renderUploadProgressToast(state: UploadState) {
 
 export function useCreateProductSubmit({
   closeDrawer,
+  canUseCatalogSaleUnits,
+  canUseProductTypes,
+  canUseProductVariants,
   createProduct,
   files,
   form,
@@ -85,6 +92,7 @@ export function useCreateProductSubmit({
   setUploadState,
   setUploadedMediaIds,
   uploadedMediaIds,
+  variantAttributes,
   visibleAttributes,
 }: UseCreateProductSubmitParams) {
   return React.useCallback(async () => {
@@ -95,7 +103,9 @@ export function useCreateProductSubmit({
     const validationResult = validateProductFormValues({
       invalidFormMessage: "Заполните форму товара.",
       invalidPriceMessage: "Укажите корректную цену.",
+      canUseCatalogSaleUnits,
       values: form.getValues(),
+      variantAttributes,
       visibleAttributes,
     });
     if (!validationResult.success) {
@@ -150,6 +160,10 @@ export function useCreateProductSubmit({
           mediaIds,
           normalizedPrice,
           productAttributes,
+          variantAttributes,
+          canUseCatalogSaleUnits,
+          canUseProductTypes,
+          canUseProductVariants,
         });
 
         await createProduct.mutateAsync({
@@ -194,6 +208,9 @@ export function useCreateProductSubmit({
     })();
   }, [
     closeDrawer,
+    canUseCatalogSaleUnits,
+    canUseProductTypes,
+    canUseProductVariants,
     createProduct,
     files,
     form,
@@ -208,6 +225,7 @@ export function useCreateProductSubmit({
     setUploadState,
     setUploadedMediaIds,
     uploadedMediaIds,
+    variantAttributes,
     visibleAttributes,
   ]);
 }

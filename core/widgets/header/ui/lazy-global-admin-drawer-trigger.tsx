@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/shared/ui/button";
-import { cn } from "@/shared/lib/utils";
 import dynamic from "next/dynamic";
 import { ShieldAlert } from "lucide-react";
 import React from "react";
@@ -17,13 +16,7 @@ const GlobalAdminDrawerDynamic = dynamic(
   },
 );
 
-interface LazyGlobalAdminDrawerTriggerProps {
-  className?: string;
-}
-
-export const LazyGlobalAdminDrawerTrigger: React.FC<
-  LazyGlobalAdminDrawerTriggerProps
-> = ({ className }) => {
+export const LazyGlobalAdminDrawerTrigger: React.FC = () => {
   const [isMounted, setIsMounted] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
@@ -34,13 +27,7 @@ export const LazyGlobalAdminDrawerTrigger: React.FC<
 
   return (
     <>
-      <Button
-        type="button"
-        className={cn(className)}
-        variant="outline"
-        size="sm"
-        onClick={handleClick}
-      >
+      <Button type="button" size="sm" variant="outline" onClick={handleClick}>
         <ShieldAlert className="size-4" />
         Глобальный админ
       </Button>

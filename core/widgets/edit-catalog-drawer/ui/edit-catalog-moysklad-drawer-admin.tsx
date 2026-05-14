@@ -8,6 +8,7 @@ import {
   type MoySkladFormState,
   type ValidationErrors,
 } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-form-state";
+import { startMoySkladSyncProgressToast } from "@/core/modules/integration/model/start-moysklad-sync-progress-toast";
 import {
   buildSchedulePattern,
   getSchedulePresetDescription,
@@ -24,18 +25,32 @@ import {
 } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-status";
 import {
   getCatalogAdvancedSettingsControllerGetMoySkladQueryKey,
+  getCatalogAdvancedSettingsControllerGetMoySkladOrderExportRefsQueryKey,
   getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryKey,
   getCatalogAdvancedSettingsControllerGetMoySkladStatusQueryKey,
+  getIntegrationControllerGetMoySkladOrderExportsQueryKey,
+  getIntegrationControllerPreviewMoySkladMappingQueryKey,
+  type ApplyMoySkladMappingDtoReq,
+  type IntegrationProviderCapabilitiesDto,
+  type MoySkladMappingApplyReportDto,
+  type MoySkladMappingPreviewDto,
   type MoySkladIntegrationStatusDto,
+  type MoySkladOrderExportDto,
+  type MoySkladOrderExportRefOptionDto,
   type UpdateMoySkladIntegrationDtoReq,
   type UpsertMoySkladIntegrationDtoReq,
   useCatalogAdvancedSettingsControllerCancelMoySkladSync,
+  useCatalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,
   useCatalogAdvancedSettingsControllerGetMoySkladRuns,
   useCatalogAdvancedSettingsControllerGetMoySkladStatus,
   useCatalogAdvancedSettingsControllerSyncMoySkladCatalog,
   useCatalogAdvancedSettingsControllerTestMoySkladConnection,
   useCatalogAdvancedSettingsControllerUpdateMoySklad,
   useCatalogAdvancedSettingsControllerUpsertMoySklad,
+  useIntegrationControllerApplyMoySkladMapping,
+  useIntegrationControllerGetMoySkladOrderExports,
+  useIntegrationControllerPreviewMoySkladMapping,
+  useIntegrationControllerRetryMoySkladOrderExport,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -65,6 +80,108 @@ import React from "react";
 import { toast } from "sonner";
 
 const RUNS_LIMIT = 5;
+const ORDER_EXPORTS_LIMIT = 5;
+
+type OrderExportRefField =
+  | "orderExportOrganizationId"
+  | "orderExportCounterpartyId"
+  | "orderExportStoreId";
+
+const CAPABILITY_LABELS: Record<
+  keyof IntegrationProviderCapabilitiesDto,
+  string
+> = {
+  productImport: "Товары",
+  variantImport: "Варианты",
+  stockImport: "Остатки",
+  imageImport: "Изображения",
+  orderExport: "Экспорт заказов",
+  reservation: "Резервы",
+  webhook: "Webhook",
+};
+
+function formatDateTime(value?: string | null): string {
+  if (!value) return "нет даты";
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
+function getOrderExportStatusBadge(status: MoySkladOrderExportDto["status"]) {
+  switch (status) {
+    case "SUCCESS":
+      return { label: "Готово", variant: "default" as const };
+    case "ERROR":
+      return { label: "Ошибка", variant: "destructive" as const };
+    case "RUNNING":
+      return { label: "Выполняется", variant: "secondary" as const };
+    case "PENDING":
+      return { label: "В очереди", variant: "secondary" as const };
+    case "SKIPPED":
+      return { label: "Пропущено", variant: "outline" as const };
+    default:
+      return { label: status, variant: "outline" as const };
+  }
+}
+
+function getMappingPreviewSummary(preview?: MoySkladMappingPreviewDto): string {
+  if (!preview)
+    return "Загрузите preview, чтобы увидеть неизвестные характеристики.";
+
+  const counters = preview.counters;
+  return [
+    `${counters.characteristics} характеристик`,
+    `${counters.unknownAttributes} новых атрибутов`,
+    `${counters.unknownEnumValues} новых значений`,
+    `${counters.suggestedExistingValues} подсказок`,
+  ].join(" · ");
+}
+
+function getMappingReportSummary(
+  report?: MoySkladMappingApplyReportDto | null,
+) {
+  if (!report) return null;
+
+  return [
+    `создано: ${report.created.total}`,
+    `связано: ${report.linked.total}`,
+    `пропущено: ${report.skipped.total}`,
+  ].join(" · ");
+}
+
+function getRefOptionLabel(option: MoySkladOrderExportRefOptionDto): string {
+  return option.archived ? `${option.name} (архив)` : option.name;
+}
+
+function getRefOptionMeta(
+  option: MoySkladOrderExportRefOptionDto,
+): string | null {
+  const parts = [option.code, option.externalCode].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
+
+function withSelectedRefOption(
+  options: MoySkladOrderExportRefOptionDto[],
+  selectedId: string,
+  fallbackName: string,
+): MoySkladOrderExportRefOptionDto[] {
+  if (!selectedId || options.some((option) => option.id === selectedId)) {
+    return options;
+  }
+
+  return [
+    {
+      id: selectedId,
+      name: `${fallbackName} больше не найден`,
+      code: null,
+      externalCode: selectedId,
+      archived: true,
+    },
+    ...options,
+  ];
+}
 
 async function refreshIntegrationQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -79,6 +196,18 @@ async function refreshIntegrationQueries(
     queryClient.invalidateQueries({
       queryKey: getCatalogAdvancedSettingsControllerGetMoySkladRunsQueryKey(),
     }),
+    queryClient.invalidateQueries({
+      queryKey:
+        getCatalogAdvancedSettingsControllerGetMoySkladOrderExportRefsQueryKey(),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: getIntegrationControllerGetMoySkladOrderExportsQueryKey({
+        limit: ORDER_EXPORTS_LIMIT,
+      }),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: getIntegrationControllerPreviewMoySkladMappingQueryKey(),
+    }),
   ]);
 }
 
@@ -91,10 +220,28 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
   const statusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
     query: { staleTime: 30_000 },
   });
+  const status = statusQuery.data;
+  const integration = status?.integration;
+  const isConfigured = Boolean(status?.configured);
   const runsQuery = useCatalogAdvancedSettingsControllerGetMoySkladRuns(
     { limit: RUNS_LIMIT },
     { query: { enabled: open, staleTime: 30_000 } },
   );
+  const orderExportRefsQuery =
+    useCatalogAdvancedSettingsControllerGetMoySkladOrderExportRefs({
+      query: {
+        enabled: open && isConfigured,
+        staleTime: 5 * 60_000,
+        retry: false,
+      },
+    });
+  const orderExportsQuery = useIntegrationControllerGetMoySkladOrderExports(
+    { limit: ORDER_EXPORTS_LIMIT },
+    { query: { enabled: open, staleTime: 30_000 } },
+  );
+  const mappingPreviewQuery = useIntegrationControllerPreviewMoySkladMapping({
+    query: { enabled: false, staleTime: 30_000 },
+  });
   const upsertMutation = useCatalogAdvancedSettingsControllerUpsertMoySklad();
   const updateMutation = useCatalogAdvancedSettingsControllerUpdateMoySklad();
   const testConnectionMutation =
@@ -103,17 +250,20 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
     useCatalogAdvancedSettingsControllerSyncMoySkladCatalog();
   const cancelSyncMutation =
     useCatalogAdvancedSettingsControllerCancelMoySkladSync();
+  const applyMappingMutation = useIntegrationControllerApplyMoySkladMapping();
+  const retryOrderExportMutation =
+    useIntegrationControllerRetryMoySkladOrderExport();
 
-  const [formState, setFormState] =
-    React.useState<MoySkladFormState>(resolveInitialFormState);
+  const [formState, setFormState] = React.useState<MoySkladFormState>(
+    resolveInitialFormState,
+  );
   const [validationErrors, setValidationErrors] =
     React.useState<ValidationErrors>({});
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [mappingReport, setMappingReport] =
+    React.useState<MoySkladMappingApplyReportDto | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
 
-  const status = statusQuery.data;
-  const integration = status?.integration;
-  const isConfigured = Boolean(status?.configured);
   const isBusy =
     disabled ||
     isSaving ||
@@ -121,7 +271,9 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
     updateMutation.isPending ||
     testConnectionMutation.isPending ||
     syncCatalogMutation.isPending ||
-    cancelSyncMutation.isPending;
+    cancelSyncMutation.isPending ||
+    applyMappingMutation.isPending ||
+    retryOrderExportMutation.isPending;
 
   const statusBadge = getStatusBadge({
     configured: isConfigured,
@@ -130,6 +282,37 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
   });
   const statusDescription = getStatusDescription(status);
   const syncHistory = runsQuery.data ?? [];
+  const orderExports = orderExportsQuery.data ?? [];
+  const orderExportRefs = orderExportRefsQuery.data;
+  const mappingPreview = mappingPreviewQuery.data;
+  const mappingReportSummary = getMappingReportSummary(mappingReport);
+  const organizationOptions = React.useMemo(
+    () =>
+      withSelectedRefOption(
+        orderExportRefs?.organizations ?? [],
+        formState.orderExportOrganizationId,
+        "Организация",
+      ),
+    [formState.orderExportOrganizationId, orderExportRefs?.organizations],
+  );
+  const counterpartyOptions = React.useMemo(
+    () =>
+      withSelectedRefOption(
+        orderExportRefs?.counterparties ?? [],
+        formState.orderExportCounterpartyId,
+        "Контрагент",
+      ),
+    [formState.orderExportCounterpartyId, orderExportRefs?.counterparties],
+  );
+  const storeOptions = React.useMemo(
+    () =>
+      withSelectedRefOption(
+        orderExportRefs?.stores ?? [],
+        formState.orderExportStoreId,
+        "Склад",
+      ),
+    [formState.orderExportStoreId, orderExportRefs?.stores],
+  );
 
   const resetLocalState = React.useCallback(
     (nextStatus?: MoySkladIntegrationStatusDto) => {
@@ -140,6 +323,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
       setFormState(buildMoySkladFormState(nextStatus, preferredTimeZone));
       setValidationErrors({});
       setErrorMessage(null);
+      setMappingReport(null);
     },
     [],
   );
@@ -152,9 +336,20 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
         resetLocalState(statusQuery.data);
         void statusQuery.refetch();
         void runsQuery.refetch();
+        if (isConfigured) {
+          void orderExportRefsQuery.refetch();
+        }
+        void orderExportsQuery.refetch();
       }
     },
-    [resetLocalState, runsQuery, statusQuery],
+    [
+      isConfigured,
+      orderExportRefsQuery,
+      orderExportsQuery,
+      resetLocalState,
+      runsQuery,
+      statusQuery,
+    ],
   );
 
   const setFieldValue = React.useCallback(
@@ -165,8 +360,22 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
       setFormState((prev) => ({ ...prev, [key]: value }));
       setErrorMessage(null);
 
-      if (key === "token") {
-        setValidationErrors((prev) => ({ ...prev, token: undefined }));
+      if (
+        key === "token" ||
+        key === "orderExportOrganizationId" ||
+        key === "orderExportCounterpartyId" ||
+        key === "orderExportStoreId"
+      ) {
+        setValidationErrors((prev) => ({ ...prev, [key]: undefined }));
+      }
+
+      if (key === "exportOrders" && value === false) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          orderExportOrganizationId: undefined,
+          orderExportCounterpartyId: undefined,
+          orderExportStoreId: undefined,
+        }));
       }
     },
     [],
@@ -203,6 +412,21 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
       nextErrors.token = "Введите токен MoySklad.";
     }
 
+    if (formState.exportOrders) {
+      if (!formState.orderExportOrganizationId) {
+        nextErrors.orderExportOrganizationId =
+          "Выберите организацию, от имени которой будет создан заказ.";
+      }
+      if (!formState.orderExportCounterpartyId) {
+        nextErrors.orderExportCounterpartyId =
+          "Выберите контрагента для заказов с сайта.";
+      }
+      if (!formState.orderExportStoreId) {
+        nextErrors.orderExportStoreId =
+          "Выберите склад, с которого будут списываться позиции.";
+      }
+    }
+
     if (Object.keys(nextErrors).length > 0) {
       setValidationErrors(nextErrors);
       return;
@@ -226,6 +450,16 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
         priceTypeName: trimmedPriceTypeName || undefined,
         importImages: formState.importImages,
         syncStock: formState.syncStock,
+        exportOrders: formState.exportOrders,
+        orderExportOrganizationId: formState.exportOrders
+          ? formState.orderExportOrganizationId
+          : null,
+        orderExportCounterpartyId: formState.exportOrders
+          ? formState.orderExportCounterpartyId
+          : null,
+        orderExportStoreId: formState.exportOrders
+          ? formState.orderExportStoreId
+          : null,
         scheduleEnabled: formState.scheduleEnabled,
         schedulePattern,
         scheduleTimezone: formState.scheduleTimezone,
@@ -296,9 +530,13 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
     if (isBusy || !isConfigured) return;
 
     try {
-      await syncCatalogMutation.mutateAsync();
+      const queued = await syncCatalogMutation.mutateAsync();
       await refreshIntegrationQueries(queryClient);
-      toast.success("Sync MoySklad поставлен в очередь.");
+      startMoySkladSyncProgressToast({
+        runId: queued.runId,
+        title: "Синхронизация каталога MoySklad",
+        onSettled: () => refreshIntegrationQueries(queryClient),
+      });
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -319,6 +557,112 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
       toast.error(message);
     }
   }, [cancelSyncMutation, isBusy, queryClient, status?.activeRun]);
+
+  const handleLoadMappingPreview = React.useCallback(async () => {
+    if (isBusy || !isConfigured) return;
+
+    try {
+      setMappingReport(null);
+      await mappingPreviewQuery.refetch();
+    } catch (error) {
+      const message = extractApiErrorMessage(error);
+      setErrorMessage(message);
+      toast.error(message);
+    }
+  }, [isBusy, isConfigured, mappingPreviewQuery]);
+
+  const handleApplyMappingPreview = React.useCallback(async () => {
+    if (isBusy || !mappingPreview) return;
+
+    const payload: ApplyMoySkladMappingDtoReq = {
+      attributes: mappingPreview.unknownAttributes.map((attribute) => ({
+        externalName: attribute.externalName,
+        action: "CREATE",
+        key: attribute.suggestedKey,
+        displayName: attribute.externalName,
+      })),
+      enumValues: mappingPreview.unknownEnumValues.map((enumValue) => ({
+        externalAttributeName: enumValue.externalAttributeName,
+        externalValue: enumValue.externalValue,
+        action: "CREATE",
+        value: enumValue.normalizedValue,
+        displayName: enumValue.externalValue,
+      })),
+    };
+
+    try {
+      const report = await applyMappingMutation.mutateAsync({ data: payload });
+      setMappingReport(report);
+      await mappingPreviewQuery.refetch();
+      toast.success("Mapping MoySklad применён.");
+    } catch (error) {
+      const message = extractApiErrorMessage(error);
+      setErrorMessage(message);
+      toast.error(message);
+    }
+  }, [applyMappingMutation, isBusy, mappingPreview, mappingPreviewQuery]);
+
+  const handleRetryOrderExport = React.useCallback(
+    async (id: string) => {
+      if (isBusy) return;
+
+      try {
+        await retryOrderExportMutation.mutateAsync({ id });
+        await orderExportsQuery.refetch();
+        toast.success("Экспорт заказа поставлен в очередь.");
+      } catch (error) {
+        const message = extractApiErrorMessage(error);
+        setErrorMessage(message);
+        toast.error(message);
+      }
+    },
+    [isBusy, orderExportsQuery, retryOrderExportMutation],
+  );
+
+  const renderOrderExportRefSelect = (
+    field: OrderExportRefField,
+    label: string,
+    placeholder: string,
+    options: MoySkladOrderExportRefOptionDto[],
+  ) => (
+    <Field key={field}>
+      <FieldLabel>{label}</FieldLabel>
+      <FieldContent>
+        <Select
+          value={formState[field]}
+          onValueChange={(value) => setFieldValue(field, value)}
+          disabled={
+            isBusy || orderExportRefsQuery.isFetching || !options.length
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => {
+              const meta = getRefOptionMeta(option);
+
+              return (
+                <SelectItem key={option.id} value={option.id}>
+                  <span className="flex min-w-0 flex-col">
+                    <span className="truncate">
+                      {getRefOptionLabel(option)}
+                    </span>
+                    {meta ? (
+                      <span className="truncate text-xs text-muted-foreground">
+                        {meta}
+                      </span>
+                    ) : null}
+                  </span>
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
+        <FieldError>{validationErrors[field]}</FieldError>
+      </FieldContent>
+    </Field>
+  );
 
   return (
     <AppDrawer
@@ -397,6 +741,32 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                   </p>
                 </div>
               </div>
+
+              {integration?.capabilities ? (
+                <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+                  <div className="text-sm font-medium">
+                    Возможности provider
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {Object.entries(CAPABILITY_LABELS).map(([key, label]) => {
+                      const enabled =
+                        integration.capabilities[
+                          key as keyof IntegrationProviderCapabilitiesDto
+                        ];
+
+                      return (
+                        <Badge
+                          key={key}
+                          variant={enabled ? "default" : "outline"}
+                          className="max-w-full break-words text-left whitespace-normal"
+                        >
+                          {label}: {enabled ? "доступно" : "недоступно"}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
 
               <div className="flex flex-wrap gap-2">
                 <Button
@@ -481,8 +851,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     {
                       key: "isActive" as const,
                       title: "Интеграция активна",
-                      description:
-                        "Если выключить, sync запускаться не будет.",
+                      description: "Если выключить, sync запускаться не будет.",
                     },
                     {
                       key: "importImages" as const,
@@ -495,6 +864,12 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       title: "Синхронизировать остатки",
                       description:
                         "Обновлять наличие товара по данным MoySklad.",
+                    },
+                    {
+                      key: "exportOrders" as const,
+                      title: "Экспортировать заказы",
+                      description:
+                        "Передавать оформленные заказы в MoySklad, если provider это поддерживает.",
                     },
                     {
                       key: "scheduleEnabled" as const,
@@ -517,12 +892,92 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     </FieldContent>
                     <Switch
                       checked={formState[key] as boolean}
-                      onCheckedChange={(checked) => setFieldValue(key, checked)}
-                      disabled={isBusy}
+                      onCheckedChange={(checked) => {
+                        setFieldValue(key, checked);
+                        if (key === "exportOrders" && checked && isConfigured) {
+                          void orderExportRefsQuery.refetch();
+                        }
+                      }}
+                      disabled={
+                        isBusy ||
+                        (key === "exportOrders" &&
+                          (!isConfigured ||
+                            integration?.capabilities.orderExport === false))
+                      }
                     />
                   </Field>
                 ))}
               </div>
+
+              {formState.exportOrders ? (
+                <div className="space-y-4 rounded-2xl border border-black/10 bg-muted/10 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium">
+                        Куда создавать заказы
+                      </div>
+                      <p className="mt-1 break-words text-sm text-muted-foreground">
+                        Эти значения берём из MoySklad. После сохранения новый
+                        завершённый заказ появится в разделе «Заказы
+                        покупателей».
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto whitespace-normal text-left"
+                      onClick={() => void orderExportRefsQuery.refetch()}
+                      disabled={isBusy || orderExportRefsQuery.isFetching}
+                    >
+                      Обновить списки
+                    </Button>
+                  </div>
+
+                  {orderExportRefsQuery.isFetching ? (
+                    <p className="text-sm text-muted-foreground">
+                      Загружаем данные из MoySklad…
+                    </p>
+                  ) : null}
+
+                  {orderExportRefsQuery.isError ? (
+                    <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                      {extractApiErrorMessage(orderExportRefsQuery.error)}
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-4">
+                    {renderOrderExportRefSelect(
+                      "orderExportOrganizationId",
+                      "Организация",
+                      "Выберите организацию",
+                      organizationOptions,
+                    )}
+                    {renderOrderExportRefSelect(
+                      "orderExportCounterpartyId",
+                      "Контрагент",
+                      "Выберите контрагента",
+                      counterpartyOptions,
+                    )}
+                    {renderOrderExportRefSelect(
+                      "orderExportStoreId",
+                      "Склад",
+                      "Выберите склад",
+                      storeOptions,
+                    )}
+                  </div>
+
+                  {!orderExportRefsQuery.isFetching &&
+                  (!organizationOptions.length ||
+                    !counterpartyOptions.length ||
+                    !storeOptions.length) ? (
+                    <p className="break-words text-sm text-muted-foreground">
+                      Если какой-то список пустой, проверьте права токена и
+                      наличие организации, контрагента и склада в MoySklad.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
 
               {formState.scheduleEnabled ? (
                 <div className="space-y-4 rounded-2xl border border-black/10 bg-muted/10 p-4">
@@ -567,7 +1022,10 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                           </SelectTrigger>
                           <SelectContent>
                             {SCHEDULE_HOUR_OPTIONS.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
                                 {option.label}
                               </SelectItem>
                             ))}
@@ -603,6 +1061,115 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
               <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-medium">
+                      Mapping характеристик
+                    </div>
+                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                      {getMappingPreviewSummary(mappingPreview)}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-auto whitespace-normal text-left"
+                      onClick={() => void handleLoadMappingPreview()}
+                      disabled={
+                        isBusy ||
+                        !isConfigured ||
+                        mappingPreviewQuery.isFetching
+                      }
+                    >
+                      Обновить preview
+                    </Button>
+                    <Button
+                      type="button"
+                      className="h-auto whitespace-normal text-left"
+                      onClick={() => void handleApplyMappingPreview()}
+                      disabled={
+                        isBusy ||
+                        !mappingPreview ||
+                        (!mappingPreview.unknownAttributes.length &&
+                          !mappingPreview.unknownEnumValues.length)
+                      }
+                    >
+                      Создать новые
+                    </Button>
+                  </div>
+                </div>
+
+                {mappingReportSummary ? (
+                  <div className="mt-3 rounded-2xl border border-black/10 bg-background/70 p-3 text-sm text-muted-foreground">
+                    Последнее применение: {mappingReportSummary}
+                  </div>
+                ) : null}
+
+                {mappingPreview ? (
+                  <div className="mt-3 grid gap-3">
+                    {mappingPreview.unknownAttributes
+                      .slice(0, 4)
+                      .map((item) => (
+                        <div
+                          key={item.externalName}
+                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="break-words text-sm font-medium">
+                              {item.externalName}
+                            </span>
+                            <Badge variant="outline">
+                              {item.occurrences} шт.
+                            </Badge>
+                          </div>
+                          <p className="mt-1 break-words text-sm text-muted-foreground">
+                            Новый ключ: {item.suggestedKey}
+                          </p>
+                          {item.suggestedExistingAttributes.length ? (
+                            <p className="mt-1 break-words text-xs text-muted-foreground">
+                              Похожие:{" "}
+                              {item.suggestedExistingAttributes
+                                .slice(0, 3)
+                                .map((attribute) => attribute.displayName)
+                                .join(", ")}
+                            </p>
+                          ) : null}
+                        </div>
+                      ))}
+
+                    {mappingPreview.unknownEnumValues
+                      .slice(0, 4)
+                      .map((item) => (
+                        <div
+                          key={`${item.externalAttributeName}:${item.externalValue}`}
+                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="break-words text-sm font-medium">
+                              {item.externalAttributeName}
+                            </span>
+                            <Badge variant="outline">
+                              {item.occurrences} шт.
+                            </Badge>
+                          </div>
+                          <p className="mt-1 break-words text-sm text-muted-foreground">
+                            Значение: {item.externalValue}
+                          </p>
+                        </div>
+                      ))}
+
+                    {!mappingPreview.unknownAttributes.length &&
+                    !mappingPreview.unknownEnumValues.length ? (
+                      <p className="text-sm text-muted-foreground">
+                        Неизвестных характеристик и значений нет.
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Последние запуски</span>
                   {runsQuery.isFetching ? (
                     <span className="text-xs text-muted-foreground">
@@ -634,12 +1201,112 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                           <p className="mt-2 break-words text-sm text-muted-foreground">
                             {getRunSummary(run)}
                           </p>
+                          <div className="mt-2 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+                            <span>
+                              Товары: {run.products.created}/
+                              {run.products.updated}/{run.products.skipped}
+                            </span>
+                            <span>
+                              Варианты: {run.variants.created}/
+                              {run.variants.updated}/{run.variants.skipped}
+                            </span>
+                            <span>
+                              Остатки: {run.stockRows.applied}/
+                              {run.stockRows.skipped}
+                            </span>
+                          </div>
+                          {run.warnings.length || run.errors.length ? (
+                            <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                              {[...run.errors, ...run.warnings]
+                                .slice(0, 3)
+                                .map((issue) => (
+                                  <p
+                                    key={`${issue.code}:${issue.externalId ?? ""}`}
+                                    className="break-words"
+                                  >
+                                    {issue.code}: {issue.message}
+                                    {issue.count ? ` (${issue.count})` : ""}
+                                  </p>
+                                ))}
+                            </div>
+                          ) : null}
                         </div>
                       );
                     })
                   ) : (
                     <p className="text-sm text-muted-foreground">
                       История запусков пока пустая.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-sm font-medium">Экспорт заказов</span>
+                  {orderExportsQuery.isFetching ? (
+                    <span className="text-xs text-muted-foreground">
+                      Обновляем…
+                    </span>
+                  ) : null}
+                </div>
+                <div className="mt-3 space-y-3">
+                  {orderExports.length ? (
+                    orderExports.map((orderExport) => {
+                      const badge = getOrderExportStatusBadge(
+                        orderExport.status,
+                      );
+
+                      return (
+                        <div
+                          key={orderExport.id}
+                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <span className="break-words text-sm font-medium">
+                              Заказ {orderExport.orderId}
+                            </span>
+                            <Badge
+                              variant={badge.variant}
+                              className="max-w-full break-words text-left whitespace-normal"
+                            >
+                              {badge.label}
+                            </Badge>
+                          </div>
+                          <p className="mt-2 break-words text-sm text-muted-foreground">
+                            Запрошен {formatDateTime(orderExport.requestedAt)} ·
+                            попыток: {orderExport.attempts}
+                          </p>
+                          {orderExport.externalId ? (
+                            <p className="mt-1 break-words text-xs text-muted-foreground">
+                              MoySklad: {orderExport.externalId}
+                            </p>
+                          ) : null}
+                          {orderExport.lastError ? (
+                            <p className="mt-1 break-words text-xs text-destructive">
+                              {orderExport.lastError}
+                            </p>
+                          ) : null}
+                          {orderExport.status === "ERROR" ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="mt-3 h-auto whitespace-normal text-left"
+                              onClick={() =>
+                                void handleRetryOrderExport(orderExport.id)
+                              }
+                              disabled={isBusy}
+                            >
+                              Повторить экспорт
+                            </Button>
+                          ) : null}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Экспортов заказов пока нет.
                     </p>
                   )}
                 </div>

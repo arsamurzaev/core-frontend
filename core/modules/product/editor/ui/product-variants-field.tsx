@@ -1,116 +1,200 @@
 "use client";
 
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import {
-  nextVariantStatus,
-  type VariantItemFormValue,
-  type VariantStatus,
+  buildVariantMatrixRows,
+  normalizeVariantsFormValue,
+  type VariantCombinationFormValue,
   type VariantsFormValue,
 } from "@/core/modules/product/editor/model/product-variants";
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
-import { type AttributeDto } from "@/shared/api/generated/react-query";
-import { cn } from "@/shared/lib/utils";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/ui/select";
+  compactVariantsForAttributes,
+  getSelectedValueIds,
+  preserveMatchingCombinations,
+} from "@/core/modules/product/editor/model/product-variants-field-model";
+import { ProductVariantAttributeCard } from "@/core/modules/product/editor/ui/product-variant-attribute-card";
+import { ProductVariantAttributeSelector } from "@/core/modules/product/editor/ui/product-variant-attribute-selector";
+import { ProductVariantCombinationsPanel } from "@/core/modules/product/editor/ui/product-variant-combinations-panel";
+import { type AttributeDto } from "@/shared/api/generated/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
 interface ProductVariantsFieldProps {
+  canUseCatalogSaleUnits?: boolean;
   disabled?: boolean;
+  discountPercent?: number;
   form: UseFormReturn<CreateProductFormValues>;
   variantAttributes: AttributeDto[];
 }
 
-const STATUS_LABEL: Record<VariantStatus, string> = {
-  DISABLED: "Откл.",
-  ACTIVE: "В наличии",
-  OUT_OF_STOCK: "Нет в наличии",
-};
-
-const STATUS_CLASS: Record<VariantStatus, string> = {
-  DISABLED: "border-border bg-background text-muted-foreground hover:bg-muted",
-  ACTIVE: "border-green-500 bg-green-50 text-green-700 hover:bg-green-100",
-  OUT_OF_STOCK: "border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100",
-};
-
 export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
+  canUseCatalogSaleUnits = false,
   disabled,
+  discountPercent = 0,
   form,
   variantAttributes,
 }) => {
-  const [selectedAttributeId, setSelectedAttributeId] = React.useState<string>(
-    () => variantAttributes[0]?.id ?? "",
+  const [attributeToAddId, setAttributeToAddId] = React.useState("");
+  const watchedVariants = form.watch("variants");
+  const priceFallback = form.watch("price");
+  const variants = React.useMemo(
+    () => normalizeVariantsFormValue(watchedVariants),
+    [watchedVariants],
+  );
+
+  const selectedAttributeIds = React.useMemo(
+    () => new Set(variants.selectedAttributeIds),
+    [variants.selectedAttributeIds],
+  );
+  const selectedAttributes = React.useMemo(
+    () =>
+      variants.selectedAttributeIds
+        .map((attributeId) =>
+          variantAttributes.find((attribute) => attribute.id === attributeId),
+        )
+        .filter((attribute): attribute is AttributeDto => Boolean(attribute)),
+    [variantAttributes, variants.selectedAttributeIds],
+  );
+  const availableAttributes = React.useMemo(
+    () =>
+      variantAttributes.filter(
+        (attribute) => !selectedAttributeIds.has(attribute.id),
+      ),
+    [selectedAttributeIds, variantAttributes],
+  );
+  const matrixRows = React.useMemo(
+    () => buildVariantMatrixRows(variants, variantAttributes),
+    [variantAttributes, variants],
+  );
+  const missingValueAttributes = React.useMemo(
+    () =>
+      selectedAttributes.filter(
+        (attribute) => getSelectedValueIds(variants, attribute.id).length === 0,
+      ),
+    [selectedAttributes, variants],
   );
 
   React.useEffect(() => {
-    if (selectedAttributeId || variantAttributes.length === 0) {
+    if (!availableAttributes.length) {
+      if (attributeToAddId) {
+        setAttributeToAddId("");
+      }
       return;
     }
-    setSelectedAttributeId(variantAttributes[0].id);
-  }, [selectedAttributeId, variantAttributes]);
 
-  const variants = form.watch("variants") as VariantsFormValue | undefined;
+    if (
+      !attributeToAddId ||
+      !availableAttributes.some((attribute) => attribute.id === attributeToAddId)
+    ) {
+      setAttributeToAddId(availableAttributes[0].id);
+    }
+  }, [attributeToAddId, availableAttributes]);
 
-  const selectedAttribute = React.useMemo(
-    () => variantAttributes.find((a) => a.id === selectedAttributeId) ?? null,
-    [selectedAttributeId, variantAttributes],
-  );
+  React.useEffect(() => {
+    const current = normalizeVariantsFormValue(form.getValues("variants"));
+    const compacted = compactVariantsForAttributes(current, variantAttributes);
 
-  const enumValues = selectedAttribute?.enumValues ?? [];
+    if (
+      JSON.stringify(current.selectedAttributeIds) !==
+        JSON.stringify(compacted.selectedAttributeIds) ||
+      JSON.stringify(current.selectedValueIdsByAttributeId) !==
+        JSON.stringify(compacted.selectedValueIdsByAttributeId)
+    ) {
+      form.setValue("variants", compacted, { shouldDirty: false });
+    }
+  }, [form, variantAttributes]);
 
-  const getItem = React.useCallback(
-    (enumValueId: string): VariantItemFormValue => {
-      return (
-        variants?.[selectedAttributeId]?.[enumValueId] ?? {
-          status: "DISABLED",
-          stock: 0,
-        }
-      );
+  const updateVariants = React.useCallback(
+    (updater: (current: VariantsFormValue) => VariantsFormValue) => {
+      const current = normalizeVariantsFormValue(form.getValues("variants"));
+      form.setValue("variants", updater(current), { shouldDirty: true });
     },
-    [selectedAttributeId, variants],
+    [form],
   );
 
-  const setItem = React.useCallback(
-    (enumValueId: string, next: VariantItemFormValue) => {
-      const current = (form.getValues("variants") as VariantsFormValue | undefined) ?? {};
-      form.setValue(
-        "variants",
-        {
-          ...current,
-          [selectedAttributeId]: {
-            ...(current[selectedAttributeId] ?? {}),
-            [enumValueId]: next,
-          },
+  const handleAddAttribute = React.useCallback(() => {
+    if (!attributeToAddId) {
+      return;
+    }
+
+    updateVariants((current) => {
+      if (current.selectedAttributeIds.includes(attributeToAddId)) {
+        return current;
+      }
+
+      return {
+        ...current,
+        selectedAttributeIds: [
+          ...current.selectedAttributeIds,
+          attributeToAddId,
+        ],
+        selectedValueIdsByAttributeId: {
+          ...current.selectedValueIdsByAttributeId,
+          [attributeToAddId]:
+            current.selectedValueIdsByAttributeId[attributeToAddId] ?? [],
         },
-        { shouldDirty: true },
-      );
-    },
-    [form, selectedAttributeId],
-  );
+      };
+    });
+  }, [attributeToAddId, updateVariants]);
 
-  const handleToggle = React.useCallback(
-    (enumValueId: string) => {
-      const item = getItem(enumValueId);
-      const nextStatus = nextVariantStatus(item.status);
-      setItem(enumValueId, { status: nextStatus, stock: item.stock });
-    },
-    [getItem, setItem],
-  );
+  const handleRemoveAttribute = React.useCallback(
+    (attributeId: string) => {
+      updateVariants((current) => {
+        const selectedAttributeIds = current.selectedAttributeIds.filter(
+          (selectedAttributeId) => selectedAttributeId !== attributeId,
+        );
+        const selectedValueIdsByAttributeId = {
+          ...current.selectedValueIdsByAttributeId,
+        };
+        delete selectedValueIdsByAttributeId[attributeId];
 
-  const handleStockChange = React.useCallback(
-    (enumValueId: string, value: string) => {
-      const item = getItem(enumValueId);
-      const parsed = parseInt(value, 10);
-      setItem(enumValueId, {
-        ...item,
-        stock: isNaN(parsed) || parsed < 0 ? 0 : parsed,
+        return {
+          ...current,
+          selectedAttributeIds,
+          selectedValueIdsByAttributeId,
+          combinations: preserveMatchingCombinations(
+            current,
+            selectedAttributeIds,
+            variantAttributes,
+          ),
+        };
       });
     },
-    [getItem, setItem],
+    [updateVariants, variantAttributes],
+  );
+
+  const handleToggleValue = React.useCallback(
+    (attributeId: string, enumValueId: string) => {
+      updateVariants((current) => {
+        const selectedValueIds =
+          current.selectedValueIdsByAttributeId[attributeId] ?? [];
+        const nextSelectedValueIds = selectedValueIds.includes(enumValueId)
+          ? selectedValueIds.filter((valueId) => valueId !== enumValueId)
+          : [...selectedValueIds, enumValueId];
+
+        return {
+          ...current,
+          selectedValueIdsByAttributeId: {
+            ...current.selectedValueIdsByAttributeId,
+            [attributeId]: nextSelectedValueIds,
+          },
+        };
+      });
+    },
+    [updateVariants],
+  );
+
+  const setCombinationItem = React.useCallback(
+    (key: string, next: VariantCombinationFormValue) => {
+      updateVariants((current) => ({
+        ...current,
+        combinations: {
+          ...current.combinations,
+          [key]: next,
+        },
+      }));
+    },
+    [updateVariants],
   );
 
   if (variantAttributes.length === 0) {
@@ -118,67 +202,45 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-3">
-        <span className="shrink-0 text-sm font-medium text-muted-foreground min-w-[100px] sm:min-w-[200px]">
-          Варианты
-        </span>
+    <div className="space-y-4">
+      <ProductVariantAttributeSelector
+        attributeToAddId={attributeToAddId}
+        availableAttributes={availableAttributes}
+        disabled={disabled}
+        onAdd={handleAddAttribute}
+        onAttributeChange={setAttributeToAddId}
+      />
 
-        <Select
-          value={selectedAttributeId}
-          onValueChange={setSelectedAttributeId}
-          disabled={disabled}
-        >
-          <SelectTrigger className="h-9 min-w-0 flex-1">
-            <SelectValue placeholder="Выбрать атрибут" />
-          </SelectTrigger>
-          <SelectContent>
-            {variantAttributes.map((attribute) => (
-              <SelectItem key={attribute.id} value={attribute.id}>
-                {attribute.displayName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {selectedAttributes.length === 0 ? (
+        <div className="pl-0 sm:pl-[200px]">
+          <div className="rounded-lg border border-dashed border-border px-3 py-3 text-sm leading-5 text-muted-foreground">
+            Добавьте свойство, например размер или цвет, затем отметьте нужные
+            значения. Комбинации появятся ниже.
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3 pl-0 sm:pl-[200px]">
+          {selectedAttributes.map((attribute) => (
+            <ProductVariantAttributeCard
+              key={attribute.id}
+              attribute={attribute}
+              disabled={disabled}
+              selectedValueIds={getSelectedValueIds(variants, attribute.id)}
+              onRemove={handleRemoveAttribute}
+              onToggleValue={handleToggleValue}
+            />
+          ))}
 
-      {selectedAttribute && enumValues.length > 0 && (
-        <div className="flex flex-wrap gap-2 pl-[100px] sm:pl-[200px]">
-          {enumValues.map((enumValue) => {
-            const item = getItem(enumValue.id);
-            const label = enumValue.displayName || enumValue.value;
-
-            return (
-              <div key={enumValue.id} className="flex flex-col gap-1">
-                <button
-                  type="button"
-                  disabled={disabled}
-                  title={STATUS_LABEL[item.status]}
-                  onClick={() => handleToggle(enumValue.id)}
-                  className={cn(
-                    "h-8 w-13 rounded-md border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-                    STATUS_CLASS[item.status],
-                  )}
-                >
-                  {label}
-                </button>
-
-                {item.status === "ACTIVE" && (
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    inputMode="numeric"
-                    value={item.stock === 0 ? "" : item.stock}
-                    placeholder="0"
-                    disabled={disabled}
-                    onChange={(e) => handleStockChange(enumValue.id, e.target.value)}
-                    className="h-8 w-13 rounded-md border border-input bg-background px-2 text-center text-sm disabled:opacity-50"
-                  />
-                )}
-              </div>
-            );
-          })}
+          <ProductVariantCombinationsPanel
+            canUseCatalogSaleUnits={canUseCatalogSaleUnits}
+            disabled={disabled}
+            discountPercent={discountPercent}
+            matrixRows={matrixRows}
+            missingValueAttributes={missingValueAttributes}
+            priceFallback={priceFallback}
+            variantAttributes={variantAttributes}
+            onCombinationChange={setCombinationItem}
+          />
         </div>
       )}
     </div>

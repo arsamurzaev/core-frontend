@@ -1,7 +1,9 @@
 "use client";
 
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
-import { Badge } from "@/shared/ui/badge";
+import { CartCardContent } from "@/core/modules/cart/ui/cart-card-content";
+import { CartCardImage } from "@/core/modules/cart/ui/cart-card-image";
+import { CartCardQuantity } from "@/core/modules/cart/ui/cart-card-quantity";
 import { cn } from "@/shared/lib/utils";
 
 import React from "react";
@@ -11,21 +13,6 @@ interface CartCardProps {
   className?: string;
   item: CartItemView;
   onClick?: () => void;
-}
-
-function getDiscountPercent(item: CartItemView): number {
-  if (!item.originalLineTotal || item.originalLineTotal <= item.displayLineTotal) {
-    return 0;
-  }
-
-  return Math.max(
-    1,
-    Math.round(
-      ((item.originalLineTotal - item.displayLineTotal) /
-        item.originalLineTotal) *
-        100,
-    ),
-  );
 }
 
 export const CartCard: React.FC<CartCardProps> = ({
@@ -57,43 +44,11 @@ export const CartCard: React.FC<CartCardProps> = ({
         className,
       )}
     >
-      <div className="relative aspect-[3/4] h-25 sm:h-[150px]">
-        <img
-          src={item.imageUrl}
-          alt="Фото товара"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      </div>
+      <CartCardImage imageUrl={item.imageUrl} name={item.name} />
       <div className="flex h-full items-center p-2 pl-0">
-        <div className="flex h-full flex-1 flex-col justify-between">
-          <h3 className="line-clamp-2 leading-tight font-bold sm:text-xl">
-            {item.name}
-          </h3>
-          <h4 className="text-[10px] font-light sm:text-base">
-            {item.subtitle}
-          </h4>
-          <div className="flex items-end gap-3">
-            <p className="text-sm leading-none font-bold sm:text-lg">
-              {item.displayLineTotal
-                ? Intl.NumberFormat("ru").format(item.displayLineTotal)
-                : "?"}{" "}
-              {item.currency}
-            </p>
-            {item.hasDiscount ? (
-              <>
-                <p className="text-muted text-xs leading-none font-bold line-through">
-                  {Intl.NumberFormat("ru").format(item.originalLineTotal)}{" "}
-                  {item.currency}
-                </p>
-                <Badge className="absolute right-0 bottom-2">
-                  -{getDiscountPercent(item)}%
-                </Badge>
-              </>
-            ) : null}
-          </div>
-        </div>
+        <CartCardContent item={item} />
         {actions}
-        <p className={cn(actions && "hidden")}>x {item.quantity}</p>
+        {actions ? null : <CartCardQuantity quantity={item.quantity} />}
       </div>
     </div>
   );

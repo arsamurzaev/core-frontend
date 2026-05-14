@@ -1,100 +1,40 @@
 "use client";
 
 import { useCart } from "@/core/modules/cart/model/cart-context";
+import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import { CART_DRAWER_SNAP_POINTS } from "@/core/widgets/cart-drawer/model/cart-drawer-state";
+import { useCartDrawerSnap } from "@/core/widgets/cart-drawer/model/use-cart-drawer-snap";
 import { CartDrawerContent } from "@/core/widgets/cart-drawer/ui/cart-drawer-content";
 import { CartDrawerFooter } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer";
 import { CartDrawerHeader } from "@/core/widgets/cart-drawer/ui/cart-drawer-header";
-import { ProductDrawer } from "@/core/widgets/product-drawer/ui/product-drawer";
-import type {
-  CatalogContactDtoType,
-  ProductWithDetailsDto,
-} from "@/shared/api/generated/react-query";
+import { CartDrawerManagerOrderStartBar } from "@/core/widgets/cart-drawer/ui/cart-drawer-manager-order-start-bar";
+import { CartDrawerProductPreview } from "@/core/widgets/cart-drawer/ui/cart-drawer-product-preview";
+import { resolveCartDrawerVisibility } from "@/core/widgets/cart-drawer/model/cart-drawer-state";
+import { useCartDrawerCheckout } from "@/core/widgets/cart-drawer/model/use-cart-drawer-checkout";
+import { useCartDrawerCompleteOrder } from "@/core/widgets/cart-drawer/model/use-cart-drawer-complete-order";
+import { useCartDrawerHeaderAction } from "@/core/widgets/cart-drawer/model/use-cart-drawer-header-action";
+import { useCartDrawerProductPreview } from "@/core/widgets/cart-drawer/model/use-cart-drawer-product-preview";
 import {
-  buildCheckoutSummary,
   getCatalogCheckoutConfig,
   getCatalogCheckoutLocation,
-  getInitialCheckoutMethod,
-  normalizeCheckoutData,
   type CheckoutConfig,
-  type CheckoutData,
-  type CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
-import { Button } from "@/shared/ui/button";
-import { confirm } from "@/shared/ui/confirmation";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { usePathname } from "next/navigation";
 import React from "react";
-import { toast } from "sonner";
 
-const SNAP_POINTS = ["111px", 1] as const;
-const CART_DRAWER_SCROLL_LOCK_CLASS = "cart-drawer-scroll-lock";
 const DEFAULT_COMMENT_PLACEHOLDER =
   "Укажите пожелания к заказу: характеристики, замену, упаковку, доставку или другие важные детали.";
-const CHECKOUT_CART_STATUSES = new Set([
-  "SHARED",
-  "IN_PROGRESS",
-  "PAUSED",
-  "CONVERTED",
-  "CANCELLED",
-  "EXPIRED",
-]);
-
-type CartWithCheckout = {
-  checkoutContacts?: Partial<Record<CatalogContactDtoType, string>> | null;
-  checkoutData?: CheckoutData | null;
-  checkoutMethod?: CheckoutMethod | null;
-};
-
-function getCartCheckoutData(cart: unknown): CheckoutData | null {
-  return (cart as CartWithCheckout | null | undefined)?.checkoutData ?? null;
-}
-
-function getCartCheckoutMethod(cart: unknown): CheckoutMethod | null {
-  return (cart as CartWithCheckout | null | undefined)?.checkoutMethod ?? null;
-}
-
-const ManagerOrderStartBar: React.FC<{
-  disabled: boolean;
-  onStart: () => Promise<void>;
-}> = ({ disabled, onStart }) => {
-  const handleStart = React.useCallback(async () => {
-    try {
-      await onStart();
-      toast.success("Корзина создана. Теперь можно добавлять товары.");
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    }
-  }, [onStart]);
-
-  return (
-    <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-180 px-2">
-      <div className="shadow-custom rounded-t-2xl border bg-background px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-        <Button
-          type="button"
-          className="w-full justify-center"
-          disabled={disabled}
-          onClick={() => void handleStart()}
-          size="full"
-        >
-          + Создать заказ
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message
-    : "Не удалось обновить корзину.";
-}
 
 interface CartDrawerProps {
-  actionRenderer?: (productId: string) => React.ReactNode;
+  actionRenderer?: (
+    productId: string,
+    item?: CartItemView,
+  ) => React.ReactNode;
   checkoutConfig?: CheckoutConfig;
   commentPlaceholder?: string;
   supportsBrands?: boolean;
@@ -111,6 +51,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     canCreateManagerOrder,
     canShare,
     cart,
+    catalogMode,
     completeManagedOrder,
     deleteCurrentCart,
     detachPublicCart,
@@ -139,279 +80,105 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     () => getCatalogCheckoutLocation(catalog),
     [catalog],
   );
-  const initialCheckoutMethod = React.useMemo(
-    () => getInitialCheckoutMethod(checkoutConfig),
-    [checkoutConfig],
-  );
   const currency = items[0]?.currency ?? getCatalogCurrency(catalog, "RUB");
-  const [comment, setComment] = React.useState("");
-  const [checkoutMethod, setCheckoutMethod] = React.useState<CheckoutMethod | null>(
-    initialCheckoutMethod,
-  );
-  const [checkoutData, setCheckoutData] = React.useState<CheckoutData>({});
-  const [snapPoint, setSnapPoint] = React.useState<string | number | null>(
-    SNAP_POINTS[0],
-  );
-  const [hasPreparedShareOrder, setHasPreparedShareOrder] =
-    React.useState(false);
-  const autoExpandedPublicCartRef = React.useRef<string | null>(null);
-  const [selectedProduct, setSelectedProduct] =
-    React.useState<ProductWithDetailsDto | null>(null);
-  const [isProductDrawerOpen, setIsProductDrawerOpen] = React.useState(false);
+  const {
+    handleProductDrawerAfterClose,
+    handleProductDrawerOpenChange,
+    isProductDrawerOpen,
+    openProduct,
+    selectedCartItem,
+    selectedProduct,
+  } = useCartDrawerProductPreview();
 
   const hasItems = items.length > 0;
+  const isCheckoutEnabled = catalogMode === "DELIVERY";
   const shouldHideCartWhileProductRouteOpen =
     pathname?.startsWith("/product/") ?? false;
-  const isFullyExpanded = snapPoint === 1;
   const publicAccessPublicKey = publicAccess?.publicKey ?? null;
-  const hasPublicCartLink = Boolean(cart?.publicKey);
   const hasSharedCart = Boolean(publicAccessPublicKey);
-  const canDeleteCurrentCart =
-    !isPublicMode && Boolean(cart) && (hasItems || hasPublicCartLink);
-  const isCheckoutCartStatus = status
-    ? CHECKOUT_CART_STATUSES.has(status)
-    : false;
-  const shouldKeepEmptySharedCartOpen =
-    isPublicMode ||
-    hasPublicCartLink ||
-    hasSharedCart ||
-    hasPreparedShareOrder ||
-    isCheckoutCartStatus;
-  const shouldHideDrawer =
-    !shouldUseCartUi || (!hasItems && !shouldKeepEmptySharedCartOpen);
-  const shouldShowManagerOrderStartBar =
-    canCreateManagerOrder && !shouldUseCartUi;
+  const {
+    buildOrderInput,
+    checkoutValidation,
+    displayedCheckoutData,
+    displayedCheckoutMethod,
+    displayedComment,
+    handleCheckoutChange,
+    hasPreparedShareOrder,
+    isCheckoutLocked,
+    isCommentLocked,
+    markSharePrepared,
+    setComment,
+  } = useCartDrawerCheckout({
+    cart,
+    checkoutConfig,
+    checkoutLocation,
+    hasSharedCart,
+    isCheckoutEnabled,
+    isManagedPublicCart,
+    isPublicMode,
+  });
+  const {
+    canDeleteCurrentCart,
+    shouldHideDrawer,
+    shouldShowManagerOrderStartBar,
+  } = React.useMemo(
+    () =>
+      resolveCartDrawerVisibility({
+        canCreateManagerOrder,
+        cart,
+        hasItems,
+        hasPreparedShareOrder,
+        isPublicMode,
+        publicAccessPublicKey,
+        shouldUseCartUi,
+        status,
+      }),
+    [
+      canCreateManagerOrder,
+      cart,
+      hasItems,
+      hasPreparedShareOrder,
+      isPublicMode,
+      publicAccessPublicKey,
+      shouldUseCartUi,
+      status,
+    ],
+  );
   const shouldSuspendManagerCartDrawer =
     hasBlockingDrawer && isManagerOrderCart;
-  const isCommentLocked =
-    isManagedPublicCart ||
-    isPublicMode ||
-    hasSharedCart ||
-    hasPreparedShareOrder;
-  const isCheckoutLocked = isCommentLocked;
-  const displayedComment = isCommentLocked
-    ? (cart?.comment ?? comment)
-    : comment;
-  const displayedCheckoutMethod =
-    getCartCheckoutMethod(cart) ?? checkoutMethod;
-  const displayedCheckoutData =
-    (isCheckoutLocked ? getCartCheckoutData(cart) : null) ?? checkoutData;
-  const checkoutValidation = React.useMemo(
-    () => {
-      if (!checkoutMethod) {
-        return { data: {}, error: null };
-      }
+  const { isFullyExpanded, setSnapPoint, snapPoint } = useCartDrawerSnap({
+    autoExpandPublicCartAccessKey,
+    isPublicMode,
+    publicAccessPublicKey,
+    shouldHideCartWhileProductRouteOpen,
+    shouldHideDrawer,
+  });
 
-      return normalizeCheckoutData({
-        data: checkoutData,
-        location: checkoutLocation,
-        method: checkoutMethod,
-      });
-    },
-    [checkoutData, checkoutLocation, checkoutMethod],
-  );
-  const publicCartAccessKey =
-    isPublicMode && publicAccessPublicKey ? publicAccessPublicKey : null;
-  const shouldAutoExpandPublicCart =
-    Boolean(publicCartAccessKey) &&
-    autoExpandPublicCartAccessKey === publicCartAccessKey;
-  React.useEffect(() => {
-    setHasPreparedShareOrder(false);
-    setComment("");
-    setCheckoutMethod(initialCheckoutMethod);
-    setCheckoutData({});
-  }, [cart?.id, initialCheckoutMethod]);
-
-  React.useEffect(() => {
-    if (checkoutMethod && checkoutConfig.enabledMethods.includes(checkoutMethod)) {
-      return;
-    }
-
-    setCheckoutMethod(initialCheckoutMethod);
-    setCheckoutData({});
-  }, [checkoutConfig.enabledMethods, checkoutMethod, initialCheckoutMethod]);
-
-  React.useEffect(() => {
-    if (!publicCartAccessKey) {
-      autoExpandedPublicCartRef.current = null;
-      return;
-    }
-
-    if (!shouldAutoExpandPublicCart) {
-      return;
-    }
-
-    if (autoExpandedPublicCartRef.current === publicCartAccessKey) {
-      return;
-    }
-
-    setSnapPoint(1);
-    autoExpandedPublicCartRef.current = publicCartAccessKey;
-  }, [publicCartAccessKey, shouldAutoExpandPublicCart]);
-
-  React.useEffect(() => {
-    const shouldLockPageScroll =
-      isFullyExpanded &&
-      !shouldHideDrawer &&
-      !shouldHideCartWhileProductRouteOpen;
-
-    document.documentElement.classList.toggle(
-      CART_DRAWER_SCROLL_LOCK_CLASS,
-      shouldLockPageScroll,
-    );
-
-    return () => {
-      document.documentElement.classList.remove(CART_DRAWER_SCROLL_LOCK_CLASS);
-    };
-  }, [isFullyExpanded, shouldHideCartWhileProductRouteOpen, shouldHideDrawer]);
-
-  const handleHeaderAction = React.useCallback(async () => {
-    if (isManagedPublicCart) {
-      return;
-    }
-
-    if (isPublicMode) {
-      const isConfirmed = await confirm({
-        title: "Открепить публичную корзину?",
-        description:
-          "Ссылка останется рабочей, но эта корзина перестанет быть привязанной к текущей сессии.",
-        confirmText: "Открепить",
-        cancelText: "Отмена",
-      });
-
-      if (!isConfirmed) {
-        return;
-      }
-
-      detachPublicCart();
-      setSnapPoint(SNAP_POINTS[0]);
-      toast.success("Публичная корзина откреплена.");
-      return;
-    }
-
-    if (!hasItems) {
-      if (!canDeleteCurrentCart) {
-        return;
-      }
-    }
-
-    const isAssignedToManager =
-      cart?.status === "IN_PROGRESS" || Boolean(cart?.assignedManagerId);
-    const isSharedCurrentCart = Boolean(cart?.publicKey);
-    const isConfirmed = await confirm({
-      title: "Удалить корзину?",
-      description: isAssignedToManager
-        ? "Корзина уже в работе у менеджера, поэтому она только отвяжется от вас."
-        : isSharedCurrentCart
-          ? "Корзина и публичная ссылка будут удалены. Восстановить товары не получится."
-          : "Корзина будет удалена полностью. Восстановить товары не получится.",
-      confirmText: "Удалить",
-      cancelText: "Отмена",
-    });
-
-    if (!isConfirmed) {
-      return;
-    }
-
-    try {
-      await deleteCurrentCart();
-      setSnapPoint(SNAP_POINTS[0]);
-      toast.success(
-        isAssignedToManager ? "Корзина отвязана." : "Корзина удалена.",
-      );
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    }
-  }, [
+  const handleHeaderAction = useCartDrawerHeaderAction({
     canDeleteCurrentCart,
-    cart?.assignedManagerId,
-    cart?.publicKey,
-    cart?.status,
+    cart,
     deleteCurrentCart,
     detachPublicCart,
     hasItems,
     isManagedPublicCart,
     isPublicMode,
-  ]);
+    setSnapPoint,
+  });
 
-  const handleCheckoutChange = React.useCallback(
-    (method: CheckoutMethod, data: CheckoutData) => {
-      setCheckoutMethod(method);
-      setCheckoutData(data);
-    },
-    [],
-  );
-
-  const handleCompleteOrder = React.useCallback(async () => {
-    const isConfirmed = await confirm({
-      title: "Завершить заказ?",
-      description:
-        "После подтверждения корзина будет переведена в завершенный заказ.",
-      confirmText: "Завершить",
-      cancelText: "Отмена",
-    });
-
-    if (!isConfirmed) {
-      return;
-    }
-
-    if (!isCheckoutLocked && checkoutValidation.error) {
-      toast.error(checkoutValidation.error);
-      return;
-    }
-
-    const completeCheckoutData = isCheckoutLocked
-      ? displayedCheckoutData
-      : checkoutValidation.data;
-    const checkoutSummary = displayedCheckoutMethod
-      ? buildCheckoutSummary({
-          data: completeCheckoutData,
-          method: displayedCheckoutMethod,
-        })
-      : [];
-
-    await completeManagedOrder({
-      checkoutData: completeCheckoutData,
-      ...(displayedCheckoutMethod
-        ? { checkoutMethod: displayedCheckoutMethod }
-        : {}),
-      checkoutSummary,
-      comment,
-    });
-    toast.success("Заказ завершен.");
-  }, [
-    checkoutValidation.data,
-    checkoutValidation.error,
-    comment,
+  const handleCompleteOrder = useCartDrawerCompleteOrder({
+    buildOrderInput,
+    checkoutValidationError: checkoutValidation.error,
     completeManagedOrder,
-    displayedCheckoutData,
-    displayedCheckoutMethod,
     isCheckoutLocked,
-  ]);
-
-  const handleOpenProduct = React.useCallback(
-    (product: ProductWithDetailsDto) => {
-      setSelectedProduct(product);
-      setIsProductDrawerOpen(true);
-    },
-    [],
-  );
-
-  const handleProductDrawerOpenChange = React.useCallback(
-    (nextOpen: boolean) => {
-      setIsProductDrawerOpen(nextOpen);
-    },
-    [],
-  );
-
-  const handleProductDrawerAfterClose = React.useCallback(() => {
-    setSelectedProduct(null);
-  }, []);
+  });
 
   if (shouldHideDrawer || shouldSuspendManagerCartDrawer) {
     if (shouldShowManagerOrderStartBar) {
       return (
-        <ManagerOrderStartBar disabled={isBusy} onStart={startManagerOrder} />
+        <CartDrawerManagerOrderStartBar
+          disabled={isBusy}
+          onStart={startManagerOrder}
+        />
       );
     }
 
@@ -427,7 +194,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           modal={false}
           noBodyStyles
           onClose={() => setSnapPoint(1)}
-          snapPoints={SNAP_POINTS as unknown as (string | number)[]}
+          snapPoints={CART_DRAWER_SNAP_POINTS as unknown as (string | number)[]}
           activeSnapPoint={snapPoint}
           setActiveSnapPoint={setSnapPoint}
           snapToSequentialPoint
@@ -463,6 +230,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 checkoutConfig={checkoutConfig}
                 checkoutData={displayedCheckoutData}
                 checkoutError={checkoutValidation.error}
+                isCheckoutEnabled={isCheckoutEnabled}
                 checkoutLocked={isCheckoutLocked}
                 checkoutLocation={checkoutLocation}
                 checkoutMethod={displayedCheckoutMethod}
@@ -474,7 +242,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 actionRenderer={actionRenderer}
                 onCommentChange={setComment}
                 onCheckoutChange={handleCheckoutChange}
-                onItemClick={handleOpenProduct}
+                onItemClick={openProduct}
                 status={status}
                 statusMessage={statusMessage}
               />
@@ -487,35 +255,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               hasSharedCart={hasSharedCart}
               hasItems={hasItems}
               isBusy={isBusy}
-              isManagedPublicCart={isManagerOrderCart}
+              isManagerOrderCart={isManagerOrderCart}
               isShareDisabled={!isCheckoutLocked && Boolean(checkoutValidation.error)}
               onCollapse={
                 !canShare && !isManagedPublicCart && isFullyExpanded
-                  ? () => setSnapPoint(SNAP_POINTS[0])
+                  ? () => setSnapPoint(CART_DRAWER_SNAP_POINTS[0])
                   : undefined
               }
               onCompleteOrder={handleCompleteOrder}
-              onSharePrepared={() => setHasPreparedShareOrder(true)}
-              onShareClick={() => {
-                const shareCheckoutData = isCheckoutLocked
-                  ? displayedCheckoutData
-                  : checkoutValidation.data;
-                const checkoutSummary = displayedCheckoutMethod
-                  ? buildCheckoutSummary({
-                      data: shareCheckoutData,
-                      method: displayedCheckoutMethod,
-                    })
-                  : [];
-
-                return prepareShareOrder({
-                  checkoutData: shareCheckoutData,
-                  ...(displayedCheckoutMethod
-                    ? { checkoutMethod: displayedCheckoutMethod }
-                    : {}),
-                  checkoutSummary,
-                  comment,
-                });
-              }}
+              onSharePrepared={markSharePrepared}
+              onShareClick={() => prepareShareOrder(buildOrderInput())}
               price={totals.subtotal}
               totalPrice={totals.originalSubtotal}
             />
@@ -523,16 +272,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         </AppDrawer>
       ) : null}
 
-      {selectedProduct ? (
-        <ProductDrawer
-          open={isProductDrawerOpen}
-          product={selectedProduct}
-          productSlug={selectedProduct.slug}
-          supportsBrands={supportsBrands}
-          onOpenChange={handleProductDrawerOpenChange}
-          onAfterClose={handleProductDrawerAfterClose}
-        />
-      ) : null}
+      <CartDrawerProductPreview
+        isOpen={isProductDrawerOpen}
+        selectedCartItem={selectedCartItem}
+        selectedProduct={selectedProduct}
+        supportsBrands={supportsBrands}
+        onOpenChange={handleProductDrawerOpenChange}
+        onAfterClose={handleProductDrawerAfterClose}
+      />
     </>
   );
 };

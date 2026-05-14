@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { formatSubscriptionDaysText } from "@/core/widgets/footer/model/subscription-status";
+import { formatSubscriptionDaysText } from "@/shared/lib/subscription-status";
 
 const SUBSCRIPTION_WARNING_DAYS_THRESHOLD = 10;
 

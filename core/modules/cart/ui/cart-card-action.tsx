@@ -1,62 +1,67 @@
 "use client";
 
+import { CartQuantityControl } from "@/core/modules/cart/ui/cart-quantity-control";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
 import React from "react";
 
 interface CartCardActionProps {
   className?: string;
+  maxQuantity?: number;
   productId: string;
+  saleUnitId?: string | null;
+  variantId?: string | null;
 }
 
 export const CartCardAction = React.memo(function CartCardAction({
   className,
+  maxQuantity,
   productId,
+  saleUnitId,
+  variantId,
 }: CartCardActionProps) {
-  const { handleDecrement, handleIncrement, quantity } =
-    useCartProductControls(productId);
+  const {
+    handleDecrement,
+    handleIncrement,
+    isBusy,
+    isIncrementDisabled,
+    quantity,
+  } =
+    useCartProductControls(
+      {
+        productId,
+        saleUnitId,
+        variantId,
+      },
+      undefined,
+      {
+        maxQuantity,
+        quantityScope: "line",
+      },
+    );
 
   const handleStopPropagation = (event: React.SyntheticEvent) => {
     event.stopPropagation();
   };
 
   return (
-    <div
-      onClick={handleStopPropagation}
-      onPointerDown={handleStopPropagation}
+    <CartQuantityControl
+      buttonKind="ui-button"
+      buttonSize="icon"
+      buttonVariant="ghost"
       className={cn(
         "bg-secondary flex cursor-default items-center justify-center rounded-full",
         className,
       )}
-    >
-      <Button
-        type="button"
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handleDecrement();
-        }}
-        variant="ghost"
-        size="icon"
-        aria-label="Уменьшить количество"
-      >
-        -
-      </Button>
-      <p>{quantity}</p>
-      <Button
-        type="button"
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handleIncrement();
-        }}
-        variant="ghost"
-        size="icon"
-        aria-label="Увеличить количество"
-      >
-        +
-      </Button>
-    </div>
+      decrementContent="-"
+      decrementDisabled={isBusy}
+      incrementContent="+"
+      incrementDisabled={isBusy || isIncrementDisabled}
+      onClick={handleStopPropagation}
+      onDecrement={handleDecrement}
+      onIncrement={handleIncrement}
+      onPointerDown={handleStopPropagation}
+      value={quantity}
+    />
   );
 });

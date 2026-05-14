@@ -1,12 +1,12 @@
 "use client";
 
+import { useCatalogRuntimeCheckoutConfig } from "@/core/catalog-runtime";
 import { type CatalogEditFormValues } from "@/core/widgets/edit-catalog-drawer/model/form-config";
 import { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import {
   CHECKOUT_CONTACT_TYPES,
   CHECKOUT_METHOD_DESCRIPTIONS,
   CHECKOUT_METHOD_LABELS,
-  getCatalogCheckoutConfig,
   type CheckoutConfig,
   type CheckoutContactValues,
   type CheckoutMethod,
@@ -216,24 +216,52 @@ function mergeGeneralContactsIntoCheckoutMethods(params: {
   }
 }
 
+function areCheckoutMethodListsEqual(
+  first: CheckoutMethod[],
+  second: CheckoutMethod[],
+): boolean {
+  return (
+    first.length === second.length &&
+    first.every((method, index) => method === second[index])
+  );
+}
+
 export const EditCatalogCheckoutDrawer: React.FC<
   EditCatalogCheckoutDrawerProps
 > = ({ form, checkoutConfig, disabled = false, isSaving = false, onSave }) => {
   const [open, setOpen] = React.useState(false);
   const catalog = useCatalog();
-  const checkout = React.useMemo(
-    () => checkoutConfig ?? getCatalogCheckoutConfig(catalog),
-    [catalog, checkoutConfig],
-  );
+  const runtimeCheckoutConfig = useCatalogRuntimeCheckoutConfig(catalog);
+  const checkout = checkoutConfig ?? runtimeCheckoutConfig;
   const watchedEnabledMethods = useWatch({
     control: form.control,
     name: "checkoutEnabledMethods",
   });
   const enabledMethods = React.useMemo(
-    () => watchedEnabledMethods ?? [],
-    [watchedEnabledMethods],
+    () =>
+      checkout.availableMethods.filter((method) =>
+        (watchedEnabledMethods ?? []).includes(method),
+      ),
+    [checkout.availableMethods, watchedEnabledMethods],
   );
   const contacts = useWatch({ control: form.control, name: "checkoutContacts" });
+
+  React.useEffect(() => {
+    const currentValues = form.getValues("checkoutEnabledMethods");
+    const current = Array.isArray(currentValues) ? currentValues : [];
+    const next = checkout.availableMethods.filter((method) =>
+      current.includes(method),
+    );
+
+    if (areCheckoutMethodListsEqual(current, next)) {
+      return;
+    }
+
+    form.setValue("checkoutEnabledMethods", next, {
+      shouldDirty: false,
+      shouldValidate: true,
+    });
+  }, [checkout.availableMethods, form, watchedEnabledMethods]);
 
   const summary = React.useMemo(() => {
     const labels = enabledMethods.map((method) => CHECKOUT_METHOD_LABELS[method]);
@@ -253,7 +281,10 @@ export const EditCatalogCheckoutDrawer: React.FC<
 
   const handleMethodToggle = React.useCallback(
     (method: CheckoutMethod, checked: boolean) => {
-      const current = new Set(form.getValues("checkoutEnabledMethods"));
+      const currentValues = form.getValues("checkoutEnabledMethods");
+      const current = new Set(
+        Array.isArray(currentValues) ? currentValues : [],
+      );
       if (checked) {
         current.add(method);
       } else {

@@ -49,6 +49,8 @@ function getCookie(name: string): string | null {
 }
 
 function hasCsrfCookie(_currentCatalogId?: string | null): boolean {
+  void _currentCatalogId;
+
   if (getCookie(CSRF_COOKIE_NAME) !== null) return true;
   if (getCookie(ADMIN_CSRF_COOKIE_NAME) !== null) return true;
   return false;

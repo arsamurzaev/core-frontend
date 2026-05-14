@@ -1,10 +1,8 @@
 ﻿"use client";
 
-import { CatalogProductsPanel } from "@/core/modules/browser/ui/catalog-products-panel";
-import {
-  CategoryCard,
-  type CategoryCardVariant,
-} from "@/core/modules/category/ui/category-card";
+import { CatalogProductsPanel } from "@/core/widgets/catalog-products/ui/catalog-products-panel";
+import type { CategoryCardVariant } from "@/core/modules/category/model/category-card";
+import { CategoryCard } from "@/core/modules/category/ui/category-card";
 import { CategoryCardSkeleton } from "@/core/modules/category/ui/category-card-skeleton";
 import { useCategoryAdmin } from "@/core/widgets/category-admin/model/use-category-admin";
 import { CategoryAdminBarActions } from "@/core/widgets/category-admin/ui/category-admin-bar-actions";

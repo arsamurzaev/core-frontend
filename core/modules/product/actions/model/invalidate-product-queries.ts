@@ -21,7 +21,15 @@ function shouldInvalidateProductQuery(queryKey: QueryKey): boolean {
     return true;
   }
 
-  return key.startsWith("/category/") && key.endsWith("/products/infinite");
+  if (key === "/category") {
+    return true;
+  }
+
+  return (
+    key.startsWith("/category/") &&
+    key.includes("/products/") &&
+    key.endsWith("/infinite")
+  );
 }
 
 export async function invalidateProductQueries(queryClient: QueryClient) {

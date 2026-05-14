@@ -8,8 +8,8 @@ import {
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
 import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
+import { ProductCardRuntime } from "@/core/catalog-runtime/ui";
 import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
-import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
@@ -35,7 +35,7 @@ interface FilterProductsProps {
 type FilterSectionProduct = {
   id: string;
   slug: string;
-} & React.ComponentProps<typeof ProductCard>["data"];
+} & React.ComponentProps<typeof ProductCardRuntime>["data"];
 
 const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
 const PRODUCT_CARD_GAP_PX = 16;
@@ -70,13 +70,16 @@ const FilterProductCard = React.memo(
         product={product}
         className="block h-full"
       >
-        <ProductCard
+        <ProductCardRuntime
           data={product}
           isDetailed={isDetailed}
+          isMoySkladLinked={
+            !shouldUseCartUi &&
+            isAuthenticated &&
+            isMoySkladProduct(product)
+          }
           actions={
-            shouldUseCartUi ? (
-              <CartProductAction product={product} />
-            ) : isDetailed ? (
+            !shouldUseCartUi && isDetailed ? (
               <EditProductCardAction
                 isMoySkladLinked={isMoySkladProduct(product)}
                 productId={product.id}
@@ -85,6 +88,7 @@ const FilterProductCard = React.memo(
             ) : undefined
           }
           className={cn("h-full", isDetailed && "min-h-[160px]")}
+          pluginContainerClassName="h-full"
           hidePriceWhenFooterAction={shouldUseCartUi}
           footerAction={
             shouldUseCartUi && quantity > 0 ? (
@@ -101,6 +105,7 @@ const FilterProductCard = React.memo(
           }
         />
       </ProductLink>
+      {shouldUseCartUi ? <CartProductAction product={product} /> : null}
       {!shouldUseCartUi && !isDetailed ? (
         <EditProductCardAction
           isMoySkladLinked={isMoySkladProduct(product)}

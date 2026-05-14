@@ -1,7 +1,7 @@
 "use client";
 
-import { saveProductDrawerPreview } from "@/core/widgets/product-drawer/model/product-drawer-preview";
-import { dispatchProductDrawerInstantOpen } from "@/core/widgets/product-drawer/model/product-drawer-instant-events";
+import { dispatchProductDrawerInstantOpen } from "@/core/modules/product/model/product-drawer-instant-events";
+import { saveProductDrawerPreview } from "@/core/modules/product/model/product-drawer-preview";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import { buildProductHrefWithCatalogQuery } from "@/shared/lib/product-route";

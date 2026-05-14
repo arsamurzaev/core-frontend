@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  activateCatalogFilterState,
-  applyCatalogFilterQueryState,
-  clearCatalogFilterState,
   hasActiveCatalogFilters,
   parseCatalogFilterQueryState,
   type CatalogFilterQueryState,
@@ -16,19 +13,16 @@ import {
   FILTER_PRODUCTS_RESULTS_SECTION_ID,
   getCategorySectionScrollTargetOffset,
 } from "./category-scroll";
+import {
+  buildBrowserQueryHref,
+  getBrowserFilterQueryKey,
+  getBrowserPanelState,
+  getNextBrowserFilterQueryState,
+  getNextBrowserTabQueryState,
+  type CatalogFilterValuePatch,
+} from "./browser-query-state";
 
-export type CatalogFilterValuePatch = Partial<
-  Pick<
-    CatalogFilterQueryState,
-    | "categories"
-    | "brands"
-    | "isPopular"
-    | "isDiscount"
-    | "searchTerm"
-    | "minPrice"
-    | "maxPrice"
-  >
->;
+export type { CatalogFilterValuePatch } from "./browser-query-state";
 
 interface UseBrowserQueryStateResult {
   queryState: CatalogFilterQueryState;
@@ -44,10 +38,9 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const pathnameKey = pathname ?? "";
-  const queryKey = searchParams.toString();
   const previousLocationRef = React.useRef<{
+    filterQuery: string;
     pathname: string;
-    query: string;
   } | null>(null);
 
   const scrollToContentStart = React.useCallback((isNextFilterActive: boolean) => {
@@ -95,66 +88,55 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
     () => parseCatalogFilterQueryState(searchParams),
     [searchParams],
   );
+  const filterQueryKey = React.useMemo(
+    () => getBrowserFilterQueryKey(queryState),
+    [queryState],
+  );
   const isFilterActive = React.useMemo(
     () => hasActiveCatalogFilters(queryState),
     [queryState],
   );
-  const activePanelIndex = React.useMemo(
-    () => (queryState.tab === "categories" ? 1 : 0),
-    [queryState.tab],
-  );
-  const swipeTranslatePercent = React.useMemo(
-    () => activePanelIndex * 50,
-    [activePanelIndex],
+  const { activePanelIndex, swipeTranslatePercent } = React.useMemo(
+    () => getBrowserPanelState(queryState),
+    [queryState],
   );
 
   const handleTabChange = React.useCallback(
     (value: string) => {
-      const nextTab = value === "categories" ? "categories" : "catalog";
-      const nextState: CatalogFilterQueryState = {
-        ...queryState,
-        tab: nextTab,
-      };
-      const nextParams = applyCatalogFilterQueryState(searchParams, nextState);
-      const query = nextParams.toString();
+      const nextState = getNextBrowserTabQueryState(queryState, value);
 
-      router.replace(query ? `${pathname}?${query}` : pathname, {
-        scroll: false,
-      });
+      router.replace(
+        buildBrowserQueryHref({
+          pathname,
+          queryState: nextState,
+          searchParams,
+        }),
+        {
+          scroll: false,
+        },
+      );
     },
     [pathname, queryState, router, searchParams],
   );
 
   const handleFilterToggle = React.useCallback(
     (patch?: CatalogFilterValuePatch) => {
-      let nextState: CatalogFilterQueryState;
-
-      if (typeof patch !== "undefined") {
-        const mergedState: CatalogFilterQueryState = {
-          ...queryState,
-          ...patch,
-          tab: "catalog",
-        };
-        const hasFilterValues = hasActiveCatalogFilters({
-          ...mergedState,
-          filter: undefined,
-        });
-        nextState = {
-          ...mergedState,
-          filter: hasFilterValues ? true : undefined,
-        };
-      } else {
-        nextState = isFilterActive
-          ? clearCatalogFilterState(queryState)
-          : activateCatalogFilterState(queryState);
-      }
-
-      const nextParams = applyCatalogFilterQueryState(searchParams, nextState);
-      const query = nextParams.toString();
-
-      router.replace(query ? `${pathname}?${query}` : pathname, {
-        scroll: false,
+      const nextState = getNextBrowserFilterQueryState({
+        isFilterActive,
+        patch,
+        queryState,
       });
+
+      router.replace(
+        buildBrowserQueryHref({
+          pathname,
+          queryState: nextState,
+          searchParams,
+        }),
+        {
+          scroll: false,
+        },
+      );
 
       scrollToContentStart(hasActiveCatalogFilters(nextState));
     },
@@ -170,25 +152,28 @@ export function useBrowserQueryState(): UseBrowserQueryStateResult {
 
   React.useEffect(() => {
     const previousLocation = previousLocationRef.current;
-    const currentLocation = { pathname: pathnameKey, query: queryKey };
+    const currentLocation = {
+      filterQuery: filterQueryKey,
+      pathname: pathnameKey,
+    };
 
     if (!previousLocation) {
       previousLocationRef.current = currentLocation;
       return;
     }
 
-    const hasOnlyQueryChanged =
-      previousLocation.query !== currentLocation.query &&
+    const hasOnlyCatalogFilterQueryChanged =
+      previousLocation.filterQuery !== currentLocation.filterQuery &&
       previousLocation.pathname === currentLocation.pathname;
 
     previousLocationRef.current = currentLocation;
 
-    if (!hasOnlyQueryChanged) {
+    if (!hasOnlyCatalogFilterQueryChanged) {
       return;
     }
 
     scrollToContentStart(isFilterActive);
-  }, [isFilterActive, pathnameKey, queryKey, scrollToContentStart]);
+  }, [filterQueryKey, isFilterActive, pathnameKey, scrollToContentStart]);
 
   return {
     queryState,

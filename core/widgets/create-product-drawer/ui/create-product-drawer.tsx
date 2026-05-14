@@ -34,8 +34,10 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     errorMessage,
     filePreviewByFile,
     files,
+    features,
     form,
     formFields,
+    productAttributes,
     variantAttributes,
     handleCropApply,
     handleCropperOpenChange,
@@ -48,6 +50,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     handleToggleReorderMode,
     isCropperOpen,
     isInitialCropRequired,
+    isProductTypeSchemaResolving,
     isReorderMode,
     isSubmitting,
     open: drawerOpen,
@@ -73,7 +76,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     <AppDrawer
       open={drawerOpen}
       onOpenChange={handleOpenChange}
-      dismissible={!isSubmitting}
+      dismissible={!isSubmitting && !isProductTypeSchemaResolving}
       trigger={resolvedTrigger}
     >
       <ProductEditorDrawerContent
@@ -86,6 +89,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         files={files}
         filePreviewByFile={filePreviewByFile}
         isSubmitting={isSubmitting}
+        isBusy={isSubmitting || isProductTypeSchemaResolving}
         isCropperOpen={isCropperOpen}
         isReorderMode={isReorderMode}
         isInitialCropRequired={isInitialCropRequired}
@@ -98,6 +102,9 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         cropperTitle={cropperTitle}
         cropperDescription={cropperDescription}
         cropperApplyLabel={cropperApplyLabel}
+        canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
+        canUseProductVariants={features.canUseProductVariants}
+        productAttributes={productAttributes}
         variantAttributes={variantAttributes}
         onReset={handleReset}
         onSubmit={handleSubmit}

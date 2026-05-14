@@ -6,6 +6,10 @@ import {
 } from "@/core/modules/product/editor/model/form-config";
 import { isMissingRequiredValue } from "@/core/modules/product/editor/model/product-attributes";
 import {
+  hasEnabledVariantCombinations,
+  validateSaleUnitsForSubmit,
+} from "@/core/modules/product/editor/model/product-variants";
+import {
   type AttributeDto,
   AttributeDtoDataType,
 } from "@/shared/api/generated/react-query";
@@ -13,7 +17,9 @@ import {
 interface ValidateProductFormValuesParams {
   invalidFormMessage: string;
   invalidPriceMessage: string;
+  canUseCatalogSaleUnits?: boolean;
   values: CreateProductFormValues;
+  variantAttributes?: AttributeDto[];
   visibleAttributes: AttributeDto[];
 }
 
@@ -21,7 +27,7 @@ type ValidateProductFormValuesResult =
   | {
       success: true;
       errorMessage: null;
-      normalizedPrice: number;
+      normalizedPrice: number | null;
       parsedValues: CreateProductFormValues;
     }
   | {
@@ -34,23 +40,41 @@ type ValidateProductFormValuesResult =
 export function validateProductFormValues({
   invalidFormMessage,
   invalidPriceMessage,
+  canUseCatalogSaleUnits = false,
   values,
+  variantAttributes = [],
   visibleAttributes,
 }: ValidateProductFormValuesParams): ValidateProductFormValuesResult {
   const parsedValues = normalizeCreateProductFormValues(values);
 
-  if (parsedValues.name.trim().length === 0 || parsedValues.price.trim().length === 0) {
+  if (parsedValues.name.trim().length === 0) {
     return {
       success: false,
       errorMessage: invalidFormMessage,
     };
   }
 
-  const normalizedPrice = Number(parsedValues.price);
-  if (!Number.isFinite(normalizedPrice) || normalizedPrice < 0) {
+  const normalizedPrice =
+    parsedValues.price.trim().length > 0 ? Number(parsedValues.price) : null;
+  if (
+    normalizedPrice !== null &&
+    (!Number.isFinite(normalizedPrice) || normalizedPrice < 0)
+  ) {
     return {
       success: false,
       errorMessage: invalidPriceMessage,
+    };
+  }
+
+  if (
+    parsedValues.productTypeId &&
+    variantAttributes.length > 0 &&
+    !hasEnabledVariantCombinations(parsedValues.variants, variantAttributes)
+  ) {
+    return {
+      success: false,
+      errorMessage:
+        "Выберите хотя бы одну включенную комбинацию вариантов товара.",
     };
   }
 
@@ -60,9 +84,7 @@ export function validateProductFormValues({
     if (isMissingRequiredValue(attribute, value)) {
       return {
         success: false,
-        errorMessage:
-          "\u0417\u0430\u043f\u043e\u043b\u043d\u0438\u0442\u0435 \u043e\u0431\u044f\u0437\u0430\u0442\u0435\u043b\u044c\u043d\u044b\u0439 \u0430\u0442\u0440\u0438\u0431\u0443\u0442 " +
-          `"${attribute.displayName}".`,
+        errorMessage: `Заполните обязательный атрибут "${attribute.displayName}".`,
       };
     }
 
@@ -76,9 +98,20 @@ export function validateProductFormValues({
     ) {
       return {
         success: false,
-        errorMessage:
-          `\u0410\u0442\u0440\u0438\u0431\u0443\u0442 "${attribute.displayName}" ` +
-          "\u0434\u043e\u043b\u0436\u0435\u043d \u0431\u044b\u0442\u044c \u0447\u0438\u0441\u043b\u043e\u043c.",
+        errorMessage: `Атрибут "${attribute.displayName}" должен быть числом.`,
+      };
+    }
+  }
+
+  if (canUseCatalogSaleUnits) {
+    const saleUnitsIssue = validateSaleUnitsForSubmit(
+      parsedValues,
+      variantAttributes,
+    );
+    if (saleUnitsIssue) {
+      return {
+        success: false,
+        errorMessage: saleUnitsIssue.message,
       };
     }
   }

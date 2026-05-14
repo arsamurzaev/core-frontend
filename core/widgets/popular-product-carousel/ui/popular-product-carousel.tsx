@@ -3,8 +3,8 @@
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
 import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
+import { ProductCardRuntime } from "@/core/catalog-runtime/ui";
 import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
-import { ProductCard } from "@/core/modules/product/entities/product-card";
 import { ProductLink } from "@/core/modules/product/entities/product-link";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
@@ -116,19 +116,22 @@ export const PopularProductCarousel: React.FC<Props> = ({
                   product={product}
                   className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
                 >
-                  <ProductCard
+                  <ProductCardRuntime
                     data={product}
                     isDetailed
+                    isMoySkladLinked={
+                      !shouldRenderCartUi &&
+                      isAuthenticated &&
+                      isMoySkladProduct(product)
+                    }
                     actions={
-                      shouldRenderCartUi ? (
-                        <CartProductAction product={product} />
-                      ) : (
+                      !shouldRenderCartUi ? (
                         <EditProductCardAction
                           isMoySkladLinked={isMoySkladProduct(product)}
                           productId={product.id}
                           status={product.status}
                         />
-                      )
+                      ) : undefined
                     }
                     hidePriceWhenFooterAction={shouldRenderCartUi}
                     footerAction={
@@ -147,6 +150,9 @@ export const PopularProductCarousel: React.FC<Props> = ({
                     }
                   />
                 </ProductLink>
+                {shouldRenderCartUi ? (
+                  <CartProductAction product={product} />
+                ) : null}
               </article>
             </CarouselItem>
           ))}

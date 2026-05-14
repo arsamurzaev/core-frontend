@@ -1,27 +1,16 @@
 "use client";
 
-import {
-  CREATE_PRODUCT_FIELD_GROUP_PROPS,
-  CREATE_PRODUCT_FIELDSET_PROPS,
-  CREATE_PRODUCT_FORM_LAYOUT,
-  type CreateProductFormValues,
-  PRODUCT_IMAGE_ASPECT_RATIO,
-} from "@/core/modules/product/editor/model/form-config";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { type UploadState } from "@/core/modules/product/editor/model/types";
-import {
-  ProductImagesSection,
-  type ProductImageSectionItem,
-} from "@/core/modules/product/editor/ui/product-images-section";
-import { ProductVariantsField } from "@/core/modules/product/editor/ui/product-variants-field";
+import { useProductEditorFormState } from "@/core/modules/product/editor/model/use-product-editor-form-state";
+import { ProductEditorCropper } from "@/core/modules/product/editor/ui/product-editor-cropper";
+import { ProductEditorImagesPanel } from "@/core/modules/product/editor/ui/product-editor-images-panel";
+import { ProductEditorMainSection } from "@/core/modules/product/editor/ui/product-editor-main-section";
+import { ProductEditorResetAction } from "@/core/modules/product/editor/ui/product-editor-reset-action";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
-import {
-  DynamicForm,
-  type DynamicFieldConfig,
-} from "@/shared/ui/dynamic-form";
-import { ImageCropperDrawer } from "@/shared/ui/image-cropper-drawer";
-import { RefreshCcw } from "lucide-react";
+import { type DynamicFieldConfig } from "@/shared/ui/dynamic-form";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
@@ -44,6 +33,7 @@ export interface ProductEditorDrawerContentProps {
   isInitialCropRequired: boolean;
   isReorderMode: boolean;
   isSubmitting: boolean;
+  isSubmitDisabled?: boolean;
   pendingSwapIndex: number | null;
   showImagesSection?: boolean;
   submitLabel: string;
@@ -51,7 +41,11 @@ export interface ProductEditorDrawerContentProps {
   trailingTitleNode?: React.ReactNode;
   uploadState: UploadState;
   uploadedMediaIds: string[];
+  productTypeChangeSection?: React.ReactNode;
+  productAttributes?: AttributeDto[];
   variantAttributes?: AttributeDto[];
+  canUseCatalogSaleUnits?: boolean;
+  canUseProductVariants?: boolean;
   onCropApply: (files: File[]) => void;
   onCropperOpenChange: (open: boolean) => void;
   onEditFile: (index: number) => void;
@@ -84,6 +78,7 @@ export const ProductEditorDrawerContent: React.FC<
   isInitialCropRequired,
   isReorderMode,
   isSubmitting,
+  isSubmitDisabled,
   pendingSwapIndex,
   showImagesSection = true,
   submitLabel,
@@ -91,7 +86,11 @@ export const ProductEditorDrawerContent: React.FC<
   trailingTitleNode,
   uploadState,
   uploadedMediaIds,
+  productTypeChangeSection,
+  productAttributes,
   variantAttributes,
+  canUseCatalogSaleUnits = false,
+  canUseProductVariants = false,
   onCropApply,
   onCropperOpenChange,
   onEditFile,
@@ -103,82 +102,26 @@ export const ProductEditorDrawerContent: React.FC<
   onToggleReorderMode,
 }) => {
   const resolvedIsBusy = isBusy ?? isSubmitting;
+  const {
+    discountPercent,
+    hasVariantAttributes,
+    priceFallback,
+    saleUnits,
+  } = useProductEditorFormState({
+    canUseProductVariants,
+    form,
+    productAttributes,
+    variantAttributes,
+  });
 
-  const defaultImageItems = React.useMemo<ProductImageSectionItem[]>(
-    () =>
-      files.flatMap((file) => {
-        const previewEntry = filePreviewByFile.get(file);
-        if (!previewEntry) {
-          return [];
-        }
-
-        return [
-          {
-            key: previewEntry.key,
-            label: file.name,
-            previewUrl: previewEntry.previewUrl,
-          },
-        ];
-      }),
-    [filePreviewByFile, files],
-  );
-
-  const resolvedImagesSection = React.useMemo(() => {
-    if (imagesSection) {
-      return imagesSection;
-    }
-
-    return (
-      <ProductImagesSection
-        items={defaultImageItems}
-        isSubmitting={resolvedIsBusy}
-        isCropperOpen={isCropperOpen}
-        isReorderMode={isReorderMode}
-        isInitialCropRequired={isInitialCropRequired}
-        pendingSwapIndex={pendingSwapIndex}
-        uploadState={uploadState}
-        uploadedMediaIds={uploadedMediaIds}
-        onFilesChange={onFilesChange}
-        onToggleReorderMode={onToggleReorderMode}
-        onSelectFileForSwap={onSelectFileForSwap}
-        onEditFile={onEditFile}
-        onRemoveFile={onRemoveFile}
-      />
-    );
-  }, [
-    defaultImageItems,
-    imagesSection,
-    isCropperOpen,
-    isInitialCropRequired,
-    isReorderMode,
-    onEditFile,
-    onFilesChange,
-    onRemoveFile,
-    onSelectFileForSwap,
-    onToggleReorderMode,
-    pendingSwapIndex,
-    resolvedIsBusy,
-    uploadState,
-    uploadedMediaIds,
-  ]);
-
-  const defaultTrailingNode = React.useMemo(() => {
-    if (!onReset) {
-      return undefined;
-    }
-
-    return (
-      <button
-        type="button"
-        onClick={onReset}
+  const resolvedTrailingTitleNode =
+    trailingTitleNode ??
+    (onReset ? (
+      <ProductEditorResetAction
         disabled={resolvedIsBusy || isCropperOpen}
-        className="rounded p-1 transition-colors hover:bg-gray-100 disabled:opacity-50"
-        title="Очистить форму"
-      >
-        <RefreshCcw className="size-5" />
-      </button>
-    );
-  }, [isCropperOpen, onReset, resolvedIsBusy]);
+        onReset={onReset}
+      />
+    ) : undefined);
 
   return (
     <>
@@ -186,39 +129,47 @@ export const ProductEditorDrawerContent: React.FC<
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title={title}
-            trailingTitleNode={trailingTitleNode ?? defaultTrailingNode}
+            trailingTitleNode={resolvedTrailingTitleNode}
             withCloseButton={!resolvedIsBusy}
           />
           <hr />
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-6">
-              <section className="space-y-3">
-                <DynamicForm
-                  form={form}
-                  fields={formFields}
-                  onSubmit={() => undefined}
-                  disabled={resolvedIsBusy}
-                  className="space-y-0"
-                  layout={CREATE_PRODUCT_FORM_LAYOUT}
-                  fieldSetProps={CREATE_PRODUCT_FIELDSET_PROPS}
-                  fieldGroupProps={CREATE_PRODUCT_FIELD_GROUP_PROPS}
-                />
-
-                {variantAttributes && variantAttributes.length > 0 && (
-                  <ProductVariantsField
-                    form={form}
-                    variantAttributes={variantAttributes}
-                    disabled={resolvedIsBusy}
-                  />
-                )}
-              </section>
+              <ProductEditorMainSection
+                canUseCatalogSaleUnits={canUseCatalogSaleUnits}
+                disabled={resolvedIsBusy}
+                discountPercent={discountPercent}
+                form={form}
+                formFields={formFields}
+                hasVariantAttributes={hasVariantAttributes}
+                priceFallback={priceFallback}
+                productTypeChangeSection={productTypeChangeSection}
+                saleUnits={saleUnits}
+                variantAttributes={variantAttributes}
+              />
 
               {showImagesSection ? (
                 <>
                   <hr className="-mx-5" />
 
-                  {resolvedImagesSection}
+                  <ProductEditorImagesPanel
+                    filePreviewByFile={filePreviewByFile}
+                    files={files}
+                    imagesSection={imagesSection}
+                    isBusy={resolvedIsBusy}
+                    isCropperOpen={isCropperOpen}
+                    isInitialCropRequired={isInitialCropRequired}
+                    isReorderMode={isReorderMode}
+                    pendingSwapIndex={pendingSwapIndex}
+                    uploadState={uploadState}
+                    uploadedMediaIds={uploadedMediaIds}
+                    onFilesChange={onFilesChange}
+                    onToggleReorderMode={onToggleReorderMode}
+                    onSelectFileForSwap={onSelectFileForSwap}
+                    onEditFile={onEditFile}
+                    onRemoveFile={onRemoveFile}
+                  />
                 </>
               ) : null}
 
@@ -234,7 +185,9 @@ export const ProductEditorDrawerContent: React.FC<
             className="border-t"
             isAutoClose={false}
             loading={isSubmitting}
-            isFooterBtnDisabled={isCropperOpen || resolvedIsBusy}
+            isFooterBtnDisabled={
+              isCropperOpen || resolvedIsBusy || Boolean(isSubmitDisabled)
+            }
             btnText={submitLabel}
             handleClick={() => void onSubmit()}
           />
@@ -242,23 +195,16 @@ export const ProductEditorDrawerContent: React.FC<
       </AppDrawer.Content>
 
       {showImagesSection ? (
-        <ImageCropperDrawer
+        <ProductEditorCropper
           open={isCropperOpen}
           onOpenChange={onCropperOpenChange}
           files={cropperFiles}
           initialIndex={cropperInitialIndex}
           mode={cropperMode}
           onApply={onCropApply}
-          aspectRatio={PRODUCT_IMAGE_ASPECT_RATIO}
           title={cropperTitle}
           description={cropperDescription}
           applyLabel={cropperApplyLabel}
-          outputOptions={{
-            maxHeight: 2400,
-            quality: 0.92,
-            mimeType: "image/jpeg",
-            fileNameSuffix: "product",
-          }}
         />
       ) : null}
     </>

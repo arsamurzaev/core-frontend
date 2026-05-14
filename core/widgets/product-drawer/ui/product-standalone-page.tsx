@@ -1,9 +1,7 @@
 "use client";
 
-import { useCart } from "@/core/modules/cart/model/cart-context";
-import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
 import { buildProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
-import { ProductDetailsPanel } from "@/core/widgets/product-drawer/ui/product-details-panel";
+import { ProductPurchaseDetailsPanel } from "@/core/widgets/product-drawer/ui/product-purchase-details-panel";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { buildHomeHrefWithCatalogQuery } from "@/shared/lib/product-route";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
@@ -24,7 +22,6 @@ export const ProductStandalonePage: React.FC<ProductStandalonePageProps> = ({
   productSlug,
 }) => {
   const { catalog } = useCatalogState();
-  const { shouldUseCartUi } = useCart();
   const searchParams = useSearchParams();
   const homeHref = React.useMemo(
     () => buildHomeHrefWithCatalogQuery(searchParams),
@@ -53,33 +50,15 @@ export const ProductStandalonePage: React.FC<ProductStandalonePageProps> = ({
           </Button>
 
           <section className="shadow-custom flex min-h-[calc(100svh-6rem)] flex-col overflow-hidden rounded-2xl border bg-background">
-            <ProductDetailsPanel
-              brandName={viewModel.brandName ?? undefined}
+            <ProductPurchaseDetailsPanel
               className="min-h-0 flex-1"
-              currency={viewModel.currency}
-              description={viewModel.description}
-              displayName={viewModel.displayName}
-              displayPrice={viewModel.displayPrice}
-              discount={viewModel.discount}
-              footerAction={
-                shouldUseCartUi && product?.id ? (
-                  <CartProductDrawerFooterAction
-                    product={product}
-                    productId={product.id}
-                  />
-                ) : null
-              }
               footerClassName="mx-0 rounded-none border-t bg-background px-6 py-4 shadow-none"
-              hasDiscount={viewModel.hasDiscount}
-              hasError={viewModel.hasError}
-              imageUrls={viewModel.imageUrls}
               isLoading={false}
-              price={viewModel.price}
+              product={product}
+              productKey={productSlug}
               resetKey={productSlug}
               scrollAreaClassName="min-h-0 flex-1 overflow-auto"
-              shareText={viewModel.shareText}
-              subtitle={viewModel.subtitle}
-              variantsSummary={viewModel.variantsSummary}
+              viewModel={viewModel}
             />
           </section>
         </div>

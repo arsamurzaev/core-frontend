@@ -8,9 +8,24 @@ import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
-import { title } from "process";
 
 type ProductDrawerEntity = ProductWithAttributesDto | ProductWithDetailsDto;
+
+export interface ProductDrawerViewModel {
+  brandName: string | null;
+  currency: string;
+  description: string;
+  displayName: string;
+  displayPrice: number;
+  discount: number;
+  hasDiscount: boolean;
+  hasError: boolean;
+  imageUrls: string[];
+  price: number;
+  shareText?: string;
+  subtitle: string;
+  variantsSummary: string | null;
+}
 
 function parseOptionalDate(value: unknown): Date | undefined {
   if (typeof value !== "string") {
@@ -37,7 +52,7 @@ function getProductImageUrls(
 function getVariantsSummary(
   product: ProductDrawerEntity | null | undefined,
 ): string | null {
-  if (!product || !("variants" in product)) {
+  if (!product?.productType?.id || !("variants" in product)) {
     return null;
   }
 
@@ -73,7 +88,7 @@ export function buildProductDrawerViewModel(params: {
   previewProduct?: ProductWithAttributesDto | null;
   product: ProductWithDetailsDto | null | undefined;
   supportsBrands?: boolean;
-}) {
+}): ProductDrawerViewModel {
   const {
     catalog,
     isError,
@@ -99,9 +114,16 @@ export function buildProductDrawerViewModel(params: {
   const discountEndAt = parseOptionalDate(attrs.discountEndAt);
 
   const price = toNumberValue(displayProduct?.price ?? null) ?? 0;
+  const displayProductVariants = displayProduct?.productType?.id
+    ? ((displayProduct as { variants?: { status?: string }[] } | null)
+        ?.variants ?? [])
+    : [];
+  const hasMultipleVariants =
+    displayProductVariants.filter((variant) => variant.status !== "DISABLED")
+      .length > 1;
   const pricing = calculatePrice({
     price,
-    discountedPrice,
+    discountedPrice: hasMultipleVariants ? undefined : discountedPrice,
     discount,
     discountStartAt,
     discountEndAt,
@@ -109,7 +131,7 @@ export function buildProductDrawerViewModel(params: {
 
   return {
     brandName: supportsBrands
-      ? toOptionalTrimmedString(displayProduct?.brand?.name)
+      ? (toOptionalTrimmedString(displayProduct?.brand?.name) ?? null)
       : null,
     currency,
     description,
@@ -120,7 +142,7 @@ export function buildProductDrawerViewModel(params: {
     hasError: isError || (!isLoading && !displayProduct),
     imageUrls: getProductImageUrls(displayProduct),
     price,
-    shareText: title || undefined,
+    shareText: displayProduct?.name,
     subtitle,
     variantsSummary: getVariantsSummary(displayProduct),
   };

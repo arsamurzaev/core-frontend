@@ -1,10 +1,13 @@
 "use client";
 
-import { type CartSharePayload } from "@/core/modules/cart/model/cart-context";
+import type { CartSharePayload } from "@/core/modules/cart/model/cart-context.types";
+import { resolveCartDrawerFooterAction } from "@/core/widgets/cart-drawer/model/cart-drawer-footer-state";
+import { useCartDrawerShare } from "@/core/widgets/cart-drawer/model/use-cart-drawer-share";
+import { CartDrawerFooterAction } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-action";
+import { CartDrawerFooterSummary } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-summary";
 import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
 import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
 import { DrawerFooter } from "@/shared/ui/drawer";
 import React from "react";
 import { toast } from "sonner";
@@ -17,7 +20,7 @@ interface CartDrawerFooterProps {
   hasDiscount: boolean;
   hasItems: boolean;
   isBusy?: boolean;
-  isManagedPublicCart: boolean;
+  isManagerOrderCart: boolean;
   isShareDisabled?: boolean;
   onCollapse?: () => void;
   onCompleteOrder: () => Promise<void>;
@@ -27,18 +30,10 @@ interface CartDrawerFooterProps {
   totalPrice: number;
 }
 
-function formatPrice(value: number) {
-  return Intl.NumberFormat("ru-RU").format(value);
-}
-
-function getShareErrorMessage(error: unknown): string {
+function getCompleteErrorMessage(error: unknown): string {
   return error instanceof Error
     ? error.message
-    : "Не удалось подготовить заказ для отправки.";
-}
-
-function getCompleteErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "Не удалось завершить заказ.";
+    : "Не удалось завершить заказ.";
 }
 
 export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
@@ -49,7 +44,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   hasDiscount,
   hasItems,
   isBusy = false,
-  isManagedPublicCart,
+  isManagerOrderCart,
   isShareDisabled = false,
   onCollapse,
   onCompleteOrder,
@@ -58,24 +53,16 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   price,
   totalPrice,
 }) => {
-  const [isShareDrawerOpen, setIsShareDrawerOpen] = React.useState(false);
-  const [hasOpenedShareDrawer, setHasOpenedShareDrawer] = React.useState(false);
-  const [sharePayload, setSharePayload] = React.useState<CartSharePayload | null>(
-    null,
-  );
-  const effectiveHasSharedCart = hasSharedCart || hasOpenedShareDrawer;
-
-  const handleShare = React.useCallback(async () => {
-    try {
-      const nextPayload = await onShareClick();
-      setSharePayload(nextPayload);
-      setHasOpenedShareDrawer(true);
-      onSharePrepared?.();
-      setIsShareDrawerOpen(true);
-    } catch (error) {
-      toast.error(getShareErrorMessage(error));
-    }
-  }, [onShareClick, onSharePrepared]);
+  const share = useCartDrawerShare({
+    hasSharedCart,
+    onShareClick,
+    onSharePrepared,
+  });
+  const action = resolveCartDrawerFooterAction({
+    canShare,
+    hasCollapseAction: Boolean(onCollapse),
+    isManagerOrderCart,
+  });
 
   const handleComplete = React.useCallback(async () => {
     try {
@@ -93,61 +80,36 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
         <div
           className={cn(
             "shadow-custom border-muted mx-auto grid w-full max-w-[95%] items-center gap-4 rounded-t-lg border p-5 sm:gap-6",
-            isManagedPublicCart || canShare || onCollapse
+            action !== "none"
               ? "grid-cols-[minmax(110px,auto)_minmax(0,1fr)]"
               : "grid-cols-1",
           )}
         >
-          <div className="min-w-27.5">
-            <h4 className="w-27.5 text-xs">Заказ на сумму</h4>
-            <h4 className="text-lg font-bold whitespace-nowrap sm:text-xl">
-              {formatPrice(price)} {currency}
-            </h4>
-            {hasDiscount ? (
-              <p className="text-muted text-xs line-through">
-                {formatPrice(totalPrice)} {currency}
-              </p>
-            ) : null}
-          </div>
+          <CartDrawerFooterSummary
+            currency={currency}
+            hasDiscount={hasDiscount}
+            price={price}
+            totalPrice={totalPrice}
+          />
 
-          {isManagedPublicCart ? (
-            <Button
-              type="button"
-              className="w-full justify-center"
-              disabled={isBusy}
-              onClick={() => void handleComplete()}
-              size="full"
-            >
-              Завершить заказ
-            </Button>
-          ) : canShare ? (
-            <Button
-              type="button"
-              className="w-full justify-center"
-              disabled={isBusy || !hasItems || isShareDisabled}
-              onClick={() => void handleShare()}
-              size="full"
-            >
-              {effectiveHasSharedCart ? "Поделиться" : "Оформить заказ"}
-            </Button>
-          ) : onCollapse ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full justify-center"
-              onClick={onCollapse}
-              size="full"
-            >
-              Свернуть
-            </Button>
-          ) : null}
+          <CartDrawerFooterAction
+            action={action}
+            hasItems={hasItems}
+            hasOpenedShareDrawer={share.hasOpenedShareDrawer}
+            hasSharedCart={hasSharedCart}
+            isBusy={isBusy}
+            isShareDisabled={isShareDisabled}
+            onCollapse={onCollapse}
+            onComplete={() => void handleComplete()}
+            onShare={() => void share.handleShare()}
+          />
         </div>
       </DrawerFooter>
 
       <ShareDrawer
         mode="share"
-        open={isShareDrawerOpen}
-        onOpenChange={setIsShareDrawerOpen}
+        open={share.isShareDrawerOpen}
+        onOpenChange={share.setIsShareDrawerOpen}
         trigger={null}
         drawerTitle="Поделиться заказом"
         copyButtonLabel="Скопировать текст заказа"
@@ -155,10 +117,10 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
         copySuccessMessage="Текст заказа скопирован."
         appendUrlToMessage={false}
         title={undefined}
-        text={sharePayload?.text}
-        url={sharePayload?.url}
+        text={share.sharePayload?.text}
+        url={share.sharePayload?.url}
         contactsOverride={
-          sharePayload?.contactsOverride as
+          share.sharePayload?.contactsOverride as
             | Partial<Record<CatalogContactDtoType, string>>
             | undefined
         }

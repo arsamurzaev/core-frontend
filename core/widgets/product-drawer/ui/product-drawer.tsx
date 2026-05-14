@@ -1,10 +1,8 @@
 "use client";
 
-import { useCart } from "@/core/modules/cart/model/cart-context";
-import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
 import { buildProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { useProductDrawerAfterClose } from "@/core/widgets/product-drawer/model/use-product-drawer-after-close";
-import { ProductDetailsPanel } from "@/core/widgets/product-drawer/ui/product-details-panel";
+import { ProductPurchaseDetailsPanel } from "@/core/widgets/product-drawer/ui/product-purchase-details-panel";
 import {
   type ProductWithAttributesDto,
   type ProductWithDetailsDto,
@@ -23,6 +21,8 @@ import React from "react";
 interface ProductDrawerProps {
   open: boolean;
   productSlug: string;
+  initialSaleUnitId?: string | null;
+  initialVariantId?: string | null;
   initialProduct?: ProductWithDetailsDto | null;
   previewProduct?: ProductWithAttributesDto | null;
   product?: ProductWithDetailsDto | null;
@@ -35,6 +35,8 @@ interface ProductDrawerProps {
 export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   open,
   productSlug,
+  initialSaleUnitId,
+  initialVariantId,
   initialProduct,
   previewProduct,
   product,
@@ -44,7 +46,6 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   onAfterClose,
 }) => {
   const { catalog } = useCatalogState();
-  const { shouldUseCartUi } = useCart();
   const { data, isError, isLoading } = useProductControllerGetBySlug(
     productSlug,
     {
@@ -60,7 +61,6 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
     ? null
     : (previewProduct ?? null);
   const shouldShowSkeleton = isLoading && !resolvedPreviewProduct;
-
   const viewModel = React.useMemo(
     () =>
       buildProductDrawerViewModel({
@@ -80,7 +80,6 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
       supportsBrands,
     ],
   );
-
   const handleCloseAnimationEnd = useProductDrawerAfterClose({
     open,
     onAfterClose,
@@ -98,31 +97,15 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
         )}
       >
         <DrawerTitle className="sr-only">{viewModel.displayName}</DrawerTitle>
-        <ProductDetailsPanel
-          brandName={viewModel.brandName ?? undefined}
-          currency={viewModel.currency}
-          description={viewModel.description}
-          displayName={viewModel.displayName}
-          displayPrice={viewModel.displayPrice}
-          discount={viewModel.discount}
-          footerAction={
-            shouldUseCartUi && resolvedProduct?.id ? (
-              <CartProductDrawerFooterAction
-                product={resolvedProduct}
-                productId={resolvedProduct.id}
-              />
-            ) : null
-          }
-          hasDiscount={viewModel.hasDiscount}
-          hasError={viewModel.hasError}
-          imageUrls={viewModel.imageUrls}
+        <ProductPurchaseDetailsPanel
+          initialSaleUnitId={initialSaleUnitId}
+          initialVariantId={initialVariantId}
           isLoading={shouldShowSkeleton}
-          price={viewModel.price}
+          product={resolvedProduct}
+          productKey={productSlug}
           resetKey={productSlug}
           ScrollAreaComponent={DrawerScrollArea}
-          shareText={viewModel.shareText}
-          subtitle={viewModel.subtitle}
-          variantsSummary={viewModel.variantsSummary}
+          viewModel={viewModel}
         />
       </DrawerContent>
     </Drawer>

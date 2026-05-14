@@ -10,21 +10,21 @@ export interface ProductCardView {
   currency: string;
   description: string;
   discount: number | undefined;
-  displayPrice: number;
+  displayPrice: number | undefined;
   hasDiscount: boolean;
   imageUrl: string;
   imageStatus: string | null;
-  price: number;
+  price: number | undefined;
+  pricePrefix: string | null;
   subtitle: string;
 }
 
 interface ProductCardViewOptions {
   fallbackCurrency?: string;
+  canUseVariants?: boolean;
 }
 
-function resolveProductCardImageUrl(
-  data: ProductWithAttributesDto,
-): string {
+function resolveProductCardImageUrl(data: ProductWithAttributesDto): string {
   return (
     data.media?.[0]?.media?.variants[0]?.url ||
     data.media?.[0]?.media?.url ||
@@ -32,7 +32,9 @@ function resolveProductCardImageUrl(
   );
 }
 
-function resolveProductCardImageStatus(data: ProductWithAttributesDto): string | null {
+function resolveProductCardImageStatus(
+  data: ProductWithAttributesDto,
+): string | null {
   return data.media?.[0]?.media?.status ?? null;
 }
 
@@ -40,7 +42,30 @@ export function buildProductCardView(
   data: ProductWithAttributesDto,
   options: ProductCardViewOptions = {},
 ): ProductCardView {
-  const price = toNumberValue(data.price) ?? 0;
+  const canUseVariants = Boolean(options.canUseVariants && data.productType?.id);
+  const minVariantPrice = canUseVariants
+    ? toNumberValue(data.variantSummary?.minPrice ?? null)
+    : null;
+  const maxVariantPrice = canUseVariants
+    ? toNumberValue(data.variantSummary?.maxPrice ?? null)
+    : null;
+  const activeVariantCount = canUseVariants
+    ? (data.variantSummary?.activeCount ?? 0)
+    : 0;
+  const hasVariantPriceRange =
+    minVariantPrice !== null &&
+    maxVariantPrice !== null &&
+    activeVariantCount > 1 &&
+    minVariantPrice !== maxVariantPrice;
+  const hasMultipleVariantPrices =
+    minVariantPrice !== null &&
+    maxVariantPrice !== null &&
+    activeVariantCount > 1;
+  const productPrice = toNumberValue(data.price);
+  const price =
+    minVariantPrice !== null && (productPrice !== null || minVariantPrice > 0)
+      ? minVariantPrice
+      : productPrice;
   const {
     description = "",
     subtitle = "",
@@ -55,23 +80,27 @@ export function buildProductCardView(
     PRODUCT_CARD_DEFAULT_CURRENCY;
   const displayCurrency = toOptionalTrimmedString(currency) ?? fallbackCurrency;
 
-  const pricing = calculatePrice({
-    price,
-    discount,
-    discountedPrice,
-    discountStartAt,
-    discountEndAt,
-  });
+  const pricing =
+    price !== null
+      ? calculatePrice({
+          price,
+          discount,
+          discountedPrice: hasMultipleVariantPrices ? undefined : discountedPrice,
+          discountStartAt,
+          discountEndAt,
+        })
+      : null;
 
   return {
     currency: displayCurrency,
     description,
-    discount: pricing.discountPercent || undefined,
-    displayPrice: pricing.totalPrice,
-    hasDiscount: pricing.hasDiscount,
+    discount: pricing?.discountPercent || undefined,
+    displayPrice: pricing?.totalPrice,
+    hasDiscount: pricing?.hasDiscount ?? false,
     imageUrl: resolveProductCardImageUrl(data),
     imageStatus: resolveProductCardImageStatus(data),
-    price,
+    price: price ?? undefined,
+    pricePrefix: hasVariantPriceRange ? "от" : null,
     subtitle,
   };
 }

@@ -1,12 +1,24 @@
 "use client";
 
-import { useCartProductPricing } from "@/core/modules/cart/model/cart-context";
-import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
+import {
+  getCartPricingForProduct,
+} from "@/core/modules/cart/model/cart-item-view";
+import { getCartItemMaxQuantity } from "@/core/modules/cart/model/cart-item-max-quantity";
+import { useCart } from "@/core/modules/cart/model/cart-context";
+import {
+  buildCartLineSnapshot,
+  getCartProductLinesSummary,
+} from "@/core/modules/cart/model/cart-product-card-footer-state";
+import { CartProductCardFooterPrice } from "@/core/modules/cart/ui/cart-product-card-footer-price";
+import { CartProductCardFooterQuantity } from "@/core/modules/cart/ui/cart-product-card-footer-quantity";
+import { CartProductCardFooterSummary } from "@/core/modules/cart/ui/cart-product-card-footer-summary";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
+import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
-import { cn, getCatalogCurrency } from "@/shared/lib/utils";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
-import { Minus, Plus } from "lucide-react";
 import React from "react";
 
 interface CartProductCardFooterActionProps {
@@ -15,84 +27,124 @@ interface CartProductCardFooterActionProps {
   product: ProductWithAttributesDto;
 }
 
-export const CartProductCardFooterAction = React.memo(function CartProductCardFooterAction({ className, isDetailed = false, product }: CartProductCardFooterActionProps) {
-  const pricing = useCartProductPricing(product);
-  const { catalog } = useCatalogState();
-  const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
-  const { handleDecrement, handleIncrement, isBusy, quantity } =
-    useCartProductControls(product.id, product);
-
-  const handlePreventCardNavigation = (event: React.SyntheticEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
-  if (!quantity) {
-    const { displayPrice, currency, hasDiscount } = buildProductCardView(
+export const CartProductCardFooterAction = React.memo(
+  function CartProductCardFooterAction({
+    className,
+    isDetailed = false,
+    product,
+  }: CartProductCardFooterActionProps) {
+    const { catalog } = useCatalogState();
+    const features = useCatalogCapabilities();
+    const canUseProductVariants = features.canUseProductVariants;
+    const { items } = useCart();
+    const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
+    const productCartLines = React.useMemo(
+      () => items.filter((item) => item.productId === product.id),
+      [items, product.id],
+    );
+    const singleCartLine =
+      productCartLines.length === 1 ? productCartLines[0] : null;
+    const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
+    const { isUnavailable, maxQuantity, singleVariantId } =
+      resolveProductCardVariantState(product, {
+        canUseVariants: canUseProductVariants,
+        shouldEnforceStock,
+      });
+    const singleLineMaxQuantity = React.useMemo(
+      () =>
+        shouldEnforceStock && singleCartLine
+          ? getCartItemMaxQuantity(singleCartLine)
+          : undefined,
+      [shouldEnforceStock, singleCartLine],
+    );
+    const singleLineProduct = React.useMemo(
+      () =>
+        singleCartLine
+          ? buildCartLineSnapshot(product, singleCartLine)
+          : product,
+      [product, singleCartLine],
+    );
+    const productControls = useCartProductControls(
+      {
+        productId: product.id,
+        variantId: singleVariantId,
+      },
       product,
-      { fallbackCurrency },
+      {
+        canUseProductVariants,
+        maxQuantity,
+      },
     );
-    if (!displayPrice) return null;
+    const singleLineControls = useCartProductControls(
+      {
+        productId: product.id,
+        saleUnitId: singleCartLine?.saleUnitId,
+        variantId: singleCartLine?.variantId,
+      },
+      singleLineProduct,
+      {
+        maxQuantity: singleLineMaxQuantity,
+        quantityScope: "line",
+      },
+    );
+    const controls = singleCartLine ? singleLineControls : productControls;
+    const pricing =
+      singleCartLine && controls.quantity
+        ? {
+            currency: singleCartLine.currency,
+            displayTotal: singleCartLine.displayLineTotal,
+          }
+        : getCartPricingForProduct(product, controls.quantity, fallbackCurrency);
+
+    const handlePreventCardNavigation = (event: React.SyntheticEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+
+    if (productCartLines.length > 1) {
+      return (
+        <CartProductCardFooterSummary
+          className={className}
+          isDetailed={isDetailed}
+          onClick={handlePreventCardNavigation}
+          summary={getCartProductLinesSummary(
+            productCartLines,
+            fallbackCurrency,
+          )}
+        />
+      );
+    }
+
+    if (
+      !controls.quantity ||
+      (isUnavailable && !singleVariantId && !singleCartLine)
+    ) {
+      const { displayPrice, currency, hasDiscount, pricePrefix } =
+        buildProductCardView(product, {
+          canUseVariants: canUseProductVariants,
+          fallbackCurrency,
+        });
+
+      return (
+        <CartProductCardFooterPrice
+          className={className}
+          currency={currency}
+          displayPrice={displayPrice}
+          hasDiscount={hasDiscount}
+          pricePrefix={pricePrefix}
+        />
+      );
+    }
+
     return (
-      <p className={cn("text-base font-bold whitespace-nowrap", !hasDiscount && "mt-4", className)}>
-        {Intl.NumberFormat("ru").format(displayPrice)}{" "}
-        <span className="font-normal">{currency}</span>
-      </p>
+      <CartProductCardFooterQuantity
+        className={className}
+        controls={controls}
+        currency={pricing.currency}
+        displayTotal={pricing.displayTotal}
+        isDetailed={isDetailed}
+        onClick={handlePreventCardNavigation}
+      />
     );
-  }
-
-  if (!pricing) {
-    return null;
-  }
-
-  return (
-    <div
-      onClick={handlePreventCardNavigation}
-      className={cn(
-        "bg-secondary mt-1 cursor-default items-center justify-between gap-2.5 rounded-lg px-2.5 py-2",
-        isDetailed
-          ? "ml-auto inline-flex w-fit max-w-full shrink-0"
-          : "flex w-full",
-        isBusy && "animate-pulse",
-        className,
-      )}
-    >
-      <button
-        type="button"
-        disabled={isBusy}
-        className={cn(
-          "flex items-center justify-center",
-          isDetailed ? "h-4 w-4 shrink-0" : "flex-1",
-        )}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handleDecrement();
-        }}
-        aria-label="Уменьшить количество"
-      >
-        <Minus size={12} />
-      </button>
-      <p className="shrink-0 whitespace-nowrap text-base leading-none font-bold">
-        {Intl.NumberFormat("ru").format(pricing.displayTotal)}{" "}
-        <span className="font-normal">{pricing.currency}</span>
-      </p>
-      <button
-        type="button"
-        disabled={isBusy}
-        className={cn(
-          "flex items-center justify-center",
-          isDetailed ? "h-4 w-4 shrink-0" : "flex-1",
-        )}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void handleIncrement();
-        }}
-        aria-label="Увеличить количество"
-      >
-        <Plus size={12} />
-      </button>
-    </div>
-  );
-});
+  },
+);

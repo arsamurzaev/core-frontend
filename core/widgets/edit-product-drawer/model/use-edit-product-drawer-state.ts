@@ -39,6 +39,29 @@ export function useEditProductDrawerState({
   setOpen,
 }: UseEditProductDrawerStateParams) {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const lastResetKeyRef = React.useRef<string | null>(null);
+
+  const resetKey = React.useMemo(() => {
+    if (!product) {
+      return null;
+    }
+
+    const productAttributeKey = productAttributes
+      .map((attribute) => attribute.id)
+      .sort()
+      .join(",");
+    const variantAttributeKey = variantAttributes
+      .map((attribute) => attribute.id)
+      .sort()
+      .join(",");
+
+    return [
+      product.id,
+      product.updatedAt ?? "",
+      productAttributeKey,
+      variantAttributeKey,
+    ].join(":");
+  }, [product, productAttributes, variantAttributes]);
 
   const resetFromProduct = React.useCallback(
     (nextProduct: ProductWithDetailsDto) => {
@@ -54,19 +77,29 @@ export function useEditProductDrawerState({
       return;
     }
 
+    if (lastResetKeyRef.current === resetKey) {
+      return;
+    }
+
+    if (lastResetKeyRef.current && form.formState.isDirty) {
+      return;
+    }
+
+    lastResetKeyRef.current = resetKey;
     resetFromProduct(product);
-  }, [open, product, resetFromProduct]);
+  }, [form.formState.isDirty, open, product, resetFromProduct, resetKey]);
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
-      if (!nextOpen && isSubmitting) {
-        return;
-      }
+    if (!nextOpen && isSubmitting) {
+      return;
+    }
 
-      setOpen(nextOpen);
-      if (!nextOpen) {
-        setErrorMessage(null);
-      }
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      lastResetKeyRef.current = null;
+      setErrorMessage(null);
+    }
     },
     [isSubmitting, setOpen],
   );
@@ -77,7 +110,8 @@ export function useEditProductDrawerState({
     }
 
     resetFromProduct(product);
-  }, [isSubmitting, product, resetFromProduct]);
+    lastResetKeyRef.current = resetKey;
+  }, [isSubmitting, product, resetFromProduct, resetKey]);
 
   return {
     closeDrawer: React.useCallback(() => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCatalogRuntimeCheckoutConfig } from "@/core/catalog-runtime";
 import {
   buildCatalogEditFormDefaultValues,
   catalogEditFormResolver,
@@ -24,12 +25,17 @@ interface UseEditCatalogDrawerParams {
 export function useEditCatalogDrawer(params: UseEditCatalogDrawerParams = {}) {
   const { checkoutConfig, open, onOpenChange } = params;
   const catalog = useCatalog();
+  const runtimeCheckoutConfig = useCatalogRuntimeCheckoutConfig(catalog);
+  const resolvedCheckoutConfig = checkoutConfig ?? runtimeCheckoutConfig;
   const queryClient = useQueryClient();
   const router = useRouter();
   const updateCatalog = useCatalogControllerUpdateCurrent();
   const defaultValues = React.useMemo(
-    () => buildCatalogEditFormDefaultValues(catalog, { checkoutConfig }),
-    [catalog, checkoutConfig],
+    () =>
+      buildCatalogEditFormDefaultValues(catalog, {
+        checkoutConfig: resolvedCheckoutConfig,
+      }),
+    [catalog, resolvedCheckoutConfig],
   );
   const form = useForm<CatalogEditFormValues>({
     defaultValues,
@@ -65,6 +71,7 @@ export function useEditCatalogDrawer(params: UseEditCatalogDrawerParams = {}) {
 
   return {
     bgUrl: catalog.config?.bgMedia?.url,
+    checkoutConfig: resolvedCheckoutConfig,
     errorMessage: state.errorMessage,
     form,
     handleOpenChange: state.handleOpenChange,

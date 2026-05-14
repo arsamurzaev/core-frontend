@@ -6,7 +6,6 @@ import {
   type CatalogCurrentDto,
 } from "@/shared/api/generated/react-query";
 import { normalizeCatalogContacts } from "@/shared/lib/catalog-contacts";
-import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
 
 export type CheckoutMethod = "DELIVERY" | "PICKUP" | "PREORDER";
 
@@ -59,16 +58,6 @@ export const CHECKOUT_METHODS: CheckoutMethod[] = [
 ];
 
 const DEFAULT_AVAILABLE_METHODS: CheckoutMethod[] = ["DELIVERY", "PICKUP"];
-const RESTAURANT_DEFAULT_ENABLED_METHODS: CheckoutMethod[] = [
-  "DELIVERY",
-  "PICKUP",
-];
-const RESTAURANT_TYPE_CODES = new Set(["restaurant", "cafe"]);
-
-function isRestaurantCheckoutType(typeCode?: string | null): boolean {
-  const code = typeCode?.trim().toLowerCase();
-  return Boolean(code && RESTAURANT_TYPE_CODES.has(code));
-}
 
 export const CHECKOUT_CONTACT_TYPES = [
   CatalogContactDtoType.PHONE,
@@ -106,24 +95,19 @@ export const METHOD_FIELDS: Record<CheckoutMethod, CheckoutField[]> = {
 };
 
 export function resolveCheckoutAvailableMethods(
-  typeCode?: string | null,
+  _typeCode?: string | null,
 ): CheckoutMethod[] {
-  if (isRestaurantCheckoutType(typeCode)) {
-    return ["DELIVERY", "PICKUP", "PREORDER"];
-  }
+  void _typeCode;
 
   return DEFAULT_AVAILABLE_METHODS;
 }
 
 export function resolveCheckoutDefaultEnabledMethods(
-  typeCode?: string | null,
-  availableMethods = resolveCheckoutAvailableMethods(typeCode),
+  _typeCode?: string | null,
+  _availableMethods = resolveCheckoutAvailableMethods(),
 ): CheckoutMethod[] {
-  if (isRestaurantCheckoutType(typeCode)) {
-    return RESTAURANT_DEFAULT_ENABLED_METHODS.filter((method) =>
-      availableMethods.includes(method),
-    );
-  }
+  void _typeCode;
+  void _availableMethods;
 
   return [];
 }
@@ -132,19 +116,20 @@ export function getCatalogCheckoutConfig(
   catalog: Pick<CatalogCurrentDto, "contacts" | "settings" | "type">,
   options: {
     availableMethods?: CheckoutMethod[];
+    defaultEnabledMethods?: CheckoutMethod[];
   } = {},
 ): CheckoutConfig {
-  const typeCode = getCatalogTypeCode(catalog);
   const rawCheckout = ((catalog.settings as unknown as {
     checkout?: Partial<CheckoutConfig>;
   } | null)?.checkout ?? {}) as Partial<CheckoutConfig>;
   const availableMethods = normalizeAvailableMethodList(
-    options.availableMethods ?? resolveCheckoutAvailableMethods(typeCode),
+    options.availableMethods ?? resolveCheckoutAvailableMethods(),
   );
   const enabledMethods = normalizeEnabledMethodList(
     rawCheckout.enabledMethods,
     availableMethods,
-    resolveCheckoutDefaultEnabledMethods(typeCode, availableMethods),
+    options.defaultEnabledMethods ??
+      resolveCheckoutDefaultEnabledMethods(undefined, availableMethods),
   );
 
   return {

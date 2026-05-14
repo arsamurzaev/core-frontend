@@ -1,46 +1,137 @@
 "use client";
 
+import type { CartProductSnapshot } from "@/core/modules/cart/model/cart-context.types";
+import { useCart } from "@/core/modules/cart/model/cart-context";
 import {
-  type CartProductSnapshot,
-  useCart,
-  useCartProductQuantity,
-} from "@/core/modules/cart/model/cart-context";
+  getCartLineSelectionQuantity,
+  normalizeCartLineSelection,
+  type CartLineSelection,
+  type CartQuantityScope,
+} from "@/core/modules/cart/model/cart-line-selection";
+import {
+  CART_PRODUCT_CONTROL_MESSAGES,
+  getCartProductControlErrorMessage,
+  isCartIncrementDisabled,
+  isVariantSelectionRequiredMessage,
+  normalizeCartMaxQuantity,
+  shouldConfirmCartLineRemoval,
+  shouldRequireCartProductVariantSelection,
+} from "@/core/modules/cart/model/cart-product-controls";
 import { confirm } from "@/shared/ui/confirmation";
+import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import React from "react";
 import { toast } from "sonner";
 
-function getCartErrorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message
-    : "Не удалось обновить корзину.";
-}
+type CartProductControlsProduct = CartProductSnapshot &
+  Partial<Pick<ProductWithAttributesDto, "productType" | "variantSummary">>;
 
 export function useCartProductControls(
-  productId: string,
-  product?: CartProductSnapshot,
+  productIdOrSelection: string | CartLineSelection,
+  product?: CartProductControlsProduct,
+  options: {
+    canUseProductVariants?: boolean;
+    maxQuantity?: number;
+    onVariantSelectionRequired?: () => void;
+    quantityScope?: CartQuantityScope;
+    requiresVariantSelection?: boolean;
+    saleUnitId?: string | null;
+    variantId?: string | null;
+  } = {},
 ) {
-  const { decrementProduct, incrementProduct, isBusy } = useCart();
-  const quantity = useCartProductQuantity(productId);
+  const {
+    decrementLine,
+    incrementLine,
+    isBusy,
+    quantityByLineKey,
+    quantityByProductId,
+  } = useCart();
+  const selectionProductId =
+    typeof productIdOrSelection === "string"
+      ? productIdOrSelection
+      : productIdOrSelection.productId;
+  const selectionSaleUnitId =
+    typeof productIdOrSelection === "string"
+      ? options.saleUnitId
+      : productIdOrSelection.saleUnitId ?? options.saleUnitId;
+  const selectionVariantId =
+    typeof productIdOrSelection === "string"
+      ? options.variantId
+      : productIdOrSelection.variantId ?? options.variantId;
+  const selection = normalizeCartLineSelection({
+    productId: selectionProductId,
+    saleUnitId: selectionSaleUnitId,
+    variantId: selectionVariantId,
+  });
+  const maxQuantity = normalizeCartMaxQuantity(options.maxQuantity);
+  const quantity = getCartLineSelectionQuantity({
+    quantityByLineKey,
+    quantityByProductId,
+    quantityScope: options.quantityScope,
+    selection,
+  });
+  const isMaxQuantityReached = isCartIncrementDisabled({
+    maxQuantity,
+    quantity,
+  });
+  const onVariantSelectionRequired = options.onVariantSelectionRequired;
+  const shouldRequestVariantSelection =
+    shouldRequireCartProductVariantSelection({
+      canUseProductVariants: options.canUseProductVariants,
+      product,
+      requiresVariantSelection: options.requiresVariantSelection,
+      variantId: selection.variantId,
+    });
 
   const handleIncrement = React.useCallback(async () => {
-    try {
-      await incrementProduct(productId, product);
-    } catch (error) {
-      toast.error(getCartErrorMessage(error));
+    if (shouldRequestVariantSelection) {
+      if (onVariantSelectionRequired) {
+        onVariantSelectionRequired();
+        return;
+      }
+
+      toast.error(CART_PRODUCT_CONTROL_MESSAGES.variantSelectionRequired);
+      return;
     }
-  }, [incrementProduct, product, productId]);
+
+    if (isMaxQuantityReached) {
+      toast.error(CART_PRODUCT_CONTROL_MESSAGES.saleUnitUnavailable);
+      return;
+    }
+
+    try {
+      await incrementLine(selection, product);
+    } catch (error) {
+      const message = getCartProductControlErrorMessage(error);
+      if (
+        onVariantSelectionRequired &&
+        isVariantSelectionRequiredMessage(message)
+      ) {
+        onVariantSelectionRequired();
+        return;
+      }
+
+      toast.error(message);
+    }
+  }, [
+    incrementLine,
+    isMaxQuantityReached,
+    onVariantSelectionRequired,
+    product,
+    selection,
+    shouldRequestVariantSelection,
+  ]);
 
   const handleDecrement = React.useCallback(async () => {
     if (!quantity) {
       return;
     }
 
-    if (quantity === 1) {
+    if (shouldConfirmCartLineRemoval(quantity)) {
       const isConfirmed = await confirm({
-        title: "Удалить товар из корзины?",
-        description: "Товар будет удален из текущей корзины.",
-        confirmText: "Удалить",
-        cancelText: "Отмена",
+        title: CART_PRODUCT_CONTROL_MESSAGES.confirmRemoveTitle,
+        description: CART_PRODUCT_CONTROL_MESSAGES.confirmRemoveDescription,
+        confirmText: CART_PRODUCT_CONTROL_MESSAGES.confirmRemove,
+        cancelText: CART_PRODUCT_CONTROL_MESSAGES.confirmCancel,
       });
 
       if (!isConfirmed) {
@@ -49,17 +140,24 @@ export function useCartProductControls(
     }
 
     try {
-      await decrementProduct(productId, product);
+      await decrementLine(selection, product);
     } catch (error) {
-      toast.error(getCartErrorMessage(error));
+      toast.error(getCartProductControlErrorMessage(error));
     }
-  }, [decrementProduct, product, productId, quantity]);
+  }, [
+    decrementLine,
+    product,
+    quantity,
+    selection,
+  ]);
 
   return {
     handleAdd: handleIncrement,
     handleDecrement,
     handleIncrement,
+    isIncrementDisabled: isMaxQuantityReached,
     isBusy,
+    selection,
     quantity,
   };
 }

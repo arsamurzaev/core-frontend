@@ -2,8 +2,10 @@
 
 import {
   buildCatalogExperienceSummary,
-  CATALOG_EXPERIENCE_OPTIONS,
   type CatalogExperienceOption,
+  getCatalogExperienceAvailableModes,
+  getCatalogExperienceOption,
+  getCatalogExperienceOptions,
   normalizeCatalogExperienceModes,
   resolveCatalogExperienceDefaultMode,
   type CatalogExperienceMode,
@@ -13,6 +15,7 @@ import {
 } from "@/core/widgets/edit-catalog-drawer/model/form-config";
 import { resolveCurrentAbsoluteUrl } from "@/core/widgets/share-drawer/model/share-drawer-helpers";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -25,18 +28,19 @@ import {
 } from "@/shared/ui/popover";
 import { Switch } from "@/shared/ui/switch";
 import { Check, ChevronRight, Copy, Download, ExternalLink, QrCode } from "lucide-react";
+import Image from "next/image";
 import QRCodeLib from "qrcode";
 import React from "react";
 import { toast } from "sonner";
 import { useWatch, type UseFormReturn } from "react-hook-form";
 
-function buildModeUrl(mode: CatalogExperienceMode, isDefaultMode: boolean): string {
-  if (isDefaultMode) {
-    return resolveCurrentAbsoluteUrl("/");
-  }
-
+function buildModeUrl(mode: CatalogExperienceMode): string {
   const params = new URLSearchParams({ mode });
   return resolveCurrentAbsoluteUrl(`/?${params.toString()}`);
+}
+
+function buildSiteUrl(): string {
+  return resolveCurrentAbsoluteUrl("/");
 }
 
 function useQrDataUrl(url: string): string | null {
@@ -69,8 +73,8 @@ function ModeLinkRow({
 }) {
   const [copied, setCopied] = React.useState(false);
   const url = React.useMemo(
-    () => buildModeUrl(option.value, isDefaultMode),
-    [isDefaultMode, option.value],
+    () => buildModeUrl(option.value),
+    [option.value],
   );
   const qrDataUrl = useQrDataUrl(url);
 
@@ -170,10 +174,13 @@ function ModeLinkRow({
               <p className="mb-3 text-sm font-medium">{option.title}</p>
               {qrDataUrl ? (
                 <>
-                  <img
+                  <Image
                     src={qrDataUrl}
                     alt={`QR-код для режима ${option.title}`}
                     className="size-48 rounded-lg"
+                    width={192}
+                    height={192}
+                    unoptimized
                   />
                   <a
                     href={qrDataUrl}
@@ -213,9 +220,124 @@ function ModeLinkRow({
           Открывать по умолчанию
         </span>
         <span className="min-w-0 flex-1 truncate text-muted-foreground">
-          ссылка без параметров
+          ссылка на сайт
         </span>
       </button>
+    </div>
+  );
+}
+
+function SiteLinkRow({
+  defaultModeTitle,
+  disabled,
+}: {
+  defaultModeTitle: string;
+  disabled?: boolean;
+}) {
+  const [copied, setCopied] = React.useState(false);
+  const url = React.useMemo(() => buildSiteUrl(), []);
+  const qrDataUrl = useQrDataUrl(url);
+
+  const handleCopy = React.useCallback(async () => {
+    try {
+      await copyTextToClipboard(url);
+      setCopied(true);
+      toast.success("Ссылка скопирована.");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Не удалось скопировать ссылку.");
+    }
+  }, [url]);
+
+  const handleOpen = React.useCallback(() => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, [url]);
+
+  return (
+    <div className="rounded-2xl border border-black/10 px-4 py-3">
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-medium text-foreground">Сайт</p>
+            <Badge variant="secondary" className="bg-blue-500/10 text-blue-700">
+              {defaultModeTitle}
+            </Badge>
+          </div>
+          <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
+            Обычная ссылка на каталог. Открывает сценарий по умолчанию.
+          </p>
+          <p className="mt-1 truncate text-xs text-muted-foreground">{url}</p>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={disabled}
+            onClick={() => void handleCopy()}
+            title="Скопировать ссылку"
+          >
+            {copied ? (
+              <Check className="size-4 text-green-500" />
+            ) : (
+              <Copy className="size-4" />
+            )}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={disabled}
+            onClick={handleOpen}
+            title="Открыть в новой вкладке"
+          >
+            <ExternalLink className="size-4" />
+          </Button>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                disabled={disabled}
+                title="Показать QR-код"
+              >
+                <QrCode className="size-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-auto p-4">
+              <p className="mb-3 text-sm font-medium">Сайт</p>
+              {qrDataUrl ? (
+                <>
+                  <Image
+                    src={qrDataUrl}
+                    alt="QR-код для сайта"
+                    className="size-48 rounded-lg"
+                    width={192}
+                    height={192}
+                    unoptimized
+                  />
+                  <a
+                    href={qrDataUrl}
+                    download="qr-site.png"
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                  >
+                    <Download className="size-4" />
+                    Скачать PNG
+                  </a>
+                </>
+              ) : (
+                <div className="flex size-48 items-center justify-center text-muted-foreground">
+                  <QrCode className="size-8 animate-pulse" />
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
     </div>
   );
 }
@@ -244,6 +366,7 @@ function buildNextAllowedModes(params: {
 export const EditCatalogExperienceDrawer: React.FC<
   EditCatalogExperienceDrawerProps
 > = ({ form, disabled = false, isSaving = false, onSave }) => {
+  const { catalog } = useCatalogState();
   const [open, setOpen] = React.useState(false);
   const allowedModesValue = useWatch({
     control: form.control,
@@ -253,9 +376,21 @@ export const EditCatalogExperienceDrawer: React.FC<
     control: form.control,
     name: "defaultMode",
   });
+  const availableOptions = React.useMemo(
+    () => getCatalogExperienceOptions(catalog),
+    [catalog],
+  );
+  const availableModes = React.useMemo(
+    () => getCatalogExperienceAvailableModes(catalog),
+    [catalog],
+  );
+  const canUseHallMode = availableModes.includes("HALL");
   const allowedModes = React.useMemo(
-    () => normalizeCatalogExperienceModes(allowedModesValue),
-    [allowedModesValue],
+    () =>
+      normalizeCatalogExperienceModes(allowedModesValue, {
+        availableModes,
+      }),
+    [allowedModesValue, availableModes],
   );
   const defaultMode = React.useMemo(
     () => resolveCatalogExperienceDefaultMode(defaultModeValue, allowedModes),
@@ -269,17 +404,24 @@ export const EditCatalogExperienceDrawer: React.FC<
       }),
     [allowedModes, defaultMode],
   );
+  const defaultModeTitle = React.useMemo(
+    () => getCatalogExperienceOption(defaultMode).title,
+    [defaultMode],
+  );
   const allowedModesError = form.formState.errors.allowedModes?.message;
   const defaultModeError = form.formState.errors.defaultMode?.message;
 
   const handleAllowedModeChange = React.useCallback(
     (mode: CatalogExperienceMode, checked: boolean) => {
-      const currentModes = normalizeCatalogExperienceModes(form.getValues("allowedModes"));
+      const currentModes = normalizeCatalogExperienceModes(
+        form.getValues("allowedModes"),
+        { availableModes },
+      );
       const nextAllowedModes = buildNextAllowedModes({
         checked,
         current: currentModes,
         mode,
-      });
+      }).filter((item) => availableModes.includes(item));
 
       if (!checked && nextAllowedModes.length === 0) {
         return;
@@ -307,7 +449,7 @@ export const EditCatalogExperienceDrawer: React.FC<
         shouldValidate: true,
       });
     },
-    [form],
+    [availableModes, form],
   );
 
   const handleDefaultModeChange = React.useCallback(
@@ -361,7 +503,11 @@ export const EditCatalogExperienceDrawer: React.FC<
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
             title="Сценарий заказа"
-            description="Выберите, как клиенты будут пользоваться каталогом: оформлять доставку, только смотреть каталог или собирать заказ для зала."
+            description={
+              canUseHallMode
+                ? "Выберите, как клиенты будут пользоваться каталогом: оформлять доставку, только смотреть каталог или собирать заказ для зала."
+                : "Выберите, как клиенты будут пользоваться каталогом: оформлять доставку или только смотреть каталог."
+            }
             withCloseButton={!disabled && !isSaving}
           />
           <hr />
@@ -372,12 +518,16 @@ export const EditCatalogExperienceDrawer: React.FC<
                 <div className="space-y-1">
                   <h3 className="text-sm font-semibold">Режимы заказа</h3>
                   <p className="text-sm text-muted-foreground">
-                    Включайте нужные сценарии и выберите, что открывать по ссылке без параметров.
+                    Включайте нужные сценарии и выберите, что открывать по ссылке на сайт.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  {CATALOG_EXPERIENCE_OPTIONS.map((option) => {
+                  <SiteLinkRow
+                    defaultModeTitle={defaultModeTitle}
+                    disabled={disabled}
+                  />
+                  {availableOptions.map((option) => {
                     const isEnabled = allowedModes.includes(option.value);
                     const isLastSelected = isEnabled && allowedModes.length === 1;
 

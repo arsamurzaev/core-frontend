@@ -13,7 +13,6 @@ import {
 } from "@/core/widgets/edit-catalog-drawer/model/catalog-experience";
 import {
   CHECKOUT_METHODS,
-  getCatalogCheckoutConfig,
   type CheckoutConfig,
   type CheckoutContactValues,
   type CheckoutMethod,
@@ -402,11 +401,11 @@ function normalizeUrlContact(value: string): string | undefined {
 export function buildCatalogEditFormDefaultValues(
   catalog: CatalogCurrentDto,
   options: {
-    checkoutConfig?: CheckoutConfig;
-  } = {},
+    checkoutConfig: CheckoutConfig;
+  },
 ): CatalogEditFormValues {
   const experience = getCatalogExperienceDefaultValues(catalog);
-  const checkout = options.checkoutConfig ?? getCatalogCheckoutConfig(catalog);
+  const checkout = options.checkoutConfig;
   const settings = catalog.settings as { address?: string | null } | null;
 
   return {

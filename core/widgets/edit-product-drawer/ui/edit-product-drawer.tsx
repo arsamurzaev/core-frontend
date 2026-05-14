@@ -33,8 +33,10 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
     cropperMode,
     cropperTitle,
     errorMessage,
+    features,
     form,
     formFields,
+    productAttributes,
     variantAttributes,
     handleCropApply,
     handleCropperOpenChange,
@@ -164,7 +166,10 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
           cropperTitle={cropperTitle}
           cropperDescription={cropperDescription}
           cropperApplyLabel={cropperApplyLabel}
+          canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
+          canUseProductVariants={features.canUseProductVariants}
           showImagesSection
+          productAttributes={productAttributes}
           variantAttributes={variantAttributes}
           onSubmit={handleSubmit}
           onFilesChange={handleFilesChange}

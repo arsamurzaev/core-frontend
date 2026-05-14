@@ -11,6 +11,10 @@ export type MoySkladFormState = {
   isActive: boolean;
   importImages: boolean;
   syncStock: boolean;
+  exportOrders: boolean;
+  orderExportOrganizationId: string;
+  orderExportCounterpartyId: string;
+  orderExportStoreId: string;
   scheduleEnabled: boolean;
   schedulePreset: SchedulePreset;
   scheduleHour: string;
@@ -19,7 +23,15 @@ export type MoySkladFormState = {
   scheduleTouched: boolean;
 };
 
-export type ValidationErrors = Partial<Record<"token", string>>;
+export type ValidationErrors = Partial<
+  Record<
+    | "token"
+    | "orderExportOrganizationId"
+    | "orderExportCounterpartyId"
+    | "orderExportStoreId",
+    string
+  >
+>;
 
 export function resolveBrowserTimeZone(): string | null {
   try {
@@ -47,6 +59,10 @@ export function buildMoySkladFormState(
     isActive: integration?.isActive ?? true,
     importImages: integration?.importImages ?? true,
     syncStock: integration?.syncStock ?? true,
+    exportOrders: integration?.exportOrders ?? false,
+    orderExportOrganizationId: integration?.orderExportOrganizationId ?? "",
+    orderExportCounterpartyId: integration?.orderExportCounterpartyId ?? "",
+    orderExportStoreId: integration?.orderExportStoreId ?? "",
     scheduleEnabled: integration?.scheduleEnabled ?? true,
     schedulePreset: schedule.preset,
     scheduleHour: schedule.hour,
@@ -58,10 +74,8 @@ export function buildMoySkladFormState(
   };
 }
 
-export const EMPTY_MOYSKLAD_FORM_STATE: MoySkladFormState = buildMoySkladFormState(
-  undefined,
-  normalizeTimeZone(null),
-);
+export const EMPTY_MOYSKLAD_FORM_STATE: MoySkladFormState =
+  buildMoySkladFormState(undefined, normalizeTimeZone(null));
 
 export function resolveInitialFormState(): MoySkladFormState {
   return buildMoySkladFormState(

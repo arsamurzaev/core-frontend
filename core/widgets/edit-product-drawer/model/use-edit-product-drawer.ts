@@ -6,9 +6,12 @@ import {
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
 import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
+import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import {
-  buildPersistedEditableAttributeValues,
-} from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
+  buildVariantsFormValueFromExisting,
+  normalizeVariantsFormValue,
+} from "@/core/modules/product/editor/model/product-variants";
+import { buildPersistedEditableAttributeValues } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import { useEditProductDrawerState } from "@/core/widgets/edit-product-drawer/model/use-edit-product-drawer-state";
 import { useEditProductImageEditor } from "@/core/widgets/edit-product-drawer/model/use-edit-product-image-editor";
 import { useEditProductSubmit } from "@/core/widgets/edit-product-drawer/model/use-edit-product-submit";
@@ -16,10 +19,11 @@ import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   useProductControllerGetById,
   useProductControllerRemove,
-  useProductControllerSetVariants,
+  useProductControllerSetVariantMatrix,
   useProductControllerUpdate,
 } from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { confirmDelete } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
@@ -45,9 +49,10 @@ export function useEditProductDrawer(
 ) {
   const { supportsBrands = true, supportsCategoryDetails = true } = params;
   const { type } = useCatalog();
+  const features = useCatalogCapabilities();
   const queryClient = useQueryClient();
   const updateProduct = useProductControllerUpdate();
-  const setVariants = useProductControllerSetVariants();
+  const setVariantMatrix = useProductControllerSetVariantMatrix();
   const removeProduct = useProductControllerRemove();
   const form = useForm<CreateProductFormValues>({
     defaultValues: CREATE_PRODUCT_FORM_DEFAULT_VALUES,
@@ -62,18 +67,46 @@ export function useEditProductDrawer(
       refetchOnWindowFocus: false,
     },
   });
-
-  const { formFields, productAttributes, variantAttributes, visibleAttributes } = useProductFormFields(
-    {
-      form,
-      sourceAttributes: type.attributes,
-      isActive: open,
-      supportsBrands,
-      supportsCategoryDetails,
-    },
-  );
-
   const product = productQuery.data ?? null;
+  const currentProductTypeId = product?.productType?.id ?? null;
+  const isMoySkladLinkedProduct = isMoySkladProduct(product);
+  const restoredVariantMatrixKeyRef = React.useRef<string | null>(null);
+
+  const handleProductTypeChange = React.useCallback(() => {
+    if (!features.canUseProductTypes || isMoySkladLinkedProduct) {
+      form.setValue("productTypeId", currentProductTypeId ?? undefined, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    }
+  }, [
+    currentProductTypeId,
+    form,
+    features.canUseProductTypes,
+    isMoySkladLinkedProduct,
+  ]);
+
+  const {
+    formFields,
+    isProductTypeSchemaResolving,
+    productAttributes,
+    variantAttributes,
+    visibleAttributes,
+  } = useProductFormFields({
+    form,
+    sourceAttributes: type.attributes,
+    disableProductTypeField:
+      !features.canUseProductTypes || isMoySkladLinkedProduct,
+    canUseProductTypes: features.canUseProductTypes,
+    canUseProductVariants: features.canUseProductVariants,
+    canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    isActive: open,
+    supportsBrands,
+    supportsCategoryDetails,
+    schemaProductTypeId: currentProductTypeId,
+    onProductTypeChange: handleProductTypeChange,
+  });
   const persistedAttributeValues = React.useMemo(
     () =>
       product
@@ -87,7 +120,7 @@ export function useEditProductDrawer(
   });
 
   const isDeleting = removeProduct.isPending;
-  const isBusy = isSubmitting || isDeleting;
+  const isBusy = isSubmitting || isDeleting || isProductTypeSchemaResolving;
 
   const drawerState = useEditProductDrawerState({
     form,
@@ -101,11 +134,83 @@ export function useEditProductDrawer(
     resetFromMedia: imageEditor.resetFromMedia,
     setOpen,
   });
+  const variantMatrixRestoreKey = React.useMemo(() => {
+    if (!product || variantAttributes.length === 0) {
+      return null;
+    }
+
+    const schemaKey = variantAttributes
+      .map(
+        (attribute) =>
+          `${attribute.id}:${(attribute.enumValues ?? [])
+            .map((enumValue) => enumValue.id)
+            .join(",")}`,
+      )
+      .join("|");
+    const variantsKey = (product.variants ?? [])
+      .map(
+        (variant) =>
+          `${variant.id}:${variant.variantKey}:${variant.status}:${variant.stock}:${(
+            variant.attributes ?? []
+          )
+            .map(
+              (attribute) =>
+                `${attribute.attributeId}=${attribute.enumValueId ?? ""}`,
+            )
+            .sort()
+            .join(",")}`,
+      )
+      .join("|");
+
+    return `${product.id}:${product.updatedAt ?? ""}:${schemaKey}:${variantsKey}`;
+  }, [product, variantAttributes]);
 
   const handleCloseDrawer = React.useCallback(() => {
     drawerState.closeDrawer();
     onExternalOpenChange?.(false);
   }, [drawerState, onExternalOpenChange]);
+
+  React.useEffect(() => {
+    if (!open) {
+      restoredVariantMatrixKeyRef.current = null;
+    }
+  }, [open]);
+
+  React.useEffect(() => {
+    if (!open || !product || !variantMatrixRestoreKey) {
+      return;
+    }
+
+    if (restoredVariantMatrixKeyRef.current === variantMatrixRestoreKey) {
+      return;
+    }
+
+    const current = normalizeVariantsFormValue(form.getValues("variants"));
+    const hasCurrentVariantSelections = current.selectedAttributeIds.some(
+      (attributeId) =>
+        (current.selectedValueIdsByAttributeId[attributeId] ?? []).length > 0,
+    );
+    if (hasCurrentVariantSelections) {
+      restoredVariantMatrixKeyRef.current = variantMatrixRestoreKey;
+      return;
+    }
+
+    const restored = buildVariantsFormValueFromExisting(
+      product.variants ?? [],
+      variantAttributes,
+    );
+    restoredVariantMatrixKeyRef.current = variantMatrixRestoreKey;
+
+    if (restored.selectedAttributeIds.length === 0) {
+      return;
+    }
+
+    form.setValue("variants", restored, {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: false,
+    });
+  }, [form, open, product, variantAttributes, variantMatrixRestoreKey]);
 
   const handleDelete = React.useCallback(() => {
     if (isBusy) {
@@ -131,8 +236,8 @@ export function useEditProductDrawer(
       onConfirm: async () => {
         await removeProduct.mutateAsync({ id: product.id });
         handleCloseDrawer();
+        await invalidateProductQueries(queryClient);
         toast.success("Товар успешно удален.");
-        void invalidateProductQueries(queryClient);
       },
       onError: (error) => {
         const message = extractApiErrorMessage(error);
@@ -151,8 +256,10 @@ export function useEditProductDrawer(
     removeProduct,
   ]);
 
-  const handleSubmit = useEditProductSubmit({
+  const handleBaseSubmit = useEditProductSubmit({
     closeDrawer: handleCloseDrawer,
+    canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    canUseProductVariants: features.canUseProductVariants,
     form,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isSubmitting,
@@ -167,11 +274,15 @@ export function useEditProductDrawer(
     resolveMediaIdsForSubmit: imageEditor.resolveMediaIdsForSubmit,
     setErrorMessage: drawerState.setErrorMessage,
     setIsSubmitting,
-    setVariants,
+    setVariantMatrix,
     updateProduct,
     variantAttributes,
     visibleAttributes,
   });
+
+  const handleSubmit = React.useCallback(() => {
+    void handleBaseSubmit();
+  }, [handleBaseSubmit]);
 
   return {
     cropperApplyLabel: imageEditor.cropperApplyLabel,
@@ -181,8 +292,10 @@ export function useEditProductDrawer(
     cropperMode: imageEditor.cropperMode,
     cropperTitle: imageEditor.cropperTitle,
     errorMessage: drawerState.errorMessage,
+    features,
     form,
     formFields,
+    productAttributes,
     variantAttributes,
     handleCropApply: imageEditor.handleCropApply,
     handleCropperOpenChange: imageEditor.handleCropperOpenChange,

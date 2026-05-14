@@ -5,8 +5,8 @@ import { LazyEditCatalogDrawerTrigger } from "@/core/widgets/header/ui/lazy-edit
 import { LazyGlobalAdminDrawerTrigger } from "@/core/widgets/header/ui/lazy-global-admin-drawer-trigger";
 import { LazyShareDrawerTrigger } from "@/core/widgets/share-drawer/ui/lazy-share-drawer-trigger";
 import { useAuthControllerLogout } from "@/shared/api/generated/react-query";
-import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { isGlobalAdminRole } from "@/shared/lib/catalog-role";
+import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
@@ -50,7 +50,7 @@ export const Header: React.FC<Props> = ({
     }
 
     try {
-      await navigator.clipboard.writeText(window.location.host);
+      await navigator.clipboard.writeText(window.location.origin);
       toast.success(shareCopySuccessMessage);
     } catch (error) {
       toast.error(
@@ -145,9 +145,7 @@ export const Header: React.FC<Props> = ({
             <Button size="sm" variant="outline">
               Статистика аккаунта
             </Button>
-            {isGlobalAdmin ? (
-              <LazyGlobalAdminDrawerTrigger className="col-span-2" />
-            ) : null}
+            {isGlobalAdmin ? <LazyGlobalAdminDrawerTrigger /> : null}
           </div>
         ) : (
           <LazyShareDrawerTrigger />

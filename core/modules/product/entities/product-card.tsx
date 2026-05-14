@@ -1,7 +1,7 @@
 "use client";
 
-import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
@@ -144,7 +144,8 @@ interface ProductCardFooterProps {
   hasDiscount: boolean;
   hidePriceWhenFooterAction?: boolean;
   isDetailed?: boolean;
-  price: number;
+  price: number | undefined;
+  pricePrefix?: string | null;
 }
 
 const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
@@ -156,6 +157,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
   hidePriceWhenFooterAction,
   isDetailed,
   price,
+  pricePrefix,
 }) => {
   return (
     <CardFooter
@@ -170,7 +172,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
           !isDetailed && "relative -right-2",
         )}
       >
-        {hasDiscount && (
+        {hasDiscount && price !== undefined && (
           <>
             <p
               className={cn(
@@ -192,21 +194,19 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
         )}
       </div>
       {footerAction}
-      <p
-        className={cn(
-          "text-base font-bold whitespace-nowrap",
-          !hasDiscount && "mt-4",
-          footerAction && hidePriceWhenFooterAction && "hidden",
-          displayPrice === undefined && "h-6",
-        )}
-      >
-        {displayPrice !== undefined && (
-          <>
-            {RU_NUMBER_FORMAT.format(displayPrice)}{" "}
-            <span className="font-normal">{currency}</span>
-          </>
-        )}
-      </p>
+      {displayPrice !== undefined ? (
+        <p
+          className={cn(
+            "text-base font-bold whitespace-nowrap",
+            !hasDiscount && "mt-4",
+            footerAction && hidePriceWhenFooterAction && "hidden",
+          )}
+        >
+          {pricePrefix ? `${pricePrefix} ` : null}
+          {RU_NUMBER_FORMAT.format(displayPrice)}{" "}
+          <span className="font-normal">{currency}</span>
+        </p>
+      ) : null}
     </CardFooter>
   );
 };
@@ -221,6 +221,7 @@ const ProductCardBase: React.FC<Props> = ({
   data,
 }) => {
   const { catalog } = useCatalogState();
+  const features = useCatalogCapabilities();
   const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
   const {
     currency,
@@ -231,9 +232,12 @@ const ProductCardBase: React.FC<Props> = ({
     imageUrl,
     imageStatus,
     price,
+    pricePrefix,
     subtitle,
-  } = buildProductCardView(data, { fallbackCurrency });
-  const resolvedIsMoySkladLinked = isMoySkladLinked ?? isMoySkladProduct(data);
+  } = buildProductCardView(data, {
+    canUseVariants: features.canUseProductVariants,
+    fallbackCurrency,
+  });
 
   return (
     <ProductCardLayout className={className} isDetailed={isDetailed}>
@@ -241,7 +245,7 @@ const ProductCardBase: React.FC<Props> = ({
         actions={actions}
         imageStatus={imageStatus}
         imageUrl={imageUrl}
-        isMoySkladLinked={resolvedIsMoySkladLinked}
+        isMoySkladLinked={Boolean(isMoySkladLinked)}
       />
       <div
         className={cn(
@@ -264,6 +268,7 @@ const ProductCardBase: React.FC<Props> = ({
           hidePriceWhenFooterAction={hidePriceWhenFooterAction}
           isDetailed={isDetailed}
           price={price}
+          pricePrefix={pricePrefix}
         />
       </div>
     </ProductCardLayout>
@@ -277,9 +282,12 @@ type ProductCardCompound = React.NamedExoticComponent<Props> & {
   Layout: typeof ProductCardLayout;
 };
 
-export const ProductCard: ProductCardCompound = Object.assign(React.memo(ProductCardBase), {
-  Layout: ProductCardLayout,
-  Content: ProductCardContent,
-  Header: ProductCardHeaderSection,
-  Footer: ProductCardFooterSection,
-});
+export const ProductCard: ProductCardCompound = Object.assign(
+  React.memo(ProductCardBase),
+  {
+    Layout: ProductCardLayout,
+    Content: ProductCardContent,
+    Header: ProductCardHeaderSection,
+    Footer: ProductCardFooterSection,
+  },
+);

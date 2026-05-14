@@ -2,10 +2,7 @@
 
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
-import {
-  buildSetVariantsPayloads,
-  type VariantsFormValue,
-} from "@/core/modules/product/editor/model/product-variants";
+import { buildSetVariantMatrixPayload } from "@/core/modules/product/editor/model/product-variants";
 import {
   type AttributeFormValue,
   type UploadState,
@@ -21,7 +18,7 @@ import {
 import {
   type AttributeDto,
   type ProductWithDetailsDto,
-  type SetProductVariantsDtoReq,
+  type SetProductVariantMatrixDtoReq,
   type UpdateProductDtoReq,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
@@ -37,15 +34,17 @@ interface EditProductUpdateMutation {
   }) => Promise<unknown>;
 }
 
-interface EditProductSetVariantsMutation {
+interface EditProductSetVariantMatrixMutation {
   mutateAsync: (params: {
     id: string;
-    data: SetProductVariantsDtoReq;
+    data: SetProductVariantMatrixDtoReq;
   }) => Promise<unknown>;
 }
 
 interface UseEditProductSubmitParams {
   closeDrawer: () => void;
+  canUseCatalogSaleUnits: boolean;
+  canUseProductVariants: boolean;
   form: UseFormReturn<CreateProductFormValues>;
   isInitialCropRequired: boolean;
   isSubmitting: boolean;
@@ -62,7 +61,7 @@ interface UseEditProductSubmitParams {
   ) => Promise<ResolvedEditProductMediaSubmit>;
   setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
   setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
-  setVariants: EditProductSetVariantsMutation;
+  setVariantMatrix: EditProductSetVariantMatrixMutation;
   updateProduct: EditProductUpdateMutation;
   variantAttributes: AttributeDto[];
   visibleAttributes: AttributeDto[];
@@ -90,6 +89,8 @@ function renderUploadProgressToast(state: UploadState) {
 
 export function useEditProductSubmit({
   closeDrawer,
+  canUseCatalogSaleUnits,
+  canUseProductVariants,
   form,
   isInitialCropRequired,
   isSubmitting,
@@ -104,7 +105,7 @@ export function useEditProductSubmit({
   resolveMediaIdsForSubmit,
   setErrorMessage,
   setIsSubmitting,
-  setVariants,
+  setVariantMatrix,
   updateProduct,
   variantAttributes,
   visibleAttributes,
@@ -127,7 +128,9 @@ export function useEditProductSubmit({
     const validationResult = validateProductFormValues({
       invalidFormMessage: "Заполните форму товара.",
       invalidPriceMessage: "Укажите корректную цену.",
+      canUseCatalogSaleUnits,
       values: form.getValues(),
+      variantAttributes,
       visibleAttributes,
     });
     if (!validationResult.success) {
@@ -156,11 +159,13 @@ export function useEditProductSubmit({
 
     void (async () => {
       try {
-        const { mediaIds, processingJobIds } = await resolveMediaIdsForSubmit((state) => {
-          toast.loading(renderUploadProgressToast(state), {
-            id: backgroundToastId,
-          });
-        });
+        const { mediaIds, processingJobIds } = await resolveMediaIdsForSubmit(
+          (state) => {
+            toast.loading(renderUploadProgressToast(state), {
+              id: backgroundToastId,
+            });
+          },
+        );
 
         toast.loading(renderProgressToast("Обновляем товар...", 100), {
           id: backgroundToastId,
@@ -170,24 +175,33 @@ export function useEditProductSubmit({
           formValues: parsedValues,
           mediaIds,
           persistedAttributeValues,
+          product,
           productAttributes,
+          canUseCatalogSaleUnits,
         });
+        const selectedProductTypeId = parsedValues.productTypeId ?? null;
+        const currentProductTypeId = product.productType?.id ?? null;
+        const hasProductTypeChange =
+          selectedProductTypeId !== currentProductTypeId;
 
         await updateProduct.mutateAsync({
           id: productId,
           data: updatePayload,
         });
 
-        const setVariantsPayloads = buildSetVariantsPayloads(
-          (parsedValues.variants ?? {}) as VariantsFormValue,
-          variantAttributes,
-        );
-
-        await Promise.all(
-          setVariantsPayloads.map((payload) =>
-            setVariants.mutateAsync({ id: productId, data: payload }),
-          ),
-        );
+        if (
+          canUseProductVariants &&
+          variantAttributes.length > 0 &&
+          !hasProductTypeChange
+        ) {
+          await setVariantMatrix.mutateAsync({
+            id: productId,
+            data: buildSetVariantMatrixPayload(
+              parsedValues.variants,
+              variantAttributes,
+            ),
+          });
+        }
 
         void invalidateEditProductQueries(queryClient);
 
@@ -198,9 +212,12 @@ export function useEditProductSubmit({
           return;
         }
 
-        toast.loading(renderProgressToast("Товар обновлён. Обрабатываем фото...", 50), {
-          id: backgroundToastId,
-        });
+        toast.loading(
+          renderProgressToast("Товар обновлён. Обрабатываем фото...", 50),
+          {
+            id: backgroundToastId,
+          },
+        );
 
         for (const jobId of processingJobIds) {
           await waitForProductImagesProcessing({
@@ -228,6 +245,8 @@ export function useEditProductSubmit({
     })();
   }, [
     closeDrawer,
+    canUseCatalogSaleUnits,
+    canUseProductVariants,
     form,
     isInitialCropRequired,
     isSubmitting,
@@ -242,7 +261,7 @@ export function useEditProductSubmit({
     resolveMediaIdsForSubmit,
     setErrorMessage,
     setIsSubmitting,
-    setVariants,
+    setVariantMatrix,
     updateProduct,
     variantAttributes,
     visibleAttributes,

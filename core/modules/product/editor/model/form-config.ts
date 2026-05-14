@@ -2,7 +2,12 @@ import { type AttributeDto, AttributeDtoDataType } from "@/shared/api/generated/
 import { toOptionalTrimmedString as normalizeOptionalString } from "@/shared/lib/text";
 import { type DynamicFieldConfig } from "@/shared/ui/dynamic-form";
 import { type Path } from "react-hook-form";
-import { type VariantsFormValue } from "@/core/modules/product/editor/model/product-variants";
+import {
+  createEmptyVariantsFormValue,
+  normalizeVariantsFormValue,
+  type SaleUnitsFormValue,
+  type VariantsFormValue,
+} from "@/core/modules/product/editor/model/product-variants";
 
 export { normalizeOptionalString };
 
@@ -11,10 +16,12 @@ export type ProductAttributeFormValue = string | boolean | null;
 export type CreateProductFormValues = {
   name: string;
   price: string;
+  productTypeId?: string;
   brandId?: string;
   categoryIds: string[];
   hasDiscount: boolean;
   attributes: Record<string, ProductAttributeFormValue>;
+  saleUnits: SaleUnitsFormValue;
   variants: VariantsFormValue;
 };
 
@@ -59,14 +66,13 @@ export function normalizeCreateProductFormValues(
   return {
     name: typeof values.name === "string" ? values.name : "",
     price: typeof values.price === "string" ? values.price : "",
+    productTypeId: normalizeOptionalString(values.productTypeId),
     brandId: normalizeOptionalString(values.brandId),
     categoryIds: normalizeCategoryIds(values.categoryIds),
     hasDiscount: values.hasDiscount === true,
     attributes: normalizeAttributesRecord(values.attributes),
-    variants:
-      typeof values.variants === "object" && values.variants !== null
-        ? values.variants
-        : {},
+    saleUnits: Array.isArray(values.saleUnits) ? values.saleUnits : [],
+    variants: normalizeVariantsFormValue(values.variants),
   };
 }
 
@@ -79,11 +85,13 @@ export const CREATE_PRODUCT_FORM_FIELD_CLASS =
 export const CREATE_PRODUCT_FORM_DEFAULT_VALUES: CreateProductFormValues = {
   name: "",
   price: "",
+  productTypeId: undefined,
   brandId: undefined,
   categoryIds: [],
   hasDiscount: false,
   attributes: {},
-  variants: {},
+  saleUnits: [],
+  variants: createEmptyVariantsFormValue(),
 };
 
 export const PRODUCT_IMAGE_ASPECT_RATIO = 3 / 4;
@@ -124,7 +132,7 @@ export const ATTRIBUTE_FIELD_OVERRIDES_BY_KEY: Record<
   subtitle: {
     label: "Подзаголовок",
     kind: "textarea",
-    placeholder: "Например: 1 штука, 100 грамм, S размер",
+    placeholder: "Например: 1 единица, 100 грамм, S размер",
     maxLength: 60,
     orientation: "horizontal",
     labelClassName: CREATE_PRODUCT_FORM_LABEL_CLASS,
@@ -184,7 +192,6 @@ const BASE_FIELDS: DynamicFieldConfig<CreateProductFormValues>[] = [
     label: "Цена",
     kind: "text",
     placeholder: "...0",
-    required: true,
     hideError: true,
     orientation: "horizontal",
     labelClassName: CREATE_PRODUCT_FORM_LABEL_CLASS,

@@ -224,7 +224,13 @@ export const AdminControllerGetCatalogsResponseItem = zod.object({
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -365,7 +371,13 @@ export const AdminControllerUpdateCatalogResponse = zod.object({
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -462,7 +474,13 @@ export const AdminControllerDeleteCatalogResponse = zod.object({
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -541,6 +559,31 @@ export const AdminControllerDeleteCatalogResponse = zod.object({
 
 
 /**
+ * @summary Get catalog feature entitlements
+ */
+export const AdminControllerGetCatalogFeatureEntitlementsParams = zod.object({
+  "id": zod.string()
+})
+
+
+/**
+ * @summary Enable or disable a catalog feature entitlement
+ */
+export const AdminControllerUpdateCatalogFeatureEntitlementParams = zod.object({
+  "id": zod.string()
+})
+
+export const AdminControllerUpdateCatalogFeatureEntitlementBody = zod.object({
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad']),
+  "enabled": zod.boolean(),
+  "expiresAt": zod.iso.datetime({}).nullish().describe('When omitted the entitlement does not expire.'),
+  "metadata": zod.object({
+
+}).nullish().describe('Optional admin metadata for audit\/support context.')
+})
+
+
+/**
  * @summary Soft-delete контент каталога, не удаляя каталог
  */
 export const AdminControllerDeleteCatalogContentParams = zod.object({
@@ -586,7 +629,13 @@ export const AdminControllerRestoreCatalogResponse = zod.object({
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])
+  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -1068,10 +1117,23 @@ export const AttributeControllerGetByTypeResponseItem = zod.object({
   "enumValues": zod.array(zod.object({
   "id": zod.string(),
   "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })).optional()
@@ -1102,10 +1164,23 @@ export const AttributeControllerGetByIdResponse = zod.object({
   "enumValues": zod.array(zod.object({
   "id": zod.string(),
   "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })).optional()
@@ -1147,10 +1222,23 @@ export const AttributeControllerUpdateResponse = zod.object({
   "enumValues": zod.array(zod.object({
   "id": zod.string(),
   "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })).optional()
@@ -1196,10 +1284,23 @@ export const AttributeControllerGetEnumValuesParams = zod.object({
 export const AttributeControllerGetEnumValuesResponseItem = zod.object({
   "id": zod.string(),
   "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })
@@ -1217,7 +1318,8 @@ export const AttributeControllerCreateEnumValueBody = zod.object({
   "value": zod.string().optional().describe('Если не указан, значение будет сгенерировано из displayName'),
   "displayName": zod.string().optional(),
   "displayOrder": zod.number().optional(),
-  "businessId": zod.string().optional().describe('ID бизнеса для пользовательского значения')
+  "businessId": zod.string().optional().describe('ID бизнеса для пользовательского значения'),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']).optional().describe('Origin of the enum value')
 })
 
 
@@ -1233,16 +1335,30 @@ export const AttributeControllerUpdateEnumValueBody = zod.object({
   "value": zod.string().optional(),
   "displayName": zod.string().optional(),
   "displayOrder": zod.number().optional(),
-  "businessId": zod.string().optional().describe('ID бизнеса для пользовательского значения')
+  "businessId": zod.string().optional().describe('ID бизнеса для пользовательского значения'),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']).optional().describe('Origin of the enum value')
 })
 
 export const AttributeControllerUpdateEnumValueResponse = zod.object({
   "id": zod.string(),
   "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })
@@ -1258,6 +1374,92 @@ export const AttributeControllerRemoveEnumValueParams = zod.object({
 
 export const AttributeControllerRemoveEnumValueResponse = zod.object({
   "ok": zod.boolean()
+})
+
+
+/**
+ * @summary List enum value aliases
+ */
+export const AttributeControllerGetEnumValueAliasesParams = zod.object({
+  "attributeId": zod.string().describe('ID атрибута'),
+  "id": zod.string().describe('ID значения перечисления')
+})
+
+export const AttributeControllerGetEnumValueAliasesResponseItem = zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const AttributeControllerGetEnumValueAliasesResponse = zod.array(AttributeControllerGetEnumValueAliasesResponseItem)
+
+
+/**
+ * @summary Create enum value alias
+ */
+export const AttributeControllerCreateEnumValueAliasParams = zod.object({
+  "attributeId": zod.string().describe('ID атрибута'),
+  "id": zod.string().describe('ID значения перечисления')
+})
+
+export const AttributeControllerCreateEnumValueAliasBody = zod.object({
+  "value": zod.string(),
+  "displayName": zod.string().optional()
+})
+
+
+/**
+ * @summary Delete enum value alias
+ */
+export const AttributeControllerRemoveEnumValueAliasParams = zod.object({
+  "attributeId": zod.string().describe('ID атрибута'),
+  "id": zod.string().describe('ID значения перечисления'),
+  "aliasId": zod.string().describe('ID alias')
+})
+
+export const AttributeControllerRemoveEnumValueAliasResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Merge enum values
+ */
+export const AttributeControllerMergeEnumValuesParams = zod.object({
+  "attributeId": zod.string().describe('ID атрибута'),
+  "sourceId": zod.string().describe('ID source значения')
+})
+
+export const AttributeControllerMergeEnumValuesBody = zod.object({
+  "targetId": zod.uuid()
+})
+
+export const AttributeControllerMergeEnumValuesResponse = zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
 })
 
 
@@ -1604,18 +1806,32 @@ export const CatalogAdvancedSettingsControllerDeleteYandexMetrikaResponse = zod.
  */
 export const CatalogAdvancedSettingsControllerGetMoySkladResponse = zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -1635,25 +1851,43 @@ export const CatalogAdvancedSettingsControllerUpsertMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "exportOrders": zod.boolean().optional(),
+  "orderExportOrganizationId": zod.string().nullish(),
+  "orderExportCounterpartyId": zod.string().nullish(),
+  "orderExportStoreId": zod.string().nullish(),
   "scheduleEnabled": zod.boolean().optional(),
-  "schedulePattern": zod.string().optional(),
-  "scheduleTimezone": zod.string().optional()
+  "schedulePattern": zod.string().nullish(),
+  "scheduleTimezone": zod.string().nullish()
 })
 
 export const CatalogAdvancedSettingsControllerUpsertMoySkladResponse = zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -1673,25 +1907,43 @@ export const CatalogAdvancedSettingsControllerUpdateMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "exportOrders": zod.boolean().optional(),
+  "orderExportOrganizationId": zod.string().nullish(),
+  "orderExportCounterpartyId": zod.string().nullish(),
+  "orderExportStoreId": zod.string().nullish(),
   "scheduleEnabled": zod.boolean().optional(),
-  "schedulePattern": zod.string().optional(),
-  "scheduleTimezone": zod.string().optional()
+  "schedulePattern": zod.string().nullish(),
+  "scheduleTimezone": zod.string().nullish()
 })
 
 export const CatalogAdvancedSettingsControllerUpdateMoySkladResponse = zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -1717,18 +1969,32 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "configured": zod.boolean(),
   "integration": zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -1740,7 +2006,7 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "activeRun": zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
@@ -1752,6 +2018,49 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "updatedProducts": zod.number(),
   "deletedProducts": zod.number(),
   "imagesImported": zod.number(),
+  "products": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "variants": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "stockRows": zod.object({
+  "total": zod.number(),
+  "applied": zod.number(),
+  "skipped": zod.number()
+}),
+  "warnings": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "errors": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
   "durationMs": zod.number().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
@@ -1762,7 +2071,7 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "lastRun": zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
@@ -1774,6 +2083,49 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "updatedProducts": zod.number(),
   "deletedProducts": zod.number(),
   "imagesImported": zod.number(),
+  "products": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "variants": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "stockRows": zod.object({
+  "total": zod.number(),
+  "applied": zod.number(),
+  "skipped": zod.number()
+}),
+  "warnings": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "errors": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
   "durationMs": zod.number().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
@@ -1794,7 +2146,7 @@ export const CatalogAdvancedSettingsControllerGetMoySkladRunsQueryParams = zod.o
 export const CatalogAdvancedSettingsControllerGetMoySkladRunsResponseItem = zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
@@ -1806,6 +2158,49 @@ export const CatalogAdvancedSettingsControllerGetMoySkladRunsResponseItem = zod.
   "updatedProducts": zod.number(),
   "deletedProducts": zod.number(),
   "imagesImported": zod.number(),
+  "products": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "variants": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "stockRows": zod.object({
+  "total": zod.number(),
+  "applied": zod.number(),
+  "skipped": zod.number()
+}),
+  "warnings": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "errors": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
   "durationMs": zod.number().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
@@ -1814,6 +2209,55 @@ export const CatalogAdvancedSettingsControllerGetMoySkladRunsResponseItem = zod.
   "updatedAt": zod.iso.datetime({})
 })
 export const CatalogAdvancedSettingsControllerGetMoySkladRunsResponse = zod.array(CatalogAdvancedSettingsControllerGetMoySkladRunsResponseItem)
+
+
+/**
+ * @summary Get advanced settings MoySklad sync progress
+ */
+export const CatalogAdvancedSettingsControllerGetMoySkladRunProgressParams = zod.object({
+  "runId": zod.string()
+})
+
+export const CatalogAdvancedSettingsControllerGetMoySkladRunProgressResponse = zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+})
+
+
+/**
+ * @summary Get advanced settings MoySklad order export refs
+ */
+export const CatalogAdvancedSettingsControllerGetMoySkladOrderExportRefsResponse = zod.object({
+  "organizations": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string().nullable(),
+  "externalCode": zod.string().nullable(),
+  "archived": zod.boolean()
+})),
+  "counterparties": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string().nullable(),
+  "externalCode": zod.string().nullable(),
+  "archived": zod.boolean()
+})),
+  "stores": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string().nullable(),
+  "externalCode": zod.string().nullable(),
+  "archived": zod.boolean()
+}))
+})
 
 
 /**
@@ -1836,7 +2280,7 @@ export const CatalogAdvancedSettingsControllerSyncMoySkladCatalogResponse = zod.
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
 })
 
@@ -1917,6 +2361,7 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "isActive": zod.boolean(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "address": zod.string().nullable(),
   "checkout": zod.object({
   "availableMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
@@ -1936,6 +2381,22 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
   "counterId": zod.string()
 })),
+  "features": zod.object({
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
+  "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
+  "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
+  "definitions": zod.array(zod.object({
+
+})).describe('Capability definitions for UI and admin surfaces.'),
+  "items": zod.array(zod.object({
+
+})).describe('Per-capability state with disabled reasons.')
+}),
   "contacts": zod.array(zod.object({
   "id": zod.string(),
   "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
@@ -2059,10 +2520,23 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "enumValues": zod.array(zod.object({
   "id": zod.string(),
   "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })).optional()
@@ -2092,6 +2566,7 @@ export const CatalogControllerUpdateCurrentBody = zod.object({
   "address": zod.string().nullish(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']).optional(),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])).optional(),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']).optional(),
   "checkout": zod.object({
 
 }).nullish().describe('Checkout methods settings for cart flow.'),
@@ -2169,6 +2644,7 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "isActive": zod.boolean(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "address": zod.string().nullable(),
   "checkout": zod.object({
   "availableMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
@@ -2188,6 +2664,22 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
   "counterId": zod.string()
 })),
+  "features": zod.object({
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
+  "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
+  "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
+  "definitions": zod.array(zod.object({
+
+})).describe('Capability definitions for UI and admin surfaces.'),
+  "items": zod.array(zod.object({
+
+})).describe('Per-capability state with disabled reasons.')
+}),
   "contacts": zod.array(zod.object({
   "id": zod.string(),
   "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
@@ -2362,6 +2854,7 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
   "isActive": zod.boolean(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "address": zod.string().nullable(),
   "checkout": zod.object({
   "availableMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
@@ -2381,6 +2874,22 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
   "scope": zod.enum(['GLOBAL', 'MAIN', 'CATALOG']),
   "counterId": zod.string()
 })),
+  "features": zod.object({
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
+  "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
+  "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
+  "definitions": zod.array(zod.object({
+
+})).describe('Capability definitions for UI and admin surfaces.'),
+  "items": zod.array(zod.object({
+
+})).describe('Per-capability state with disabled reasons.')
+}),
   "contacts": zod.array(zod.object({
   "id": zod.string(),
   "type": zod.enum(['PHONE', 'EMAIL', 'WHATSAPP', 'MAX', 'BIP', 'TELEGRAM', 'SMS', 'MAP']),
@@ -2510,14 +3019,48 @@ export const CatalogControllerGetCurrentTypeSchemaResponse = zod.object({
   "enumValues": zod.array(zod.object({
   "id": zod.string(),
   "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
   "value": zod.string(),
   "displayName": zod.string().nullable(),
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })).optional()
 }))
+})
+
+
+/**
+ * @summary Get current catalog feature flags
+ */
+export const CatalogControllerGetCurrentFeaturesResponse = zod.object({
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
+  "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
+  "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
+  "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
+  "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
+  "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
+  "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
+  "definitions": zod.array(zod.object({
+
+})).describe('Capability definitions for UI and admin surfaces.'),
+  "items": zod.array(zod.object({
+
+})).describe('Per-capability state with disabled reasons.')
 })
 
 
@@ -2589,6 +3132,7 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "isActive": zod.boolean(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "address": zod.string().nullable(),
   "checkout": zod.object({
   "availableMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
@@ -2698,6 +3242,7 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "isActive": zod.boolean(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "address": zod.string().nullable(),
   "checkout": zod.object({
   "availableMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
@@ -2745,6 +3290,7 @@ export const CatalogControllerUpdateByIdBody = zod.object({
   "address": zod.string().nullish(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']).optional(),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])).optional(),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']).optional(),
   "checkout": zod.object({
 
 }).nullish().describe('Checkout methods settings for cart flow.'),
@@ -2822,6 +3368,7 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "isActive": zod.boolean(),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
+  "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "address": zod.string().nullable(),
   "checkout": zod.object({
   "availableMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
@@ -3004,18 +3551,32 @@ export const CatalogDomainControllerDisableResponse = zod.object({
  */
 export const IntegrationControllerGetMoySkladResponse = zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -3035,25 +3596,43 @@ export const IntegrationControllerUpsertMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "exportOrders": zod.boolean().optional(),
+  "orderExportOrganizationId": zod.string().nullish(),
+  "orderExportCounterpartyId": zod.string().nullish(),
+  "orderExportStoreId": zod.string().nullish(),
   "scheduleEnabled": zod.boolean().optional(),
-  "schedulePattern": zod.string().optional(),
-  "scheduleTimezone": zod.string().optional()
+  "schedulePattern": zod.string().nullish(),
+  "scheduleTimezone": zod.string().nullish()
 })
 
 export const IntegrationControllerUpsertMoySkladResponse = zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -3073,25 +3652,43 @@ export const IntegrationControllerUpdateMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "exportOrders": zod.boolean().optional(),
+  "orderExportOrganizationId": zod.string().nullish(),
+  "orderExportCounterpartyId": zod.string().nullish(),
+  "orderExportStoreId": zod.string().nullish(),
   "scheduleEnabled": zod.boolean().optional(),
-  "schedulePattern": zod.string().optional(),
-  "scheduleTimezone": zod.string().optional()
+  "schedulePattern": zod.string().nullish(),
+  "scheduleTimezone": zod.string().nullish()
 })
 
 export const IntegrationControllerUpdateMoySkladResponse = zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -3117,18 +3714,32 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "configured": zod.boolean(),
   "integration": zod.object({
   "provider": zod.enum(['MOYSKLAD']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
   "isActive": zod.boolean(),
   "hasToken": zod.boolean(),
   "tokenPreview": zod.string().nullable(),
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "orderExportOrganizationId": zod.string().nullable(),
+  "orderExportCounterpartyId": zod.string().nullable(),
+  "orderExportStoreId": zod.string().nullable(),
   "scheduleEnabled": zod.boolean(),
   "schedulePattern": zod.string().nullable(),
   "scheduleTimezone": zod.string(),
   "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
   "syncStartedAt": zod.iso.datetime({}).nullable(),
   "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastStockSyncedAt": zod.iso.datetime({}).nullable(),
   "lastSyncError": zod.string().nullable(),
   "totalProducts": zod.number(),
   "createdProducts": zod.number(),
@@ -3140,7 +3751,7 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "activeRun": zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
@@ -3152,6 +3763,49 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "updatedProducts": zod.number(),
   "deletedProducts": zod.number(),
   "imagesImported": zod.number(),
+  "products": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "variants": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "stockRows": zod.object({
+  "total": zod.number(),
+  "applied": zod.number(),
+  "skipped": zod.number()
+}),
+  "warnings": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "errors": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
   "durationMs": zod.number().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
@@ -3162,7 +3816,7 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "lastRun": zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
@@ -3174,6 +3828,49 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "updatedProducts": zod.number(),
   "deletedProducts": zod.number(),
   "imagesImported": zod.number(),
+  "products": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "variants": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "stockRows": zod.object({
+  "total": zod.number(),
+  "applied": zod.number(),
+  "skipped": zod.number()
+}),
+  "warnings": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "errors": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
   "durationMs": zod.number().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
@@ -3194,7 +3891,7 @@ export const IntegrationControllerGetMoySkladRunsQueryParams = zod.object({
 export const IntegrationControllerGetMoySkladRunsResponseItem = zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
@@ -3206,6 +3903,49 @@ export const IntegrationControllerGetMoySkladRunsResponseItem = zod.object({
   "updatedProducts": zod.number(),
   "deletedProducts": zod.number(),
   "imagesImported": zod.number(),
+  "products": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "variants": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "deleted": zod.number(),
+  "skipped": zod.number()
+}),
+  "stockRows": zod.object({
+  "total": zod.number(),
+  "applied": zod.number(),
+  "skipped": zod.number()
+}),
+  "warnings": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "errors": zod.array(zod.object({
+  "code": zod.string(),
+  "message": zod.string(),
+  "externalId": zod.string().nullable(),
+  "count": zod.number().nullable()
+})),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
   "durationMs": zod.number().nullable(),
   "requestedAt": zod.iso.datetime({}),
   "startedAt": zod.iso.datetime({}).nullable(),
@@ -3214,6 +3954,200 @@ export const IntegrationControllerGetMoySkladRunsResponseItem = zod.object({
   "updatedAt": zod.iso.datetime({})
 })
 export const IntegrationControllerGetMoySkladRunsResponse = zod.array(IntegrationControllerGetMoySkladRunsResponseItem)
+
+
+/**
+ * @summary Получить прогресс sync MoySklad
+ */
+export const IntegrationControllerGetMoySkladRunProgressParams = zod.object({
+  "runId": zod.string()
+})
+
+export const IntegrationControllerGetMoySkladRunProgressResponse = zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+})
+
+
+/**
+ * @summary Получить историю экспорта заказов MoySklad
+ */
+export const IntegrationControllerGetMoySkladOrderExportsQueryParams = zod.object({
+  "limit": zod.number().optional().describe('Сколько последних экспортов заказов вернуть')
+})
+
+export const IntegrationControllerGetMoySkladOrderExportsResponseItem = zod.object({
+  "id": zod.string(),
+  "provider": zod.enum(['MOYSKLAD']),
+  "orderId": zod.string(),
+  "idempotencyKey": zod.string(),
+  "externalId": zod.string().nullable(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "attempts": zod.number(),
+  "lastError": zod.string().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "exportedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const IntegrationControllerGetMoySkladOrderExportsResponse = zod.array(IntegrationControllerGetMoySkladOrderExportsResponseItem)
+
+
+/**
+ * @summary Получить организации, контрагентов и склады MoySklad для экспорта заказов
+ */
+export const IntegrationControllerGetMoySkladOrderExportRefsResponse = zod.object({
+  "organizations": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string().nullable(),
+  "externalCode": zod.string().nullable(),
+  "archived": zod.boolean()
+})),
+  "counterparties": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string().nullable(),
+  "externalCode": zod.string().nullable(),
+  "archived": zod.boolean()
+})),
+  "stores": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string().nullable(),
+  "externalCode": zod.string().nullable(),
+  "archived": zod.boolean()
+}))
+})
+
+
+/**
+ * @summary Preview MoySklad characteristic mapping
+ */
+export const IntegrationControllerPreviewMoySkladMappingResponse = zod.object({
+  "unknownAttributes": zod.array(zod.object({
+  "externalName": zod.string(),
+  "suggestedKey": zod.string(),
+  "occurrences": zod.number(),
+  "sampledExternalIds": zod.array(zod.string()),
+  "suggestedExistingAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "score": zod.number()
+}))
+})),
+  "unknownEnumValues": zod.array(zod.object({
+  "externalAttributeName": zod.string(),
+  "externalValue": zod.string(),
+  "normalizedValue": zod.string(),
+  "attributeId": zod.string().nullable(),
+  "attributeKey": zod.string().nullable(),
+  "occurrences": zod.number(),
+  "sampledExternalIds": zod.array(zod.string())
+})),
+  "suggestedExistingValues": zod.array(zod.object({
+  "externalAttributeName": zod.string(),
+  "externalValue": zod.string(),
+  "normalizedValue": zod.string(),
+  "attributeId": zod.string(),
+  "attributeKey": zod.string(),
+  "attributeDisplayName": zod.string(),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+}),
+  "score": zod.number()
+})),
+  "counters": zod.object({
+  "assortmentItems": zod.number(),
+  "variantItems": zod.number(),
+  "itemsWithCharacteristics": zod.number(),
+  "characteristics": zod.number(),
+  "knownAttributes": zod.number(),
+  "unknownAttributes": zod.number(),
+  "knownEnumValues": zod.number(),
+  "unknownEnumValues": zod.number(),
+  "suggestedExistingValues": zod.number()
+}),
+  "sampledExternalIds": zod.array(zod.string())
+})
+
+
+/**
+ * @summary Apply MoySklad characteristic mapping preview
+ */
+export const IntegrationControllerApplyMoySkladMappingBody = zod.object({
+  "trustedCatalog": zod.boolean().optional().describe('Allows auto-creating unknown Attributes for a trusted catalog'),
+  "attributes": zod.array(zod.object({
+  "externalName": zod.string(),
+  "action": zod.enum(['LINK', 'CREATE', 'SKIP']),
+  "attributeId": zod.string().optional().describe('Existing Attribute id for LINK action'),
+  "key": zod.string().optional().describe('Optional Attribute key for CREATE action'),
+  "displayName": zod.string().optional().describe('Optional display name for CREATE action')
+})).optional(),
+  "enumValues": zod.array(zod.object({
+  "externalAttributeName": zod.string(),
+  "externalValue": zod.string(),
+  "action": zod.enum(['LINK', 'CREATE', 'SKIP']),
+  "attributeId": zod.string().optional().describe('Existing Attribute id. If omitted, the attribute mapping is used.'),
+  "enumValueId": zod.string().optional().describe('Existing AttributeEnumValue id for LINK action'),
+  "value": zod.string().optional().describe('Optional normalized value for CREATE action'),
+  "displayName": zod.string().optional().describe('Optional display name for CREATE action')
+})).optional()
+})
+
+export const IntegrationControllerApplyMoySkladMappingResponse = zod.object({
+  "ok": zod.boolean(),
+  "applied": zod.object({
+  "total": zod.number(),
+  "attributes": zod.number(),
+  "enumValues": zod.number()
+}),
+  "skipped": zod.object({
+  "total": zod.number(),
+  "attributes": zod.number(),
+  "enumValues": zod.number()
+}),
+  "created": zod.object({
+  "total": zod.number(),
+  "attributes": zod.number(),
+  "enumValues": zod.number()
+}),
+  "linked": zod.object({
+  "total": zod.number(),
+  "attributes": zod.number(),
+  "enumValues": zod.number()
+}),
+  "attributes": zod.array(zod.object({
+  "externalName": zod.string(),
+  "normalizedName": zod.string(),
+  "status": zod.enum(['created', 'linked', 'skipped']),
+  "attributeId": zod.string().nullable(),
+  "attributeKey": zod.string().nullable(),
+  "reason": zod.string().nullish()
+})),
+  "enumValues": zod.array(zod.object({
+  "externalAttributeName": zod.string(),
+  "externalValue": zod.string(),
+  "normalizedValue": zod.string(),
+  "status": zod.enum(['created', 'linked', 'skipped']),
+  "attributeId": zod.string().nullable(),
+  "enumValueId": zod.string().nullable(),
+  "value": zod.string().nullable(),
+  "reason": zod.string().nullish()
+}))
+})
 
 
 /**
@@ -3236,7 +4170,7 @@ export const IntegrationControllerSyncMoySkladCatalogResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
 })
 
@@ -3261,8 +4195,136 @@ export const IntegrationControllerSyncMoySkladProductResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
+})
+
+
+/**
+ * @summary РџРѕСЃС‚Р°РІРёС‚СЊ sync РѕСЃС‚Р°С‚РєРѕРІ MoySklad РІ РѕС‡РµСЂРµРґСЊ
+ */
+export const IntegrationControllerSyncMoySkladStockResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "runId": zod.string(),
+  "jobId": zod.string(),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
+})
+
+
+/**
+ * @summary Повторно поставить экспорт заказа MoySklad в очередь
+ */
+export const IntegrationControllerRetryMoySkladOrderExportParams = zod.object({
+  "id": zod.string().describe('ID записи IntegrationOrderExport')
+})
+
+export const IntegrationControllerRetryMoySkladOrderExportResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "exportId": zod.string().nullable(),
+  "jobId": zod.string().nullable(),
+  "reason": zod.string().nullable()
+})
+
+
+/**
+ * @summary List current catalog sale units
+ */
+export const CatalogSaleUnitControllerGetAllQueryParams = zod.object({
+  "includeArchived": zod.boolean().optional()
+})
+
+export const CatalogSaleUnitControllerGetAllResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const CatalogSaleUnitControllerGetAllResponse = zod.array(CatalogSaleUnitControllerGetAllResponseItem)
+
+
+/**
+ * @summary Create current catalog sale unit
+ */
+export const CatalogSaleUnitControllerCreateBody = zod.object({
+  "name": zod.string().describe('Название формата продажи внутри текущего каталога.'),
+  "code": zod.string().optional().describe('Технический код можно не передавать: backend создаст его сам.'),
+  "defaultBaseQuantity": zod.number().optional().describe('Подсказка количества внутри. Конкретный товар все равно хранит свое количество.'),
+  "barcode": zod.string().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+
+/**
+ * @summary Get current catalog sale unit
+ */
+export const CatalogSaleUnitControllerGetByIdParams = zod.object({
+  "id": zod.string().describe('Catalog sale unit ID')
+})
+
+export const CatalogSaleUnitControllerGetByIdResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update current catalog sale unit
+ */
+export const CatalogSaleUnitControllerUpdateParams = zod.object({
+  "id": zod.string().describe('Catalog sale unit ID')
+})
+
+export const CatalogSaleUnitControllerUpdateBody = zod.object({
+  "name": zod.string().optional().describe('Название формата продажи внутри текущего каталога.'),
+  "code": zod.string().optional().describe('Технический код можно не передавать: backend создаст его сам.'),
+  "defaultBaseQuantity": zod.number().optional().describe('Подсказка количества внутри. Конкретный товар все равно хранит свое количество.'),
+  "barcode": zod.string().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CatalogSaleUnitControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Archive current catalog sale unit
+ */
+export const CatalogSaleUnitControllerArchiveParams = zod.object({
+  "id": zod.string().describe('Catalog sale unit ID')
+})
+
+export const CatalogSaleUnitControllerArchiveResponse = zod.object({
+  "ok": zod.boolean()
 })
 
 
@@ -3520,7 +4582,7 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -3550,6 +4612,11 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -3594,6 +4661,24 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })
 })),
@@ -3628,7 +4713,7 @@ export const CategoryControllerGetProductCardsByCategoryResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -3658,6 +4743,11 @@ export const CategoryControllerGetProductCardsByCategoryResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -3702,6 +4792,24 @@ export const CategoryControllerGetProductCardsByCategoryResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })
 })),
@@ -3843,7 +4951,7 @@ export const CategoryControllerUpdatePositionResponse = zod.object({
 
 
 /**
- * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список товаров
  */
 export const ProductControllerGetAllResponseItem = zod.object({
@@ -3851,7 +4959,7 @@ export const ProductControllerGetAllResponseItem = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -3881,6 +4989,11 @@ export const ProductControllerGetAllResponseItem = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -3925,6 +5038,24 @@ export const ProductControllerGetAllResponseItem = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })
 export const ProductControllerGetAllResponse = zod.array(ProductControllerGetAllResponseItem)
@@ -3936,12 +5067,13 @@ export const ProductControllerGetAllResponse = zod.array(ProductControllerGetAll
  */
 export const ProductControllerCreateBody = zod.object({
   "name": zod.string(),
-  "price": zod.number(),
+  "price": zod.number().nullish(),
   "mediaIds": zod.array(zod.string()).optional(),
   "isPopular": zod.boolean().optional(),
   "status": zod.string().optional(),
   "position": zod.number().optional(),
   "brandId": zod.string().optional(),
+  "productTypeId": zod.string().nullish(),
   "categories": zod.array(zod.string()).optional().describe('Список категорий. Товар будет добавлен в начало (position=0) каждой категории.'),
   "attributes": zod.array(zod.object({
   "attributeId": zod.string(),
@@ -3961,13 +5093,24 @@ export const ProductControllerCreateBody = zod.object({
   "attributeId": zod.string(),
   "enumValueId": zod.string().optional().describe('Идентификатор значения перечисления'),
   "value": zod.string().optional().describe('Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений')
+})).optional(),
+  "saleUnits": zod.array(zod.object({
+  "catalogSaleUnitId": zod.string().optional().describe('Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст\/найдет формат по name.'),
+  "code": zod.string().optional().describe('Технический код можно не передавать: backend сгенерирует его из названия.'),
+  "name": zod.string().optional().describe('Название формата продажи. Не нужно, если передан catalogSaleUnitId.'),
+  "baseQuantity": zod.number().optional().describe('Сколько базовых единиц внутри для конкретного товара\/варианта.'),
+  "price": zod.number(),
+  "barcode": zod.string().optional(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
 })).optional()
 })).optional()
 })
 
 
 /**
- * Возвращает карточки товаров с productAttributes, но без variants. Поддерживает те же фильтры, что и /product/infinite.
+ * Возвращает карточки товаров с productAttributes и variantSummary, но без полного variants. Поддерживает те же фильтры, что и /product/infinite.
  * @summary Лёгкий card-feed товаров (бесконечный скролл)
  */
 export const ProductControllerGetInfiniteCardsQueryParams = zod.object({
@@ -3977,6 +5120,7 @@ export const ProductControllerGetInfiniteCardsQueryParams = zod.object({
   "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
   "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
   "minPrice": zod.unknown().optional().describe('Минимальная цена'),
+  "productTypeId": zod.unknown().optional().describe('ID типа товара внутри текущего каталога'),
   "brands": zod.unknown().optional().describe('ID брендов через запятую'),
   "categories": zod.unknown().optional().describe('ID категорий через запятую'),
   "seed": zod.unknown().optional().describe('Seed для детерминированной рандомизации'),
@@ -3990,7 +5134,7 @@ export const ProductControllerGetInfiniteCardsResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4020,6 +5164,11 @@ export const ProductControllerGetInfiniteCardsResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4064,6 +5213,24 @@ export const ProductControllerGetInfiniteCardsResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })),
   "nextCursor": zod.string().nullable(),
@@ -4082,6 +5249,7 @@ export const ProductControllerGetInfiniteQueryParams = zod.object({
   "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
   "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
   "minPrice": zod.unknown().optional().describe('Минимальная цена'),
+  "productTypeId": zod.unknown().optional().describe('ID типа товара внутри текущего каталога'),
   "brands": zod.unknown().optional().describe('ID брендов через запятую'),
   "categories": zod.unknown().optional().describe('ID категорий через запятую'),
   "seed": zod.unknown().optional().describe('Seed для детерминированной рандомизации'),
@@ -4095,7 +5263,7 @@ export const ProductControllerGetInfiniteResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4125,6 +5293,11 @@ export const ProductControllerGetInfiniteResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4169,6 +5342,24 @@ export const ProductControllerGetInfiniteResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })),
   "nextCursor": zod.string().nullable(),
@@ -4177,7 +5368,7 @@ export const ProductControllerGetInfiniteResponse = zod.object({
 
 
 /**
- * Возвращает карточки рекомендаций с productAttributes, но без variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
+ * Возвращает карточки рекомендаций с productAttributes и variantSummary, но без полного variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
  * @summary Лёгкий card-feed рекомендаций
  */
 export const ProductControllerGetRecommendationsInfiniteCardsQueryParams = zod.object({
@@ -4187,6 +5378,7 @@ export const ProductControllerGetRecommendationsInfiniteCardsQueryParams = zod.o
   "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
   "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
   "minPrice": zod.unknown().optional().describe('Минимальная цена'),
+  "productTypeId": zod.unknown().optional().describe('ID типа товара внутри текущего каталога'),
   "brands": zod.unknown().optional().describe('ID брендов через запятую'),
   "categories": zod.unknown().optional().describe('ID категорий через запятую'),
   "seed": zod.unknown().optional().describe('Seed для детерминированной рандомизации'),
@@ -4200,7 +5392,7 @@ export const ProductControllerGetRecommendationsInfiniteCardsResponse = zod.obje
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4230,6 +5422,11 @@ export const ProductControllerGetRecommendationsInfiniteCardsResponse = zod.obje
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4274,6 +5471,24 @@ export const ProductControllerGetRecommendationsInfiniteCardsResponse = zod.obje
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })),
   "nextCursor": zod.string().nullable(),
@@ -4292,6 +5507,7 @@ export const ProductControllerGetRecommendationsInfiniteQueryParams = zod.object
   "searchTerm": zod.unknown().optional().describe('Поиск по name, sku или slug (contains, insensitive)'),
   "maxPrice": zod.unknown().optional().describe('Максимальная цена'),
   "minPrice": zod.unknown().optional().describe('Минимальная цена'),
+  "productTypeId": zod.unknown().optional().describe('ID типа товара внутри текущего каталога'),
   "brands": zod.unknown().optional().describe('ID брендов через запятую'),
   "categories": zod.unknown().optional().describe('ID категорий через запятую'),
   "seed": zod.unknown().optional().describe('Seed для детерминированной рандомизации'),
@@ -4305,7 +5521,7 @@ export const ProductControllerGetRecommendationsInfiniteResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4335,6 +5551,11 @@ export const ProductControllerGetRecommendationsInfiniteResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4379,6 +5600,24 @@ export const ProductControllerGetRecommendationsInfiniteResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })),
   "nextCursor": zod.string().nullable(),
@@ -4387,7 +5626,7 @@ export const ProductControllerGetRecommendationsInfiniteResponse = zod.object({
 
 
 /**
- * Возвращает популярные товары с productAttributes, но без variants.
+ * Возвращает популярные товары с productAttributes и variantSummary, но без полного variants.
  * @summary Лёгкий список популярных товаров
  */
 export const ProductControllerGetPopularCardsResponseItem = zod.object({
@@ -4395,7 +5634,7 @@ export const ProductControllerGetPopularCardsResponseItem = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4425,6 +5664,11 @@ export const ProductControllerGetPopularCardsResponseItem = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4469,13 +5713,31 @@ export const ProductControllerGetPopularCardsResponseItem = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })
 export const ProductControllerGetPopularCardsResponse = zod.array(ProductControllerGetPopularCardsResponseItem)
 
 
 /**
- * Возвращает карточки товаров без активной категории с productAttributes, но без variants.
+ * Возвращает карточки товаров без активной категории с productAttributes и variantSummary, но без полного variants.
  * @summary Лёгкий список товаров без категории
  */
 export const ProductControllerGetUncategorizedInfiniteCardsQueryParams = zod.object({
@@ -4489,7 +5751,7 @@ export const ProductControllerGetUncategorizedInfiniteCardsResponse = zod.object
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4519,6 +5781,11 @@ export const ProductControllerGetUncategorizedInfiniteCardsResponse = zod.object
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4563,6 +5830,24 @@ export const ProductControllerGetUncategorizedInfiniteCardsResponse = zod.object
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })),
   "nextCursor": zod.string().nullable()
@@ -4584,7 +5869,7 @@ export const ProductControllerGetUncategorizedInfiniteResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4614,6 +5899,11 @@ export const ProductControllerGetUncategorizedInfiniteResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4658,6 +5948,24 @@ export const ProductControllerGetUncategorizedInfiniteResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })),
   "nextCursor": zod.string().nullable()
@@ -4665,7 +5973,7 @@ export const ProductControllerGetUncategorizedInfiniteResponse = zod.object({
 
 
 /**
- * В массовой выдаче возвращаются productAttributes, но без variants. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
  * @summary Список популярных товаров
  */
 export const ProductControllerGetPopularResponseItem = zod.object({
@@ -4673,7 +5981,7 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4703,6 +6011,11 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4747,6 +6060,24 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 }).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
 }))
 })
 export const ProductControllerGetPopularResponse = zod.array(ProductControllerGetPopularResponseItem)
@@ -4765,7 +6096,7 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -4795,6 +6126,11 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -4840,12 +6176,30 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "businessId": zod.string().nullable()
 }).nullable()
 })),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
   "variants": zod.array(zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "variantKey": zod.string(),
   "stock": zod.number(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
   "isAvailable": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
@@ -4872,7 +6226,33 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 })
-}))
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
 })),
   "seo": zod.object({
   "id": zod.string(),
@@ -4987,7 +6367,7 @@ export const ProductControllerGetByIdResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -5017,6 +6397,11 @@ export const ProductControllerGetByIdResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -5062,12 +6447,30 @@ export const ProductControllerGetByIdResponse = zod.object({
   "businessId": zod.string().nullable()
 }).nullable()
 })),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
   "variants": zod.array(zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "variantKey": zod.string(),
   "stock": zod.number(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
   "isAvailable": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
@@ -5094,7 +6497,33 @@ export const ProductControllerGetByIdResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 })
-}))
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
 })),
   "seo": zod.object({
   "id": zod.string(),
@@ -5210,12 +6639,13 @@ export const productControllerUpdateBodyCategoryPositionMin = 0;
 
 export const ProductControllerUpdateBody = zod.object({
   "name": zod.string().optional(),
-  "price": zod.number().optional(),
+  "price": zod.number().nullish(),
   "mediaIds": zod.array(zod.string()).optional(),
   "isPopular": zod.boolean().optional(),
   "status": zod.string().optional(),
   "position": zod.number().optional(),
   "brandId": zod.string().nullish(),
+  "productTypeId": zod.string().nullish().describe('Product type inside current catalog. Pass null to clear.'),
   "categories": zod.array(zod.string()).optional().describe('Список категорий товара. При редактировании заменяет набор привязок товара к категориям.'),
   "categoryId": zod.string().optional().describe('ID категории, в которой нужно изменить\/установить позицию товара'),
   "categoryPosition": zod.number().min(productControllerUpdateBodyCategoryPositionMin).optional().describe('Позиция товара внутри категории (передавать только вместе с categoryId)'),
@@ -5233,7 +6663,18 @@ export const ProductControllerUpdateBody = zod.object({
   "variantKey": zod.string().describe('Ключ варианта, приходит из ответа товара'),
   "price": zod.number().optional(),
   "stock": zod.number().optional(),
-  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional()
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
+  "saleUnits": zod.array(zod.object({
+  "catalogSaleUnitId": zod.string().optional().describe('Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст\/найдет формат по name.'),
+  "code": zod.string().optional().describe('Технический код можно не передавать: backend сгенерирует его из названия.'),
+  "name": zod.string().optional().describe('Название формата продажи. Не нужно, если передан catalogSaleUnitId.'),
+  "baseQuantity": zod.number().optional().describe('Сколько базовых единиц внутри для конкретного товара\/варианта.'),
+  "price": zod.number(),
+  "barcode": zod.string().optional(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
 })).optional()
 })
 
@@ -5242,7 +6683,7 @@ export const ProductControllerUpdateResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -5272,6 +6713,11 @@ export const ProductControllerUpdateResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -5317,12 +6763,30 @@ export const ProductControllerUpdateResponse = zod.object({
   "businessId": zod.string().nullable()
 }).nullable()
 })),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
   "variants": zod.array(zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "variantKey": zod.string(),
   "stock": zod.number(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
   "isAvailable": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
@@ -5349,7 +6813,33 @@ export const ProductControllerUpdateResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 })
-}))
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
 })),
   "seo": zod.object({
   "id": zod.string(),
@@ -5474,28 +6964,98 @@ export const ProductControllerDuplicateParams = zod.object({
 
 
 /**
- * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
- * @summary Изменить позицию товара в категории
+ * @summary Preview product type change compatibility without writing
  */
-export const ProductControllerUpdateCategoryPositionParams = zod.object({
+export const ProductControllerPreviewProductTypeCompatibilityParams = zod.object({
   "id": zod.string().describe('ID товара')
 })
 
-export const productControllerUpdateCategoryPositionBodyPositionMin = 0;
-
-
-
-export const ProductControllerUpdateCategoryPositionBody = zod.object({
-  "categoryId": zod.string().describe('ID категории, внутри которой нужно изменить позицию товара'),
-  "position": zod.number().min(productControllerUpdateCategoryPositionBodyPositionMin).describe('Новая позиция товара внутри категории')
+export const ProductControllerPreviewProductTypeCompatibilityBody = zod.object({
+  "productTypeId": zod.string().nullable().describe('Next product type inside current catalog. Pass null to clear.')
 })
 
-export const ProductControllerUpdateCategoryPositionResponse = zod.object({
+export const ProductControllerPreviewProductTypeCompatibilityResponse = zod.object({
+  "productId": zod.string(),
+  "currentProductTypeId": zod.string().nullable(),
+  "requestedProductTypeId": zod.string().nullable(),
+  "sameProductType": zod.boolean(),
+  "hasScopedData": zod.boolean(),
+  "canChangeNow": zod.boolean(),
+  "compatible": zod.boolean(),
+  "requiresUserDecision": zod.boolean(),
+  "blockingReason": zod.string().nullable(),
+  "productAttributeCount": zod.number(),
+  "variantAttributeCount": zod.number(),
+  "productAttributeConflicts": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "variantKeys": zod.array(zod.string()),
+  "reason": zod.enum(['MISSING_IN_TARGET_TYPE', 'SCOPE_MISMATCH', 'TARGET_TYPE_EMPTY']),
+  "targetIsVariant": zod.boolean().nullable()
+})),
+  "variantAttributeConflicts": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "variantKeys": zod.array(zod.string()),
+  "reason": zod.enum(['MISSING_IN_TARGET_TYPE', 'SCOPE_MISMATCH', 'TARGET_TYPE_EMPTY']),
+  "targetIsVariant": zod.boolean().nullable()
+}))
+})
+
+
+/**
+ * @summary Apply explicit product type change with confirmed remap/removal
+ */
+export const ProductControllerApplyProductTypeChangeParams = zod.object({
+  "id": zod.string().describe('ID товара')
+})
+
+export const ProductControllerApplyProductTypeChangeBody = zod.object({
+  "productTypeId": zod.string().nullable().describe('Next product type inside current catalog. Pass null to clear.'),
+  "expectedCurrentProductTypeId": zod.string().nullish().describe('Optional stale-preview guard. Apply fails if current product type differs.'),
+  "confirm": zod.boolean().describe('Explicit user confirmation for changing typed product data.'),
+  "removeAttributeIds": zod.array(zod.string()).optional().describe('Product attribute ids to remove when they are incompatible with target product type.'),
+  "attributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().optional(),
+  "valueString": zod.string().optional(),
+  "valueInteger": zod.number().optional(),
+  "valueDecimal": zod.number().optional(),
+  "valueBoolean": zod.boolean().optional(),
+  "valueDateTime": zod.iso.datetime({}).optional()
+})).optional().describe('Product attributes to upsert after switching to the target product type.'),
+  "items": zod.array(zod.object({
+  "price": zod.number().optional(),
+  "stock": zod.number().optional(),
+  "isAvailable": zod.boolean().optional(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
+  "attributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().optional().describe('Идентификатор значения перечисления'),
+  "value": zod.string().optional().describe('Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений')
+})).optional(),
+  "saleUnits": zod.array(zod.object({
+  "catalogSaleUnitId": zod.string().optional().describe('Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст\/найдет формат по name.'),
+  "code": zod.string().optional().describe('Технический код можно не передавать: backend сгенерирует его из названия.'),
+  "name": zod.string().optional().describe('Название формата продажи. Не нужно, если передан catalogSaleUnitId.'),
+  "baseQuantity": zod.number().optional().describe('Сколько базовых единиц внутри для конкретного товара\/варианта.'),
+  "price": zod.number(),
+  "barcode": zod.string().optional(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
+})).optional().describe('Full replacement matrix. Required when existing variant attributes conflict with target product type.')
+})
+
+export const ProductControllerApplyProductTypeChangeResponse = zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -5525,6 +7085,11 @@ export const ProductControllerUpdateCategoryPositionResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -5570,12 +7135,30 @@ export const ProductControllerUpdateCategoryPositionResponse = zod.object({
   "businessId": zod.string().nullable()
 }).nullable()
 })),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
   "variants": zod.array(zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "variantKey": zod.string(),
   "stock": zod.number(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
   "isAvailable": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
@@ -5602,7 +7185,314 @@ export const ProductControllerUpdateCategoryPositionResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 })
-}))
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
+})),
+  "seo": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "faviconMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "ok": zod.boolean()
+})
+
+
+/**
+ * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
+ * @summary Изменить позицию товара в категории
+ */
+export const ProductControllerUpdateCategoryPositionParams = zod.object({
+  "id": zod.string().describe('ID товара')
+})
+
+export const productControllerUpdateCategoryPositionBodyPositionMin = 0;
+
+
+
+export const ProductControllerUpdateCategoryPositionBody = zod.object({
+  "categoryId": zod.string().describe('ID категории, внутри которой нужно изменить позицию товара'),
+  "position": zod.number().min(productControllerUpdateCategoryPositionBodyPositionMin).describe('Новая позиция товара внутри категории')
+})
+
+export const ProductControllerUpdateCategoryPositionResponse = zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string().nullable(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
+}).nullable(),
+  "categories": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "stock": zod.number(),
+  "price": zod.string().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "attributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+})
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
 })),
   "seo": zod.object({
   "id": zod.string(),
@@ -5718,7 +7608,7 @@ export const ProductControllerToggleStatusResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -5748,6 +7638,11 @@ export const ProductControllerToggleStatusResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -5793,12 +7688,30 @@ export const ProductControllerToggleStatusResponse = zod.object({
   "businessId": zod.string().nullable()
 }).nullable()
 })),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
   "variants": zod.array(zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "variantKey": zod.string(),
   "stock": zod.number(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
   "isAvailable": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
@@ -5825,7 +7738,33 @@ export const ProductControllerToggleStatusResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 })
-}))
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
 })),
   "seo": zod.object({
   "id": zod.string(),
@@ -5941,7 +7880,7 @@ export const ProductControllerTogglePopularResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -5971,6 +7910,11 @@ export const ProductControllerTogglePopularResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -6016,12 +7960,30 @@ export const ProductControllerTogglePopularResponse = zod.object({
   "businessId": zod.string().nullable()
 }).nullable()
 })),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
   "variants": zod.array(zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "variantKey": zod.string(),
   "stock": zod.number(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
   "isAvailable": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
@@ -6048,7 +8010,33 @@ export const ProductControllerTogglePopularResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 })
-}))
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
 })),
   "seo": zod.object({
   "id": zod.string(),
@@ -6166,7 +8154,18 @@ export const ProductControllerSetVariantsBody = zod.object({
   "stock": zod.number().optional(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
   "enumValueId": zod.string().optional().describe('Идентификатор значения перечисления'),
-  "value": zod.string().optional().describe('Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений')
+  "value": zod.string().optional().describe('Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений'),
+  "saleUnits": zod.array(zod.object({
+  "catalogSaleUnitId": zod.string().optional().describe('Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст\/найдет формат по name.'),
+  "code": zod.string().optional().describe('Технический код можно не передавать: backend сгенерирует его из названия.'),
+  "name": zod.string().optional().describe('Название формата продажи. Не нужно, если передан catalogSaleUnitId.'),
+  "baseQuantity": zod.number().optional().describe('Сколько базовых единиц внутри для конкретного товара\/варианта.'),
+  "price": zod.number(),
+  "barcode": zod.string().optional(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
 }))
 })
 
@@ -6175,7 +8174,7 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "sku": zod.string(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "media": zod.array(zod.object({
   "position": zod.number(),
   "kind": zod.string().nullable(),
@@ -6205,6 +8204,11 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
 }).nullable(),
   "categories": zod.array(zod.object({
   "id": zod.string(),
@@ -6250,12 +8254,30 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "businessId": zod.string().nullable()
 }).nullable()
 })),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
   "variants": zod.array(zod.object({
   "id": zod.string(),
   "sku": zod.string(),
   "variantKey": zod.string(),
   "stock": zod.number(),
-  "price": zod.string(),
+  "price": zod.string().nullable(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
   "isAvailable": zod.boolean(),
   "createdAt": zod.iso.datetime({}),
@@ -6282,7 +8304,33 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "displayOrder": zod.number(),
   "businessId": zod.string().nullable()
 })
-}))
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
 })),
   "seo": zod.object({
   "id": zod.string(),
@@ -6386,6 +8434,492 @@ export const ProductControllerSetVariantsResponse = zod.object({
 
 
 /**
+ * Заменяет полную матрицу вариантов товара. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Создать/заменить матрицу вариаций товара
+ */
+export const ProductControllerSetVariantMatrixParams = zod.object({
+  "id": zod.string().describe('ID товара')
+})
+
+export const ProductControllerSetVariantMatrixBody = zod.object({
+  "items": zod.array(zod.object({
+  "price": zod.number().optional(),
+  "stock": zod.number().optional(),
+  "isAvailable": zod.boolean().optional(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
+  "attributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().optional().describe('Идентификатор значения перечисления'),
+  "value": zod.string().optional().describe('Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений')
+})).optional(),
+  "saleUnits": zod.array(zod.object({
+  "catalogSaleUnitId": zod.string().optional().describe('Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст\/найдет формат по name.'),
+  "code": zod.string().optional().describe('Технический код можно не передавать: backend сгенерирует его из названия.'),
+  "name": zod.string().optional().describe('Название формата продажи. Не нужно, если передан catalogSaleUnitId.'),
+  "baseQuantity": zod.number().optional().describe('Сколько базовых единиц внутри для конкретного товара\/варианта.'),
+  "price": zod.number(),
+  "barcode": zod.string().optional(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
+}))
+})
+
+export const ProductControllerSetVariantMatrixResponse = zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.string().nullable(),
+  "media": zod.array(zod.object({
+  "position": zod.number(),
+  "kind": zod.string().nullable(),
+  "media": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+})
+})),
+  "brand": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "slug": zod.string()
+}).nullable(),
+  "productType": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
+}).nullable(),
+  "categories": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "position": zod.number()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "isPopular": zod.boolean(),
+  "status": zod.enum(['DRAFT', 'ACTIVE', 'ARCHIVED', 'HIDDEN', 'DELETE']),
+  "position": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "productAttributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string().nullable(),
+  "valueString": zod.string().nullable(),
+  "valueInteger": zod.number().nullable(),
+  "valueDecimal": zod.string().nullable(),
+  "valueBoolean": zod.boolean().nullable(),
+  "valueDateTime": zod.iso.datetime({}).nullable(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+}).nullable()
+})),
+  "variantSummary": zod.object({
+  "minPrice": zod.string().nullable(),
+  "maxPrice": zod.string().nullable(),
+  "activeCount": zod.number(),
+  "totalStock": zod.number(),
+  "singleVariantId": zod.string().nullable()
+}),
+  "variantPickerOptions": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "price": zod.string().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "saleUnitId": zod.string().nullable(),
+  "saleUnitPrice": zod.string().nullable(),
+  "maxQuantity": zod.number()
+})),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "stock": zod.number(),
+  "price": zod.string().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "attributes": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "enumValueId": zod.string(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isRequired": zod.boolean(),
+  "isVariantAttribute": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "displayOrder": zod.number(),
+  "isHidden": zod.boolean()
+}),
+  "enumValue": zod.object({
+  "id": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "businessId": zod.string().nullable()
+})
+})),
+  "saleUnits": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogSaleUnitId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.string(),
+  "price": zod.string(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({}),
+  "catalogSaleUnit": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "defaultBaseQuantity": zod.string()
+}).nullable()
+})),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD']),
+  "externalId": zod.string(),
+  "externalCode": zod.string().nullable(),
+  "lastSyncedAt": zod.iso.datetime({}).nullable()
+}).nullish()
+})),
+  "seo": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "faviconMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary List internal inventory warehouses
+ */
+export const InventoryControllerGetWarehousesResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "status": zod.enum(['ACTIVE', 'DISABLED']),
+  "address": zod.string().nullish(),
+  "isDefault": zod.boolean(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const InventoryControllerGetWarehousesResponse = zod.array(InventoryControllerGetWarehousesResponseItem)
+
+
+/**
+ * @summary Create internal inventory warehouse
+ */
+export const InventoryControllerCreateWarehouseBody = zod.object({
+  "name": zod.string(),
+  "code": zod.string().optional(),
+  "status": zod.enum(['ACTIVE', 'DISABLED']).optional(),
+  "address": zod.string().optional(),
+  "isDefault": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Get internal inventory warehouse
+ */
+export const InventoryControllerGetWarehouseByIdParams = zod.object({
+  "id": zod.string().describe('Inventory warehouse ID')
+})
+
+export const InventoryControllerGetWarehouseByIdResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "status": zod.enum(['ACTIVE', 'DISABLED']),
+  "address": zod.string().nullish(),
+  "isDefault": zod.boolean(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update internal inventory warehouse
+ */
+export const InventoryControllerUpdateWarehouseParams = zod.object({
+  "id": zod.string().describe('Inventory warehouse ID')
+})
+
+export const InventoryControllerUpdateWarehouseBody = zod.object({
+  "name": zod.string().optional(),
+  "code": zod.string().optional(),
+  "status": zod.enum(['ACTIVE', 'DISABLED']).optional(),
+  "address": zod.string().nullish(),
+  "isDefault": zod.boolean().optional()
+})
+
+export const InventoryControllerUpdateWarehouseResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "code": zod.string(),
+  "status": zod.enum(['ACTIVE', 'DISABLED']),
+  "address": zod.string().nullish(),
+  "isDefault": zod.boolean(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Delete internal inventory warehouse
+ */
+export const InventoryControllerRemoveWarehouseParams = zod.object({
+  "id": zod.string().describe('Inventory warehouse ID')
+})
+
+export const InventoryControllerRemoveWarehouseResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary List stock balances for internal inventory warehouse
+ */
+export const InventoryControllerGetWarehouseBalancesParams = zod.object({
+  "id": zod.string().describe('Inventory warehouse ID')
+})
+
+export const InventoryControllerGetWarehouseBalancesResponseItem = zod.object({
+  "id": zod.string(),
+  "warehouseId": zod.string(),
+  "variantId": zod.string(),
+  "quantityOnHand": zod.number(),
+  "quantityReserved": zod.number(),
+  "quantityAvailable": zod.number(),
+  "variant": zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "product": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "sku": zod.string(),
+  "slug": zod.string()
+})
+}).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const InventoryControllerGetWarehouseBalancesResponse = zod.array(InventoryControllerGetWarehouseBalancesResponseItem)
+
+
+/**
+ * @summary List movement journal for internal inventory warehouse
+ */
+export const InventoryControllerGetWarehouseMovementsParams = zod.object({
+  "id": zod.string().describe('Inventory warehouse ID')
+})
+
+export const InventoryControllerGetWarehouseMovementsResponseItem = zod.object({
+  "id": zod.string(),
+  "warehouseId": zod.string(),
+  "variantId": zod.string().nullish(),
+  "type": zod.string(),
+  "source": zod.string(),
+  "quantityDelta": zod.number(),
+  "quantityAfter": zod.number().nullish(),
+  "reason": zod.string().nullish(),
+  "occurredAt": zod.iso.datetime({}),
+  "createdAt": zod.iso.datetime({})
+})
+export const InventoryControllerGetWarehouseMovementsResponse = zod.array(InventoryControllerGetWarehouseMovementsResponseItem)
+
+
+/**
+ * @summary List reservations for internal inventory warehouse
+ */
+export const InventoryControllerGetWarehouseReservationsParams = zod.object({
+  "id": zod.string().describe('Inventory warehouse ID')
+})
+
+export const InventoryControllerGetWarehouseReservationsResponseItem = zod.object({
+  "id": zod.string(),
+  "warehouseId": zod.string(),
+  "variantId": zod.string(),
+  "quantity": zod.number(),
+  "status": zod.string(),
+  "cartId": zod.string().nullish(),
+  "cartItemId": zod.string().nullish(),
+  "orderId": zod.string().nullish(),
+  "expiresAt": zod.iso.datetime({}).nullish(),
+  "consumedAt": zod.iso.datetime({}).nullish(),
+  "releasedAt": zod.iso.datetime({}).nullish(),
+  "variant": zod.object({
+  "id": zod.string(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "product": zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "sku": zod.string(),
+  "slug": zod.string()
+})
+}).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const InventoryControllerGetWarehouseReservationsResponse = zod.array(InventoryControllerGetWarehouseReservationsResponseItem)
+
+
+/**
+ * @summary Create manual stock movement for internal inventory
+ */
+export const InventoryControllerAdjustWarehouseStockParams = zod.object({
+  "id": zod.string().describe('Inventory warehouse ID')
+})
+
+export const InventoryControllerAdjustWarehouseStockBody = zod.object({
+  "variantId": zod.uuid(),
+  "quantityDelta": zod.number().describe('Positive value is receipt, negative value is write-off'),
+  "reason": zod.string().optional()
+})
+
+
+/**
  * @summary Get the current cart by cookie token
  */
 export const CartControllerGetCurrentResponse = zod.object({
@@ -6414,13 +8948,54 @@ export const CartControllerGetCurrentResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6428,6 +9003,9 @@ export const CartControllerGetCurrentResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6477,13 +9055,54 @@ export const CartControllerShareCurrentResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6491,6 +9110,9 @@ export const CartControllerShareCurrentResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6506,6 +9128,7 @@ export const CartControllerShareCurrentResponse = zod.object({
 export const CartControllerUpsertCurrentItemBody = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().optional(),
+  "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
   "quantity": zod.number().describe('0 = удалить позицию из корзины')
 })
 
@@ -6535,13 +9158,54 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6549,6 +9213,9 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6590,13 +9257,54 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6604,6 +9312,9 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6654,13 +9365,54 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6668,6 +9420,9 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6709,13 +9464,54 @@ export const CartControllerStartManagerSessionResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6723,6 +9519,9 @@ export const CartControllerStartManagerSessionResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6764,13 +9563,54 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6778,6 +9618,9 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6819,13 +9662,54 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6833,6 +9717,9 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6866,8 +9753,48 @@ export const CartControllerCompleteManagerOrderResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullable(),
   "quantity": zod.number(),
-  "unitPrice": zod.number()
+  "baseQuantity": zod.number(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number(),
+  "discountPercent": zod.number(),
+  "hasDiscount": zod.boolean(),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable()
 })),
   "createdAt": zod.iso.datetime({})
 })
@@ -6884,6 +9811,7 @@ export const CartControllerUpsertPublicItemParams = zod.object({
 export const CartControllerUpsertPublicItemBody = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().optional(),
+  "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
   "quantity": zod.number().describe('0 = удалить позицию из корзины')
 })
 
@@ -6913,13 +9841,54 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6927,6 +9896,9 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -6969,13 +9941,54 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "id": zod.uuid(),
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
   "quantity": zod.number(),
+  "baseQuantity": zod.number(),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
   "slug": zod.string(),
-  "price": zod.number()
+  "price": zod.number().nullable()
 }),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
   "lineTotal": zod.number(),
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
@@ -6983,6 +9996,9 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
   "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
 }),
   "createdAt": zod.iso.datetime({}),
@@ -7001,6 +10017,406 @@ export const CartControllerSsePublicParams = zod.object({
 export const CartControllerSsePublicHeader = zod.object({
   "last-event-id": zod.string(),
   "Last-Event-ID": zod.string().optional().describe('Last received Redis Stream event id for SSE replay')
+})
+
+
+/**
+ * @summary List catalog product types
+ */
+export const ProductTypeControllerGetAllQueryParams = zod.object({
+  "includeArchived": zod.boolean().optional()
+})
+
+export const ProductTypeControllerGetAllResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "scope": zod.enum(['SYSTEM_TEMPLATE', 'CATALOG']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "isArchived": zod.boolean(),
+  "archivedAt": zod.iso.datetime({}).nullable(),
+  "attributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "displayOrder": zod.number(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM'])
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const ProductTypeControllerGetAllResponse = zod.array(ProductTypeControllerGetAllResponseItem)
+
+
+/**
+ * @summary Create catalog product type
+ */
+export const ProductTypeControllerCreateBody = zod.object({
+  "code": zod.string().optional().describe('If omitted, code is generated from name.'),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "attributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean().optional(),
+  "isRequired": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
+})
+
+
+/**
+ * @summary List system product type templates
+ */
+export const ProductTypeControllerGetSystemTemplatesQueryParams = zod.object({
+  "includeArchived": zod.boolean().optional()
+})
+
+export const ProductTypeControllerGetSystemTemplatesResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "scope": zod.enum(['SYSTEM_TEMPLATE', 'CATALOG']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "isArchived": zod.boolean(),
+  "archivedAt": zod.iso.datetime({}).nullable(),
+  "attributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "displayOrder": zod.number(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM'])
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const ProductTypeControllerGetSystemTemplatesResponse = zod.array(ProductTypeControllerGetSystemTemplatesResponseItem)
+
+
+/**
+ * @summary Create system product type template
+ */
+export const ProductTypeControllerCreateSystemTemplateBody = zod.object({
+  "code": zod.string().optional().describe('If omitted, code is generated from name.'),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "attributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean().optional(),
+  "isRequired": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
+})
+
+
+/**
+ * @summary Get system product type template
+ */
+export const ProductTypeControllerGetSystemTemplateByIdParams = zod.object({
+  "id": zod.string().describe('Template ID')
+})
+
+export const ProductTypeControllerGetSystemTemplateByIdResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "scope": zod.enum(['SYSTEM_TEMPLATE', 'CATALOG']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "isArchived": zod.boolean(),
+  "archivedAt": zod.iso.datetime({}).nullable(),
+  "attributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "displayOrder": zod.number(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM'])
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update system product type template
+ */
+export const ProductTypeControllerUpdateSystemTemplateParams = zod.object({
+  "id": zod.string().describe('Template ID')
+})
+
+export const ProductTypeControllerUpdateSystemTemplateBody = zod.object({
+  "code": zod.string().optional().describe('If omitted, code is generated from name.'),
+  "name": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "attributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean().optional(),
+  "isRequired": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const ProductTypeControllerUpdateSystemTemplateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "scope": zod.enum(['SYSTEM_TEMPLATE', 'CATALOG']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "isArchived": zod.boolean(),
+  "archivedAt": zod.iso.datetime({}).nullable(),
+  "attributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "displayOrder": zod.number(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM'])
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Archive system product type template
+ */
+export const ProductTypeControllerArchiveSystemTemplateParams = zod.object({
+  "id": zod.string().describe('Template ID')
+})
+
+export const ProductTypeControllerArchiveSystemTemplateResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Get product type matrix editor schema
+ */
+export const ProductTypeControllerGetMatrixEditorSchemaParams = zod.object({
+  "id": zod.string().describe('Catalog product type ID')
+})
+
+export const ProductTypeControllerGetMatrixEditorSchemaResponse = zod.object({
+  "type": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "scope": zod.enum(['SYSTEM_TEMPLATE', 'CATALOG']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "isArchived": zod.boolean(),
+  "archivedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}),
+  "attributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "isHidden": zod.boolean(),
+  "displayOrder": zod.number()
+})),
+  "variantAttributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "isHidden": zod.boolean(),
+  "displayOrder": zod.number()
+})),
+  "requiredAttributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM']),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "isFilterable": zod.boolean(),
+  "isHidden": zod.boolean(),
+  "displayOrder": zod.number()
+})),
+  "enumValues": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable(),
+  "businessId": zod.string().nullable(),
+  "displayOrder": zod.number(),
+  "source": zod.enum(['MANUAL', 'AUTO', 'IMPORTED']),
+  "mergedIntoId": zod.string().nullable(),
+  "isArchived": zod.boolean(),
+  "aliases": zod.array(zod.object({
+  "id": zod.string(),
+  "attributeId": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "enumValueId": zod.string(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+}))
+}))
+})
+
+
+/**
+ * @summary Get catalog product type
+ */
+export const ProductTypeControllerGetByIdParams = zod.object({
+  "id": zod.string().describe('Product type ID')
+})
+
+export const ProductTypeControllerGetByIdResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "scope": zod.enum(['SYSTEM_TEMPLATE', 'CATALOG']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "isArchived": zod.boolean(),
+  "archivedAt": zod.iso.datetime({}).nullable(),
+  "attributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "displayOrder": zod.number(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM'])
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update catalog product type
+ */
+export const ProductTypeControllerUpdateParams = zod.object({
+  "id": zod.string().describe('Product type ID')
+})
+
+export const ProductTypeControllerUpdateBody = zod.object({
+  "code": zod.string().optional().describe('If omitted, code is generated from name.'),
+  "name": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "attributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean().optional(),
+  "isRequired": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const ProductTypeControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string().nullable(),
+  "scope": zod.enum(['SYSTEM_TEMPLATE', 'CATALOG']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isActive": zod.boolean(),
+  "isArchived": zod.boolean(),
+  "archivedAt": zod.iso.datetime({}).nullable(),
+  "attributes": zod.array(zod.object({
+  "productTypeId": zod.string(),
+  "attributeId": zod.string(),
+  "isVariant": zod.boolean(),
+  "isRequired": zod.boolean(),
+  "displayOrder": zod.number(),
+  "attribute": zod.object({
+  "id": zod.string(),
+  "key": zod.string(),
+  "displayName": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'ENUM'])
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})).optional(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Archive catalog product type
+ */
+export const ProductTypeControllerArchiveParams = zod.object({
+  "id": zod.string().describe('Product type ID')
+})
+
+export const ProductTypeControllerArchiveResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Create catalog product type from system template
+ */
+export const ProductTypeControllerCreateFromTemplateParams = zod.object({
+  "templateId": zod.string().describe('System template ID')
+})
+
+export const ProductTypeControllerCreateFromTemplateBody = zod.object({
+  "code": zod.string().optional().describe('If omitted, code is generated from name.'),
+  "name": zod.string().optional(),
+  "description": zod.string().nullish()
 })
 
 
@@ -7155,7 +10571,7 @@ export const SeoControllerCreateBody = zod.object({
  * @summary Get seo setting by entity
  */
 export const SeoControllerGetByEntityParams = zod.object({
-  "entityType": zod.string().describe('Тип сущности'),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']).describe('Тип сущности'),
   "entityId": zod.string().describe('ID сущности')
 })
 

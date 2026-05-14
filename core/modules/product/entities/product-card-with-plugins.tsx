@@ -4,7 +4,6 @@ import type {
   ProductWithAttributesDto,
   ProductWithDetailsDto,
 } from "@/shared/api/generated/react-query";
-import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { Badge } from "@/shared/ui/badge";
@@ -13,7 +12,10 @@ import { buildProductCardPluginModel } from "../plugins/build-model";
 import type { ResolvedProductCardPlugin } from "../plugins/contracts";
 import { ProductCard } from "./product-card";
 
-type ProductCardBaseProps = Omit<React.ComponentProps<typeof ProductCard>, "data">;
+type ProductCardBaseProps = Omit<
+  React.ComponentProps<typeof ProductCard>,
+  "data"
+>;
 type ProductCardEntity = ProductWithAttributesDto | ProductWithDetailsDto;
 
 interface ProductCardWithPluginsProps extends ProductCardBaseProps {
@@ -44,6 +46,7 @@ function toProductWithAttributesDto(
     price: data.price,
     media: data.media,
     brand: data.brand,
+    productType: data.productType,
     categories: data.categories,
     integration: data.integration,
     isPopular: data.isPopular,
@@ -52,6 +55,8 @@ function toProductWithAttributesDto(
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
     productAttributes: data.productAttributes,
+    variantSummary: data.variantSummary,
+    variantPickerOptions: data.variantPickerOptions,
   };
 }
 
@@ -60,6 +65,8 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
   className,
   actions,
   footerAction,
+  hidePriceWhenFooterAction,
+  isMoySkladLinked,
   isDetailed,
   plugin = DEFAULT_PRODUCT_CARD_PLUGIN,
   pluginContainerClassName,
@@ -69,8 +76,10 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
     () => buildProductCardPluginModel(data, catalog, plugin),
     [catalog, data, plugin],
   );
-  const baseCardData = React.useMemo(() => toProductWithAttributesDto(data), [data]);
-  const isMoySkladLinked = React.useMemo(() => isMoySkladProduct(data), [data]);
+  const baseCardData = React.useMemo(
+    () => toProductWithAttributesDto(data),
+    [data],
+  );
 
   return (
     <div className={cn("space-y-2", pluginContainerClassName)}>
@@ -79,6 +88,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
         className={className}
         actions={actions}
         footerAction={footerAction}
+        hidePriceWhenFooterAction={hidePriceWhenFooterAction}
         isMoySkladLinked={isMoySkladLinked}
         isDetailed={isDetailed}
       />

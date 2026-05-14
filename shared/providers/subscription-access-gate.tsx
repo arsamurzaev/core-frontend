@@ -3,7 +3,7 @@
 import {
   getCatalogSubscriptionEndsAt,
   getDaysUntilSubscriptionEnd,
-} from "@/core/widgets/footer/model/subscription-status";
+} from "@/shared/lib/subscription-status";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";

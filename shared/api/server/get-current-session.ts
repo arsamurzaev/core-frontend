@@ -15,6 +15,8 @@ const ADMIN_CSRF_COOKIE_NAME = "acrsf";
 async function loadCurrentSessionServer(
   _currentCatalogId?: string | null,
 ): Promise<SessionBootstrapState> {
+  void _currentCatalogId;
+
   const cookieStore = await cookies();
   const csrfCookiePresent =
     cookieStore.has(CSRF_COOKIE_NAME) || cookieStore.has(ADMIN_CSRF_COOKIE_NAME);

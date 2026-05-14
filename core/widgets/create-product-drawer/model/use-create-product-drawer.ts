@@ -9,6 +9,7 @@ import { useProductImageEditor } from "@/core/modules/product/editor/model/use-p
 import { useCreateProductDrawerState } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer-state";
 import { useCreateProductSubmit } from "@/core/widgets/create-product-drawer/model/use-create-product-submit";
 import { useProductControllerCreate } from "@/shared/api/generated/react-query";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
@@ -29,6 +30,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     supportsCategoryDetails = true,
   } = params;
   const { type } = useCatalog();
+  const features = useCatalogCapabilities();
   const queryClient = useQueryClient();
   const createProduct = useProductControllerCreate();
   const form = useForm<CreateProductFormValues>({
@@ -51,21 +53,28 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     [controlledOpen, onOpenChange, open],
   );
 
-  const { formFields, productAttributes, variantAttributes, visibleAttributes } = useProductFormFields(
-    {
-      form,
-      sourceAttributes: type.attributes,
-      isActive: open,
-      supportsBrands,
-      supportsCategoryDetails,
-    },
-  );
+  const {
+    formFields,
+    isProductTypeSchemaResolving,
+    productAttributes,
+    variantAttributes,
+    visibleAttributes,
+  } = useProductFormFields({
+    form,
+    sourceAttributes: type.attributes,
+    canUseProductTypes: features.canUseProductTypes,
+    canUseProductVariants: features.canUseProductVariants,
+    canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    isActive: open,
+    supportsBrands,
+    supportsCategoryDetails,
+  });
 
   const imageEditor = useProductImageEditor({ isSubmitting });
 
   const drawerState = useCreateProductDrawerState({
     form,
-    isSubmitting,
+    isSubmitting: isSubmitting || isProductTypeSchemaResolving,
     open,
     productAttributes,
     resetImageState: imageEditor.resetState,
@@ -74,6 +83,9 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
 
   const handleSubmit = useCreateProductSubmit({
     closeDrawer: drawerState.closeDrawer,
+    canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    canUseProductTypes: features.canUseProductTypes,
+    canUseProductVariants: features.canUseProductVariants,
     createProduct,
     files: imageEditor.files,
     form,
@@ -88,6 +100,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     setUploadState: imageEditor.setUploadState,
     setUploadedMediaIds: imageEditor.setUploadedMediaIds,
     uploadedMediaIds: imageEditor.uploadedMediaIds,
+    variantAttributes,
     visibleAttributes,
   });
 
@@ -103,6 +116,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     files: imageEditor.files,
     form,
     formFields,
+    features,
+    productAttributes,
     variantAttributes,
     handleCropApply: imageEditor.handleCropApply,
     handleCropperOpenChange: imageEditor.handleCropperOpenChange,
@@ -117,6 +132,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isReorderMode: imageEditor.isReorderMode,
     isSubmitting,
+    isProductTypeSchemaResolving,
     open: drawerState.open,
     pendingSwapIndex: imageEditor.pendingSwapIndex,
     removeFile: imageEditor.removeFile,

@@ -2,60 +2,77 @@
 
 import {
   buildCreateProductFormFields,
-  CREATE_PRODUCT_FORM_FIELD_CLASS,
-  CREATE_PRODUCT_FORM_LABEL_CLASS,
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
-import { sortAttributesByDisplayOrder } from "@/core/modules/product/editor/model/product-attributes";
-import { CreateProductBrandField } from "@/core/modules/product/editor/ui/create-product-brand-field";
-import { CreateProductCategoriesField } from "@/core/modules/product/editor/ui/create-product-categories-field";
+import { buildProductEditorCustomFields } from "@/core/modules/product/editor/model/product-form-custom-fields";
+import {
+  applyBooleanAttributeDefaults,
+  clearAttributeValues,
+  getDiscountedPriceAttributeIdToReset,
+} from "@/core/modules/product/editor/model/product-form-effects";
+import { patchProductDiscountFields } from "@/core/modules/product/editor/model/product-form-discount-fields";
+import {
+  getProductEditorProductAttributes,
+  getProductEditorVariantAttributes,
+  mergeProductEditorAttributes,
+  resolveProductTypeAttributes,
+  shouldResolveProductTypeAttributes,
+} from "@/core/modules/product/editor/model/product-form-attributes";
+import {
+  buildBrandOptions,
+  buildCategoryOptions,
+  buildProductTypeOptions,
+} from "@/core/modules/product/editor/model/product-form-options";
+import {
+  filterVisibleDiscountAttributes,
+  getDiscountAttributeIds,
+  isSaleUnitPricingDraftTouched,
+} from "@/core/modules/product/editor/model/product-discount";
+import { buildAttributesFromProductTypeMatrixSchema } from "@/core/modules/product/editor/model/product-types";
 import { CreateProductDiscountDateRangeField } from "@/core/modules/product/editor/ui/create-product-discount-date-range-field";
 import { CreateProductDiscountLinkedField } from "@/core/modules/product/editor/ui/create-product-discount-linked-field";
 import {
   type AttributeDto,
-  AttributeDtoDataType,
   useBrandControllerGetAll,
   useCategoryControllerGetAll,
+  useProductTypeControllerGetAll,
+  useProductTypeControllerGetMatrixEditorSchema,
 } from "@/shared/api/generated/react-query";
 
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
-const DISCOUNT_ATTRIBUTE_KEYS = new Set([
-  "discount",
-  "discountedprice",
-  "discountstartat",
-  "discountendat",
-]);
-
-function normalizeAttributeKey(value: string | null | undefined): string {
-  if (!value) {
-    return "";
-  }
-  return value.replace(/[^a-z0-9]/gi, "").toLowerCase();
-}
-
-function isDiscountAttribute(attribute: AttributeDto): boolean {
-  return DISCOUNT_ATTRIBUTE_KEYS.has(normalizeAttributeKey(attribute.key));
-}
-
 export interface UseProductFormFieldsParams {
   form: UseFormReturn<CreateProductFormValues>;
   sourceAttributes: AttributeDto[] | null | undefined;
+  disableProductTypeField?: boolean;
+  canUseProductTypes?: boolean;
+  canUseProductVariants?: boolean;
+  canUseCatalogSaleUnits?: boolean;
   isActive?: boolean;
   includeCategories?: boolean;
   supportsBrands?: boolean;
   supportsCategoryDetails?: boolean;
+  schemaProductTypeId?: string | null;
+  onProductTypeChange?: (productTypeId: string | null) => void;
+  useSelectedProductTypeSchema?: boolean;
 }
 
 export function useProductFormFields({
   form,
   sourceAttributes,
+  disableProductTypeField = false,
+  canUseProductTypes = false,
+  canUseProductVariants = false,
+  canUseCatalogSaleUnits = false,
   isActive = false,
   includeCategories = true,
   supportsBrands = true,
   supportsCategoryDetails = true,
+  schemaProductTypeId,
+  onProductTypeChange,
+  useSelectedProductTypeSchema = true,
 }: UseProductFormFieldsParams) {
   const shouldUseBrands = supportsBrands;
   const brandsQuery = useBrandControllerGetAll({
@@ -71,132 +88,145 @@ export function useProductFormFields({
       refetchOnWindowFocus: false,
     },
   });
+  const productTypesQuery = useProductTypeControllerGetAll(undefined, {
+    query: {
+      enabled: isActive && canUseProductTypes,
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    },
+  });
+  const selectedProductTypeId =
+    schemaProductTypeId === undefined ? form.watch("productTypeId") : undefined;
+  const resolvedSchemaProductTypeId =
+    schemaProductTypeId === undefined
+      ? selectedProductTypeId
+      : schemaProductTypeId;
+  const matrixSchemaQuery = useProductTypeControllerGetMatrixEditorSchema(
+    resolvedSchemaProductTypeId ?? "",
+    {
+      query: {
+        enabled:
+          isActive &&
+          canUseProductTypes &&
+          useSelectedProductTypeSchema &&
+          Boolean(resolvedSchemaProductTypeId),
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
+      },
+    },
+  );
+  const matrixAttributes = React.useMemo(
+    () => buildAttributesFromProductTypeMatrixSchema(matrixSchemaQuery.data),
+    [matrixSchemaQuery.data],
+  );
+  const shouldResolveFromProductType = shouldResolveProductTypeAttributes({
+    canUseProductTypes,
+    productTypeId: resolvedSchemaProductTypeId,
+    useSelectedProductTypeSchema,
+  });
+  const productTypeAttributes = React.useMemo(
+    () =>
+      resolveProductTypeAttributes({
+        matrixAttributes,
+        shouldResolveFromProductType,
+      }),
+    [matrixAttributes, shouldResolveFromProductType],
+  );
+  const resolvedProductAttributes = React.useMemo(
+    () =>
+      mergeProductEditorAttributes({
+        productTypeAttributes,
+        sourceAttributes,
+      }),
+    [productTypeAttributes, sourceAttributes],
+  );
 
   const productAttributes = React.useMemo(
-    () =>
-      sortAttributesByDisplayOrder(
-        (sourceAttributes ?? []).filter(
-          (attribute) => !attribute.isHidden && !attribute.isVariantAttribute,
-        ),
-      ),
-    [sourceAttributes],
+    () => getProductEditorProductAttributes(resolvedProductAttributes),
+    [resolvedProductAttributes],
   );
 
   const variantAttributes = React.useMemo(
     () =>
-      sortAttributesByDisplayOrder(
-        (sourceAttributes ?? []).filter(
-          (attribute) =>
-            !attribute.isHidden &&
-            attribute.isVariantAttribute &&
-            attribute.dataType === AttributeDtoDataType.ENUM,
-        ),
-      ),
-    [sourceAttributes],
+      getProductEditorVariantAttributes({
+        canUseProductVariants,
+        isMatrixSchemaError: matrixSchemaQuery.isError,
+        productTypeAttributes,
+        shouldResolveFromProductType,
+      }),
+    [
+      canUseProductVariants,
+      matrixSchemaQuery.isError,
+      productTypeAttributes,
+      shouldResolveFromProductType,
+    ],
   );
-
-  const discountAttributes = React.useMemo(
-    () => productAttributes.filter((attribute) => isDiscountAttribute(attribute)),
-    [productAttributes],
+  const isProductTypeSchemaResolving =
+    shouldResolveFromProductType &&
+    (matrixSchemaQuery.isLoading || matrixSchemaQuery.isFetching);
+  const watchedSaleUnits = form.watch("saleUnits");
+  const hasSaleUnitPricing = React.useMemo(
+    () => (watchedSaleUnits ?? []).some(isSaleUnitPricingDraftTouched),
+    [watchedSaleUnits],
   );
+  const shouldUsePercentDiscountOnly =
+    (canUseProductVariants && variantAttributes.length > 0) ||
+    (canUseCatalogSaleUnits && hasSaleUnitPricing);
 
   const brandOptions = React.useMemo(
-    () =>
-      shouldUseBrands
-        ? [...(brandsQuery.data ?? [])]
-        .sort((left, right) => left.name.localeCompare(right.name, "ru"))
-        .map((brand) => ({
-          label: brand.name,
-          value: brand.id,
-        }))
-        : [],
+    () => buildBrandOptions(brandsQuery.data, shouldUseBrands),
     [brandsQuery.data, shouldUseBrands],
   );
 
   const categoryOptions = React.useMemo(
-    () =>
-      [...(categoriesQuery.data ?? [])]
-        .sort((left, right) => left.name.localeCompare(right.name, "ru"))
-        .map((category) => ({
-          label: category.name,
-          value: category.id,
-        })),
+    () => buildCategoryOptions(categoriesQuery.data),
     [categoriesQuery.data],
+  );
+  const productTypeOptions = React.useMemo(
+    () => buildProductTypeOptions(productTypesQuery.data),
+    [productTypesQuery.data],
   );
 
   const hasDiscount = form.watch("hasDiscount");
 
   const discountAttributeIds = React.useMemo(
-    () => discountAttributes.map((attribute) => attribute.id),
-    [discountAttributes],
+    () => getDiscountAttributeIds(productAttributes),
+    [productAttributes],
   );
 
   const visibleAttributes = React.useMemo(
     () =>
-      hasDiscount
-        ? productAttributes
-        : productAttributes.filter((attribute) => !isDiscountAttribute(attribute)),
-    [hasDiscount, productAttributes],
+      filterVisibleDiscountAttributes(productAttributes, {
+        hasDiscount,
+        shouldUsePercentDiscountOnly,
+      }),
+    [hasDiscount, productAttributes, shouldUsePercentDiscountOnly],
   );
 
   const baseFormFields = React.useMemo(
     () => {
-      const customFields = [
-        shouldUseBrands
-          ? {
-              name: "brandId",
-              label: "Бренд",
-              component: CreateProductBrandField,
-              options: brandOptions,
-              placeholder: "Выбрать бренд",
-              hideError: true,
-              orientation: "horizontal",
-              labelClassName: CREATE_PRODUCT_FORM_LABEL_CLASS,
-              className: CREATE_PRODUCT_FORM_FIELD_CLASS,
-              layout: { colSpan: 2, order: 40 },
-            }
-          : null,
-        includeCategories
-          ? {
-              name: "categoryIds",
-              label: "Категории",
-              component: (
-                props: DynamicFieldRenderProps<CreateProductFormValues>,
-              ) =>
-                React.createElement(CreateProductCategoriesField, {
-                  ...props,
-                  supportsCategoryDetails,
-                }),
-              options: categoryOptions,
-              placeholder: "Выбрать категорию",
-              hideError: true,
-              orientation: "horizontal",
-              labelClassName: CREATE_PRODUCT_FORM_LABEL_CLASS,
-              className: CREATE_PRODUCT_FORM_FIELD_CLASS,
-              multiple: true,
-              layout: { colSpan: 2, order: 50 },
-            }
-          : null,
-        {
-          name: "hasDiscount",
-          label: "Есть скидка",
-          kind: "checkbox",
-          hideError: true,
-          orientation: "horizontal",
-          className: "items-center",
-          layout: { colSpan: 2, order: 70 },
-        },
-      ].filter(Boolean);
+      const customFields = buildProductEditorCustomFields({
+        brandOptions,
+        canUseProductTypes,
+        categoryOptions,
+        disableProductTypeField,
+        includeCategories,
+        onProductTypeChange,
+        productTypeOptions,
+        shouldUseBrands,
+        supportsCategoryDetails,
+      });
 
-      return buildCreateProductFormFields(
-        visibleAttributes,
-        customFields as ReturnType<typeof buildCreateProductFormFields>[number][],
-      );
+      return buildCreateProductFormFields(visibleAttributes, customFields);
     },
     [
       brandOptions,
+      canUseProductTypes,
       categoryOptions,
+      disableProductTypeField,
       includeCategories,
+      onProductTypeChange,
+      productTypeOptions,
       shouldUseBrands,
       supportsCategoryDetails,
       visibleAttributes,
@@ -210,91 +240,27 @@ export function useProductFormFields({
   }, [form, shouldUseBrands]);
 
   const formFields = React.useMemo(() => {
-    const discountAttribute =
-      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discount") ?? null;
-    const discountedPriceAttribute =
-      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discountedprice") ?? null;
-    const discountStartAttribute =
-      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discountstartat") ?? null;
-    const discountEndAttribute =
-      productAttributes.find((a) => normalizeAttributeKey(a.key) === "discountendat") ?? null;
-
-    const discountFieldName = discountAttribute
-      ? `attributes.${discountAttribute.id}`
-      : null;
-    const discountedPriceFieldName = discountedPriceAttribute
-      ? `attributes.${discountedPriceAttribute.id}`
-      : null;
-    const discountStartFieldName = discountStartAttribute
-      ? `attributes.${discountStartAttribute.id}`
-      : null;
-    const discountEndFieldName = discountEndAttribute
-      ? `attributes.${discountEndAttribute.id}`
-      : null;
-    const discountEndAttributeId = discountEndAttribute?.id ?? null;
-
-    const hasRangePair = Boolean(
-      discountStartFieldName && discountEndFieldName,
-    );
-
-    if (!discountFieldName && !discountedPriceFieldName && !hasRangePair) {
-      return baseFormFields;
-    }
-
-    return baseFormFields
-      .filter((field) => {
-        if (!discountStartFieldName || !discountEndFieldName) {
-          return true;
-        }
-
-        return String(field.name) !== discountEndFieldName;
-      })
-      .map((field) => {
-        const fieldName = String(field.name);
-
-        if (discountFieldName && fieldName === discountFieldName) {
-          return {
-            ...field,
-            component: (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
-              React.createElement(CreateProductDiscountLinkedField, {
-                ...props,
-                mode: "discount",
-                relatedAttributeId: discountedPriceAttribute?.id,
-              }),
-          };
-        }
-
-        if (
-          discountStartFieldName &&
-          discountEndFieldName &&
-          discountEndAttributeId &&
-          fieldName === discountStartFieldName
-        ) {
-          return {
-            ...field,
-            component: (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
-              React.createElement(CreateProductDiscountDateRangeField, {
-                ...props,
-                relatedAttributeId: discountEndAttributeId,
-              }),
-          };
-        }
-
-        if (discountedPriceFieldName && fieldName === discountedPriceFieldName) {
-          return {
-            ...field,
-            component: (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
-              React.createElement(CreateProductDiscountLinkedField, {
-                ...props,
-                mode: "discounted-price",
-                relatedAttributeId: discountAttribute?.id,
-              }),
-          };
-        }
-
-        return field;
-      });
-  }, [baseFormFields, productAttributes]);
+    return patchProductDiscountFields({
+      fields: baseFormFields,
+      productAttributes,
+      renderDiscountDateRangeField:
+        ({ relatedAttributeId }) =>
+        (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
+          React.createElement(CreateProductDiscountDateRangeField, {
+            ...props,
+            relatedAttributeId,
+          }),
+      renderDiscountLinkedField:
+        ({ mode, relatedAttributeId }) =>
+        (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
+          React.createElement(CreateProductDiscountLinkedField, {
+            ...props,
+            mode,
+            relatedAttributeId,
+          }),
+      shouldUsePercentDiscountOnly,
+    });
+  }, [baseFormFields, productAttributes, shouldUsePercentDiscountOnly]);
 
   React.useEffect(() => {
     if (!isActive) {
@@ -302,21 +268,13 @@ export function useProductFormFields({
     }
 
     const currentValues = form.getValues("attributes");
-    const nextValues = { ...currentValues };
-    let changed = false;
+    const result = applyBooleanAttributeDefaults(
+      productAttributes,
+      currentValues,
+    );
 
-    for (const attribute of productAttributes) {
-      if (
-        attribute.dataType === AttributeDtoDataType.BOOLEAN &&
-        nextValues[attribute.id] === undefined
-      ) {
-        nextValues[attribute.id] = false;
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      form.setValue("attributes", nextValues);
+    if (result.changed) {
+      form.setValue("attributes", result.values);
     }
   }, [form, isActive, productAttributes]);
 
@@ -326,23 +284,35 @@ export function useProductFormFields({
     }
 
     const currentValues = form.getValues("attributes");
-    const nextValues = { ...currentValues };
-    let changed = false;
+    const result = clearAttributeValues(discountAttributeIds, currentValues);
 
-    for (const attributeId of discountAttributeIds) {
-      if (nextValues[attributeId] !== null) {
-        nextValues[attributeId] = null;
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      form.setValue("attributes", nextValues);
+    if (result.changed) {
+      form.setValue("attributes", result.values);
     }
   }, [discountAttributeIds, form, hasDiscount]);
 
+  React.useEffect(() => {
+    if (!shouldUsePercentDiscountOnly) {
+      return;
+    }
+
+    const currentValues = form.getValues("attributes");
+    const discountedPriceAttributeId = getDiscountedPriceAttributeIdToReset(
+      productAttributes,
+      currentValues,
+    );
+    if (!discountedPriceAttributeId) {
+      return;
+    }
+
+    form.setValue(`attributes.${discountedPriceAttributeId}`, null, {
+      shouldDirty: true,
+    });
+  }, [form, productAttributes, shouldUsePercentDiscountOnly]);
+
   return {
     formFields,
+    isProductTypeSchemaResolving,
     productAttributes,
     variantAttributes,
     visibleAttributes,

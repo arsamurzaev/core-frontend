@@ -5,6 +5,8 @@ import {
   buildCartTotals,
   type CartItemView,
 } from "@/core/modules/cart/model/cart-item-view";
+import { getCartItemSaleUnitId } from "@/core/modules/cart/model/cart-line-key";
+import { buildCartLineSelectionKey } from "@/core/modules/cart/model/cart-line-selection";
 import {
   getProductControllerGetByIdQueryOptions,
   type CartDto,
@@ -39,7 +41,8 @@ export function useCartDerivedState({
   fallbackCurrency,
 }: UseCartDerivedStateParams) {
   const productIds = React.useMemo(
-    () => Array.from(new Set((cart?.items ?? []).map((item) => item.productId))),
+    () =>
+      Array.from(new Set((cart?.items ?? []).map((item) => item.productId))),
     [cart?.items],
   );
 
@@ -83,8 +86,23 @@ export function useCartDerivedState({
     [cart?.items],
   );
 
+  const quantityByLineKey = React.useMemo(
+    () =>
+      (cart?.items ?? []).reduce<Record<string, number>>((acc, item) => {
+        const lineKey = buildCartLineSelectionKey({
+          productId: item.productId,
+          saleUnitId: getCartItemSaleUnitId(item),
+          variantId: item.variantId,
+        });
+        acc[lineKey] = (acc[lineKey] ?? 0) + item.quantity;
+        return acc;
+      }, {}),
+    [cart?.items],
+  );
+
   return {
     items,
+    quantityByLineKey,
     quantityByProductId,
     totals,
   };
