@@ -9,6 +9,7 @@ import {
   buildCartLineSnapshot,
   getCartProductLinesSummary,
 } from "@/core/modules/cart/model/cart-product-card-footer-state";
+import { buildCartProductCardSnapshot } from "@/core/modules/cart/model/cart-product-snapshot";
 import { CartProductCardFooterPrice } from "@/core/modules/cart/ui/cart-product-card-footer-price";
 import { CartProductCardFooterQuantity } from "@/core/modules/cart/ui/cart-product-card-footer-quantity";
 import { CartProductCardFooterSummary } from "@/core/modules/cart/ui/cart-product-card-footer-summary";
@@ -38,6 +39,14 @@ export const CartProductCardFooterAction = React.memo(
     const canUseProductVariants = features.canUseProductVariants;
     const { items } = useCart();
     const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
+    const productSnapshot = React.useMemo(
+      () =>
+        buildCartProductCardSnapshot(product, {
+          canUseVariants: canUseProductVariants,
+          fallbackCurrency,
+        }),
+      [canUseProductVariants, fallbackCurrency, product],
+    );
     const productCartLines = React.useMemo(
       () => items.filter((item) => item.productId === product.id),
       [items, product.id],
@@ -60,16 +69,16 @@ export const CartProductCardFooterAction = React.memo(
     const singleLineProduct = React.useMemo(
       () =>
         singleCartLine
-          ? buildCartLineSnapshot(product, singleCartLine)
-          : product,
-      [product, singleCartLine],
+          ? buildCartLineSnapshot(productSnapshot, singleCartLine)
+          : productSnapshot,
+      [productSnapshot, singleCartLine],
     );
     const productControls = useCartProductControls(
       {
         productId: product.id,
         variantId: singleVariantId,
       },
-      product,
+      productSnapshot,
       {
         canUseProductVariants,
         maxQuantity,

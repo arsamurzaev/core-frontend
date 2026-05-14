@@ -33,7 +33,7 @@ function buildCartSnapshot(
   return {
     id: product.id,
     name: product.name,
-    price: option.price ?? product.price,
+    price: option.saleUnitPrice ?? option.price ?? product.price,
     slug: product.slug,
   };
 }

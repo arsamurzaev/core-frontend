@@ -1,5 +1,6 @@
 import Script from "next/script";
 import React from "react";
+import { YandexMetrikaPageview } from "./yandex-metrika-pageview";
 
 interface YandexMetrikaProps {
   counterIds?: Array<string | null | undefined> | null;
@@ -41,6 +42,9 @@ function normalizeCounterIds(
 
 function buildYandexMetrikaSnippet(counterId: number) {
   const counterIdJson = JSON.stringify(counterId);
+  const tagUrlJson = JSON.stringify(
+    `https://mc.yandex.ru/metrika/tag.js?id=${counterId}`,
+  );
 
   return `
     (function(m,e,t,r,i,k,a){
@@ -50,7 +54,7 @@ function buildYandexMetrikaSnippet(counterId: number) {
         if (document.scripts[j].src === r) { return; }
       }
       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js', 'ym');
+    })(window, document,'script',${tagUrlJson}, 'ym');
 
     window.dataLayer = window.dataLayer || [];
     ym(${counterIdJson}, 'init', {
@@ -99,6 +103,9 @@ export const YandexMetrika: React.FC<YandexMetrikaProps> = ({
           </div>
         ))}
       </noscript>
+      <React.Suspense fallback={null}>
+        <YandexMetrikaPageview counterIds={normalizedCounterIds} />
+      </React.Suspense>
     </>
   );
 };

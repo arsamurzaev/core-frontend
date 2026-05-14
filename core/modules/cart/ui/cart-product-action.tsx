@@ -5,12 +5,14 @@ import {
   shouldRenderCartProductVariantDrawer,
   shouldShowCartProductActionQuantity,
 } from "@/core/modules/cart/model/cart-product-action-state";
+import { buildCartProductCardSnapshot } from "@/core/modules/cart/model/cart-product-snapshot";
 import { CartProductActionButton } from "@/core/modules/cart/ui/cart-product-action-button";
 import { CartProductVariantDrawer } from "@/core/modules/cart/ui/cart-product-variant-drawer";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";
 
@@ -26,6 +28,7 @@ export const CartProductAction = React.memo(function CartProductAction({
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
   const canUseProductVariants = features.canUseProductVariants;
+  const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
   const [isVariantDrawerOpen, setIsVariantDrawerOpen] = React.useState(false);
   const handleVariantSelectionRequired = React.useCallback(() => {
     setIsVariantDrawerOpen(true);
@@ -47,13 +50,21 @@ export const CartProductAction = React.memo(function CartProductAction({
     canUseVariants: canUseProductVariants,
     shouldEnforceStock,
   });
+  const productSnapshot = React.useMemo(
+    () =>
+      buildCartProductCardSnapshot(product, {
+        canUseVariants: canUseProductVariants,
+        fallbackCurrency,
+      }),
+    [canUseProductVariants, fallbackCurrency, product],
+  );
   const { handleAdd, isBusy, isIncrementDisabled, quantity } =
     useCartProductControls(
       {
         productId: product.id,
         variantId: singleVariantId,
       },
-      product,
+      productSnapshot,
       {
         canUseProductVariants,
         maxQuantity,

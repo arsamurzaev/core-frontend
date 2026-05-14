@@ -122,6 +122,24 @@ describe("buildCartItemView", () => {
     expect(view.originalLineTotal).toBeNull();
   });
 
+  it("keeps a positive line total even when product price snapshot is absent", () => {
+    const view = buildCartItemView({
+      fallbackCurrency: "RUB",
+      item: cartItem({
+        lineTotal: 240,
+        product: {
+          id: "product-1",
+          name: "Coffee",
+          slug: "coffee",
+          price: null,
+        },
+      }),
+    });
+
+    expect(view.displayLineTotal).toBe(240);
+    expect(view.originalLineTotal).toBe(240);
+  });
+
   it("resolves sale unit label from product variant sale units", () => {
     const view = buildCartItemView({
       fallbackCurrency: "RUB",

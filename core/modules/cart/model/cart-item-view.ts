@@ -156,10 +156,13 @@ function getBackendPricing(item: CartItemDto) {
 }
 
 function isCartItemPriceKnown(item: CartItemDto): boolean {
+  const lineTotal = toNumberValue(item.lineTotal);
+
   return (
     toNumberValue(item.saleUnit?.price ?? null) !== null ||
     toNumberValue(item.variant?.price ?? null) !== null ||
-    toNumberValue(item.product.price) !== null
+    toNumberValue(item.product.price) !== null ||
+    (lineTotal !== null && lineTotal > 0)
   );
 }
 
