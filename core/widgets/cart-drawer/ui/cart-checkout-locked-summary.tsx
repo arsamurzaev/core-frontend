@@ -22,7 +22,9 @@ export const CartCheckoutLockedSummary: React.FC<
       <h3 className="text-base font-semibold">Способ заказа</h3>
       <div className="space-y-1 text-sm text-muted-foreground">
         {lines.map((line) => (
-          <p key={line}>{line}</p>
+          <p key={line} className="whitespace-pre-wrap">
+            {line}
+          </p>
         ))}
       </div>
     </section>

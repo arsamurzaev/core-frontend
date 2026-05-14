@@ -97,6 +97,7 @@ export function CreateProductCategoriesField(
 
       <CreateProductCategoryEditorDrawer
         open={isCreateDrawerOpen}
+        nested
         onOpenChange={(nextOpen) => {
           setIsCreateDrawerOpen(nextOpen);
           if (!nextOpen && !isCreateBusy) {
@@ -121,6 +122,7 @@ export function CreateProductCategoriesField(
 
       <CreateProductCategoryEditorDrawer
         open={Boolean(editingCategory)}
+        nested
         onOpenChange={handleEditOpenChange}
         title="Редактор категории"
         description="Измените категорию. Обновление сразу попадет в список выбора товара."
@@ -141,6 +143,7 @@ export function CreateProductCategoriesField(
 
       <ConfirmationDrawer
         open={Boolean(deletingCategory)}
+        drawerProps={{ nested: true }}
         onOpenChange={(nextOpen) => {
           if (!nextOpen) {
             setDeletingCategory(null);

@@ -37,6 +37,16 @@ interface ProductCardLayoutProps {
   isDetailed?: boolean;
 }
 
+function hasVisibleProductVariantSummary(
+  data: ProductWithAttributesDto,
+): boolean {
+  return Boolean(
+    data.productType?.id &&
+    ((data.variantSummary?.activeCount ?? 0) > 0 ||
+      data.variantPickerOptions.some((option) => option.status !== "DISABLED")),
+  );
+}
+
 const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
   className,
   isDetailed,
@@ -235,7 +245,8 @@ const ProductCardBase: React.FC<Props> = ({
     pricePrefix,
     subtitle,
   } = buildProductCardView(data, {
-    canUseVariants: features.canUseProductVariants,
+    canUseVariants:
+      features.canUseProductVariants || hasVisibleProductVariantSummary(data),
     fallbackCurrency,
   });
 

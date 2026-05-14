@@ -46,8 +46,12 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   onAfterClose,
 }) => {
   const { catalog } = useCatalogState();
+  const productSlugForApi = React.useMemo(
+    () => encodeURIComponent(productSlug),
+    [productSlug],
+  );
   const { data, isError, isLoading } = useProductControllerGetBySlug(
-    productSlug,
+    productSlugForApi,
     {
       query: {
         enabled: Boolean(productSlug) && !product,
@@ -57,10 +61,9 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
     },
   );
   const resolvedProduct = product ?? data ?? initialProduct ?? null;
-  const resolvedPreviewProduct = resolvedProduct
-    ? null
-    : (previewProduct ?? null);
-  const shouldShowSkeleton = isLoading && !resolvedPreviewProduct;
+  const resolvedPreviewProduct = previewProduct ?? null;
+  const shouldShowSkeleton =
+    isLoading && !resolvedProduct && !resolvedPreviewProduct;
   const viewModel = React.useMemo(
     () =>
       buildProductDrawerViewModel({

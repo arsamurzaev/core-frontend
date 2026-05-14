@@ -277,6 +277,30 @@ describe("edit product drawer data", () => {
     expect(payload).toHaveProperty("productTypeId", "product-type-1");
   });
 
+  it("clears existing brand in update payload", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1000",
+        brandId: undefined,
+      },
+      mediaIds: [],
+      persistedAttributeValues: {},
+      product: product({
+        brand: {
+          id: "brand-1",
+          name: "Brand",
+          slug: "brand",
+        },
+      }),
+      productAttributes: [],
+      canUseCatalogSaleUnits: true,
+    });
+
+    expect(payload).toHaveProperty("brandId", null);
+  });
+
   it("clears product type in update payload", () => {
     const payload = parseEditProductUpdatePayload({
       formValues: {

@@ -1,8 +1,10 @@
 "use client";
 
+import type { ProductDrawerAttributeRow } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 interface ProductDrawerOverviewHeaderProps {
+  brandName?: string;
   description: string;
   displayName: string;
   hasError: boolean;
@@ -11,12 +13,13 @@ interface ProductDrawerOverviewHeaderProps {
 }
 
 interface ProductDrawerOverviewMetaProps {
-  brandName?: string;
+  attributeRows: ProductDrawerAttributeRow[];
   isLoading: boolean;
   variantsSummary: string | null;
 }
 
 export function ProductDrawerOverviewHeader({
+  brandName,
   description,
   displayName,
   hasError,
@@ -37,9 +40,10 @@ export function ProductDrawerOverviewHeader({
         </>
       ) : (
         <>
-          <h2 className="text-2xl font-bold sm:text-3xl">
-            {displayName}
-          </h2>
+          {brandName ? (
+            <p className="text-sm font-semibold text-black">{brandName}</p>
+          ) : null}
+          <h2 className="text-2xl font-bold sm:text-3xl">{displayName}</h2>
           {subtitle ? (
             <p className="text-left text-base font-light text-foreground sm:text-lg">
               {subtitle}
@@ -63,7 +67,7 @@ export function ProductDrawerOverviewHeader({
 }
 
 export function ProductDrawerOverviewMeta({
-  brandName,
+  attributeRows,
   isLoading,
   variantsSummary,
 }: ProductDrawerOverviewMetaProps) {
@@ -76,17 +80,23 @@ export function ProductDrawerOverviewMeta({
     );
   }
 
-  if (!brandName && !variantsSummary) {
+  if (!variantsSummary && attributeRows.length === 0) {
     return null;
   }
 
   return (
     <div className="space-y-1 px-4 pb-4 text-left">
-      {brandName ? (
-        <p className="text-muted-foreground text-xs sm:text-sm">
-          <span className="text-foreground font-medium">Бренд:</span> {brandName}
+      {attributeRows.map((attribute) => (
+        <p
+          key={attribute.id}
+          className="text-muted-foreground text-xs sm:text-sm"
+        >
+          <span className="text-foreground font-medium">
+            {attribute.label}:
+          </span>{" "}
+          {attribute.value}
         </p>
-      ) : null}
+      ))}
       {variantsSummary ? (
         <p className="text-muted-foreground text-xs sm:text-sm">
           <span className="text-foreground font-medium">Вариации:</span>{" "}

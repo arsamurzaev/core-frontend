@@ -29,7 +29,7 @@ export function resolveCartDrawerContentState(params: {
   const isCheckoutEnabled = params.isCheckoutEnabled !== false;
   const hasCheckoutMethod = isCheckoutEnabled && params.checkoutMethod !== null;
   const shouldShowReadonlyComment =
-    params.isCommentLocked && Boolean(normalizedComment);
+    isCheckoutEnabled && params.isCommentLocked && Boolean(normalizedComment);
 
   return {
     hasCheckoutMethods:
@@ -38,7 +38,7 @@ export function resolveCartDrawerContentState(params: {
       hasCheckoutMethod,
     hasItems,
     normalizedComment,
-    shouldShowCommentEditor: !params.isCommentLocked,
+    shouldShowCommentEditor: isCheckoutEnabled && !params.isCommentLocked,
     shouldShowReadonlyComment,
     shouldShowReadonlySection:
       params.isCommentLocked &&

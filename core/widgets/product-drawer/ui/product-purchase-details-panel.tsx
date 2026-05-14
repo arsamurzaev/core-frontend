@@ -29,6 +29,32 @@ interface ProductPurchaseDetailsPanelProps {
   viewModel: ProductDrawerViewModel;
 }
 
+function hasVisibleProductVariantData(
+  product: ProductWithDetailsDto | null,
+): boolean {
+  if (!product?.productType?.id) {
+    return false;
+  }
+
+  return (
+    product.variants.some((variant) => variant.status !== "DISABLED") ||
+    product.variantPickerOptions.some(
+      (option) => option.status !== "DISABLED",
+    ) ||
+    (product.variantSummary?.activeCount ?? 0) > 0
+  );
+}
+
+function hasVisibleSaleUnitData(
+  product: ProductWithDetailsDto | null,
+): boolean {
+  return (
+    product?.variants.some((variant) =>
+      variant.saleUnits.some((unit) => unit.isActive),
+    ) ?? false
+  );
+}
+
 export function ProductPurchaseDetailsPanel({
   className,
   footerClassName,
@@ -45,10 +71,13 @@ export function ProductPurchaseDetailsPanel({
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
   const { shouldUseCartUi } = useCart();
-  const canUseProductVariants = features.canUseProductVariants;
+  const canUseProductVariants =
+    features.canUseProductVariants || hasVisibleProductVariantData(product);
+  const canUseCatalogSaleUnits =
+    features.canUseCatalogSaleUnits || hasVisibleSaleUnitData(product);
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
   const purchaseSelection = useProductPurchaseSelection({
-    canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    canUseCatalogSaleUnits,
     canUseProductVariants,
     initialSaleUnitId,
     initialVariantId,
@@ -60,6 +89,7 @@ export function ProductPurchaseDetailsPanel({
 
   return (
     <ProductDetailsPanel
+      attributeRows={viewModel.attributeRows}
       brandName={viewModel.brandName ?? undefined}
       className={className}
       currency={viewModel.currency}
@@ -78,7 +108,7 @@ export function ProductPurchaseDetailsPanel({
               purchaseSelection.isVariantSelectionRequired
             }
             saleUnitId={
-              features.canUseCatalogSaleUnits
+              canUseCatalogSaleUnits
                 ? purchaseSelection.selectedSaleUnit?.id
                 : undefined
             }
@@ -91,7 +121,9 @@ export function ProductPurchaseDetailsPanel({
         ) : null
       }
       footerClassName={footerClassName}
-      hasDiscount={purchaseSelection.hasSelectedDiscount || viewModel.hasDiscount}
+      hasDiscount={
+        purchaseSelection.hasSelectedDiscount || viewModel.hasDiscount
+      }
       hasError={viewModel.hasError}
       imageUrls={viewModel.imageUrls}
       isLoading={isLoading}
@@ -113,7 +145,7 @@ export function ProductPurchaseDetailsPanel({
         ) : null
       }
       saleUnitPicker={
-        features.canUseCatalogSaleUnits && product ? (
+        canUseCatalogSaleUnits && product ? (
           <ProductSaleUnitPicker
             currency={viewModel.currency}
             onChange={purchaseSelection.setSelectedSaleUnitId}
@@ -122,9 +154,7 @@ export function ProductPurchaseDetailsPanel({
           />
         ) : null
       }
-      variantsSummary={
-        canUseProductVariants ? viewModel.variantsSummary : null
-      }
+      variantsSummary={canUseProductVariants ? viewModel.variantsSummary : null}
     />
   );
 }

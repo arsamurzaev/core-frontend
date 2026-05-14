@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type {
+  CatalogContactDto,
   CatalogCurrentDto,
   CatalogSettingsDto,
 } from "@/shared/api/generated/react-query";
-import { getCatalogCheckoutConfig } from "./checkout-methods";
+import { CatalogContactDtoType } from "@/shared/api/generated/react-query";
+import {
+  getCatalogCheckoutConfig,
+  getCatalogCheckoutLocation,
+} from "./checkout-methods";
 
 function catalogType(code: string): CatalogCurrentDto["type"] {
   return {
@@ -37,9 +42,10 @@ function settings(
 
 function catalog(
   catalogSettings: CatalogSettingsDto | null = null,
+  contacts: CatalogContactDto[] = [],
 ): Pick<CatalogCurrentDto, "type" | "settings" | "contacts"> {
   return {
-    contacts: [],
+    contacts,
     settings: catalogSettings,
     type: catalogType("restaurant"),
   };
@@ -59,24 +65,25 @@ describe("getCatalogCheckoutConfig", () => {
       defaultEnabledMethods: ["DELIVERY", "PICKUP"],
     });
 
-    expect(config.availableMethods).toEqual([
-      "DELIVERY",
-      "PICKUP",
-      "PREORDER",
-    ]);
+    expect(config.availableMethods).toEqual(["DELIVERY", "PICKUP", "PREORDER"]);
     expect(config.enabledMethods).toEqual(["DELIVERY", "PICKUP"]);
   });
 
   it("lets catalog settings override runtime defaults within available methods", () => {
     const config = getCatalogCheckoutConfig(
-      catalog(settings({
-        checkout: {
-          availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
-          enabledMethods: ["PREORDER", "UNKNOWN"] as unknown as CatalogSettingsDto["checkout"]["enabledMethods"],
-          methodContacts: {},
-          methodFields: {},
-        },
-      })),
+      catalog(
+        settings({
+          checkout: {
+            availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
+            enabledMethods: [
+              "PREORDER",
+              "UNKNOWN",
+            ] as unknown as CatalogSettingsDto["checkout"]["enabledMethods"],
+            methodContacts: {},
+            methodFields: {},
+          },
+        }),
+      ),
       {
         availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
         defaultEnabledMethods: ["DELIVERY"],
@@ -84,5 +91,28 @@ describe("getCatalogCheckoutConfig", () => {
     );
 
     expect(config.enabledMethods).toEqual(["PREORDER"]);
+  });
+
+  it("keeps venue address formatting from catalog settings", () => {
+    const location = getCatalogCheckoutLocation(
+      catalog(
+        settings({
+          address: "  Москва\nул. Ленина, 1\nвход со двора  ",
+        }),
+        [
+          {
+            id: "contact-map",
+            type: CatalogContactDtoType.MAP,
+            position: 0,
+            value: "https://maps.example/location",
+          },
+        ],
+      ),
+    );
+
+    expect(location).toEqual({
+      address: "Москва\nул. Ленина, 1\nвход со двора",
+      mapUrl: "https://maps.example/location",
+    });
   });
 });

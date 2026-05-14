@@ -1,17 +1,32 @@
 "use client";
 
 import type {
+  ProductAttributeDto,
   ProductWithAttributesDto,
   ProductWithDetailsDto,
+  ProductAttributeRefDtoDataType,
 } from "@/shared/api/generated/react-query";
-import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
+import {
+  parseAttributes,
+  type ParsedAttribute,
+  type ParsedAttributeValue,
+  resolveAttributes,
+  toNumberValue,
+} from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
 
 type ProductDrawerEntity = ProductWithAttributesDto | ProductWithDetailsDto;
 
+export interface ProductDrawerAttributeRow {
+  id: string;
+  label: string;
+  value: string;
+}
+
 export interface ProductDrawerViewModel {
+  attributeRows: ProductDrawerAttributeRow[];
   brandName: string | null;
   currency: string;
   description: string;
@@ -27,6 +42,16 @@ export interface ProductDrawerViewModel {
   variantsSummary: string | null;
 }
 
+const SYSTEM_ATTRIBUTE_KEYS = new Set([
+  "currency",
+  "description",
+  "discount",
+  "discountedprice",
+  "discountendat",
+  "discountstartat",
+  "subtitle",
+]);
+
 function parseOptionalDate(value: unknown): Date | undefined {
   if (typeof value !== "string") {
     return undefined;
@@ -34,6 +59,121 @@ function parseOptionalDate(value: unknown): Date | undefined {
 
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+function normalizeAttributeKey(value: string): string {
+  return value.replace(/[^a-z0-9]/gi, "").toLowerCase();
+}
+
+function formatDateAttributeValue(value: string): string {
+  const date = parseOptionalDate(value);
+
+  if (!date) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    dateStyle: "medium",
+    timeStyle:
+      date.getHours() === 0 &&
+      date.getMinutes() === 0 &&
+      date.getSeconds() === 0
+        ? undefined
+        : "short",
+  }).format(date);
+}
+
+function formatAttributeValue(
+  value: ParsedAttributeValue,
+  dataType: ProductAttributeRefDtoDataType,
+): string | null {
+  if (typeof value === "string") {
+    const normalized = value.trim();
+    if (!normalized) {
+      return null;
+    }
+
+    return dataType === "DATETIME"
+      ? formatDateAttributeValue(normalized)
+      : normalized;
+  }
+
+  if (typeof value === "number") {
+    return Number.isFinite(value)
+      ? Intl.NumberFormat("ru-RU").format(value)
+      : null;
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Да" : "Нет";
+  }
+
+  return null;
+}
+
+function compareAttributeRows(left: ParsedAttribute, right: ParsedAttribute) {
+  return (
+    left.raw.attribute.displayOrder - right.raw.attribute.displayOrder ||
+    left.displayName.localeCompare(right.displayName, "ru") ||
+    left.attributeId.localeCompare(right.attributeId)
+  );
+}
+
+function shouldShowDrawerAttribute(attribute: ProductAttributeDto): boolean {
+  const meta = attribute.attribute;
+
+  if (meta.isHidden || meta.isVariantAttribute) {
+    return false;
+  }
+
+  return !SYSTEM_ATTRIBUTE_KEYS.has(normalizeAttributeKey(meta.key));
+}
+
+function buildDrawerAttributeRows(
+  product: ProductDrawerEntity | null | undefined,
+): ProductDrawerAttributeRow[] {
+  const parsedAttributes = Object.values(
+    parseAttributes(product?.productAttributes),
+  );
+
+  return parsedAttributes
+    .filter((entry) => shouldShowDrawerAttribute(entry.raw))
+    .sort(compareAttributeRows)
+    .map<ProductDrawerAttributeRow | null>((entry) => {
+      const value = formatAttributeValue(entry.value, entry.dataType);
+
+      if (!value) {
+        return null;
+      }
+
+      return {
+        id: entry.attributeId,
+        label: entry.displayName,
+        value,
+      };
+    })
+    .filter((row): row is ProductDrawerAttributeRow => row !== null);
+}
+
+function hasProductAttributes(
+  product: ProductDrawerEntity | null | undefined,
+): boolean {
+  return (product?.productAttributes?.length ?? 0) > 0;
+}
+
+function resolveAttributeProduct(
+  product: ProductDrawerEntity | null | undefined,
+  previewProduct: ProductDrawerEntity | null | undefined,
+): ProductDrawerEntity | null {
+  if (hasProductAttributes(product)) {
+    return product ?? null;
+  }
+
+  if (hasProductAttributes(previewProduct)) {
+    return previewProduct ?? null;
+  }
+
+  return product ?? previewProduct ?? null;
 }
 
 function getProductImageUrls(
@@ -49,7 +189,7 @@ function getProductImageUrls(
   return urls.length > 0 ? urls : ["/not-found-photo.png"];
 }
 
-function getVariantsSummary(
+function getFullVariantsSummary(
   product: ProductDrawerEntity | null | undefined,
 ): string | null {
   if (!product?.productType?.id || !("variants" in product)) {
@@ -77,6 +217,48 @@ function getVariantsSummary(
   return variants.size > 0 ? Array.from(variants).join(", ") : null;
 }
 
+function getVariantPickerOptionsSummary(
+  product: ProductDrawerEntity | null | undefined,
+): string | null {
+  if (!product?.productType?.id) {
+    return null;
+  }
+
+  const labels = new Set(
+    (product.variantPickerOptions ?? [])
+      .map((option) => toOptionalTrimmedString(option.label))
+      .filter((label): label is string => Boolean(label)),
+  );
+
+  return labels.size > 0 ? Array.from(labels).join(", ") : null;
+}
+
+function getVariantsSummary(
+  product: ProductDrawerEntity | null | undefined,
+  previewProduct: ProductDrawerEntity | null | undefined,
+): string | null {
+  return (
+    getFullVariantsSummary(product) ??
+    getVariantPickerOptionsSummary(product) ??
+    getVariantPickerOptionsSummary(previewProduct)
+  );
+}
+
+function getActiveVariantCount(
+  product: ProductDrawerEntity | null | undefined,
+): number {
+  if (!product?.productType?.id) {
+    return 0;
+  }
+
+  if ("variants" in product && product.variants.length > 0) {
+    return product.variants.filter((variant) => variant.status !== "DISABLED")
+      .length;
+  }
+
+  return product.variantSummary?.activeCount ?? 0;
+}
+
 export function formatProductDrawerPrice(value: number): string {
   return Intl.NumberFormat("ru-RU").format(value);
 }
@@ -98,7 +280,8 @@ export function buildProductDrawerViewModel(params: {
     supportsBrands = true,
   } = params;
   const displayProduct = product ?? previewProduct ?? null;
-  const attrs = resolveAttributes(displayProduct?.productAttributes);
+  const attributeProduct = resolveAttributeProduct(product, previewProduct);
+  const attrs = resolveAttributes(attributeProduct?.productAttributes);
 
   const subtitle = typeof attrs.subtitle === "string" ? attrs.subtitle : "";
   const description =
@@ -114,13 +297,7 @@ export function buildProductDrawerViewModel(params: {
   const discountEndAt = parseOptionalDate(attrs.discountEndAt);
 
   const price = toNumberValue(displayProduct?.price ?? null) ?? 0;
-  const displayProductVariants = displayProduct?.productType?.id
-    ? ((displayProduct as { variants?: { status?: string }[] } | null)
-        ?.variants ?? [])
-    : [];
-  const hasMultipleVariants =
-    displayProductVariants.filter((variant) => variant.status !== "DISABLED")
-      .length > 1;
+  const hasMultipleVariants = getActiveVariantCount(displayProduct) > 1;
   const pricing = calculatePrice({
     price,
     discountedPrice: hasMultipleVariants ? undefined : discountedPrice,
@@ -130,6 +307,7 @@ export function buildProductDrawerViewModel(params: {
   });
 
   return {
+    attributeRows: buildDrawerAttributeRows(attributeProduct),
     brandName: supportsBrands
       ? (toOptionalTrimmedString(displayProduct?.brand?.name) ?? null)
       : null,
@@ -144,6 +322,6 @@ export function buildProductDrawerViewModel(params: {
     price,
     shareText: displayProduct?.name,
     subtitle,
-    variantsSummary: getVariantsSummary(displayProduct),
+    variantsSummary: getVariantsSummary(product, previewProduct),
   };
 }

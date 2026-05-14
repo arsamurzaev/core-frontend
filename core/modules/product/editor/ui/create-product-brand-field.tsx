@@ -8,7 +8,7 @@ import { ConfirmationDrawer } from "@/shared/ui/confirmation-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import { Input } from "@/shared/ui/input";
-import { ChevronRight, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import { type FieldValues } from "react-hook-form";
 
 export function CreateProductBrandField<TValues extends FieldValues>(
@@ -63,13 +63,13 @@ export function CreateProductBrandField<TValues extends FieldValues>(
               className="text-muted transition-colors hover:text-foreground disabled:opacity-50"
               onClick={(event) => {
                 event.stopPropagation();
-                field.onChange(undefined);
+                field.onChange("");
                 field.onBlur();
               }}
               disabled={isControlDisabled}
-              aria-label="Очистить бренд"
+              aria-label="Убрать бренд"
             >
-              <Trash2 className="size-4" />
+              <X className="size-4" />
             </button>
           </div>
         ) : (
@@ -87,6 +87,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
 
       <AppDrawer
         open={open}
+        nested
         onOpenChange={(nextOpen) => {
           setOpen(nextOpen);
           if (!nextOpen) {
@@ -102,7 +103,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
               description="Укажите бренд или добавьте новый. Это нужно для того, чтобы пользователи легче могли найти товар или услугу по своему запросу в фильтрах."
             />
 
-            <div className="overflow-y-auto">
+            <DrawerScrollArea className="px-0 py-0">
               <hr />
 
               <form
@@ -140,7 +141,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
 
               <hr />
 
-              <DrawerScrollArea className="px-5 py-7">
+              <div className="px-5 py-7">
                 <div className="grid grid-cols-[90px_1fr] gap-3">
                   <h2 className="text-sm font-medium">Выбрать бренд:</h2>
                   <ul className="space-y-5">
@@ -163,8 +164,10 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                           <li
                             key={brand.id}
                             className={cn(
-                              "flex gap-3 border-b pb-4",
-                              isSelected ? "text-black" : "text-muted-foreground",
+                              "flex items-center gap-3 border-b pb-4",
+                              isSelected
+                                ? "text-black"
+                                : "text-muted-foreground",
                             )}
                           >
                             <Button
@@ -191,16 +194,19 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                             </Button>
                             <button
                               type="button"
-                              className="flex items-center gap-1 text-left text-base"
+                              className={cn(
+                                "flex min-w-0 flex-1 items-center text-left text-base",
+                                isSelected && "font-semibold",
+                              )}
                               disabled={isControlDisabled}
+                              aria-pressed={isSelected}
                               onClick={() =>
                                 setDraftValue((current) =>
                                   current === brand.id ? null : brand.id,
                                 )
                               }
                             >
-                              <span>{brand.name}</span>
-                              <ChevronRight className="size-3 shrink-0" />
+                              <span className="truncate">{brand.name}</span>
                             </button>
                           </li>
                         );
@@ -208,8 +214,8 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                     )}
                   </ul>
                 </div>
-              </DrawerScrollArea>
-            </div>
+              </div>
+            </DrawerScrollArea>
 
             <AppDrawer.Footer
               className="border-t"
@@ -225,6 +231,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
 
       <AppDrawer
         open={Boolean(editingBrand)}
+        nested
         onOpenChange={handleEditOpenChange}
         dismissible={!updateBrand.isPending}
       >
@@ -263,6 +270,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
 
       <ConfirmationDrawer
         open={Boolean(deletingBrand)}
+        drawerProps={{ nested: true }}
         onOpenChange={(nextOpen) => {
           if (!nextOpen) {
             setDeletingBrand(null);
@@ -282,4 +290,3 @@ export function CreateProductBrandField<TValues extends FieldValues>(
     </>
   );
 }
-

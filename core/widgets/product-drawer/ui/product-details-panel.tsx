@@ -7,10 +7,12 @@ import {
 } from "@/core/widgets/product-drawer/ui/product-drawer-overview";
 import { ProductDrawerPrice } from "@/core/widgets/product-drawer/ui/product-drawer-price";
 import { ProductDrawerShareActions } from "@/core/widgets/product-drawer/ui/product-drawer-share-actions";
+import type { ProductDrawerAttributeRow } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { cn } from "@/shared/lib/utils";
 import React from "react";
 
 interface ProductDetailsPanelProps {
+  attributeRows: ProductDrawerAttributeRow[];
   brandName?: string;
   className?: string;
   currency: string;
@@ -39,6 +41,7 @@ interface ProductDetailsPanelProps {
 }
 
 export function ProductDetailsPanel({
+  attributeRows,
   brandName,
   className,
   currency,
@@ -81,6 +84,7 @@ export function ProductDetailsPanel({
 
           <div className="pb-4">
             <ProductDrawerOverviewHeader
+              brandName={brandName}
               displayName={displayName}
               subtitle={subtitle}
               description={description}
@@ -93,7 +97,7 @@ export function ProductDetailsPanel({
           {saleUnitPicker}
 
           <ProductDrawerOverviewMeta
-            brandName={brandName}
+            attributeRows={attributeRows}
             isLoading={isLoading}
             variantsSummary={variantsSummary}
           />

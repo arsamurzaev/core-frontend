@@ -65,7 +65,7 @@ describe("cart drawer content state", () => {
     const state = resolveCartDrawerContentState({
       checkoutConfig,
       checkoutMethod: "DELIVERY",
-      comment: "",
+      comment: " table 5 ",
       isCheckoutEnabled: false,
       isCommentLocked: true,
       isManagedPublicCart: false,
@@ -75,6 +75,8 @@ describe("cart drawer content state", () => {
     });
 
     expect(state.hasCheckoutMethods).toBe(false);
+    expect(state.shouldShowCommentEditor).toBe(false);
+    expect(state.shouldShowReadonlyComment).toBe(false);
     expect(state.shouldShowReadonlySection).toBe(false);
   });
 });

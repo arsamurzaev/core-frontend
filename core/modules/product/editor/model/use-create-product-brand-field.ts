@@ -68,14 +68,15 @@ export function useCreateProductBrandField({
     null,
   );
   const [editName, setEditName] = React.useState("");
-  const [deletingBrand, setDeletingBrand] = React.useState<BrandListItem | null>(
-    null,
-  );
+  const [deletingBrand, setDeletingBrand] =
+    React.useState<BrandListItem | null>(null);
 
   const isControlDisabled = disabled || readOnly;
   const optionList = options ?? EMPTY_FIELD_OPTIONS;
   const selectedValue =
-    field.value === undefined || field.value === null ? "" : String(field.value);
+    field.value === undefined || field.value === null
+      ? ""
+      : String(field.value);
 
   const brandsQuery = useBrandControllerGetAll({
     query: {
@@ -122,7 +123,7 @@ export function useCreateProductBrandField({
       return;
     }
 
-    field.onChange(undefined);
+    field.onChange("");
     field.onBlur();
   }, [brandList, brandsQuery.isLoading, field, selectedValue]);
 
@@ -154,7 +155,7 @@ export function useCreateProductBrandField({
   const hasChanges = (draftValue ?? "") !== selectedValue;
 
   const handleApply = React.useCallback(() => {
-    field.onChange(draftValue ?? undefined);
+    field.onChange(draftValue ?? "");
     field.onBlur();
     setOpen(false);
   }, [draftValue, field]);
@@ -221,7 +222,11 @@ export function useCreateProductBrandField({
         id: editingBrand.id,
         data: {
           name: normalizedName,
-          slug: buildUniqueBrandSlug(normalizedName, brandList, editingBrand.id),
+          slug: buildUniqueBrandSlug(
+            normalizedName,
+            brandList,
+            editingBrand.id,
+          ),
         },
       });
       await invalidateBrands();
@@ -243,7 +248,7 @@ export function useCreateProductBrandField({
       await invalidateBrands();
 
       if (selectedValue === deletingBrand.id) {
-        field.onChange(undefined);
+        field.onChange("");
         field.onBlur();
       }
 
@@ -256,13 +261,7 @@ export function useCreateProductBrandField({
       toast.error(extractApiErrorMessage(error));
       throw error;
     }
-  }, [
-    deletingBrand,
-    field,
-    invalidateBrands,
-    removeBrand,
-    selectedValue,
-  ]);
+  }, [deletingBrand, field, invalidateBrands, removeBrand, selectedValue]);
 
   return {
     brandList,
@@ -292,4 +291,3 @@ export function useCreateProductBrandField({
     updateBrand,
   };
 }
-

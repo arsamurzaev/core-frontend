@@ -10,6 +10,7 @@ import {
 import { CreateProductCategoryImageField } from "@/core/modules/product/editor/ui/create-product-category-image-field";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { CharacterLimitedTextarea } from "@/shared/ui/character-limited-textarea";
+import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { Input } from "@/shared/ui/input";
 import { Progress } from "@/shared/ui/progress";
 import React from "react";
@@ -23,6 +24,7 @@ interface CreateProductCategoryEditorDrawerProps {
   headerAction?: React.ReactNode;
   loading?: boolean;
   name: string;
+  nested?: boolean;
   onDescriptorChange: (value: string) => void;
   onFileChange: (file: File | undefined) => void;
   onNameChange: (value: string) => void;
@@ -45,6 +47,7 @@ export function CreateProductCategoryEditorDrawer({
   headerAction,
   loading = false,
   name,
+  nested = false,
   onDescriptorChange,
   onFileChange,
   onNameChange,
@@ -58,7 +61,12 @@ export function CreateProductCategoryEditorDrawer({
   withCloseButton = true,
 }: CreateProductCategoryEditorDrawerProps) {
   return (
-    <AppDrawer open={open} onOpenChange={onOpenChange} dismissible={!disabled}>
+    <AppDrawer
+      open={open}
+      nested={nested}
+      onOpenChange={onOpenChange}
+      dismissible={!disabled}
+    >
       <AppDrawer.Content className="w-full">
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
@@ -69,7 +77,7 @@ export function CreateProductCategoryEditorDrawer({
           />
           <hr />
 
-          <div className="space-y-6 px-6 py-6">
+          <DrawerScrollArea className="space-y-6 px-6 py-6">
             <div className="space-y-2">
               <p className="text-sm font-medium">Категория:</p>
               <Input
@@ -114,7 +122,7 @@ export function CreateProductCategoryEditorDrawer({
                 <Progress value={uploadState.progress} />
               </div>
             ) : null}
-          </div>
+          </DrawerScrollArea>
 
           <AppDrawer.Footer
             className="border-t"

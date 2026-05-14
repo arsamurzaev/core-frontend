@@ -103,9 +103,7 @@ export function buildCartDrawerCheckoutOrderInput(params: {
   isCheckoutLocked: boolean;
 }): PrepareShareOrderInput {
   if (params.isCheckoutEnabled === false) {
-    return {
-      comment: params.comment,
-    };
+    return {};
   }
 
   const checkoutData = params.isCheckoutLocked

@@ -151,7 +151,7 @@ describe("cart drawer checkout model", () => {
     ).toEqual({ address: "Saved address" });
   });
 
-  it("builds order input without checkout fields when checkout is disabled", () => {
+  it("builds empty order input when checkout is disabled", () => {
     expect(
       buildCartDrawerCheckoutOrderInput({
         checkoutValidationData: { address: "Draft address" },
@@ -161,8 +161,6 @@ describe("cart drawer checkout model", () => {
         isCheckoutEnabled: false,
         isCheckoutLocked: false,
       }),
-    ).toEqual({
-      comment: "table 5",
-    });
+    ).toEqual({});
   });
 });

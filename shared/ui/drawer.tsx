@@ -9,10 +9,23 @@ import { Drawer as DrawerPrimitive } from "vaul";
  */
 function Drawer({
   handleOnly = false,
+  nested = false,
   repositionInputs = false,
   scrollLockTimeout = 300,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
+  if (nested) {
+    return (
+      <DrawerPrimitive.NestedRoot
+        data-slot="drawer"
+        handleOnly={handleOnly}
+        repositionInputs={repositionInputs}
+        scrollLockTimeout={scrollLockTimeout}
+        {...props}
+      />
+    );
+  }
+
   return (
     <DrawerPrimitive.Root
       data-slot="drawer"

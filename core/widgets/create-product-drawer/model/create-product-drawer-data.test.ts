@@ -28,6 +28,26 @@ function attribute(overrides: Partial<AttributeDto> = {}): AttributeDto {
 }
 
 describe("create product drawer data", () => {
+  it("omits brand id when brand is cleared", () => {
+    const payload = parseCreateProductPayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Box",
+        price: "1000",
+        brandId: "",
+      },
+      mediaIds: [],
+      normalizedPrice: 1000,
+      productAttributes: [],
+      variantAttributes: [],
+      canUseProductTypes: true,
+      canUseProductVariants: true,
+      canUseCatalogSaleUnits: false,
+    });
+
+    expect(payload).not.toHaveProperty("brandId");
+  });
+
   it("keeps base sale units when variants feature is disabled", () => {
     expect(
       parseCreateProductPayload({

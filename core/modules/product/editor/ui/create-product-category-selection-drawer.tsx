@@ -39,6 +39,7 @@ export function CreateProductCategorySelectionDrawer({
   return (
     <AppDrawer
       open={open}
+      nested
       onOpenChange={onOpenChange}
       dismissible={!isControlDisabled}
     >
@@ -49,7 +50,7 @@ export function CreateProductCategorySelectionDrawer({
             description="Укажите категорию или добавьте новую. Это нужно для того, чтобы пользователи легче могли найти товар или услугу по своему запросу в фильтрах."
           />
 
-          <div className="overflow-y-auto">
+          <DrawerScrollArea className="px-0 py-0">
             <hr />
 
             <div className="p-5">
@@ -65,7 +66,7 @@ export function CreateProductCategorySelectionDrawer({
 
             <hr />
 
-            <DrawerScrollArea className="px-5 py-7">
+            <div className="px-5 py-7">
               <div className="grid grid-cols-[90px_1fr] gap-3">
                 <h2 className="text-sm font-medium">Выбрать категорию:</h2>
                 <ul className="space-y-5">
@@ -129,8 +130,8 @@ export function CreateProductCategorySelectionDrawer({
                   )}
                 </ul>
               </div>
-            </DrawerScrollArea>
-          </div>
+            </div>
+          </DrawerScrollArea>
 
           <AppDrawer.Footer
             className="border-t"
@@ -145,4 +146,3 @@ export function CreateProductCategorySelectionDrawer({
     </AppDrawer>
   );
 }
-

@@ -59,7 +59,7 @@ export const CartDrawerCommentSection: React.FC<
       <p className="text-sm">
         Пожалуйста, впишите в поле ваши пожелания или комментарий к заказу.
         Это нужно для того, чтобы мы лучше поняли, что нужно
-        РІР°Рј.
+        вам.
       </p>
 
       <div className="space-y-3">
