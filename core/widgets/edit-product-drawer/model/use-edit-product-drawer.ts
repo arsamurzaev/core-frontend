@@ -104,7 +104,6 @@ export function useEditProductDrawer(
     isActive: open,
     supportsBrands,
     supportsCategoryDetails,
-    schemaProductTypeId: currentProductTypeId,
     onProductTypeChange: handleProductTypeChange,
   });
   const persistedAttributeValues = React.useMemo(

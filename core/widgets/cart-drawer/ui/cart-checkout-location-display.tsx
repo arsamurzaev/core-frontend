@@ -8,7 +8,7 @@ interface CartCheckoutLocationDisplayProps {
   location: CheckoutLocation;
 }
 
-const LOCATION_PIN_CLASS_NAME = "mt-0.5 size-4 shrink-0 text-red-500";
+const LOCATION_PIN_CLASS_NAME = "mt-0.5 size-4 shrink-0 text-red-800";
 const LOCATION_ADDRESS_CLASS_NAME = "min-w-0 whitespace-pre-wrap break-words";
 
 export const CartCheckoutLocationDisplay: React.FC<
@@ -46,7 +46,7 @@ export const CartCheckoutLocationDisplay: React.FC<
         aria-label="Открыть карту"
         className="inline-flex size-10 items-center justify-center rounded-full border border-black/10 text-primary hover:bg-muted"
       >
-        <MapPin className="size-5 text-red-500" />
+        <MapPin className="size-5 text-red-800" />
       </a>
     );
   }

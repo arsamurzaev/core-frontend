@@ -138,7 +138,12 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
         {subtitle}
       </CardSubTitle>
       {isDetailed && (
-        <p className={cn("line-clamp-3 text-xs", isDetailed && "sm:text-sm")}>
+        <p
+          className={cn(
+            "line-clamp-3 break-words whitespace-pre-wrap text-xs",
+            isDetailed && "sm:text-sm",
+          )}
+        >
           {description}
         </p>
       )}

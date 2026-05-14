@@ -41,7 +41,7 @@ import {
 
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import React from "react";
-import { type UseFormReturn } from "react-hook-form";
+import { type UseFormReturn, useWatch } from "react-hook-form";
 
 export interface UseProductFormFieldsParams {
   form: UseFormReturn<CreateProductFormValues>;
@@ -95,8 +95,20 @@ export function useProductFormFields({
       refetchOnWindowFocus: false,
     },
   });
+  const watchedProductTypeId = useWatch({
+    control: form.control,
+    name: "productTypeId",
+  });
+  const watchedSaleUnits = useWatch({
+    control: form.control,
+    name: "saleUnits",
+  });
+  const hasDiscount = useWatch({
+    control: form.control,
+    name: "hasDiscount",
+  });
   const selectedProductTypeId =
-    schemaProductTypeId === undefined ? form.watch("productTypeId") : undefined;
+    schemaProductTypeId === undefined ? watchedProductTypeId : undefined;
   const resolvedSchemaProductTypeId =
     schemaProductTypeId === undefined
       ? selectedProductTypeId
@@ -164,7 +176,6 @@ export function useProductFormFields({
   const isProductTypeSchemaResolving =
     shouldResolveFromProductType &&
     (matrixSchemaQuery.isLoading || matrixSchemaQuery.isFetching);
-  const watchedSaleUnits = form.watch("saleUnits");
   const hasSaleUnitPricing = React.useMemo(
     () => (watchedSaleUnits ?? []).some(isSaleUnitPricingDraftTouched),
     [watchedSaleUnits],
@@ -187,8 +198,6 @@ export function useProductFormFields({
     [productTypesQuery.data],
   );
 
-  const hasDiscount = form.watch("hasDiscount");
-
   const discountAttributeIds = React.useMemo(
     () => getDiscountAttributeIds(productAttributes),
     [productAttributes],
@@ -203,23 +212,8 @@ export function useProductFormFields({
     [hasDiscount, productAttributes, shouldUsePercentDiscountOnly],
   );
 
-  const baseFormFields = React.useMemo(
-    () => {
-      const customFields = buildProductEditorCustomFields({
-        brandOptions,
-        canUseProductTypes,
-        categoryOptions,
-        disableProductTypeField,
-        includeCategories,
-        onProductTypeChange,
-        productTypeOptions,
-        shouldUseBrands,
-        supportsCategoryDetails,
-      });
-
-      return buildCreateProductFormFields(visibleAttributes, customFields);
-    },
-    [
+  const baseFormFields = React.useMemo(() => {
+    const customFields = buildProductEditorCustomFields({
       brandOptions,
       canUseProductTypes,
       categoryOptions,
@@ -229,9 +223,21 @@ export function useProductFormFields({
       productTypeOptions,
       shouldUseBrands,
       supportsCategoryDetails,
-      visibleAttributes,
-    ],
-  );
+    });
+
+    return buildCreateProductFormFields(visibleAttributes, customFields);
+  }, [
+    brandOptions,
+    canUseProductTypes,
+    categoryOptions,
+    disableProductTypeField,
+    includeCategories,
+    onProductTypeChange,
+    productTypeOptions,
+    shouldUseBrands,
+    supportsCategoryDetails,
+    visibleAttributes,
+  ]);
 
   React.useEffect(() => {
     if (!shouldUseBrands) {

@@ -30,8 +30,8 @@ export function ProductTypeSelectField({
   required,
 }: ProductTypeSelectFieldProps) {
   const value =
-    field.value === undefined || field.value === null
-      ? undefined
+    field.value === undefined || field.value === null || field.value === ""
+      ? EMPTY_PRODUCT_TYPE_VALUE
       : String(field.value);
 
   return (
@@ -40,10 +40,10 @@ export function ProductTypeSelectField({
       disabled={disabled || readOnly}
       onValueChange={(nextValue) => {
         const resolvedValue =
-          nextValue === EMPTY_PRODUCT_TYPE_VALUE ? undefined : nextValue;
+          nextValue === EMPTY_PRODUCT_TYPE_VALUE ? "" : nextValue;
 
         field.onChange(resolvedValue);
-        onProductTypeChange(resolvedValue ?? null);
+        onProductTypeChange(resolvedValue || null);
       }}
     >
       <SelectTrigger
