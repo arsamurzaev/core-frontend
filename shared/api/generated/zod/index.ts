@@ -4317,7 +4317,7 @@ export const IntegrationControllerSyncMoySkladProductResponse = zod.object({
 
 
 /**
- * @summary РџРѕСЃС‚Р°РІРёС‚СЊ sync РѕСЃС‚Р°С‚РєРѕРІ MoySklad РІ РѕС‡РµСЂРµРґСЊ
+ * @summary Поставить sync остатков MoySklad в очередь
  */
 export const IntegrationControllerSyncMoySkladStockResponse = zod.object({
   "ok": zod.boolean(),

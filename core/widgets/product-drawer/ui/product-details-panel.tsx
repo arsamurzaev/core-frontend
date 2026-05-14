@@ -7,8 +7,10 @@ import {
 } from "@/core/widgets/product-drawer/ui/product-drawer-overview";
 import { ProductDrawerPrice } from "@/core/widgets/product-drawer/ui/product-drawer-price";
 import { ProductDrawerShareActions } from "@/core/widgets/product-drawer/ui/product-drawer-share-actions";
+import type { ProductUnavailableState } from "@/core/widgets/product-drawer/model/product-availability";
 import type { ProductDrawerAttributeRow } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { cn } from "@/shared/lib/utils";
+import { PackageX } from "lucide-react";
 import React from "react";
 
 interface ProductDetailsPanelProps {
@@ -36,6 +38,7 @@ interface ProductDetailsPanelProps {
   shareText?: string;
   saleUnitPicker?: React.ReactNode;
   subtitle: string;
+  unavailableState?: ProductUnavailableState | null;
   variantPicker?: React.ReactNode;
   variantsSummary: string | null;
 }
@@ -62,10 +65,27 @@ export function ProductDetailsPanel({
   ScrollAreaComponent = "div",
   shareText,
   subtitle,
+  unavailableState,
   variantPicker,
   variantsSummary,
 }: ProductDetailsPanelProps) {
   const ScrollArea = ScrollAreaComponent;
+
+  if (unavailableState && !isLoading) {
+    return (
+      <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
+        <div className="flex min-h-[22rem] flex-1 flex-col items-center justify-center px-6 py-14 text-center">
+          <div className="bg-secondary mb-4 flex size-12 items-center justify-center rounded-full">
+            <PackageX className="size-6" aria-hidden="true" />
+          </div>
+          <h2 className="text-2xl font-bold">{unavailableState.title}</h2>
+          <p className="text-muted-foreground mt-2 max-w-80 text-sm leading-6">
+            {unavailableState.description}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>

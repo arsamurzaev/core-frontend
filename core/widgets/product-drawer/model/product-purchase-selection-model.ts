@@ -36,8 +36,9 @@ export function getBaseProductVariant(
   product: ProductWithDetailsDto | null,
 ): ProductVariantDto | null {
   return (
-    product?.variants?.find((variant) => (variant.attributes ?? []).length === 0) ??
-    null
+    product?.variants?.find(
+      (variant) => (variant.attributes ?? []).length === 0,
+    ) ?? null
   );
 }
 
@@ -88,7 +89,9 @@ export function resolveNextProductSaleUnitId(params: {
     return initialSaleUnit.id;
   }
 
-  return saleUnits.find((unit) => unit.isDefault)?.id ?? saleUnits[0]?.id ?? null;
+  return (
+    saleUnits.find((unit) => unit.isDefault)?.id ?? saleUnits[0]?.id ?? null
+  );
 }
 
 export function resolveProductPurchasePricing({
@@ -101,7 +104,8 @@ export function resolveProductPurchasePricing({
 }: ProductPurchasePricingInput) {
   const selectedVariantPrice = toNumberValue(selectedVariant?.price ?? null);
   const selectedSaleUnitPrice = selectedSaleUnit?.price ?? null;
-  const selectedBasePrice = selectedSaleUnitPrice ?? selectedVariantPrice ?? price;
+  const selectedBasePrice =
+    selectedSaleUnitPrice ?? selectedVariantPrice ?? price;
   const selectedPricing =
     hasDiscount && discount > 0
       ? calculatePrice({
@@ -122,6 +126,19 @@ export function resolveProductPurchasePricing({
   };
 }
 
+export function resolveProductPurchaseTotalPricing(params: {
+  displayPrice: number;
+  quantity: number;
+  selectedBasePrice: number;
+}) {
+  const quantity = Math.max(1, Math.trunc(params.quantity));
+
+  return {
+    displayPrice: params.displayPrice * quantity,
+    selectedBasePrice: params.selectedBasePrice * quantity,
+  };
+}
+
 export function resolveProductPurchaseMaxQuantity(params: {
   product: ProductWithDetailsDto | null;
   selectedSaleUnit: ProductSaleUnit | null;
@@ -132,7 +149,8 @@ export function resolveProductPurchaseMaxQuantity(params: {
     return undefined;
   }
 
-  const stockSource = params.selectedVariant ?? getBaseProductVariant(params.product);
+  const stockSource =
+    params.selectedVariant ?? getBaseProductVariant(params.product);
   return getSaleUnitMaxQuantity(stockSource?.stock, params.selectedSaleUnit);
 }
 
@@ -152,12 +170,14 @@ export function isProductVariantSelectionRequired(params: {
 export function buildProductPurchaseCartSnapshot(params: {
   displayPrice: number;
   product: ProductWithDetailsDto | null;
-}): {
-  id: string;
-  name: string;
-  price: string | null;
-  slug: string;
-} | undefined {
+}):
+  | {
+      id: string;
+      name: string;
+      price: string | null;
+      slug: string;
+    }
+  | undefined {
   const { displayPrice, product } = params;
 
   if (!product) {

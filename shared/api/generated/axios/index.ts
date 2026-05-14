@@ -5296,7 +5296,7 @@ const integrationControllerSyncMoySkladProduct = (
     }
   
 /**
- * @summary РџРѕСЃС‚Р°РІРёС‚СЊ sync РѕСЃС‚Р°С‚РєРѕРІ MoySklad РІ РѕС‡РµСЂРµРґСЊ
+ * @summary Поставить sync остатков MoySklad в очередь
  */
 const integrationControllerSyncMoySkladStock = (
     

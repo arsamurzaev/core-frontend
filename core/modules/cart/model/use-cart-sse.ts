@@ -13,6 +13,7 @@ import {
 } from "@/core/modules/cart/model/cart-api-errors";
 import {
   isCartDetachedEvent,
+  isInactiveSharedCartStatus,
   isCartSnapshotEvent,
   isCartStatusChangedEvent,
   isCartUpdatedEvent,
@@ -53,15 +54,14 @@ function getCartItemsFingerprint(
   }
 
   return `${cart.id}:${cart.items
-    .map(
-      (item) =>
-        [
-          item.id,
-          item.productId,
-          item.variantId ?? "",
-          getCartItemSaleUnitId(item) ?? "",
-          item.quantity,
-        ].join(":"),
+    .map((item) =>
+      [
+        item.id,
+        item.productId,
+        item.variantId ?? "",
+        getCartItemSaleUnitId(item) ?? "",
+        item.quantity,
+      ].join(":"),
     )
     .join("|")}`;
 }
@@ -99,8 +99,13 @@ export function useCartSse({
   storedPublicAccess,
 }: UseCartSseParams): void {
   const activeCartId = activeCart?.id ?? null;
+  const isActiveCartInactive = isInactiveSharedCartStatus(
+    activeCart?.status ?? null,
+  );
   const activeCartItemsFingerprintRef = React.useRef<string | null>(null);
-  const isLocalCartMutationPendingRef = React.useRef(isLocalCartMutationPending);
+  const isLocalCartMutationPendingRef = React.useRef(
+    isLocalCartMutationPending,
+  );
 
   React.useEffect(() => {
     activeCartItemsFingerprintRef.current = getCartItemsFingerprint(activeCart);
@@ -123,12 +128,17 @@ export function useCartSse({
       return;
     }
 
+    if (isActiveCartInactive) {
+      return;
+    }
+
     let connectionAbortController: AbortController | null = null;
     let reconnectTimeoutId: number | null = null;
     let staleTimeoutId: number | null = null;
     let reconnectAttempt = 0;
     let lastEventId: string | null = null;
     let isDisposed = false;
+    let shouldReconnect = true;
 
     const clearStaleTimeout = () => {
       if (staleTimeoutId !== null) {
@@ -151,7 +161,7 @@ export function useCartSse({
     };
 
     const scheduleReconnect = () => {
-      if (isDisposed || reconnectTimeoutId !== null) {
+      if (isDisposed || !shouldReconnect || reconnectTimeoutId !== null) {
         return;
       }
 
@@ -168,6 +178,23 @@ export function useCartSse({
         reconnectTimeoutId = null;
         void connect();
       }, delay);
+    };
+
+    const stopReconnectIfCartInactive = (cart: CartDto, eventId?: string) => {
+      if (!isInactiveSharedCartStatus(cart.status)) {
+        return false;
+      }
+
+      shouldReconnect = false;
+      clearStaleTimeout();
+      logCartSseDebug("inactive cart reached, reconnect disabled", {
+        eventId,
+        mode,
+        status: cart.status,
+      });
+      connectionAbortController?.abort();
+
+      return true;
     };
 
     const handleStreamEvent = (
@@ -195,19 +222,42 @@ export function useCartSse({
       }
 
       if (isCartSnapshotEvent(event)) {
+        if (isLocalCartMutationPendingRef.current) {
+          logCartSseDebug("snapshot ignored during local mutation", {
+            eventId: event.id,
+            mode,
+          });
+          return;
+        }
+
         handleSseCartUpdated(event.data, access);
-        activeCartItemsFingerprintRef.current = getCartItemsFingerprint(event.data);
+        activeCartItemsFingerprintRef.current = getCartItemsFingerprint(
+          event.data,
+        );
+        stopReconnectIfCartInactive(event.data, event.id);
         return;
       }
 
       if (isCartUpdatedEvent(event)) {
         const nextFingerprint = getCartItemsFingerprint(event.data);
+        if (isLocalCartMutationPendingRef.current) {
+          logCartSseDebug("cart update ignored during local mutation", {
+            eventId: event.id,
+            mode,
+          });
+          return;
+        }
+
         const shouldNotifyCartUpdated =
           nextFingerprint !== activeCartItemsFingerprintRef.current &&
           !isLocalCartMutationPendingRef.current;
 
         handleSseCartUpdated(event.data, access);
         activeCartItemsFingerprintRef.current = nextFingerprint;
+
+        if (stopReconnectIfCartInactive(event.data, event.id)) {
+          return;
+        }
 
         if (shouldNotifyCartUpdated) {
           toast.success("Содержимое корзины обновлено.");
@@ -217,6 +267,7 @@ export function useCartSse({
 
       if (isCartStatusChangedEvent(event)) {
         handleSseCartStatusChanged(event.data, access);
+        stopReconnectIfCartInactive(event.data, event.id);
         return;
       }
 
@@ -236,14 +287,11 @@ export function useCartSse({
 
       try {
         if (mode === "public" && storedPublicAccess) {
-          await connectCartControllerSsePublic(
-            storedPublicAccess.publicKey,
-            {
-              lastEventId,
-              signal: connectionAbortController.signal,
-              onEvent: (event) => handleStreamEvent(event, storedPublicAccess),
-            },
-          );
+          await connectCartControllerSsePublic(storedPublicAccess.publicKey, {
+            lastEventId,
+            signal: connectionAbortController.signal,
+            onEvent: (event) => handleStreamEvent(event, storedPublicAccess),
+          });
         } else {
           await connectCartControllerSseCurrent({
             lastEventId,
@@ -253,12 +301,12 @@ export function useCartSse({
         }
 
         clearStaleTimeout();
-        if (!connectionAbortController.signal.aborted) {
+        if (shouldReconnect && !connectionAbortController.signal.aborted) {
           scheduleReconnect();
         }
       } catch (error) {
         clearStaleTimeout();
-        if (isDisposed) {
+        if (isDisposed || !shouldReconnect) {
           return;
         }
 
@@ -297,6 +345,7 @@ export function useCartSse({
     handleSseCartStatusChanged,
     handleSseCartUpdated,
     isHydrated,
+    isActiveCartInactive,
     mode,
     notifyPublicCartUnavailable,
     storedPublicAccess,

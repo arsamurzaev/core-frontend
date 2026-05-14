@@ -5,6 +5,7 @@ import {
   resolveNextProductSaleUnitId,
   resolveProductPurchaseMaxQuantity,
   resolveProductPurchasePricing,
+  resolveProductPurchaseTotalPricing,
 } from "./product-purchase-selection-model";
 import type { ProductSaleUnit } from "@/core/modules/product/model/sale-units";
 import type {
@@ -97,6 +98,32 @@ describe("product purchase selection model", () => {
       displayPrice: 450,
       hasSelectedDiscount: true,
       selectedBasePrice: 500,
+    });
+  });
+
+  it("multiplies drawer price by selected cart quantity", () => {
+    expect(
+      resolveProductPurchaseTotalPricing({
+        displayPrice: 900,
+        quantity: 3,
+        selectedBasePrice: 1000,
+      }),
+    ).toEqual({
+      displayPrice: 2700,
+      selectedBasePrice: 3000,
+    });
+  });
+
+  it("shows unit price before the product is added to cart", () => {
+    expect(
+      resolveProductPurchaseTotalPricing({
+        displayPrice: 900,
+        quantity: 0,
+        selectedBasePrice: 1000,
+      }),
+    ).toEqual({
+      displayPrice: 900,
+      selectedBasePrice: 1000,
     });
   });
 

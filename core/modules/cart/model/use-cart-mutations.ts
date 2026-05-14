@@ -18,7 +18,7 @@ import {
   type UpsertCartItemDtoReq,
 } from "@/shared/api/generated/react-query";
 import { useMutation, type QueryClient } from "@tanstack/react-query";
-import type React from "react";
+import React from "react";
 import type {
   CartMutationContext,
   CartProductSnapshot,
@@ -61,6 +61,19 @@ export function useCartMutations({
   setPublicCartData,
   storedPublicAccess,
 }: UseCartMutationsParams) {
+  const cartItemMutationSequenceRef = React.useRef(0);
+  const nextCartItemMutationSequence = React.useCallback(() => {
+    cartItemMutationSequenceRef.current += 1;
+    return cartItemMutationSequenceRef.current;
+  }, []);
+  const isLatestCartItemMutation = React.useCallback(
+    (context: CartMutationContext | undefined) =>
+      Boolean(
+        context && context.sequence === cartItemMutationSequenceRef.current,
+      ),
+    [],
+  );
+
   const upsertCurrentItemMutation = useMutation({
     mutationFn: async (params: {
       product?: CartProductSnapshot;
@@ -80,6 +93,7 @@ export function useCartMutations({
       return response.cart;
     },
     onMutate: async (params): Promise<CartMutationContext> => {
+      const sequence = nextCartItemMutationSequence();
       await queryClient.cancelQueries({ queryKey: cartQueryKeys.current });
       const previousCart = queryClient.getQueryData<CartDto | null>(
         cartQueryKeys.current,
@@ -98,14 +112,24 @@ export function useCartMutations({
         setCurrentCartData(optimisticCart);
       }
 
-      return { previousCart };
+      return { previousCart, sequence };
     },
-    onSuccess: (cart) => setCurrentCartData(cart),
+    onSuccess: (cart, _params, context) => {
+      if (!isLatestCartItemMutation(context)) {
+        return;
+      }
+
+      setCurrentCartData(cart);
+    },
     onError: (error, _params, context: CartMutationContext | undefined) => {
       if (isCartNotFoundError(error)) {
         clearStoredCurrentCart();
         currentCartNotFoundHandledRef.current = true;
         queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+        return;
+      }
+
+      if (!isLatestCartItemMutation(context)) {
         return;
       }
 
@@ -138,10 +162,8 @@ export function useCartMutations({
         cart: response.cart,
       };
     },
-    onSuccess: ({ access, cart }) => {
-      setPublicCartData(access, cart);
-    },
     onMutate: async (params): Promise<CartMutationContext> => {
+      const sequence = nextCartItemMutationSequence();
       const queryKey = cartQueryKeys.public(params.access.publicKey);
       await queryClient.cancelQueries({ queryKey });
       const previousCart = queryClient.getQueryData<CartDto | null>(queryKey);
@@ -159,11 +181,22 @@ export function useCartMutations({
         setPublicCartData(params.access, optimisticCart);
       }
 
-      return { previousCart };
+      return { previousCart, sequence };
+    },
+    onSuccess: ({ access, cart }, _params, context) => {
+      if (!isLatestCartItemMutation(context)) {
+        return;
+      }
+
+      setPublicCartData(access, cart);
     },
     onError: (error, params, context) => {
       if (isCartNotFoundError(error)) {
         dismissPublicCart(params.access);
+        return;
+      }
+
+      if (!isLatestCartItemMutation(context)) {
         return;
       }
 
@@ -176,13 +209,32 @@ export function useCartMutations({
       const response = await cartControllerRemoveCurrentItem(itemId);
       return response.cart;
     },
-    onSuccess: (cart) => setCurrentCartData(cart),
-    onError: (error) => {
+    onMutate: (): CartMutationContext => ({
+      previousCart: queryClient.getQueryData<CartDto | null>(
+        cartQueryKeys.current,
+      ),
+      sequence: nextCartItemMutationSequence(),
+    }),
+    onSuccess: (cart, _itemId, context) => {
+      if (!isLatestCartItemMutation(context)) {
+        return;
+      }
+
+      setCurrentCartData(cart);
+    },
+    onError: (error, _itemId, context) => {
       if (isCartNotFoundError(error)) {
         clearStoredCurrentCart();
         currentCartNotFoundHandledRef.current = true;
         queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+        return;
       }
+
+      if (!isLatestCartItemMutation(context)) {
+        return;
+      }
+
+      setCurrentCartData(context?.previousCart ?? null);
     },
   });
 
@@ -201,13 +253,30 @@ export function useCartMutations({
         cart: response.cart,
       };
     },
-    onSuccess: ({ access, cart }) => {
+    onMutate: (params): CartMutationContext => ({
+      previousCart: queryClient.getQueryData<CartDto | null>(
+        cartQueryKeys.public(params.access.publicKey),
+      ),
+      sequence: nextCartItemMutationSequence(),
+    }),
+    onSuccess: ({ access, cart }, _params, context) => {
+      if (!isLatestCartItemMutation(context)) {
+        return;
+      }
+
       setPublicCartData(access, cart);
     },
-    onError: (error, params) => {
+    onError: (error, params, context) => {
       if (isCartNotFoundError(error)) {
         dismissPublicCart(params.access);
+        return;
       }
+
+      if (!isLatestCartItemMutation(context)) {
+        return;
+      }
+
+      setPublicCartData(params.access, context?.previousCart ?? null);
     },
   });
 

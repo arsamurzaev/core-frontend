@@ -12044,7 +12044,7 @@ export const useIntegrationControllerSyncMoySkladProduct = <TError = unknown,
     }
     
 /**
- * @summary РџРѕСЃС‚Р°РІРёС‚СЊ sync РѕСЃС‚Р°С‚РєРѕРІ MoySklad РІ РѕС‡РµСЂРµРґСЊ
+ * @summary Поставить sync остатков MoySklad в очередь
  */
 export const integrationControllerSyncMoySkladStock = (
     
@@ -12092,7 +12092,7 @@ const {mutation: mutationOptions} = options ?
     export type IntegrationControllerSyncMoySkladStockMutationError = unknown
 
     /**
- * @summary РџРѕСЃС‚Р°РІРёС‚СЊ sync РѕСЃС‚Р°С‚РєРѕРІ MoySklad РІ РѕС‡РµСЂРµРґСЊ
+ * @summary Поставить sync остатков MoySklad в очередь
  */
 export const useIntegrationControllerSyncMoySkladStock = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncMoySkladStock>>, TError,void, TContext>, }

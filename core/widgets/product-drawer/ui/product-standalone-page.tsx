@@ -1,10 +1,16 @@
 "use client";
 
 import { buildProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
+import {
+  PRODUCT_UNAVAILABLE_STATE,
+  isProductPubliclyAvailable,
+  shouldHideProductFromCustomer,
+} from "@/core/widgets/product-drawer/model/product-availability";
 import { ProductPurchaseDetailsPanel } from "@/core/widgets/product-drawer/ui/product-purchase-details-panel";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { buildHomeHrefWithCatalogQuery } from "@/shared/lib/product-route";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
+import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
 import { ArrowLeft } from "lucide-react";
@@ -22,20 +28,35 @@ export const ProductStandalonePage: React.FC<ProductStandalonePageProps> = ({
   productSlug,
 }) => {
   const { catalog } = useCatalogState();
+  const { isLoading: isSessionLoading, user } = useSession();
   const searchParams = useSearchParams();
   const homeHref = React.useMemo(
     () => buildHomeHrefWithCatalogQuery(searchParams),
     [searchParams],
   );
+  const shouldWaitForProductVisibility =
+    Boolean(product) &&
+    !isProductPubliclyAvailable(product) &&
+    isSessionLoading;
+  const unavailableState =
+    !shouldWaitForProductVisibility &&
+    shouldHideProductFromCustomer({
+      product,
+      userRole: user?.role,
+    })
+      ? PRODUCT_UNAVAILABLE_STATE
+      : null;
+  const visibleProduct =
+    unavailableState || shouldWaitForProductVisibility ? null : product;
   const viewModel = React.useMemo(
     () =>
       buildProductDrawerViewModel({
         catalog,
         isError: false,
-        isLoading: false,
-        product: product ?? undefined,
+        isLoading: shouldWaitForProductVisibility,
+        product: visibleProduct ?? undefined,
       }),
-    [catalog, product],
+    [catalog, shouldWaitForProductVisibility, visibleProduct],
   );
 
   return (
@@ -53,11 +74,12 @@ export const ProductStandalonePage: React.FC<ProductStandalonePageProps> = ({
             <ProductPurchaseDetailsPanel
               className="min-h-0 flex-1"
               footerClassName="mx-0 rounded-none border-t bg-background px-6 py-4 shadow-none"
-              isLoading={false}
-              product={product}
+              isLoading={shouldWaitForProductVisibility}
+              product={visibleProduct}
               productKey={productSlug}
               resetKey={productSlug}
               scrollAreaClassName="min-h-0 flex-1 overflow-auto"
+              unavailableState={unavailableState}
               viewModel={viewModel}
             />
           </section>

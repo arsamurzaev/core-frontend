@@ -8,6 +8,10 @@ import {
 } from "@/shared/lib/product-seo";
 import type { Metadata } from "next";
 import { cache } from "react";
+import {
+  PRODUCT_UNAVAILABLE_STATE,
+  isProductPubliclyAvailable,
+} from "../model/product-availability";
 import { getProductBySlugServer } from "./get-product-by-slug.server";
 import { getProductSeoByIdServer } from "./get-product-seo-by-id.server";
 
@@ -25,7 +29,9 @@ function resolveMetadataBaseUrl(
 ): URL {
   const resolvedHost = (domain ?? forwardedHost).trim();
   return new URL(
-    /^https?:\/\//i.test(resolvedHost) ? resolvedHost : `https://${resolvedHost}`,
+    /^https?:\/\//i.test(resolvedHost)
+      ? resolvedHost
+      : `https://${resolvedHost}`,
   );
 }
 
@@ -57,10 +63,38 @@ function buildGenericProductMetadata(
   };
 }
 
+function buildUnavailableProductMetadata(
+  productSlug: string,
+  forwardedHost: string,
+  domain: string | null | undefined,
+): Metadata {
+  const metadataBase = resolveMetadataBaseUrl(forwardedHost, domain);
+
+  return {
+    metadataBase,
+    title: {
+      absolute: PRODUCT_UNAVAILABLE_STATE.title,
+    },
+    description: PRODUCT_UNAVAILABLE_STATE.description,
+    robots: {
+      follow: false,
+      index: false,
+    },
+    alternates: {
+      canonical: new URL(
+        `/product/${encodeURIComponent(productSlug)}`,
+        metadataBase,
+      ).toString(),
+    },
+  };
+}
+
 export const getProductPageDataServer = cache(async (productSlug: string) => {
   const product = await getProductBySlugServer(productSlug);
   const seo =
-    product?.seo ?? (product ? await getProductSeoByIdServer(product.id) : null);
+    product && isProductPubliclyAvailable(product)
+      ? (product.seo ?? (await getProductSeoByIdServer(product.id)))
+      : null;
 
   return {
     product,
@@ -76,6 +110,14 @@ export async function generateProductPageMetadata(
     getCurrentCatalogServer(),
     resolveServerForwardedHost(),
   ]);
+
+  if (product && !isProductPubliclyAvailable(product)) {
+    return buildUnavailableProductMetadata(
+      productSlug,
+      forwardedHost,
+      catalog?.domain,
+    );
+  }
 
   if (!catalog) {
     return product

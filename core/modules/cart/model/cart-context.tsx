@@ -233,7 +233,6 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     mode,
     mutations,
     queryClient,
-    quantityByLineKey,
     storedPublicAccess,
   });
   const prepareShareOrder = useCartShareOrder({

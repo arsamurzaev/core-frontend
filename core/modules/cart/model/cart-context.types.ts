@@ -9,7 +9,10 @@ import type {
 } from "@/shared/api/generated/react-query";
 import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import type { CatalogExperienceMode } from "@/shared/lib/catalog-mode";
-import type { CheckoutData, CheckoutMethod } from "@/shared/lib/checkout-methods";
+import type {
+  CheckoutData,
+  CheckoutMethod,
+} from "@/shared/lib/checkout-methods";
 
 export interface CartSharePayload {
   contactsOverride?: Partial<Record<CatalogContactDtoType, string>>;
@@ -111,4 +114,5 @@ export type CartDtoWithCheckout = CartDto & {
 
 export type CartMutationContext = {
   previousCart: CartDto | null | undefined;
+  sequence: number;
 };

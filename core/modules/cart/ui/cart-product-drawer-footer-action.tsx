@@ -1,40 +1,35 @@
 "use client";
 
-import type { CartProductSnapshot } from "@/core/modules/cart/model/cart-context.types";
 import {
   getCartProductDrawerAddLabel,
   shouldShowCartProductDrawerAddButton,
 } from "@/core/modules/cart/model/cart-product-drawer-footer-state";
 import { CartProductDrawerAddButton } from "@/core/modules/cart/ui/cart-product-drawer-add-button";
 import { CartQuantityControl } from "@/core/modules/cart/ui/cart-quantity-control";
-import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import type { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { cn } from "@/shared/lib/utils";
 import { Minus, Plus } from "lucide-react";
 import React from "react";
 
+type CartProductDrawerControls = Pick<
+  ReturnType<typeof useCartProductControls>,
+  | "handleAdd"
+  | "handleDecrement"
+  | "handleIncrement"
+  | "isBusy"
+  | "isIncrementDisabled"
+  | "quantity"
+>;
+
 interface CartProductDrawerFooterActionProps {
   className?: string;
+  controls: CartProductDrawerControls;
   disabled?: boolean;
-  maxQuantity?: number;
-  product?: CartProductSnapshot;
-  productId: string;
-  requiresVariantSelection?: boolean;
-  saleUnitId?: string | null;
-  variantId?: string | null;
 }
 
 export const CartProductDrawerFooterAction: React.FC<
   CartProductDrawerFooterActionProps
-> = ({
-  className,
-  disabled = false,
-  maxQuantity,
-  product,
-  productId,
-  requiresVariantSelection,
-  saleUnitId,
-  variantId,
-}) => {
+> = ({ className, controls, disabled = false }) => {
   const {
     handleAdd,
     handleDecrement,
@@ -42,19 +37,7 @@ export const CartProductDrawerFooterAction: React.FC<
     isBusy,
     isIncrementDisabled,
     quantity,
-  } =
-    useCartProductControls(
-      {
-        productId,
-        saleUnitId,
-        variantId,
-      },
-      product,
-      {
-        maxQuantity,
-        requiresVariantSelection,
-      },
-    );
+  } = controls;
 
   if (shouldShowCartProductDrawerAddButton(quantity)) {
     return (

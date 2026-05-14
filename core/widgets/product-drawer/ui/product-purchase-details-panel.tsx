@@ -2,6 +2,9 @@
 
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
+import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import type { ProductUnavailableState } from "@/core/widgets/product-drawer/model/product-availability";
+import { resolveProductPurchaseTotalPricing } from "@/core/widgets/product-drawer/model/product-purchase-selection-model";
 import type { ProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { useProductPurchaseSelection } from "@/core/widgets/product-drawer/model/use-product-purchase-selection";
 import { ProductDetailsPanel } from "@/core/widgets/product-drawer/ui/product-details-panel";
@@ -26,6 +29,7 @@ interface ProductPurchaseDetailsPanelProps {
     children?: React.ReactNode;
     className?: string;
   }>;
+  unavailableState?: ProductUnavailableState | null;
   viewModel: ProductDrawerViewModel;
 }
 
@@ -66,6 +70,7 @@ export function ProductPurchaseDetailsPanel({
   resetKey,
   scrollAreaClassName,
   ScrollAreaComponent,
+  unavailableState,
   viewModel,
 }: ProductPurchaseDetailsPanelProps) {
   const { catalog } = useCatalogState();
@@ -86,6 +91,37 @@ export function ProductPurchaseDetailsPanel({
     shouldEnforceStock,
     viewModel,
   });
+  const selectedSaleUnitId = canUseCatalogSaleUnits
+    ? purchaseSelection.selectedSaleUnit?.id
+    : undefined;
+  const selectedVariantId = canUseProductVariants
+    ? purchaseSelection.selectedVariant?.id
+    : undefined;
+  const cartControls = useCartProductControls(
+    {
+      productId: product?.id ?? "",
+      saleUnitId: selectedSaleUnitId,
+      variantId: selectedVariantId,
+    },
+    purchaseSelection.cartProductSnapshot,
+    {
+      maxQuantity: purchaseSelection.maxQuantity,
+      requiresVariantSelection: purchaseSelection.isVariantSelectionRequired,
+    },
+  );
+  const totalPricing = React.useMemo(
+    () =>
+      resolveProductPurchaseTotalPricing({
+        displayPrice: purchaseSelection.displayPrice,
+        quantity: cartControls.quantity,
+        selectedBasePrice: purchaseSelection.selectedBasePrice,
+      }),
+    [
+      cartControls.quantity,
+      purchaseSelection.displayPrice,
+      purchaseSelection.selectedBasePrice,
+    ],
+  );
 
   return (
     <ProductDetailsPanel
@@ -95,28 +131,13 @@ export function ProductPurchaseDetailsPanel({
       currency={viewModel.currency}
       description={viewModel.description}
       displayName={viewModel.displayName}
-      displayPrice={purchaseSelection.displayPrice}
+      displayPrice={totalPricing.displayPrice}
       discount={viewModel.discount}
       footerAction={
-        shouldUseCartUi && product?.id ? (
+        !unavailableState && shouldUseCartUi && product?.id ? (
           <CartProductDrawerFooterAction
+            controls={cartControls}
             disabled={purchaseSelection.isVariantSelectionRequired}
-            product={purchaseSelection.cartProductSnapshot}
-            productId={product.id}
-            maxQuantity={purchaseSelection.maxQuantity}
-            requiresVariantSelection={
-              purchaseSelection.isVariantSelectionRequired
-            }
-            saleUnitId={
-              canUseCatalogSaleUnits
-                ? purchaseSelection.selectedSaleUnit?.id
-                : undefined
-            }
-            variantId={
-              canUseProductVariants
-                ? purchaseSelection.selectedVariant?.id
-                : undefined
-            }
           />
         ) : null
       }
@@ -127,14 +148,15 @@ export function ProductPurchaseDetailsPanel({
       hasError={viewModel.hasError}
       imageUrls={viewModel.imageUrls}
       isLoading={isLoading}
-      price={purchaseSelection.selectedBasePrice}
+      price={totalPricing.selectedBasePrice}
       resetKey={resetKey}
       scrollAreaClassName={scrollAreaClassName}
       ScrollAreaComponent={ScrollAreaComponent}
       shareText={viewModel.shareText}
       subtitle={viewModel.subtitle}
+      unavailableState={unavailableState}
       variantPicker={
-        canUseProductVariants && product ? (
+        !unavailableState && canUseProductVariants && product ? (
           <ProductVariantPicker
             currency={viewModel.currency}
             onChange={purchaseSelection.setSelectedVariantId}
@@ -145,7 +167,7 @@ export function ProductPurchaseDetailsPanel({
         ) : null
       }
       saleUnitPicker={
-        canUseCatalogSaleUnits && product ? (
+        !unavailableState && canUseCatalogSaleUnits && product ? (
           <ProductSaleUnitPicker
             currency={viewModel.currency}
             onChange={purchaseSelection.setSelectedSaleUnitId}
@@ -154,7 +176,11 @@ export function ProductPurchaseDetailsPanel({
           />
         ) : null
       }
-      variantsSummary={canUseProductVariants ? viewModel.variantsSummary : null}
+      variantsSummary={
+        !unavailableState && canUseProductVariants
+          ? viewModel.variantsSummary
+          : null
+      }
     />
   );
 }
