@@ -30,8 +30,10 @@ import {
   FieldDescription,
   FieldError,
   FieldLabel,
+  FieldTitle,
 } from "@/shared/ui/field";
 import { Input } from "@/shared/ui/input";
+import { Switch } from "@/shared/ui/switch";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import React from "react";
@@ -39,6 +41,7 @@ import { toast } from "sonner";
 
 type CatalogFormState = {
   token: string;
+  stockWebhookEnabled: boolean;
 };
 
 type ValidationErrors = Partial<Record<"token", string>>;
@@ -74,6 +77,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
   const [open, setOpen] = React.useState(false);
   const [formState, setFormState] = React.useState<CatalogFormState>({
     token: "",
+    stockWebhookEnabled: false,
   });
   const [validationErrors, setValidationErrors] =
     React.useState<ValidationErrors>({});
@@ -96,10 +100,13 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
   const statusDescription = getStatusDescription(status);
 
   const resetLocalState = React.useCallback(() => {
-    setFormState({ token: "" });
+    setFormState({
+      token: "",
+      stockWebhookEnabled: integration?.stockWebhook?.enabled ?? false,
+    });
     setValidationErrors({});
     setErrorMessage(null);
-  }, []);
+  }, [integration?.stockWebhook?.enabled]);
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
@@ -114,7 +121,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
   );
 
   const setFieldValue = React.useCallback((value: string) => {
-    setFormState({ token: value });
+    setFormState((prev) => ({ ...prev, token: value }));
     setErrorMessage(null);
     setValidationErrors((prev) => ({ ...prev, token: undefined }));
   }, []);
@@ -146,6 +153,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
         isActive: true,
         importImages: true,
         syncStock: true,
+        stockWebhookEnabled: formState.stockWebhookEnabled,
         scheduleEnabled: true,
         schedulePattern: `0 ${DEFAULT_DAILY_SYNC_HOUR} * * *`,
         scheduleTimezone: preferredTimeZone,
@@ -183,6 +191,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
     }
   }, [
     formState.token,
+    formState.stockWebhookEnabled,
     integration?.scheduleTimezone,
     isBusy,
     isConfigured,
@@ -260,6 +269,30 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
                   используем Москву.
                 </p>
               </div>
+
+              <Field
+                orientation="responsive"
+                className="rounded-2xl border border-black/10 bg-background/70 p-4"
+              >
+                <FieldContent>
+                  <FieldTitle>Быстрые остатки через webhook</FieldTitle>
+                  <FieldDescription className="break-words">
+                    MoySklad будет присылать изменения остатков без ожидания
+                    планового sync.
+                  </FieldDescription>
+                </FieldContent>
+                <Switch
+                  checked={formState.stockWebhookEnabled}
+                  onCheckedChange={(checked) => {
+                    setFormState((prev) => ({
+                      ...prev,
+                      stockWebhookEnabled: checked,
+                    }));
+                    setErrorMessage(null);
+                  }}
+                  disabled={isBusy || integration?.capabilities.webhook === false}
+                />
+              </Field>
 
               <Field>
                 <FieldLabel htmlFor="moysklad-token-catalog">Токен</FieldLabel>

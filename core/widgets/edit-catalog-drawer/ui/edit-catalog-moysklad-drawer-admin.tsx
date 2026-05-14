@@ -109,6 +109,11 @@ function formatDateTime(value?: string | null): string {
   }).format(new Date(value));
 }
 
+function formatOptionalDateTime(value?: string | null): string | null {
+  if (!value) return null;
+  return formatDateTime(value);
+}
+
 function getOrderExportStatusBadge(status: MoySkladOrderExportDto["status"]) {
   switch (status) {
     case "SUCCESS":
@@ -377,6 +382,10 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
           orderExportStoreId: undefined,
         }));
       }
+
+      if ((key === "syncStock" || key === "isActive") && value === false) {
+        setFormState((prev) => ({ ...prev, stockWebhookEnabled: false }));
+      }
     },
     [],
   );
@@ -450,6 +459,10 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
         priceTypeName: trimmedPriceTypeName || undefined,
         importImages: formState.importImages,
         syncStock: formState.syncStock,
+        stockWebhookEnabled:
+          formState.isActive &&
+          formState.syncStock &&
+          formState.stockWebhookEnabled,
         exportOrders: formState.exportOrders,
         orderExportOrganizationId: formState.exportOrders
           ? formState.orderExportOrganizationId
@@ -866,6 +879,12 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                         "Обновлять наличие товара по данным MoySklad.",
                     },
                     {
+                      key: "stockWebhookEnabled" as const,
+                      title: "Быстрые остатки через webhook",
+                      description:
+                        "Получать изменения остатков из MoySklad без ожидания планового sync.",
+                    },
+                    {
                       key: "exportOrders" as const,
                       title: "Экспортировать заказы",
                       description:
@@ -902,12 +921,65 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                         isBusy ||
                         (key === "exportOrders" &&
                           (!isConfigured ||
-                            integration?.capabilities.orderExport === false))
+                            integration?.capabilities.orderExport === false)) ||
+                        (key === "stockWebhookEnabled" &&
+                          (!formState.isActive ||
+                            !formState.syncStock ||
+                            integration?.capabilities.webhook === false))
                       }
                     />
                   </Field>
                 ))}
               </div>
+
+              {integration?.stockWebhook ? (
+                <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <span className="text-sm font-medium">Webhook остатков</span>
+                    <Badge
+                      variant={
+                        integration.stockWebhook.enabled &&
+                        integration.stockWebhook.registered
+                          ? "default"
+                          : "outline"
+                      }
+                      className="max-w-full break-words text-left whitespace-normal"
+                    >
+                      {integration.stockWebhook.enabled &&
+                      integration.stockWebhook.registered
+                        ? "зарегистрирован"
+                        : integration.stockWebhook.enabled
+                          ? "ожидает регистрации"
+                          : "выключен"}
+                    </Badge>
+                  </div>
+                  <div className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+                    <span>
+                      Тип отчета: {integration.stockWebhook.reportType || "all"}
+                    </span>
+                    <span>
+                      Остатки: {integration.stockWebhook.stockType || "stock"}
+                    </span>
+                    <span>
+                      Получен:{" "}
+                      {formatOptionalDateTime(
+                        integration.stockWebhook.lastReceivedAt,
+                      ) ?? "еще нет"}
+                    </span>
+                    <span>
+                      Обработан:{" "}
+                      {formatOptionalDateTime(
+                        integration.stockWebhook.lastProcessedAt,
+                      ) ?? "еще нет"}
+                    </span>
+                  </div>
+                  {integration.stockWebhook.lastError ? (
+                    <p className="mt-3 break-words text-sm text-destructive">
+                      {integration.stockWebhook.lastError}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
 
               {formState.exportOrders ? (
                 <div className="space-y-4 rounded-2xl border border-black/10 bg-muted/10 p-4">

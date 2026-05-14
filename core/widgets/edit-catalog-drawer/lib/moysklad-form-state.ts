@@ -11,6 +11,7 @@ export type MoySkladFormState = {
   isActive: boolean;
   importImages: boolean;
   syncStock: boolean;
+  stockWebhookEnabled: boolean;
   exportOrders: boolean;
   orderExportOrganizationId: string;
   orderExportCounterpartyId: string;
@@ -59,6 +60,7 @@ export function buildMoySkladFormState(
     isActive: integration?.isActive ?? true,
     importImages: integration?.importImages ?? true,
     syncStock: integration?.syncStock ?? true,
+    stockWebhookEnabled: integration?.stockWebhook?.enabled ?? false,
     exportOrders: integration?.exportOrders ?? false,
     orderExportOrganizationId: integration?.orderExportOrganizationId ?? "",
     orderExportCounterpartyId: integration?.orderExportCounterpartyId ?? "",
