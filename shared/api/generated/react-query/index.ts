@@ -396,6 +396,57 @@ export interface AdminUpdateCatalogDtoReq {
   trialLicenseDays?: number;
 }
 
+export type AdminCatalogFeatureEntitlementItemDtoFeature = typeof AdminCatalogFeatureEntitlementItemDtoFeature[keyof typeof AdminCatalogFeatureEntitlementItemDtoFeature];
+
+
+export const AdminCatalogFeatureEntitlementItemDtoFeature = {
+  producttypes: 'product.types',
+  productvariants: 'product.variants',
+  catalogsale_units: 'catalog.sale_units',
+  inventoryinternal: 'inventory.internal',
+  integrationmoysklad: 'integration.moysklad',
+} as const;
+
+/**
+ * @nullable
+ */
+export type AdminCatalogFeatureEntitlementItemDtoMetadata = { [key: string]: unknown } | null;
+
+export interface AdminCatalogFeatureEntitlementItemDto {
+  feature: AdminCatalogFeatureEntitlementItemDtoFeature;
+  enabled: boolean;
+  /** @nullable */
+  expiresAt: string | null;
+  /** @nullable */
+  metadata: AdminCatalogFeatureEntitlementItemDtoMetadata;
+}
+
+export type AdminCatalogFeatureEntitlementsDtoDefinitionsItem = { [key: string]: unknown };
+
+/**
+ * Raw admin entitlements before dependency resolution.
+ */
+export type AdminCatalogFeatureEntitlementsDtoRaw = {[key: string]: boolean};
+
+/**
+ * Effective capabilities after dependency resolution.
+ */
+export type AdminCatalogFeatureEntitlementsDtoEffective = {[key: string]: boolean};
+
+export type AdminCatalogFeatureEntitlementsDtoItemsItem = { [key: string]: unknown };
+
+export interface AdminCatalogFeatureEntitlementsDto {
+  catalogId: string;
+  definitions: AdminCatalogFeatureEntitlementsDtoDefinitionsItem[];
+  /** Raw admin entitlements before dependency resolution. */
+  raw: AdminCatalogFeatureEntitlementsDtoRaw;
+  /** Effective capabilities after dependency resolution. */
+  effective: AdminCatalogFeatureEntitlementsDtoEffective;
+  /** Per-capability state with disabled reasons. */
+  items: AdminCatalogFeatureEntitlementsDtoItemsItem[];
+  features: AdminCatalogFeatureEntitlementItemDto[];
+}
+
 export type AdminUpdateCatalogFeatureEntitlementDtoReqFeature = typeof AdminUpdateCatalogFeatureEntitlementDtoReqFeature[keyof typeof AdminUpdateCatalogFeatureEntitlementDtoReqFeature];
 
 
@@ -948,6 +999,19 @@ export interface IntegrationProviderCapabilitiesDto {
   webhook: boolean;
 }
 
+export interface MoySkladStockWebhookDto {
+  enabled: boolean;
+  registered: boolean;
+  reportType: string;
+  stockType: string;
+  /** @nullable */
+  lastReceivedAt: string | null;
+  /** @nullable */
+  lastProcessedAt: string | null;
+  /** @nullable */
+  lastError: string | null;
+}
+
 export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
 
 
@@ -975,6 +1039,7 @@ export interface MoySkladIntegrationDto {
   priceTypeName: string;
   importImages: boolean;
   syncStock: boolean;
+  stockWebhook: MoySkladStockWebhookDto;
   exportOrders: boolean;
   /** @nullable */
   orderExportOrganizationId: string | null;
@@ -1076,6 +1141,7 @@ export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof t
 export const MoySkladSyncRunDtoTrigger = {
   MANUAL: 'MANUAL',
   SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
 } as const;
 
 export type MoySkladSyncRunDtoStatus = typeof MoySkladSyncRunDtoStatus[keyof typeof MoySkladSyncRunDtoStatus];
@@ -1154,6 +1220,7 @@ export interface UpsertMoySkladIntegrationDtoReq {
   priceTypeName?: string;
   importImages?: boolean;
   syncStock?: boolean;
+  stockWebhookEnabled?: boolean;
   exportOrders?: boolean;
   /** @nullable */
   orderExportOrganizationId?: string | null;
@@ -1174,6 +1241,7 @@ export interface UpdateMoySkladIntegrationDtoReq {
   priceTypeName?: string;
   importImages?: boolean;
   syncStock?: boolean;
+  stockWebhookEnabled?: boolean;
   exportOrders?: boolean;
   /** @nullable */
   orderExportOrganizationId?: string | null;
@@ -1211,6 +1279,7 @@ export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[k
 export const MoySkladQueuedSyncDtoTrigger = {
   MANUAL: 'MANUAL',
   SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
 } as const;
 
 export interface MoySkladQueuedSyncDto {
@@ -2409,7 +2478,8 @@ export const ProductVariantDtoReqStatus = {
 } as const;
 
 export interface ProductVariantDtoReq {
-  price?: number;
+  /** @nullable */
+  price?: number | null;
   stock?: number;
   isAvailable?: boolean;
   status?: ProductVariantDtoReqStatus;
@@ -2585,7 +2655,8 @@ export const ProductVariantUpdateDtoReqStatus = {
 export interface ProductVariantUpdateDtoReq {
   /** Ключ варианта, приходит из ответа товара */
   variantKey: string;
-  price?: number;
+  /** @nullable */
+  price?: number | null;
   stock?: number;
   status?: ProductVariantUpdateDtoReqStatus;
   saleUnits?: ProductVariantSaleUnitDtoReq[];
@@ -2642,7 +2713,8 @@ export const ProductVariantItemDtoReqStatus = {
 } as const;
 
 export interface ProductVariantItemDtoReq {
-  price?: number;
+  /** @nullable */
+  price?: number | null;
   stock?: number;
   status?: ProductVariantItemDtoReqStatus;
   /** Идентификатор значения перечисления */
@@ -3506,6 +3578,10 @@ export type IntegrationControllerGetMoySkladOrderExportsParams = {
  * Сколько последних экспортов заказов вернуть
  */
 limit?: number;
+};
+
+export type IntegrationControllerReceiveMoySkladStockWebhookParams = {
+requestId?: string;
 };
 
 export type CatalogSaleUnitControllerGetAllParams = {
@@ -5065,7 +5141,7 @@ export const adminControllerGetCatalogFeatureEntitlements = (
 ) => {
       
       
-      return mutator<void>(
+      return mutator<AdminCatalogFeatureEntitlementsDto>(
       {url: `/admin/catalogs/${id}/features`, method: 'GET', signal
     },
       );
@@ -5157,7 +5233,7 @@ export const adminControllerUpdateCatalogFeatureEntitlement = (
 ) => {
       
       
-      return mutator<void>(
+      return mutator<AdminCatalogFeatureEntitlementsDto>(
       {url: `/admin/catalogs/${id}/features`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: adminUpdateCatalogFeatureEntitlementDtoReq, signal
@@ -12021,6 +12097,71 @@ export const useIntegrationControllerSyncMoySkladStock = <TError = unknown,
         TContext
       > => {
       return useMutation(getIntegrationControllerSyncMoySkladStockMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Receive MoySklad stock webhook
+ */
+export const integrationControllerReceiveMoySkladStockWebhook = (
+    integrationId: string,
+    secret: string,
+    params?: IntegrationControllerReceiveMoySkladStockWebhookParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/integration/webhooks/moysklad/stock/${integrationId}/${secret}`, method: 'POST',
+        params, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerReceiveMoySkladStockWebhookMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladStockWebhook>>, TError,{integrationId: string;secret: string;params?: IntegrationControllerReceiveMoySkladStockWebhookParams}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladStockWebhook>>, TError,{integrationId: string;secret: string;params?: IntegrationControllerReceiveMoySkladStockWebhookParams}, TContext> => {
+
+const mutationKey = ['integrationControllerReceiveMoySkladStockWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladStockWebhook>>, {integrationId: string;secret: string;params?: IntegrationControllerReceiveMoySkladStockWebhookParams}> = (props) => {
+          const {integrationId,secret,params} = props ?? {};
+
+          return  integrationControllerReceiveMoySkladStockWebhook(integrationId,secret,params,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerReceiveMoySkladStockWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladStockWebhook>>>
+    
+    export type IntegrationControllerReceiveMoySkladStockWebhookMutationError = unknown
+
+    /**
+ * @summary Receive MoySklad stock webhook
+ */
+export const useIntegrationControllerReceiveMoySkladStockWebhook = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladStockWebhook>>, TError,{integrationId: string;secret: string;params?: IntegrationControllerReceiveMoySkladStockWebhookParams}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerReceiveMoySkladStockWebhook>>,
+        TError,
+        {integrationId: string;secret: string;params?: IntegrationControllerReceiveMoySkladStockWebhookParams},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerReceiveMoySkladStockWebhookMutationOptions(options), queryClient);
     }
     
 /**

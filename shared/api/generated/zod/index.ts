@@ -565,6 +565,26 @@ export const AdminControllerGetCatalogFeatureEntitlementsParams = zod.object({
   "id": zod.string()
 })
 
+export const AdminControllerGetCatalogFeatureEntitlementsResponse = zod.object({
+  "catalogId": zod.string(),
+  "definitions": zod.array(zod.object({
+
+})),
+  "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
+  "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
+  "items": zod.array(zod.object({
+
+})).describe('Per-capability state with disabled reasons.'),
+  "features": zod.array(zod.object({
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad']),
+  "enabled": zod.boolean(),
+  "expiresAt": zod.iso.datetime({}).nullable(),
+  "metadata": zod.object({
+
+}).nullable()
+}))
+})
+
 
 /**
  * @summary Enable or disable a catalog feature entitlement
@@ -580,6 +600,26 @@ export const AdminControllerUpdateCatalogFeatureEntitlementBody = zod.object({
   "metadata": zod.object({
 
 }).nullish().describe('Optional admin metadata for audit\/support context.')
+})
+
+export const AdminControllerUpdateCatalogFeatureEntitlementResponse = zod.object({
+  "catalogId": zod.string(),
+  "definitions": zod.array(zod.object({
+
+})),
+  "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
+  "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
+  "items": zod.array(zod.object({
+
+})).describe('Per-capability state with disabled reasons.'),
+  "features": zod.array(zod.object({
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad']),
+  "enabled": zod.boolean(),
+  "expiresAt": zod.iso.datetime({}).nullable(),
+  "metadata": zod.object({
+
+}).nullable()
+}))
 })
 
 
@@ -1821,6 +1861,15 @@ export const CatalogAdvancedSettingsControllerGetMoySkladResponse = zod.object({
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -1851,6 +1900,7 @@ export const CatalogAdvancedSettingsControllerUpsertMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "stockWebhookEnabled": zod.boolean().optional(),
   "exportOrders": zod.boolean().optional(),
   "orderExportOrganizationId": zod.string().nullish(),
   "orderExportCounterpartyId": zod.string().nullish(),
@@ -1877,6 +1927,15 @@ export const CatalogAdvancedSettingsControllerUpsertMoySkladResponse = zod.objec
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -1907,6 +1966,7 @@ export const CatalogAdvancedSettingsControllerUpdateMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "stockWebhookEnabled": zod.boolean().optional(),
   "exportOrders": zod.boolean().optional(),
   "orderExportOrganizationId": zod.string().nullish(),
   "orderExportCounterpartyId": zod.string().nullish(),
@@ -1933,6 +1993,15 @@ export const CatalogAdvancedSettingsControllerUpdateMoySkladResponse = zod.objec
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -1984,6 +2053,15 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -2007,7 +2085,7 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
   "productId": zod.string().nullable(),
@@ -2072,7 +2150,7 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
   "productId": zod.string().nullable(),
@@ -2147,7 +2225,7 @@ export const CatalogAdvancedSettingsControllerGetMoySkladRunsResponseItem = zod.
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
   "productId": zod.string().nullable(),
@@ -2281,7 +2359,7 @@ export const CatalogAdvancedSettingsControllerSyncMoySkladCatalogResponse = zod.
   "runId": zod.string(),
   "jobId": zod.string(),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
 
@@ -3566,6 +3644,15 @@ export const IntegrationControllerGetMoySkladResponse = zod.object({
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -3596,6 +3683,7 @@ export const IntegrationControllerUpsertMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "stockWebhookEnabled": zod.boolean().optional(),
   "exportOrders": zod.boolean().optional(),
   "orderExportOrganizationId": zod.string().nullish(),
   "orderExportCounterpartyId": zod.string().nullish(),
@@ -3622,6 +3710,15 @@ export const IntegrationControllerUpsertMoySkladResponse = zod.object({
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -3652,6 +3749,7 @@ export const IntegrationControllerUpdateMoySkladBody = zod.object({
   "priceTypeName": zod.string().optional(),
   "importImages": zod.boolean().optional(),
   "syncStock": zod.boolean().optional(),
+  "stockWebhookEnabled": zod.boolean().optional(),
   "exportOrders": zod.boolean().optional(),
   "orderExportOrganizationId": zod.string().nullish(),
   "orderExportCounterpartyId": zod.string().nullish(),
@@ -3678,6 +3776,15 @@ export const IntegrationControllerUpdateMoySkladResponse = zod.object({
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -3729,6 +3836,15 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "priceTypeName": zod.string(),
   "importImages": zod.boolean(),
   "syncStock": zod.boolean(),
+  "stockWebhook": zod.object({
+  "enabled": zod.boolean(),
+  "registered": zod.boolean(),
+  "reportType": zod.string(),
+  "stockType": zod.string(),
+  "lastReceivedAt": zod.iso.datetime({}).nullable(),
+  "lastProcessedAt": zod.iso.datetime({}).nullable(),
+  "lastError": zod.string().nullable()
+}),
   "exportOrders": zod.boolean(),
   "orderExportOrganizationId": zod.string().nullable(),
   "orderExportCounterpartyId": zod.string().nullable(),
@@ -3752,7 +3868,7 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
   "productId": zod.string().nullable(),
@@ -3817,7 +3933,7 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
   "productId": zod.string().nullable(),
@@ -3892,7 +4008,7 @@ export const IntegrationControllerGetMoySkladRunsResponseItem = zod.object({
   "id": zod.string(),
   "provider": zod.enum(['MOYSKLAD']),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "jobId": zod.string().nullable(),
   "productId": zod.string().nullable(),
@@ -4171,7 +4287,7 @@ export const IntegrationControllerSyncMoySkladCatalogResponse = zod.object({
   "runId": zod.string(),
   "jobId": zod.string(),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
 
@@ -4196,7 +4312,7 @@ export const IntegrationControllerSyncMoySkladProductResponse = zod.object({
   "runId": zod.string(),
   "jobId": zod.string(),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
 
@@ -4209,7 +4325,20 @@ export const IntegrationControllerSyncMoySkladStockResponse = zod.object({
   "runId": zod.string(),
   "jobId": zod.string(),
   "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
-  "trigger": zod.enum(['MANUAL', 'SCHEDULED'])
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
+})
+
+
+/**
+ * @summary Receive MoySklad stock webhook
+ */
+export const IntegrationControllerReceiveMoySkladStockWebhookParams = zod.object({
+  "integrationId": zod.string(),
+  "secret": zod.string()
+})
+
+export const IntegrationControllerReceiveMoySkladStockWebhookQueryParams = zod.object({
+  "requestId": zod.string().optional()
 })
 
 
@@ -5085,7 +5214,7 @@ export const ProductControllerCreateBody = zod.object({
   "valueDateTime": zod.iso.datetime({}).optional()
 })).optional(),
   "variants": zod.array(zod.object({
-  "price": zod.number().optional(),
+  "price": zod.number().nullish(),
   "stock": zod.number().optional(),
   "isAvailable": zod.boolean().optional(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
@@ -6661,7 +6790,7 @@ export const ProductControllerUpdateBody = zod.object({
   "removeAttributeIds": zod.array(zod.string()).optional().describe('ID атрибутов товара, которые нужно удалить при редактировании'),
   "variants": zod.array(zod.object({
   "variantKey": zod.string().describe('Ключ варианта, приходит из ответа товара'),
-  "price": zod.number().optional(),
+  "price": zod.number().nullish(),
   "stock": zod.number().optional(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
   "saleUnits": zod.array(zod.object({
@@ -7027,7 +7156,7 @@ export const ProductControllerApplyProductTypeChangeBody = zod.object({
   "valueDateTime": zod.iso.datetime({}).optional()
 })).optional().describe('Product attributes to upsert after switching to the target product type.'),
   "items": zod.array(zod.object({
-  "price": zod.number().optional(),
+  "price": zod.number().nullish(),
   "stock": zod.number().optional(),
   "isAvailable": zod.boolean().optional(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
@@ -8150,7 +8279,7 @@ export const ProductControllerSetVariantsParams = zod.object({
 export const ProductControllerSetVariantsBody = zod.object({
   "variantAttributeId": zod.string(),
   "items": zod.array(zod.object({
-  "price": zod.number().optional(),
+  "price": zod.number().nullish(),
   "stock": zod.number().optional(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),
   "enumValueId": zod.string().optional().describe('Идентификатор значения перечисления'),
@@ -8443,7 +8572,7 @@ export const ProductControllerSetVariantMatrixParams = zod.object({
 
 export const ProductControllerSetVariantMatrixBody = zod.object({
   "items": zod.array(zod.object({
-  "price": zod.number().optional(),
+  "price": zod.number().nullish(),
   "stock": zod.number().optional(),
   "isAvailable": zod.boolean().optional(),
   "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']).optional(),

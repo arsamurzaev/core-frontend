@@ -377,6 +377,57 @@ export interface AdminUpdateCatalogDtoReq {
   trialLicenseDays?: number;
 }
 
+export type AdminCatalogFeatureEntitlementItemDtoFeature = typeof AdminCatalogFeatureEntitlementItemDtoFeature[keyof typeof AdminCatalogFeatureEntitlementItemDtoFeature];
+
+
+export const AdminCatalogFeatureEntitlementItemDtoFeature = {
+  producttypes: 'product.types',
+  productvariants: 'product.variants',
+  catalogsale_units: 'catalog.sale_units',
+  inventoryinternal: 'inventory.internal',
+  integrationmoysklad: 'integration.moysklad',
+} as const;
+
+/**
+ * @nullable
+ */
+export type AdminCatalogFeatureEntitlementItemDtoMetadata = { [key: string]: unknown } | null;
+
+export interface AdminCatalogFeatureEntitlementItemDto {
+  feature: AdminCatalogFeatureEntitlementItemDtoFeature;
+  enabled: boolean;
+  /** @nullable */
+  expiresAt: string | null;
+  /** @nullable */
+  metadata: AdminCatalogFeatureEntitlementItemDtoMetadata;
+}
+
+export type AdminCatalogFeatureEntitlementsDtoDefinitionsItem = { [key: string]: unknown };
+
+/**
+ * Raw admin entitlements before dependency resolution.
+ */
+export type AdminCatalogFeatureEntitlementsDtoRaw = {[key: string]: boolean};
+
+/**
+ * Effective capabilities after dependency resolution.
+ */
+export type AdminCatalogFeatureEntitlementsDtoEffective = {[key: string]: boolean};
+
+export type AdminCatalogFeatureEntitlementsDtoItemsItem = { [key: string]: unknown };
+
+export interface AdminCatalogFeatureEntitlementsDto {
+  catalogId: string;
+  definitions: AdminCatalogFeatureEntitlementsDtoDefinitionsItem[];
+  /** Raw admin entitlements before dependency resolution. */
+  raw: AdminCatalogFeatureEntitlementsDtoRaw;
+  /** Effective capabilities after dependency resolution. */
+  effective: AdminCatalogFeatureEntitlementsDtoEffective;
+  /** Per-capability state with disabled reasons. */
+  items: AdminCatalogFeatureEntitlementsDtoItemsItem[];
+  features: AdminCatalogFeatureEntitlementItemDto[];
+}
+
 export type AdminUpdateCatalogFeatureEntitlementDtoReqFeature = typeof AdminUpdateCatalogFeatureEntitlementDtoReqFeature[keyof typeof AdminUpdateCatalogFeatureEntitlementDtoReqFeature];
 
 
@@ -929,6 +980,19 @@ export interface IntegrationProviderCapabilitiesDto {
   webhook: boolean;
 }
 
+export interface MoySkladStockWebhookDto {
+  enabled: boolean;
+  registered: boolean;
+  reportType: string;
+  stockType: string;
+  /** @nullable */
+  lastReceivedAt: string | null;
+  /** @nullable */
+  lastProcessedAt: string | null;
+  /** @nullable */
+  lastError: string | null;
+}
+
 export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvider[keyof typeof MoySkladIntegrationDtoProvider];
 
 
@@ -956,6 +1020,7 @@ export interface MoySkladIntegrationDto {
   priceTypeName: string;
   importImages: boolean;
   syncStock: boolean;
+  stockWebhook: MoySkladStockWebhookDto;
   exportOrders: boolean;
   /** @nullable */
   orderExportOrganizationId: string | null;
@@ -1057,6 +1122,7 @@ export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof t
 export const MoySkladSyncRunDtoTrigger = {
   MANUAL: 'MANUAL',
   SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
 } as const;
 
 export type MoySkladSyncRunDtoStatus = typeof MoySkladSyncRunDtoStatus[keyof typeof MoySkladSyncRunDtoStatus];
@@ -1135,6 +1201,7 @@ export interface UpsertMoySkladIntegrationDtoReq {
   priceTypeName?: string;
   importImages?: boolean;
   syncStock?: boolean;
+  stockWebhookEnabled?: boolean;
   exportOrders?: boolean;
   /** @nullable */
   orderExportOrganizationId?: string | null;
@@ -1155,6 +1222,7 @@ export interface UpdateMoySkladIntegrationDtoReq {
   priceTypeName?: string;
   importImages?: boolean;
   syncStock?: boolean;
+  stockWebhookEnabled?: boolean;
   exportOrders?: boolean;
   /** @nullable */
   orderExportOrganizationId?: string | null;
@@ -1192,6 +1260,7 @@ export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[k
 export const MoySkladQueuedSyncDtoTrigger = {
   MANUAL: 'MANUAL',
   SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
 } as const;
 
 export interface MoySkladQueuedSyncDto {
@@ -2390,7 +2459,8 @@ export const ProductVariantDtoReqStatus = {
 } as const;
 
 export interface ProductVariantDtoReq {
-  price?: number;
+  /** @nullable */
+  price?: number | null;
   stock?: number;
   isAvailable?: boolean;
   status?: ProductVariantDtoReqStatus;
@@ -2566,7 +2636,8 @@ export const ProductVariantUpdateDtoReqStatus = {
 export interface ProductVariantUpdateDtoReq {
   /** Ключ варианта, приходит из ответа товара */
   variantKey: string;
-  price?: number;
+  /** @nullable */
+  price?: number | null;
   stock?: number;
   status?: ProductVariantUpdateDtoReqStatus;
   saleUnits?: ProductVariantSaleUnitDtoReq[];
@@ -2623,7 +2694,8 @@ export const ProductVariantItemDtoReqStatus = {
 } as const;
 
 export interface ProductVariantItemDtoReq {
-  price?: number;
+  /** @nullable */
+  price?: number | null;
   stock?: number;
   status?: ProductVariantItemDtoReqStatus;
   /** Идентификатор значения перечисления */
@@ -3489,6 +3561,10 @@ export type IntegrationControllerGetMoySkladOrderExportsParams = {
 limit?: number;
 };
 
+export type IntegrationControllerReceiveMoySkladStockWebhookParams = {
+requestId?: string;
+};
+
 export type CatalogSaleUnitControllerGetAllParams = {
 includeArchived?: boolean;
 };
@@ -3999,7 +4075,7 @@ const adminControllerDeleteCatalog = (
 const adminControllerGetCatalogFeatureEntitlements = (
     id: string,
  ) => {
-      return mutator<void>(
+      return mutator<AdminCatalogFeatureEntitlementsDto>(
       {url: `/admin/catalogs/${id}/features`, method: 'GET'
     },
       );
@@ -4012,7 +4088,7 @@ const adminControllerUpdateCatalogFeatureEntitlement = (
     id: string,
     adminUpdateCatalogFeatureEntitlementDtoReq: AdminUpdateCatalogFeatureEntitlementDtoReq,
  ) => {
-      return mutator<void>(
+      return mutator<AdminCatalogFeatureEntitlementsDto>(
       {url: `/admin/catalogs/${id}/features`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: adminUpdateCatalogFeatureEntitlementDtoReq
@@ -5226,6 +5302,21 @@ const integrationControllerSyncMoySkladStock = (
     }
   
 /**
+ * @summary Receive MoySklad stock webhook
+ */
+const integrationControllerReceiveMoySkladStockWebhook = (
+    integrationId: string,
+    secret: string,
+    params?: IntegrationControllerReceiveMoySkladStockWebhookParams,
+ ) => {
+      return mutator<void>(
+      {url: `/integration/webhooks/moysklad/stock/${integrationId}/${secret}`, method: 'POST',
+        params
+    },
+      );
+    }
+  
+/**
  * @summary Повторно поставить экспорт заказа MoySklad в очередь
  */
 const integrationControllerRetryMoySkladOrderExport = (
@@ -6279,7 +6370,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerRetryMoySkladOrderExport,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerRetryMoySkladOrderExport,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -6391,6 +6482,7 @@ export type IntegrationControllerSyncMoySkladCatalogResult = NonNullable<Awaited
 export type IntegrationControllerCancelMoySkladSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerCancelMoySkladSync']>>>
 export type IntegrationControllerSyncMoySkladProductResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladProduct']>>>
 export type IntegrationControllerSyncMoySkladStockResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladStock']>>>
+export type IntegrationControllerReceiveMoySkladStockWebhookResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerReceiveMoySkladStockWebhook']>>>
 export type IntegrationControllerRetryMoySkladOrderExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRetryMoySkladOrderExport']>>>
 export type CatalogSaleUnitControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetAll']>>>
 export type CatalogSaleUnitControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerCreate']>>>
