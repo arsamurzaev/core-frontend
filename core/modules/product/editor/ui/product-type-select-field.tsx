@@ -36,11 +36,12 @@ export function ProductTypeSelectField({
 
   return (
     <Select
+      key={value}
       value={value}
       disabled={disabled || readOnly}
       onValueChange={(nextValue) => {
         const resolvedValue =
-          nextValue === EMPTY_PRODUCT_TYPE_VALUE ? "" : nextValue;
+          nextValue === EMPTY_PRODUCT_TYPE_VALUE ? undefined : nextValue;
 
         field.onChange(resolvedValue);
         onProductTypeChange(resolvedValue || null);
@@ -51,7 +52,7 @@ export function ProductTypeSelectField({
         onBlur={field.onBlur}
         className={fieldConfig.controlClassName}
       >
-        <SelectValue placeholder={placeholder} />
+        <SelectValue key={value} placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent
         position="popper"

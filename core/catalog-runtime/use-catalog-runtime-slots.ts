@@ -1,6 +1,6 @@
 "use client";
 
-import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import type { CartItemView } from "@/core/modules/cart";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useSession } from "@/shared/providers/session-provider";
 import React from "react";

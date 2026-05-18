@@ -38,6 +38,8 @@ import {
   useProductTypeControllerGetAll,
   useProductTypeControllerGetMatrixEditorSchema,
 } from "@/shared/api/generated/react-query";
+import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import React from "react";
@@ -74,6 +76,8 @@ export function useProductFormFields({
   onProductTypeChange,
   useSelectedProductTypeSchema = true,
 }: UseProductFormFieldsParams) {
+  const { catalog } = useCatalogState();
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const shouldUseBrands = supportsBrands;
   const brandsQuery = useBrandControllerGetAll({
     query: {
@@ -225,7 +229,11 @@ export function useProductFormFields({
       supportsCategoryDetails,
     });
 
-    return buildCreateProductFormFields(visibleAttributes, customFields);
+    return buildCreateProductFormFields(
+      visibleAttributes,
+      customFields,
+      priceFormatMode,
+    );
   }, [
     brandOptions,
     canUseProductTypes,
@@ -237,6 +245,7 @@ export function useProductFormFields({
     shouldUseBrands,
     supportsCategoryDetails,
     visibleAttributes,
+    priceFormatMode,
   ]);
 
   React.useEffect(() => {

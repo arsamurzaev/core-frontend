@@ -27,6 +27,23 @@ export function shouldRenderCartProductVariantDrawer(params: {
   );
 }
 
+export function canOpenCartProductVariantDrawer(params: {
+  activeVariantCount?: number | null;
+  canUseProductVariants: boolean;
+  hasVariantPickerOptions?: boolean;
+  requiresVariantSelection?: boolean | null;
+}): boolean {
+  if (!params.canUseProductVariants) {
+    return false;
+  }
+
+  return Boolean(
+    params.requiresVariantSelection ||
+      (params.activeVariantCount ?? 0) > 1 ||
+      params.hasVariantPickerOptions,
+  );
+}
+
 export function getCartProductActionAriaLabel(params: {
   isUnavailable: boolean;
   quantity: number;

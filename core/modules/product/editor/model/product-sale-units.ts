@@ -1,4 +1,9 @@
 import { type ProductVariantSaleUnitDtoReq } from "@/shared/api/generated/react-query";
+import {
+  formatCatalogPriceInputValue,
+  isCatalogPriceValueCompatible,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 
 export type SaleUnitFormValue = {
   id?: string;
@@ -147,6 +152,7 @@ export function isSaleUnitDraftTouched(unit: SaleUnitFormValue): boolean {
 export function validateSaleUnitListForSubmit(
   saleUnits: SaleUnitsFormValue | undefined,
   label: string,
+  priceFormatMode: CatalogPriceFormatMode = "integer",
 ): SaleUnitValidationIssue | null {
   const usedCatalogSaleUnitIds = new Set<string>();
 
@@ -182,7 +188,10 @@ export function validateSaleUnitListForSubmit(
       };
     }
 
-    if (price === null || price < 0) {
+    if (
+      price === null ||
+      !isCatalogPriceValueCompatible(price, priceFormatMode)
+    ) {
       return {
         message: `${label}: укажите корректную цену формата продажи.`,
       };
@@ -194,6 +203,7 @@ export function validateSaleUnitListForSubmit(
 
 export function buildSaleUnitsFormValueFromUnknown(
   value: unknown,
+  priceFormatMode: CatalogPriceFormatMode = "integer",
 ): SaleUnitsFormValue {
   if (!Array.isArray(value)) {
     return [];
@@ -236,7 +246,7 @@ export function buildSaleUnitsFormValueFromUnknown(
         catalogSaleUnitName: normalizeText(raw.catalogSaleUnit?.name) || undefined,
         label,
         baseQuantity: String(baseQuantity),
-        price: String(price),
+        price: formatCatalogPriceInputValue(price, priceFormatMode),
         isDefault: raw.isDefault === true,
       },
     ];

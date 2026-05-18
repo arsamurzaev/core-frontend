@@ -1,14 +1,12 @@
 "use client";
 
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import {
+  formatNullableCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { Badge } from "@/shared/ui/badge";
 import React from "react";
-
-function formatCartCardPrice(value: number | null | undefined): string {
-  return typeof value === "number" && Number.isFinite(value)
-    ? Intl.NumberFormat("ru").format(value)
-    : "?";
-}
 
 export function getCartCardDiscountPercent(item: CartItemView): number {
   if (
@@ -34,9 +32,13 @@ export function getCartCardDiscountPercent(item: CartItemView): number {
 
 interface CartCardPriceProps {
   item: CartItemView;
+  priceFormatMode: CatalogPriceFormatMode;
 }
 
-export const CartCardPrice: React.FC<CartCardPriceProps> = ({ item }) => {
+export const CartCardPrice: React.FC<CartCardPriceProps> = ({
+  item,
+  priceFormatMode,
+}) => {
   const discountPercent = item.hasDiscount
     ? getCartCardDiscountPercent(item)
     : 0;
@@ -46,13 +48,17 @@ export const CartCardPrice: React.FC<CartCardPriceProps> = ({ item }) => {
   return (
     <div className="flex items-end gap-3">
       <p className="text-sm leading-none font-bold sm:text-lg">
-        {formatCartCardPrice(item.displayLineTotal)}
+        {formatNullableCatalogPrice(item.displayLineTotal, priceFormatMode)}
         {hasKnownPrice ? ` ${item.currency}` : null}
       </p>
       {shouldShowDiscount ? (
         <>
           <p className="text-muted text-xs leading-none font-bold line-through">
-            {formatCartCardPrice(item.originalLineTotal)} {item.currency}
+            {formatNullableCatalogPrice(
+              item.originalLineTotal,
+              priceFormatMode,
+            )}{" "}
+            {item.currency}
           </p>
           <Badge className="absolute right-0 bottom-2">
             -{discountPercent}%

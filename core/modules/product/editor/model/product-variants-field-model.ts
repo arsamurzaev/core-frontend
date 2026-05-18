@@ -6,6 +6,10 @@ import {
   type VariantsFormValue,
 } from "./product-variants";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 
 export const VARIANT_STATUS_LABEL: Record<VariantStatus, string> = {
   DISABLED: "Не использовать",
@@ -43,11 +47,11 @@ export function toPositiveVariantNumber(value: unknown): number | null {
   return null;
 }
 
-export function formatVariantMoney(value: number): string {
-  return new Intl.NumberFormat("ru-RU", {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
-  }).format(value);
+export function formatVariantMoney(
+  value: number,
+  mode: CatalogPriceFormatMode = "integer",
+): string {
+  return formatCatalogPrice(value, mode);
 }
 
 export function resolveVariantDiscountPreview(

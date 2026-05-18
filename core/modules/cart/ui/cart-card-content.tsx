@@ -2,13 +2,18 @@
 
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
 import { CartCardPrice } from "@/core/modules/cart/ui/cart-card-price";
+import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 
 interface CartCardContentProps {
   item: CartItemView;
+  priceFormatMode: CatalogPriceFormatMode;
 }
 
-export const CartCardContent: React.FC<CartCardContentProps> = ({ item }) => {
+export const CartCardContent: React.FC<CartCardContentProps> = ({
+  item,
+  priceFormatMode,
+}) => {
   return (
     <div className="flex h-full flex-1 flex-col justify-between">
       <h3 className="line-clamp-2 leading-tight font-bold sm:text-xl">
@@ -17,7 +22,7 @@ export const CartCardContent: React.FC<CartCardContentProps> = ({ item }) => {
       <h4 className="text-[10px] font-light sm:text-base">
         {item.subtitle}
       </h4>
-      <CartCardPrice item={item} />
+      <CartCardPrice item={item} priceFormatMode={priceFormatMode} />
     </div>
   );
 };

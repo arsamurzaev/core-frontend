@@ -1,11 +1,8 @@
 "use client";
 
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
-import {
-  CREATE_PRODUCT_FORM_DEFAULT_VALUES,
-  type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
 import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
+import { useProductEditorForm } from "@/core/modules/product/editor/model/use-product-editor-form";
 import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
 import {
   buildVariantsFormValueFromExisting,
@@ -19,15 +16,14 @@ import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   useProductControllerGetById,
   useProductControllerRemove,
-  useProductControllerSetVariantMatrix,
   useProductControllerUpdate,
 } from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { confirmDelete } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 function getMissingProductMessage(params: {
@@ -48,15 +44,14 @@ export function useEditProductDrawer(
   } = {},
 ) {
   const { supportsBrands = true, supportsCategoryDetails = true } = params;
-  const { type } = useCatalog();
+  const catalog = useCatalog();
+  const { type } = catalog;
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const features = useCatalogCapabilities();
   const queryClient = useQueryClient();
   const updateProduct = useProductControllerUpdate();
-  const setVariantMatrix = useProductControllerSetVariantMatrix();
   const removeProduct = useProductControllerRemove();
-  const form = useForm<CreateProductFormValues>({
-    defaultValues: CREATE_PRODUCT_FORM_DEFAULT_VALUES,
-  });
+  const form = useProductEditorForm();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
@@ -127,6 +122,7 @@ export function useEditProductDrawer(
     open,
     product,
     productAttributes,
+    priceFormatMode,
     variantAttributes,
     productQueryError: productQuery.error,
     productQueryIsError: productQuery.isError,
@@ -197,6 +193,7 @@ export function useEditProductDrawer(
     const restored = buildVariantsFormValueFromExisting(
       product.variants ?? [],
       variantAttributes,
+      priceFormatMode,
     );
     restoredVariantMatrixKeyRef.current = variantMatrixRestoreKey;
 
@@ -209,7 +206,14 @@ export function useEditProductDrawer(
       shouldTouch: false,
       shouldValidate: false,
     });
-  }, [form, open, product, variantAttributes, variantMatrixRestoreKey]);
+  }, [
+    form,
+    open,
+    priceFormatMode,
+    product,
+    variantAttributes,
+    variantMatrixRestoreKey,
+  ]);
 
   const handleDelete = React.useCallback(() => {
     if (isBusy) {
@@ -258,6 +262,7 @@ export function useEditProductDrawer(
   const handleBaseSubmit = useEditProductSubmit({
     closeDrawer: handleCloseDrawer,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    canUseProductTypes: features.canUseProductTypes,
     canUseProductVariants: features.canUseProductVariants,
     form,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
@@ -265,6 +270,7 @@ export function useEditProductDrawer(
     openRequiredCropper: imageEditor.openRequiredCropper,
     pendingAddedFilesCount: imageEditor.pendingAddedFilesCount,
     persistedAttributeValues,
+    priceFormatMode,
     product,
     productAttributes,
     productQueryError: productQuery.error,
@@ -273,7 +279,6 @@ export function useEditProductDrawer(
     resolveMediaIdsForSubmit: imageEditor.resolveMediaIdsForSubmit,
     setErrorMessage: drawerState.setErrorMessage,
     setIsSubmitting,
-    setVariantMatrix,
     updateProduct,
     variantAttributes,
     visibleAttributes,

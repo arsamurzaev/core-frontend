@@ -55,6 +55,30 @@ describe("product variant form model", () => {
     });
   });
 
+  it("keeps an empty stock value as null", () => {
+    expect(
+      normalizeVariantsFormValue({
+        selectedAttributeIds: ["size"],
+        selectedValueIdsByAttributeId: {
+          size: ["s"],
+        },
+        combinations: {
+          "size=s": {
+            status: "ACTIVE",
+            stock: "",
+          },
+        },
+      }),
+    ).toMatchObject({
+      combinations: {
+        "size=s": {
+          status: "ACTIVE",
+          stock: null,
+        },
+      },
+    });
+  });
+
   it("normalizes the legacy one-attribute variants shape", () => {
     expect(
       normalizeVariantsFormValue({

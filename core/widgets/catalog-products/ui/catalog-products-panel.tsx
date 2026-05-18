@@ -3,13 +3,13 @@
 import {
   CATALOG_PRODUCTS_SECTION_ID,
   CATEGORY_SECTION_SCROLL_MARGIN_TOP,
-} from "@/core/modules/browser/model/category-scroll";
-import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
+} from "@/core/modules/browser";
 import {
+  ProductCardSkeleton,
   PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
   PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
   useProductCardViewMode,
-} from "@/core/modules/product/model/use-product-card-view-mode";
+} from "@/core/modules/product";
 import { VirtualizedCategoryProducts } from "@/core/widgets/category-products/ui/category-products";
 import { FilterProducts } from "@/core/widgets/filter-products/ui/filter-products";
 import type { CategoryDto } from "@/shared/api/generated/react-query";

@@ -4,6 +4,7 @@ import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
 import { CartCardContent } from "@/core/modules/cart/ui/cart-card-content";
 import { CartCardImage } from "@/core/modules/cart/ui/cart-card-image";
 import { CartCardQuantity } from "@/core/modules/cart/ui/cart-card-quantity";
+import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 
 import React from "react";
@@ -13,6 +14,7 @@ interface CartCardProps {
   className?: string;
   item: CartItemView;
   onClick?: () => void;
+  priceFormatMode: CatalogPriceFormatMode;
 }
 
 export const CartCard: React.FC<CartCardProps> = ({
@@ -20,6 +22,7 @@ export const CartCard: React.FC<CartCardProps> = ({
   className,
   item,
   onClick,
+  priceFormatMode,
 }) => {
   const isInteractive = Boolean(onClick);
 
@@ -46,7 +49,7 @@ export const CartCard: React.FC<CartCardProps> = ({
     >
       <CartCardImage imageUrl={item.imageUrl} name={item.name} />
       <div className="flex h-full items-center p-2 pl-0">
-        <CartCardContent item={item} />
+        <CartCardContent item={item} priceFormatMode={priceFormatMode} />
         {actions}
         {actions ? null : <CartCardQuantity quantity={item.quantity} />}
       </div>

@@ -4,16 +4,20 @@ import {
   CATEGORY_SECTION_SCROLL_MARGIN_TOP,
   FILTER_PRODUCTS_RESULTS_SECTION_ID,
   getCategorySectionScrollOffset,
-} from "@/core/modules/browser/model/category-scroll";
-import { useCart } from "@/core/modules/cart/model/cart-context";
-import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
-import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
+} from "@/core/modules/browser";
+import {
+  CartProductAction,
+  CartProductCardFooterAction,
+  useCart,
+} from "@/core/modules/cart";
 import { ProductCardRuntime } from "@/core/catalog-runtime/ui";
-import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
-import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
-import { ProductLink } from "@/core/modules/product/entities/product-link";
-import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
-import { useProductCardViewMode } from "@/core/modules/product/model/use-product-card-view-mode";
+import {
+  isMoySkladProduct,
+  ProductCardSkeleton,
+  ProductLink,
+  ToggleProductPopularAction,
+  useProductCardViewMode,
+} from "@/core/modules/product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import {
   DETAILED_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
@@ -40,9 +44,9 @@ type FilterSectionProduct = {
 const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
 const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX = 380;
-const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 390;
-const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 340;
-const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 124;
+const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 430;
+const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 360;
+const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 152;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const FILTER_PRODUCTS_HEADING_ROW_ESTIMATE_PX = 40;
 const FILTER_PRODUCTS_EMPTY_ROW_ESTIMATE_PX = 72;
@@ -72,6 +76,7 @@ const FilterProductCard = React.memo(
       >
         <ProductCardRuntime
           data={product}
+          imageLoading="eager"
           isDetailed={isDetailed}
           isMoySkladLinked={
             !shouldUseCartUi &&

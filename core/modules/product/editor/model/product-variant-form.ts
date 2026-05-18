@@ -24,9 +24,21 @@ function toOptionalNumber(value: unknown): number | null {
   return null;
 }
 
-function normalizeStock(value: unknown): number {
+function normalizeStock(value: unknown): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (typeof value === "string" && value.trim().length === 0) {
+    return null;
+  }
+
   const parsed = toOptionalNumber(value);
-  if (parsed === null || parsed < 0) {
+  if (parsed === null) {
+    return null;
+  }
+
+  if (parsed < 0) {
     return 0;
   }
 
@@ -44,7 +56,7 @@ function isVariantStatus(value: unknown): value is VariantStatus {
 export function createDefaultVariantCombinationFormValue(): VariantCombinationFormValue {
   return {
     status: "DISABLED",
-    stock: 0,
+    stock: null,
   };
 }
 

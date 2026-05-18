@@ -155,6 +155,102 @@ describe("product variant payload model", () => {
     ]);
   });
 
+  it("keeps variant price without sale units", () => {
+    const size = attribute({
+      id: "size",
+      enumValues: [
+        enumValue({
+          id: "m",
+          attributeId: "size",
+          value: "m",
+          displayName: "Medium",
+        }),
+      ],
+    });
+    const mediumKey = buildVariantCombinationKey(
+      [{ attributeId: "size", enumValueId: "m" }],
+      [size],
+    );
+
+    expect(
+      buildCreateVariantsPayload(
+        {
+          selectedAttributeIds: ["size"],
+          selectedValueIdsByAttributeId: {
+            size: ["m"],
+          },
+          combinations: {
+            [mediumKey]: {
+              price: "1499",
+              status: "ACTIVE",
+              stock: 5,
+            },
+          },
+        },
+        [size],
+      ),
+    ).toEqual([
+      {
+        price: 1499,
+        status: "ACTIVE",
+        stock: 5,
+        attributes: [
+          {
+            attributeId: "size",
+            enumValueId: "m",
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("keeps active variant stock as null when stock is not tracked", () => {
+    const size = attribute({
+      id: "size",
+      enumValues: [
+        enumValue({
+          id: "m",
+          attributeId: "size",
+          value: "m",
+          displayName: "Medium",
+        }),
+      ],
+    });
+    const mediumKey = buildVariantCombinationKey(
+      [{ attributeId: "size", enumValueId: "m" }],
+      [size],
+    );
+
+    expect(
+      buildCreateVariantsPayload(
+        {
+          selectedAttributeIds: ["size"],
+          selectedValueIdsByAttributeId: {
+            size: ["m"],
+          },
+          combinations: {
+            [mediumKey]: {
+              status: "ACTIVE",
+              stock: null,
+            },
+          },
+        },
+        [size],
+      ),
+    ).toEqual([
+      {
+        status: "ACTIVE",
+        stock: null,
+        attributes: [
+          {
+            attributeId: "size",
+            enumValueId: "m",
+          },
+        ],
+      },
+    ]);
+  });
+
   it("wraps create payload for set variant matrix", () => {
     expect(buildSetVariantMatrixPayload(undefined, [])).toEqual({
       items: [],

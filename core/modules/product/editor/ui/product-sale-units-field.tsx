@@ -22,6 +22,10 @@ import {
   useCatalogSaleUnitControllerGetAll,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import {
+  getCatalogPriceInputProps,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import {
@@ -40,6 +44,7 @@ import { toast } from "sonner";
 interface ProductSaleUnitsFieldProps {
   disabled?: boolean;
   discountPercent?: number;
+  priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
   saleUnits: SaleUnitsFormValue | undefined;
   title?: string;
@@ -53,12 +58,14 @@ function normalizeText(value: unknown): string {
 export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
   disabled,
   discountPercent = 0,
+  priceFormatMode = "integer",
   priceFallback,
   saleUnits,
   title = "Единицы продажи",
   onChange,
 }) => {
   const queryClient = useQueryClient();
+  const priceInputProps = getCatalogPriceInputProps(priceFormatMode);
   const [draftNameByIndex, setDraftNameByIndex] = React.useState<
     Record<number, string>
   >({});
@@ -376,9 +383,15 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                     />
                     {preview ? (
                       <span className="block text-xs text-muted-foreground">
-                        {formatSaleUnitMoney(preview.basePrice)}{" -> "}
+                        {formatSaleUnitMoney(
+                          preview.basePrice,
+                          priceFormatMode,
+                        )}{" -> "}
                         <span className="font-medium text-foreground">
-                          {formatSaleUnitMoney(preview.finalPrice)}
+                          {formatSaleUnitMoney(
+                            preview.finalPrice,
+                            priceFormatMode,
+                          )}
                         </span>{" "}
                         (-{discountPercent}%)
                       </span>
@@ -393,8 +406,8 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                       value={unit.price}
                       type="number"
                       min={0}
-                      step="0.01"
-                      inputMode="decimal"
+                      step={priceInputProps.step}
+                      inputMode={priceInputProps.inputMode}
                       disabled={disabled}
                       placeholder="1200"
                       onChange={(event) =>

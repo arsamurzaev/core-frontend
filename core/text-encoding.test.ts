@@ -11,6 +11,7 @@ const SKIPPED_PATH_PARTS = [
 ];
 
 const MOJIBAKE_MARKERS = [
+  "\u0432\u0402",
   "\u0420\u045f",
   "\u0420\u040b",
   "\u0420\u045a",
@@ -20,6 +21,8 @@ const MOJIBAKE_MARKERS = [
   "\u0420\u2014",
   "\u0420\u040e",
   "\u0420\u00a0",
+  "\u0420\u2022",
+  "\u0420\u2019",
   "\u0421\u040a",
   "\u0421\u0453",
   "\u0421\u201a",
@@ -28,6 +31,7 @@ const MOJIBAKE_MARKERS = [
   "\u0421\u2021",
   "\u0421\u20ac",
   "\u0421\u2030",
+  "\u0421\u2020",
 ] as const;
 
 function hasSkippedPathPart(filePath: string): boolean {

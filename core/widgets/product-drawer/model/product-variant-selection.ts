@@ -1,10 +1,11 @@
 "use client";
 
 import {
-  findKnownProductVariant,
-  getInitialProductVariantId,
-  isProductVariantPurchasable,
-} from "@/core/widgets/product-drawer/model/product-variant-picker-model";
+  findKnownProductVariantOption,
+  isProductVariantOptionSelectable,
+  resolveInitialProductVariantId,
+  resolveProductVariantSelection,
+} from "@/core/modules/product";
 import type { ProductVariantDto } from "@/shared/api/generated/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
@@ -16,6 +17,7 @@ export function useProductVariantSelection(params: {
   initialVariantId?: string | null;
   productId?: string | null;
   shouldEnforceStock?: boolean;
+  shouldSelectFirstVariant?: boolean;
   singleVariantId?: string | null;
   variants: ProductVariantDto[];
 }) {
@@ -23,6 +25,7 @@ export function useProductVariantSelection(params: {
     initialVariantId,
     productId,
     shouldEnforceStock,
+    shouldSelectFirstVariant,
     singleVariantId,
     variants,
   } = params;
@@ -42,6 +45,7 @@ export function useProductVariantSelection(params: {
     initialVariantId?.trim() ?? "",
     queryVariantId ?? "",
     shouldEnforceStock === false ? "stock-off" : "stock-on",
+    shouldSelectFirstVariant === false ? "no-first" : "first",
     singleVariantId ?? "",
   ].join(":");
 
@@ -52,23 +56,24 @@ export function useProductVariantSelection(params: {
       previousProductIdRef.current = productId ?? null;
       previousSelectionKeyRef.current = selectionKey;
 
-      const currentVariant = findKnownProductVariant(variants, current);
+      const currentVariant = findKnownProductVariantOption(variants, current);
       if (
         !selectionKeyChanged &&
         !productChanged &&
         !queryVariantId &&
         currentVariant &&
-        isProductVariantPurchasable(currentVariant, {
+        isProductVariantOptionSelectable(currentVariant, {
           shouldEnforceStock,
         })
       ) {
         return current;
       }
 
-      return getInitialProductVariantId({
+      return resolveInitialProductVariantId({
         initialVariantId,
         queryVariantId,
         shouldEnforceStock,
+        shouldSelectFirstVariant,
         singleVariantId,
         variants,
       });
@@ -79,6 +84,7 @@ export function useProductVariantSelection(params: {
     queryVariantId,
     selectionKey,
     shouldEnforceStock,
+    shouldSelectFirstVariant,
     singleVariantId,
     variants,
   ]);
@@ -103,17 +109,21 @@ export function useProductVariantSelection(params: {
     [pathname, router, searchParams],
   );
 
-  const selectedVariant = React.useMemo(
+  const selectionState = React.useMemo(
     () =>
-      selectedVariantId
-        ? (variants.find((variant) => variant.id === selectedVariantId) ?? null)
-        : null,
-    [selectedVariantId, variants],
+      resolveProductVariantSelection({
+        selectedVariantId,
+        shouldEnforceStock,
+        variants,
+      }),
+    [selectedVariantId, shouldEnforceStock, variants],
   );
 
   return {
-    selectedVariant,
-    selectedVariantId,
+    isSelectedVariantSelectable: selectionState.isSelectedVariantSelectable,
+    selectedVariant: selectionState.selectedVariant,
+    selectedVariantAvailability: selectionState.selectedVariantAvailability,
+    selectedVariantId: selectionState.selectedVariantId,
     setSelectedVariantId,
   };
 }

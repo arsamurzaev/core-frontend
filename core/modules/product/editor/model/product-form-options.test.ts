@@ -86,6 +86,15 @@ describe("product form options", () => {
     ]);
   });
 
+  it("uses parent paths for nested category options", () => {
+    expect(
+      buildCategoryOptions([
+        category({ id: "parent", name: "Shoes" }),
+        category({ id: "child", parentId: "parent", name: "Sneakers" }),
+      ]),
+    ).toContainEqual({ label: "Shoes / Sneakers", value: "child" });
+  });
+
   it("builds active non-archived product type options", () => {
     expect(
       buildProductTypeOptions([

@@ -11,6 +11,7 @@ import type {
   ProductCardPluginModel,
   ResolvedProductCardPlugin,
 } from "./contracts";
+import { formatProductVariantLabel } from "../model/product-variant-label";
 
 type ProductCardEntity = ProductWithAttributesDto | ProductWithDetailsDto;
 
@@ -24,6 +25,12 @@ function canShowProductVariants(
   product: ProductCardEntity,
 ): product is ProductWithDetailsDto {
   return Boolean(product.productType?.id) && isProductWithDetails(product);
+}
+
+function hasVariantPickerOptions(product: ProductCardEntity): boolean {
+  return Boolean(
+    product.productType?.id && (product.variantPickerOptions?.length ?? 0) > 0,
+  );
 }
 
 function toTextValue(value: ParsedAttributeValue): string | null {
@@ -76,32 +83,39 @@ function getVariantValuesByKey(product: ProductCardEntity, key: string): string[
   return Array.from(values);
 }
 
-function getAllVariantsSummary(product: ProductCardEntity): string | null {
-  if (!canShowProductVariants(product)) {
+function getPickerOptionVariantsSummary(product: ProductCardEntity): string | null {
+  if (!hasVariantPickerOptions(product)) {
     return null;
   }
 
+  const variants = new Set(
+    (product.variantPickerOptions ?? [])
+      .filter((option) => option.status !== "DISABLED")
+      .map((option) => option.label?.trim())
+      .filter((label): label is string => Boolean(label)),
+  );
+
+  return variants.size > 0 ? Array.from(variants).join(", ") : null;
+}
+
+function getAllVariantsSummary(product: ProductCardEntity): string | null {
   const variants = new Set<string>();
 
-  for (const variant of product.variants ?? []) {
-    const value = (variant.attributes ?? [])
-      .map(
-        (attribute) =>
-          attribute.enumValue?.displayName ?? attribute.enumValue?.value ?? null,
-      )
-      .filter((item): item is string => Boolean(item))
-      .join(" / ");
+  if (canShowProductVariants(product)) {
+    for (const variant of product.variants ?? []) {
+      const value = formatProductVariantLabel(variant);
 
-    if (value) {
-      variants.add(value);
+      if (value) {
+        variants.add(value);
+      }
     }
   }
 
-  if (variants.size === 0) {
-    return null;
+  if (variants.size > 0) {
+    return Array.from(variants).join(", ");
   }
 
-  return Array.from(variants).join(", ");
+  return getPickerOptionVariantsSummary(product);
 }
 
 function resolveAttributeValue(

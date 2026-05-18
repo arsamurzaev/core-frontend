@@ -18,6 +18,7 @@ import {
   type CreateProductDtoReq,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { type QueryClient } from "@tanstack/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -39,6 +40,7 @@ interface UseCreateProductSubmitParams {
   isSubmitting: boolean;
   openRequiredCropper: () => void;
   pendingAddedFilesCount: number;
+  priceFormatMode: CatalogPriceFormatMode;
   productAttributes: AttributeDto[];
   queryClient: QueryClient;
   setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
@@ -85,6 +87,7 @@ export function useCreateProductSubmit({
   isSubmitting,
   openRequiredCropper,
   pendingAddedFilesCount,
+  priceFormatMode,
   productAttributes,
   queryClient,
   setErrorMessage,
@@ -104,6 +107,8 @@ export function useCreateProductSubmit({
       invalidFormMessage: "Заполните форму товара.",
       invalidPriceMessage: "Укажите корректную цену.",
       canUseCatalogSaleUnits,
+      canUseProductVariants,
+      priceFormatMode,
       values: form.getValues(),
       variantAttributes,
       visibleAttributes,
@@ -218,6 +223,7 @@ export function useCreateProductSubmit({
     isSubmitting,
     openRequiredCropper,
     pendingAddedFilesCount,
+    priceFormatMode,
     productAttributes,
     queryClient,
     setErrorMessage,

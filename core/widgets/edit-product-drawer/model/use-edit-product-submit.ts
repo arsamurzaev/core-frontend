@@ -2,7 +2,6 @@
 
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
-import { buildSetVariantMatrixPayload } from "@/core/modules/product/editor/model/product-variants";
 import {
   type AttributeFormValue,
   type UploadState,
@@ -18,10 +17,10 @@ import {
 import {
   type AttributeDto,
   type ProductWithDetailsDto,
-  type SetProductVariantMatrixDtoReq,
   type UpdateProductDtoReq,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { type QueryClient } from "@tanstack/react-query";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -34,16 +33,10 @@ interface EditProductUpdateMutation {
   }) => Promise<unknown>;
 }
 
-interface EditProductSetVariantMatrixMutation {
-  mutateAsync: (params: {
-    id: string;
-    data: SetProductVariantMatrixDtoReq;
-  }) => Promise<unknown>;
-}
-
 interface UseEditProductSubmitParams {
   closeDrawer: () => void;
   canUseCatalogSaleUnits: boolean;
+  canUseProductTypes: boolean;
   canUseProductVariants: boolean;
   form: UseFormReturn<CreateProductFormValues>;
   isInitialCropRequired: boolean;
@@ -51,6 +44,7 @@ interface UseEditProductSubmitParams {
   openRequiredCropper: () => void;
   pendingAddedFilesCount: number;
   persistedAttributeValues: Record<string, AttributeFormValue>;
+  priceFormatMode: CatalogPriceFormatMode;
   product: ProductWithDetailsDto | null;
   productAttributes: AttributeDto[];
   productQueryError: unknown;
@@ -61,7 +55,6 @@ interface UseEditProductSubmitParams {
   ) => Promise<ResolvedEditProductMediaSubmit>;
   setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
   setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
-  setVariantMatrix: EditProductSetVariantMatrixMutation;
   updateProduct: EditProductUpdateMutation;
   variantAttributes: AttributeDto[];
   visibleAttributes: AttributeDto[];
@@ -90,6 +83,7 @@ function renderUploadProgressToast(state: UploadState) {
 export function useEditProductSubmit({
   closeDrawer,
   canUseCatalogSaleUnits,
+  canUseProductTypes,
   canUseProductVariants,
   form,
   isInitialCropRequired,
@@ -97,6 +91,7 @@ export function useEditProductSubmit({
   openRequiredCropper,
   pendingAddedFilesCount,
   persistedAttributeValues,
+  priceFormatMode,
   product,
   productAttributes,
   productQueryError,
@@ -105,7 +100,6 @@ export function useEditProductSubmit({
   resolveMediaIdsForSubmit,
   setErrorMessage,
   setIsSubmitting,
-  setVariantMatrix,
   updateProduct,
   variantAttributes,
   visibleAttributes,
@@ -129,6 +123,8 @@ export function useEditProductSubmit({
       invalidFormMessage: "Заполните форму товара.",
       invalidPriceMessage: "Укажите корректную цену.",
       canUseCatalogSaleUnits,
+      canUseProductVariants,
+      priceFormatMode,
       values: form.getValues(),
       variantAttributes,
       visibleAttributes,
@@ -177,31 +173,16 @@ export function useEditProductSubmit({
           persistedAttributeValues,
           product,
           productAttributes,
+          variantAttributes,
+          canUseProductTypes,
           canUseCatalogSaleUnits,
+          canUseProductVariants,
         });
-        const selectedProductTypeId = parsedValues.productTypeId ?? null;
-        const currentProductTypeId = product.productType?.id ?? null;
-        const hasProductTypeChange =
-          selectedProductTypeId !== currentProductTypeId;
 
         await updateProduct.mutateAsync({
           id: productId,
           data: updatePayload,
         });
-
-        if (
-          canUseProductVariants &&
-          variantAttributes.length > 0 &&
-          !hasProductTypeChange
-        ) {
-          await setVariantMatrix.mutateAsync({
-            id: productId,
-            data: buildSetVariantMatrixPayload(
-              parsedValues.variants,
-              variantAttributes,
-            ),
-          });
-        }
 
         void invalidateEditProductQueries(queryClient);
 
@@ -246,6 +227,7 @@ export function useEditProductSubmit({
   }, [
     closeDrawer,
     canUseCatalogSaleUnits,
+    canUseProductTypes,
     canUseProductVariants,
     form,
     isInitialCropRequired,
@@ -253,6 +235,7 @@ export function useEditProductSubmit({
     openRequiredCropper,
     pendingAddedFilesCount,
     persistedAttributeValues,
+    priceFormatMode,
     product,
     productAttributes,
     productQueryError,
@@ -261,7 +244,6 @@ export function useEditProductSubmit({
     resolveMediaIdsForSubmit,
     setErrorMessage,
     setIsSubmitting,
-    setVariantMatrix,
     updateProduct,
     variantAttributes,
     visibleAttributes,

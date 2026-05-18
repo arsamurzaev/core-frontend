@@ -38,11 +38,26 @@ function resolveProductCardImageStatus(
   return data.media?.[0]?.media?.status ?? null;
 }
 
+function hasProductVariantSignal(data: ProductWithAttributesDto): boolean {
+  return Boolean(
+    data.productType?.id ||
+      data.requiresVariantSelection ||
+      data.defaultVariantId ||
+      (data.variantSummary?.activeCount ?? 0) > 0 ||
+      (data.variantPickerOptions?.length ?? 0) > 0,
+  );
+}
+
 export function buildProductCardView(
   data: ProductWithAttributesDto,
   options: ProductCardViewOptions = {},
 ): ProductCardView {
-  const canUseVariants = Boolean(options.canUseVariants && data.productType?.id);
+  const canUseVariants = Boolean(
+    options.canUseVariants && hasProductVariantSignal(data),
+  );
+  const projectionDisplayPrice = toNumberValue(data.displayPrice);
+  const projectionMinPrice = toNumberValue(data.minPrice);
+  const projectionMaxPrice = toNumberValue(data.maxPrice);
   const minVariantPrice = canUseVariants
     ? toNumberValue(data.variantSummary?.minPrice ?? null)
     : null;
@@ -62,8 +77,17 @@ export function buildProductCardView(
     maxVariantPrice !== null &&
     activeVariantCount > 1;
   const productPrice = toNumberValue(data.price);
-  const price =
-    minVariantPrice !== null && (productPrice !== null || minVariantPrice > 0)
+  const hasProjectedPriceState = typeof data.priceState === "string";
+  const hasProjectedPriceRange =
+    data.priceState === "RANGE" ||
+    (projectionMinPrice !== null &&
+      projectionMaxPrice !== null &&
+      projectionMinPrice !== projectionMaxPrice);
+  const price = hasProjectedPriceState
+    ? data.priceState === "UNKNOWN"
+      ? null
+      : (projectionDisplayPrice ?? projectionMinPrice ?? productPrice)
+    : minVariantPrice !== null
       ? minVariantPrice
       : productPrice;
   const {
@@ -85,7 +109,10 @@ export function buildProductCardView(
       ? calculatePrice({
           price,
           discount,
-          discountedPrice: hasMultipleVariantPrices ? undefined : discountedPrice,
+          discountedPrice:
+            hasProjectedPriceRange || hasMultipleVariantPrices
+              ? undefined
+              : discountedPrice,
           discountStartAt,
           discountEndAt,
         })
@@ -100,7 +127,7 @@ export function buildProductCardView(
     imageUrl: resolveProductCardImageUrl(data),
     imageStatus: resolveProductCardImageStatus(data),
     price: price ?? undefined,
-    pricePrefix: hasVariantPriceRange ? "от" : null,
+    pricePrefix: hasProjectedPriceRange || hasVariantPriceRange ? "от" : null,
     subtitle,
   };
 }

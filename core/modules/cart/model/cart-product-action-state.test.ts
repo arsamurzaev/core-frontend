@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CART_PRODUCT_ACTION_LABELS,
+  canOpenCartProductVariantDrawer,
   getCartProductActionAriaLabel,
   shouldRenderCartProductVariantDrawer,
   shouldShowCartProductActionQuantity,
@@ -23,6 +24,36 @@ describe("shouldShowCartProductActionQuantity", () => {
     expect(
       shouldShowCartProductActionQuantity({
         quantity: 0,
+        requiresVariantSelection: false,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("canOpenCartProductVariantDrawer", () => {
+  it("does not expose variant UI when the capability is disabled", () => {
+    expect(
+      canOpenCartProductVariantDrawer({
+        activeVariantCount: 3,
+        canUseProductVariants: false,
+        hasVariantPickerOptions: true,
+        requiresVariantSelection: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("opens variant UI only for enabled catalogs with variant choices", () => {
+    expect(
+      canOpenCartProductVariantDrawer({
+        activeVariantCount: 2,
+        canUseProductVariants: true,
+      }),
+    ).toBe(true);
+    expect(
+      canOpenCartProductVariantDrawer({
+        activeVariantCount: 1,
+        canUseProductVariants: true,
+        hasVariantPickerOptions: false,
         requiresVariantSelection: false,
       }),
     ).toBe(false);

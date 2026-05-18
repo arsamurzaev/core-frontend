@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+  createProductEditorFormDefaultValues,
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
 import { buildInitialAttributeValues } from "@/core/modules/product/editor/model/product-attributes";
@@ -32,7 +32,7 @@ export function useCreateProductDrawerState({
 
   const resetState = React.useCallback(() => {
     form.reset({
-      ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+      ...createProductEditorFormDefaultValues(),
       attributes: buildInitialAttributeValues(productAttributes),
     });
     resetImageState();

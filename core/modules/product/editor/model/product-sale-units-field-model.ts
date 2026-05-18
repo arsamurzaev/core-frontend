@@ -2,6 +2,10 @@ import {
   type SaleUnitFormValue,
   type SaleUnitsFormValue,
 } from "./product-sale-units";
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 
 export type SaleUnitDraftNamesByIndex = Record<number, string>;
 
@@ -54,11 +58,11 @@ export function getSaleUnitDisplayName(unit: SaleUnitFormValue): string {
   return normalizeText(unit.catalogSaleUnitName) || normalizeText(unit.label);
 }
 
-export function formatSaleUnitMoney(value: number): string {
-  return new Intl.NumberFormat("ru-RU", {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
-  }).format(value);
+export function formatSaleUnitMoney(
+  value: number,
+  mode: CatalogPriceFormatMode = "integer",
+): string {
+  return formatCatalogPrice(value, mode);
 }
 
 export function resolveSaleUnitDiscountPreview(

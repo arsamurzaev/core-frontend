@@ -1,12 +1,16 @@
 "use client";
 
-import { useCart } from "@/core/modules/cart/model/cart-context";
-import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
-import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
+import {
+  CartProductAction,
+  CartProductCardFooterAction,
+  useCart,
+} from "@/core/modules/cart";
 import { ProductCardRuntime } from "@/core/catalog-runtime/ui";
-import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
-import { ProductLink } from "@/core/modules/product/entities/product-link";
-import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
+import {
+  isMoySkladProduct,
+  ProductLink,
+  ToggleProductPopularAction,
+} from "@/core/modules/product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import {
   type ProductWithAttributesDto,

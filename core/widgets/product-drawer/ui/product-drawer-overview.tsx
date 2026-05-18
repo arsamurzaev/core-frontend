@@ -10,12 +10,12 @@ interface ProductDrawerOverviewHeaderProps {
   hasError: boolean;
   isLoading: boolean;
   subtitle: string;
+  variantsSummary: string | null;
 }
 
 interface ProductDrawerOverviewMetaProps {
   attributeRows: ProductDrawerAttributeRow[];
   isLoading: boolean;
-  variantsSummary: string | null;
 }
 
 export function ProductDrawerOverviewHeader({
@@ -25,6 +25,7 @@ export function ProductDrawerOverviewHeader({
   hasError,
   isLoading,
   subtitle,
+  variantsSummary,
 }: ProductDrawerOverviewHeaderProps) {
   return (
     <div className="space-y-2 px-4 text-left">
@@ -44,6 +45,11 @@ export function ProductDrawerOverviewHeader({
             <p className="text-sm font-semibold text-black">{brandName}</p>
           ) : null}
           <h2 className="text-2xl font-bold sm:text-3xl">{displayName}</h2>
+          {variantsSummary ? (
+            <p className="text-muted-foreground text-xs leading-tight sm:text-sm">
+              {variantsSummary}
+            </p>
+          ) : null}
           {subtitle ? (
             <p className="text-left text-base font-light text-foreground sm:text-lg">
               {subtitle}
@@ -69,7 +75,6 @@ export function ProductDrawerOverviewHeader({
 export function ProductDrawerOverviewMeta({
   attributeRows,
   isLoading,
-  variantsSummary,
 }: ProductDrawerOverviewMetaProps) {
   if (isLoading) {
     return (
@@ -80,7 +85,7 @@ export function ProductDrawerOverviewMeta({
     );
   }
 
-  if (!variantsSummary && attributeRows.length === 0) {
+  if (attributeRows.length === 0) {
     return null;
   }
 
@@ -97,12 +102,6 @@ export function ProductDrawerOverviewMeta({
           {attribute.value}
         </p>
       ))}
-      {variantsSummary ? (
-        <p className="text-muted-foreground text-xs sm:text-sm">
-          <span className="text-foreground font-medium">Вариации:</span>{" "}
-          {variantsSummary}
-        </p>
-      ) : null}
     </div>
   );
 }

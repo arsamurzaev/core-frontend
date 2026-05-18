@@ -1,8 +1,8 @@
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
-
-function formatSharePrice(value: number) {
-  return Intl.NumberFormat("ru-RU").format(value);
-}
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 
 function getShareProductName(name: string) {
   const trimmedName = name.trim();
@@ -36,9 +36,13 @@ function formatCartItemQuantity(item: CartItemView): string {
     : `${item.quantity} шт.`;
 }
 
-function formatShareMoney(value: number, currency: string) {
+function formatShareMoney(
+  value: number,
+  currency: string,
+  priceFormatMode: CatalogPriceFormatMode,
+) {
   const normalizedCurrency = currency.trim();
-  const formattedValue = formatSharePrice(value);
+  const formattedValue = formatCatalogPrice(value, priceFormatMode);
 
   return normalizedCurrency.length > 1
     ? `${formattedValue} ${normalizedCurrency}`
@@ -50,6 +54,7 @@ export function buildLegacyCartShareText(params: {
   comment?: string;
   currency: string;
   items: CartItemView[];
+  priceFormatMode?: CatalogPriceFormatMode;
   totals: {
     originalSubtotal: number;
     subtotal: number;
@@ -61,6 +66,7 @@ export function buildLegacyCartShareText(params: {
     comment,
     currency,
     items,
+    priceFormatMode = "integer",
     totals,
     url,
   } = params;
@@ -74,8 +80,8 @@ export function buildLegacyCartShareText(params: {
     .join("\n\n");
   const priceText =
     totals.originalSubtotal === totals.subtotal
-      ? `Сумма: ${formatShareMoney(totals.subtotal, currency)}`
-      : `Сумма: ~${formatShareMoney(totals.originalSubtotal, currency)}~ ${formatShareMoney(totals.subtotal, currency)}`;
+      ? `Сумма: ${formatShareMoney(totals.subtotal, currency, priceFormatMode)}`
+      : `Сумма: ~${formatShareMoney(totals.originalSubtotal, currency, priceFormatMode)}~ ${formatShareMoney(totals.subtotal, currency, priceFormatMode)}`;
 
   return ["", url, "", "Заказ:", productsText]
     .concat(checkoutSummary.length > 0 ? ["", ...checkoutSummary] : [])

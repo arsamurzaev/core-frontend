@@ -1,9 +1,7 @@
 import {
   type CreateProductFormValues,
-  normalizeOptionalString,
 } from "@/core/modules/product/editor/model/form-config";
-import { buildProductAttributePayload } from "@/core/modules/product/editor/model/product-attributes";
-import { normalizeProductCategoryIds } from "@/core/modules/product/editor/model/product-category-payload";
+import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
@@ -30,13 +28,10 @@ export function parseCreateProductPayload(params: {
     canUseProductVariants,
     canUseCatalogSaleUnits,
   } = params;
-  const normalizedCategories = normalizeProductCategoryIds(formValues.categoryIds);
-  const normalizedBrandId = normalizeOptionalString(formValues.brandId);
-  const normalizedProductTypeId = normalizeOptionalString(formValues.productTypeId);
-  const attributesPayload = buildProductAttributePayload(
+  const basePayload = buildProductEditorBasePayloadFields({
+    formValues,
     productAttributes,
-    formValues.attributes ?? {},
-  );
+  });
   const resolvedVariantsPayload = resolveCreateProductVariantsPayload({
     formValues,
     normalizedPrice,
@@ -46,17 +41,19 @@ export function parseCreateProductPayload(params: {
   });
 
   return {
-    name: formValues.name.trim(),
+    name: basePayload.name,
     price: normalizedPrice,
-    ...(normalizedBrandId ? { brandId: normalizedBrandId } : {}),
-    ...(canUseProductTypes && normalizedProductTypeId
-      ? { productTypeId: normalizedProductTypeId }
+    ...(basePayload.brandId ? { brandId: basePayload.brandId } : {}),
+    ...(canUseProductTypes && basePayload.productTypeId
+      ? { productTypeId: basePayload.productTypeId }
       : {}),
     ...(mediaIds.length > 0 ? { mediaIds } : {}),
-    ...(normalizedCategories.length > 0
-      ? { categories: normalizedCategories }
+    ...(basePayload.categories.length > 0
+      ? { categories: basePayload.categories }
       : {}),
-    ...(attributesPayload.length > 0 ? { attributes: attributesPayload } : {}),
+    ...(basePayload.attributes.length > 0
+      ? { attributes: basePayload.attributes }
+      : {}),
     ...(resolvedVariantsPayload.length > 0
       ? { variants: resolvedVariantsPayload }
       : {}),

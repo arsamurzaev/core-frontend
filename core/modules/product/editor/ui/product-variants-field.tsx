@@ -16,6 +16,7 @@ import { ProductVariantAttributeCard } from "@/core/modules/product/editor/ui/pr
 import { ProductVariantAttributeSelector } from "@/core/modules/product/editor/ui/product-variant-attribute-selector";
 import { ProductVariantCombinationsPanel } from "@/core/modules/product/editor/ui/product-variant-combinations-panel";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
@@ -24,6 +25,7 @@ interface ProductVariantsFieldProps {
   disabled?: boolean;
   discountPercent?: number;
   form: UseFormReturn<CreateProductFormValues>;
+  priceFormatMode?: CatalogPriceFormatMode;
   variantAttributes: AttributeDto[];
 }
 
@@ -32,6 +34,7 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
   disabled,
   discountPercent = 0,
   form,
+  priceFormatMode = "integer",
   variantAttributes,
 }) => {
   const [attributeToAddId, setAttributeToAddId] = React.useState("");
@@ -237,6 +240,7 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
             discountPercent={discountPercent}
             matrixRows={matrixRows}
             missingValueAttributes={missingValueAttributes}
+            priceFormatMode={priceFormatMode}
             priceFallback={priceFallback}
             variantAttributes={variantAttributes}
             onCombinationChange={setCombinationItem}

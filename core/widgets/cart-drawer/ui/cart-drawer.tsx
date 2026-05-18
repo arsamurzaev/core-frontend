@@ -19,6 +19,7 @@ import {
   getCatalogCheckoutLocation,
   type CheckoutConfig,
 } from "@/shared/lib/checkout-methods";
+import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";
@@ -80,6 +81,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     () => getCatalogCheckoutLocation(catalog),
     [catalog],
   );
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const currency = items[0]?.currency ?? getCatalogCurrency(catalog, "RUB");
   const {
     handleProductDrawerAfterClose,
@@ -217,6 +219,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               hasDiscount={totals.hasDiscount}
               onActionClick={() => void handleHeaderAction()}
               price={totals.subtotal}
+              priceFormatMode={priceFormatMode}
               setSnapPoint={setSnapPoint}
               snapPoint={snapPoint}
               totalPrice={totals.originalSubtotal}
@@ -239,6 +242,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 isCommentLocked={isCommentLocked}
                 isPublicMode={isPublicMode}
                 items={items}
+                priceFormatMode={priceFormatMode}
                 actionRenderer={actionRenderer}
                 onCommentChange={setComment}
                 onCheckoutChange={handleCheckoutChange}
@@ -266,6 +270,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               onSharePrepared={markSharePrepared}
               onShareClick={() => prepareShareOrder(buildOrderInput())}
               price={totals.subtotal}
+              priceFormatMode={priceFormatMode}
               totalPrice={totals.originalSubtotal}
             />
           </AppDrawer.Content>
