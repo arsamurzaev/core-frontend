@@ -3144,8 +3144,6 @@ export interface UpdateProductDtoReq {
   /** ID атрибутов товара, которые нужно удалить при редактировании */
   removeAttributeIds?: string[];
   variants?: ProductVariantUpdateDtoReq[];
-  /** Full variant matrix replacement applied atomically with product update. */
-  variantMatrix?: ProductVariantDtoReq[];
 }
 
 export interface UpdateProductCategoryPositionDtoReq {
