@@ -99,6 +99,8 @@ export const Browser: React.FC<BrowserProps> = ({
   supportsBrands = true,
   supportsCategoryDetails = true,
 }) => {
+  const { user } = useSession();
+  const canManageCategories = isCatalogManagerRole(user?.role);
   const {
     queryState,
     swipeTranslatePercent,
@@ -108,18 +110,18 @@ export const Browser: React.FC<BrowserProps> = ({
   const categoriesQuery = useCategoryControllerGetAll({
     query: {
       initialData: initialCategories,
-      staleTime: 60_000,
+      staleTime: canManageCategories ? 0 : 60_000,
     },
   });
   const categories = React.useMemo(
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const refetchCategories = categoriesQuery.refetch;
   const storefrontCategories = React.useMemo(
     () => buildCategoryDisplayList(categories, { hideEmpty: true }),
     [categories],
   );
-  const { user } = useSession();
   const effectiveQueryState = React.useMemo(
     () => ({
       ...queryState,
@@ -133,11 +135,18 @@ export const Browser: React.FC<BrowserProps> = ({
       getCatalogActiveFiltersCount(effectiveQueryState) > 0,
     [effectiveQueryState],
   );
-  const canManageCategories = isCatalogManagerRole(user?.role);
   const categoryAdmin = useCategoryAdmin({
     categories,
     supportsCategoryDetails,
   });
+
+  React.useEffect(() => {
+    if (!canManageCategories) {
+      return;
+    }
+
+    void refetchCategories();
+  }, [canManageCategories, refetchCategories]);
   const { activeCategoryId } = useActiveCategoryIntersection({
     categories: storefrontCategories,
     enabled: effectiveQueryState.tab === "catalog" && !effectiveIsFilterActive,
