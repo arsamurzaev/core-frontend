@@ -122,9 +122,6 @@ describe("buildCartItemView", () => {
     expect(view.originalLineTotal).toBeNull();
   });
 
-<<<<<<< HEAD
-  it("keeps a positive line total even when product price snapshot is absent", () => {
-=======
   it("does not recalculate unknown cart price from loaded product details", () => {
     const view = buildCartItemView({
       fallbackCurrency: "RUB",
@@ -177,7 +174,6 @@ describe("buildCartItemView", () => {
   });
 
   it("uses backend cart line total instead of current product price", () => {
->>>>>>> 12489a2 (feat: beta release)
     const view = buildCartItemView({
       fallbackCurrency: "RUB",
       item: cartItem({
@@ -186,18 +182,12 @@ describe("buildCartItemView", () => {
           id: "product-1",
           name: "Coffee",
           slug: "coffee",
-<<<<<<< HEAD
-          price: null,
-        },
-      }),
-=======
           price: 120,
         },
       }),
       product: product({
         price: "999",
       }),
->>>>>>> 12489a2 (feat: beta release)
     });
 
     expect(view.displayLineTotal).toBe(240);

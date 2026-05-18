@@ -48,21 +48,6 @@ interface CartProductVariantDrawerProps {
   product: ProductWithAttributesDto;
 }
 
-<<<<<<< HEAD
-function buildCartSnapshot(
-  product: ProductWithAttributesDto,
-  option: ProductVariantPickerOptionDto,
-): CartProductSnapshot {
-  return {
-    id: product.id,
-    name: product.name,
-    price: option.saleUnitPrice ?? option.price ?? product.price,
-    slug: product.slug,
-  };
-}
-
-=======
->>>>>>> 12489a2 (feat: beta release)
 export function CartProductVariantDrawer({
   onOpenChange,
   open,

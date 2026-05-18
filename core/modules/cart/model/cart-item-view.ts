@@ -161,17 +161,11 @@ function hasKnownBackendLineTotal(item: CartItemDto): boolean {
 }
 
 function isCartItemPriceKnown(item: CartItemDto): boolean {
-  const lineTotal = toNumberValue(item.lineTotal);
-
   return (
     toNumberValue(item.saleUnit?.price ?? null) !== null ||
     toNumberValue(item.variant?.price ?? null) !== null ||
     toNumberValue(item.product.price) !== null ||
-<<<<<<< HEAD
-    (lineTotal !== null && lineTotal > 0)
-=======
     hasKnownBackendLineTotal(item)
->>>>>>> 12489a2 (feat: beta release)
   );
 }
 

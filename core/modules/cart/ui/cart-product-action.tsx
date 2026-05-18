@@ -6,11 +6,8 @@ import {
   shouldRenderCartProductVariantDrawer,
   shouldShowCartProductActionQuantity,
 } from "@/core/modules/cart/model/cart-product-action-state";
-<<<<<<< HEAD
 import { buildCartProductCardSnapshot } from "@/core/modules/cart/model/cart-product-snapshot";
-=======
 import { resolveCartProductCardSelection } from "@/core/modules/cart/model/cart-product-selection";
->>>>>>> 12489a2 (feat: beta release)
 import { CartProductActionButton } from "@/core/modules/cart/ui/cart-product-action-button";
 import { CartProductVariantDrawer } from "@/core/modules/cart/ui/cart-product-variant-drawer";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
@@ -33,16 +30,13 @@ export const CartProductAction = React.memo(function CartProductAction({
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
   const canUseProductVariants = features.canUseProductVariants;
-<<<<<<< HEAD
   const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
-=======
   const canOpenVariantDrawer = canOpenCartProductVariantDrawer({
     activeVariantCount: product.variantSummary?.activeCount,
     canUseProductVariants,
     hasVariantPickerOptions: (product.variantPickerOptions?.length ?? 0) > 0,
     requiresVariantSelection: product.requiresVariantSelection,
   });
->>>>>>> 12489a2 (feat: beta release)
   const [isVariantDrawerOpen, setIsVariantDrawerOpen] = React.useState(false);
   const handleVariantSelectionRequired = React.useCallback(() => {
     setIsVariantDrawerOpen(true);
@@ -64,7 +58,6 @@ export const CartProductAction = React.memo(function CartProductAction({
     canUseVariants: canOpenVariantDrawer,
     shouldEnforceStock,
   });
-<<<<<<< HEAD
   const productSnapshot = React.useMemo(
     () =>
       buildCartProductCardSnapshot(product, {
@@ -73,14 +66,6 @@ export const CartProductAction = React.memo(function CartProductAction({
       }),
     [canUseProductVariants, fallbackCurrency, product],
   );
-  const { handleAdd, isBusy, isIncrementDisabled, quantity } =
-    useCartProductControls(
-      {
-        productId: product.id,
-        variantId: singleVariantId,
-      },
-      productSnapshot,
-=======
   const selection = resolveCartProductCardSelection({
     product,
     variantId: singleVariantId,
@@ -88,8 +73,7 @@ export const CartProductAction = React.memo(function CartProductAction({
   const { handleAdd, isBusy, isIncrementDisabled, quantity } =
     useCartProductControls(
       selection,
-      product,
->>>>>>> 12489a2 (feat: beta release)
+      productSnapshot,
       {
         canUseProductVariants,
         maxQuantity,

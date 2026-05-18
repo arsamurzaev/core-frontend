@@ -9,11 +9,8 @@ import {
   buildCartLineSnapshot,
   getCartProductLinesSummary,
 } from "@/core/modules/cart/model/cart-product-card-footer-state";
-<<<<<<< HEAD
 import { buildCartProductCardSnapshot } from "@/core/modules/cart/model/cart-product-snapshot";
-=======
 import { resolveCartProductCardSelection } from "@/core/modules/cart/model/cart-product-selection";
->>>>>>> 12489a2 (feat: beta release)
 import { CartProductCardFooterPrice } from "@/core/modules/cart/ui/cart-product-card-footer-price";
 import { CartProductCardFooterQuantity } from "@/core/modules/cart/ui/cart-product-card-footer-quantity";
 import { CartProductCardFooterSummary } from "@/core/modules/cart/ui/cart-product-card-footer-summary";
@@ -44,7 +41,6 @@ export const CartProductCardFooterAction = React.memo(
     const canUseProductVariants = features.canUseProductVariants;
     const { items } = useCart();
     const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
-<<<<<<< HEAD
     const productSnapshot = React.useMemo(
       () =>
         buildCartProductCardSnapshot(product, {
@@ -53,9 +49,7 @@ export const CartProductCardFooterAction = React.memo(
         }),
       [canUseProductVariants, fallbackCurrency, product],
     );
-=======
     const priceFormatMode = getCatalogPriceFormatMode(catalog);
->>>>>>> 12489a2 (feat: beta release)
     const productCartLines = React.useMemo(
       () => items.filter((item) => item.productId === product.id),
       [items, product.id],
@@ -87,16 +81,8 @@ export const CartProductCardFooterAction = React.memo(
       [productSnapshot, singleCartLine],
     );
     const productControls = useCartProductControls(
-<<<<<<< HEAD
-      {
-        productId: product.id,
-        variantId: singleVariantId,
-      },
-      productSnapshot,
-=======
       productSelection,
-      product,
->>>>>>> 12489a2 (feat: beta release)
+      productSnapshot,
       {
         canUseProductVariants,
         maxQuantity,
