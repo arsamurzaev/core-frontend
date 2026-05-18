@@ -106,6 +106,16 @@ export function useCartSse({
   const isLocalCartMutationPendingRef = React.useRef(
     isLocalCartMutationPending,
   );
+  const clearStoredPublicAccessRef = React.useRef(clearStoredPublicAccess);
+  const handleSseCartStatusChangedRef = React.useRef(
+    handleSseCartStatusChanged,
+  );
+  const handleSseCartUpdatedRef = React.useRef(handleSseCartUpdated);
+  const notifyPublicCartUnavailableRef = React.useRef(
+    notifyPublicCartUnavailable,
+  );
+  const storedPublicAccessRef = React.useRef(storedPublicAccess);
+  const publicAccessKey = storedPublicAccess?.publicKey ?? null;
 
   React.useEffect(() => {
     activeCartItemsFingerprintRef.current = getCartItemsFingerprint(activeCart);
@@ -116,11 +126,25 @@ export function useCartSse({
   }, [isLocalCartMutationPending]);
 
   React.useEffect(() => {
+    clearStoredPublicAccessRef.current = clearStoredPublicAccess;
+    handleSseCartStatusChangedRef.current = handleSseCartStatusChanged;
+    handleSseCartUpdatedRef.current = handleSseCartUpdated;
+    notifyPublicCartUnavailableRef.current = notifyPublicCartUnavailable;
+    storedPublicAccessRef.current = storedPublicAccess;
+  }, [
+    clearStoredPublicAccess,
+    handleSseCartStatusChanged,
+    handleSseCartUpdated,
+    notifyPublicCartUnavailable,
+    storedPublicAccess,
+  ]);
+
+  React.useEffect(() => {
     if (!isHydrated) {
       return;
     }
 
-    if (mode === "public" && !storedPublicAccess) {
+    if (mode === "public" && !publicAccessKey) {
       return;
     }
 
@@ -230,7 +254,7 @@ export function useCartSse({
           return;
         }
 
-        handleSseCartUpdated(event.data, access);
+        handleSseCartUpdatedRef.current(event.data, access);
         activeCartItemsFingerprintRef.current = getCartItemsFingerprint(
           event.data,
         );
@@ -252,7 +276,7 @@ export function useCartSse({
           nextFingerprint !== activeCartItemsFingerprintRef.current &&
           !isLocalCartMutationPendingRef.current;
 
-        handleSseCartUpdated(event.data, access);
+        handleSseCartUpdatedRef.current(event.data, access);
         activeCartItemsFingerprintRef.current = nextFingerprint;
 
         if (stopReconnectIfCartInactive(event.data, event.id)) {
@@ -266,13 +290,13 @@ export function useCartSse({
       }
 
       if (isCartStatusChangedEvent(event)) {
-        handleSseCartStatusChanged(event.data, access);
+        handleSseCartStatusChangedRef.current(event.data, access);
         stopReconnectIfCartInactive(event.data, event.id);
         return;
       }
 
       if (access && isCartDetachedEvent(event)) {
-        clearStoredPublicAccess();
+        clearStoredPublicAccessRef.current();
         toast.success("Корзина была откреплена.");
       }
     };
@@ -286,11 +310,16 @@ export function useCartSse({
       });
 
       try {
-        if (mode === "public" && storedPublicAccess) {
-          await connectCartControllerSsePublic(storedPublicAccess.publicKey, {
+        if (mode === "public" && publicAccessKey) {
+          const publicAccess = storedPublicAccessRef.current;
+          if (!publicAccess || publicAccess.publicKey !== publicAccessKey) {
+            return;
+          }
+
+          await connectCartControllerSsePublic(publicAccessKey, {
             lastEventId,
             signal: connectionAbortController.signal,
-            onEvent: (event) => handleStreamEvent(event, storedPublicAccess),
+            onEvent: (event) => handleStreamEvent(event, publicAccess),
           });
         } else {
           await connectCartControllerSseCurrent({
@@ -320,7 +349,7 @@ export function useCartSse({
           mode === "public" &&
           (isCartUnauthorizedError(error) || isCartNotFoundError(error))
         ) {
-          notifyPublicCartUnavailable();
+          notifyPublicCartUnavailableRef.current();
           return;
         }
 
@@ -341,13 +370,9 @@ export function useCartSse({
     };
   }, [
     activeCartId,
-    clearStoredPublicAccess,
-    handleSseCartStatusChanged,
-    handleSseCartUpdated,
     isHydrated,
     isActiveCartInactive,
     mode,
-    notifyPublicCartUnavailable,
-    storedPublicAccess,
+    publicAccessKey,
   ]);
 }

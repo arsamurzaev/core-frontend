@@ -47,6 +47,110 @@ function product(
 }
 
 describe("buildProductCardView", () => {
+  it("prefers the card image variant and keeps the original image as fallback", () => {
+    const view = buildProductCardView(
+      product({
+        media: [
+          {
+            position: 2,
+            kind: null,
+            media: {
+              id: "media-2",
+              originalName: "second.jpg",
+              mimeType: "image/jpeg",
+              size: null,
+              width: null,
+              height: null,
+              status: "READY",
+              key: "second",
+              url: "/images/second-original.jpg",
+              variants: [
+                {
+                  id: "media-2-thumb",
+                  kind: "thumb-webp",
+                  mimeType: "image/webp",
+                  size: null,
+                  width: null,
+                  height: null,
+                  key: "second-thumb",
+                  url: "/images/second-thumb.webp",
+                },
+              ],
+            },
+          },
+          {
+            position: 1,
+            kind: null,
+            media: {
+              id: "media-1",
+              originalName: "first.jpg",
+              mimeType: "image/jpeg",
+              size: null,
+              width: null,
+              height: null,
+              status: "READY",
+              key: "first",
+              url: "/images/first-original.jpg",
+              variants: [
+                {
+                  id: "media-1-thumb",
+                  kind: "thumb-webp",
+                  mimeType: "image/webp",
+                  size: null,
+                  width: null,
+                  height: null,
+                  key: "first-thumb",
+                  url: "/images/first-thumb.webp",
+                },
+                {
+                  id: "media-1-card",
+                  kind: "card-webp",
+                  mimeType: "image/webp",
+                  size: null,
+                  width: null,
+                  height: null,
+                  key: "first-card",
+                  url: "/images/first-card.webp",
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(view.imageUrl).toBe("/images/first-card.webp");
+    expect(view.imageFallbackUrl).toBe("/images/first-original.jpg");
+  });
+
+  it("falls back to the original image when card variants are absent", () => {
+    const view = buildProductCardView(
+      product({
+        media: [
+          {
+            position: 1,
+            kind: null,
+            media: {
+              id: "media-1",
+              originalName: "first.jpg",
+              mimeType: "image/jpeg",
+              size: null,
+              width: null,
+              height: null,
+              status: "READY",
+              key: "first",
+              url: "/images/first-original.jpg",
+              variants: [],
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(view.imageUrl).toBe("/images/first-original.jpg");
+    expect(view.imageFallbackUrl).toBe("/images/first-original.jpg");
+  });
+
   it("uses the commercial range instead of legacy product price", () => {
     const view = buildProductCardView(
       product({

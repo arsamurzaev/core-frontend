@@ -1,4 +1,5 @@
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
+import type { MediaDto } from "@/shared/api/generated/react-query";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
@@ -12,6 +13,7 @@ export interface ProductCardView {
   discount: number | undefined;
   displayPrice: number | undefined;
   hasDiscount: boolean;
+  imageFallbackUrl: string;
   imageUrl: string;
   imageStatus: string | null;
   price: number | undefined;
@@ -24,18 +26,48 @@ interface ProductCardViewOptions {
   canUseVariants?: boolean;
 }
 
-function resolveProductCardImageUrl(data: ProductWithAttributesDto): string {
-  return (
-    data.media?.[0]?.media?.variants[0]?.url ||
-    data.media?.[0]?.media?.url ||
-    PRODUCT_CARD_FALLBACK_IMAGE_URL
+function getMediaVariantUrl(
+  media: MediaDto | null | undefined,
+  role: string,
+): string | null {
+  const variant = media?.variants.find((entry) =>
+    entry.kind.toLowerCase().startsWith(role),
   );
+
+  return toOptionalTrimmedString(variant?.url) ?? null;
+}
+
+function getPrimaryProductMedia(data: ProductWithAttributesDto) {
+  return (
+    data.media
+      ?.slice()
+      .sort((left, right) => left.position - right.position)
+      .find((entry) => Boolean(entry.media))?.media ?? null
+  );
+}
+
+function resolveProductCardImageUrls(data: ProductWithAttributesDto): {
+  fallbackUrl: string;
+  url: string;
+} {
+  const media = getPrimaryProductMedia(data);
+  const originalUrl = toOptionalTrimmedString(media?.url);
+  const variantUrl =
+    getMediaVariantUrl(media, "card") ??
+    getMediaVariantUrl(media, "thumb") ??
+    getMediaVariantUrl(media, "detail") ??
+    toOptionalTrimmedString(media?.variants[0]?.url);
+
+  return {
+    fallbackUrl: originalUrl ?? PRODUCT_CARD_FALLBACK_IMAGE_URL,
+    url: variantUrl ?? originalUrl ?? PRODUCT_CARD_FALLBACK_IMAGE_URL,
+  };
 }
 
 function resolveProductCardImageStatus(
   data: ProductWithAttributesDto,
 ): string | null {
-  return data.media?.[0]?.media?.status ?? null;
+  return getPrimaryProductMedia(data)?.status ?? null;
 }
 
 function hasProductVariantSignal(data: ProductWithAttributesDto): boolean {
@@ -103,6 +135,7 @@ export function buildProductCardView(
     toOptionalTrimmedString(options.fallbackCurrency) ??
     PRODUCT_CARD_DEFAULT_CURRENCY;
   const displayCurrency = toOptionalTrimmedString(currency) ?? fallbackCurrency;
+  const imageUrls = resolveProductCardImageUrls(data);
 
   const pricing =
     price !== null
@@ -124,7 +157,8 @@ export function buildProductCardView(
     discount: pricing?.discountPercent || undefined,
     displayPrice: pricing?.totalPrice,
     hasDiscount: pricing?.hasDiscount ?? false,
-    imageUrl: resolveProductCardImageUrl(data),
+    imageFallbackUrl: imageUrls.fallbackUrl,
+    imageUrl: imageUrls.url,
     imageStatus: resolveProductCardImageStatus(data),
     price: price ?? undefined,
     pricePrefix: hasProjectedPriceRange || hasVariantPriceRange ? "от" : null,

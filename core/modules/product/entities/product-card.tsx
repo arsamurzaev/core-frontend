@@ -63,6 +63,7 @@ const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
 interface ProductCardContentProps {
   actions?: React.ReactNode;
   imageStatus?: string | null;
+  imageFallbackUrl?: string;
   imageLoading?: React.ImgHTMLAttributes<HTMLImageElement>["loading"];
   imageUrl?: string;
   isMoySkladLinked?: boolean;
@@ -71,6 +72,7 @@ interface ProductCardContentProps {
 const ProductCardContent: React.FC<ProductCardContentProps> = ({
   actions,
   imageStatus,
+  imageFallbackUrl,
   imageLoading = "lazy",
   imageUrl,
   isMoySkladLinked = false,
@@ -78,17 +80,55 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
   const isImageProcessing =
     imageStatus === "UPLOADED" || imageStatus === "PROCESSING";
   const isImageFailed = imageStatus === "FAILED";
+  const imageSources = React.useMemo(
+    () =>
+      Array.from(
+        new Set(
+          [imageUrl, imageFallbackUrl, "/not-found-photo.png"].filter(
+            (value): value is string => Boolean(value?.trim()),
+          ),
+        ),
+      ),
+    [imageFallbackUrl, imageUrl],
+  );
+  const [imageSourceIndex, setImageSourceIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    setImageSourceIndex(0);
+  }, [imageSources]);
+
+  const resolvedImageUrl =
+    imageSources[imageSourceIndex] ?? "/not-found-photo.png";
+  const handleImageError = React.useCallback(() => {
+    setImageSourceIndex((currentIndex) =>
+      currentIndex < imageSources.length - 1
+        ? currentIndex + 1
+        : currentIndex,
+    );
+  }, [imageSources.length]);
+
+  React.useEffect(() => {
+    if (imageLoading !== "eager" || typeof window === "undefined") {
+      return;
+    }
+
+    const image = new Image();
+    image.decoding = "async";
+    image.src = resolvedImageUrl;
+  }, [imageLoading, resolvedImageUrl]);
 
   return (
     <CardContent className="relative flex-[0_1_160px]">
       <div className="min-w-25">
         <AspectRatio ratio={3 / 4}>
           <img
-            src={imageUrl || "/not-found-photo.png"}
+            src={resolvedImageUrl}
             className="absolute inset-0 h-full w-full object-contain"
             alt="Карточка товара"
             loading={imageLoading}
             decoding="async"
+            fetchPriority={imageLoading === "eager" ? "high" : "auto"}
+            onError={handleImageError}
           />
           {isImageProcessing || isImageFailed ? (
             <div className="absolute inset-x-2 bottom-2 rounded-md bg-background/95 px-2 py-1 text-center text-[11px] font-medium shadow-custom">
@@ -253,6 +293,7 @@ const ProductCardBase: React.FC<Props> = ({
     discount,
     displayPrice,
     hasDiscount,
+    imageFallbackUrl,
     imageUrl,
     imageStatus,
     price,
@@ -268,6 +309,7 @@ const ProductCardBase: React.FC<Props> = ({
       <ProductCardContent
         actions={actions}
         imageStatus={imageStatus}
+        imageFallbackUrl={imageFallbackUrl}
         imageLoading={imageLoading}
         imageUrl={imageUrl}
         isMoySkladLinked={Boolean(isMoySkladLinked)}

@@ -113,11 +113,12 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     queryClient,
     storedPublicAccess,
   });
+  const handleCurrentCartPresent = React.useCallback(() => {
+    currentCartNotFoundHandledRef.current = false;
+  }, [currentCartNotFoundHandledRef]);
   const { setCurrentCartData, setPublicCartData } = useCartCacheWriter({
     clearStoredCurrentCart,
-    onCurrentCartPresent: () => {
-      currentCartNotFoundHandledRef.current = false;
-    },
+    onCurrentCartPresent: handleCurrentCartPresent,
     persistStoredCurrentCart,
     queryClient,
   });
