@@ -97,6 +97,45 @@ describe("createOptimisticCart", () => {
     expect(cart?.totals.itemsCount).toBe(3);
   });
 
+  it("keeps the existing line price when cart controls do not pass a product snapshot", () => {
+    const cart = createOptimisticCart({
+      cart: baseCart({
+        items: [
+          {
+            id: "item-1",
+            productId: "product-1",
+            variantId: null,
+            saleUnitId: null,
+            quantity: 6,
+            baseQuantity: 6,
+            product: {
+              id: "product-1",
+              name: "Product",
+              slug: "product",
+              price: null,
+            },
+            variant: null,
+            saleUnit: null,
+            unitPrice: 120,
+            baseUnitPrice: 120,
+            discountPercent: 0,
+            hasDiscount: false,
+            lineTotal: 720,
+            createdAt: "2026-05-13T00:00:00.000Z",
+            updatedAt: "2026-05-13T00:00:00.000Z",
+          },
+        ],
+      }),
+      catalogId: "catalog-1",
+      productId: "product-1",
+      quantity: 7,
+    });
+
+    expect(cart?.items[0]?.quantity).toBe(7);
+    expect(cart?.items[0]?.lineTotal).toBe(840);
+    expect(cart?.totals.subtotal).toBe(840);
+  });
+
   it("removes a line when quantity reaches zero", () => {
     const cart = createOptimisticCart({
       cart: baseCart({

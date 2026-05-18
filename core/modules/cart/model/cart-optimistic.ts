@@ -10,6 +10,59 @@ import {
   normalizeVariantId,
 } from "./cart-line-key";
 
+function getNumber(value: unknown): number | null {
+  if (typeof value !== "number" && typeof value !== "string") {
+    return null;
+  }
+
+  return toNumberValue(value);
+}
+
+function getPositiveNumber(value: unknown): number | null {
+  const numericValue = getNumber(value);
+  return numericValue !== null && numericValue > 0 ? numericValue : null;
+}
+
+function getExistingLineUnitPrice(item: CartItemDto | null): number | null {
+  if (!item) {
+    return null;
+  }
+
+  const quantity =
+    typeof item.quantity === "number" && Number.isFinite(item.quantity)
+      ? item.quantity
+      : 0;
+  const lineTotal = getNumber(item.lineTotal);
+  const baseUnitPrice = getPositiveNumber(item.baseUnitPrice);
+
+  if (lineTotal !== null && quantity > 0) {
+    if (lineTotal > 0) {
+      return lineTotal / quantity;
+    }
+
+    if (item.hasDiscount === true && baseUnitPrice !== null) {
+      return 0;
+    }
+  }
+
+  return (
+    getPositiveNumber(item.unitPrice) ??
+    getPositiveNumber(item.saleUnit?.price) ??
+    getPositiveNumber(item.variant?.price) ??
+    getNumber(item.product.price)
+  );
+}
+
+function resolveOptimisticUnitPrice(params: {
+  item: CartItemDto | null;
+  product?: CartProductSnapshot;
+}): number | null {
+  return (
+    getNumber(params.product?.price) ??
+    getExistingLineUnitPrice(params.item)
+  );
+}
+
 export function createOptimisticCart(params: {
   cart: CartDto | null;
   catalogId: string;
@@ -80,9 +133,7 @@ export function createOptimisticCart(params: {
     createdAt: now,
     updatedAt: now,
   };
-  const productPrice =
-    toNumberValue(product?.price ?? null) ??
-    toNumberValue(item?.product.price ?? null);
+  const productPrice = resolveOptimisticUnitPrice({ item, product });
   const numericProductPrice = productPrice ?? 0;
   const productShort = item?.product ?? {
     id: product?.id ?? productId,
