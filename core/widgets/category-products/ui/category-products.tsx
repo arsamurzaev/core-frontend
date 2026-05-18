@@ -7,15 +7,19 @@ import {
   getCategorySectionScrollOffset,
   getCategorySectionScrollTargetOffset,
   registerCategorySectionScroller,
-} from "@/core/modules/browser/model/category-scroll";
-import { useCart } from "@/core/modules/cart/model/cart-context";
-import { CartProductAction } from "@/core/modules/cart/ui/cart-product-action";
-import { CartProductCardFooterAction } from "@/core/modules/cart/ui/cart-product-card-footer-action";
-import { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
-import { ProductCardSkeleton } from "@/core/modules/product/entities/product-card-skeleton";
-import { ProductLink } from "@/core/modules/product/entities/product-link";
-import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
-import { useProductCardViewMode } from "@/core/modules/product/model/use-product-card-view-mode";
+} from "@/core/modules/browser";
+import {
+  CartProductAction,
+  CartProductCardFooterAction,
+  useCart,
+} from "@/core/modules/cart";
+import {
+  isMoySkladProduct,
+  ProductCardSkeleton,
+  ProductLink,
+  ToggleProductPopularAction,
+  useProductCardViewMode,
+} from "@/core/modules/product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import {
   CategoryDto,
@@ -65,7 +69,8 @@ const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 390;
 const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 340;
 const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 124;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
-const CATEGORY_HEADING_ROW_ESTIMATE_PX = 40;
+const CATEGORY_HEADING_COMPACT_ROW_ESTIMATE_PX = 36;
+const CATEGORY_HEADING_TALL_ROW_ESTIMATE_PX = 60;
 const EMPTY_CATEGORY_ROW_HEIGHT_PX = 160;
 const VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN = 2;
 const UNCATEGORIZED_QUERY_PARAMS = {
@@ -96,6 +101,7 @@ const ProductSectionCard = React.memo(
         >
           <ProductCardRuntime
             data={product}
+            imageLoading="eager"
             isDetailed={isDetailed}
             isMoySkladLinked={
               !shouldUseCartUi && isAuthenticated && isMoySkladProduct(product)
@@ -144,6 +150,49 @@ const ProductSectionCard = React.memo(
   },
 );
 ProductSectionCard.displayName = "ProductSectionCard";
+
+function CategorySectionHeading({
+  height,
+  id,
+  title,
+}: {
+  height: number;
+  id: string;
+  title: string;
+}) {
+  return (
+    <h2
+      id={id}
+      className="px-1 pt-1 text-left"
+      style={{
+        height,
+        scrollMarginTop: CATEGORY_SECTION_SCROLL_MARGIN_TOP,
+      }}
+    >
+      <span className="line-clamp-2 text-lg leading-tight font-bold text-foreground [overflow-wrap:anywhere] sm:text-xl">
+        {title}
+      </span>
+    </h2>
+  );
+}
+
+function getCategoryHeadingRowEstimate(
+  title: string,
+  listWidth: number,
+): number {
+  const normalizedTitle = title.trim();
+
+  if (!normalizedTitle) {
+    return CATEGORY_HEADING_COMPACT_ROW_ESTIMATE_PX;
+  }
+
+  const availableCharacters =
+    listWidth > 0 ? Math.max(18, Math.floor((listWidth - 8) / 8.5)) : 26;
+
+  return normalizedTitle.length > availableCharacters
+    ? CATEGORY_HEADING_TALL_ROW_ESTIMATE_PX
+    : CATEGORY_HEADING_COMPACT_ROW_ESTIMATE_PX;
+}
 
 interface VirtualProductSectionDefinition {
   categoryId?: string;
@@ -688,7 +737,7 @@ export const VirtualizedCategoryProducts: React.FC<
       }
 
       if (row.type === "heading") {
-        return CATEGORY_HEADING_ROW_ESTIMATE_PX;
+        return getCategoryHeadingRowEstimate(row.title, listWidth);
       }
 
       if (row.type === "empty") {
@@ -701,7 +750,7 @@ export const VirtualizedCategoryProducts: React.FC<
 
       return productRowEstimateSize;
     },
-    [productRowEstimateSize, rows],
+    [listWidth, productRowEstimateSize, rows],
   );
   const getVirtualRowKey = React.useCallback(
     (index: number) => rows[index]?.key ?? `virtual-row-${index}`,
@@ -953,15 +1002,14 @@ export const VirtualizedCategoryProducts: React.FC<
                 }}
               >
                 {row.type === "heading" ? (
-                  <h2
+                  <CategorySectionHeading
+                    height={getCategoryHeadingRowEstimate(
+                      row.title,
+                      listWidth,
+                    )}
                     id={row.sectionId}
-                    className="px-1 pt-1 pb-3 text-left text-xl font-bold"
-                    style={{
-                      scrollMarginTop: CATEGORY_SECTION_SCROLL_MARGIN_TOP,
-                    }}
-                  >
-                    {row.title}
-                  </h2>
+                    title={row.title}
+                  />
                 ) : row.type === "initial-skeleton" ? (
                   hasHydrated ? (
                     <div

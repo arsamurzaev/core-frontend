@@ -2,6 +2,11 @@
 
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import {
+  formatCatalogPrice,
+  getCatalogPriceFormatMode,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
@@ -19,14 +24,14 @@ import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
 import React from "react";
 import { buildProductCardView } from "../model/product-card-view";
 
-const RU_NUMBER_FORMAT = new Intl.NumberFormat("ru");
-
 interface Props {
   actions?: React.ReactNode;
   className?: string;
   data: ProductWithAttributesDto;
   footerAction?: React.ReactNode;
+  headerMeta?: React.ReactNode;
   hidePriceWhenFooterAction?: boolean;
+  imageLoading?: React.ImgHTMLAttributes<HTMLImageElement>["loading"];
   isMoySkladLinked?: boolean;
   isDetailed?: boolean;
 }
@@ -35,16 +40,6 @@ interface ProductCardLayoutProps {
   children: React.ReactNode;
   className?: string;
   isDetailed?: boolean;
-}
-
-function hasVisibleProductVariantSummary(
-  data: ProductWithAttributesDto,
-): boolean {
-  return Boolean(
-    data.productType?.id &&
-    ((data.variantSummary?.activeCount ?? 0) > 0 ||
-      data.variantPickerOptions.some((option) => option.status !== "DISABLED")),
-  );
 }
 
 const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
@@ -68,6 +63,7 @@ const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
 interface ProductCardContentProps {
   actions?: React.ReactNode;
   imageStatus?: string | null;
+  imageLoading?: React.ImgHTMLAttributes<HTMLImageElement>["loading"];
   imageUrl?: string;
   isMoySkladLinked?: boolean;
 }
@@ -75,6 +71,7 @@ interface ProductCardContentProps {
 const ProductCardContent: React.FC<ProductCardContentProps> = ({
   actions,
   imageStatus,
+  imageLoading = "lazy",
   imageUrl,
   isMoySkladLinked = false,
 }) => {
@@ -90,7 +87,7 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
             src={imageUrl || "/not-found-photo.png"}
             className="absolute inset-0 h-full w-full object-contain"
             alt="Карточка товара"
-            loading="lazy"
+            loading={imageLoading}
             decoding="async"
           />
           {isImageProcessing || isImageFailed ? (
@@ -116,6 +113,7 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
 
 interface ProductCardHeaderProps {
   description: string;
+  headerMeta?: React.ReactNode;
   isDetailed?: boolean;
   name: string;
   subtitle: string;
@@ -123,6 +121,7 @@ interface ProductCardHeaderProps {
 
 const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
   description,
+  headerMeta,
   isDetailed,
   name,
   subtitle,
@@ -132,6 +131,11 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
       <CardTitle className={cn("line-clamp-2", isDetailed && "sm:text-lg")}>
         {name}
       </CardTitle>
+      {headerMeta ? (
+        <div className="line-clamp-2 text-xs leading-tight text-muted-foreground">
+          {headerMeta}
+        </div>
+      ) : null}
       <CardSubTitle
         className={cn("line-clamp-1", isDetailed && "sm:text-base")}
       >
@@ -160,6 +164,7 @@ interface ProductCardFooterProps {
   hidePriceWhenFooterAction?: boolean;
   isDetailed?: boolean;
   price: number | undefined;
+  priceFormatMode: CatalogPriceFormatMode;
   pricePrefix?: string | null;
 }
 
@@ -172,6 +177,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
   hidePriceWhenFooterAction,
   isDetailed,
   price,
+  priceFormatMode,
   pricePrefix,
 }) => {
   return (
@@ -195,7 +201,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
                 isDetailed && "pl-6 text-sm",
               )}
             >
-              {RU_NUMBER_FORMAT.format(price)} {currency}
+              {formatCatalogPrice(price, priceFormatMode)} {currency}
             </p>
             <Badge
               className={cn(
@@ -218,7 +224,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
           )}
         >
           {pricePrefix ? `${pricePrefix} ` : null}
-          {RU_NUMBER_FORMAT.format(displayPrice)}{" "}
+          {formatCatalogPrice(displayPrice, priceFormatMode)}{" "}
           <span className="font-normal">{currency}</span>
         </p>
       ) : null}
@@ -228,7 +234,9 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
 
 const ProductCardBase: React.FC<Props> = ({
   footerAction,
+  headerMeta,
   hidePriceWhenFooterAction,
+  imageLoading,
   isMoySkladLinked,
   isDetailed,
   className,
@@ -238,6 +246,7 @@ const ProductCardBase: React.FC<Props> = ({
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
   const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const {
     currency,
     description,
@@ -250,8 +259,7 @@ const ProductCardBase: React.FC<Props> = ({
     pricePrefix,
     subtitle,
   } = buildProductCardView(data, {
-    canUseVariants:
-      features.canUseProductVariants || hasVisibleProductVariantSummary(data),
+    canUseVariants: features.canUseProductVariants,
     fallbackCurrency,
   });
 
@@ -260,6 +268,7 @@ const ProductCardBase: React.FC<Props> = ({
       <ProductCardContent
         actions={actions}
         imageStatus={imageStatus}
+        imageLoading={imageLoading}
         imageUrl={imageUrl}
         isMoySkladLinked={Boolean(isMoySkladLinked)}
       />
@@ -271,6 +280,7 @@ const ProductCardBase: React.FC<Props> = ({
       >
         <ProductCardHeaderSection
           description={description}
+          headerMeta={headerMeta}
           isDetailed={isDetailed}
           name={data.name}
           subtitle={subtitle}
@@ -284,6 +294,7 @@ const ProductCardBase: React.FC<Props> = ({
           hidePriceWhenFooterAction={hidePriceWhenFooterAction}
           isDetailed={isDetailed}
           price={price}
+          priceFormatMode={priceFormatMode}
           pricePrefix={pricePrefix}
         />
       </div>

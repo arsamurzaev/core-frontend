@@ -8,6 +8,8 @@ import { ProductEditorImagesPanel } from "@/core/modules/product/editor/ui/produ
 import { ProductEditorMainSection } from "@/core/modules/product/editor/ui/product-editor-main-section";
 import { ProductEditorResetAction } from "@/core/modules/product/editor/ui/product-editor-reset-action";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { type DynamicFieldConfig } from "@/shared/ui/dynamic-form";
@@ -101,6 +103,8 @@ export const ProductEditorDrawerContent: React.FC<
   onSubmit,
   onToggleReorderMode,
 }) => {
+  const { catalog } = useCatalogState();
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const resolvedIsBusy = isBusy ?? isSubmitting;
   const {
     discountPercent,
@@ -143,6 +147,7 @@ export const ProductEditorDrawerContent: React.FC<
                 form={form}
                 formFields={formFields}
                 hasVariantAttributes={hasVariantAttributes}
+                priceFormatMode={priceFormatMode}
                 priceFallback={priceFallback}
                 productTypeChangeSection={productTypeChangeSection}
                 saleUnits={saleUnits}

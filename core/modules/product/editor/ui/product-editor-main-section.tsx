@@ -10,6 +10,7 @@ import { type SaleUnitsFormValue } from "@/core/modules/product/editor/model/pro
 import { ProductSaleUnitsField } from "@/core/modules/product/editor/ui/product-sale-units-field";
 import { ProductVariantsField } from "@/core/modules/product/editor/ui/product-variants-field";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import {
   DynamicForm,
   type DynamicFieldConfig,
@@ -24,6 +25,7 @@ interface ProductEditorMainSectionProps {
   form: UseFormReturn<CreateProductFormValues>;
   formFields: DynamicFieldConfig<CreateProductFormValues>[];
   hasVariantAttributes: boolean;
+  priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
   productTypeChangeSection?: React.ReactNode;
   saleUnits: SaleUnitsFormValue | undefined;
@@ -39,6 +41,7 @@ export const ProductEditorMainSection: React.FC<
   form,
   formFields,
   hasVariantAttributes,
+  priceFormatMode = "integer",
   priceFallback,
   productTypeChangeSection,
   saleUnits,
@@ -68,6 +71,7 @@ export const ProductEditorMainSection: React.FC<
           <ProductSaleUnitsField
             disabled={disabled}
             discountPercent={discountPercent}
+            priceFormatMode={priceFormatMode}
             priceFallback={priceFallback}
             saleUnits={saleUnits}
             title="Единицы продажи"
@@ -85,6 +89,7 @@ export const ProductEditorMainSection: React.FC<
           variantAttributes={variantAttributes}
           discountPercent={discountPercent}
           disabled={disabled}
+          priceFormatMode={priceFormatMode}
         />
       ) : null}
     </section>

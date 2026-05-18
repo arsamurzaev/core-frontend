@@ -22,7 +22,7 @@ export type AppDrawerHeaderProps = {
 
 const DEFAULT_APP_DRAWER_DESCRIPTION = (
   <>
-    <span className="text-red-600">*</span> — отмечены обязательные поля к
+    <span className="text-red-600">*</span> - отмечены обязательные поля к
     заполнению
   </>
 );

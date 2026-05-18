@@ -2,11 +2,12 @@
 
 import {
   findProductSaleUnit,
+  formatProductVariantLabel,
   getProductSaleUnits,
+  buildProductCardView,
   type ProductSaleUnit,
-} from "@/core/modules/product/model/sale-units";
+} from "@/core/modules/product";
 import { getCartItemSaleUnitId } from "@/core/modules/cart/model/cart-line-key";
-import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
 import type {
   CartItemDto,
   ProductWithAttributesDto,
@@ -22,22 +23,7 @@ function resolveCartItemImageUrl(): string {
 }
 
 function getVariantLabel(item: CartItemDto): string {
-  const label = item.variant?.label?.trim();
-  if (label) {
-    return label;
-  }
-
-  const values =
-    item.variant?.attributes
-      ?.map((attribute) => {
-        const name = attribute.attribute.displayName || attribute.attribute.key;
-        const value =
-          attribute.enumValue.displayName || attribute.enumValue.value;
-        return value ? `${name}: ${value}` : null;
-      })
-      .filter((value): value is string => Boolean(value)) ?? [];
-
-  return values.join(", ");
+  return formatProductVariantLabel(item.variant) ?? "";
 }
 
 type CartItemWithSaleUnit = CartItemDto & {
@@ -146,21 +132,47 @@ function getBackendPricing(item: CartItemDto) {
     return null;
   }
 
+  const lineTotal = getKnownCartLineTotal(item);
+
   return {
-    displayLineTotal: isCartItemPriceKnown(item) ? item.lineTotal : null,
+    displayLineTotal: lineTotal,
     hasDiscount: true,
-    originalLineTotal: isCartItemPriceKnown(item)
-      ? baseUnitPrice * item.quantity
-      : null,
+    originalLineTotal: lineTotal !== null ? baseUnitPrice * item.quantity : null,
   };
+}
+
+function hasKnownBackendLineTotal(item: CartItemDto): boolean {
+  if (!Number.isFinite(item.lineTotal)) {
+    return false;
+  }
+
+  if (item.lineTotal > 0) {
+    return true;
+  }
+
+  const pricing = item as CartItemWithSaleUnit;
+  const hasKnownDiscountedZero =
+    pricing.hasDiscount === true &&
+    typeof pricing.baseUnitPrice === "number" &&
+    Number.isFinite(pricing.baseUnitPrice) &&
+    pricing.baseUnitPrice > 0;
+
+  return hasKnownDiscountedZero;
 }
 
 function isCartItemPriceKnown(item: CartItemDto): boolean {
   return (
     toNumberValue(item.saleUnit?.price ?? null) !== null ||
     toNumberValue(item.variant?.price ?? null) !== null ||
-    toNumberValue(item.product.price) !== null
+    toNumberValue(item.product.price) !== null ||
+    hasKnownBackendLineTotal(item)
   );
+}
+
+function getKnownCartLineTotal(item: CartItemDto): number | null {
+  return isCartItemPriceKnown(item) && Number.isFinite(item.lineTotal)
+    ? item.lineTotal
+    : null;
 }
 
 type CartProductLike = ProductWithAttributesDto | ProductWithDetailsDto;
@@ -259,14 +271,14 @@ export function buildCartItemView(params: {
       currency: fallbackCurrency,
       displayLineTotal:
         backendPricing?.displayLineTotal ??
-        (isCartItemPriceKnown(item) ? item.lineTotal : null),
+        getKnownCartLineTotal(item),
       hasDiscount: backendPricing?.hasDiscount ?? false,
       id: item.id,
       imageUrl: resolveCartItemImageUrl(),
       name: item.product.name,
       originalLineTotal:
         backendPricing?.originalLineTotal ??
-        (isCartItemPriceKnown(item) ? item.lineTotal : null),
+        getKnownCartLineTotal(item),
       product: undefined,
       productId: item.productId,
       productSlug: item.product.slug,
@@ -284,13 +296,7 @@ export function buildCartItemView(params: {
   );
   const variantLabel = getVariantLabel(item);
   const saleUnitLabel = getSaleUnitLabel({ item, product });
-  const hasKnownItemPrice = isCartItemPriceKnown(item);
-  const explicitLineTotal =
-    hasKnownItemPrice &&
-    (item.variantId || item.variant || saleUnitLabel || getCartItemSaleUnitId(item)) &&
-    Number.isFinite(item.lineTotal)
-      ? item.lineTotal
-      : undefined;
+  const itemLineTotal = getKnownCartLineTotal(item);
   const backendPricing = getBackendPricing(item);
   const pricing = getCartPricingForProduct(
     product,
@@ -301,17 +307,13 @@ export function buildCartItemView(params: {
   return {
     currency: pricing.currency,
     displayLineTotal:
-      backendPricing?.displayLineTotal ?? explicitLineTotal ?? pricing.displayTotal,
-    hasDiscount:
-      backendPricing?.hasDiscount ??
-      (explicitLineTotal === undefined && pricing.hasDiscount),
+      backendPricing?.displayLineTotal ?? itemLineTotal,
+    hasDiscount: backendPricing?.hasDiscount ?? false,
     id: item.id,
     imageUrl: productCardView.imageUrl || FALLBACK_IMAGE_URL,
     name: product.name,
     originalLineTotal:
-      backendPricing?.originalLineTotal ??
-      explicitLineTotal ??
-      pricing.originalTotal,
+      backendPricing?.originalLineTotal ?? itemLineTotal,
     product,
     productId: item.productId,
     productSlug: item.product.slug,

@@ -7,13 +7,20 @@ import type {
   ProductAttributeRefDtoDataType,
 } from "@/shared/api/generated/react-query";
 import {
+  buildProductCardView,
+  formatProductVariantLabel,
+} from "@/core/modules/product";
+import {
   parseAttributes,
   type ParsedAttribute,
   type ParsedAttributeValue,
   resolveAttributes,
-  toNumberValue,
 } from "@/shared/lib/attributes";
-import { calculatePrice } from "@/shared/lib/calculate-price";
+import {
+  formatCatalogPrice,
+  getCatalogPriceFormatMode,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
 import { getCatalogCurrency, type CatalogLike } from "@/shared/lib/utils";
 
@@ -31,12 +38,13 @@ export interface ProductDrawerViewModel {
   currency: string;
   description: string;
   displayName: string;
-  displayPrice: number;
+  displayPrice: number | null;
   discount: number;
   hasDiscount: boolean;
   hasError: boolean;
   imageUrls: string[];
-  price: number;
+  price: number | null;
+  priceFormatMode: CatalogPriceFormatMode;
   shareText?: string;
   subtitle: string;
   variantsSummary: string | null;
@@ -199,15 +207,7 @@ function getFullVariantsSummary(
   const variants = new Set<string>();
 
   for (const variant of product.variants ?? []) {
-    const value = (variant.attributes ?? [])
-      .map(
-        (attribute) =>
-          attribute.enumValue?.displayName ??
-          attribute.enumValue?.value ??
-          null,
-      )
-      .filter((item): item is string => Boolean(item))
-      .join(" / ");
+    const value = formatProductVariantLabel(variant);
 
     if (value) {
       variants.add(value);
@@ -244,23 +244,11 @@ function getVariantsSummary(
   );
 }
 
-function getActiveVariantCount(
-  product: ProductDrawerEntity | null | undefined,
-): number {
-  if (!product?.productType?.id) {
-    return 0;
-  }
-
-  if ("variants" in product && product.variants.length > 0) {
-    return product.variants.filter((variant) => variant.status !== "DISABLED")
-      .length;
-  }
-
-  return product.variantSummary?.activeCount ?? 0;
-}
-
-export function formatProductDrawerPrice(value: number): string {
-  return Intl.NumberFormat("ru-RU").format(value);
+export function formatProductDrawerPrice(
+  value: number,
+  mode: CatalogPriceFormatMode = "integer",
+): string {
+  return formatCatalogPrice(value, mode);
 }
 
 export function buildProductDrawerViewModel(params: {
@@ -290,36 +278,28 @@ export function buildProductDrawerViewModel(params: {
     toOptionalTrimmedString(attrs.currency) ??
     getCatalogCurrency(catalog, "RUB");
 
-  const discount = toNumberValue(attrs.discount ?? null) ?? 0;
-  const discountedPrice =
-    toNumberValue(attrs.discountedPrice ?? null) ?? undefined;
-  const discountStartAt = parseOptionalDate(attrs.discountStartAt);
-  const discountEndAt = parseOptionalDate(attrs.discountEndAt);
-
-  const price = toNumberValue(displayProduct?.price ?? null) ?? 0;
-  const hasMultipleVariants = getActiveVariantCount(displayProduct) > 1;
-  const pricing = calculatePrice({
-    price,
-    discountedPrice: hasMultipleVariants ? undefined : discountedPrice,
-    discount,
-    discountStartAt,
-    discountEndAt,
-  });
+  const productCardView = displayProduct
+    ? buildProductCardView(displayProduct as ProductWithAttributesDto, {
+        canUseVariants: true,
+        fallbackCurrency: currency,
+      })
+    : null;
 
   return {
     attributeRows: buildDrawerAttributeRows(attributeProduct),
     brandName: supportsBrands
       ? (toOptionalTrimmedString(displayProduct?.brand?.name) ?? null)
       : null,
-    currency,
+    currency: productCardView?.currency ?? currency,
     description,
     displayName: displayProduct?.name ?? "Товар",
-    displayPrice: pricing.totalPrice,
-    discount: pricing.discountPercent,
-    hasDiscount: pricing.hasDiscount,
+    displayPrice: productCardView?.displayPrice ?? null,
+    discount: productCardView?.discount ?? 0,
+    hasDiscount: productCardView?.hasDiscount ?? false,
     hasError: isError || (!isLoading && !displayProduct),
     imageUrls: getProductImageUrls(displayProduct),
-    price,
+    price: productCardView?.price ?? null,
+    priceFormatMode: getCatalogPriceFormatMode(catalog),
     shareText: displayProduct?.name,
     subtitle,
     variantsSummary: getVariantsSummary(product, previewProduct),

@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest",
     "test:run": "vitest run",
-    "api:gen": "orval --config orval.config.ts"
+    "api:gen": "orval --config orval.config.ts",
+    "prod:check": "bun run scripts/prod-quality-gate.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

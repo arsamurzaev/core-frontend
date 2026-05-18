@@ -1,6 +1,10 @@
 "use client";
 
-import { useCart } from "@/core/modules/cart/model/cart-context";
+import {
+  buildCartProductSelection,
+  useCart,
+} from "@/core/modules/cart";
+import { CART_PRODUCT_CONTROL_MESSAGES } from "@/core/modules/cart/model/cart-product-controls";
 import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import type { ProductUnavailableState } from "@/core/widgets/product-drawer/model/product-availability";
@@ -12,8 +16,10 @@ import { ProductSaleUnitPicker } from "@/core/widgets/product-drawer/ui/product-
 import { ProductVariantPicker } from "@/core/widgets/product-drawer/ui/product-variant-picker";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";
+import { toast } from "sonner";
 
 interface ProductPurchaseDetailsPanelProps {
   className?: string;
@@ -33,30 +39,71 @@ interface ProductPurchaseDetailsPanelProps {
   viewModel: ProductDrawerViewModel;
 }
 
-function hasVisibleProductVariantData(
-  product: ProductWithDetailsDto | null,
-): boolean {
-  if (!product?.productType?.id) {
-    return false;
+const VARIANT_PICKER_SCROLL_PADDING_PX = 12;
+
+function findNearestScrollContainer(element: HTMLElement): HTMLElement | null {
+  let parent = element.parentElement;
+
+  while (parent) {
+    const style = window.getComputedStyle(parent);
+    const canScrollY =
+      style.overflowY === "auto" ||
+      style.overflowY === "scroll" ||
+      style.overflowY === "overlay";
+
+    if (canScrollY && parent.scrollHeight > parent.clientHeight) {
+      return parent;
+    }
+
+    parent = parent.parentElement;
   }
 
-  return (
-    product.variants.some((variant) => variant.status !== "DISABLED") ||
-    product.variantPickerOptions.some(
-      (option) => option.status !== "DISABLED",
-    ) ||
-    (product.variantSummary?.activeCount ?? 0) > 0
-  );
+  return null;
 }
 
-function hasVisibleSaleUnitData(
-  product: ProductWithDetailsDto | null,
-): boolean {
-  return (
-    product?.variants.some((variant) =>
-      variant.saleUnits.some((unit) => unit.isActive),
-    ) ?? false
+function scrollVariantPickerIntoView(element: HTMLElement | null) {
+  if (!element || typeof window === "undefined") {
+    return;
+  }
+
+  const scrollContainer = findNearestScrollContainer(element);
+  if (!scrollContainer) {
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "nearest",
+    });
+    return;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  const topLimit = containerRect.top + VARIANT_PICKER_SCROLL_PADDING_PX;
+  const bottomLimit = containerRect.bottom - VARIANT_PICKER_SCROLL_PADDING_PX;
+  const scrollDelta =
+    elementRect.top < topLimit
+      ? elementRect.top - topLimit
+      : elementRect.bottom > bottomLimit
+        ? elementRect.bottom - bottomLimit
+        : 0;
+
+  if (Math.abs(scrollDelta) < 1) {
+    return;
+  }
+
+  const maxScrollTop = Math.max(
+    0,
+    scrollContainer.scrollHeight - scrollContainer.clientHeight,
   );
+  const nextScrollTop = Math.min(
+    maxScrollTop,
+    Math.max(0, scrollContainer.scrollTop + scrollDelta),
+  );
+
+  scrollContainer.scrollTo({
+    top: nextScrollTop,
+    behavior: "smooth",
+  });
 }
 
 export function ProductPurchaseDetailsPanel({
@@ -76,11 +123,13 @@ export function ProductPurchaseDetailsPanel({
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
   const { shouldUseCartUi } = useCart();
-  const canUseProductVariants =
-    features.canUseProductVariants || hasVisibleProductVariantData(product);
-  const canUseCatalogSaleUnits =
-    features.canUseCatalogSaleUnits || hasVisibleSaleUnitData(product);
+  const canUseProductVariants = features.canUseProductVariants;
+  const canUseCatalogSaleUnits = features.canUseCatalogSaleUnits;
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
+  const variantPickerRef = React.useRef<HTMLDivElement | null>(null);
+  const variantHighlightTimerRef = React.useRef<number | null>(null);
+  const [isVariantPickerHighlighted, setIsVariantPickerHighlighted] =
+    React.useState(false);
   const purchaseSelection = useProductPurchaseSelection({
     canUseCatalogSaleUnits,
     canUseProductVariants,
@@ -91,21 +140,51 @@ export function ProductPurchaseDetailsPanel({
     shouldEnforceStock,
     viewModel,
   });
+  const handleVariantSelectionRequired = React.useCallback(() => {
+    toast.error(CART_PRODUCT_CONTROL_MESSAGES.variantSelectionRequired);
+    setIsVariantPickerHighlighted(true);
+    scrollVariantPickerIntoView(variantPickerRef.current);
+
+    if (variantHighlightTimerRef.current !== null) {
+      window.clearTimeout(variantHighlightTimerRef.current);
+    }
+
+    variantHighlightTimerRef.current = window.setTimeout(() => {
+      setIsVariantPickerHighlighted(false);
+      variantHighlightTimerRef.current = null;
+    }, 1600);
+  }, []);
+  React.useEffect(
+    () => () => {
+      if (variantHighlightTimerRef.current !== null) {
+        window.clearTimeout(variantHighlightTimerRef.current);
+      }
+    },
+    [],
+  );
+  React.useEffect(() => {
+    if (!purchaseSelection.isVariantSelectionRequired) {
+      setIsVariantPickerHighlighted(false);
+    }
+  }, [purchaseSelection.isVariantSelectionRequired]);
   const selectedSaleUnitId = canUseCatalogSaleUnits
     ? purchaseSelection.selectedSaleUnit?.id
     : undefined;
-  const selectedVariantId = canUseProductVariants
-    ? purchaseSelection.selectedVariant?.id
-    : undefined;
+  const selectedVariantId =
+    canUseProductVariants && !purchaseSelection.isVariantSelectionRequired
+      ? purchaseSelection.selectedVariant?.id
+      : undefined;
+  const cartSelection = buildCartProductSelection({
+    productId: product?.id ?? "",
+    saleUnitId: selectedSaleUnitId,
+    variantId: selectedVariantId,
+  });
   const cartControls = useCartProductControls(
-    {
-      productId: product?.id ?? "",
-      saleUnitId: selectedSaleUnitId,
-      variantId: selectedVariantId,
-    },
+    cartSelection,
     purchaseSelection.cartProductSnapshot,
     {
       maxQuantity: purchaseSelection.maxQuantity,
+      onVariantSelectionRequired: handleVariantSelectionRequired,
       requiresVariantSelection: purchaseSelection.isVariantSelectionRequired,
     },
   );
@@ -137,7 +216,9 @@ export function ProductPurchaseDetailsPanel({
         !unavailableState && shouldUseCartUi && product?.id ? (
           <CartProductDrawerFooterAction
             controls={cartControls}
-            disabled={purchaseSelection.isVariantSelectionRequired}
+            requiresVariantSelection={
+              purchaseSelection.isVariantSelectionRequired
+            }
           />
         ) : null
       }
@@ -149,6 +230,7 @@ export function ProductPurchaseDetailsPanel({
       imageUrls={viewModel.imageUrls}
       isLoading={isLoading}
       price={totalPricing.selectedBasePrice}
+      priceFormatMode={viewModel.priceFormatMode}
       resetKey={resetKey}
       scrollAreaClassName={scrollAreaClassName}
       ScrollAreaComponent={ScrollAreaComponent}
@@ -157,13 +239,22 @@ export function ProductPurchaseDetailsPanel({
       unavailableState={unavailableState}
       variantPicker={
         !unavailableState && canUseProductVariants && product ? (
-          <ProductVariantPicker
-            currency={viewModel.currency}
-            onChange={purchaseSelection.setSelectedVariantId}
-            selectedVariantId={purchaseSelection.selectedVariantId}
-            shouldEnforceStock={shouldEnforceStock}
-            variants={purchaseSelection.selectableVariants}
-          />
+          <div
+            ref={variantPickerRef}
+            className={cn(
+              "scroll-mt-8 rounded-2xl transition-shadow",
+              isVariantPickerHighlighted &&
+                "ring-primary/45 ring-2 ring-offset-2 ring-offset-background",
+            )}
+          >
+            <ProductVariantPicker
+              currency={viewModel.currency}
+              onChange={purchaseSelection.setSelectedVariantId}
+              selectedVariantId={purchaseSelection.selectedVariantId}
+              shouldEnforceStock={shouldEnforceStock}
+              variants={purchaseSelection.selectableVariants}
+            />
+          </div>
         ) : null
       }
       saleUnitPicker={
@@ -171,6 +262,7 @@ export function ProductPurchaseDetailsPanel({
           <ProductSaleUnitPicker
             currency={viewModel.currency}
             onChange={purchaseSelection.setSelectedSaleUnitId}
+            priceFormatMode={viewModel.priceFormatMode}
             saleUnits={purchaseSelection.saleUnits}
             selectedSaleUnitId={purchaseSelection.selectedSaleUnit?.id ?? null}
           />

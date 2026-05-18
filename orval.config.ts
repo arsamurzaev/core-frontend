@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { defineConfig } from "orval";
 
 const apiBaseUrl = (
@@ -5,9 +7,14 @@ const apiBaseUrl = (
   process.env.API_BASE_URL ??
   "http://localhost:4000"
 ).replace(/\/$/, "");
+const localOpenApiPath = resolve(process.cwd(), "runtime/openapi.json");
 
 const input = {
-  target: process.env.ORVAL_OPENAPI_URL ?? `${apiBaseUrl}/openapi.yaml`,
+  target:
+    process.env.ORVAL_OPENAPI_URL ??
+    (existsSync(localOpenApiPath)
+      ? localOpenApiPath
+      : `${apiBaseUrl}/openapi.yaml`),
 };
 
 export default defineConfig({
@@ -21,7 +28,7 @@ export default defineConfig({
       clean: true,
       prettier: true,
 
-      // чтобы все запросы шли через наш axios instance
+      // Все запросы идут через наш axios instance.
       override: {
         mutator: {
           path: "./shared/api/client.ts",
@@ -29,8 +36,8 @@ export default defineConfig({
         },
       },
 
-      // опционально: удобнее держать хуки рядом
-      // mode: "single", // по умолчанию один файл
+      // По умолчанию Orval держит все хуки в одном файле.
+      // mode: "single",
     },
   },
   apiZod: {

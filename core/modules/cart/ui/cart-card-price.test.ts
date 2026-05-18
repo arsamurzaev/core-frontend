@@ -1,6 +1,8 @@
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { getCartCardDiscountPercent } from "./cart-card-price";
+import { CartCardPrice, getCartCardDiscountPercent } from "./cart-card-price";
 
 function item(overrides: Partial<CartItemView> = {}): CartItemView {
   return {
@@ -73,5 +75,38 @@ describe("getCartCardDiscountPercent", () => {
         }),
       ),
     ).toBe(0);
+  });
+});
+
+describe("CartCardPrice", () => {
+  it("renders unknown price as a question mark without currency", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(CartCardPrice, {
+        item: item({
+          displayLineTotal: null,
+          hasDiscount: false,
+          originalLineTotal: null,
+        }),
+        priceFormatMode: "integer",
+      }),
+    );
+
+    expect(html).toContain("?");
+    expect(html).not.toContain("RUB");
+  });
+
+  it("renders zero as a known price with currency", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(CartCardPrice, {
+        item: item({
+          displayLineTotal: 0,
+          hasDiscount: false,
+          originalLineTotal: 0,
+        }),
+        priceFormatMode: "integer",
+      }),
+    );
+
+    expect(html).toContain(">0 RUB<");
   });
 });

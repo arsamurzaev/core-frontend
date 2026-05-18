@@ -1,6 +1,7 @@
 "use client";
 
 import type { BrowserSlotProps } from "@/core/catalog-runtime/contracts";
+import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
 import { useActiveCategoryIntersection } from "@/core/modules/browser/model/use-active-category-intersection";
 import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
 import { useCategoryClickActivationDelay } from "@/core/modules/browser/model/use-category-click-activation-delay";
@@ -29,8 +30,12 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const storefrontCategories = React.useMemo(
+    () => buildCategoryDisplayList(categories, { hideEmpty: true }),
+    [categories],
+  );
   const { activeCategoryId } = useActiveCategoryIntersection({
-    categories,
+    categories: storefrontCategories,
     enabled: !isFilterActive,
   });
   const categoryClickActivation = useCategoryClickActivationDelay({
@@ -42,7 +47,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
     activeCategoryId;
   const bottomRow = !isFilterActive ? (
     <CategoryBarList
-      items={categories}
+      items={storefrontCategories}
       isLoading={categoriesQuery.isLoading}
       activeCategoryId={visibleActiveCategoryId}
       onCategoryClick={categoryClickActivation.handleCategoryClick}
@@ -62,7 +67,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
 
       <CatalogProductsPanel
         className="m-1 space-y-7.5"
-        categories={categories}
+        categories={storefrontCategories}
         isCategoriesLoading={categoriesQuery.isLoading}
         isFilterActive={isFilterActive}
         queryState={queryState}

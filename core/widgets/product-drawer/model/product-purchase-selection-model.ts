@@ -14,9 +14,9 @@ import { calculatePrice } from "@/shared/lib/calculate-price";
 
 export interface ProductPurchasePricingInput {
   discount: number;
-  displayPrice: number;
+  displayPrice: number | null;
   hasDiscount: boolean;
-  price: number;
+  price: number | null;
   selectedSaleUnit: ProductSaleUnit | null;
   selectedVariant: ProductVariantDto | null;
 }
@@ -40,6 +40,19 @@ export function getBaseProductVariant(
       (variant) => (variant.attributes ?? []).length === 0,
     ) ?? null
   );
+}
+
+export function resolveSinglePurchasableProductVariantId(params: {
+  shouldEnforceStock?: boolean;
+  variants: ProductVariantDto[];
+}): string | null {
+  const purchasableVariants = params.variants.filter((variant) =>
+    isProductVariantPurchasable(variant, {
+      shouldEnforceStock: params.shouldEnforceStock,
+    }),
+  );
+
+  return purchasableVariants.length === 1 ? purchasableVariants[0].id : null;
 }
 
 export function resolveProductSaleUnitSource(params: {
@@ -107,7 +120,7 @@ export function resolveProductPurchasePricing({
   const selectedBasePrice =
     selectedSaleUnitPrice ?? selectedVariantPrice ?? price;
   const selectedPricing =
-    hasDiscount && discount > 0
+    selectedBasePrice !== null && hasDiscount && discount > 0
       ? calculatePrice({
           price: selectedBasePrice,
           discount,
@@ -127,15 +140,19 @@ export function resolveProductPurchasePricing({
 }
 
 export function resolveProductPurchaseTotalPricing(params: {
-  displayPrice: number;
+  displayPrice: number | null;
   quantity: number;
-  selectedBasePrice: number;
+  selectedBasePrice: number | null;
 }) {
   const quantity = Math.max(1, Math.trunc(params.quantity));
 
   return {
-    displayPrice: params.displayPrice * quantity,
-    selectedBasePrice: params.selectedBasePrice * quantity,
+    displayPrice:
+      params.displayPrice === null ? null : params.displayPrice * quantity,
+    selectedBasePrice:
+      params.selectedBasePrice === null
+        ? null
+        : params.selectedBasePrice * quantity,
   };
 }
 
@@ -168,7 +185,7 @@ export function isProductVariantSelectionRequired(params: {
 }
 
 export function buildProductPurchaseCartSnapshot(params: {
-  displayPrice: number;
+  displayPrice: number | null;
   product: ProductWithDetailsDto | null;
 }):
   | {
@@ -186,7 +203,9 @@ export function buildProductPurchaseCartSnapshot(params: {
 
   const productPrice = toNumberValue(product.price);
   const price =
-    Number.isFinite(displayPrice) && (displayPrice > 0 || productPrice !== null)
+    displayPrice !== null &&
+    Number.isFinite(displayPrice) &&
+    (displayPrice > 0 || productPrice !== null)
       ? displayPrice
       : product.price;
 

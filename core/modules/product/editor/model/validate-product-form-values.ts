@@ -6,6 +6,7 @@ import {
 } from "@/core/modules/product/editor/model/form-config";
 import { isMissingRequiredValue } from "@/core/modules/product/editor/model/product-attributes";
 import {
+  buildVariantMatrixRows,
   hasEnabledVariantCombinations,
   validateSaleUnitsForSubmit,
 } from "@/core/modules/product/editor/model/product-variants";
@@ -13,11 +14,17 @@ import {
   type AttributeDto,
   AttributeDtoDataType,
 } from "@/shared/api/generated/react-query";
+import {
+  isCatalogPriceValueCompatible,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 
 interface ValidateProductFormValuesParams {
   invalidFormMessage: string;
   invalidPriceMessage: string;
   canUseCatalogSaleUnits?: boolean;
+  canUseProductVariants?: boolean;
+  priceFormatMode?: CatalogPriceFormatMode;
   values: CreateProductFormValues;
   variantAttributes?: AttributeDto[];
   visibleAttributes: AttributeDto[];
@@ -37,15 +44,40 @@ type ValidateProductFormValuesResult =
       parsedValues?: never;
     };
 
+function hasInvalidEnabledVariantPrice(
+  values: CreateProductFormValues,
+  variantAttributes: AttributeDto[],
+  priceFormatMode: CatalogPriceFormatMode,
+): boolean {
+  return buildVariantMatrixRows(values.variants, variantAttributes).some(
+    (row) => {
+      if (row.item.status === "DISABLED") {
+        return false;
+      }
+
+      const rawPrice = row.item.price;
+      if (rawPrice === undefined || rawPrice.trim().length === 0) {
+        return false;
+      }
+
+      const price = Number(rawPrice);
+      return !isCatalogPriceValueCompatible(price, priceFormatMode);
+    },
+  );
+}
+
 export function validateProductFormValues({
   invalidFormMessage,
   invalidPriceMessage,
   canUseCatalogSaleUnits = false,
+  canUseProductVariants = false,
+  priceFormatMode = "integer",
   values,
   variantAttributes = [],
   visibleAttributes,
 }: ValidateProductFormValuesParams): ValidateProductFormValuesResult {
   const parsedValues = normalizeCreateProductFormValues(values);
+  const activeVariantAttributes = canUseProductVariants ? variantAttributes : [];
 
   if (parsedValues.name.trim().length === 0) {
     return {
@@ -58,7 +90,20 @@ export function validateProductFormValues({
     parsedValues.price.trim().length > 0 ? Number(parsedValues.price) : null;
   if (
     normalizedPrice !== null &&
-    (!Number.isFinite(normalizedPrice) || normalizedPrice < 0)
+    !isCatalogPriceValueCompatible(normalizedPrice, priceFormatMode)
+  ) {
+    return {
+      success: false,
+      errorMessage: invalidPriceMessage,
+    };
+  }
+
+  if (
+    hasInvalidEnabledVariantPrice(
+      parsedValues,
+      activeVariantAttributes,
+      priceFormatMode,
+    )
   ) {
     return {
       success: false,
@@ -68,8 +113,11 @@ export function validateProductFormValues({
 
   if (
     parsedValues.productTypeId &&
-    variantAttributes.length > 0 &&
-    !hasEnabledVariantCombinations(parsedValues.variants, variantAttributes)
+    activeVariantAttributes.length > 0 &&
+    !hasEnabledVariantCombinations(
+      parsedValues.variants,
+      activeVariantAttributes,
+    )
   ) {
     return {
       success: false,
@@ -106,7 +154,8 @@ export function validateProductFormValues({
   if (canUseCatalogSaleUnits) {
     const saleUnitsIssue = validateSaleUnitsForSubmit(
       parsedValues,
-      variantAttributes,
+      activeVariantAttributes,
+      priceFormatMode,
     );
     if (saleUnitsIssue) {
       return {

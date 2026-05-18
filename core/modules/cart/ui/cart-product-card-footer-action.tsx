@@ -9,6 +9,7 @@ import {
   buildCartLineSnapshot,
   getCartProductLinesSummary,
 } from "@/core/modules/cart/model/cart-product-card-footer-state";
+import { resolveCartProductCardSelection } from "@/core/modules/cart/model/cart-product-selection";
 import { CartProductCardFooterPrice } from "@/core/modules/cart/ui/cart-product-card-footer-price";
 import { CartProductCardFooterQuantity } from "@/core/modules/cart/ui/cart-product-card-footer-quantity";
 import { CartProductCardFooterSummary } from "@/core/modules/cart/ui/cart-product-card-footer-summary";
@@ -17,6 +18,7 @@ import { resolveProductCardVariantState } from "@/core/modules/product/model/pro
 import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";
@@ -38,6 +40,7 @@ export const CartProductCardFooterAction = React.memo(
     const canUseProductVariants = features.canUseProductVariants;
     const { items } = useCart();
     const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
+    const priceFormatMode = getCatalogPriceFormatMode(catalog);
     const productCartLines = React.useMemo(
       () => items.filter((item) => item.productId === product.id),
       [items, product.id],
@@ -50,6 +53,10 @@ export const CartProductCardFooterAction = React.memo(
         canUseVariants: canUseProductVariants,
         shouldEnforceStock,
       });
+    const productSelection = resolveCartProductCardSelection({
+      product,
+      variantId: singleVariantId,
+    });
     const singleLineMaxQuantity = React.useMemo(
       () =>
         shouldEnforceStock && singleCartLine
@@ -65,10 +72,7 @@ export const CartProductCardFooterAction = React.memo(
       [product, singleCartLine],
     );
     const productControls = useCartProductControls(
-      {
-        productId: product.id,
-        variantId: singleVariantId,
-      },
+      productSelection,
       product,
       {
         canUseProductVariants,
@@ -107,6 +111,7 @@ export const CartProductCardFooterAction = React.memo(
           className={className}
           isDetailed={isDetailed}
           onClick={handlePreventCardNavigation}
+          priceFormatMode={priceFormatMode}
           summary={getCartProductLinesSummary(
             productCartLines,
             fallbackCurrency,
@@ -131,6 +136,7 @@ export const CartProductCardFooterAction = React.memo(
           currency={currency}
           displayPrice={displayPrice}
           hasDiscount={hasDiscount}
+          priceFormatMode={priceFormatMode}
           pricePrefix={pricePrefix}
         />
       );
@@ -144,6 +150,7 @@ export const CartProductCardFooterAction = React.memo(
         displayTotal={pricing.displayTotal}
         isDetailed={isDetailed}
         onClick={handlePreventCardNavigation}
+        priceFormatMode={priceFormatMode}
       />
     );
   },

@@ -101,6 +101,25 @@ describe("shouldRequireCartProductVariantSelection", () => {
       }),
     ).toBe(false);
   });
+
+  it("trusts an explicit product selection requirement without product type", () => {
+    expect(
+      shouldRequireCartProductVariantSelection({
+        canUseProductVariants: true,
+        product: {
+          requiresVariantSelection: true,
+          variantSummary: {
+            activeCount: 0,
+            maxPrice: null,
+            minPrice: null,
+            singleVariantId: null,
+            totalStock: 0,
+          },
+          variantPickerOptions: [],
+        },
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("isVariantSelectionRequiredMessage", () => {

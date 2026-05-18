@@ -1,11 +1,13 @@
 "use client";
 
 import { CartQuantityControl } from "@/core/modules/cart/ui/cart-quantity-control";
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { Minus, Plus } from "lucide-react";
 import React from "react";
-
-const RU_NUMBER_FORMAT = new Intl.NumberFormat("ru");
 
 interface CartProductCardFooterQuantityProps {
   className?: string;
@@ -19,6 +21,7 @@ interface CartProductCardFooterQuantityProps {
   displayTotal: number | null;
   isDetailed: boolean;
   onClick: (event: React.SyntheticEvent) => void;
+  priceFormatMode: CatalogPriceFormatMode;
 }
 
 export function CartProductCardFooterQuantity({
@@ -28,6 +31,7 @@ export function CartProductCardFooterQuantity({
   displayTotal,
   isDetailed,
   onClick,
+  priceFormatMode,
 }: CartProductCardFooterQuantityProps) {
   return (
     <CartQuantityControl
@@ -55,7 +59,7 @@ export function CartProductCardFooterQuantity({
           "?"
         ) : (
           <>
-            {RU_NUMBER_FORMAT.format(displayTotal)}{" "}
+            {formatCatalogPrice(displayTotal, priceFormatMode)}{" "}
             <span className="font-normal">{currency}</span>
           </>
         )

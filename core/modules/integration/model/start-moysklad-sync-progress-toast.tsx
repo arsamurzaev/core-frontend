@@ -29,6 +29,7 @@ type MoySkladSyncProgressDto = {
 
 type StartMoySkladSyncProgressToastOptions = {
   runId: string;
+  initialProgress?: MoySkladSyncProgressDto | null;
   title?: string;
   onSettled?: () => void | Promise<void>;
 };
@@ -38,6 +39,7 @@ const TERMINAL_STATUSES = new Set<MoySkladSyncProgressStatus>([
   "ERROR",
   "SKIPPED",
 ]);
+const activeSyncProgressToastRunIds = new Set<string>();
 
 function buildInitialProgress(runId: string): MoySkladSyncProgressDto {
   return {
@@ -132,10 +134,17 @@ async function fetchProgress(runId: string): Promise<MoySkladSyncProgressDto> {
 
 export function startMoySkladSyncProgressToast({
   runId,
+  initialProgress,
   title = "Синхронизация MoySklad",
   onSettled,
 }: StartMoySkladSyncProgressToastOptions): () => void {
   const toastId = `moysklad-sync-${runId}`;
+
+  if (activeSyncProgressToastRunIds.has(runId)) {
+    return () => undefined;
+  }
+
+  activeSyncProgressToastRunIds.add(runId);
   let stopped = false;
 
   const notifySettled = async () => {
@@ -168,6 +177,7 @@ export function startMoySkladSyncProgressToast({
           <MoySkladSyncProgressToast progress={progress} title={title} />,
           { id: toastId, duration: 6_000 },
         );
+        activeSyncProgressToastRunIds.delete(runId);
         await notifySettled();
         return;
       }
@@ -177,6 +187,7 @@ export function startMoySkladSyncProgressToast({
           id: toastId,
           duration: 8_000,
         });
+        activeSyncProgressToastRunIds.delete(runId);
         await notifySettled();
         return;
       }
@@ -189,15 +200,17 @@ export function startMoySkladSyncProgressToast({
         id: toastId,
         duration: 8_000,
       });
+      activeSyncProgressToastRunIds.delete(runId);
       await notifySettled();
     }
   };
 
-  showProgress(buildInitialProgress(runId));
+  showProgress(initialProgress ?? buildInitialProgress(runId));
   void poll();
 
   return () => {
     stopped = true;
+    activeSyncProgressToastRunIds.delete(runId);
     toast.dismiss(toastId);
   };
 }

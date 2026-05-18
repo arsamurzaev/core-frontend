@@ -4,6 +4,7 @@ import type {
   ProductTypeDto,
 } from "@/shared/api/generated/react-query";
 import type { FieldOption } from "@/shared/ui/dynamic-form";
+import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
 
 function sortByName<TItem extends { name: string }>(items: TItem[]): TItem[] {
   return [...items].sort((left, right) =>
@@ -28,7 +29,7 @@ export function buildBrandOptions(
 export function buildCategoryOptions(
   categories: CategoryDto[] | null | undefined,
 ): FieldOption[] {
-  return sortByName(categories ?? []).map((category) => ({
+  return sortByName(buildCategoryDisplayList(categories ?? [])).map((category) => ({
     label: category.name,
     value: category.id,
   }));

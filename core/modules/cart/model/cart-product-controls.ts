@@ -13,12 +13,11 @@ export const CART_PRODUCT_CONTROL_MESSAGES = {
     "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0442\u043e\u0432\u0430\u0440 \u0438\u0437 \u043a\u043e\u0440\u0437\u0438\u043d\u044b?",
   saleUnitUnavailable:
     "\u0412\u044b\u0431\u0440\u0430\u043d\u043d\u0430\u044f \u0435\u0434\u0438\u043d\u0438\u0446\u0430 \u043f\u0440\u043e\u0434\u0430\u0436\u0438 \u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u0430.",
-  variantSelectionRequired:
-    "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0430\u0440\u0438\u0430\u0446\u0438\u044e \u0442\u043e\u0432\u0430\u0440\u0430",
+  variantSelectionRequired: "Выберите вариацию",
 } as const;
 
 export function normalizeCartMaxQuantity(
-  maxQuantity: number | undefined,
+  maxQuantity: number | null | undefined,
 ): number | undefined {
   return typeof maxQuantity === "number" && Number.isFinite(maxQuantity)
     ? Math.max(0, maxQuantity)
@@ -40,7 +39,9 @@ export function shouldConfirmCartLineRemoval(quantity: number): boolean {
 
 interface CartProductVariantSelectionProduct {
   productType?: ProductWithAttributesDto["productType"];
+  requiresVariantSelection?: ProductWithAttributesDto["requiresVariantSelection"];
   variantSummary?: ProductWithAttributesDto["variantSummary"];
+  variantPickerOptions?: ProductWithAttributesDto["variantPickerOptions"];
 }
 
 export function shouldRequireCartProductVariantSelection(params: {
@@ -58,12 +59,14 @@ export function shouldRequireCartProductVariantSelection(params: {
   }
 
   if (params.canUseProductVariants === false || !params.product?.productType?.id) {
-    return false;
+    return Boolean(params.product?.requiresVariantSelection);
   }
 
   const activeVariantCount = Math.max(
-    0,
     params.product.variantSummary?.activeCount ?? 0,
+    params.product.variantPickerOptions?.filter(
+      (option) => option.status !== "DISABLED",
+    ).length ?? 0,
   );
   if (activeVariantCount <= 0) {
     return false;

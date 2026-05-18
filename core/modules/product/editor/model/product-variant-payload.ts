@@ -5,6 +5,10 @@ import {
   type SetProductVariantMatrixDtoReq,
 } from "@/shared/api/generated/react-query";
 import {
+  formatCatalogPriceInputValue,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
+import {
   buildSaleUnitsFormValueFromUnknown,
   normalizeSaleUnitsForPayload,
   type PayloadWithSaleUnits,
@@ -37,6 +41,7 @@ function toOptionalNumber(value: unknown): number | null {
 export function buildVariantsFormValueFromExisting(
   existingVariants: ProductVariantDto[],
   variantAttributes: AttributeDto[],
+  priceFormatMode: CatalogPriceFormatMode = "integer",
 ): VariantsFormValue {
   const result = createEmptyVariantsFormValue();
   const selectedAttributeIds = new Set<string>();
@@ -67,6 +72,7 @@ export function buildVariantsFormValueFromExisting(
     if (attributes.length === 0) {
       continue;
     }
+    const variantPrice = toOptionalNumber(variant.price);
 
     for (const attribute of attributes) {
       selectedAttributeIds.add(attribute.attributeId);
@@ -83,9 +89,17 @@ export function buildVariantsFormValueFromExisting(
 
     const key = buildVariantCombinationKey(attributes, variantAttributes);
     result.combinations[key] = {
-      ...(variant.price !== null ? { price: variant.price } : {}),
+      ...(variantPrice !== null
+        ? {
+            price: formatCatalogPriceInputValue(
+              variantPrice,
+              priceFormatMode,
+            ),
+          }
+        : {}),
       saleUnits: buildSaleUnitsFormValueFromUnknown(
         (variant as { saleUnits?: unknown }).saleUnits,
+        priceFormatMode,
       ),
       status: variant.status as VariantStatus,
       stock: variant.stock,
@@ -127,7 +141,7 @@ export function buildCreateVariantsPayload(
       const price = toOptionalNumber(row.item.price);
 
       return {
-        ...(price !== null ? { price } : {}),
+        ...(price !== null && price >= 0 ? { price } : {}),
         status: row.item.status,
         stock: row.item.status === "ACTIVE" ? row.item.stock : 0,
         attributes: row.attributes.map((attribute) => ({

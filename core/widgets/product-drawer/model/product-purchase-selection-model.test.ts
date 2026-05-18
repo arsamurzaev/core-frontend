@@ -1,16 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
   buildProductPurchaseCartSnapshot,
+  getAvailableProductSaleUnits,
+  getSelectableProductVariants,
   isProductVariantSelectionRequired,
   resolveNextProductSaleUnitId,
   resolveProductPurchaseMaxQuantity,
   resolveProductPurchasePricing,
   resolveProductPurchaseTotalPricing,
+  resolveSinglePurchasableProductVariantId,
 } from "./product-purchase-selection-model";
 import type { ProductSaleUnit } from "@/core/modules/product/model/sale-units";
-import type {
-  ProductVariantDto,
-  ProductWithDetailsDto,
+import {
+  ProductVariantDtoKind,
+  type ProductVariantDto,
+  type ProductWithDetailsDto,
 } from "@/shared/api/generated/react-query";
 
 function saleUnit(overrides: Partial<ProductSaleUnit>): ProductSaleUnit {
@@ -33,6 +37,7 @@ function variant(overrides: Partial<ProductVariantDto>): ProductVariantDto {
     id: "variant-1",
     sku: "SKU-1",
     variantKey: "base",
+    kind: ProductVariantDtoKind.DEFAULT,
     stock: 10,
     price: "100",
     status: "ACTIVE",
@@ -46,6 +51,36 @@ function variant(overrides: Partial<ProductVariantDto>): ProductVariantDto {
 }
 
 describe("product purchase selection model", () => {
+  it("hides backend variant and sale-unit data when capabilities are disabled", () => {
+    const product = {
+      productType: { id: "type-1" },
+      variants: [
+        variant({
+          id: "variant-1",
+          saleUnits: [
+            saleUnit({
+              id: "box",
+            }) as unknown as ProductVariantDto["saleUnits"][number],
+          ],
+        }),
+      ],
+    } as unknown as ProductWithDetailsDto;
+
+    expect(
+      getSelectableProductVariants({
+        canUseProductVariants: false,
+        product,
+      }),
+    ).toEqual([]);
+    expect(
+      getAvailableProductSaleUnits({
+        canUseCatalogSaleUnits: false,
+        product,
+        saleUnitSource: product.variants[0],
+      }),
+    ).toEqual([]);
+  });
+
   it("selects initial sale unit, then preserves current valid selection", () => {
     const units = [
       saleUnit({ id: "piece", isDefault: true }),
@@ -167,6 +202,26 @@ describe("product purchase selection model", () => {
         shouldEnforceStock: false,
       }),
     ).toBe(false);
+  });
+
+  it("auto-selects only a single purchasable variant", () => {
+    expect(
+      resolveSinglePurchasableProductVariantId({
+        variants: [
+          variant({ id: "available" }),
+          variant({ id: "empty", stock: 0 }),
+        ],
+      }),
+    ).toBe("available");
+
+    expect(
+      resolveSinglePurchasableProductVariantId({
+        variants: [
+          variant({ id: "first" }),
+          variant({ id: "second" }),
+        ],
+      }),
+    ).toBeNull();
   });
 
   it("keeps zero display price in cart product snapshot", () => {

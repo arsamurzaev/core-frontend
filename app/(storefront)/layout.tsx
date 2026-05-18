@@ -1,5 +1,8 @@
 import { CartProvider } from "@/core/modules/cart/model/cart-context";
-import { ProductDrawerInstantHostSlot } from "@/core/catalog-runtime/ui";
+import {
+  MoySkladSyncProgressWatcherSlot,
+  ProductDrawerInstantHostSlot,
+} from "@/core/catalog-runtime/ui";
 import { getCurrentCatalogServer } from "@/shared/api/server/get-current-catalog";
 import { DrawerCoordinatorProvider } from "@/shared/providers/drawer-coordinator-provider";
 import { notFound } from "next/navigation";
@@ -20,6 +23,7 @@ export default async function StorefrontLayout({
   return (
     <DrawerCoordinatorProvider>
       <CartProvider>
+        <MoySkladSyncProgressWatcherSlot />
         {children}
         <ProductDrawerInstantHostSlot />
         {drawer}

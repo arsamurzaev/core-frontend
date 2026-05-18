@@ -1,19 +1,16 @@
 "use client";
 
-import {
-  CREATE_PRODUCT_FORM_DEFAULT_VALUES,
-  type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
 import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
+import { useProductEditorForm } from "@/core/modules/product/editor/model/use-product-editor-form";
 import { useProductImageEditor } from "@/core/modules/product/editor/model/use-product-image-editor";
 import { useCreateProductDrawerState } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer-state";
 import { useCreateProductSubmit } from "@/core/widgets/create-product-drawer/model/use-create-product-submit";
 import { useProductControllerCreate } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
-import { useForm } from "react-hook-form";
 
 interface UseCreateProductDrawerParams {
   open?: boolean;
@@ -29,13 +26,13 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     supportsBrands = true,
     supportsCategoryDetails = true,
   } = params;
-  const { type } = useCatalog();
+  const catalog = useCatalog();
+  const { type } = catalog;
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const features = useCatalogCapabilities();
   const queryClient = useQueryClient();
   const createProduct = useProductControllerCreate();
-  const form = useForm<CreateProductFormValues>({
-    defaultValues: CREATE_PRODUCT_FORM_DEFAULT_VALUES,
-  });
+  const form = useProductEditorForm();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
@@ -93,6 +90,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     isSubmitting,
     openRequiredCropper: imageEditor.openRequiredCropper,
     pendingAddedFilesCount: imageEditor.pendingAddedFilesCount,
+    priceFormatMode,
     productAttributes,
     queryClient,
     setErrorMessage: drawerState.setErrorMessage,

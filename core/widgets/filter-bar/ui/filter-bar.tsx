@@ -150,7 +150,10 @@ export const FilterBar: React.FC<Props> = ({
         {!shouldUseFilteredStickyLayout ? (
           <Button
             variant="ghost"
-            className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
+            className={cn(
+              "shadow-custom flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95",
+              isFilterActive && "hidden sm:flex",
+            )}
             aria-label={
               isDetailed ? "Переключить на сетку" : "Переключить на список"
             }

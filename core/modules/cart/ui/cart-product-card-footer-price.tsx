@@ -1,15 +1,18 @@
 "use client";
 
 import { canShowCartProductFooterPrice } from "@/core/modules/cart/model/cart-product-card-footer-state";
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
-
-const RU_NUMBER_FORMAT = new Intl.NumberFormat("ru");
 
 interface CartProductCardFooterPriceProps {
   className?: string;
   currency: string;
   displayPrice: number | null | undefined;
   hasDiscount: boolean;
+  priceFormatMode: CatalogPriceFormatMode;
   pricePrefix: string | null;
 }
 
@@ -18,6 +21,7 @@ export function CartProductCardFooterPrice({
   currency,
   displayPrice,
   hasDiscount,
+  priceFormatMode,
   pricePrefix,
 }: CartProductCardFooterPriceProps) {
   if (!canShowCartProductFooterPrice(displayPrice)) {
@@ -34,7 +38,7 @@ export function CartProductCardFooterPrice({
       )}
     >
       {pricePrefix ? `${pricePrefix} ` : null}
-      {RU_NUMBER_FORMAT.format(price)}{" "}
+      {formatCatalogPrice(price, priceFormatMode)}{" "}
       <span className="font-normal">{currency}</span>
     </p>
   );

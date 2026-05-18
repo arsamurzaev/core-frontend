@@ -1,6 +1,10 @@
 "use client";
 
 import type { ProductSaleUnit } from "@/core/modules/product/model/sale-units";
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import React from "react";
@@ -8,17 +12,15 @@ import React from "react";
 interface ProductSaleUnitPickerProps {
   currency: string;
   onChange: (saleUnitId: string) => void;
+  priceFormatMode: CatalogPriceFormatMode;
   saleUnits: ProductSaleUnit[];
   selectedSaleUnitId: string | null;
-}
-
-function formatMoney(value: number): string {
-  return Intl.NumberFormat("ru-RU").format(value);
 }
 
 export function ProductSaleUnitPicker({
   currency,
   onChange,
+  priceFormatMode,
   saleUnits,
   selectedSaleUnitId,
 }: ProductSaleUnitPickerProps) {
@@ -50,7 +52,7 @@ export function ProductSaleUnitPicker({
                 {unit.label}
               </span>
               <span className="text-[11px] font-normal opacity-80">
-                {formatMoney(unit.price)} {currency}
+                {formatCatalogPrice(unit.price, priceFormatMode)} {currency}
               </span>
               <span className="text-[10px] font-normal opacity-70">
                 Внутри: {unit.baseQuantity}

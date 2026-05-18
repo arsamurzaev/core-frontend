@@ -38,26 +38,7 @@ function toProductWithAttributesDto(
     return data;
   }
 
-  return {
-    id: data.id,
-    sku: data.sku,
-    name: data.name,
-    slug: data.slug,
-    price: data.price,
-    media: data.media,
-    brand: data.brand,
-    productType: data.productType,
-    categories: data.categories,
-    integration: data.integration,
-    isPopular: data.isPopular,
-    status: data.status,
-    position: data.position,
-    createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
-    productAttributes: data.productAttributes,
-    variantSummary: data.variantSummary,
-    variantPickerOptions: data.variantPickerOptions,
-  };
+  return data;
 }
 
 export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
@@ -66,6 +47,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
   actions,
   footerAction,
   hidePriceWhenFooterAction,
+  imageLoading,
   isMoySkladLinked,
   isDetailed,
   plugin = DEFAULT_PRODUCT_CARD_PLUGIN,
@@ -80,6 +62,8 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
     () => toProductWithAttributesDto(data),
     [data],
   );
+  const variantsLine = model.lines.find((line) => line.id === "variants");
+  const visibleLines = model.lines.filter((line) => line.id !== "variants");
 
   return (
     <div className={cn("space-y-2", pluginContainerClassName)}>
@@ -88,11 +72,13 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
         className={className}
         actions={actions}
         footerAction={footerAction}
+        headerMeta={variantsLine?.value}
         hidePriceWhenFooterAction={hidePriceWhenFooterAction}
+        imageLoading={imageLoading}
         isMoySkladLinked={isMoySkladLinked}
         isDetailed={isDetailed}
       />
-      {(model.badges.length > 0 || model.lines.length > 0) && (
+      {(model.badges.length > 0 || visibleLines.length > 0) && (
         <div className="px-2 pb-1 space-y-1">
           {model.badges.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -103,7 +89,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
               ))}
             </div>
           )}
-          {model.lines.map((line) => (
+          {visibleLines.map((line) => (
             <p key={line.id} className="text-muted text-xs">
               <span className="text-foreground font-medium">{line.label}:</span>{" "}
               {line.value}

@@ -123,6 +123,111 @@ export interface AuthSessionsResponseDto {
   sessions: AuthSessionDto[];
 }
 
+export interface AdminDomainEventOutboxCatalogDto {
+  slug: string;
+  name: string;
+}
+
+export type AdminDomainEventOutboxItemDtoStatus = typeof AdminDomainEventOutboxItemDtoStatus[keyof typeof AdminDomainEventOutboxItemDtoStatus];
+
+
+export const AdminDomainEventOutboxItemDtoStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  PROCESSED: 'PROCESSED',
+  FAILED: 'FAILED',
+} as const;
+
+export type AdminDomainEventOutboxItemDtoPayload = { [key: string]: unknown };
+
+export interface AdminDomainEventOutboxItemDto {
+  id: string;
+  eventId: string;
+  eventType: string;
+  /** @nullable */
+  aggregateType?: string | null;
+  /** @nullable */
+  aggregateId?: string | null;
+  catalogId: string;
+  catalog: AdminDomainEventOutboxCatalogDto;
+  status: AdminDomainEventOutboxItemDtoStatus;
+  attempts: number;
+  /** @nullable */
+  lastError?: string | null;
+  /** @nullable */
+  lockedAt?: string | null;
+  occurredAt: string;
+  /** @nullable */
+  processedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  payload: AdminDomainEventOutboxItemDtoPayload;
+}
+
+export interface AdminDomainEventOutboxListDto {
+  total: number;
+  limit: number;
+  items: AdminDomainEventOutboxItemDto[];
+}
+
+export interface AdminDomainEventOutboxStatusCountsDto {
+  PENDING: number;
+  PROCESSING: number;
+  PROCESSED: number;
+  FAILED: number;
+}
+
+export interface AdminDomainEventOutboxStatsDto {
+  total: number;
+  byStatus: AdminDomainEventOutboxStatusCountsDto;
+  /** @nullable */
+  oldestPendingAt?: string | null;
+  /** @nullable */
+  newestFailedAt?: string | null;
+  failedWithLastError: number;
+  processedRetentionDays: number;
+  processedRetentionCutoff: string;
+  processedOlderThanRetention: number;
+  failedOlderThan1Day: number;
+  failedOlderThan7Days: number;
+  failedOlderThan30Days: number;
+}
+
+export interface AdminDomainEventOutboxActionResultDto {
+  processed: number;
+  failed: number;
+  skipped: number;
+  matched?: number;
+}
+
+export interface AdminRetryFailedDomainEventsDtoReq {
+  catalogId?: string;
+  eventType?: string;
+  /** @maximum 500 */
+  limit?: number;
+}
+
+export interface AdminDrainDomainEventOutboxDtoReq {
+  /** @maximum 500 */
+  limit?: number;
+  /** @maximum 50 */
+  maxAttempts?: number;
+  staleProcessingMs?: number;
+}
+
+export interface AdminCleanupDomainEventOutboxDtoReq {
+  retentionDays?: number;
+  /** @maximum 50000 */
+  limit?: number;
+}
+
+export interface AdminDomainEventOutboxCleanupResultDto {
+  deleted: number;
+  retentionDays: number;
+  cutoff: string;
+  limit: number;
+}
+
 export type AdminCatalogConfigListItemDtoStatus = typeof AdminCatalogConfigListItemDtoStatus[keyof typeof AdminCatalogConfigListItemDtoStatus];
 
 
@@ -426,6 +531,116 @@ export interface AdminCatalogFeatureEntitlementsDto {
   /** Per-capability state with disabled reasons. */
   items: AdminCatalogFeatureEntitlementsDtoItemsItem[];
   features: AdminCatalogFeatureEntitlementItemDto[];
+}
+
+export interface AdminMoySkladSkippedReasonCountDto {
+  reason: string;
+  count: number;
+}
+
+export interface AdminMoySkladStockLinkCountersDto {
+  productLinks: number;
+  variantLinks: number;
+  productLinksWithStockSync: number;
+  variantLinksWithStockSync: number;
+  productLinksMissing: number;
+  variantLinksMissing: number;
+  productLinksWithErrors: number;
+  variantLinksWithErrors: number;
+  productSkippedReasons: AdminMoySkladSkippedReasonCountDto[];
+  variantSkippedReasons: AdminMoySkladSkippedReasonCountDto[];
+}
+
+export interface AdminMoySkladStockSkippedReasonsDto {
+  missingStock: number;
+  productHasVariantLinks: number;
+  variantsCapabilityDisabled: number;
+  stockRowWithoutLocalLink: number;
+}
+
+export type AdminMoySkladStockDiagnosticsDtoSource = typeof AdminMoySkladStockDiagnosticsDtoSource[keyof typeof AdminMoySkladStockDiagnosticsDtoSource];
+
+
+export const AdminMoySkladStockDiagnosticsDtoSource = {
+  FULL_SYNC: 'FULL_SYNC',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export interface AdminMoySkladStockDiagnosticsDto {
+  source: AdminMoySkladStockDiagnosticsDtoSource;
+  stockRows: number;
+  matchedStockRows: number;
+  unmatchedStockRows: number;
+  productLinks: number;
+  variantLinks: number;
+  ignoredVariantLinks: number;
+  appliedProductLinks: number;
+  appliedVariantLinks: number;
+  skippedReasons: AdminMoySkladStockSkippedReasonsDto;
+}
+
+export type AdminMoySkladStockLatestRunDtoTrigger = typeof AdminMoySkladStockLatestRunDtoTrigger[keyof typeof AdminMoySkladStockLatestRunDtoTrigger];
+
+
+export const AdminMoySkladStockLatestRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export type AdminMoySkladStockLatestRunDtoStatus = typeof AdminMoySkladStockLatestRunDtoStatus[keyof typeof AdminMoySkladStockLatestRunDtoStatus];
+
+
+export const AdminMoySkladStockLatestRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export type AdminMoySkladStockLatestRunDtoSnapshotCompleteness = typeof AdminMoySkladStockLatestRunDtoSnapshotCompleteness[keyof typeof AdminMoySkladStockLatestRunDtoSnapshotCompleteness];
+
+
+export const AdminMoySkladStockLatestRunDtoSnapshotCompleteness = {
+  FULL_COMPLETE: 'FULL_COMPLETE',
+  PARTIAL: 'PARTIAL',
+  WEBHOOK_DELTA: 'WEBHOOK_DELTA',
+  FAILED_BEFORE_SNAPSHOT: 'FAILED_BEFORE_SNAPSHOT',
+} as const;
+
+export interface AdminMoySkladStockLatestRunDto {
+  id: string;
+  trigger: AdminMoySkladStockLatestRunDtoTrigger;
+  status: AdminMoySkladStockLatestRunDtoStatus;
+  snapshotCompleteness: AdminMoySkladStockLatestRunDtoSnapshotCompleteness;
+  totalRows: number;
+  appliedRows: number;
+  skippedRows: number;
+  diagnostics: AdminMoySkladStockDiagnosticsDto | null;
+  /** @nullable */
+  error: string | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+}
+
+export interface AdminMoySkladStockDiagnosticsReportDto {
+  catalogId: string;
+  /** @nullable */
+  integrationId: string | null;
+  hasIntegration: boolean;
+  integrationActive: boolean;
+  syncStockEnabled: boolean;
+  stockFieldOwnedByMoySklad: boolean;
+  stockWebhookEnabled: boolean;
+  stockWebhookRegistered: boolean;
+  /** @nullable */
+  lastStockSyncedAt: string | null;
+  links: AdminMoySkladStockLinkCountersDto;
+  latestRun: AdminMoySkladStockLatestRunDto | null;
 }
 
 export type AdminUpdateCatalogFeatureEntitlementDtoReqFeature = typeof AdminUpdateCatalogFeatureEntitlementDtoReqFeature[keyof typeof AdminUpdateCatalogFeatureEntitlementDtoReqFeature];
@@ -980,6 +1195,45 @@ export interface IntegrationProviderCapabilitiesDto {
   webhook: boolean;
 }
 
+export type MoySkladFieldOwnershipDtoPrice = typeof MoySkladFieldOwnershipDtoPrice[keyof typeof MoySkladFieldOwnershipDtoPrice];
+
+
+export const MoySkladFieldOwnershipDtoPrice = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type MoySkladFieldOwnershipDtoStock = typeof MoySkladFieldOwnershipDtoStock[keyof typeof MoySkladFieldOwnershipDtoStock];
+
+
+export const MoySkladFieldOwnershipDtoStock = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type MoySkladFieldOwnershipDtoContent = typeof MoySkladFieldOwnershipDtoContent[keyof typeof MoySkladFieldOwnershipDtoContent];
+
+
+export const MoySkladFieldOwnershipDtoContent = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type MoySkladFieldOwnershipDtoImages = typeof MoySkladFieldOwnershipDtoImages[keyof typeof MoySkladFieldOwnershipDtoImages];
+
+
+export const MoySkladFieldOwnershipDtoImages = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export interface MoySkladFieldOwnershipDto {
+  price: MoySkladFieldOwnershipDtoPrice;
+  stock: MoySkladFieldOwnershipDtoStock;
+  content: MoySkladFieldOwnershipDtoContent;
+  images: MoySkladFieldOwnershipDtoImages;
+}
+
 export interface MoySkladStockWebhookDto {
   enabled: boolean;
   registered: boolean;
@@ -1020,6 +1274,7 @@ export interface MoySkladIntegrationDto {
   priceTypeName: string;
   importImages: boolean;
   syncStock: boolean;
+  fieldOwnership: MoySkladFieldOwnershipDto;
   stockWebhook: MoySkladStockWebhookDto;
   exportOrders: boolean;
   /** @nullable */
@@ -1057,10 +1312,39 @@ export interface MoySkladSyncEntityStatsDto {
   skipped: number;
 }
 
+export interface MoySkladSyncStockSkippedReasonsDto {
+  missingStock: number;
+  productHasVariantLinks: number;
+  variantsCapabilityDisabled: number;
+  stockRowWithoutLocalLink: number;
+}
+
+export type MoySkladSyncStockDiagnosticsDtoSource = typeof MoySkladSyncStockDiagnosticsDtoSource[keyof typeof MoySkladSyncStockDiagnosticsDtoSource];
+
+
+export const MoySkladSyncStockDiagnosticsDtoSource = {
+  FULL_SYNC: 'FULL_SYNC',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export interface MoySkladSyncStockDiagnosticsDto {
+  source: MoySkladSyncStockDiagnosticsDtoSource;
+  stockRows: number;
+  matchedStockRows: number;
+  unmatchedStockRows: number;
+  productLinks: number;
+  variantLinks: number;
+  ignoredVariantLinks: number;
+  appliedProductLinks: number;
+  appliedVariantLinks: number;
+  skippedReasons: MoySkladSyncStockSkippedReasonsDto;
+}
+
 export interface MoySkladSyncStockStatsDto {
   total: number;
   applied: number;
   skipped: number;
+  diagnostics: MoySkladSyncStockDiagnosticsDto | null;
 }
 
 export interface MoySkladSyncIssueDto {
@@ -1136,12 +1420,23 @@ export const MoySkladSyncRunDtoStatus = {
   SKIPPED: 'SKIPPED',
 } as const;
 
+export type MoySkladSyncRunDtoSnapshotCompleteness = typeof MoySkladSyncRunDtoSnapshotCompleteness[keyof typeof MoySkladSyncRunDtoSnapshotCompleteness];
+
+
+export const MoySkladSyncRunDtoSnapshotCompleteness = {
+  FULL_COMPLETE: 'FULL_COMPLETE',
+  PARTIAL: 'PARTIAL',
+  WEBHOOK_DELTA: 'WEBHOOK_DELTA',
+  FAILED_BEFORE_SNAPSHOT: 'FAILED_BEFORE_SNAPSHOT',
+} as const;
+
 export interface MoySkladSyncRunDto {
   id: string;
   provider: MoySkladSyncRunDtoProvider;
   mode: MoySkladSyncRunDtoMode;
   trigger: MoySkladSyncRunDtoTrigger;
   status: MoySkladSyncRunDtoStatus;
+  snapshotCompleteness: MoySkladSyncRunDtoSnapshotCompleteness;
   /** @nullable */
   jobId: string | null;
   /** @nullable */
@@ -1195,12 +1490,52 @@ export interface MoySkladOrderExportRefsDto {
   stores: MoySkladOrderExportRefOptionDto[];
 }
 
+export type MoySkladFieldOwnershipDtoReqPrice = typeof MoySkladFieldOwnershipDtoReqPrice[keyof typeof MoySkladFieldOwnershipDtoReqPrice];
+
+
+export const MoySkladFieldOwnershipDtoReqPrice = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type MoySkladFieldOwnershipDtoReqStock = typeof MoySkladFieldOwnershipDtoReqStock[keyof typeof MoySkladFieldOwnershipDtoReqStock];
+
+
+export const MoySkladFieldOwnershipDtoReqStock = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type MoySkladFieldOwnershipDtoReqContent = typeof MoySkladFieldOwnershipDtoReqContent[keyof typeof MoySkladFieldOwnershipDtoReqContent];
+
+
+export const MoySkladFieldOwnershipDtoReqContent = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type MoySkladFieldOwnershipDtoReqImages = typeof MoySkladFieldOwnershipDtoReqImages[keyof typeof MoySkladFieldOwnershipDtoReqImages];
+
+
+export const MoySkladFieldOwnershipDtoReqImages = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export interface MoySkladFieldOwnershipDtoReq {
+  price?: MoySkladFieldOwnershipDtoReqPrice;
+  stock?: MoySkladFieldOwnershipDtoReqStock;
+  content?: MoySkladFieldOwnershipDtoReqContent;
+  images?: MoySkladFieldOwnershipDtoReqImages;
+}
+
 export interface UpsertMoySkladIntegrationDtoReq {
   token: string;
   isActive?: boolean;
   priceTypeName?: string;
   importImages?: boolean;
   syncStock?: boolean;
+  fieldOwnership?: MoySkladFieldOwnershipDtoReq;
   stockWebhookEnabled?: boolean;
   exportOrders?: boolean;
   /** @nullable */
@@ -1216,12 +1551,52 @@ export interface UpsertMoySkladIntegrationDtoReq {
   scheduleTimezone?: string | null;
 }
 
+export type UpdateMoySkladFieldOwnershipDtoReqPrice = typeof UpdateMoySkladFieldOwnershipDtoReqPrice[keyof typeof UpdateMoySkladFieldOwnershipDtoReqPrice];
+
+
+export const UpdateMoySkladFieldOwnershipDtoReqPrice = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type UpdateMoySkladFieldOwnershipDtoReqStock = typeof UpdateMoySkladFieldOwnershipDtoReqStock[keyof typeof UpdateMoySkladFieldOwnershipDtoReqStock];
+
+
+export const UpdateMoySkladFieldOwnershipDtoReqStock = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type UpdateMoySkladFieldOwnershipDtoReqContent = typeof UpdateMoySkladFieldOwnershipDtoReqContent[keyof typeof UpdateMoySkladFieldOwnershipDtoReqContent];
+
+
+export const UpdateMoySkladFieldOwnershipDtoReqContent = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export type UpdateMoySkladFieldOwnershipDtoReqImages = typeof UpdateMoySkladFieldOwnershipDtoReqImages[keyof typeof UpdateMoySkladFieldOwnershipDtoReqImages];
+
+
+export const UpdateMoySkladFieldOwnershipDtoReqImages = {
+  external: 'external',
+  local: 'local',
+} as const;
+
+export interface UpdateMoySkladFieldOwnershipDtoReq {
+  price?: UpdateMoySkladFieldOwnershipDtoReqPrice;
+  stock?: UpdateMoySkladFieldOwnershipDtoReqStock;
+  content?: UpdateMoySkladFieldOwnershipDtoReqContent;
+  images?: UpdateMoySkladFieldOwnershipDtoReqImages;
+}
+
 export interface UpdateMoySkladIntegrationDtoReq {
   token?: string;
   isActive?: boolean;
   priceTypeName?: string;
   importImages?: boolean;
   syncStock?: boolean;
+  fieldOwnership?: UpdateMoySkladFieldOwnershipDtoReq;
   stockWebhookEnabled?: boolean;
   exportOrders?: boolean;
   /** @nullable */
@@ -1962,94 +2337,6 @@ export interface MoySkladQueuedOrderExportDto {
   reason: string | null;
 }
 
-export interface CatalogSaleUnitDto {
-  id: string;
-  catalogId: string;
-  code: string;
-  name: string;
-  defaultBaseQuantity: string;
-  /** @nullable */
-  barcode: string | null;
-  isActive: boolean;
-  displayOrder: number;
-  /** @nullable */
-  deleteAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateCatalogSaleUnitDtoReq {
-  /** Название формата продажи внутри текущего каталога. */
-  name: string;
-  /** Технический код можно не передавать: backend создаст его сам. */
-  code?: string;
-  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
-  defaultBaseQuantity?: number;
-  barcode?: string;
-  displayOrder?: number;
-}
-
-export interface UpdateCatalogSaleUnitDtoReq {
-  /** Название формата продажи внутри текущего каталога. */
-  name?: string;
-  /** Технический код можно не передавать: backend создаст его сам. */
-  code?: string;
-  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
-  defaultBaseQuantity?: number;
-  barcode?: string;
-  displayOrder?: number;
-}
-
-export interface CategoryDto {
-  id: string;
-  catalogId: string;
-  /** @nullable */
-  parentId: string | null;
-  position: number;
-  productCount: number;
-  name: string;
-  imageMedia: MediaDto | null;
-  /** @nullable */
-  descriptor: string | null;
-  /** @nullable */
-  discount: number | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CategoryParentDto {
-  id: string;
-  name: string;
-}
-
-export interface CategoryChildDto {
-  id: string;
-  /** @nullable */
-  parentId: string | null;
-  position: number;
-  name: string;
-  imageMedia: MediaDto | null;
-}
-
-export interface CategoryWithRelationsDto {
-  id: string;
-  catalogId: string;
-  /** @nullable */
-  parentId: string | null;
-  position: number;
-  productCount: number;
-  name: string;
-  imageMedia: MediaDto | null;
-  /** @nullable */
-  descriptor: string | null;
-  /** @nullable */
-  discount: number | null;
-  createdAt: string;
-  updatedAt: string;
-  parent: CategoryParentDto | null;
-  children: CategoryChildDto[];
-}
-
 export interface ProductMediaDto {
   position: number;
   /** @nullable */
@@ -2150,7 +2437,8 @@ export interface ProductVariantSummaryDto {
   /** @nullable */
   maxPrice: string | null;
   activeCount: number;
-  totalStock: number;
+  /** @nullable */
+  totalStock: number | null;
   /** @nullable */
   singleVariantId: string | null;
 }
@@ -2169,15 +2457,35 @@ export interface ProductVariantPickerOptionDto {
   label: string;
   /** @nullable */
   price: string | null;
-  stock: number;
+  /** @nullable */
+  stock: number | null;
   status: ProductVariantPickerOptionDtoStatus;
   isAvailable: boolean;
   /** @nullable */
   saleUnitId: string | null;
   /** @nullable */
   saleUnitPrice: string | null;
-  maxQuantity: number;
+  /** @nullable */
+  maxQuantity: number | null;
 }
+
+export type ProductWithAttributesDtoPriceState = typeof ProductWithAttributesDtoPriceState[keyof typeof ProductWithAttributesDtoPriceState];
+
+
+export const ProductWithAttributesDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductWithAttributesDtoAvailabilityState = typeof ProductWithAttributesDtoAvailabilityState[keyof typeof ProductWithAttributesDtoAvailabilityState];
+
+
+export const ProductWithAttributesDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
 
 export type ProductWithAttributesDtoStatus = typeof ProductWithAttributesDtoStatus[keyof typeof ProductWithAttributesDtoStatus];
 
@@ -2197,6 +2505,19 @@ export interface ProductWithAttributesDto {
   slug: string;
   /** @nullable */
   price: string | null;
+  priceState: ProductWithAttributesDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductWithAttributesDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
   productType: ProductTypeRefDto | null;
@@ -2210,6 +2531,801 @@ export interface ProductWithAttributesDto {
   productAttributes: ProductAttributeDto[];
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
+}
+
+export interface ProductCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * Стабильный seed для детерминированной рандомизации
+   * @nullable
+   */
+  seed: string | null;
+}
+
+export interface ProductInfinitePageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * Стабильный seed для детерминированной рандомизации
+   * @nullable
+   */
+  seed: string | null;
+}
+
+export interface ProductCursorCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+}
+
+export interface ProductCursorPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+}
+
+export interface ProductDefaultVariantDiagnosticSampleDto {
+  productId: string;
+  productName: string;
+  productSku: string;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  variantKey: string | null;
+  /** @nullable */
+  variantSku: string | null;
+  /** @nullable */
+  details: string | null;
+}
+
+export type ProductDefaultVariantDiagnosticCheckDtoCode = typeof ProductDefaultVariantDiagnosticCheckDtoCode[keyof typeof ProductDefaultVariantDiagnosticCheckDtoCode];
+
+
+export const ProductDefaultVariantDiagnosticCheckDtoCode = {
+  SIMPLE_WITHOUT_DEFAULT_VARIANT: 'SIMPLE_WITHOUT_DEFAULT_VARIANT',
+  MULTIPLE_DEFAULT_VARIANTS: 'MULTIPLE_DEFAULT_VARIANTS',
+  CUSTOM_VARIANT_WITHOUT_ATTRIBUTES: 'CUSTOM_VARIANT_WITHOUT_ATTRIBUTES',
+  DEFAULT_VARIANT_WITH_ATTRIBUTES: 'DEFAULT_VARIANT_WITH_ATTRIBUTES',
+  DEFAULT_VARIANT_PRICE_MISMATCH: 'DEFAULT_VARIANT_PRICE_MISMATCH',
+} as const;
+
+export type ProductDefaultVariantDiagnosticCheckDtoStatus = typeof ProductDefaultVariantDiagnosticCheckDtoStatus[keyof typeof ProductDefaultVariantDiagnosticCheckDtoStatus];
+
+
+export const ProductDefaultVariantDiagnosticCheckDtoStatus = {
+  ok: 'ok',
+  warn: 'warn',
+  fail: 'fail',
+} as const;
+
+export interface ProductDefaultVariantDiagnosticCheckDto {
+  code: ProductDefaultVariantDiagnosticCheckDtoCode;
+  status: ProductDefaultVariantDiagnosticCheckDtoStatus;
+  count: number;
+  message: string;
+  samples: ProductDefaultVariantDiagnosticSampleDto[];
+}
+
+export interface ProductDefaultVariantDiagnosticsResponseDto {
+  catalogId: string;
+  sampleLimit: number;
+  checks: ProductDefaultVariantDiagnosticCheckDto[];
+  warnCount: number;
+  failCount: number;
+  ok: boolean;
+}
+
+export interface VariantAttributeDto {
+  id: string;
+  attributeId: string;
+  enumValueId: string;
+  attribute: ProductAttributeRefDto;
+  enumValue: ProductAttributeEnumValueDto;
+}
+
+export interface ProductVariantCatalogSaleUnitDto {
+  id: string;
+  code: string;
+  name: string;
+  defaultBaseQuantity: string;
+}
+
+export interface ProductVariantSaleUnitDto {
+  id: string;
+  /** @nullable */
+  catalogSaleUnitId: string | null;
+  code: string;
+  name: string;
+  baseQuantity: string;
+  price: string;
+  /** @nullable */
+  barcode: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
+}
+
+export type ProductVariantDtoKind = typeof ProductVariantDtoKind[keyof typeof ProductVariantDtoKind];
+
+
+export const ProductVariantDtoKind = {
+  DEFAULT: 'DEFAULT',
+  MATRIX: 'MATRIX',
+} as const;
+
+export type ProductVariantDtoStatus = typeof ProductVariantDtoStatus[keyof typeof ProductVariantDtoStatus];
+
+
+export const ProductVariantDtoStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantDto {
+  id: string;
+  sku: string;
+  variantKey: string;
+  kind: ProductVariantDtoKind;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  price: string | null;
+  status: ProductVariantDtoStatus;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+  attributes: VariantAttributeDto[];
+  saleUnits: ProductVariantSaleUnitDto[];
+  integration?: ProductIntegrationDto | null;
+}
+
+export type ProductWithDetailsDtoPriceState = typeof ProductWithDetailsDtoPriceState[keyof typeof ProductWithDetailsDtoPriceState];
+
+
+export const ProductWithDetailsDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductWithDetailsDtoAvailabilityState = typeof ProductWithDetailsDtoAvailabilityState[keyof typeof ProductWithDetailsDtoAvailabilityState];
+
+
+export const ProductWithDetailsDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductWithDetailsDtoStatus = typeof ProductWithDetailsDtoStatus[keyof typeof ProductWithDetailsDtoStatus];
+
+
+export const ProductWithDetailsDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductWithDetailsDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductWithDetailsDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductWithDetailsDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductWithDetailsDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+}
+
+export interface ProductAttributeValueDto {
+  attributeId: string;
+  enumValueId?: string;
+  valueString?: string;
+  valueInteger?: number;
+  valueDecimal?: number;
+  valueBoolean?: boolean;
+  valueDateTime?: string;
+}
+
+export interface ProductVariantAttributeDtoReq {
+  attributeId: string;
+  /** Идентификатор значения перечисления */
+  enumValueId?: string;
+  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
+  value?: string;
+}
+
+export interface ProductVariantSaleUnitDtoReq {
+  /** Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name. */
+  catalogSaleUnitId?: string;
+  /** Технический код можно не передавать: backend сгенерирует его из названия. */
+  code?: string;
+  /** Название формата продажи. Не нужно, если передан catalogSaleUnitId. */
+  name?: string;
+  /** Сколько базовых единиц внутри для конкретного товара/варианта. */
+  baseQuantity?: number;
+  price: number;
+  barcode?: string;
+  isDefault?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type ProductVariantDtoReqStatus = typeof ProductVariantDtoReqStatus[keyof typeof ProductVariantDtoReqStatus];
+
+
+export const ProductVariantDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantDtoReq {
+  /** @nullable */
+  price?: number | null;
+  /**
+   * null означает, что остаток не ведется
+   * @nullable
+   */
+  stock?: number | null;
+  isAvailable?: boolean;
+  status?: ProductVariantDtoReqStatus;
+  attributes?: ProductVariantAttributeDtoReq[];
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
+}
+
+export interface CreateProductDtoReq {
+  name: string;
+  /** @nullable */
+  price?: number | null;
+  mediaIds?: string[];
+  isPopular?: boolean;
+  status?: string;
+  position?: number;
+  brandId?: string;
+  /** @nullable */
+  productTypeId?: string | null;
+  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
+  categories?: string[];
+  attributes?: ProductAttributeValueDto[];
+  variants?: ProductVariantDtoReq[];
+}
+
+export type ProductCreateResponseDtoPriceState = typeof ProductCreateResponseDtoPriceState[keyof typeof ProductCreateResponseDtoPriceState];
+
+
+export const ProductCreateResponseDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductCreateResponseDtoAvailabilityState = typeof ProductCreateResponseDtoAvailabilityState[keyof typeof ProductCreateResponseDtoAvailabilityState];
+
+
+export const ProductCreateResponseDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductCreateResponseDtoStatus = typeof ProductCreateResponseDtoStatus[keyof typeof ProductCreateResponseDtoStatus];
+
+
+export const ProductCreateResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductCreateResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductCreateResponseDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductCreateResponseDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductCreateResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+  ok: boolean;
+}
+
+export interface ProductDefaultVariantRepairResponseDto {
+  checkedProducts: number;
+  repairedProducts: number;
+  affectedCatalogs: number;
+}
+
+export interface RepairDefaultVariantPriceMismatchDtoReq {
+  /** false = dry-run only. true = copy the technical default variant price into legacy Product.price for safe simple products. */
+  apply?: boolean;
+  /**
+   * @minimum 1
+   * @maximum 1000
+   */
+  batchSize?: number;
+  /**
+   * @minimum 1
+   * @maximum 100
+   */
+  sampleLimit?: number;
+}
+
+export interface ProductDefaultVariantPriceMismatchRepairSampleDto {
+  productId: string;
+  productName: string;
+  productSku: string;
+  variantId: string;
+  variantSku: string;
+  variantKey: string;
+  /** @nullable */
+  previousProductPrice: string | null;
+  /** @nullable */
+  nextProductPrice: string | null;
+}
+
+export interface ProductDefaultVariantPriceMismatchRepairResponseDto {
+  catalogId: string;
+  dryRun: boolean;
+  checkedProducts: number;
+  repairableProducts: number;
+  updatedProducts: number;
+  affectedCatalogs: number;
+  batchSize: number;
+  sampleLimit: number;
+  samples: ProductDefaultVariantPriceMismatchRepairSampleDto[];
+}
+
+export interface ProductTypeCompatibilityPreviewDtoReq {
+  /**
+   * Next product type inside current catalog. Pass null to clear.
+   * @nullable
+   */
+  productTypeId: string | null;
+}
+
+export type ProductTypeCompatibilityIssueDtoReason = typeof ProductTypeCompatibilityIssueDtoReason[keyof typeof ProductTypeCompatibilityIssueDtoReason];
+
+
+export const ProductTypeCompatibilityIssueDtoReason = {
+  MISSING_IN_TARGET_TYPE: 'MISSING_IN_TARGET_TYPE',
+  SCOPE_MISMATCH: 'SCOPE_MISMATCH',
+  TARGET_TYPE_EMPTY: 'TARGET_TYPE_EMPTY',
+} as const;
+
+export interface ProductTypeCompatibilityIssueDto {
+  attributeId: string;
+  key: string;
+  displayName: string;
+  variantKeys: string[];
+  reason: ProductTypeCompatibilityIssueDtoReason;
+  /** @nullable */
+  targetIsVariant: boolean | null;
+}
+
+export interface ProductTypeCompatibilityPreviewDto {
+  productId: string;
+  /** @nullable */
+  currentProductTypeId: string | null;
+  /** @nullable */
+  requestedProductTypeId: string | null;
+  sameProductType: boolean;
+  hasScopedData: boolean;
+  canChangeNow: boolean;
+  compatible: boolean;
+  requiresUserDecision: boolean;
+  /** @nullable */
+  blockingReason: string | null;
+  productAttributeCount: number;
+  variantAttributeCount: number;
+  productAttributeConflicts: ProductTypeCompatibilityIssueDto[];
+  variantAttributeConflicts: ProductTypeCompatibilityIssueDto[];
+}
+
+export interface ApplyProductTypeChangeDtoReq {
+  /**
+   * Next product type inside current catalog. Pass null to clear.
+   * @nullable
+   */
+  productTypeId: string | null;
+  /**
+   * Optional stale-preview guard. Apply fails if current product type differs.
+   * @nullable
+   */
+  expectedCurrentProductTypeId?: string | null;
+  /** Explicit user confirmation for changing typed product data. */
+  confirm: boolean;
+  /** Product attribute ids to remove when they are incompatible with target product type. */
+  removeAttributeIds?: string[];
+  /** Product attributes to upsert after switching to the target product type. */
+  attributes?: ProductAttributeValueDto[];
+  /** Full replacement matrix. Required when existing variant attributes conflict with target product type. */
+  items?: ProductVariantDtoReq[];
+}
+
+export type ProductUpdateResponseDtoPriceState = typeof ProductUpdateResponseDtoPriceState[keyof typeof ProductUpdateResponseDtoPriceState];
+
+
+export const ProductUpdateResponseDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductUpdateResponseDtoAvailabilityState = typeof ProductUpdateResponseDtoAvailabilityState[keyof typeof ProductUpdateResponseDtoAvailabilityState];
+
+
+export const ProductUpdateResponseDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductUpdateResponseDtoStatus = typeof ProductUpdateResponseDtoStatus[keyof typeof ProductUpdateResponseDtoStatus];
+
+
+export const ProductUpdateResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductUpdateResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductUpdateResponseDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductUpdateResponseDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductUpdateResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+  ok: boolean;
+}
+
+export type ProductVariantUpdateDtoReqStatus = typeof ProductVariantUpdateDtoReqStatus[keyof typeof ProductVariantUpdateDtoReqStatus];
+
+
+export const ProductVariantUpdateDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantUpdateDtoReq {
+  /** Ключ варианта, приходит из ответа товара */
+  variantKey: string;
+  /** @nullable */
+  price?: number | null;
+  /**
+   * null означает, что остаток не ведется
+   * @nullable
+   */
+  stock?: number | null;
+  status?: ProductVariantUpdateDtoReqStatus;
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
+}
+
+export interface UpdateProductDtoReq {
+  name?: string;
+  /** @nullable */
+  price?: number | null;
+  mediaIds?: string[];
+  isPopular?: boolean;
+  status?: string;
+  position?: number;
+  /** @nullable */
+  brandId?: string | null;
+  /**
+   * Product type inside current catalog. Pass null to clear.
+   * @nullable
+   */
+  productTypeId?: string | null;
+  /** Список категорий товара. При редактировании заменяет набор привязок товара к категориям. */
+  categories?: string[];
+  /** ID категории, в которой нужно изменить/установить позицию товара */
+  categoryId?: string;
+  /**
+   * Позиция товара внутри категории (передавать только вместе с categoryId)
+   * @minimum 0
+   */
+  categoryPosition?: number;
+  /** Только видимые атрибуты (isHidden=false) */
+  attributes?: ProductAttributeValueDto[];
+  /** ID атрибутов товара, которые нужно удалить при редактировании */
+  removeAttributeIds?: string[];
+  variants?: ProductVariantUpdateDtoReq[];
+  /** Full variant matrix replacement applied atomically with product update. */
+  variantMatrix?: ProductVariantDtoReq[];
+}
+
+export interface UpdateProductCategoryPositionDtoReq {
+  /** ID категории, внутри которой нужно изменить позицию товара */
+  categoryId: string;
+  /**
+   * Новая позиция товара внутри категории
+   * @minimum 0
+   */
+  position: number;
+}
+
+export type ProductVariantItemDtoReqStatus = typeof ProductVariantItemDtoReqStatus[keyof typeof ProductVariantItemDtoReqStatus];
+
+
+export const ProductVariantItemDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantItemDtoReq {
+  /** @nullable */
+  price?: number | null;
+  /**
+   * null означает, что остаток не ведется
+   * @nullable
+   */
+  stock?: number | null;
+  status?: ProductVariantItemDtoReqStatus;
+  /** Идентификатор значения перечисления */
+  enumValueId?: string;
+  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
+  value?: string;
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
+}
+
+export interface SetProductVariantsDtoReq {
+  variantAttributeId: string;
+  items: ProductVariantItemDtoReq[];
+}
+
+export type ProductVariantsResponseDtoPriceState = typeof ProductVariantsResponseDtoPriceState[keyof typeof ProductVariantsResponseDtoPriceState];
+
+
+export const ProductVariantsResponseDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductVariantsResponseDtoAvailabilityState = typeof ProductVariantsResponseDtoAvailabilityState[keyof typeof ProductVariantsResponseDtoAvailabilityState];
+
+
+export const ProductVariantsResponseDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductVariantsResponseDtoStatus = typeof ProductVariantsResponseDtoStatus[keyof typeof ProductVariantsResponseDtoStatus];
+
+
+export const ProductVariantsResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductVariantsResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductVariantsResponseDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductVariantsResponseDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductVariantsResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+  ok: boolean;
+}
+
+export interface SetProductVariantMatrixDtoReq {
+  items: ProductVariantDtoReq[];
+}
+
+export interface CatalogSaleUnitDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  defaultBaseQuantity: string;
+  /** @nullable */
+  barcode: string | null;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCatalogSaleUnitDtoReq {
+  /** Название формата продажи внутри текущего каталога. */
+  name: string;
+  /** Технический код можно не передавать: backend создаст его сам. */
+  code?: string;
+  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
+  defaultBaseQuantity?: number;
+  barcode?: string;
+  displayOrder?: number;
+}
+
+export interface UpdateCatalogSaleUnitDtoReq {
+  /** Название формата продажи внутри текущего каталога. */
+  name?: string;
+  /** Технический код можно не передавать: backend создаст его сам. */
+  code?: string;
+  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
+  defaultBaseQuantity?: number;
+  barcode?: string;
+  displayOrder?: number;
+}
+
+export interface CategoryDto {
+  id: string;
+  catalogId: string;
+  /** @nullable */
+  parentId: string | null;
+  position: number;
+  productCount: number;
+  name: string;
+  imageMedia: MediaDto | null;
+  /** @nullable */
+  descriptor: string | null;
+  /** @nullable */
+  discount: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CategoryParentDto {
+  id: string;
+  name: string;
+}
+
+export interface CategoryChildDto {
+  id: string;
+  /** @nullable */
+  parentId: string | null;
+  position: number;
+  name: string;
+  imageMedia: MediaDto | null;
+}
+
+export interface CategoryWithRelationsDto {
+  id: string;
+  catalogId: string;
+  /** @nullable */
+  parentId: string | null;
+  position: number;
+  productCount: number;
+  name: string;
+  imageMedia: MediaDto | null;
+  /** @nullable */
+  descriptor: string | null;
+  /** @nullable */
+  discount: number | null;
+  createdAt: string;
+  updatedAt: string;
+  parent: CategoryParentDto | null;
+  children: CategoryChildDto[];
 }
 
 export interface CategoryProductWithDetailsDto {
@@ -2286,474 +3402,6 @@ export interface UpdateCategoryPositionDtoReq {
    * @minimum 0
    */
   position: number;
-}
-
-export interface ProductCardPageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-  /**
-   * Стабильный seed для детерминированной рандомизации
-   * @nullable
-   */
-  seed: string | null;
-}
-
-export interface ProductInfinitePageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-  /**
-   * Стабильный seed для детерминированной рандомизации
-   * @nullable
-   */
-  seed: string | null;
-}
-
-export interface ProductCursorCardPageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-}
-
-export interface ProductCursorPageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-}
-
-export interface VariantAttributeDto {
-  id: string;
-  attributeId: string;
-  enumValueId: string;
-  attribute: ProductAttributeRefDto;
-  enumValue: ProductAttributeEnumValueDto;
-}
-
-export interface ProductVariantCatalogSaleUnitDto {
-  id: string;
-  code: string;
-  name: string;
-  defaultBaseQuantity: string;
-}
-
-export interface ProductVariantSaleUnitDto {
-  id: string;
-  /** @nullable */
-  catalogSaleUnitId: string | null;
-  code: string;
-  name: string;
-  baseQuantity: string;
-  price: string;
-  /** @nullable */
-  barcode: string | null;
-  isDefault: boolean;
-  isActive: boolean;
-  displayOrder: number;
-  createdAt: string;
-  updatedAt: string;
-  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
-}
-
-export type ProductVariantDtoStatus = typeof ProductVariantDtoStatus[keyof typeof ProductVariantDtoStatus];
-
-
-export const ProductVariantDtoStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantDto {
-  id: string;
-  sku: string;
-  variantKey: string;
-  stock: number;
-  /** @nullable */
-  price: string | null;
-  status: ProductVariantDtoStatus;
-  isAvailable: boolean;
-  createdAt: string;
-  updatedAt: string;
-  attributes: VariantAttributeDto[];
-  saleUnits: ProductVariantSaleUnitDto[];
-  integration?: ProductIntegrationDto | null;
-}
-
-export type ProductWithDetailsDtoStatus = typeof ProductWithDetailsDtoStatus[keyof typeof ProductWithDetailsDtoStatus];
-
-
-export const ProductWithDetailsDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductWithDetailsDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductWithDetailsDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-}
-
-export interface ProductAttributeValueDto {
-  attributeId: string;
-  enumValueId?: string;
-  valueString?: string;
-  valueInteger?: number;
-  valueDecimal?: number;
-  valueBoolean?: boolean;
-  valueDateTime?: string;
-}
-
-export interface ProductVariantAttributeDtoReq {
-  attributeId: string;
-  /** Идентификатор значения перечисления */
-  enumValueId?: string;
-  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
-  value?: string;
-}
-
-export interface ProductVariantSaleUnitDtoReq {
-  /** Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name. */
-  catalogSaleUnitId?: string;
-  /** Технический код можно не передавать: backend сгенерирует его из названия. */
-  code?: string;
-  /** Название формата продажи. Не нужно, если передан catalogSaleUnitId. */
-  name?: string;
-  /** Сколько базовых единиц внутри для конкретного товара/варианта. */
-  baseQuantity?: number;
-  price: number;
-  barcode?: string;
-  isDefault?: boolean;
-  isActive?: boolean;
-  displayOrder?: number;
-}
-
-export type ProductVariantDtoReqStatus = typeof ProductVariantDtoReqStatus[keyof typeof ProductVariantDtoReqStatus];
-
-
-export const ProductVariantDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantDtoReq {
-  /** @nullable */
-  price?: number | null;
-  stock?: number;
-  isAvailable?: boolean;
-  status?: ProductVariantDtoReqStatus;
-  attributes?: ProductVariantAttributeDtoReq[];
-  saleUnits?: ProductVariantSaleUnitDtoReq[];
-}
-
-export interface CreateProductDtoReq {
-  name: string;
-  /** @nullable */
-  price?: number | null;
-  mediaIds?: string[];
-  isPopular?: boolean;
-  status?: string;
-  position?: number;
-  brandId?: string;
-  /** @nullable */
-  productTypeId?: string | null;
-  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
-  categories?: string[];
-  attributes?: ProductAttributeValueDto[];
-  variants?: ProductVariantDtoReq[];
-}
-
-export type ProductCreateResponseDtoStatus = typeof ProductCreateResponseDtoStatus[keyof typeof ProductCreateResponseDtoStatus];
-
-
-export const ProductCreateResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductCreateResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductCreateResponseDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-  ok: boolean;
-}
-
-export interface ProductDefaultVariantRepairResponseDto {
-  checkedProducts: number;
-  repairedProducts: number;
-  affectedCatalogs: number;
-}
-
-export interface ProductTypeCompatibilityPreviewDtoReq {
-  /**
-   * Next product type inside current catalog. Pass null to clear.
-   * @nullable
-   */
-  productTypeId: string | null;
-}
-
-export type ProductTypeCompatibilityIssueDtoReason = typeof ProductTypeCompatibilityIssueDtoReason[keyof typeof ProductTypeCompatibilityIssueDtoReason];
-
-
-export const ProductTypeCompatibilityIssueDtoReason = {
-  MISSING_IN_TARGET_TYPE: 'MISSING_IN_TARGET_TYPE',
-  SCOPE_MISMATCH: 'SCOPE_MISMATCH',
-  TARGET_TYPE_EMPTY: 'TARGET_TYPE_EMPTY',
-} as const;
-
-export interface ProductTypeCompatibilityIssueDto {
-  attributeId: string;
-  key: string;
-  displayName: string;
-  variantKeys: string[];
-  reason: ProductTypeCompatibilityIssueDtoReason;
-  /** @nullable */
-  targetIsVariant: boolean | null;
-}
-
-export interface ProductTypeCompatibilityPreviewDto {
-  productId: string;
-  /** @nullable */
-  currentProductTypeId: string | null;
-  /** @nullable */
-  requestedProductTypeId: string | null;
-  sameProductType: boolean;
-  hasScopedData: boolean;
-  canChangeNow: boolean;
-  compatible: boolean;
-  requiresUserDecision: boolean;
-  /** @nullable */
-  blockingReason: string | null;
-  productAttributeCount: number;
-  variantAttributeCount: number;
-  productAttributeConflicts: ProductTypeCompatibilityIssueDto[];
-  variantAttributeConflicts: ProductTypeCompatibilityIssueDto[];
-}
-
-export interface ApplyProductTypeChangeDtoReq {
-  /**
-   * Next product type inside current catalog. Pass null to clear.
-   * @nullable
-   */
-  productTypeId: string | null;
-  /**
-   * Optional stale-preview guard. Apply fails if current product type differs.
-   * @nullable
-   */
-  expectedCurrentProductTypeId?: string | null;
-  /** Explicit user confirmation for changing typed product data. */
-  confirm: boolean;
-  /** Product attribute ids to remove when they are incompatible with target product type. */
-  removeAttributeIds?: string[];
-  /** Product attributes to upsert after switching to the target product type. */
-  attributes?: ProductAttributeValueDto[];
-  /** Full replacement matrix. Required when existing variant attributes conflict with target product type. */
-  items?: ProductVariantDtoReq[];
-}
-
-export type ProductUpdateResponseDtoStatus = typeof ProductUpdateResponseDtoStatus[keyof typeof ProductUpdateResponseDtoStatus];
-
-
-export const ProductUpdateResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductUpdateResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductUpdateResponseDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-  ok: boolean;
-}
-
-export type ProductVariantUpdateDtoReqStatus = typeof ProductVariantUpdateDtoReqStatus[keyof typeof ProductVariantUpdateDtoReqStatus];
-
-
-export const ProductVariantUpdateDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantUpdateDtoReq {
-  /** Ключ варианта, приходит из ответа товара */
-  variantKey: string;
-  /** @nullable */
-  price?: number | null;
-  stock?: number;
-  status?: ProductVariantUpdateDtoReqStatus;
-  saleUnits?: ProductVariantSaleUnitDtoReq[];
-}
-
-export interface UpdateProductDtoReq {
-  name?: string;
-  /** @nullable */
-  price?: number | null;
-  mediaIds?: string[];
-  isPopular?: boolean;
-  status?: string;
-  position?: number;
-  /** @nullable */
-  brandId?: string | null;
-  /**
-   * Product type inside current catalog. Pass null to clear.
-   * @nullable
-   */
-  productTypeId?: string | null;
-  /** Список категорий товара. При редактировании заменяет набор привязок товара к категориям. */
-  categories?: string[];
-  /** ID категории, в которой нужно изменить/установить позицию товара */
-  categoryId?: string;
-  /**
-   * Позиция товара внутри категории (передавать только вместе с categoryId)
-   * @minimum 0
-   */
-  categoryPosition?: number;
-  /** Только видимые атрибуты (isHidden=false) */
-  attributes?: ProductAttributeValueDto[];
-  /** ID атрибутов товара, которые нужно удалить при редактировании */
-  removeAttributeIds?: string[];
-  variants?: ProductVariantUpdateDtoReq[];
-}
-
-export interface UpdateProductCategoryPositionDtoReq {
-  /** ID категории, внутри которой нужно изменить позицию товара */
-  categoryId: string;
-  /**
-   * Новая позиция товара внутри категории
-   * @minimum 0
-   */
-  position: number;
-}
-
-export type ProductVariantItemDtoReqStatus = typeof ProductVariantItemDtoReqStatus[keyof typeof ProductVariantItemDtoReqStatus];
-
-
-export const ProductVariantItemDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantItemDtoReq {
-  /** @nullable */
-  price?: number | null;
-  stock?: number;
-  status?: ProductVariantItemDtoReqStatus;
-  /** Идентификатор значения перечисления */
-  enumValueId?: string;
-  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
-  value?: string;
-  saleUnits?: ProductVariantSaleUnitDtoReq[];
-}
-
-export interface SetProductVariantsDtoReq {
-  variantAttributeId: string;
-  items: ProductVariantItemDtoReq[];
-}
-
-export type ProductVariantsResponseDtoStatus = typeof ProductVariantsResponseDtoStatus[keyof typeof ProductVariantsResponseDtoStatus];
-
-
-export const ProductVariantsResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductVariantsResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductVariantsResponseDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-  ok: boolean;
-}
-
-export interface SetProductVariantMatrixDtoReq {
-  items: ProductVariantDtoReq[];
 }
 
 export type InventoryWarehouseDtoStatus = typeof InventoryWarehouseDtoStatus[keyof typeof InventoryWarehouseDtoStatus];
@@ -2943,7 +3591,8 @@ export interface CartVariantDto {
   label: string;
   /** @nullable */
   price: number | null;
-  stock: number;
+  /** @nullable */
+  stock: number | null;
   status: ProductVariantStatus;
   isAvailable: boolean;
   attributes: CartVariantAttributeDto[];
@@ -3461,6 +4110,28 @@ token: string;
 next?: string;
 };
 
+export type AdminControllerGetDomainEventOutboxParams = {
+status?: AdminControllerGetDomainEventOutboxStatus;
+catalogId?: string;
+eventType?: string;
+aggregateType?: string;
+aggregateId?: string;
+/**
+ * @maximum 200
+ */
+limit?: number;
+};
+
+export type AdminControllerGetDomainEventOutboxStatus = typeof AdminControllerGetDomainEventOutboxStatus[keyof typeof AdminControllerGetDomainEventOutboxStatus];
+
+
+export const AdminControllerGetDomainEventOutboxStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  PROCESSED: 'PROCESSED',
+  FAILED: 'FAILED',
+} as const;
+
 export type AdminControllerGetCatalogsParams = {
 /**
  * Type ids. Supports comma separated value.
@@ -3569,36 +4240,6 @@ limit?: number;
 
 export type IntegrationControllerReceiveMoySkladStockWebhookParams = {
 requestId?: string;
-};
-
-export type CatalogSaleUnitControllerGetAllParams = {
-includeArchived?: boolean;
-};
-
-export type CategoryControllerGetProductsByCategoryParams = {
-/**
- * Курсор из предыдущего ответа (opaque)
- */
-cursor?: string;
-/**
- * Размер страницы (1-50)
- * @minimum 1
- * @maximum 50
- */
-limit?: number;
-};
-
-export type CategoryControllerGetProductCardsByCategoryParams = {
-/**
- * Курсор из предыдущего ответа (opaque)
- */
-cursor?: string;
-/**
- * Размер страницы (1-50)
- * @minimum 1
- * @maximum 50
- */
-limit?: number;
 };
 
 export type ProductControllerGetInfiniteCardsParams = {
@@ -3827,6 +4468,43 @@ cursor?: string;
 limit?: string;
 };
 
+export type ProductControllerDiagnoseDefaultVariantsParams = {
+/**
+ * Max samples per diagnostic check, default 10, max 100.
+ */
+sampleLimit?: number;
+};
+
+export type CatalogSaleUnitControllerGetAllParams = {
+includeArchived?: boolean;
+};
+
+export type CategoryControllerGetProductsByCategoryParams = {
+/**
+ * Курсор из предыдущего ответа (opaque)
+ */
+cursor?: string;
+/**
+ * Размер страницы (1-50)
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
+};
+
+export type CategoryControllerGetProductCardsByCategoryParams = {
+/**
+ * Курсор из предыдущего ответа (opaque)
+ */
+cursor?: string;
+/**
+ * Размер страницы (1-50)
+ * @minimum 1
+ * @maximum 50
+ */
+limit?: number;
+};
+
 export type ProductTypeControllerGetAllParams = {
 includeArchived?: boolean;
 };
@@ -4007,6 +4685,85 @@ const handoffControllerExchange = (
     }
   
 /**
+ * @summary List domain event outbox rows
+ */
+const adminControllerGetDomainEventOutbox = (
+    params?: AdminControllerGetDomainEventOutboxParams,
+ ) => {
+      return mutator<AdminDomainEventOutboxListDto>(
+      {url: `/admin/domain-events/outbox`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Get domain event outbox status counters
+ */
+const adminControllerGetDomainEventOutboxStats = (
+    
+ ) => {
+      return mutator<AdminDomainEventOutboxStatsDto>(
+      {url: `/admin/domain-events/outbox/stats`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Retry one pending or failed domain event
+ */
+const adminControllerRetryDomainEventOutboxItem = (
+    id: string,
+ ) => {
+      return mutator<AdminDomainEventOutboxActionResultDto>(
+      {url: `/admin/domain-events/outbox/${id}/retry`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Retry failed domain events by optional filters
+ */
+const adminControllerRetryFailedDomainEvents = (
+    adminRetryFailedDomainEventsDtoReq: AdminRetryFailedDomainEventsDtoReq,
+ ) => {
+      return mutator<AdminDomainEventOutboxActionResultDto>(
+      {url: `/admin/domain-events/outbox/retry-failed`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminRetryFailedDomainEventsDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Manually drain pending/failed domain events
+ */
+const adminControllerDrainDomainEventOutbox = (
+    adminDrainDomainEventOutboxDtoReq: AdminDrainDomainEventOutboxDtoReq,
+ ) => {
+      return mutator<AdminDomainEventOutboxActionResultDto>(
+      {url: `/admin/domain-events/outbox/drain`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminDrainDomainEventOutboxDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Delete old processed domain events
+ */
+const adminControllerCleanupDomainEventOutbox = (
+    adminCleanupDomainEventOutboxDtoReq: AdminCleanupDomainEventOutboxDtoReq,
+ ) => {
+      return mutator<AdminDomainEventOutboxCleanupResultDto>(
+      {url: `/admin/domain-events/outbox/cleanup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: adminCleanupDomainEventOutboxDtoReq
+    },
+      );
+    }
+  
+/**
  * @summary Получить список каталогов для админки
  */
 const adminControllerGetCatalogs = (
@@ -4098,6 +4855,18 @@ const adminControllerUpdateCatalogFeatureEntitlement = (
       {url: `/admin/catalogs/${id}/features`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: adminUpdateCatalogFeatureEntitlementDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Get MoySklad stock sync diagnostics for catalog
+ */
+const adminControllerGetCatalogMoySkladStockDiagnostics = (
+    id: string,
+ ) => {
+      return mutator<AdminMoySkladStockDiagnosticsReportDto>(
+      {url: `/admin/catalogs/${id}/integrations/moysklad/stock-diagnostics`, method: 'GET'
     },
       );
     }
@@ -5335,6 +6104,357 @@ const integrationControllerRetryMoySkladOrderExport = (
     }
   
 /**
+ * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * @summary Список товаров
+ */
+const productControllerGetAll = (
+    
+ ) => {
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории). При необходимости можно сразу передать variants.
+ * @summary Создать товар
+ */
+const productControllerCreate = (
+    createProductDtoReq: CreateProductDtoReq,
+ ) => {
+      return mutator<ProductCreateResponseDto>(
+      {url: `/product`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createProductDtoReq
+    },
+      );
+    }
+  
+/**
+ * Возвращает карточки товаров с productAttributes и variantSummary, но без полного variants. Поддерживает те же фильтры, что и /product/infinite.
+ * @summary Лёгкий card-feed товаров (бесконечный скролл)
+ */
+const productControllerGetInfiniteCards = (
+    params?: ProductControllerGetInfiniteCardsParams,
+ ) => {
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
+ * @summary Список товаров с фильтрами (бесконечный скролл)
+ */
+const productControllerGetInfinite = (
+    params?: ProductControllerGetInfiniteParams,
+ ) => {
+      return mutator<ProductInfinitePageDto>(
+      {url: `/product/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Возвращает карточки рекомендаций с productAttributes и variantSummary, но без полного variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
+ * @summary Лёгкий card-feed рекомендаций
+ */
+const productControllerGetRecommendationsInfiniteCards = (
+    params?: ProductControllerGetRecommendationsInfiniteCardsParams,
+ ) => {
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/recommendations/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Временная реализация: возвращает товары, которые не попадают в текущий фильтр. Поддерживает те же query-параметры и deterministic seed, что и /product/infinite.
+ * @summary Список рекомендаций под фильтром (бесконечный скролл)
+ */
+const productControllerGetRecommendationsInfinite = (
+    params?: ProductControllerGetRecommendationsInfiniteParams,
+ ) => {
+      return mutator<ProductInfinitePageDto>(
+      {url: `/product/recommendations/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Возвращает популярные товары с productAttributes и variantSummary, но без полного variants.
+ * @summary Лёгкий список популярных товаров
+ */
+const productControllerGetPopularCards = (
+    
+ ) => {
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product/cards/popular`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * Возвращает карточки товаров без активной категории с productAttributes и variantSummary, но без полного variants.
+ * @summary Лёгкий список товаров без категории
+ */
+const productControllerGetUncategorizedInfiniteCards = (
+    params?: ProductControllerGetUncategorizedInfiniteCardsParams,
+ ) => {
+      return mutator<ProductCursorCardPageDto>(
+      {url: `/product/cards/uncategorized/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * @summary Список товаров без категории (бесконечный скролл)
+ */
+const productControllerGetUncategorizedInfinite = (
+    params?: ProductControllerGetUncategorizedInfiniteParams,
+ ) => {
+      return mutator<ProductCursorPageDto>(
+      {url: `/product/uncategorized/infinite`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * @summary Список популярных товаров
+ */
+const productControllerGetPopular = (
+    
+ ) => {
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product/popular`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * Read-only diagnostics for missing default variants, multiple defaults, malformed matrix variants and legacy price mismatches.
+ * @summary Diagnose technical default variant consistency for current catalog
+ */
+const productControllerDiagnoseDefaultVariants = (
+    params?: ProductControllerDiagnoseDefaultVariantsParams,
+ ) => {
+      return mutator<ProductDefaultVariantDiagnosticsResponseDto>(
+      {url: `/product/maintenance/default-variants/diagnostics`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
+ * @summary Получить товар по slug
+ */
+const productControllerGetBySlug = (
+    slug: string,
+ ) => {
+      return mutator<ProductWithDetailsDto>(
+      {url: `/product/slug/${slug}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
+ * @summary Получить товар по id
+ */
+const productControllerGetById = (
+    id: string,
+ ) => {
+      return mutator<ProductWithDetailsDto>(
+      {url: `/product/${id}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * Для замены привязок товара передайте массив categories. Для изменения позиции товара внутри одной категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Обновить товар
+ */
+const productControllerUpdate = (
+    id: string,
+    updateProductDtoReq: UpdateProductDtoReq,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateProductDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Удалить товар
+ */
+const productControllerRemove = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/product/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * Создает копию товара со всеми медиа, атрибутами, вариантами и категориями. Новый товар создается со status=HIDDEN.
+ * @summary Дублировать товар
+ */
+const productControllerDuplicate = (
+    id: string,
+ ) => {
+      return mutator<ProductCreateResponseDto>(
+      {url: `/product/${id}/duplicate`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * Creates or restores a technical default variant only for legacy simple products that do not have real custom variants.
+ * @summary Repair missing technical default variants for current catalog
+ */
+const productControllerRepairMissingDefaultVariants = (
+    
+ ) => {
+      return mutator<ProductDefaultVariantRepairResponseDto>(
+      {url: `/product/maintenance/default-variants/repair`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * Dry-run by default. With apply=true copies the technical default variant price into legacy Product.price only for safe simple products with exactly one clean default variant and no custom variants.
+ * @summary Repair legacy product price mirror from technical default variants
+ */
+const productControllerRepairDefaultVariantPriceMismatches = (
+    repairDefaultVariantPriceMismatchDtoReq: RepairDefaultVariantPriceMismatchDtoReq,
+ ) => {
+      return mutator<ProductDefaultVariantPriceMismatchRepairResponseDto>(
+      {url: `/product/maintenance/default-variants/price-mismatches/repair`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: repairDefaultVariantPriceMismatchDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Preview product type change compatibility without writing
+ */
+const productControllerPreviewProductTypeCompatibility = (
+    id: string,
+    productTypeCompatibilityPreviewDtoReq: ProductTypeCompatibilityPreviewDtoReq,
+ ) => {
+      return mutator<ProductTypeCompatibilityPreviewDto>(
+      {url: `/product/${id}/product-type/compatibility-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: productTypeCompatibilityPreviewDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Apply explicit product type change with confirmed remap/removal
+ */
+const productControllerApplyProductTypeChange = (
+    id: string,
+    applyProductTypeChangeDtoReq: ApplyProductTypeChangeDtoReq,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/product-type/apply`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: applyProductTypeChangeDtoReq
+    },
+      );
+    }
+  
+/**
+ * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
+ * @summary Изменить позицию товара в категории
+ */
+const productControllerUpdateCategoryPosition = (
+    id: string,
+    updateProductCategoryPositionDtoReq: UpdateProductCategoryPositionDtoReq,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/category-position`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateProductCategoryPositionDtoReq
+    },
+      );
+    }
+  
+/**
+ * Переключает статус товара между ACTIVE и HIDDEN. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Переключить статус товара
+ */
+const productControllerToggleStatus = (
+    id: string,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/toggle-status`, method: 'PATCH'
+    },
+      );
+    }
+  
+/**
+ * Переключает флаг isPopular у товара. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Переключить популярность товара
+ */
+const productControllerTogglePopular = (
+    id: string,
+ ) => {
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/toggle-popular`, method: 'PATCH'
+    },
+      );
+    }
+  
+/**
+ * В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Создать/заменить вариации товара
+ */
+const productControllerSetVariants = (
+    id: string,
+    setProductVariantsDtoReq: SetProductVariantsDtoReq,
+ ) => {
+      return mutator<ProductVariantsResponseDto>(
+      {url: `/product/${id}/variants`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: setProductVariantsDtoReq
+    },
+      );
+    }
+  
+/**
+ * Заменяет полную матрицу вариантов товара. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Создать/заменить матрицу вариаций товара
+ */
+const productControllerSetVariantMatrix = (
+    id: string,
+    setProductVariantMatrixDtoReq: SetProductVariantMatrixDtoReq,
+ ) => {
+      return mutator<ProductVariantsResponseDto>(
+      {url: `/product/${id}/variant-matrix`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: setProductVariantMatrixDtoReq
+    },
+      );
+    }
+  
+/**
  * @summary List current catalog sale units
  */
 const catalogSaleUnitControllerGetAll = (
@@ -5522,328 +6642,6 @@ const categoryControllerUpdatePosition = (
       {url: `/category/${id}/position`, method: 'PATCH',
       headers: {'Content-Type': 'application/json', },
       data: updateCategoryPositionDtoReq
-    },
-      );
-    }
-  
-/**
- * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
- * @summary Список товаров
- */
-const productControllerGetAll = (
-    
- ) => {
-      return mutator<ProductWithAttributesDto[]>(
-      {url: `/product`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории). При необходимости можно сразу передать variants.
- * @summary Создать товар
- */
-const productControllerCreate = (
-    createProductDtoReq: CreateProductDtoReq,
- ) => {
-      return mutator<ProductCreateResponseDto>(
-      {url: `/product`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createProductDtoReq
-    },
-      );
-    }
-  
-/**
- * Возвращает карточки товаров с productAttributes и variantSummary, но без полного variants. Поддерживает те же фильтры, что и /product/infinite.
- * @summary Лёгкий card-feed товаров (бесконечный скролл)
- */
-const productControllerGetInfiniteCards = (
-    params?: ProductControllerGetInfiniteCardsParams,
- ) => {
-      return mutator<ProductCardPageDto>(
-      {url: `/product/cards/infinite`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
- * @summary Список товаров с фильтрами (бесконечный скролл)
- */
-const productControllerGetInfinite = (
-    params?: ProductControllerGetInfiniteParams,
- ) => {
-      return mutator<ProductInfinitePageDto>(
-      {url: `/product/infinite`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * Возвращает карточки рекомендаций с productAttributes и variantSummary, но без полного variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
- * @summary Лёгкий card-feed рекомендаций
- */
-const productControllerGetRecommendationsInfiniteCards = (
-    params?: ProductControllerGetRecommendationsInfiniteCardsParams,
- ) => {
-      return mutator<ProductCardPageDto>(
-      {url: `/product/cards/recommendations/infinite`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * Временная реализация: возвращает товары, которые не попадают в текущий фильтр. Поддерживает те же query-параметры и deterministic seed, что и /product/infinite.
- * @summary Список рекомендаций под фильтром (бесконечный скролл)
- */
-const productControllerGetRecommendationsInfinite = (
-    params?: ProductControllerGetRecommendationsInfiniteParams,
- ) => {
-      return mutator<ProductInfinitePageDto>(
-      {url: `/product/recommendations/infinite`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * Возвращает популярные товары с productAttributes и variantSummary, но без полного variants.
- * @summary Лёгкий список популярных товаров
- */
-const productControllerGetPopularCards = (
-    
- ) => {
-      return mutator<ProductWithAttributesDto[]>(
-      {url: `/product/cards/popular`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * Возвращает карточки товаров без активной категории с productAttributes и variantSummary, но без полного variants.
- * @summary Лёгкий список товаров без категории
- */
-const productControllerGetUncategorizedInfiniteCards = (
-    params?: ProductControllerGetUncategorizedInfiniteCardsParams,
- ) => {
-      return mutator<ProductCursorCardPageDto>(
-      {url: `/product/cards/uncategorized/infinite`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
- * @summary Список товаров без категории (бесконечный скролл)
- */
-const productControllerGetUncategorizedInfinite = (
-    params?: ProductControllerGetUncategorizedInfiniteParams,
- ) => {
-      return mutator<ProductCursorPageDto>(
-      {url: `/product/uncategorized/infinite`, method: 'GET',
-        params
-    },
-      );
-    }
-  
-/**
- * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
- * @summary Список популярных товаров
- */
-const productControllerGetPopular = (
-    
- ) => {
-      return mutator<ProductWithAttributesDto[]>(
-      {url: `/product/popular`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
- * @summary Получить товар по slug
- */
-const productControllerGetBySlug = (
-    slug: string,
- ) => {
-      return mutator<ProductWithDetailsDto>(
-      {url: `/product/slug/${slug}`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
- * @summary Получить товар по id
- */
-const productControllerGetById = (
-    id: string,
- ) => {
-      return mutator<ProductWithDetailsDto>(
-      {url: `/product/${id}`, method: 'GET'
-    },
-      );
-    }
-  
-/**
- * Для замены привязок товара передайте массив categories. Для изменения позиции товара внутри одной категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Обновить товар
- */
-const productControllerUpdate = (
-    id: string,
-    updateProductDtoReq: UpdateProductDtoReq,
- ) => {
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: updateProductDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Удалить товар
- */
-const productControllerRemove = (
-    id: string,
- ) => {
-      return mutator<OkResponseDto>(
-      {url: `/product/${id}`, method: 'DELETE'
-    },
-      );
-    }
-  
-/**
- * Создает копию товара со всеми медиа, атрибутами, вариантами и категориями. Новый товар создается со status=HIDDEN.
- * @summary Дублировать товар
- */
-const productControllerDuplicate = (
-    id: string,
- ) => {
-      return mutator<ProductCreateResponseDto>(
-      {url: `/product/${id}/duplicate`, method: 'POST'
-    },
-      );
-    }
-  
-/**
- * Creates or restores a technical default variant only for legacy simple products that do not have real custom variants.
- * @summary Repair missing technical default variants for current catalog
- */
-const productControllerRepairMissingDefaultVariants = (
-    
- ) => {
-      return mutator<ProductDefaultVariantRepairResponseDto>(
-      {url: `/product/maintenance/default-variants/repair`, method: 'POST'
-    },
-      );
-    }
-  
-/**
- * @summary Preview product type change compatibility without writing
- */
-const productControllerPreviewProductTypeCompatibility = (
-    id: string,
-    productTypeCompatibilityPreviewDtoReq: ProductTypeCompatibilityPreviewDtoReq,
- ) => {
-      return mutator<ProductTypeCompatibilityPreviewDto>(
-      {url: `/product/${id}/product-type/compatibility-preview`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: productTypeCompatibilityPreviewDtoReq
-    },
-      );
-    }
-  
-/**
- * @summary Apply explicit product type change with confirmed remap/removal
- */
-const productControllerApplyProductTypeChange = (
-    id: string,
-    applyProductTypeChangeDtoReq: ApplyProductTypeChangeDtoReq,
- ) => {
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/product-type/apply`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: applyProductTypeChangeDtoReq
-    },
-      );
-    }
-  
-/**
- * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
- * @summary Изменить позицию товара в категории
- */
-const productControllerUpdateCategoryPosition = (
-    id: string,
-    updateProductCategoryPositionDtoReq: UpdateProductCategoryPositionDtoReq,
- ) => {
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/category-position`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: updateProductCategoryPositionDtoReq
-    },
-      );
-    }
-  
-/**
- * Переключает статус товара между ACTIVE и HIDDEN. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Переключить статус товара
- */
-const productControllerToggleStatus = (
-    id: string,
- ) => {
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/toggle-status`, method: 'PATCH'
-    },
-      );
-    }
-  
-/**
- * Переключает флаг isPopular у товара. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Переключить популярность товара
- */
-const productControllerTogglePopular = (
-    id: string,
- ) => {
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/toggle-popular`, method: 'PATCH'
-    },
-      );
-    }
-  
-/**
- * В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Создать/заменить вариации товара
- */
-const productControllerSetVariants = (
-    id: string,
-    setProductVariantsDtoReq: SetProductVariantsDtoReq,
- ) => {
-      return mutator<ProductVariantsResponseDto>(
-      {url: `/product/${id}/variants`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: setProductVariantsDtoReq
-    },
-      );
-    }
-  
-/**
- * Заменяет полную матрицу вариантов товара. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Создать/заменить матрицу вариаций товара
- */
-const productControllerSetVariantMatrix = (
-    id: string,
-    setProductVariantMatrixDtoReq: SetProductVariantMatrixDtoReq,
- ) => {
-      return mutator<ProductVariantsResponseDto>(
-      {url: `/product/${id}/variant-matrix`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: setProductVariantMatrixDtoReq
     },
       );
     }
@@ -6389,7 +7187,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerRetryMoySkladOrderExport,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetDomainEventOutbox,adminControllerGetDomainEventOutboxStats,adminControllerRetryDomainEventOutboxItem,adminControllerRetryFailedDomainEvents,adminControllerDrainDomainEventOutbox,adminControllerCleanupDomainEventOutbox,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerGetCatalogMoySkladStockDiagnostics,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerRetryMoySkladOrderExport,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerDiagnoseDefaultVariants,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerRepairDefaultVariantPriceMismatches,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -6403,6 +7201,12 @@ export type CatalogAuthControllerSessionsListResult = NonNullable<Awaited<Return
 export type CatalogAuthControllerRevokeOtherSessionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAuthControllerRevokeOtherSessions']>>>
 export type CatalogAuthControllerRevokeSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAuthControllerRevokeSession']>>>
 export type HandoffControllerExchangeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['handoffControllerExchange']>>>
+export type AdminControllerGetDomainEventOutboxResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerGetDomainEventOutbox']>>>
+export type AdminControllerGetDomainEventOutboxStatsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerGetDomainEventOutboxStats']>>>
+export type AdminControllerRetryDomainEventOutboxItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerRetryDomainEventOutboxItem']>>>
+export type AdminControllerRetryFailedDomainEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerRetryFailedDomainEvents']>>>
+export type AdminControllerDrainDomainEventOutboxResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerDrainDomainEventOutbox']>>>
+export type AdminControllerCleanupDomainEventOutboxResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerCleanupDomainEventOutbox']>>>
 export type AdminControllerGetCatalogsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerGetCatalogs']>>>
 export type AdminControllerCreateCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerCreateCatalog']>>>
 export type AdminControllerDuplicateCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerDuplicateCatalog']>>>
@@ -6410,6 +7214,7 @@ export type AdminControllerUpdateCatalogResult = NonNullable<Awaited<ReturnType<
 export type AdminControllerDeleteCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerDeleteCatalog']>>>
 export type AdminControllerGetCatalogFeatureEntitlementsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerGetCatalogFeatureEntitlements']>>>
 export type AdminControllerUpdateCatalogFeatureEntitlementResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerUpdateCatalogFeatureEntitlement']>>>
+export type AdminControllerGetCatalogMoySkladStockDiagnosticsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerGetCatalogMoySkladStockDiagnostics']>>>
 export type AdminControllerDeleteCatalogContentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerDeleteCatalogContent']>>>
 export type AdminControllerRestoreCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerRestoreCatalog']>>>
 export type AdminControllerGetTypesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['adminControllerGetTypes']>>>
@@ -6503,6 +7308,31 @@ export type IntegrationControllerSyncMoySkladProductResult = NonNullable<Awaited
 export type IntegrationControllerSyncMoySkladStockResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncMoySkladStock']>>>
 export type IntegrationControllerReceiveMoySkladStockWebhookResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerReceiveMoySkladStockWebhook']>>>
 export type IntegrationControllerRetryMoySkladOrderExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRetryMoySkladOrderExport']>>>
+export type ProductControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetAll']>>>
+export type ProductControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerCreate']>>>
+export type ProductControllerGetInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfiniteCards']>>>
+export type ProductControllerGetInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfinite']>>>
+export type ProductControllerGetRecommendationsInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetRecommendationsInfiniteCards']>>>
+export type ProductControllerGetRecommendationsInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetRecommendationsInfinite']>>>
+export type ProductControllerGetPopularCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopularCards']>>>
+export type ProductControllerGetUncategorizedInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetUncategorizedInfiniteCards']>>>
+export type ProductControllerGetUncategorizedInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetUncategorizedInfinite']>>>
+export type ProductControllerGetPopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopular']>>>
+export type ProductControllerDiagnoseDefaultVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerDiagnoseDefaultVariants']>>>
+export type ProductControllerGetBySlugResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetBySlug']>>>
+export type ProductControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetById']>>>
+export type ProductControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerUpdate']>>>
+export type ProductControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerRemove']>>>
+export type ProductControllerDuplicateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerDuplicate']>>>
+export type ProductControllerRepairMissingDefaultVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerRepairMissingDefaultVariants']>>>
+export type ProductControllerRepairDefaultVariantPriceMismatchesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerRepairDefaultVariantPriceMismatches']>>>
+export type ProductControllerPreviewProductTypeCompatibilityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerPreviewProductTypeCompatibility']>>>
+export type ProductControllerApplyProductTypeChangeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerApplyProductTypeChange']>>>
+export type ProductControllerUpdateCategoryPositionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerUpdateCategoryPosition']>>>
+export type ProductControllerToggleStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerToggleStatus']>>>
+export type ProductControllerTogglePopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerTogglePopular']>>>
+export type ProductControllerSetVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariants']>>>
+export type ProductControllerSetVariantMatrixResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariantMatrix']>>>
 export type CatalogSaleUnitControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetAll']>>>
 export type CatalogSaleUnitControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerCreate']>>>
 export type CatalogSaleUnitControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetById']>>>
@@ -6517,29 +7347,6 @@ export type CategoryControllerGetProductsByCategoryResult = NonNullable<Awaited<
 export type CategoryControllerGetProductCardsByCategoryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetProductCardsByCategory']>>>
 export type CategoryControllerUpdatePositionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerUpdatePositions']>>>
 export type CategoryControllerUpdatePositionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerUpdatePosition']>>>
-export type ProductControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetAll']>>>
-export type ProductControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerCreate']>>>
-export type ProductControllerGetInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfiniteCards']>>>
-export type ProductControllerGetInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetInfinite']>>>
-export type ProductControllerGetRecommendationsInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetRecommendationsInfiniteCards']>>>
-export type ProductControllerGetRecommendationsInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetRecommendationsInfinite']>>>
-export type ProductControllerGetPopularCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopularCards']>>>
-export type ProductControllerGetUncategorizedInfiniteCardsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetUncategorizedInfiniteCards']>>>
-export type ProductControllerGetUncategorizedInfiniteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetUncategorizedInfinite']>>>
-export type ProductControllerGetPopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetPopular']>>>
-export type ProductControllerGetBySlugResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetBySlug']>>>
-export type ProductControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerGetById']>>>
-export type ProductControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerUpdate']>>>
-export type ProductControllerRemoveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerRemove']>>>
-export type ProductControllerDuplicateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerDuplicate']>>>
-export type ProductControllerRepairMissingDefaultVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerRepairMissingDefaultVariants']>>>
-export type ProductControllerPreviewProductTypeCompatibilityResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerPreviewProductTypeCompatibility']>>>
-export type ProductControllerApplyProductTypeChangeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerApplyProductTypeChange']>>>
-export type ProductControllerUpdateCategoryPositionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerUpdateCategoryPosition']>>>
-export type ProductControllerToggleStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerToggleStatus']>>>
-export type ProductControllerTogglePopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerTogglePopular']>>>
-export type ProductControllerSetVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariants']>>>
-export type ProductControllerSetVariantMatrixResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariantMatrix']>>>
 export type InventoryControllerGetWarehousesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['inventoryControllerGetWarehouses']>>>
 export type InventoryControllerCreateWarehouseResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['inventoryControllerCreateWarehouse']>>>
 export type InventoryControllerGetWarehouseByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['inventoryControllerGetWarehouseById']>>>

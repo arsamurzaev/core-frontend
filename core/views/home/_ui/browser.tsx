@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { CatalogProductsPanel } from "@/core/widgets/catalog-products/ui/catalog-products-panel";
+import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
 import type { CategoryCardVariant } from "@/core/modules/category/model/category-card";
 import { CategoryCard } from "@/core/modules/category/ui/category-card";
 import { CategoryCardSkeleton } from "@/core/modules/category/ui/category-card-skeleton";
@@ -114,6 +115,10 @@ export const Browser: React.FC<BrowserProps> = ({
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const storefrontCategories = React.useMemo(
+    () => buildCategoryDisplayList(categories, { hideEmpty: true }),
+    [categories],
+  );
   const { user } = useSession();
   const effectiveQueryState = React.useMemo(
     () => ({
@@ -134,7 +139,7 @@ export const Browser: React.FC<BrowserProps> = ({
     supportsCategoryDetails,
   });
   const { activeCategoryId } = useActiveCategoryIntersection({
-    categories,
+    categories: storefrontCategories,
     enabled: effectiveQueryState.tab === "catalog" && !effectiveIsFilterActive,
   });
   const categoryClickActivation = useCategoryClickActivationDelay({
@@ -152,6 +157,9 @@ export const Browser: React.FC<BrowserProps> = ({
   );
   const shouldShowAdminActions =
     canManageCategories && effectiveQueryState.tab === "categories";
+  const categoryCardItems = shouldShowAdminActions
+    ? categories
+    : storefrontCategories;
   const shouldRenderAdminDrawers =
     canManageCategories &&
     (categoryAdmin.isCreateOpen ||
@@ -179,7 +187,7 @@ export const Browser: React.FC<BrowserProps> = ({
     effectiveQueryState.tab === "catalog" ? (
       !effectiveIsFilterActive ? (
         <CategoryBarList
-          items={categories}
+          items={storefrontCategories}
           isLoading={categoriesQuery.isLoading}
           activeCategoryId={visibleActiveCategoryId}
           onCategoryClick={categoryClickActivation.handleCategoryClick}
@@ -231,7 +239,7 @@ export const Browser: React.FC<BrowserProps> = ({
               ) : null}
               <LazyCatalogFilterDrawer
                 queryState={effectiveQueryState}
-                categories={categories}
+                categories={storefrontCategories}
                 isCategoriesLoading={categoriesQuery.isLoading}
                 activeFiltersCount={activeFiltersCount}
                 shouldUseBrands={supportsBrands}
@@ -252,7 +260,7 @@ export const Browser: React.FC<BrowserProps> = ({
               className="w-1/2 shrink-0 space-y-7.5"
               contentClassName="m-1"
               collapsed={effectiveQueryState.tab === "categories"}
-              categories={categories}
+              categories={storefrontCategories}
               isCategoriesLoading={categoriesQuery.isLoading}
               isFilterActive={effectiveIsFilterActive}
               queryState={effectiveQueryState}
@@ -275,7 +283,7 @@ export const Browser: React.FC<BrowserProps> = ({
                       />
                     ),
                   )
-                : categories.map((category, index) => (
+                : categoryCardItems.map((category, index) => (
                     <CategoryCard
                       handleClick={() =>
                         handleFilterToggle({

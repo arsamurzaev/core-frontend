@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  canOpenCartProductVariantDrawer,
   getCartProductActionAriaLabel,
   shouldRenderCartProductVariantDrawer,
   shouldShowCartProductActionQuantity,
 } from "@/core/modules/cart/model/cart-product-action-state";
+import { resolveCartProductCardSelection } from "@/core/modules/cart/model/cart-product-selection";
 import { CartProductActionButton } from "@/core/modules/cart/ui/cart-product-action-button";
 import { CartProductVariantDrawer } from "@/core/modules/cart/ui/cart-product-variant-drawer";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
@@ -26,16 +28,22 @@ export const CartProductAction = React.memo(function CartProductAction({
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
   const canUseProductVariants = features.canUseProductVariants;
+  const canOpenVariantDrawer = canOpenCartProductVariantDrawer({
+    activeVariantCount: product.variantSummary?.activeCount,
+    canUseProductVariants,
+    hasVariantPickerOptions: (product.variantPickerOptions?.length ?? 0) > 0,
+    requiresVariantSelection: product.requiresVariantSelection,
+  });
   const [isVariantDrawerOpen, setIsVariantDrawerOpen] = React.useState(false);
   const handleVariantSelectionRequired = React.useCallback(() => {
     setIsVariantDrawerOpen(true);
-  }, []);
+  }, [setIsVariantDrawerOpen]);
 
   React.useEffect(() => {
-    if (!canUseProductVariants) {
+    if (!canOpenVariantDrawer) {
       setIsVariantDrawerOpen(false);
     }
-  }, [canUseProductVariants]);
+  }, [canOpenVariantDrawer]);
 
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
   const {
@@ -44,20 +52,21 @@ export const CartProductAction = React.memo(function CartProductAction({
     requiresVariantSelection,
     singleVariantId,
   } = resolveProductCardVariantState(product, {
-    canUseVariants: canUseProductVariants,
+    canUseVariants: canOpenVariantDrawer,
     shouldEnforceStock,
+  });
+  const selection = resolveCartProductCardSelection({
+    product,
+    variantId: singleVariantId,
   });
   const { handleAdd, isBusy, isIncrementDisabled, quantity } =
     useCartProductControls(
-      {
-        productId: product.id,
-        variantId: singleVariantId,
-      },
+      selection,
       product,
       {
         canUseProductVariants,
         maxQuantity,
-        onVariantSelectionRequired: canUseProductVariants
+        onVariantSelectionRequired: canOpenVariantDrawer
           ? handleVariantSelectionRequired
           : undefined,
         requiresVariantSelection,
@@ -68,7 +77,7 @@ export const CartProductAction = React.memo(function CartProductAction({
     requiresVariantSelection,
   });
   const shouldRenderVariantDrawer = shouldRenderCartProductVariantDrawer({
-    canUseProductVariants,
+    canUseProductVariants: canOpenVariantDrawer,
     isVariantDrawerOpen,
     requiresVariantSelection,
   });

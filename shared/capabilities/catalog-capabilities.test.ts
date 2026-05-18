@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { shouldRequestCatalogCapabilities } from "./catalog-capabilities";
+import {
+  canShowBetaField,
+  canShowMoySklad,
+  canShowProductTypes,
+  canShowSaleUnits,
+  canShowVariants,
+  canUseInternalInventory,
+  DEFAULT_CATALOG_CAPABILITIES,
+  shouldRequestCatalogCapabilities,
+} from "./catalog-capabilities";
 
 describe("shouldRequestCatalogCapabilities", () => {
   it("does not request current catalog features for guests", () => {
@@ -47,5 +56,32 @@ describe("shouldRequestCatalogCapabilities", () => {
         userRole: "CATALOG",
       }),
     ).toBe(false);
+  });
+});
+
+describe("capability display helpers", () => {
+  const capabilities = {
+    ...DEFAULT_CATALOG_CAPABILITIES,
+    canUseCatalogSaleUnits: true,
+    canUseInternalInventory: false,
+    canUseMoySkladIntegration: true,
+    canUseProductTypes: true,
+    canUseProductVariants: false,
+  };
+
+  it("exposes named UI gates", () => {
+    expect(canShowProductTypes(capabilities)).toBe(true);
+    expect(canShowVariants(capabilities)).toBe(false);
+    expect(canShowSaleUnits(capabilities)).toBe(true);
+    expect(canUseInternalInventory(capabilities)).toBe(false);
+    expect(canShowMoySklad(capabilities)).toBe(true);
+  });
+
+  it("maps beta field names to effective gates", () => {
+    expect(canShowBetaField(capabilities, "productTypes")).toBe(true);
+    expect(canShowBetaField(capabilities, "productVariants")).toBe(false);
+    expect(canShowBetaField(capabilities, "saleUnits")).toBe(true);
+    expect(canShowBetaField(capabilities, "internalInventory")).toBe(false);
+    expect(canShowBetaField(capabilities, "moyskladIntegration")).toBe(true);
   });
 });

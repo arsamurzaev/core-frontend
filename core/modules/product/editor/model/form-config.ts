@@ -1,6 +1,11 @@
 import { type AttributeDto, AttributeDtoDataType } from "@/shared/api/generated/react-query";
+import {
+  getCatalogPriceInputProps,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { toOptionalTrimmedString as normalizeOptionalString } from "@/shared/lib/text";
 import { type DynamicFieldConfig } from "@/shared/ui/dynamic-form";
+import type React from "react";
 import { type Path } from "react-hook-form";
 import {
   createEmptyVariantsFormValue,
@@ -94,6 +99,16 @@ export const CREATE_PRODUCT_FORM_DEFAULT_VALUES: CreateProductFormValues = {
   variants: createEmptyVariantsFormValue(),
 };
 
+export function createProductEditorFormDefaultValues(): CreateProductFormValues {
+  return {
+    ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+    categoryIds: [],
+    attributes: {},
+    saleUnits: [],
+    variants: createEmptyVariantsFormValue(),
+  };
+}
+
 export const PRODUCT_IMAGE_ASPECT_RATIO = 3 / 4;
 
 export const CREATE_PRODUCT_FORM_LAYOUT = {
@@ -173,6 +188,17 @@ export const ATTRIBUTE_FIELD_OVERRIDES_BY_ID: Record<
   AttributeFieldOverride
 > = {};
 
+function getPriceFieldInputProps(
+  mode: CatalogPriceFormatMode,
+): React.ComponentProps<"input"> {
+  return {
+    type: "number",
+    min: 0,
+    ...getCatalogPriceInputProps(mode),
+    className: "text-center",
+  };
+}
+
 const BASE_FIELDS: DynamicFieldConfig<CreateProductFormValues>[] = [
   {
     name: "name",
@@ -199,9 +225,9 @@ const BASE_FIELDS: DynamicFieldConfig<CreateProductFormValues>[] = [
     inputProps: {
       type: "number",
       min: 0,
-      step: "0.01",
+      step: 1,
       className: "text-center",
-      inputMode: "decimal",
+      inputMode: "numeric",
     },
     layout: { colSpan: 2, order: 60 },
   },
@@ -326,22 +352,35 @@ function buildAttributeBaseField(
 
 function resolveAttributeOverride(
   attribute: AttributeDto,
+  priceFormatMode: CatalogPriceFormatMode,
 ): AttributeFieldOverride | undefined {
   const byId = ATTRIBUTE_FIELD_OVERRIDES_BY_ID[attribute.id];
-  const byKey = ATTRIBUTE_FIELD_OVERRIDES_BY_KEY[
-    normalizeOverrideKey(attribute.key)
-  ];
+  const normalizedKey = normalizeOverrideKey(attribute.key);
+  const byKey = ATTRIBUTE_FIELD_OVERRIDES_BY_KEY[normalizedKey];
+  const priceInputOverride: AttributeFieldOverride | undefined =
+    normalizedKey === "discountedprice"
+      ? {
+          inputProps: getPriceFieldInputProps(priceFormatMode),
+        }
+      : undefined;
 
-  if (!byId && !byKey) {
+  if (!byId && !byKey && !priceInputOverride) {
     return undefined;
   }
 
   return {
     ...(byKey ?? {}),
     ...(byId ?? {}),
+    ...(priceInputOverride ?? {}),
     layout: {
       ...(byKey?.layout ?? {}),
       ...(byId?.layout ?? {}),
+      ...(priceInputOverride?.layout ?? {}),
+    },
+    inputProps: {
+      ...(byKey?.inputProps ?? {}),
+      ...(byId?.inputProps ?? {}),
+      ...(priceInputOverride?.inputProps ?? {}),
     },
   };
 }
@@ -349,14 +388,24 @@ function resolveAttributeOverride(
 export function buildCreateProductFormFields(
   productAttributes: AttributeDto[],
   customFields: DynamicFieldConfig<CreateProductFormValues>[] = [],
+  priceFormatMode: CatalogPriceFormatMode = "integer",
 ): DynamicFieldConfig<CreateProductFormValues>[] {
+  const baseFields = BASE_FIELDS.map((field) =>
+    field.name === "price"
+      ? {
+          ...field,
+          inputProps: getPriceFieldInputProps(priceFormatMode),
+        }
+      : field,
+  );
+
   return [
-    ...BASE_FIELDS,
+    ...baseFields,
     ...customFields,
     ...productAttributes.map((attribute) =>
       mergeFieldConfig(
         buildAttributeBaseField(attribute),
-        resolveAttributeOverride(attribute),
+        resolveAttributeOverride(attribute, priceFormatMode),
       ),
     ),
   ];

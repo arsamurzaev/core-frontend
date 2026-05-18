@@ -1,4 +1,9 @@
 import type { ProductVariantDto } from "@/shared/api/generated/react-query";
+import {
+  findKnownProductVariantOption,
+  isProductVariantOptionSelectable,
+  resolveInitialProductVariantId,
+} from "@/core/modules/product";
 
 export interface VariantPickerValue {
   id: string;
@@ -21,20 +26,14 @@ export function isProductVariantPurchasable(
   variant: ProductVariantDto | null | undefined,
   options: VariantAvailabilityOptions = {},
 ): variant is ProductVariantDto {
-  if (!variant?.isAvailable) {
-    return false;
-  }
-
-  return options.shouldEnforceStock === false || variant.stock > 0;
+  return isProductVariantOptionSelectable(variant, options);
 }
 
 export function findKnownProductVariant(
   variants: ProductVariantDto[],
   variantId: string | null | undefined,
 ): ProductVariantDto | null {
-  return variantId
-    ? (variants.find((variant) => variant.id === variantId) ?? null)
-    : null;
+  return findKnownProductVariantOption(variants, variantId);
 }
 
 export function getInitialProductVariantId(params: {
@@ -44,50 +43,7 @@ export function getInitialProductVariantId(params: {
   singleVariantId?: string | null;
   variants: ProductVariantDto[];
 }): string | null {
-  const {
-    initialVariantId,
-    queryVariantId,
-    shouldEnforceStock,
-    singleVariantId,
-    variants,
-  } = params;
-
-  const initialVariant = findKnownProductVariant(
-    variants,
-    initialVariantId ?? null,
-  );
-  if (initialVariant) {
-    return initialVariant.id;
-  }
-
-  const queryVariant = findKnownProductVariant(variants, queryVariantId);
-  if (
-    isProductVariantPurchasable(queryVariant, {
-      shouldEnforceStock,
-    })
-  ) {
-    return queryVariant.id;
-  }
-
-  const singleVariant = findKnownProductVariant(
-    variants,
-    singleVariantId ?? null,
-  );
-  if (
-    isProductVariantPurchasable(singleVariant, {
-      shouldEnforceStock,
-    })
-  ) {
-    return singleVariant.id;
-  }
-
-  return (
-    variants.find((variant) =>
-      isProductVariantPurchasable(variant, {
-        shouldEnforceStock,
-      }),
-    )?.id ?? null
-  );
+  return resolveInitialProductVariantId(params);
 }
 
 export function buildProductVariantSelection(

@@ -1,5 +1,5 @@
 import type { CategoryDto } from "@/shared/api/generated/react-query";
-import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import type { CartItemView } from "@/core/modules/cart";
 import type { CheckoutMethod } from "@/shared/lib/checkout-methods";
 import type { CategoryCardVariant } from "@/core/modules/category/model/category-card";
 import type { ProductCardPluginConfig, ResolvedProductCardPlugin } from "@/core/modules/product/plugins/contracts";

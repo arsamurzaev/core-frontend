@@ -68,4 +68,48 @@ describe("ProductCardWithPlugins", () => {
       hidePriceWhenFooterAction: true,
     });
   });
+
+  it("forwards image loading mode to the base product card", () => {
+    renderToStaticMarkup(
+      <ProductCardWithPlugins data={product()} imageLoading="eager" />,
+    );
+
+    expect(productCardProps).toHaveLength(1);
+    expect(productCardProps[0]).toMatchObject({
+      imageLoading: "eager",
+    });
+  });
+
+  it("passes variant summary to the card header without rendering a plugin label", () => {
+    const markup = renderToStaticMarkup(
+      <ProductCardWithPlugins
+        data={product({
+          productType: {
+            id: "type-1",
+            code: "clothes",
+            name: "Clothes",
+          },
+          variantPickerOptions: [
+            {
+              id: "variant-1",
+              isAvailable: true,
+              label: "Хаки, L",
+              maxQuantity: null,
+              price: "3990",
+              saleUnitId: null,
+              saleUnitPrice: null,
+              status: "ACTIVE",
+              stock: 1,
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(productCardProps).toHaveLength(1);
+    expect(productCardProps[0]).toMatchObject({
+      headerMeta: "Хаки, L",
+    });
+    expect(markup).not.toContain("Вариации");
+  });
 });

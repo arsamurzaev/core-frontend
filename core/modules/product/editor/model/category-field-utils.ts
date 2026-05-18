@@ -1,5 +1,6 @@
 "use client";
 
+import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
 import { getFieldOptionText } from "@/core/modules/product/editor/lib/select-field-utils";
 import { type CategoryDto } from "@/shared/api/generated/react-query";
 import { type FieldOption } from "@/shared/ui/dynamic-form";
@@ -31,7 +32,7 @@ export function buildCategoryList(
     return optionList.map(toCategoryListItem);
   }
 
-  return categories.map((category) => ({
+  return buildCategoryDisplayList(categories).map((category) => ({
     id: category.id,
     name: category.name,
     descriptor: category.descriptor,

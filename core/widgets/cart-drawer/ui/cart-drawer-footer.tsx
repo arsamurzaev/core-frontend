@@ -7,6 +7,7 @@ import { CartDrawerFooterAction } from "@/core/widgets/cart-drawer/ui/cart-drawe
 import { CartDrawerFooterSummary } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-summary";
 import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
 import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
+import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { DrawerFooter } from "@/shared/ui/drawer";
 import React from "react";
@@ -27,6 +28,7 @@ interface CartDrawerFooterProps {
   onSharePrepared?: () => void;
   onShareClick: () => Promise<CartSharePayload>;
   price: number;
+  priceFormatMode: CatalogPriceFormatMode;
   totalPrice: number;
 }
 
@@ -51,6 +53,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   onSharePrepared,
   onShareClick,
   price,
+  priceFormatMode,
   totalPrice,
 }) => {
   const share = useCartDrawerShare({
@@ -89,6 +92,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
             currency={currency}
             hasDiscount={hasDiscount}
             price={price}
+            priceFormatMode={priceFormatMode}
             totalPrice={totalPrice}
           />
 

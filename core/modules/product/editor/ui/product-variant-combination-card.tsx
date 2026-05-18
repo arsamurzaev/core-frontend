@@ -16,6 +16,10 @@ import {
 } from "@/core/modules/product/editor/model/product-variants-field-model";
 import { ProductSaleUnitsField } from "@/core/modules/product/editor/ui/product-sale-units-field";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import {
+  getCatalogPriceInputProps,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -25,6 +29,7 @@ interface ProductVariantCombinationCardProps {
   canUseCatalogSaleUnits?: boolean;
   disabled?: boolean;
   discountPercent: number;
+  priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
   row: VariantMatrixRow;
   variantAttributes: AttributeDto[];
@@ -37,6 +42,7 @@ export const ProductVariantCombinationCard: React.FC<
   canUseCatalogSaleUnits = false,
   disabled,
   discountPercent,
+  priceFormatMode = "integer",
   priceFallback,
   row,
   variantAttributes,
@@ -47,16 +53,32 @@ export const ProductVariantCombinationCard: React.FC<
     item.price ?? priceFallback,
     discountPercent,
   );
+  const priceInputProps = getCatalogPriceInputProps(priceFormatMode);
 
   function handleStatusChange(status: VariantStatus) {
     onChange(row.key, { ...item, status });
   }
 
   function handleStockChange(value: string) {
+    if (value.trim().length === 0) {
+      onChange(row.key, {
+        ...item,
+        stock: null,
+      });
+      return;
+    }
+
     const parsed = parseInt(value, 10);
     onChange(row.key, {
       ...item,
       stock: isNaN(parsed) || parsed < 0 ? 0 : parsed,
+    });
+  }
+
+  function handlePriceChange(value: string) {
+    onChange(row.key, {
+      ...item,
+      price: value.trim().length > 0 ? value : undefined,
     });
   }
 
@@ -115,6 +137,33 @@ export const ProductVariantCombinationCard: React.FC<
         </div>
       ) : (
         <div className="space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <label className="block max-w-44 space-y-1">
+              <span className="text-xs text-muted-foreground">Цена</span>
+              <Input
+                type="number"
+                min={0}
+                step={priceInputProps.step}
+                inputMode={priceInputProps.inputMode}
+                value={item.price ?? ""}
+                placeholder={priceFallback || "0"}
+                disabled={disabled}
+                onChange={(event) => handlePriceChange(event.target.value)}
+                className="h-9 px-3 text-sm"
+              />
+            </label>
+
+            {preview ? (
+              <div className="rounded-md border border-border/70 px-3 py-2 text-xs leading-5 text-muted-foreground">
+                {formatVariantMoney(preview.basePrice, priceFormatMode)}{" -> "}
+                <span className="font-medium text-foreground">
+                  {formatVariantMoney(preview.finalPrice, priceFormatMode)}
+                </span>{" "}
+                (-{discountPercent}%)
+              </div>
+            ) : null}
+          </div>
+
           {item.status === "ACTIVE" ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               <label className="block max-w-44 space-y-1">
@@ -124,23 +173,13 @@ export const ProductVariantCombinationCard: React.FC<
                   min={0}
                   step={1}
                   inputMode="numeric"
-                  value={item.stock === 0 ? "" : item.stock}
-                  placeholder="0"
+                  value={item.stock ?? ""}
+                  placeholder="Без лимита"
                   disabled={disabled}
                   onChange={(event) => handleStockChange(event.target.value)}
                   className="h-9 px-3 text-sm"
                 />
               </label>
-
-              {preview ? (
-                <div className="rounded-md border border-border/70 px-3 py-2 text-xs leading-5 text-muted-foreground">
-                  {formatVariantMoney(preview.basePrice)}{" -> "}
-                  <span className="font-medium text-foreground">
-                    {formatVariantMoney(preview.finalPrice)}
-                  </span>{" "}
-                  (-{discountPercent}%)
-                </div>
-              ) : null}
             </div>
           ) : (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
@@ -152,6 +191,7 @@ export const ProductVariantCombinationCard: React.FC<
             <ProductSaleUnitsField
               disabled={disabled}
               discountPercent={discountPercent}
+              priceFormatMode={priceFormatMode}
               priceFallback={item.price ?? priceFallback}
               saleUnits={item.saleUnits}
               title={`Единицы продажи: ${row.label}`}

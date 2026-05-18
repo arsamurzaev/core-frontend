@@ -25,6 +25,7 @@ import type { CartContextValue } from "@/core/modules/cart/model/cart-context.ty
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogMode } from "@/shared/lib/catalog-mode";
+import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
@@ -69,6 +70,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     () => getCatalogCurrency(catalog, "RUB"),
     [catalog],
   );
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const {
     autoExpandPublicCartAccessKey,
     clearOwnSharedCartAccessKey,
@@ -239,6 +241,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     activeCart,
     items,
     mutations,
+    priceFormatMode,
     setStoredPublicAccess,
     shareCurrency,
     shareTitle,

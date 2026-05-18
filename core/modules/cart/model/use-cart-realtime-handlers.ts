@@ -1,6 +1,10 @@
 "use client";
 
 import { isInactiveSharedCartStatus } from "@/core/modules/cart/model/cart-events";
+import {
+  applyCartRealtimeData,
+  removePublicCartRealtimeData,
+} from "@/core/modules/cart/model/cart-realtime-cache";
 import type { CartPublicAccess } from "@/core/modules/cart/model/cart-public-link";
 import { cartQueryKeys } from "@/core/modules/cart/model/cart-query-keys";
 import {
@@ -43,14 +47,11 @@ export function useCartRealtimeHandlers({
 
   const dismissPublicCart = React.useCallback(
     (access: CartPublicAccess | null) => {
-      if (!access) {
-        return;
-      }
-
-      queryClient.removeQueries({
-        queryKey: cartQueryKeys.public(access.publicKey),
+      removePublicCartRealtimeData({
+        access,
+        clearStoredPublicAccess,
+        queryClient,
       });
-      clearStoredPublicAccess();
     },
     [clearStoredPublicAccess, queryClient],
   );
@@ -101,23 +102,24 @@ export function useCartRealtimeHandlers({
 
   const handleSseCartUpdated = React.useCallback(
     (cart: CartDto, access?: CartPublicAccess | null) => {
-      if (access) {
-        setPublicCartData(access, cart, { ignoreStale: true });
-        return;
-      }
-
-      setCurrentCartData(cart, { ignoreStale: true });
+      applyCartRealtimeData({
+        access,
+        cart,
+        setCurrentCartData,
+        setPublicCartData,
+      });
     },
     [setCurrentCartData, setPublicCartData],
   );
 
   const handleSseCartStatusChanged = React.useCallback(
     (cart: CartDto, access?: CartPublicAccess | null) => {
-      if (access) {
-        setPublicCartData(access, cart, { ignoreStale: true });
-      } else {
-        setCurrentCartData(cart, { ignoreStale: true });
-      }
+      applyCartRealtimeData({
+        access,
+        cart,
+        setCurrentCartData,
+        setPublicCartData,
+      });
 
       if (cart.status === "CONVERTED" && !isCatalogManagerRole(userRole)) {
         const toastKey = `${cart.id}:${cart.statusChangedAt ?? cart.updatedAt}`;

@@ -10,6 +10,7 @@ import {
   type CatalogContactDtoType,
 } from "@/shared/api/generated/react-query";
 import { buildCheckoutSummary } from "@/shared/lib/checkout-methods";
+import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 import type {
   CartDtoWithCheckout,
@@ -25,6 +26,7 @@ interface UseCartShareOrderParams {
   setStoredPublicAccess: React.Dispatch<
     React.SetStateAction<CartPublicAccess | null>
   >;
+  priceFormatMode: CatalogPriceFormatMode;
   shareCurrency: string;
   shareTitle: string;
   storedPublicAccess: CartPublicAccess | null;
@@ -38,6 +40,7 @@ export function useCartShareOrder({
   activeCart,
   items,
   mutations,
+  priceFormatMode,
   setStoredPublicAccess,
   shareCurrency,
   shareTitle,
@@ -93,6 +96,7 @@ export function useCartShareOrder({
           comment: normalizedComment,
           currency: shareCurrency,
           items,
+          priceFormatMode,
           totals: {
             originalSubtotal: totals.originalSubtotal,
             subtotal: totals.subtotal,
@@ -107,6 +111,7 @@ export function useCartShareOrder({
       activeCart,
       items,
       mutations.shareCurrentCartMutation,
+      priceFormatMode,
       setStoredPublicAccess,
       shareCurrency,
       shareTitle,

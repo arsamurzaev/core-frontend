@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import {
@@ -19,14 +23,11 @@ interface CartDrawerHeaderProps {
   hasDiscount: boolean;
   onActionClick: () => void;
   price: number;
+  priceFormatMode: CatalogPriceFormatMode;
   setSnapPoint: (snapPoint: number | string) => void;
   snapPoint: number | string | null;
   totalPrice: number;
   totalQuantity: number;
-}
-
-function formatPrice(value: number) {
-  return Intl.NumberFormat("ru").format(value);
 }
 
 export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
@@ -36,6 +37,7 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
   hasDiscount,
   onActionClick,
   price,
+  priceFormatMode,
   setSnapPoint,
   snapPoint,
   totalPrice,
@@ -72,11 +74,11 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
           <div className={cn("basis-1/3", hasDiscount && "pt-0")}>
             {hasDiscount ? (
               <p className="absolute top-1 right-0 -translate-x-1/2 text-[9px] leading-none line-through">
-                {formatPrice(totalPrice)} {currency}
+                {formatCatalogPrice(totalPrice, priceFormatMode)} {currency}
               </p>
             ) : null}
             <p className="text-end">
-              {formatPrice(price)} {currency}
+              {formatCatalogPrice(price, priceFormatMode)} {currency}
             </p>
           </div>
         </Button>

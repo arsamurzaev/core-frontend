@@ -12,13 +12,16 @@ import { buildProductDrawerViewModel } from "./product-drawer-view";
 
 const NOW = "2026-05-14T00:00:00.000Z";
 
-function variantSummary(): ProductVariantSummaryDto {
+function variantSummary(
+  overrides: Partial<ProductVariantSummaryDto> = {},
+): ProductVariantSummaryDto {
   return {
     minPrice: null,
     maxPrice: null,
     activeCount: 0,
     totalStock: 0,
     singleVariantId: null,
+    ...overrides,
   };
 }
 
@@ -240,5 +243,54 @@ describe("buildProductDrawerViewModel", () => {
     });
 
     expect(view.variantsSummary).toBe("36, 37");
+  });
+
+  it("uses variant summary price instead of legacy product price", () => {
+    const view = buildProductDrawerViewModel({
+      catalog: null,
+      isError: false,
+      isLoading: false,
+      product: product({
+        price: "12000",
+        productType: {
+          id: "product-type-1",
+          code: "shoes",
+          name: "Shoes",
+        },
+        variantSummary: variantSummary({
+          minPrice: "5500",
+          maxPrice: "5500",
+          activeCount: 2,
+          totalStock: 2,
+        }),
+      }),
+    });
+
+    expect(view.price).toBe(5500);
+    expect(view.displayPrice).toBe(5500);
+  });
+
+  it("keeps unknown price empty and zero price visible", () => {
+    const unknownPriceView = buildProductDrawerViewModel({
+      catalog: null,
+      isError: false,
+      isLoading: false,
+      product: product({
+        price: null,
+      }),
+    });
+    const zeroPriceView = buildProductDrawerViewModel({
+      catalog: null,
+      isError: false,
+      isLoading: false,
+      product: product({
+        price: "0",
+      }),
+    });
+
+    expect(unknownPriceView.price).toBeNull();
+    expect(unknownPriceView.displayPrice).toBeNull();
+    expect(zeroPriceView.price).toBe(0);
+    expect(zeroPriceView.displayPrice).toBe(0);
   });
 });

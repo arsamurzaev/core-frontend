@@ -35,7 +35,7 @@ export const CategoryCard: React.FC<Props> = ({
               className,
             )}
           >
-            <h2 className="truncate text-base font-semibold sm:text-lg">
+            <h2 className="line-clamp-2 min-w-0 text-base leading-tight font-semibold [overflow-wrap:anywhere] sm:text-lg">
               {data.name}
             </h2>
           </div>
@@ -62,8 +62,12 @@ export const CategoryCard: React.FC<Props> = ({
             })`,
           }}
         >
-          <h2 className="text-3xl font-bold sm:text-5xl">{data.name}</h2>
-          <p className="text-xs sm:text-lg">{data.descriptor}</p>
+          <h2 className="line-clamp-2 text-3xl leading-tight font-bold [overflow-wrap:anywhere] sm:text-5xl">
+            {data.name}
+          </h2>
+          <p className="line-clamp-2 text-xs leading-tight [overflow-wrap:anywhere] sm:text-lg">
+            {data.descriptor}
+          </p>
         </div>
       </div>
       {action?.(data)}

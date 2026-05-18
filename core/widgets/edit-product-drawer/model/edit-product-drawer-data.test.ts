@@ -1,9 +1,11 @@
 import {
   AttributeDtoDataType,
+  AttributeEnumValueDtoSource,
   ProductAttributeRefDtoDataType,
   ProductVariantDtoStatus,
   ProductWithDetailsDtoStatus,
   type AttributeDto,
+  type AttributeEnumValueDto,
   type ProductAttributeDto,
   type ProductTypeRefDto,
   type ProductVariantDto,
@@ -33,6 +35,26 @@ function attribute(overrides: Partial<AttributeDto> = {}): AttributeDto {
     createdAt: NOW,
     updatedAt: NOW,
     enumValues: [],
+    ...overrides,
+  };
+}
+
+function enumValue(
+  overrides: Partial<AttributeEnumValueDto> = {},
+): AttributeEnumValueDto {
+  return {
+    id: "m",
+    attributeId: "size",
+    catalogId: null,
+    value: "m",
+    displayName: "Medium",
+    displayOrder: 1,
+    businessId: null,
+    source: AttributeEnumValueDtoSource.MANUAL,
+    mergedIntoId: null,
+    aliases: [],
+    createdAt: NOW,
+    updatedAt: NOW,
     ...overrides,
   };
 }
@@ -197,6 +219,78 @@ describe("edit product drawer data", () => {
     ]);
   });
 
+  it("does not materialize hidden variant defaults but restores saved variants when capability returns", () => {
+    const sizeAttribute = attribute({
+      id: "size",
+      key: "size",
+      displayName: "Size",
+      dataType: AttributeDtoDataType.ENUM,
+      isVariantAttribute: true,
+      enumValues: [
+        enumValue({
+          id: "m",
+          attributeId: "size",
+          displayName: "Medium",
+        }),
+      ],
+    });
+    const sourceProduct = product({
+      productType: productType(),
+      variants: [
+        variant({
+          price: "1200",
+          stock: 4,
+          variantKey: "size=m",
+          attributes: [
+            {
+              id: "variant-attribute-1",
+              attributeId: "size",
+              enumValueId: "m",
+              attribute: {
+                id: "size",
+                key: "size",
+                displayName: "Size",
+                dataType: "ENUM",
+                isRequired: false,
+                isVariantAttribute: true,
+                isFilterable: false,
+                displayOrder: 1,
+                isHidden: false,
+              },
+              enumValue: {
+                id: "m",
+                value: "m",
+                displayName: "Medium",
+                displayOrder: 1,
+                businessId: null,
+              },
+            },
+          ],
+        }),
+      ],
+    });
+
+    expect(
+      buildEditProductFormValues(sourceProduct, [], []).variants,
+    ).toEqual(CREATE_PRODUCT_FORM_DEFAULT_VALUES.variants);
+
+    expect(
+      buildEditProductFormValues(sourceProduct, [], [sizeAttribute]).variants,
+    ).toMatchObject({
+      selectedAttributeIds: ["size"],
+      selectedValueIdsByAttributeId: {
+        size: ["m"],
+      },
+      combinations: {
+        "size=m": {
+          price: "1200",
+          status: "ACTIVE",
+          stock: 4,
+        },
+      },
+    });
+  });
+
   it("clears existing base sale units and removed attributes in update payload", () => {
     expect(
       parseEditProductUpdatePayload({
@@ -275,6 +369,125 @@ describe("edit product drawer data", () => {
     });
 
     expect(payload).toHaveProperty("productTypeId", "product-type-1");
+  });
+
+  it("replaces variant matrix in the same update payload when product type changes", () => {
+    const sizeAttribute = attribute({
+      id: "size",
+      key: "size",
+      displayName: "Size",
+      dataType: AttributeDtoDataType.ENUM,
+      isVariantAttribute: true,
+      enumValues: [
+        enumValue({
+          id: "s",
+          attributeId: "size",
+          value: "s",
+          displayName: "Small",
+        }),
+      ],
+    });
+
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1000",
+        productTypeId: "product-type-1",
+        saleUnits: [
+          {
+            catalogSaleUnitId: "box",
+            catalogSaleUnitName: "Box",
+            label: "Box",
+            baseQuantity: "12",
+            price: "950",
+            isDefault: true,
+          },
+        ],
+        variants: {
+          selectedAttributeIds: ["size"],
+          selectedValueIdsByAttributeId: {
+            size: ["s"],
+          },
+          combinations: {
+            "size=s": {
+              price: "1300",
+              status: "ACTIVE",
+              stock: 3,
+            },
+          },
+        },
+      },
+      mediaIds: [],
+      persistedAttributeValues: {},
+      product: product({
+        productType: null,
+        variants: [variant({ variantKey: "default" })],
+      }),
+      productAttributes: [],
+      variantAttributes: [sizeAttribute],
+      canUseProductTypes: true,
+      canUseCatalogSaleUnits: true,
+      canUseProductVariants: true,
+    });
+
+    expect(payload).toMatchObject({
+      productTypeId: "product-type-1",
+      variantMatrix: [
+        {
+          price: 1300,
+          status: "ACTIVE",
+          stock: 3,
+          attributes: [
+            {
+              attributeId: "size",
+              enumValueId: "s",
+            },
+          ],
+        },
+      ],
+    });
+    expect(payload).not.toHaveProperty("variants");
+  });
+
+  it("sends an empty variant matrix replacement when matrix editor is active", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1000",
+        saleUnits: [
+          {
+            catalogSaleUnitId: "box",
+            catalogSaleUnitName: "Box",
+            label: "Box",
+            baseQuantity: "12",
+            price: "950",
+            isDefault: true,
+          },
+        ],
+      },
+      mediaIds: [],
+      persistedAttributeValues: {},
+      product: product({
+        variants: [variant({ variantKey: "default" })],
+      }),
+      productAttributes: [],
+      variantAttributes: [
+        attribute({
+          id: "size",
+          key: "size",
+          displayName: "Size",
+          dataType: AttributeDtoDataType.ENUM,
+          isVariantAttribute: true,
+        }),
+      ],
+      canUseCatalogSaleUnits: true,
+      canUseProductVariants: true,
+    });
+
+    expect(payload).toHaveProperty("variantMatrix", []);
+    expect(payload).not.toHaveProperty("variants");
   });
 
   it("clears existing brand in update payload", () => {
@@ -384,5 +597,36 @@ describe("edit product drawer data", () => {
     });
 
     expect(payload).not.toHaveProperty("productTypeId");
+  });
+
+  it("does not clear product type when product type capability is disabled", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1000",
+        productTypeId: undefined,
+        attributes: {
+          material: "",
+        },
+      },
+      mediaIds: [],
+      persistedAttributeValues: {
+        material: "Old leather",
+      },
+      product: product({ productType: productType() }),
+      productAttributes: [
+        attribute({
+          id: "material",
+          key: "material",
+          typeIds: ["product-type-1"],
+        }),
+      ],
+      canUseProductTypes: false,
+      canUseCatalogSaleUnits: false,
+    });
+
+    expect(payload).not.toHaveProperty("productTypeId");
+    expect(payload.removeAttributeIds).toBeUndefined();
   });
 });

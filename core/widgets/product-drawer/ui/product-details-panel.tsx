@@ -9,6 +9,7 @@ import { ProductDrawerPrice } from "@/core/widgets/product-drawer/ui/product-dra
 import { ProductDrawerShareActions } from "@/core/widgets/product-drawer/ui/product-drawer-share-actions";
 import type { ProductUnavailableState } from "@/core/widgets/product-drawer/model/product-availability";
 import type { ProductDrawerAttributeRow } from "@/core/widgets/product-drawer/model/product-drawer-view";
+import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { PackageX } from "lucide-react";
 import React from "react";
@@ -20,7 +21,7 @@ interface ProductDetailsPanelProps {
   currency: string;
   description: string;
   displayName: string;
-  displayPrice: number;
+  displayPrice: number | null;
   discount: number;
   footerAction?: React.ReactNode;
   footerClassName?: string;
@@ -28,7 +29,8 @@ interface ProductDetailsPanelProps {
   hasError: boolean;
   imageUrls: string[];
   isLoading: boolean;
-  price: number;
+  price: number | null;
+  priceFormatMode: CatalogPriceFormatMode;
   resetKey: string;
   scrollAreaClassName?: string;
   ScrollAreaComponent?: React.ElementType<{
@@ -59,6 +61,7 @@ export function ProductDetailsPanel({
   imageUrls,
   isLoading,
   price,
+  priceFormatMode,
   resetKey,
   saleUnitPicker,
   scrollAreaClassName,
@@ -110,6 +113,7 @@ export function ProductDetailsPanel({
               description={description}
               hasError={hasError}
               isLoading={isLoading}
+              variantsSummary={variantsSummary}
             />
           </div>
 
@@ -119,7 +123,6 @@ export function ProductDetailsPanel({
           <ProductDrawerOverviewMeta
             attributeRows={attributeRows}
             isLoading={isLoading}
-            variantsSummary={variantsSummary}
           />
         </div>
       </ScrollArea>
@@ -137,6 +140,7 @@ export function ProductDetailsPanel({
           hasDiscount={hasDiscount}
           isLoading={isLoading}
           price={price}
+          priceFormatMode={priceFormatMode}
         />
         {footerAction}
       </div>

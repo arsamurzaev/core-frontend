@@ -6,7 +6,7 @@ export type VariantItemFormValue = {
   price?: string;
   saleUnits?: SaleUnitsFormValue;
   status: VariantStatus;
-  stock: number;
+  stock: number | null;
 };
 
 export type VariantCombinationFormValue = VariantItemFormValue;

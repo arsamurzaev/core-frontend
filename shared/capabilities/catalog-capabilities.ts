@@ -49,6 +49,12 @@ export type CatalogCapabilities = CatalogCapabilityFlags & {
   definitions: CatalogCapabilityDefinition[];
   items: CatalogCapabilityItem[];
 };
+export type CatalogBetaField =
+  | "internalInventory"
+  | "moyskladIntegration"
+  | "productTypes"
+  | "productVariants"
+  | "saleUnits";
 
 type CatalogFeaturesTransport = Omit<
   Partial<CatalogCurrentFeaturesDto>,
@@ -195,3 +201,58 @@ export function useCatalogCapabilities(): CatalogCapabilities {
 export const useCatalogFeatures = useCatalogCapabilities;
 export const resolveCatalogFeatures = resolveCatalogCapabilities;
 export type CatalogFeatureFlags = CatalogCapabilityFlags;
+
+export function canShowProductTypes(
+  capabilities: Pick<CatalogCapabilities, "canUseProductTypes">,
+): boolean {
+  return capabilities.canUseProductTypes;
+}
+
+export function canShowVariants(
+  capabilities: Pick<CatalogCapabilities, "canUseProductVariants">,
+): boolean {
+  return capabilities.canUseProductVariants;
+}
+
+export function canShowSaleUnits(
+  capabilities: Pick<CatalogCapabilities, "canUseCatalogSaleUnits">,
+): boolean {
+  return capabilities.canUseCatalogSaleUnits;
+}
+
+export function canUseInternalInventory(
+  capabilities: Pick<CatalogCapabilities, "canUseInternalInventory">,
+): boolean {
+  return capabilities.canUseInternalInventory;
+}
+
+export function canShowMoySklad(
+  capabilities: Pick<CatalogCapabilities, "canUseMoySkladIntegration">,
+): boolean {
+  return capabilities.canUseMoySkladIntegration;
+}
+
+export function canShowBetaField(
+  capabilities: Pick<
+    CatalogCapabilities,
+    | "canUseCatalogSaleUnits"
+    | "canUseInternalInventory"
+    | "canUseMoySkladIntegration"
+    | "canUseProductTypes"
+    | "canUseProductVariants"
+  >,
+  field: CatalogBetaField,
+): boolean {
+  switch (field) {
+    case "internalInventory":
+      return capabilities.canUseInternalInventory;
+    case "moyskladIntegration":
+      return capabilities.canUseMoySkladIntegration;
+    case "productTypes":
+      return capabilities.canUseProductTypes;
+    case "productVariants":
+      return capabilities.canUseProductVariants;
+    case "saleUnits":
+      return capabilities.canUseCatalogSaleUnits;
+  }
+}

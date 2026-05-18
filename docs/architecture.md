@@ -22,6 +22,21 @@ layer has a clear responsibility and import boundary.
 - `shared/api/generated`: generated API layer. Do not edit by hand.
   Hand-written adapters belong in `shared/lib/*` or `core/modules/*/model`.
 
+## Public Module Entrypoints
+
+New cross-layer imports should go through module public entrypoints:
+
+- `@/core/modules/browser`
+- `@/core/modules/cart`
+- `@/core/modules/category`
+- `@/core/modules/integration`
+- `@/core/modules/product`
+- `@/core/modules/product/editor`
+
+Existing deep imports from widgets and runtime code are treated as migration
+debt. The architecture test keeps the current debt from growing while the
+frontend is gradually moved to public entrypoints.
+
 ## Runtime
 
 Catalog-specific behavior goes through `core/catalog-runtime`.
@@ -44,6 +59,8 @@ facades and slots.
 - `core/catalog-runtime/extensions/**` must not import `sandbox/**`.
 - `shared/api/generated/**` must not import `app/**`, `core/**`, or
   `sandbox/**`.
+- `app/**`, `core/widgets/**`, `core/views/**`, and `core/catalog-runtime/**`
+  should prefer module public entrypoints over deep module imports.
 - App routes should prefer `core/catalog-runtime/ui` for runtime-aware
   storefront composition.
 
@@ -61,4 +78,10 @@ rg '@/app|@/core|@/sandbox' shared/api/generated
 bun run test:run
 bun run lint
 bun run build
+```
+
+For a deploy-oriented check, use:
+
+```bash
+bun run prod:check
 ```

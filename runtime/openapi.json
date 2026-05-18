@@ -444,6 +444,265 @@
         ]
       }
     },
+    "/admin/domain-events/outbox": {
+      "get": {
+        "operationId": "AdminController_getDomainEventOutbox",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PROCESSING",
+                "PROCESSED",
+                "FAILED"
+              ]
+            }
+          },
+          {
+            "name": "catalogId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "aggregateType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "aggregateId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 200,
+              "default": 50,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDomainEventOutboxListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "List domain event outbox rows",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/domain-events/outbox/stats": {
+      "get": {
+        "operationId": "AdminController_getDomainEventOutboxStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDomainEventOutboxStatsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get domain event outbox status counters",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/domain-events/outbox/{id}/retry": {
+      "post": {
+        "operationId": "AdminController_retryDomainEventOutboxItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDomainEventOutboxActionResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Retry one pending or failed domain event",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/domain-events/outbox/retry-failed": {
+      "post": {
+        "operationId": "AdminController_retryFailedDomainEvents",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRetryFailedDomainEventsDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDomainEventOutboxActionResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Retry failed domain events by optional filters",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/domain-events/outbox/drain": {
+      "post": {
+        "operationId": "AdminController_drainDomainEventOutbox",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDrainDomainEventOutboxDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDomainEventOutboxActionResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Manually drain pending/failed domain events",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/domain-events/outbox/cleanup": {
+      "post": {
+        "operationId": "AdminController_cleanupDomainEventOutbox",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCleanupDomainEventOutboxDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDomainEventOutboxCleanupResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Delete old processed domain events",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
     "/admin/catalogs": {
       "get": {
         "operationId": "AdminController_getCatalogs",
@@ -707,6 +966,122 @@
           }
         ],
         "summary": "Удалить каталог через soft-delete",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/catalogs/{id}/features": {
+      "get": {
+        "operationId": "AdminController_getCatalogFeatureEntitlements",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCatalogFeatureEntitlementsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get catalog feature entitlements",
+        "tags": [
+          "Admin"
+        ]
+      },
+      "patch": {
+        "operationId": "AdminController_updateCatalogFeatureEntitlement",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateCatalogFeatureEntitlementDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCatalogFeatureEntitlementsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Enable or disable a catalog feature entitlement",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/catalogs/{id}/integrations/moysklad/stock-diagnostics": {
+      "get": {
+        "operationId": "AdminController_getCatalogMoySkladStockDiagnostics",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMoySkladStockDiagnosticsReportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get MoySklad stock sync diagnostics for catalog",
         "tags": [
           "Admin"
         ]
@@ -2932,6 +3307,42 @@
         ]
       }
     },
+    "/catalog/current/advanced-settings/integrations/moysklad/runs/{runId}/progress": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_getMoySkladRunProgress",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoySkladSyncProgressDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get advanced settings MoySklad sync progress",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
     "/catalog/current/advanced-settings/integrations/moysklad/order-export-refs": {
       "get": {
         "operationId": "CatalogAdvancedSettingsController_getMoySkladOrderExportRefs",
@@ -3664,6 +4075,42 @@
         ]
       }
     },
+    "/integration/moysklad/runs/{runId}/progress": {
+      "get": {
+        "operationId": "IntegrationController_getMoySkladRunProgress",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoySkladSyncProgressDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Получить прогресс sync MoySklad",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
     "/integration/moysklad/order-exports": {
       "get": {
         "operationId": "IntegrationController_getMoySkladOrderExports",
@@ -3948,6 +4395,46 @@
         ]
       }
     },
+    "/integration/webhooks/moysklad/stock/{integrationId}/{secret}": {
+      "post": {
+        "operationId": "IntegrationController_receiveMoySkladStockWebhook",
+        "parameters": [
+          {
+            "name": "integrationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "secret",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requestId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Receive MoySklad stock webhook",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
     "/integration/moysklad/order-exports/{id}/retry": {
       "post": {
         "operationId": "IntegrationController_retryMoySkladOrderExport",
@@ -3982,625 +4469,6 @@
         "summary": "Повторно поставить экспорт заказа MoySklad в очередь",
         "tags": [
           "Integration"
-        ]
-      }
-    },
-    "/catalog-sale-unit": {
-      "get": {
-        "operationId": "CatalogSaleUnitController_getAll",
-        "parameters": [
-          {
-            "name": "includeArchived",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogSaleUnitDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "summary": "List current catalog sale units",
-        "tags": [
-          "CatalogSaleUnit"
-        ]
-      },
-      "post": {
-        "operationId": "CatalogSaleUnitController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCatalogSaleUnitDtoReq"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Create current catalog sale unit",
-        "tags": [
-          "CatalogSaleUnit"
-        ]
-      }
-    },
-    "/catalog-sale-unit/{id}": {
-      "get": {
-        "operationId": "CatalogSaleUnitController_getById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Catalog sale unit ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Sale unit not found"
-          }
-        },
-        "summary": "Get current catalog sale unit",
-        "tags": [
-          "CatalogSaleUnit"
-        ]
-      },
-      "patch": {
-        "operationId": "CatalogSaleUnitController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Catalog sale unit ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCatalogSaleUnitDtoReq"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Sale unit not found"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Update current catalog sale unit",
-        "tags": [
-          "CatalogSaleUnit"
-        ]
-      },
-      "delete": {
-        "operationId": "CatalogSaleUnitController_archive",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Catalog sale unit ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OkResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Sale unit not found"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Archive current catalog sale unit",
-        "tags": [
-          "CatalogSaleUnit"
-        ]
-      }
-    },
-    "/category": {
-      "get": {
-        "operationId": "CategoryController_getAll",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Список категорий",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CategoryDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "summary": "List categories",
-        "tags": [
-          "Category"
-        ]
-      },
-      "post": {
-        "operationId": "CategoryController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCategoryDtoReq"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Категория создана",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CategoryDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ошибка валидации"
-          },
-          "403": {
-            "description": "Доступ запрещён"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Create category",
-        "tags": [
-          "Category"
-        ]
-      }
-    },
-    "/category/{id}": {
-      "get": {
-        "operationId": "CategoryController_getById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID категории",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Детали категории",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CategoryWithRelationsDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Категория не найдена"
-          }
-        },
-        "summary": "Get category by id",
-        "tags": [
-          "Category"
-        ]
-      },
-      "patch": {
-        "operationId": "CategoryController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID категории",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCategoryDtoReq"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Категория обновлена",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CategoryWithRelationsDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ошибка валидации"
-          },
-          "403": {
-            "description": "Доступ запрещён"
-          },
-          "404": {
-            "description": "Категория не найдена"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Update category",
-        "tags": [
-          "Category"
-        ]
-      },
-      "delete": {
-        "operationId": "CategoryController_remove",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID категории",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Категория удалена",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OkResponseDto"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Доступ запрещён"
-          },
-          "404": {
-            "description": "Категория не найдена"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Delete category",
-        "tags": [
-          "Category"
-        ]
-      }
-    },
-    "/category/{id}/products/infinite": {
-      "get": {
-        "description": "Для media.variants внутри product.media возвращается только variant с назначением card.",
-        "operationId": "CategoryController_getProductsByCategory",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID категории",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cursor",
-            "required": false,
-            "in": "query",
-            "description": "Курсор из предыдущего ответа (opaque)",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Размер страницы (1-50)",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 50,
-              "default": 24
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Страница товаров категории",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CategoryProductsPageDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Категория не найдена"
-          }
-        },
-        "summary": "List category products (infinite)",
-        "tags": [
-          "Category"
-        ]
-      }
-    },
-    "/category/{id}/products/cards/infinite": {
-      "get": {
-        "description": "Возвращает карточки товаров категории с productAttributes, но без variants.",
-        "operationId": "CategoryController_getProductCardsByCategory",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID категории",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cursor",
-            "required": false,
-            "in": "query",
-            "description": "Курсор из предыдущего ответа (opaque)",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Размер страницы (1-50)",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 50,
-              "default": 24
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Страница карточек товаров категории",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CategoryProductsCardPageDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Категория не найдена"
-          }
-        },
-        "summary": "List category product cards (infinite)",
-        "tags": [
-          "Category"
-        ]
-      }
-    },
-    "/category/positions": {
-      "patch": {
-        "description": "Принимает итоговый порядок категорий и атомарно пересобирает позиции без цепочки относительных перемещений.",
-        "operationId": "CategoryController_updatePositions",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCategoryPositionsDtoReq"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Порядок категорий обновлён",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CategoryDto"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ошибка валидации"
-          },
-          "403": {
-            "description": "Доступ запрещён"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Сохранить порядок категорий",
-        "tags": [
-          "Category"
-        ]
-      }
-    },
-    "/category/{id}/position": {
-      "patch": {
-        "description": "Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.",
-        "operationId": "CategoryController_updatePosition",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID категории",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCategoryPositionDtoReq"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Позиция категории обновлена",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CategoryWithRelationsDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Ошибка валидации"
-          },
-          "403": {
-            "description": "Доступ запрещён"
-          },
-          "404": {
-            "description": "Категория не найдена"
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Изменить позицию категории",
-        "tags": [
-          "Category"
         ]
       }
     },
@@ -5234,6 +5102,44 @@
         ]
       }
     },
+    "/product/maintenance/default-variants/diagnostics": {
+      "get": {
+        "description": "Read-only diagnostics for missing default variants, multiple defaults, malformed matrix variants and legacy price mismatches.",
+        "operationId": "ProductController_diagnoseDefaultVariants",
+        "parameters": [
+          {
+            "name": "sampleLimit",
+            "required": false,
+            "in": "query",
+            "description": "Max samples per diagnostic check, default 10, max 100.",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDefaultVariantDiagnosticsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Diagnose technical default variant consistency for current catalog",
+        "tags": [
+          "Товар"
+        ]
+      }
+    },
     "/product/slug/{slug}": {
       "get": {
         "description": "В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.",
@@ -5414,6 +5320,72 @@
           }
         ],
         "summary": "Дублировать товар",
+        "tags": [
+          "Товар"
+        ]
+      }
+    },
+    "/product/maintenance/default-variants/repair": {
+      "post": {
+        "description": "Creates or restores a technical default variant only for legacy simple products that do not have real custom variants.",
+        "operationId": "ProductController_repairMissingDefaultVariants",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDefaultVariantRepairResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Repair missing technical default variants for current catalog",
+        "tags": [
+          "Товар"
+        ]
+      }
+    },
+    "/product/maintenance/default-variants/price-mismatches/repair": {
+      "post": {
+        "description": "Dry-run by default. With apply=true copies the technical default variant price into legacy Product.price only for safe simple products with exactly one clean default variant and no custom variants.",
+        "operationId": "ProductController_repairDefaultVariantPriceMismatches",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairDefaultVariantPriceMismatchDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDefaultVariantPriceMismatchRepairResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Repair legacy product price mirror from technical default variants",
         "tags": [
           "Товар"
         ]
@@ -5730,6 +5702,625 @@
         "summary": "Создать/заменить матрицу вариаций товара",
         "tags": [
           "Товар"
+        ]
+      }
+    },
+    "/catalog-sale-unit": {
+      "get": {
+        "operationId": "CatalogSaleUnitController_getAll",
+        "parameters": [
+          {
+            "name": "includeArchived",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List current catalog sale units",
+        "tags": [
+          "CatalogSaleUnit"
+        ]
+      },
+      "post": {
+        "operationId": "CatalogSaleUnitController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCatalogSaleUnitDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create current catalog sale unit",
+        "tags": [
+          "CatalogSaleUnit"
+        ]
+      }
+    },
+    "/catalog-sale-unit/{id}": {
+      "get": {
+        "operationId": "CatalogSaleUnitController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Catalog sale unit ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sale unit not found"
+          }
+        },
+        "summary": "Get current catalog sale unit",
+        "tags": [
+          "CatalogSaleUnit"
+        ]
+      },
+      "patch": {
+        "operationId": "CatalogSaleUnitController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Catalog sale unit ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCatalogSaleUnitDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Sale unit not found"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update current catalog sale unit",
+        "tags": [
+          "CatalogSaleUnit"
+        ]
+      },
+      "delete": {
+        "operationId": "CatalogSaleUnitController_archive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Catalog sale unit ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Sale unit not found"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Archive current catalog sale unit",
+        "tags": [
+          "CatalogSaleUnit"
+        ]
+      }
+    },
+    "/category": {
+      "get": {
+        "operationId": "CategoryController_getAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Список категорий",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List categories",
+        "tags": [
+          "Category"
+        ]
+      },
+      "post": {
+        "operationId": "CategoryController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Категория создана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещён"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create category",
+        "tags": [
+          "Category"
+        ]
+      }
+    },
+    "/category/{id}": {
+      "get": {
+        "operationId": "CategoryController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID категории",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Детали категории",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryWithRelationsDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "summary": "Get category by id",
+        "tags": [
+          "Category"
+        ]
+      },
+      "patch": {
+        "operationId": "CategoryController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID категории",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Категория обновлена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryWithRelationsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещён"
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update category",
+        "tags": [
+          "Category"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoryController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID категории",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Категория удалена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещён"
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Delete category",
+        "tags": [
+          "Category"
+        ]
+      }
+    },
+    "/category/{id}/products/infinite": {
+      "get": {
+        "description": "Для media.variants внутри product.media возвращается только variant с назначением card.",
+        "operationId": "CategoryController_getProductsByCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID категории",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Курсор из предыдущего ответа (opaque)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Размер страницы (1-50)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Страница товаров категории",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryProductsPageDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "summary": "List category products (infinite)",
+        "tags": [
+          "Category"
+        ]
+      }
+    },
+    "/category/{id}/products/cards/infinite": {
+      "get": {
+        "description": "Возвращает карточки товаров категории с productAttributes, но без variants.",
+        "operationId": "CategoryController_getProductCardsByCategory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID категории",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Курсор из предыдущего ответа (opaque)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Размер страницы (1-50)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 24
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Страница карточек товаров категории",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryProductsCardPageDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "summary": "List category product cards (infinite)",
+        "tags": [
+          "Category"
+        ]
+      }
+    },
+    "/category/positions": {
+      "patch": {
+        "description": "Принимает итоговый порядок категорий и атомарно пересобирает позиции без цепочки относительных перемещений.",
+        "operationId": "CategoryController_updatePositions",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryPositionsDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Порядок категорий обновлён",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещён"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Сохранить порядок категорий",
+        "tags": [
+          "Category"
+        ]
+      }
+    },
+    "/category/{id}/position": {
+      "patch": {
+        "description": "Меняет позицию категории среди соседних категорий и пересобирает порядок без пропусков.",
+        "operationId": "CategoryController_updatePosition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID категории",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryPositionDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Позиция категории обновлена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryWithRelationsDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещён"
+          },
+          "404": {
+            "description": "Категория не найдена"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Изменить позицию категории",
+        "tags": [
+          "Category"
         ]
       }
     },
@@ -7696,6 +8287,300 @@
           "sessions"
         ]
       },
+      "AdminDomainEventOutboxCatalogDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "name"
+        ]
+      },
+      "AdminDomainEventOutboxItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "aggregateType": {
+            "type": "string",
+            "nullable": true
+          },
+          "aggregateId": {
+            "type": "string",
+            "nullable": true
+          },
+          "catalogId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "catalog": {
+            "$ref": "#/components/schemas/AdminDomainEventOutboxCatalogDto"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PROCESSING",
+              "PROCESSED",
+              "FAILED"
+            ]
+          },
+          "attempts": {
+            "type": "number"
+          },
+          "lastError": {
+            "type": "string",
+            "nullable": true
+          },
+          "lockedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "eventType",
+          "catalogId",
+          "catalog",
+          "status",
+          "attempts",
+          "occurredAt",
+          "createdAt",
+          "updatedAt",
+          "payload"
+        ]
+      },
+      "AdminDomainEventOutboxListDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminDomainEventOutboxItemDto"
+            }
+          }
+        },
+        "required": [
+          "total",
+          "limit",
+          "items"
+        ]
+      },
+      "AdminDomainEventOutboxStatusCountsDto": {
+        "type": "object",
+        "properties": {
+          "PENDING": {
+            "type": "number"
+          },
+          "PROCESSING": {
+            "type": "number"
+          },
+          "PROCESSED": {
+            "type": "number"
+          },
+          "FAILED": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "PENDING",
+          "PROCESSING",
+          "PROCESSED",
+          "FAILED"
+        ]
+      },
+      "AdminDomainEventOutboxStatsDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "byStatus": {
+            "$ref": "#/components/schemas/AdminDomainEventOutboxStatusCountsDto"
+          },
+          "oldestPendingAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "newestFailedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "failedWithLastError": {
+            "type": "number"
+          },
+          "processedRetentionDays": {
+            "type": "number"
+          },
+          "processedRetentionCutoff": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processedOlderThanRetention": {
+            "type": "number"
+          },
+          "failedOlderThan1Day": {
+            "type": "number"
+          },
+          "failedOlderThan7Days": {
+            "type": "number"
+          },
+          "failedOlderThan30Days": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "byStatus",
+          "failedWithLastError",
+          "processedRetentionDays",
+          "processedRetentionCutoff",
+          "processedOlderThanRetention",
+          "failedOlderThan1Day",
+          "failedOlderThan7Days",
+          "failedOlderThan30Days"
+        ]
+      },
+      "AdminDomainEventOutboxActionResultDto": {
+        "type": "object",
+        "properties": {
+          "processed": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          },
+          "matched": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "processed",
+          "failed",
+          "skipped"
+        ]
+      },
+      "AdminRetryFailedDomainEventsDtoReq": {
+        "type": "object",
+        "properties": {
+          "catalogId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "default": 50,
+            "maximum": 500
+          }
+        }
+      },
+      "AdminDrainDomainEventOutboxDtoReq": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "default": 100,
+            "maximum": 500
+          },
+          "maxAttempts": {
+            "type": "number",
+            "default": 5,
+            "maximum": 50
+          },
+          "staleProcessingMs": {
+            "type": "number",
+            "default": 300000
+          }
+        }
+      },
+      "AdminCleanupDomainEventOutboxDtoReq": {
+        "type": "object",
+        "properties": {
+          "retentionDays": {
+            "type": "number",
+            "default": 30
+          },
+          "limit": {
+            "type": "number",
+            "default": 5000,
+            "maximum": 50000
+          }
+        }
+      },
+      "AdminDomainEventOutboxCleanupResultDto": {
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "number"
+          },
+          "retentionDays": {
+            "type": "number"
+          },
+          "cutoff": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "deleted",
+          "retentionDays",
+          "cutoff",
+          "limit"
+        ]
+      },
       "AdminCatalogConfigListItemDto": {
         "type": "object",
         "properties": {
@@ -7719,15 +8604,35 @@
               "INTERNAL"
             ]
           },
+          "canUseProductTypes": {
+            "type": "boolean",
+            "description": "Whether the catalog can use product type schemas."
+          },
+          "canUseProductVariants": {
+            "type": "boolean",
+            "description": "Whether the catalog can use product variants."
+          },
+          "canUseCatalogSaleUnits": {
+            "type": "boolean",
+            "description": "Whether the catalog can use catalog sale units."
+          },
           "canUseInternalInventory": {
             "type": "boolean",
             "description": "Whether the catalog can use the paid internal inventory feature."
+          },
+          "canUseMoySkladIntegration": {
+            "type": "boolean",
+            "description": "Whether the catalog can use MoySklad integration."
           }
         },
         "required": [
           "status",
           "inventoryMode",
-          "canUseInternalInventory"
+          "canUseProductTypes",
+          "canUseProductVariants",
+          "canUseCatalogSaleUnits",
+          "canUseInternalInventory",
+          "canUseMoySkladIntegration"
         ]
       },
       "AdminDeleteInfoDto": {
@@ -8308,6 +9213,406 @@
             "description": "Trial license duration in days from now."
           }
         }
+      },
+      "AdminCatalogFeatureEntitlementItemDto": {
+        "type": "object",
+        "properties": {
+          "feature": {
+            "type": "string",
+            "enum": [
+              "product.types",
+              "product.variants",
+              "catalog.sale_units",
+              "inventory.internal",
+              "integration.moysklad"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "feature",
+          "enabled",
+          "expiresAt",
+          "metadata"
+        ]
+      },
+      "AdminCatalogFeatureEntitlementsDto": {
+        "type": "object",
+        "properties": {
+          "catalogId": {
+            "type": "string"
+          },
+          "definitions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "raw": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "Raw admin entitlements before dependency resolution."
+          },
+          "effective": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "Effective capabilities after dependency resolution."
+          },
+          "items": {
+            "description": "Per-capability state with disabled reasons.",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCatalogFeatureEntitlementItemDto"
+            }
+          }
+        },
+        "required": [
+          "catalogId",
+          "definitions",
+          "raw",
+          "effective",
+          "items",
+          "features"
+        ]
+      },
+      "AdminMoySkladSkippedReasonCountDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "reason",
+          "count"
+        ]
+      },
+      "AdminMoySkladStockLinkCountersDto": {
+        "type": "object",
+        "properties": {
+          "productLinks": {
+            "type": "number"
+          },
+          "variantLinks": {
+            "type": "number"
+          },
+          "productLinksWithStockSync": {
+            "type": "number"
+          },
+          "variantLinksWithStockSync": {
+            "type": "number"
+          },
+          "productLinksMissing": {
+            "type": "number"
+          },
+          "variantLinksMissing": {
+            "type": "number"
+          },
+          "productLinksWithErrors": {
+            "type": "number"
+          },
+          "variantLinksWithErrors": {
+            "type": "number"
+          },
+          "productSkippedReasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminMoySkladSkippedReasonCountDto"
+            }
+          },
+          "variantSkippedReasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminMoySkladSkippedReasonCountDto"
+            }
+          }
+        },
+        "required": [
+          "productLinks",
+          "variantLinks",
+          "productLinksWithStockSync",
+          "variantLinksWithStockSync",
+          "productLinksMissing",
+          "variantLinksMissing",
+          "productLinksWithErrors",
+          "variantLinksWithErrors",
+          "productSkippedReasons",
+          "variantSkippedReasons"
+        ]
+      },
+      "AdminMoySkladStockSkippedReasonsDto": {
+        "type": "object",
+        "properties": {
+          "missingStock": {
+            "type": "number"
+          },
+          "productHasVariantLinks": {
+            "type": "number"
+          },
+          "variantsCapabilityDisabled": {
+            "type": "number"
+          },
+          "stockRowWithoutLocalLink": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "missingStock",
+          "productHasVariantLinks",
+          "variantsCapabilityDisabled",
+          "stockRowWithoutLocalLink"
+        ]
+      },
+      "AdminMoySkladStockDiagnosticsDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "FULL_SYNC",
+              "WEBHOOK"
+            ]
+          },
+          "stockRows": {
+            "type": "number"
+          },
+          "matchedStockRows": {
+            "type": "number"
+          },
+          "unmatchedStockRows": {
+            "type": "number"
+          },
+          "productLinks": {
+            "type": "number"
+          },
+          "variantLinks": {
+            "type": "number"
+          },
+          "ignoredVariantLinks": {
+            "type": "number"
+          },
+          "appliedProductLinks": {
+            "type": "number"
+          },
+          "appliedVariantLinks": {
+            "type": "number"
+          },
+          "skippedReasons": {
+            "$ref": "#/components/schemas/AdminMoySkladStockSkippedReasonsDto"
+          }
+        },
+        "required": [
+          "source",
+          "stockRows",
+          "matchedStockRows",
+          "unmatchedStockRows",
+          "productLinks",
+          "variantLinks",
+          "ignoredVariantLinks",
+          "appliedProductLinks",
+          "appliedVariantLinks",
+          "skippedReasons"
+        ]
+      },
+      "AdminMoySkladStockLatestRunDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "SCHEDULED",
+              "WEBHOOK"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCESS",
+              "ERROR",
+              "SKIPPED"
+            ]
+          },
+          "snapshotCompleteness": {
+            "type": "string",
+            "enum": [
+              "FULL_COMPLETE",
+              "PARTIAL",
+              "WEBHOOK_DELTA",
+              "FAILED_BEFORE_SNAPSHOT"
+            ]
+          },
+          "totalRows": {
+            "type": "number"
+          },
+          "appliedRows": {
+            "type": "number"
+          },
+          "skippedRows": {
+            "type": "number"
+          },
+          "diagnostics": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminMoySkladStockDiagnosticsDto"
+              }
+            ]
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "trigger",
+          "status",
+          "snapshotCompleteness",
+          "totalRows",
+          "appliedRows",
+          "skippedRows",
+          "diagnostics",
+          "error",
+          "requestedAt",
+          "startedAt",
+          "finishedAt"
+        ]
+      },
+      "AdminMoySkladStockDiagnosticsReportDto": {
+        "type": "object",
+        "properties": {
+          "catalogId": {
+            "type": "string"
+          },
+          "integrationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasIntegration": {
+            "type": "boolean"
+          },
+          "integrationActive": {
+            "type": "boolean"
+          },
+          "syncStockEnabled": {
+            "type": "boolean"
+          },
+          "stockFieldOwnedByMoySklad": {
+            "type": "boolean"
+          },
+          "stockWebhookEnabled": {
+            "type": "boolean"
+          },
+          "stockWebhookRegistered": {
+            "type": "boolean"
+          },
+          "lastStockSyncedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "links": {
+            "$ref": "#/components/schemas/AdminMoySkladStockLinkCountersDto"
+          },
+          "latestRun": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminMoySkladStockLatestRunDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "catalogId",
+          "integrationId",
+          "hasIntegration",
+          "integrationActive",
+          "syncStockEnabled",
+          "stockFieldOwnedByMoySklad",
+          "stockWebhookEnabled",
+          "stockWebhookRegistered",
+          "lastStockSyncedAt",
+          "links",
+          "latestRun"
+        ]
+      },
+      "AdminUpdateCatalogFeatureEntitlementDtoReq": {
+        "type": "object",
+        "properties": {
+          "feature": {
+            "type": "string",
+            "enum": [
+              "product.types",
+              "product.variants",
+              "catalog.sale_units",
+              "inventory.internal",
+              "integration.moysklad"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When omitted the entitlement does not expire."
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "description": "Optional admin metadata for audit/support context."
+          }
+        },
+        "required": [
+          "feature",
+          "enabled"
+        ]
       },
       "AdminDeleteCatalogContentCountsDto": {
         "type": "object",
@@ -9849,6 +11154,85 @@
           "webhook"
         ]
       },
+      "MoySkladFieldOwnershipDto": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "stock": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "images": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          }
+        },
+        "required": [
+          "price",
+          "stock",
+          "content",
+          "images"
+        ]
+      },
+      "MoySkladStockWebhookDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "registered": {
+            "type": "boolean"
+          },
+          "reportType": {
+            "type": "string"
+          },
+          "stockType": {
+            "type": "string"
+          },
+          "lastReceivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastProcessedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastError": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "enabled",
+          "registered",
+          "reportType",
+          "stockType",
+          "lastReceivedAt",
+          "lastProcessedAt",
+          "lastError"
+        ]
+      },
       "MoySkladIntegrationDto": {
         "type": "object",
         "properties": {
@@ -9879,6 +11263,12 @@
           },
           "syncStock": {
             "type": "boolean"
+          },
+          "fieldOwnership": {
+            "$ref": "#/components/schemas/MoySkladFieldOwnershipDto"
+          },
+          "stockWebhook": {
+            "$ref": "#/components/schemas/MoySkladStockWebhookDto"
           },
           "exportOrders": {
             "type": "boolean"
@@ -9963,6 +11353,8 @@
           "priceTypeName",
           "importImages",
           "syncStock",
+          "fieldOwnership",
+          "stockWebhook",
           "exportOrders",
           "orderExportOrganizationId",
           "orderExportCounterpartyId",
@@ -10010,6 +11402,80 @@
           "skipped"
         ]
       },
+      "MoySkladSyncStockSkippedReasonsDto": {
+        "type": "object",
+        "properties": {
+          "missingStock": {
+            "type": "number"
+          },
+          "productHasVariantLinks": {
+            "type": "number"
+          },
+          "variantsCapabilityDisabled": {
+            "type": "number"
+          },
+          "stockRowWithoutLocalLink": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "missingStock",
+          "productHasVariantLinks",
+          "variantsCapabilityDisabled",
+          "stockRowWithoutLocalLink"
+        ]
+      },
+      "MoySkladSyncStockDiagnosticsDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "FULL_SYNC",
+              "WEBHOOK"
+            ]
+          },
+          "stockRows": {
+            "type": "number"
+          },
+          "matchedStockRows": {
+            "type": "number"
+          },
+          "unmatchedStockRows": {
+            "type": "number"
+          },
+          "productLinks": {
+            "type": "number"
+          },
+          "variantLinks": {
+            "type": "number"
+          },
+          "ignoredVariantLinks": {
+            "type": "number"
+          },
+          "appliedProductLinks": {
+            "type": "number"
+          },
+          "appliedVariantLinks": {
+            "type": "number"
+          },
+          "skippedReasons": {
+            "$ref": "#/components/schemas/MoySkladSyncStockSkippedReasonsDto"
+          }
+        },
+        "required": [
+          "source",
+          "stockRows",
+          "matchedStockRows",
+          "unmatchedStockRows",
+          "productLinks",
+          "variantLinks",
+          "ignoredVariantLinks",
+          "appliedProductLinks",
+          "appliedVariantLinks",
+          "skippedReasons"
+        ]
+      },
       "MoySkladSyncStockStatsDto": {
         "type": "object",
         "properties": {
@@ -10021,12 +11487,21 @@
           },
           "skipped": {
             "type": "number"
+          },
+          "diagnostics": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MoySkladSyncStockDiagnosticsDto"
+              }
+            ]
           }
         },
         "required": [
           "total",
           "applied",
-          "skipped"
+          "skipped",
+          "diagnostics"
         ]
       },
       "MoySkladSyncIssueDto": {
@@ -10054,6 +11529,67 @@
           "count"
         ]
       },
+      "MoySkladSyncProgressDto": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCESS",
+              "ERROR",
+              "SKIPPED"
+            ]
+          },
+          "phase": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "processed": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number",
+            "nullable": true
+          },
+          "percent": {
+            "type": "number",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "runId",
+          "status",
+          "phase",
+          "message",
+          "processed",
+          "total",
+          "percent",
+          "updatedAt",
+          "startedAt",
+          "finishedAt"
+        ]
+      },
       "MoySkladSyncRunDto": {
         "type": "object",
         "properties": {
@@ -10078,7 +11614,8 @@
             "type": "string",
             "enum": [
               "MANUAL",
-              "SCHEDULED"
+              "SCHEDULED",
+              "WEBHOOK"
             ]
           },
           "status": {
@@ -10089,6 +11626,15 @@
               "SUCCESS",
               "ERROR",
               "SKIPPED"
+            ]
+          },
+          "snapshotCompleteness": {
+            "type": "string",
+            "enum": [
+              "FULL_COMPLETE",
+              "PARTIAL",
+              "WEBHOOK_DELTA",
+              "FAILED_BEFORE_SNAPSHOT"
             ]
           },
           "jobId": {
@@ -10143,6 +11689,14 @@
               "$ref": "#/components/schemas/MoySkladSyncIssueDto"
             }
           },
+          "progress": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MoySkladSyncProgressDto"
+              }
+            ]
+          },
           "durationMs": {
             "type": "number",
             "nullable": true
@@ -10176,6 +11730,7 @@
           "mode",
           "trigger",
           "status",
+          "snapshotCompleteness",
           "jobId",
           "productId",
           "externalId",
@@ -10190,6 +11745,7 @@
           "stockRows",
           "warnings",
           "errors",
+          "progress",
           "durationMs",
           "requestedAt",
           "startedAt",
@@ -10293,6 +11849,39 @@
           "stores"
         ]
       },
+      "MoySkladFieldOwnershipDtoReq": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "stock": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "images": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          }
+        }
+      },
       "UpsertMoySkladIntegrationDtoReq": {
         "type": "object",
         "properties": {
@@ -10315,6 +11904,13 @@
           "syncStock": {
             "type": "boolean",
             "example": true
+          },
+          "fieldOwnership": {
+            "$ref": "#/components/schemas/MoySkladFieldOwnershipDtoReq"
+          },
+          "stockWebhookEnabled": {
+            "type": "boolean",
+            "example": false
           },
           "exportOrders": {
             "type": "boolean",
@@ -10354,6 +11950,39 @@
           "token"
         ]
       },
+      "UpdateMoySkladFieldOwnershipDtoReq": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "stock": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          },
+          "images": {
+            "type": "string",
+            "enum": [
+              "external",
+              "local"
+            ]
+          }
+        }
+      },
       "UpdateMoySkladIntegrationDtoReq": {
         "type": "object",
         "properties": {
@@ -10376,6 +12005,13 @@
           "syncStock": {
             "type": "boolean",
             "example": true
+          },
+          "fieldOwnership": {
+            "$ref": "#/components/schemas/UpdateMoySkladFieldOwnershipDtoReq"
+          },
+          "stockWebhookEnabled": {
+            "type": "boolean",
+            "example": false
           },
           "exportOrders": {
             "type": "boolean",
@@ -10459,7 +12095,8 @@
             "type": "string",
             "enum": [
               "MANUAL",
-              "SCHEDULED"
+              "SCHEDULED",
+              "WEBHOOK"
             ]
           }
         },
@@ -10652,6 +12289,79 @@
           "provider",
           "scope",
           "counterId"
+        ]
+      },
+      "CatalogCurrentFeaturesDto": {
+        "type": "object",
+        "properties": {
+          "inventoryMode": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "EXTERNAL",
+              "INTERNAL"
+            ]
+          },
+          "canUseProductTypes": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use product type schemas."
+          },
+          "canUseProductVariants": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use product variants."
+          },
+          "canUseCatalogSaleUnits": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use catalog sale units."
+          },
+          "canUseInternalInventory": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use the paid internal inventory feature."
+          },
+          "canUseMoySkladIntegration": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use MoySklad integration."
+          },
+          "raw": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "Raw admin entitlements before dependency resolution."
+          },
+          "effective": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "Effective capabilities after dependency resolution."
+          },
+          "definitions": {
+            "description": "Capability definitions for UI and admin surfaces.",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "items": {
+            "description": "Per-capability state with disabled reasons.",
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "inventoryMode",
+          "canUseProductTypes",
+          "canUseProductVariants",
+          "canUseCatalogSaleUnits",
+          "canUseInternalInventory",
+          "canUseMoySkladIntegration",
+          "raw",
+          "effective",
+          "definitions",
+          "items"
         ]
       },
       "CatalogContactDto": {
@@ -10986,6 +12696,9 @@
               "$ref": "#/components/schemas/CatalogMetricDto"
             }
           },
+          "features": {
+            "$ref": "#/components/schemas/CatalogCurrentFeaturesDto"
+          },
           "contacts": {
             "type": "array",
             "items": {
@@ -11015,6 +12728,7 @@
           "config",
           "settings",
           "metrics",
+          "features",
           "contacts",
           "seo",
           "type"
@@ -11087,6 +12801,9 @@
               "$ref": "#/components/schemas/CatalogMetricDto"
             }
           },
+          "features": {
+            "$ref": "#/components/schemas/CatalogCurrentFeaturesDto"
+          },
           "contacts": {
             "type": "array",
             "items": {
@@ -11113,29 +12830,9 @@
           "config",
           "settings",
           "metrics",
+          "features",
           "contacts",
           "seo"
-        ]
-      },
-      "CatalogCurrentFeaturesDto": {
-        "type": "object",
-        "properties": {
-          "inventoryMode": {
-            "type": "string",
-            "enum": [
-              "NONE",
-              "EXTERNAL",
-              "INTERNAL"
-            ]
-          },
-          "canUseInternalInventory": {
-            "type": "boolean",
-            "description": "Whether the current catalog can use the paid internal inventory feature."
-          }
-        },
-        "required": [
-          "inventoryMode",
-          "canUseInternalInventory"
         ]
       },
       "UpdateCatalogContactDtoReq": {
@@ -12025,6 +13722,2397 @@
           "reason"
         ]
       },
+      "ProductMediaDto": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "number"
+          },
+          "kind": {
+            "type": "string",
+            "nullable": true
+          },
+          "media": {
+            "$ref": "#/components/schemas/MediaDto"
+          }
+        },
+        "required": [
+          "position",
+          "kind",
+          "media"
+        ]
+      },
+      "ProductBrandDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "ProductTypeRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name"
+        ]
+      },
+      "ProductCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "position"
+        ]
+      },
+      "ProductIntegrationDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "MOYSKLAD"
+            ]
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "externalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastSyncedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "provider",
+          "externalId",
+          "externalCode",
+          "lastSyncedAt"
+        ]
+      },
+      "ProductAttributeRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "STRING",
+              "INTEGER",
+              "DECIMAL",
+              "DATETIME",
+              "BOOLEAN",
+              "ENUM"
+            ]
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isVariantAttribute": {
+            "type": "boolean"
+          },
+          "isFilterable": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "isHidden": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "displayName",
+          "dataType",
+          "isRequired",
+          "isVariantAttribute",
+          "isFilterable",
+          "displayOrder",
+          "isHidden"
+        ]
+      },
+      "ProductAttributeEnumValueDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "businessId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "value",
+          "displayName",
+          "displayOrder",
+          "businessId"
+        ]
+      },
+      "ProductAttributeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "attributeId": {
+            "type": "string"
+          },
+          "enumValueId": {
+            "type": "string",
+            "nullable": true
+          },
+          "valueString": {
+            "type": "string",
+            "nullable": true
+          },
+          "valueInteger": {
+            "type": "number",
+            "nullable": true
+          },
+          "valueDecimal": {
+            "type": "string",
+            "nullable": true
+          },
+          "valueBoolean": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "valueDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "attribute": {
+            "$ref": "#/components/schemas/ProductAttributeRefDto"
+          },
+          "enumValue": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductAttributeEnumValueDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "attributeId",
+          "enumValueId",
+          "valueString",
+          "valueInteger",
+          "valueDecimal",
+          "valueBoolean",
+          "valueDateTime",
+          "attribute",
+          "enumValue"
+        ]
+      },
+      "ProductVariantSummaryDto": {
+        "type": "object",
+        "properties": {
+          "minPrice": {
+            "type": "string",
+            "nullable": true,
+            "example": "999.00"
+          },
+          "maxPrice": {
+            "type": "string",
+            "nullable": true,
+            "example": "1299.00"
+          },
+          "activeCount": {
+            "type": "number"
+          },
+          "totalStock": {
+            "type": "number",
+            "nullable": true
+          },
+          "singleVariantId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "minPrice",
+          "maxPrice",
+          "activeCount",
+          "totalStock",
+          "singleVariantId"
+        ]
+      },
+      "ProductVariantPickerOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "stock": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "OUT_OF_STOCK",
+              "DISABLED"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "saleUnitId": {
+            "type": "string",
+            "nullable": true
+          },
+          "saleUnitPrice": {
+            "type": "string",
+            "nullable": true,
+            "example": "999.00"
+          },
+          "maxQuantity": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "price",
+          "stock",
+          "status",
+          "isAvailable",
+          "saleUnitId",
+          "saleUnitPrice",
+          "maxQuantity"
+        ]
+      },
+      "ProductWithAttributesDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "priceState": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "KNOWN",
+              "RANGE"
+            ]
+          },
+          "displayPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "minPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "maxPrice": {
+            "type": "string",
+            "example": "1299.00",
+            "nullable": true
+          },
+          "availabilityState": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "OUT_OF_STOCK",
+              "UNAVAILABLE"
+            ]
+          },
+          "stock": {
+            "type": "number",
+            "nullable": true
+          },
+          "defaultVariantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiresVariantSelection": {
+            "type": "boolean"
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductMediaDto"
+            }
+          },
+          "brand": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductBrandDto"
+              }
+            ]
+          },
+          "productType": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductTypeRefDto"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCategoryDto"
+            }
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductIntegrationDto"
+              }
+            ]
+          },
+          "isPopular": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "ARCHIVED",
+              "HIDDEN",
+              "DELETE"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeDto"
+            }
+          },
+          "variantSummary": {
+            "$ref": "#/components/schemas/ProductVariantSummaryDto"
+          },
+          "variantPickerOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "name",
+          "slug",
+          "price",
+          "priceState",
+          "displayPrice",
+          "minPrice",
+          "maxPrice",
+          "availabilityState",
+          "stock",
+          "defaultVariantId",
+          "requiresVariantSelection",
+          "media",
+          "brand",
+          "productType",
+          "categories",
+          "integration",
+          "isPopular",
+          "status",
+          "position",
+          "createdAt",
+          "updatedAt",
+          "productAttributes",
+          "variantSummary",
+          "variantPickerOptions"
+        ]
+      },
+      "ProductCardPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductWithAttributesDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "seed": {
+            "type": "string",
+            "nullable": true,
+            "description": "Стабильный seed для детерминированной рандомизации"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor",
+          "seed"
+        ]
+      },
+      "ProductInfinitePageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductWithAttributesDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "seed": {
+            "type": "string",
+            "nullable": true,
+            "description": "Стабильный seed для детерминированной рандомизации"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor",
+          "seed"
+        ]
+      },
+      "ProductCursorCardPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductWithAttributesDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "ProductCursorPageDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductWithAttributesDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "ProductDefaultVariantDiagnosticSampleDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "productSku": {
+            "type": "string"
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSku": {
+            "type": "string",
+            "nullable": true
+          },
+          "details": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "productId",
+          "productName",
+          "productSku",
+          "variantId",
+          "variantKey",
+          "variantSku",
+          "details"
+        ]
+      },
+      "ProductDefaultVariantDiagnosticCheckDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "SIMPLE_WITHOUT_DEFAULT_VARIANT",
+              "MULTIPLE_DEFAULT_VARIANTS",
+              "CUSTOM_VARIANT_WITHOUT_ATTRIBUTES",
+              "DEFAULT_VARIANT_WITH_ATTRIBUTES",
+              "DEFAULT_VARIANT_PRICE_MISMATCH"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "warn",
+              "fail"
+            ]
+          },
+          "count": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductDefaultVariantDiagnosticSampleDto"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "status",
+          "count",
+          "message",
+          "samples"
+        ]
+      },
+      "ProductDefaultVariantDiagnosticsResponseDto": {
+        "type": "object",
+        "properties": {
+          "catalogId": {
+            "type": "string"
+          },
+          "sampleLimit": {
+            "type": "number"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductDefaultVariantDiagnosticCheckDto"
+            }
+          },
+          "warnCount": {
+            "type": "number"
+          },
+          "failCount": {
+            "type": "number"
+          },
+          "ok": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "catalogId",
+          "sampleLimit",
+          "checks",
+          "warnCount",
+          "failCount",
+          "ok"
+        ]
+      },
+      "VariantAttributeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "attributeId": {
+            "type": "string"
+          },
+          "enumValueId": {
+            "type": "string"
+          },
+          "attribute": {
+            "$ref": "#/components/schemas/ProductAttributeRefDto"
+          },
+          "enumValue": {
+            "$ref": "#/components/schemas/ProductAttributeEnumValueDto"
+          }
+        },
+        "required": [
+          "id",
+          "attributeId",
+          "enumValueId",
+          "attribute",
+          "enumValue"
+        ]
+      },
+      "ProductVariantCatalogSaleUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "defaultBaseQuantity": {
+            "type": "string",
+            "example": "1.0000"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "defaultBaseQuantity"
+        ]
+      },
+      "ProductVariantSaleUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "catalogSaleUnitId": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "baseQuantity": {
+            "type": "string",
+            "example": "1.0000"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "catalogSaleUnit": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductVariantCatalogSaleUnitDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "catalogSaleUnitId",
+          "code",
+          "name",
+          "baseQuantity",
+          "price",
+          "barcode",
+          "isDefault",
+          "isActive",
+          "displayOrder",
+          "createdAt",
+          "updatedAt",
+          "catalogSaleUnit"
+        ]
+      },
+      "ProductVariantDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "variantKey": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "MATRIX"
+            ]
+          },
+          "stock": {
+            "type": "number",
+            "nullable": true
+          },
+          "price": {
+            "type": "string",
+            "example": "0.00",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "OUT_OF_STOCK",
+              "DISABLED"
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VariantAttributeDto"
+            }
+          },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDto"
+            }
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductIntegrationDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "variantKey",
+          "kind",
+          "stock",
+          "price",
+          "status",
+          "isAvailable",
+          "createdAt",
+          "updatedAt",
+          "attributes",
+          "saleUnits"
+        ]
+      },
+      "ProductWithDetailsDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "priceState": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "KNOWN",
+              "RANGE"
+            ]
+          },
+          "displayPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "minPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "maxPrice": {
+            "type": "string",
+            "example": "1299.00",
+            "nullable": true
+          },
+          "availabilityState": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "OUT_OF_STOCK",
+              "UNAVAILABLE"
+            ]
+          },
+          "stock": {
+            "type": "number",
+            "nullable": true
+          },
+          "defaultVariantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiresVariantSelection": {
+            "type": "boolean"
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductMediaDto"
+            }
+          },
+          "brand": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductBrandDto"
+              }
+            ]
+          },
+          "productType": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductTypeRefDto"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCategoryDto"
+            }
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductIntegrationDto"
+              }
+            ]
+          },
+          "isPopular": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "ARCHIVED",
+              "HIDDEN",
+              "DELETE"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeDto"
+            }
+          },
+          "variantSummary": {
+            "$ref": "#/components/schemas/ProductVariantSummaryDto"
+          },
+          "variantPickerOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantDto"
+            }
+          },
+          "seo": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SeoDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "name",
+          "slug",
+          "price",
+          "priceState",
+          "displayPrice",
+          "minPrice",
+          "maxPrice",
+          "availabilityState",
+          "stock",
+          "defaultVariantId",
+          "requiresVariantSelection",
+          "media",
+          "brand",
+          "productType",
+          "categories",
+          "integration",
+          "isPopular",
+          "status",
+          "position",
+          "createdAt",
+          "updatedAt",
+          "productAttributes",
+          "variantSummary",
+          "variantPickerOptions",
+          "variants",
+          "seo"
+        ]
+      },
+      "ProductAttributeValueDto": {
+        "type": "object",
+        "properties": {
+          "attributeId": {
+            "type": "string",
+            "example": "attribute-id"
+          },
+          "enumValueId": {
+            "type": "string",
+            "example": "enum-value-id"
+          },
+          "valueString": {
+            "type": "string",
+            "example": "100% cotton"
+          },
+          "valueInteger": {
+            "type": "number",
+            "example": 42
+          },
+          "valueDecimal": {
+            "type": "number",
+            "example": 12.5
+          },
+          "valueBoolean": {
+            "type": "boolean",
+            "example": true
+          },
+          "valueDateTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "attributeId"
+        ]
+      },
+      "ProductVariantAttributeDtoReq": {
+        "type": "object",
+        "properties": {
+          "attributeId": {
+            "type": "string",
+            "example": "attribute-id"
+          },
+          "enumValueId": {
+            "type": "string",
+            "example": "enum-value-id",
+            "description": "Идентификатор значения перечисления"
+          },
+          "value": {
+            "type": "string",
+            "example": "1.5л",
+            "description": "Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений"
+          }
+        },
+        "required": [
+          "attributeId"
+        ]
+      },
+      "ProductVariantSaleUnitDtoReq": {
+        "type": "object",
+        "properties": {
+          "catalogSaleUnitId": {
+            "type": "string",
+            "example": "catalog-sale-unit-id",
+            "description": "Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name."
+          },
+          "code": {
+            "type": "string",
+            "example": "box-12",
+            "description": "Технический код можно не передавать: backend сгенерирует его из названия."
+          },
+          "name": {
+            "type": "string",
+            "example": "Короб",
+            "description": "Название формата продажи. Не нужно, если передан catalogSaleUnitId."
+          },
+          "baseQuantity": {
+            "type": "number",
+            "example": 12,
+            "description": "Сколько базовых единиц внутри для конкретного товара/варианта."
+          },
+          "price": {
+            "type": "number",
+            "example": 999
+          },
+          "barcode": {
+            "type": "string",
+            "example": "4601234567890"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "example": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "price"
+        ]
+      },
+      "ProductVariantDtoReq": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "number",
+            "example": 0,
+            "nullable": true
+          },
+          "stock": {
+            "type": "number",
+            "example": 10,
+            "nullable": true,
+            "description": "null означает, что остаток не ведется"
+          },
+          "isAvailable": {
+            "type": "boolean",
+            "example": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "OUT_OF_STOCK",
+              "DISABLED"
+            ],
+            "example": "ACTIVE"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantAttributeDtoReq"
+            }
+          },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
+            }
+          }
+        }
+      },
+      "CreateProductDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Basic T-Shirt"
+          },
+          "price": {
+            "type": "number",
+            "example": 999,
+            "nullable": true
+          },
+          "mediaIds": {
+            "example": [
+              "media-uuid"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPopular": {
+            "type": "boolean",
+            "example": false
+          },
+          "status": {
+            "type": "string",
+            "example": "ACTIVE"
+          },
+          "position": {
+            "type": "number",
+            "example": 0
+          },
+          "brandId": {
+            "type": "string",
+            "example": "brand-uuid"
+          },
+          "productTypeId": {
+            "type": "string",
+            "example": "product-type-uuid",
+            "nullable": true
+          },
+          "categories": {
+            "example": [
+              "category-uuid-1",
+              "category-uuid-2"
+            ],
+            "description": "Список категорий. Товар будет добавлен в начало (position=0) каждой категории.",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeValueDto"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantDtoReq"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "ProductCreateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "priceState": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "KNOWN",
+              "RANGE"
+            ]
+          },
+          "displayPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "minPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "maxPrice": {
+            "type": "string",
+            "example": "1299.00",
+            "nullable": true
+          },
+          "availabilityState": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "OUT_OF_STOCK",
+              "UNAVAILABLE"
+            ]
+          },
+          "stock": {
+            "type": "number",
+            "nullable": true
+          },
+          "defaultVariantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiresVariantSelection": {
+            "type": "boolean"
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductMediaDto"
+            }
+          },
+          "brand": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductBrandDto"
+              }
+            ]
+          },
+          "productType": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductTypeRefDto"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCategoryDto"
+            }
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductIntegrationDto"
+              }
+            ]
+          },
+          "isPopular": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "ARCHIVED",
+              "HIDDEN",
+              "DELETE"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeDto"
+            }
+          },
+          "variantSummary": {
+            "$ref": "#/components/schemas/ProductVariantSummaryDto"
+          },
+          "variantPickerOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantDto"
+            }
+          },
+          "seo": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SeoDto"
+              }
+            ]
+          },
+          "ok": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "name",
+          "slug",
+          "price",
+          "priceState",
+          "displayPrice",
+          "minPrice",
+          "maxPrice",
+          "availabilityState",
+          "stock",
+          "defaultVariantId",
+          "requiresVariantSelection",
+          "media",
+          "brand",
+          "productType",
+          "categories",
+          "integration",
+          "isPopular",
+          "status",
+          "position",
+          "createdAt",
+          "updatedAt",
+          "productAttributes",
+          "variantSummary",
+          "variantPickerOptions",
+          "variants",
+          "seo",
+          "ok"
+        ]
+      },
+      "ProductDefaultVariantRepairResponseDto": {
+        "type": "object",
+        "properties": {
+          "checkedProducts": {
+            "type": "number"
+          },
+          "repairedProducts": {
+            "type": "number"
+          },
+          "affectedCatalogs": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "checkedProducts",
+          "repairedProducts",
+          "affectedCatalogs"
+        ]
+      },
+      "RepairDefaultVariantPriceMismatchDtoReq": {
+        "type": "object",
+        "properties": {
+          "apply": {
+            "type": "boolean",
+            "default": false,
+            "description": "false = dry-run only. true = copy the technical default variant price into legacy Product.price for safe simple products."
+          },
+          "batchSize": {
+            "type": "number",
+            "default": 100,
+            "minimum": 1,
+            "maximum": 1000
+          },
+          "sampleLimit": {
+            "type": "number",
+            "default": 20,
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      },
+      "ProductDefaultVariantPriceMismatchRepairSampleDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "productSku": {
+            "type": "string"
+          },
+          "variantId": {
+            "type": "string"
+          },
+          "variantSku": {
+            "type": "string"
+          },
+          "variantKey": {
+            "type": "string"
+          },
+          "previousProductPrice": {
+            "type": "string",
+            "nullable": true
+          },
+          "nextProductPrice": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "productId",
+          "productName",
+          "productSku",
+          "variantId",
+          "variantSku",
+          "variantKey",
+          "previousProductPrice",
+          "nextProductPrice"
+        ]
+      },
+      "ProductDefaultVariantPriceMismatchRepairResponseDto": {
+        "type": "object",
+        "properties": {
+          "catalogId": {
+            "type": "string"
+          },
+          "dryRun": {
+            "type": "boolean"
+          },
+          "checkedProducts": {
+            "type": "number"
+          },
+          "repairableProducts": {
+            "type": "number"
+          },
+          "updatedProducts": {
+            "type": "number"
+          },
+          "affectedCatalogs": {
+            "type": "number"
+          },
+          "batchSize": {
+            "type": "number"
+          },
+          "sampleLimit": {
+            "type": "number"
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductDefaultVariantPriceMismatchRepairSampleDto"
+            }
+          }
+        },
+        "required": [
+          "catalogId",
+          "dryRun",
+          "checkedProducts",
+          "repairableProducts",
+          "updatedProducts",
+          "affectedCatalogs",
+          "batchSize",
+          "sampleLimit",
+          "samples"
+        ]
+      },
+      "ProductTypeCompatibilityPreviewDtoReq": {
+        "type": "object",
+        "properties": {
+          "productTypeId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Next product type inside current catalog. Pass null to clear."
+          }
+        },
+        "required": [
+          "productTypeId"
+        ]
+      },
+      "ProductTypeCompatibilityIssueDto": {
+        "type": "object",
+        "properties": {
+          "attributeId": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "variantKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "MISSING_IN_TARGET_TYPE",
+              "SCOPE_MISMATCH",
+              "TARGET_TYPE_EMPTY"
+            ]
+          },
+          "targetIsVariant": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "required": [
+          "attributeId",
+          "key",
+          "displayName",
+          "variantKeys",
+          "reason",
+          "targetIsVariant"
+        ]
+      },
+      "ProductTypeCompatibilityPreviewDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "currentProductTypeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedProductTypeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sameProductType": {
+            "type": "boolean"
+          },
+          "hasScopedData": {
+            "type": "boolean"
+          },
+          "canChangeNow": {
+            "type": "boolean"
+          },
+          "compatible": {
+            "type": "boolean"
+          },
+          "requiresUserDecision": {
+            "type": "boolean"
+          },
+          "blockingReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "productAttributeCount": {
+            "type": "number"
+          },
+          "variantAttributeCount": {
+            "type": "number"
+          },
+          "productAttributeConflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductTypeCompatibilityIssueDto"
+            }
+          },
+          "variantAttributeConflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductTypeCompatibilityIssueDto"
+            }
+          }
+        },
+        "required": [
+          "productId",
+          "currentProductTypeId",
+          "requestedProductTypeId",
+          "sameProductType",
+          "hasScopedData",
+          "canChangeNow",
+          "compatible",
+          "requiresUserDecision",
+          "blockingReason",
+          "productAttributeCount",
+          "variantAttributeCount",
+          "productAttributeConflicts",
+          "variantAttributeConflicts"
+        ]
+      },
+      "ApplyProductTypeChangeDtoReq": {
+        "type": "object",
+        "properties": {
+          "productTypeId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Next product type inside current catalog. Pass null to clear."
+          },
+          "expectedCurrentProductTypeId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional stale-preview guard. Apply fails if current product type differs."
+          },
+          "confirm": {
+            "type": "boolean",
+            "example": true,
+            "description": "Explicit user confirmation for changing typed product data."
+          },
+          "removeAttributeIds": {
+            "description": "Product attribute ids to remove when they are incompatible with target product type.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "attributes": {
+            "description": "Product attributes to upsert after switching to the target product type.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeValueDto"
+            }
+          },
+          "items": {
+            "description": "Full replacement matrix. Required when existing variant attributes conflict with target product type.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantDtoReq"
+            }
+          }
+        },
+        "required": [
+          "productTypeId",
+          "confirm"
+        ]
+      },
+      "ProductUpdateResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "priceState": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "KNOWN",
+              "RANGE"
+            ]
+          },
+          "displayPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "minPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "maxPrice": {
+            "type": "string",
+            "example": "1299.00",
+            "nullable": true
+          },
+          "availabilityState": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "OUT_OF_STOCK",
+              "UNAVAILABLE"
+            ]
+          },
+          "stock": {
+            "type": "number",
+            "nullable": true
+          },
+          "defaultVariantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiresVariantSelection": {
+            "type": "boolean"
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductMediaDto"
+            }
+          },
+          "brand": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductBrandDto"
+              }
+            ]
+          },
+          "productType": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductTypeRefDto"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCategoryDto"
+            }
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductIntegrationDto"
+              }
+            ]
+          },
+          "isPopular": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "ARCHIVED",
+              "HIDDEN",
+              "DELETE"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeDto"
+            }
+          },
+          "variantSummary": {
+            "$ref": "#/components/schemas/ProductVariantSummaryDto"
+          },
+          "variantPickerOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantDto"
+            }
+          },
+          "seo": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SeoDto"
+              }
+            ]
+          },
+          "ok": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "name",
+          "slug",
+          "price",
+          "priceState",
+          "displayPrice",
+          "minPrice",
+          "maxPrice",
+          "availabilityState",
+          "stock",
+          "defaultVariantId",
+          "requiresVariantSelection",
+          "media",
+          "brand",
+          "productType",
+          "categories",
+          "integration",
+          "isPopular",
+          "status",
+          "position",
+          "createdAt",
+          "updatedAt",
+          "productAttributes",
+          "variantSummary",
+          "variantPickerOptions",
+          "variants",
+          "seo",
+          "ok"
+        ]
+      },
+      "ProductVariantUpdateDtoReq": {
+        "type": "object",
+        "properties": {
+          "variantKey": {
+            "type": "string",
+            "example": "size=xs;color=white",
+            "description": "Ключ варианта, приходит из ответа товара"
+          },
+          "price": {
+            "type": "number",
+            "example": 0,
+            "nullable": true
+          },
+          "stock": {
+            "type": "number",
+            "example": 10,
+            "nullable": true,
+            "description": "null означает, что остаток не ведется"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "OUT_OF_STOCK",
+              "DISABLED"
+            ],
+            "example": "ACTIVE"
+          },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
+            }
+          }
+        },
+        "required": [
+          "variantKey"
+        ]
+      },
+      "UpdateProductDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Basic T-Shirt"
+          },
+          "price": {
+            "type": "number",
+            "example": 999,
+            "nullable": true
+          },
+          "mediaIds": {
+            "example": [
+              "media-uuid"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isPopular": {
+            "type": "boolean",
+            "example": false
+          },
+          "status": {
+            "type": "string",
+            "example": "ACTIVE"
+          },
+          "position": {
+            "type": "number",
+            "example": 0
+          },
+          "brandId": {
+            "type": "string",
+            "example": "brand-uuid",
+            "nullable": true
+          },
+          "productTypeId": {
+            "type": "string",
+            "example": "product-type-uuid",
+            "nullable": true,
+            "description": "Product type inside current catalog. Pass null to clear."
+          },
+          "categories": {
+            "example": [
+              "category-uuid-1",
+              "category-uuid-2"
+            ],
+            "description": "Список категорий товара. При редактировании заменяет набор привязок товара к категориям.",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "categoryId": {
+            "type": "string",
+            "example": "category-uuid",
+            "description": "ID категории, в которой нужно изменить/установить позицию товара"
+          },
+          "categoryPosition": {
+            "type": "number",
+            "example": 0,
+            "description": "Позиция товара внутри категории (передавать только вместе с categoryId)",
+            "minimum": 0
+          },
+          "attributes": {
+            "description": "Только видимые атрибуты (isHidden=false)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeValueDto"
+            }
+          },
+          "removeAttributeIds": {
+            "example": [
+              "attribute-uuid"
+            ],
+            "description": "ID атрибутов товара, которые нужно удалить при редактировании",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantUpdateDtoReq"
+            }
+          }
+        }
+      },
+      "UpdateProductCategoryPositionDtoReq": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "example": "category-uuid",
+            "description": "ID категории, внутри которой нужно изменить позицию товара"
+          },
+          "position": {
+            "type": "number",
+            "example": 0,
+            "description": "Новая позиция товара внутри категории",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "categoryId",
+          "position"
+        ]
+      },
+      "ProductVariantItemDtoReq": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "type": "number",
+            "example": 0,
+            "nullable": true
+          },
+          "stock": {
+            "type": "number",
+            "example": 10,
+            "nullable": true,
+            "description": "null означает, что остаток не ведется"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "OUT_OF_STOCK",
+              "DISABLED"
+            ],
+            "example": "ACTIVE"
+          },
+          "enumValueId": {
+            "type": "string",
+            "example": "enum-value-id",
+            "description": "Идентификатор значения перечисления"
+          },
+          "value": {
+            "type": "string",
+            "example": "1.5л",
+            "description": "Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений"
+          },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
+            }
+          }
+        }
+      },
+      "SetProductVariantsDtoReq": {
+        "type": "object",
+        "properties": {
+          "variantAttributeId": {
+            "type": "string",
+            "example": "variant-attribute-id"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantItemDtoReq"
+            }
+          }
+        },
+        "required": [
+          "variantAttributeId",
+          "items"
+        ]
+      },
+      "ProductVariantsResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "priceState": {
+            "type": "string",
+            "enum": [
+              "UNKNOWN",
+              "KNOWN",
+              "RANGE"
+            ]
+          },
+          "displayPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "minPrice": {
+            "type": "string",
+            "example": "999.00",
+            "nullable": true
+          },
+          "maxPrice": {
+            "type": "string",
+            "example": "1299.00",
+            "nullable": true
+          },
+          "availabilityState": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "OUT_OF_STOCK",
+              "UNAVAILABLE"
+            ]
+          },
+          "stock": {
+            "type": "number",
+            "nullable": true
+          },
+          "defaultVariantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiresVariantSelection": {
+            "type": "boolean"
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductMediaDto"
+            }
+          },
+          "brand": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductBrandDto"
+              }
+            ]
+          },
+          "productType": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductTypeRefDto"
+              }
+            ]
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductCategoryDto"
+            }
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductIntegrationDto"
+              }
+            ]
+          },
+          "isPopular": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "ARCHIVED",
+              "HIDDEN",
+              "DELETE"
+            ]
+          },
+          "position": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "productAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductAttributeDto"
+            }
+          },
+          "variantSummary": {
+            "$ref": "#/components/schemas/ProductVariantSummaryDto"
+          },
+          "variantPickerOptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantDto"
+            }
+          },
+          "seo": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SeoDto"
+              }
+            ]
+          },
+          "ok": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "sku",
+          "name",
+          "slug",
+          "price",
+          "priceState",
+          "displayPrice",
+          "minPrice",
+          "maxPrice",
+          "availabilityState",
+          "stock",
+          "defaultVariantId",
+          "requiresVariantSelection",
+          "media",
+          "brand",
+          "productType",
+          "categories",
+          "integration",
+          "isPopular",
+          "status",
+          "position",
+          "createdAt",
+          "updatedAt",
+          "productAttributes",
+          "variantSummary",
+          "variantPickerOptions",
+          "variants",
+          "seo",
+          "ok"
+        ]
+      },
+      "SetProductVariantMatrixDtoReq": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantDtoReq"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "CatalogSaleUnitDto": {
         "type": "object",
         "properties": {
@@ -12327,451 +16415,6 @@
           "children"
         ]
       },
-      "ProductMediaDto": {
-        "type": "object",
-        "properties": {
-          "position": {
-            "type": "number"
-          },
-          "kind": {
-            "type": "string",
-            "nullable": true
-          },
-          "media": {
-            "$ref": "#/components/schemas/MediaDto"
-          }
-        },
-        "required": [
-          "position",
-          "kind",
-          "media"
-        ]
-      },
-      "ProductBrandDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "slug"
-        ]
-      },
-      "ProductTypeRefDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "code",
-          "name"
-        ]
-      },
-      "ProductCategoryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "position": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "position"
-        ]
-      },
-      "ProductIntegrationDto": {
-        "type": "object",
-        "properties": {
-          "provider": {
-            "type": "string",
-            "enum": [
-              "MOYSKLAD"
-            ]
-          },
-          "externalId": {
-            "type": "string"
-          },
-          "externalCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "lastSyncedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        },
-        "required": [
-          "provider",
-          "externalId",
-          "externalCode",
-          "lastSyncedAt"
-        ]
-      },
-      "ProductAttributeRefDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "key": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string"
-          },
-          "dataType": {
-            "type": "string",
-            "enum": [
-              "STRING",
-              "INTEGER",
-              "DECIMAL",
-              "DATETIME",
-              "BOOLEAN",
-              "ENUM"
-            ]
-          },
-          "isRequired": {
-            "type": "boolean"
-          },
-          "isVariantAttribute": {
-            "type": "boolean"
-          },
-          "isFilterable": {
-            "type": "boolean"
-          },
-          "displayOrder": {
-            "type": "number"
-          },
-          "isHidden": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "id",
-          "key",
-          "displayName",
-          "dataType",
-          "isRequired",
-          "isVariantAttribute",
-          "isFilterable",
-          "displayOrder",
-          "isHidden"
-        ]
-      },
-      "ProductAttributeEnumValueDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string",
-            "nullable": true
-          },
-          "displayOrder": {
-            "type": "number"
-          },
-          "businessId": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "value",
-          "displayName",
-          "displayOrder",
-          "businessId"
-        ]
-      },
-      "ProductAttributeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "attributeId": {
-            "type": "string"
-          },
-          "enumValueId": {
-            "type": "string",
-            "nullable": true
-          },
-          "valueString": {
-            "type": "string",
-            "nullable": true
-          },
-          "valueInteger": {
-            "type": "number",
-            "nullable": true
-          },
-          "valueDecimal": {
-            "type": "string",
-            "nullable": true
-          },
-          "valueBoolean": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "valueDateTime": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "attribute": {
-            "$ref": "#/components/schemas/ProductAttributeRefDto"
-          },
-          "enumValue": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductAttributeEnumValueDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "attributeId",
-          "enumValueId",
-          "valueString",
-          "valueInteger",
-          "valueDecimal",
-          "valueBoolean",
-          "valueDateTime",
-          "attribute",
-          "enumValue"
-        ]
-      },
-      "ProductVariantSummaryDto": {
-        "type": "object",
-        "properties": {
-          "minPrice": {
-            "type": "string",
-            "nullable": true,
-            "example": "999.00"
-          },
-          "maxPrice": {
-            "type": "string",
-            "nullable": true,
-            "example": "1299.00"
-          },
-          "activeCount": {
-            "type": "number"
-          },
-          "totalStock": {
-            "type": "number"
-          },
-          "singleVariantId": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "minPrice",
-          "maxPrice",
-          "activeCount",
-          "totalStock",
-          "singleVariantId"
-        ]
-      },
-      "ProductVariantPickerOptionDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "stock": {
-            "type": "number"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "OUT_OF_STOCK",
-              "DISABLED"
-            ]
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "saleUnitId": {
-            "type": "string",
-            "nullable": true
-          },
-          "saleUnitPrice": {
-            "type": "string",
-            "nullable": true,
-            "example": "999.00"
-          },
-          "maxQuantity": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "price",
-          "stock",
-          "status",
-          "isAvailable",
-          "saleUnitId",
-          "saleUnitPrice",
-          "maxQuantity"
-        ]
-      },
-      "ProductWithAttributesDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductMediaDto"
-            }
-          },
-          "brand": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductBrandDto"
-              }
-            ]
-          },
-          "productType": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductTypeRefDto"
-              }
-            ]
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductCategoryDto"
-            }
-          },
-          "integration": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductIntegrationDto"
-              }
-            ]
-          },
-          "isPopular": {
-            "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ACTIVE",
-              "ARCHIVED",
-              "HIDDEN",
-              "DELETE"
-            ]
-          },
-          "position": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "productAttributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeDto"
-            }
-          },
-          "variantSummary": {
-            "$ref": "#/components/schemas/ProductVariantSummaryDto"
-          },
-          "variantPickerOptions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "sku",
-          "name",
-          "slug",
-          "price",
-          "media",
-          "brand",
-          "productType",
-          "categories",
-          "integration",
-          "isPopular",
-          "status",
-          "position",
-          "createdAt",
-          "updatedAt",
-          "productAttributes",
-          "variantSummary",
-          "variantPickerOptions"
-        ]
-      },
       "CategoryProductWithDetailsDto": {
         "type": "object",
         "properties": {
@@ -12988,1430 +16631,6 @@
         },
         "required": [
           "position"
-        ]
-      },
-      "ProductCardPageDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductWithAttributesDto"
-            }
-          },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
-          },
-          "seed": {
-            "type": "string",
-            "nullable": true,
-            "description": "Стабильный seed для детерминированной рандомизации"
-          }
-        },
-        "required": [
-          "items",
-          "nextCursor",
-          "seed"
-        ]
-      },
-      "ProductInfinitePageDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductWithAttributesDto"
-            }
-          },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
-          },
-          "seed": {
-            "type": "string",
-            "nullable": true,
-            "description": "Стабильный seed для детерминированной рандомизации"
-          }
-        },
-        "required": [
-          "items",
-          "nextCursor",
-          "seed"
-        ]
-      },
-      "ProductCursorCardPageDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductWithAttributesDto"
-            }
-          },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "items",
-          "nextCursor"
-        ]
-      },
-      "ProductCursorPageDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductWithAttributesDto"
-            }
-          },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "items",
-          "nextCursor"
-        ]
-      },
-      "VariantAttributeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "attributeId": {
-            "type": "string"
-          },
-          "enumValueId": {
-            "type": "string"
-          },
-          "attribute": {
-            "$ref": "#/components/schemas/ProductAttributeRefDto"
-          },
-          "enumValue": {
-            "$ref": "#/components/schemas/ProductAttributeEnumValueDto"
-          }
-        },
-        "required": [
-          "id",
-          "attributeId",
-          "enumValueId",
-          "attribute",
-          "enumValue"
-        ]
-      },
-      "ProductVariantCatalogSaleUnitDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "defaultBaseQuantity": {
-            "type": "string",
-            "example": "1.0000"
-          }
-        },
-        "required": [
-          "id",
-          "code",
-          "name",
-          "defaultBaseQuantity"
-        ]
-      },
-      "ProductVariantSaleUnitDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "catalogSaleUnitId": {
-            "type": "string",
-            "nullable": true
-          },
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "baseQuantity": {
-            "type": "string",
-            "example": "1.0000"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "barcode": {
-            "type": "string",
-            "nullable": true
-          },
-          "isDefault": {
-            "type": "boolean"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "displayOrder": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "catalogSaleUnit": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductVariantCatalogSaleUnitDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "catalogSaleUnitId",
-          "code",
-          "name",
-          "baseQuantity",
-          "price",
-          "barcode",
-          "isDefault",
-          "isActive",
-          "displayOrder",
-          "createdAt",
-          "updatedAt",
-          "catalogSaleUnit"
-        ]
-      },
-      "ProductVariantDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "variantKey": {
-            "type": "string"
-          },
-          "stock": {
-            "type": "number"
-          },
-          "price": {
-            "type": "string",
-            "example": "0.00"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "OUT_OF_STOCK",
-              "DISABLED"
-            ]
-          },
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "attributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/VariantAttributeDto"
-            }
-          },
-          "saleUnits": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantSaleUnitDto"
-            }
-          },
-          "integration": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductIntegrationDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "sku",
-          "variantKey",
-          "stock",
-          "price",
-          "status",
-          "isAvailable",
-          "createdAt",
-          "updatedAt",
-          "attributes",
-          "saleUnits"
-        ]
-      },
-      "ProductWithDetailsDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductMediaDto"
-            }
-          },
-          "brand": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductBrandDto"
-              }
-            ]
-          },
-          "productType": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductTypeRefDto"
-              }
-            ]
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductCategoryDto"
-            }
-          },
-          "integration": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductIntegrationDto"
-              }
-            ]
-          },
-          "isPopular": {
-            "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ACTIVE",
-              "ARCHIVED",
-              "HIDDEN",
-              "DELETE"
-            ]
-          },
-          "position": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "productAttributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeDto"
-            }
-          },
-          "variantSummary": {
-            "$ref": "#/components/schemas/ProductVariantSummaryDto"
-          },
-          "variantPickerOptions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
-            }
-          },
-          "variants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantDto"
-            }
-          },
-          "seo": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SeoDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "sku",
-          "name",
-          "slug",
-          "price",
-          "media",
-          "brand",
-          "productType",
-          "categories",
-          "integration",
-          "isPopular",
-          "status",
-          "position",
-          "createdAt",
-          "updatedAt",
-          "productAttributes",
-          "variantSummary",
-          "variantPickerOptions",
-          "variants",
-          "seo"
-        ]
-      },
-      "ProductAttributeValueDto": {
-        "type": "object",
-        "properties": {
-          "attributeId": {
-            "type": "string",
-            "example": "attribute-id"
-          },
-          "enumValueId": {
-            "type": "string",
-            "example": "enum-value-id"
-          },
-          "valueString": {
-            "type": "string",
-            "example": "100% cotton"
-          },
-          "valueInteger": {
-            "type": "number",
-            "example": 42
-          },
-          "valueDecimal": {
-            "type": "number",
-            "example": 12.5
-          },
-          "valueBoolean": {
-            "type": "boolean",
-            "example": true
-          },
-          "valueDateTime": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "attributeId"
-        ]
-      },
-      "ProductVariantAttributeDtoReq": {
-        "type": "object",
-        "properties": {
-          "attributeId": {
-            "type": "string",
-            "example": "attribute-id"
-          },
-          "enumValueId": {
-            "type": "string",
-            "example": "enum-value-id",
-            "description": "Идентификатор значения перечисления"
-          },
-          "value": {
-            "type": "string",
-            "example": "1.5л",
-            "description": "Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений"
-          }
-        },
-        "required": [
-          "attributeId"
-        ]
-      },
-      "ProductVariantSaleUnitDtoReq": {
-        "type": "object",
-        "properties": {
-          "catalogSaleUnitId": {
-            "type": "string",
-            "example": "catalog-sale-unit-id",
-            "description": "Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name."
-          },
-          "code": {
-            "type": "string",
-            "example": "box-12",
-            "description": "Технический код можно не передавать: backend сгенерирует его из названия."
-          },
-          "name": {
-            "type": "string",
-            "example": "Короб",
-            "description": "Название формата продажи. Не нужно, если передан catalogSaleUnitId."
-          },
-          "baseQuantity": {
-            "type": "number",
-            "example": 12,
-            "description": "Сколько базовых единиц внутри для конкретного товара/варианта."
-          },
-          "price": {
-            "type": "number",
-            "example": 999
-          },
-          "barcode": {
-            "type": "string",
-            "example": "4601234567890"
-          },
-          "isDefault": {
-            "type": "boolean",
-            "example": true
-          },
-          "isActive": {
-            "type": "boolean",
-            "example": true
-          },
-          "displayOrder": {
-            "type": "number",
-            "example": 0
-          }
-        },
-        "required": [
-          "price"
-        ]
-      },
-      "ProductVariantDtoReq": {
-        "type": "object",
-        "properties": {
-          "price": {
-            "type": "number",
-            "example": 0
-          },
-          "stock": {
-            "type": "number",
-            "example": 10
-          },
-          "isAvailable": {
-            "type": "boolean",
-            "example": true
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "OUT_OF_STOCK",
-              "DISABLED"
-            ],
-            "example": "ACTIVE"
-          },
-          "attributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantAttributeDtoReq"
-            }
-          },
-          "saleUnits": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
-            }
-          }
-        }
-      },
-      "CreateProductDtoReq": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Basic T-Shirt"
-          },
-          "price": {
-            "type": "number",
-            "example": 999
-          },
-          "mediaIds": {
-            "example": [
-              "media-uuid"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isPopular": {
-            "type": "boolean",
-            "example": false
-          },
-          "status": {
-            "type": "string",
-            "example": "ACTIVE"
-          },
-          "position": {
-            "type": "number",
-            "example": 0
-          },
-          "brandId": {
-            "type": "string",
-            "example": "brand-uuid"
-          },
-          "productTypeId": {
-            "type": "string",
-            "example": "product-type-uuid",
-            "nullable": true
-          },
-          "categories": {
-            "example": [
-              "category-uuid-1",
-              "category-uuid-2"
-            ],
-            "description": "Список категорий. Товар будет добавлен в начало (position=0) каждой категории.",
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "attributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeValueDto"
-            }
-          },
-          "variants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantDtoReq"
-            }
-          }
-        },
-        "required": [
-          "name",
-          "price"
-        ]
-      },
-      "ProductCreateResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductMediaDto"
-            }
-          },
-          "brand": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductBrandDto"
-              }
-            ]
-          },
-          "productType": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductTypeRefDto"
-              }
-            ]
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductCategoryDto"
-            }
-          },
-          "integration": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductIntegrationDto"
-              }
-            ]
-          },
-          "isPopular": {
-            "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ACTIVE",
-              "ARCHIVED",
-              "HIDDEN",
-              "DELETE"
-            ]
-          },
-          "position": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "productAttributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeDto"
-            }
-          },
-          "variantSummary": {
-            "$ref": "#/components/schemas/ProductVariantSummaryDto"
-          },
-          "variantPickerOptions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
-            }
-          },
-          "variants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantDto"
-            }
-          },
-          "seo": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SeoDto"
-              }
-            ]
-          },
-          "ok": {
-            "type": "boolean",
-            "example": true
-          }
-        },
-        "required": [
-          "id",
-          "sku",
-          "name",
-          "slug",
-          "price",
-          "media",
-          "brand",
-          "productType",
-          "categories",
-          "integration",
-          "isPopular",
-          "status",
-          "position",
-          "createdAt",
-          "updatedAt",
-          "productAttributes",
-          "variantSummary",
-          "variantPickerOptions",
-          "variants",
-          "seo",
-          "ok"
-        ]
-      },
-      "ProductTypeCompatibilityPreviewDtoReq": {
-        "type": "object",
-        "properties": {
-          "productTypeId": {
-            "type": "string",
-            "nullable": true,
-            "description": "Next product type inside current catalog. Pass null to clear."
-          }
-        },
-        "required": [
-          "productTypeId"
-        ]
-      },
-      "ProductTypeCompatibilityIssueDto": {
-        "type": "object",
-        "properties": {
-          "attributeId": {
-            "type": "string"
-          },
-          "key": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string"
-          },
-          "variantKeys": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "reason": {
-            "type": "string",
-            "enum": [
-              "MISSING_IN_TARGET_TYPE",
-              "SCOPE_MISMATCH",
-              "TARGET_TYPE_EMPTY"
-            ]
-          },
-          "targetIsVariant": {
-            "type": "boolean",
-            "nullable": true
-          }
-        },
-        "required": [
-          "attributeId",
-          "key",
-          "displayName",
-          "variantKeys",
-          "reason",
-          "targetIsVariant"
-        ]
-      },
-      "ProductTypeCompatibilityPreviewDto": {
-        "type": "object",
-        "properties": {
-          "productId": {
-            "type": "string"
-          },
-          "currentProductTypeId": {
-            "type": "string",
-            "nullable": true
-          },
-          "requestedProductTypeId": {
-            "type": "string",
-            "nullable": true
-          },
-          "sameProductType": {
-            "type": "boolean"
-          },
-          "hasScopedData": {
-            "type": "boolean"
-          },
-          "canChangeNow": {
-            "type": "boolean"
-          },
-          "compatible": {
-            "type": "boolean"
-          },
-          "requiresUserDecision": {
-            "type": "boolean"
-          },
-          "blockingReason": {
-            "type": "string",
-            "nullable": true
-          },
-          "productAttributeCount": {
-            "type": "number"
-          },
-          "variantAttributeCount": {
-            "type": "number"
-          },
-          "productAttributeConflicts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductTypeCompatibilityIssueDto"
-            }
-          },
-          "variantAttributeConflicts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductTypeCompatibilityIssueDto"
-            }
-          }
-        },
-        "required": [
-          "productId",
-          "currentProductTypeId",
-          "requestedProductTypeId",
-          "sameProductType",
-          "hasScopedData",
-          "canChangeNow",
-          "compatible",
-          "requiresUserDecision",
-          "blockingReason",
-          "productAttributeCount",
-          "variantAttributeCount",
-          "productAttributeConflicts",
-          "variantAttributeConflicts"
-        ]
-      },
-      "ApplyProductTypeChangeDtoReq": {
-        "type": "object",
-        "properties": {
-          "productTypeId": {
-            "type": "string",
-            "nullable": true,
-            "description": "Next product type inside current catalog. Pass null to clear."
-          },
-          "expectedCurrentProductTypeId": {
-            "type": "string",
-            "nullable": true,
-            "description": "Optional stale-preview guard. Apply fails if current product type differs."
-          },
-          "confirm": {
-            "type": "boolean",
-            "example": true,
-            "description": "Explicit user confirmation for changing typed product data."
-          },
-          "removeAttributeIds": {
-            "description": "Product attribute ids to remove when they are incompatible with target product type.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "attributes": {
-            "description": "Product attributes to upsert after switching to the target product type.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeValueDto"
-            }
-          },
-          "items": {
-            "description": "Full replacement matrix. Required when existing variant attributes conflict with target product type.",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantDtoReq"
-            }
-          }
-        },
-        "required": [
-          "productTypeId",
-          "confirm"
-        ]
-      },
-      "ProductUpdateResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductMediaDto"
-            }
-          },
-          "brand": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductBrandDto"
-              }
-            ]
-          },
-          "productType": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductTypeRefDto"
-              }
-            ]
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductCategoryDto"
-            }
-          },
-          "integration": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductIntegrationDto"
-              }
-            ]
-          },
-          "isPopular": {
-            "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ACTIVE",
-              "ARCHIVED",
-              "HIDDEN",
-              "DELETE"
-            ]
-          },
-          "position": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "productAttributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeDto"
-            }
-          },
-          "variantSummary": {
-            "$ref": "#/components/schemas/ProductVariantSummaryDto"
-          },
-          "variantPickerOptions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
-            }
-          },
-          "variants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantDto"
-            }
-          },
-          "seo": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SeoDto"
-              }
-            ]
-          },
-          "ok": {
-            "type": "boolean",
-            "example": true
-          }
-        },
-        "required": [
-          "id",
-          "sku",
-          "name",
-          "slug",
-          "price",
-          "media",
-          "brand",
-          "productType",
-          "categories",
-          "integration",
-          "isPopular",
-          "status",
-          "position",
-          "createdAt",
-          "updatedAt",
-          "productAttributes",
-          "variantSummary",
-          "variantPickerOptions",
-          "variants",
-          "seo",
-          "ok"
-        ]
-      },
-      "ProductVariantUpdateDtoReq": {
-        "type": "object",
-        "properties": {
-          "variantKey": {
-            "type": "string",
-            "example": "size=xs;color=white",
-            "description": "Ключ варианта, приходит из ответа товара"
-          },
-          "price": {
-            "type": "number",
-            "example": 0
-          },
-          "stock": {
-            "type": "number",
-            "example": 10
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "OUT_OF_STOCK",
-              "DISABLED"
-            ],
-            "example": "ACTIVE"
-          },
-          "saleUnits": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
-            }
-          }
-        },
-        "required": [
-          "variantKey"
-        ]
-      },
-      "UpdateProductDtoReq": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Basic T-Shirt"
-          },
-          "price": {
-            "type": "number",
-            "example": 999
-          },
-          "mediaIds": {
-            "example": [
-              "media-uuid"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "isPopular": {
-            "type": "boolean",
-            "example": false
-          },
-          "status": {
-            "type": "string",
-            "example": "ACTIVE"
-          },
-          "position": {
-            "type": "number",
-            "example": 0
-          },
-          "brandId": {
-            "type": "string",
-            "example": "brand-uuid",
-            "nullable": true
-          },
-          "productTypeId": {
-            "type": "string",
-            "example": "product-type-uuid",
-            "nullable": true,
-            "description": "Product type inside current catalog. Pass null to clear."
-          },
-          "categories": {
-            "example": [
-              "category-uuid-1",
-              "category-uuid-2"
-            ],
-            "description": "Список категорий товара. При редактировании заменяет набор привязок товара к категориям.",
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "categoryId": {
-            "type": "string",
-            "example": "category-uuid",
-            "description": "ID категории, в которой нужно изменить/установить позицию товара"
-          },
-          "categoryPosition": {
-            "type": "number",
-            "example": 0,
-            "description": "Позиция товара внутри категории (передавать только вместе с categoryId)",
-            "minimum": 0
-          },
-          "attributes": {
-            "description": "Только видимые атрибуты (isHidden=false)",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeValueDto"
-            }
-          },
-          "removeAttributeIds": {
-            "example": [
-              "attribute-uuid"
-            ],
-            "description": "ID атрибутов товара, которые нужно удалить при редактировании",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "variants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantUpdateDtoReq"
-            }
-          }
-        }
-      },
-      "UpdateProductCategoryPositionDtoReq": {
-        "type": "object",
-        "properties": {
-          "categoryId": {
-            "type": "string",
-            "example": "category-uuid",
-            "description": "ID категории, внутри которой нужно изменить позицию товара"
-          },
-          "position": {
-            "type": "number",
-            "example": 0,
-            "description": "Новая позиция товара внутри категории",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "categoryId",
-          "position"
-        ]
-      },
-      "ProductVariantItemDtoReq": {
-        "type": "object",
-        "properties": {
-          "price": {
-            "type": "number",
-            "example": 0
-          },
-          "stock": {
-            "type": "number",
-            "example": 10
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "OUT_OF_STOCK",
-              "DISABLED"
-            ],
-            "example": "ACTIVE"
-          },
-          "enumValueId": {
-            "type": "string",
-            "example": "enum-value-id",
-            "description": "Идентификатор значения перечисления"
-          },
-          "value": {
-            "type": "string",
-            "example": "1.5л",
-            "description": "Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений"
-          },
-          "saleUnits": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
-            }
-          }
-        }
-      },
-      "SetProductVariantsDtoReq": {
-        "type": "object",
-        "properties": {
-          "variantAttributeId": {
-            "type": "string",
-            "example": "variant-attribute-id"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantItemDtoReq"
-            }
-          }
-        },
-        "required": [
-          "variantAttributeId",
-          "items"
-        ]
-      },
-      "ProductVariantsResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "media": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductMediaDto"
-            }
-          },
-          "brand": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductBrandDto"
-              }
-            ]
-          },
-          "productType": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductTypeRefDto"
-              }
-            ]
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductCategoryDto"
-            }
-          },
-          "integration": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductIntegrationDto"
-              }
-            ]
-          },
-          "isPopular": {
-            "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "DRAFT",
-              "ACTIVE",
-              "ARCHIVED",
-              "HIDDEN",
-              "DELETE"
-            ]
-          },
-          "position": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "productAttributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductAttributeDto"
-            }
-          },
-          "variantSummary": {
-            "$ref": "#/components/schemas/ProductVariantSummaryDto"
-          },
-          "variantPickerOptions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantPickerOptionDto"
-            }
-          },
-          "variants": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantDto"
-            }
-          },
-          "seo": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SeoDto"
-              }
-            ]
-          },
-          "ok": {
-            "type": "boolean",
-            "example": true
-          }
-        },
-        "required": [
-          "id",
-          "sku",
-          "name",
-          "slug",
-          "price",
-          "media",
-          "brand",
-          "productType",
-          "categories",
-          "integration",
-          "isPopular",
-          "status",
-          "position",
-          "createdAt",
-          "updatedAt",
-          "productAttributes",
-          "variantSummary",
-          "variantPickerOptions",
-          "variants",
-          "seo",
-          "ok"
-        ]
-      },
-      "SetProductVariantMatrixDtoReq": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductVariantDtoReq"
-            }
-          }
-        },
-        "required": [
-          "items"
         ]
       },
       "InventoryWarehouseDto": {
@@ -14801,7 +17020,8 @@
           },
           "price": {
             "type": "number",
-            "example": 1999
+            "example": 1999,
+            "nullable": true
           }
         },
         "required": [
@@ -14900,11 +17120,13 @@
           },
           "price": {
             "type": "number",
-            "example": 2199
+            "example": 2199,
+            "nullable": true
           },
           "stock": {
             "type": "number",
-            "example": 4
+            "example": 4,
+            "nullable": true
           },
           "status": {
             "allOf": [

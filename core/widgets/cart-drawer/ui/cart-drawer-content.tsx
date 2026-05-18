@@ -14,6 +14,7 @@ import type {
   CheckoutLocation,
   CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
+import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 
 interface CartDrawerContentProps {
@@ -38,6 +39,7 @@ interface CartDrawerContentProps {
   onCommentChange: (comment: string) => void;
   onCheckoutChange: (method: CheckoutMethod, data: CheckoutData) => void;
   onItemClick: (item: CartItemView) => void;
+  priceFormatMode: CatalogPriceFormatMode;
   status: string | null;
   statusMessage: string | null;
 }
@@ -61,6 +63,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   onCommentChange,
   onCheckoutChange,
   onItemClick,
+  priceFormatMode,
   status,
   statusMessage,
 }) => {
@@ -87,6 +90,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
       ) : state.hasItems ? (
         <CartCardList
           items={items}
+          priceFormatMode={priceFormatMode}
           actionRenderer={actionRenderer}
           onItemClick={(item) => {
             if (item.product) {

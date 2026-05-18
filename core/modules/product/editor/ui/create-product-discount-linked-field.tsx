@@ -2,6 +2,11 @@
 
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { clamp } from "@/shared/lib/math";
+import {
+  formatCatalogPriceInputValue,
+  getCatalogPriceFormatMode,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import {
@@ -32,6 +37,7 @@ function toInputValue(value: unknown): string {
 
 function setRelatedDiscountValue(
   mode: LinkedDiscountFieldMode,
+  priceFormatMode: CatalogPriceFormatMode,
   price: number,
   value: number,
 ): string | null {
@@ -41,8 +47,8 @@ function setRelatedDiscountValue(
 
   if (mode === "discount") {
     const percent = clamp(Math.round(value), 0, 100);
-    const discounted = Math.round((price * (100 - percent)) / 100);
-    return String(discounted);
+    const discounted = (price * (100 - percent)) / 100;
+    return formatCatalogPriceInputValue(discounted, priceFormatMode);
   }
 
   const raw = Math.round(((price - value) / price) * 100);
@@ -62,6 +68,7 @@ export function CreateProductDiscountLinkedField({
   relatedAttributeId,
 }: CreateProductDiscountLinkedFieldProps) {
   const { catalog } = useCatalogState();
+  const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const suffix = mode === "discount" ? "%" : getCatalogCurrency(catalog, "₽");
   const relatedFieldName = React.useMemo<Path<CreateProductFormValues> | null>(
     () =>
@@ -78,7 +85,12 @@ export function CreateProductDiscountLinkedField({
       const price = Number(form.getValues("price"));
 
       if (relatedFieldName) {
-        const relatedValue = setRelatedDiscountValue(mode, price, value);
+        const relatedValue = setRelatedDiscountValue(
+          mode,
+          priceFormatMode,
+          price,
+          value,
+        );
         form.setValue(relatedFieldName, relatedValue, {
           shouldDirty: true,
           shouldTouch: true,
@@ -87,7 +99,7 @@ export function CreateProductDiscountLinkedField({
 
       controllerField.onChange(rawValue);
     },
-    [controllerField, form, mode, relatedFieldName],
+    [controllerField, form, mode, priceFormatMode, relatedFieldName],
   );
 
   const inputProps = fieldConfig.inputProps ?? {};

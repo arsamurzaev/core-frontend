@@ -14,6 +14,7 @@ import {
   resolveProductPurchaseMaxQuantity,
   resolveProductPurchasePricing,
   resolveProductSaleUnitSource,
+  resolveSinglePurchasableProductVariantId,
 } from "@/core/widgets/product-drawer/model/product-purchase-selection-model";
 import { useProductVariantSelection } from "@/core/widgets/product-drawer/model/product-variant-selection";
 import type {
@@ -24,9 +25,9 @@ import React from "react";
 
 interface ProductPurchaseViewModel {
   discount: number;
-  displayPrice: number;
+  displayPrice: number | null;
   hasDiscount: boolean;
-  price: number;
+  price: number | null;
 }
 
 interface UseProductPurchaseSelectionParams {
@@ -51,12 +52,12 @@ export function useProductPurchaseSelection({
   viewModel,
 }: UseProductPurchaseSelectionParams): {
   cartProductSnapshot?: CartProductSnapshot;
-  displayPrice: number;
+  displayPrice: number | null;
   hasSelectedDiscount: boolean;
   isVariantSelectionRequired: boolean;
   maxQuantity?: number;
   saleUnits: ProductSaleUnit[];
-  selectedBasePrice: number;
+  selectedBasePrice: number | null;
   selectedSaleUnit: ProductSaleUnit | null;
   selectedSaleUnitId: string | null;
   selectedVariant: ProductVariantDto | null;
@@ -73,13 +74,23 @@ export function useProductPurchaseSelection({
       }),
     [canUseProductVariants, product],
   );
+  const singlePurchasableVariantId = React.useMemo(
+    () =>
+      resolveSinglePurchasableProductVariantId({
+        shouldEnforceStock,
+        variants: selectableVariants,
+      }),
+    [selectableVariants, shouldEnforceStock],
+  );
   const { selectedVariant, selectedVariantId, setSelectedVariantId } =
     useProductVariantSelection({
       initialVariantId,
       productId: product?.id,
       shouldEnforceStock,
+      shouldSelectFirstVariant: false,
       singleVariantId: product?.productType?.id
-        ? product?.variantSummary?.singleVariantId
+        ? (product?.variantSummary?.singleVariantId ??
+          singlePurchasableVariantId)
         : null,
       variants: selectableVariants,
     });

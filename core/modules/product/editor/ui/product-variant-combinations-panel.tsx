@@ -6,6 +6,7 @@ import {
 } from "@/core/modules/product/editor/model/product-variants";
 import { ProductVariantCombinationCard } from "@/core/modules/product/editor/ui/product-variant-combination-card";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 
 interface ProductVariantCombinationsPanelProps {
@@ -14,6 +15,7 @@ interface ProductVariantCombinationsPanelProps {
   discountPercent: number;
   matrixRows: VariantMatrixRow[];
   missingValueAttributes: AttributeDto[];
+  priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
   variantAttributes: AttributeDto[];
   onCombinationChange: (
@@ -30,6 +32,7 @@ export const ProductVariantCombinationsPanel: React.FC<
   discountPercent,
   matrixRows,
   missingValueAttributes,
+  priceFormatMode = "integer",
   priceFallback,
   variantAttributes,
   onCombinationChange,
@@ -67,6 +70,7 @@ export const ProductVariantCombinationsPanel: React.FC<
               canUseCatalogSaleUnits={canUseCatalogSaleUnits}
               disabled={disabled}
               discountPercent={discountPercent}
+              priceFormatMode={priceFormatMode}
               priceFallback={priceFallback}
               row={row}
               variantAttributes={variantAttributes}

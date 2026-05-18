@@ -1,12 +1,11 @@
 import {
   type CreateProductFormValues,
-  normalizeOptionalString,
 } from "@/core/modules/product/editor/model/form-config";
+import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
 import {
-  buildProductAttributePayload,
   buildRemovedProductAttributeIds,
 } from "@/core/modules/product/editor/model/product-attributes";
-import { normalizeProductCategoryIds } from "@/core/modules/product/editor/model/product-category-payload";
+import { buildCreateVariantsPayload } from "@/core/modules/product/editor/model/product-variants";
 import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
 import {
   type AttributeDto,
@@ -60,7 +59,10 @@ export function buildEditProductUpdatePayloadCandidate(params: {
   persistedAttributeValues: Record<string, AttributeFormValue>;
   product?: ProductWithDetailsDto | null;
   productAttributes: AttributeDto[];
+  variantAttributes?: AttributeDto[];
+  canUseProductTypes?: boolean;
   canUseCatalogSaleUnits: boolean;
+  canUseProductVariants?: boolean;
 }): UpdateProductDtoReq {
   const {
     formValues,
@@ -68,28 +70,44 @@ export function buildEditProductUpdatePayloadCandidate(params: {
     persistedAttributeValues,
     product,
     productAttributes,
+    variantAttributes = [],
+    canUseProductTypes = true,
     canUseCatalogSaleUnits,
+    canUseProductVariants = false,
   } = params;
-  const normalizedCategories = normalizeProductCategoryIds(
-    formValues.categoryIds,
-  );
+  const basePayload = buildProductEditorBasePayloadFields({
+    formValues,
+    productAttributes,
+  });
 
   const currentProductTypeId = product?.productType?.id ?? null;
-  const nextProductTypeId =
-    normalizeOptionalString(formValues.productTypeId) ?? null;
+  const nextProductTypeId = canUseProductTypes
+    ? basePayload.productTypeId
+    : currentProductTypeId;
   const hasProductTypeChange =
-    product !== undefined && nextProductTypeId !== currentProductTypeId;
+    canUseProductTypes &&
+    product !== undefined &&
+    nextProductTypeId !== currentProductTypeId;
   const isClearingProductType = hasProductTypeChange && !nextProductTypeId;
-  const editableProductAttributes = isClearingProductType
-    ? productAttributes.filter(
-        (attribute) =>
-          !isScopedToProductType(attribute, currentProductTypeId),
-      )
-    : productAttributes;
-  const attributes = buildProductAttributePayload(
-    editableProductAttributes,
-    formValues.attributes ?? {},
-  );
+  const editableProductAttributes =
+    !canUseProductTypes && currentProductTypeId
+      ? productAttributes.filter(
+          (attribute) =>
+            !isScopedToProductType(attribute, currentProductTypeId),
+        )
+      : isClearingProductType
+        ? productAttributes.filter(
+            (attribute) =>
+              !isScopedToProductType(attribute, currentProductTypeId),
+          )
+        : productAttributes;
+  const attributes = buildProductEditorBasePayloadFields({
+    formValues: {
+      ...formValues,
+      attributes: formValues.attributes ?? {},
+    },
+    productAttributes: editableProductAttributes,
+  }).attributes;
   const removeAttributeIds = mergeAttributeIds(
     buildRemovedProductAttributeIds(
       editableProductAttributes,
@@ -108,20 +126,30 @@ export function buildEditProductUpdatePayloadCandidate(params: {
     product,
     canUseCatalogSaleUnits,
   });
-  const nextPrice =
-    formValues.price.trim().length > 0 ? Number(formValues.price) : null;
+  const shouldReplaceVariantMatrix =
+    canUseProductVariants && variantAttributes.length > 0;
+  const variantMatrixPayload = shouldReplaceVariantMatrix
+    ? buildCreateVariantsPayload(formValues.variants, variantAttributes)
+    : [];
 
   return {
-    name: formValues.name.trim(),
-    price: nextPrice,
+    name: basePayload.name,
+    price: basePayload.price,
     mediaIds,
-    brandId: normalizeOptionalString(formValues.brandId) ?? null,
-    ...(hasProductTypeChange ? { productTypeId: nextProductTypeId } : {}),
-    categories: normalizedCategories,
+    brandId: basePayload.brandId,
+    ...(canUseProductTypes && hasProductTypeChange
+      ? { productTypeId: nextProductTypeId }
+      : {}),
+    categories: basePayload.categories,
     attributes,
     removeAttributeIds:
       removeAttributeIds.length > 0 ? removeAttributeIds : undefined,
-    ...(variantsPayload.length > 0 ? { variants: variantsPayload } : {}),
+    ...(variantsPayload.length > 0 && !shouldReplaceVariantMatrix
+      ? { variants: variantsPayload }
+      : {}),
+    ...(shouldReplaceVariantMatrix
+      ? { variantMatrix: variantMatrixPayload }
+      : {}),
   };
 }
 
@@ -131,7 +159,10 @@ export function parseEditProductUpdatePayload(params: {
   persistedAttributeValues: Record<string, AttributeFormValue>;
   product?: ProductWithDetailsDto | null;
   productAttributes: AttributeDto[];
+  variantAttributes?: AttributeDto[];
+  canUseProductTypes?: boolean;
   canUseCatalogSaleUnits: boolean;
+  canUseProductVariants?: boolean;
 }) {
   return buildEditProductUpdatePayloadCandidate(params);
 }

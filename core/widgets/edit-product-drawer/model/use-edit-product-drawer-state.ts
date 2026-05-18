@@ -1,15 +1,13 @@
 "use client";
 
-import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
-import {
-  buildEditProductFormValues,
-} from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
+import { buildEditProductFormValues } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import {
   type AttributeDto,
   type ProductWithDetailsDto,
 } from "@/shared/api/generated/react-query";
-
+import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
@@ -19,6 +17,7 @@ interface UseEditProductDrawerStateParams {
   open: boolean;
   product: ProductWithDetailsDto | null;
   productAttributes: AttributeDto[];
+  priceFormatMode?: CatalogPriceFormatMode;
   variantAttributes?: AttributeDto[];
   productQueryError: unknown;
   productQueryIsError: boolean;
@@ -32,6 +31,7 @@ export function useEditProductDrawerState({
   open,
   product,
   productAttributes,
+  priceFormatMode = "integer",
   variantAttributes = [],
   productQueryError,
   productQueryIsError,
@@ -65,11 +65,24 @@ export function useEditProductDrawerState({
 
   const resetFromProduct = React.useCallback(
     (nextProduct: ProductWithDetailsDto) => {
-      form.reset(buildEditProductFormValues(nextProduct, productAttributes, variantAttributes));
+      form.reset(
+        buildEditProductFormValues(
+          nextProduct,
+          productAttributes,
+          variantAttributes,
+          priceFormatMode,
+        ),
+      );
       resetFromMedia(nextProduct.media);
       setErrorMessage(null);
     },
-    [form, productAttributes, variantAttributes, resetFromMedia],
+    [
+      form,
+      priceFormatMode,
+      productAttributes,
+      variantAttributes,
+      resetFromMedia,
+    ],
   );
 
   React.useEffect(() => {
@@ -91,15 +104,15 @@ export function useEditProductDrawerState({
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
-    if (!nextOpen && isSubmitting) {
-      return;
-    }
+      if (!nextOpen && isSubmitting) {
+        return;
+      }
 
-    setOpen(nextOpen);
-    if (!nextOpen) {
-      lastResetKeyRef.current = null;
-      setErrorMessage(null);
-    }
+      setOpen(nextOpen);
+      if (!nextOpen) {
+        lastResetKeyRef.current = null;
+        setErrorMessage(null);
+      }
     },
     [isSubmitting, setOpen],
   );
@@ -116,6 +129,8 @@ export function useEditProductDrawerState({
   return {
     closeDrawer: React.useCallback(() => {
       setOpen(false);
+      lastResetKeyRef.current = null;
+      setErrorMessage(null);
     }, [setOpen]),
     errorMessage:
       errorMessage ??

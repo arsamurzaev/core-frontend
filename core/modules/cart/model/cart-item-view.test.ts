@@ -122,6 +122,78 @@ describe("buildCartItemView", () => {
     expect(view.originalLineTotal).toBeNull();
   });
 
+  it("does not recalculate unknown cart price from loaded product details", () => {
+    const view = buildCartItemView({
+      fallbackCurrency: "RUB",
+      item: cartItem({
+        lineTotal: 0,
+        product: {
+          id: "product-1",
+          name: "Coffee",
+          slug: "coffee",
+          price: null,
+        },
+      }),
+      product: product({
+        price: "999",
+      }),
+    });
+
+    expect(view.displayLineTotal).toBeNull();
+    expect(view.originalLineTotal).toBeNull();
+  });
+
+  it("uses backend line total for priced variant lines even when product snapshots are price-less", () => {
+    const view = buildCartItemView({
+      fallbackCurrency: "RUB",
+      item: cartItem({
+        variantId: "variant-1",
+        lineTotal: 890,
+        unitPrice: 890,
+        baseUnitPrice: 890,
+        product: {
+          id: "product-1",
+          name: "Coffee",
+          slug: "coffee",
+          price: null,
+        },
+        variant: null,
+      }),
+      product: product({
+        price: null,
+        variants: [
+          variant({
+            price: null,
+          }),
+        ],
+      }),
+    });
+
+    expect(view.displayLineTotal).toBe(890);
+    expect(view.originalLineTotal).toBe(890);
+  });
+
+  it("uses backend cart line total instead of current product price", () => {
+    const view = buildCartItemView({
+      fallbackCurrency: "RUB",
+      item: cartItem({
+        lineTotal: 240,
+        product: {
+          id: "product-1",
+          name: "Coffee",
+          slug: "coffee",
+          price: 120,
+        },
+      }),
+      product: product({
+        price: "999",
+      }),
+    });
+
+    expect(view.displayLineTotal).toBe(240);
+    expect(view.originalLineTotal).toBe(240);
+  });
+
   it("resolves sale unit label from product variant sale units", () => {
     const view = buildCartItemView({
       fallbackCurrency: "RUB",
@@ -159,5 +231,67 @@ describe("buildCartItemView", () => {
     expect(view.saleUnitLabel).toContain("Box");
     expect(view.saleUnitLabel).toContain("12");
     expect(view.subtitle).toContain("Box");
+  });
+
+  it("uses the shared variant label format in cart subtitles", () => {
+    const view = buildCartItemView({
+      fallbackCurrency: "RUB",
+      item: cartItem({
+        variantId: "variant-1",
+        variant: variant({
+          attributes: [
+            {
+              id: "variant-attribute-1",
+              attributeId: "size",
+              enumValueId: "size-36",
+              attribute: {
+                id: "size",
+                key: "size",
+                displayName: "Size",
+                dataType: "ENUM",
+                isRequired: false,
+                isVariantAttribute: true,
+                isFilterable: false,
+                displayOrder: 1,
+                isHidden: false,
+              },
+              enumValue: {
+                id: "size-36",
+                value: "36",
+                displayName: "36",
+                displayOrder: 1,
+                businessId: null,
+              },
+            },
+            {
+              id: "variant-attribute-2",
+              attributeId: "color",
+              enumValueId: "color-blue",
+              attribute: {
+                id: "color",
+                key: "color",
+                displayName: "Color",
+                dataType: "ENUM",
+                isRequired: false,
+                isVariantAttribute: true,
+                isFilterable: false,
+                displayOrder: 2,
+                isHidden: false,
+              },
+              enumValue: {
+                id: "color-blue",
+                value: "blue",
+                displayName: "Blue",
+                displayOrder: 1,
+                businessId: null,
+              },
+            },
+          ],
+        }),
+      }),
+    });
+
+    expect(view.variantLabel).toBe("36 / Blue");
+    expect(view.subtitle).toBe("36 / Blue");
   });
 });
