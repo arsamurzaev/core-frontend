@@ -12,11 +12,13 @@ import {
 } from "@/core/modules/product/editor/lib/upload-category-image";
 import {
   getCategoryControllerGetAllQueryKey,
+  getCategoryControllerGetByIdQueryKey,
   useCategoryControllerCreate,
   useCategoryControllerRemove,
   useCategoryControllerUpdate,
   type CategoryDto,
 } from "@/shared/api/generated/react-query";
+import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
 import { apiClient } from "@/shared/api/client";
 import { revalidateStorefrontCacheBestEffort } from "@/shared/api/revalidate-storefront-client";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
@@ -35,6 +37,7 @@ export interface UseCategoryAdminResult {
   createName: string;
   createUploadState: CategoryImageUploadState;
   deletingCategory: CategoryDto | null;
+  deleteProductsWithCategory: boolean;
   editDescriptor: string;
   editImageFile: File | undefined;
   editName: string;
@@ -65,6 +68,7 @@ export interface UseCategoryAdminResult {
   setDeletingCategory: React.Dispatch<
     React.SetStateAction<CategoryDto | null>
   >;
+  setDeleteProductsWithCategory: React.Dispatch<React.SetStateAction<boolean>>;
   setEditDescriptor: React.Dispatch<React.SetStateAction<string>>;
   setEditImageFile: React.Dispatch<React.SetStateAction<File | undefined>>;
   setEditName: React.Dispatch<React.SetStateAction<string>>;
@@ -134,6 +138,8 @@ export function useCategoryAdmin({
 
   const [deletingCategory, setDeletingCategory] =
     React.useState<CategoryDto | null>(null);
+  const [deleteProductsWithCategory, setDeleteProductsWithCategory] =
+    React.useState(false);
 
   const [isReorderOpen, setIsReorderOpen] = React.useState(false);
   const [isReorderBusy, setIsReorderBusy] = React.useState(false);
@@ -172,6 +178,12 @@ export function useCategoryAdmin({
 
     setReorderCategories(mapCategoriesToDraft(categories));
   }, [categories, isReorderOpen]);
+
+  React.useEffect(() => {
+    if (!deletingCategory) {
+      setDeleteProductsWithCategory(false);
+    }
+  }, [deletingCategory]);
 
   const handleCreateCategory = React.useCallback(async () => {
     const parsedDraft = parseCategoryEditorDraft({
@@ -308,7 +320,14 @@ export function useCategoryAdmin({
     }
 
     try {
-      await removeCategory.mutateAsync({ id: deletingCategory.id });
+      await removeCategory.mutateAsync({
+        id: deletingCategory.id,
+        params: {
+          deleteProducts:
+            deleteProductsWithCategory &&
+            (deletingCategory.productCount ?? 0) > 0,
+        },
+      });
       const queryKey = getCategoryControllerGetAllQueryKey();
       queryClient.setQueryData<CategoryDto[]>(queryKey, (current) =>
         current
@@ -320,7 +339,13 @@ export function useCategoryAdmin({
           .filter((category) => category.id !== deletingCategory.id)
           .map((category, index) => ({ ...category, position: index })),
       );
-      await revalidateStorefrontCacheBestEffort();
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: getCategoryControllerGetByIdQueryKey(deletingCategory.id),
+        }),
+        invalidateProductQueries(queryClient),
+      ]);
       if (editingCategory?.id === deletingCategory.id) {
         resetEditForm();
       }
@@ -332,6 +357,7 @@ export function useCategoryAdmin({
     }
   }, [
     deletingCategory,
+    deleteProductsWithCategory,
     editingCategory,
     removeCategory,
     queryClient,
@@ -436,6 +462,7 @@ export function useCategoryAdmin({
     createName,
     createUploadState,
     deletingCategory,
+    deleteProductsWithCategory,
     editDescriptor,
     editImageFile,
     editName,
@@ -461,6 +488,7 @@ export function useCategoryAdmin({
     setCreateImageFile,
     setCreateName,
     setDeletingCategory,
+    setDeleteProductsWithCategory,
     setEditDescriptor,
     setEditImageFile,
     setEditName,

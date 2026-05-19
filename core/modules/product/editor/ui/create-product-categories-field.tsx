@@ -6,7 +6,9 @@ import { CreateProductCategorySelectionDrawer } from "@/core/modules/product/edi
 import { CreateProductCategoryEditorDrawer } from "@/core/modules/product/editor/ui/create-product-category-editor-drawer";
 import { CreateProductCategoriesSummary } from "@/core/modules/product/editor/ui/create-product-categories-summary";
 import { ConfirmationDrawer } from "@/shared/ui/confirmation-drawer";
+import { Checkbox } from "@/shared/ui/checkbox";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
+import * as React from "react";
 
 interface CreateProductCategoriesFieldProps
   extends DynamicFieldRenderProps<CreateProductFormValues> {
@@ -25,6 +27,7 @@ export function CreateProductCategoriesField(
     createName,
     createUploadState,
     deletingCategory,
+    deleteProductsWithCategory,
     draftValues,
     editDescriptor,
     editImageFile,
@@ -51,6 +54,7 @@ export function CreateProductCategoriesField(
     setCreateImageFile,
     setCreateName,
     setDeletingCategory,
+    setDeleteProductsWithCategory,
     setEditDescriptor,
     setEditImageFile,
     setEditName,
@@ -61,6 +65,8 @@ export function CreateProductCategoriesField(
     ...props,
     supportsCategoryDetails,
   });
+  const deleteProductsCheckboxId = React.useId();
+  const deletingProductCount = deletingCategory?.productCount ?? 0;
 
   return (
     <>
@@ -159,7 +165,27 @@ export function CreateProductCategoriesField(
         pendingText="Удаление..."
         tone="destructive"
         onConfirm={handleDeleteCategory}
-      />
+      >
+        {deletingCategory ? (
+          <label
+            htmlFor={deleteProductsCheckboxId}
+            className="flex cursor-pointer items-start gap-3 rounded-md border border-destructive/20 bg-destructive/5 p-3 text-sm"
+          >
+            <Checkbox
+              id={deleteProductsCheckboxId}
+              checked={deleteProductsWithCategory}
+              disabled={deletingProductCount <= 0}
+              onCheckedChange={(checked) =>
+                setDeleteProductsWithCategory(checked === true)
+              }
+              className="mt-0.5"
+            />
+            <span className="font-medium text-foreground">
+              Удалить товары (кол-во: {deletingProductCount})
+            </span>
+          </label>
+        ) : null}
+      </ConfirmationDrawer>
     </>
   );
 }

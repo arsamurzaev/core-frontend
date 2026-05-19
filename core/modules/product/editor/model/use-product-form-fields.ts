@@ -86,7 +86,7 @@ export function useProductFormFields({
       refetchOnWindowFocus: false,
     },
   });
-  const categoriesQuery = useCategoryControllerGetAll({
+  const categoriesQuery = useCategoryControllerGetAll(undefined, {
     query: {
       staleTime: 60_000,
       refetchOnWindowFocus: false,

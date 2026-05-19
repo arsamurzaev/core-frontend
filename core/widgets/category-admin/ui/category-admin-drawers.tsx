@@ -5,6 +5,7 @@ import { type UseCategoryAdminResult } from "@/core/widgets/category-admin/model
 import { CategoryReorderDrawer } from "@/core/widgets/category-admin/ui/category-reorder-drawer";
 import { ConfirmationDrawer } from "@/shared/ui/confirmation-drawer";
 import { Button } from "@/shared/ui/button";
+import { Checkbox } from "@/shared/ui/checkbox";
 import { Trash2 } from "lucide-react";
 import * as React from "react";
 
@@ -26,6 +27,9 @@ export const CategoryAdminDrawers: React.FC<CategoryAdminDrawersProps> = ({
   editDescription = DEFAULT_EDIT_DESCRIPTION,
   supportsCategoryDetails = true,
 }) => {
+  const deleteProductsCheckboxId = React.useId();
+  const deletingProductCount = admin.deletingCategory?.productCount ?? 0;
+
   return (
     <>
       <CreateProductCategoryEditorDrawer
@@ -119,7 +123,27 @@ export const CategoryAdminDrawers: React.FC<CategoryAdminDrawersProps> = ({
         pendingText="Удаление..."
         tone="destructive"
         onConfirm={admin.handleDeleteCategory}
-      />
+      >
+        {admin.deletingCategory ? (
+          <label
+            htmlFor={deleteProductsCheckboxId}
+            className="flex cursor-pointer items-start gap-3 rounded-md border border-destructive/20 bg-destructive/5 p-3 text-sm"
+          >
+            <Checkbox
+              id={deleteProductsCheckboxId}
+              checked={admin.deleteProductsWithCategory}
+              disabled={deletingProductCount <= 0}
+              onCheckedChange={(checked) =>
+                admin.setDeleteProductsWithCategory(checked === true)
+              }
+              className="mt-0.5"
+            />
+            <span className="font-medium text-foreground">
+              Удалить товары (кол-во: {deletingProductCount})
+            </span>
+          </label>
+        ) : null}
+      </ConfirmationDrawer>
     </>
   );
 };

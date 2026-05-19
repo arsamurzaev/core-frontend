@@ -5,7 +5,10 @@ import { getFieldOptionText } from "@/core/modules/product/editor/lib/select-fie
 import { type CategoryDto } from "@/shared/api/generated/react-query";
 import { type FieldOption } from "@/shared/ui/dynamic-form";
 
-export type CategoryListItem = Pick<CategoryDto, "id" | "name" | "descriptor"> & {
+export type CategoryListItem = Pick<
+  CategoryDto,
+  "id" | "name" | "descriptor" | "productCount"
+> & {
   imageUrl: string | null;
 };
 
@@ -14,6 +17,7 @@ function toCategoryListItem(option: FieldOption): CategoryListItem {
     id: String(option.value),
     name: getFieldOptionText(option),
     descriptor: null,
+    productCount: 0,
     imageUrl: null,
   };
 }
@@ -36,6 +40,7 @@ export function buildCategoryList(
     id: category.id,
     name: category.name,
     descriptor: category.descriptor,
+    productCount: category.productCount,
     imageUrl: category.imageMedia?.url ?? null,
   }));
 }

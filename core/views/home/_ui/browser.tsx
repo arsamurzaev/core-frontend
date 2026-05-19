@@ -108,7 +108,7 @@ export const Browser: React.FC<BrowserProps> = ({
     handleTabChange,
     handleFilterToggle,
   } = useBrowserQueryState();
-  const categoriesQuery = useCategoryControllerGetAll({
+  const categoriesQuery = useCategoryControllerGetAll(undefined, {
     query: {
       initialData: initialCategories,
       staleTime: canManageCategories ? 0 : 60_000,

@@ -23,7 +23,27 @@ function resolveCartItemImageUrl(): string {
 }
 
 function getVariantLabel(item: CartItemDto): string {
-  return formatProductVariantLabel(item.variant) ?? "";
+  const label = formatProductVariantLabel(item.variant);
+  if (!label) {
+    return "";
+  }
+
+  const hasVariantAttributes = (item.variant?.attributes?.length ?? 0) > 0;
+  const normalizedLabel = label.trim().toLowerCase();
+  const normalizedVariantKey =
+    typeof item.variant?.variantKey === "string"
+      ? item.variant.variantKey.trim().toLowerCase()
+      : "";
+
+  if (
+    !hasVariantAttributes &&
+    normalizedLabel === "default" &&
+    (!normalizedVariantKey || normalizedVariantKey === "default")
+  ) {
+    return "";
+  }
+
+  return label;
 }
 
 type CartItemWithSaleUnit = CartItemDto & {

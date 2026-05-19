@@ -294,4 +294,28 @@ describe("buildCartItemView", () => {
     expect(view.variantLabel).toBe("36 / Blue");
     expect(view.subtitle).toBe("36 / Blue");
   });
+
+  it("hides technical default variant labels in cart subtitles", () => {
+    const view = buildCartItemView({
+      fallbackCurrency: "RUB",
+      item: cartItem({
+        variantId: "variant-default",
+        variant: {
+          id: "variant-default",
+          sku: "SKU-DEFAULT",
+          variantKey: "default",
+          label: "default",
+          price: 260,
+          stock: 10,
+          status: "ACTIVE",
+          isAvailable: true,
+          attributes: [],
+        },
+      }),
+      product: product(),
+    });
+
+    expect(view.variantLabel).toBeNull();
+    expect(view.subtitle).toBe("");
+  });
 });

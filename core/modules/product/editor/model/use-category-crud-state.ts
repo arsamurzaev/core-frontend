@@ -11,8 +11,10 @@ import {
   type CategoryImageUploadState,
 } from "@/core/modules/product/editor/lib/upload-category-image";
 import { type CategoryListItem } from "@/core/modules/product/editor/model/category-field-utils";
+import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
 import {
   getCategoryControllerGetAllQueryKey,
+  getCategoryControllerGetByIdQueryKey,
   useCategoryControllerCreate,
   useCategoryControllerRemove,
   useCategoryControllerUpdate,
@@ -61,6 +63,8 @@ export function useCategoryCrudState({
     React.useState<CategoryImageUploadState>(IDLE_CATEGORY_IMAGE_UPLOAD_STATE);
   const [deletingCategory, setDeletingCategory] =
     React.useState<CategoryListItem | null>(null);
+  const [deleteProductsWithCategory, setDeleteProductsWithCategory] =
+    React.useState(false);
 
   const invalidateCategories = React.useCallback(async () => {
     await Promise.allSettled([
@@ -85,6 +89,12 @@ export function useCategoryCrudState({
     setEditImageFile(undefined);
     setEditUploadState(IDLE_CATEGORY_IMAGE_UPLOAD_STATE);
   }, []);
+
+  React.useEffect(() => {
+    if (!deletingCategory) {
+      setDeleteProductsWithCategory(false);
+    }
+  }, [deletingCategory]);
 
   const handleCreateCategory = React.useCallback(async () => {
     const parsedDraft = parseCategoryEditorDraft({
@@ -217,15 +227,29 @@ export function useCategoryCrudState({
     }
 
     try {
-      await removeCategory.mutateAsync({ id: deletingCategory.id });
+      await removeCategory.mutateAsync({
+        id: deletingCategory.id,
+        params: {
+          deleteProducts:
+            deleteProductsWithCategory &&
+            (deletingCategory.productCount ?? 0) > 0,
+        },
+      });
+      const queryKey = getCategoryControllerGetAllQueryKey();
       queryClient.setQueryData<CategoryDto[]>(
-        getCategoryControllerGetAllQueryKey(),
+        queryKey,
         (current) =>
           current
             ?.filter((category) => category.id !== deletingCategory.id)
             .map((category, index) => ({ ...category, position: index })) ?? [],
       );
-      await revalidateStorefrontCacheBestEffort();
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({
+          queryKey: getCategoryControllerGetByIdQueryKey(deletingCategory.id),
+        }),
+        invalidateProductQueries(queryClient),
+      ]);
 
       if (selectedValues.includes(deletingCategory.id)) {
         const nextSelectedValues = selectedValues.filter(
@@ -246,6 +270,7 @@ export function useCategoryCrudState({
     }
   }, [
     deletingCategory,
+    deleteProductsWithCategory,
     field,
     removeCategory,
     queryClient,
@@ -259,6 +284,7 @@ export function useCategoryCrudState({
     createName,
     createUploadState,
     deletingCategory,
+    deleteProductsWithCategory,
     editDescriptor,
     editImageFile,
     editName,
@@ -283,6 +309,7 @@ export function useCategoryCrudState({
     setCreateImageFile,
     setCreateName,
     setDeletingCategory,
+    setDeleteProductsWithCategory,
     setEditDescriptor,
     setEditImageFile,
     setEditName,

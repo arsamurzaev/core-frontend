@@ -34,7 +34,7 @@ export function useCreateProductCategoriesField({
   const isControlDisabled = disabled || readOnly;
   const optionList = options ?? EMPTY_FIELD_OPTIONS;
 
-  const categoriesQuery = useCategoryControllerGetAll({
+  const categoriesQuery = useCategoryControllerGetAll(undefined, {
     query: {
       staleTime: 60_000,
       refetchOnWindowFocus: false,

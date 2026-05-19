@@ -20,7 +20,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
 }) => {
   const { queryState, isFilterActive, handleFilterToggle } =
     useBrowserQueryState();
-  const categoriesQuery = useCategoryControllerGetAll({
+  const categoriesQuery = useCategoryControllerGetAll(undefined, {
     query: {
       initialData: initialCategories,
       staleTime: 60_000,

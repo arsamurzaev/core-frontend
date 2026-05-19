@@ -552,6 +552,103 @@ export interface AdminCatalogFeatureEntitlementsDto {
   features: AdminCatalogFeatureEntitlementItemDto[];
 }
 
+export interface ProductDefaultVariantDiagnosticSampleDto {
+  productId: string;
+  productName: string;
+  productSku: string;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  variantKey: string | null;
+  /** @nullable */
+  variantSku: string | null;
+  /** @nullable */
+  details: string | null;
+}
+
+export type ProductDefaultVariantDiagnosticCheckDtoCode = typeof ProductDefaultVariantDiagnosticCheckDtoCode[keyof typeof ProductDefaultVariantDiagnosticCheckDtoCode];
+
+
+export const ProductDefaultVariantDiagnosticCheckDtoCode = {
+  SIMPLE_WITHOUT_DEFAULT_VARIANT: 'SIMPLE_WITHOUT_DEFAULT_VARIANT',
+  MULTIPLE_DEFAULT_VARIANTS: 'MULTIPLE_DEFAULT_VARIANTS',
+  CUSTOM_VARIANT_WITHOUT_ATTRIBUTES: 'CUSTOM_VARIANT_WITHOUT_ATTRIBUTES',
+  DEFAULT_VARIANT_WITH_ATTRIBUTES: 'DEFAULT_VARIANT_WITH_ATTRIBUTES',
+  DEFAULT_VARIANT_PRICE_MISMATCH: 'DEFAULT_VARIANT_PRICE_MISMATCH',
+} as const;
+
+export type ProductDefaultVariantDiagnosticCheckDtoStatus = typeof ProductDefaultVariantDiagnosticCheckDtoStatus[keyof typeof ProductDefaultVariantDiagnosticCheckDtoStatus];
+
+
+export const ProductDefaultVariantDiagnosticCheckDtoStatus = {
+  ok: 'ok',
+  warn: 'warn',
+  fail: 'fail',
+} as const;
+
+export interface ProductDefaultVariantDiagnosticCheckDto {
+  code: ProductDefaultVariantDiagnosticCheckDtoCode;
+  status: ProductDefaultVariantDiagnosticCheckDtoStatus;
+  count: number;
+  message: string;
+  samples: ProductDefaultVariantDiagnosticSampleDto[];
+}
+
+export interface ProductDefaultVariantDiagnosticsResponseDto {
+  catalogId: string;
+  sampleLimit: number;
+  checks: ProductDefaultVariantDiagnosticCheckDto[];
+  warnCount: number;
+  failCount: number;
+  ok: boolean;
+}
+
+export interface ProductDefaultVariantRepairResponseDto {
+  checkedProducts: number;
+  repairedProducts: number;
+  affectedCatalogs: number;
+}
+
+export interface RepairDefaultVariantPriceMismatchDtoReq {
+  /** false = dry-run only. true = copy the technical default variant price into legacy Product.price for safe simple products. */
+  apply?: boolean;
+  /**
+   * @minimum 1
+   * @maximum 1000
+   */
+  batchSize?: number;
+  /**
+   * @minimum 1
+   * @maximum 100
+   */
+  sampleLimit?: number;
+}
+
+export interface ProductDefaultVariantPriceMismatchRepairSampleDto {
+  productId: string;
+  productName: string;
+  productSku: string;
+  variantId: string;
+  variantSku: string;
+  variantKey: string;
+  /** @nullable */
+  previousProductPrice: string | null;
+  /** @nullable */
+  nextProductPrice: string | null;
+}
+
+export interface ProductDefaultVariantPriceMismatchRepairResponseDto {
+  catalogId: string;
+  dryRun: boolean;
+  checkedProducts: number;
+  repairableProducts: number;
+  updatedProducts: number;
+  affectedCatalogs: number;
+  batchSize: number;
+  sampleLimit: number;
+  samples: ProductDefaultVariantPriceMismatchRepairSampleDto[];
+}
+
 export interface AdminMoySkladSkippedReasonCountDto {
   reason: string;
   count: number;
@@ -910,6 +1007,904 @@ export interface UploadQueueStatusDto {
   /** Результаты для массива файлов */
   results?: UploadImageResponseDto[];
   error?: string;
+}
+
+export interface ProductMediaDto {
+  position: number;
+  /** @nullable */
+  kind: string | null;
+  media: MediaDto;
+}
+
+export interface ProductBrandDto {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface ProductTypeRefDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export interface ProductCategoryDto {
+  id: string;
+  name: string;
+  position: number;
+}
+
+export type ProductIntegrationDtoProvider = typeof ProductIntegrationDtoProvider[keyof typeof ProductIntegrationDtoProvider];
+
+
+export const ProductIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+} as const;
+
+export interface ProductIntegrationDto {
+  provider: ProductIntegrationDtoProvider;
+  externalId: string;
+  /** @nullable */
+  externalCode: string | null;
+  /** @nullable */
+  lastSyncedAt: string | null;
+}
+
+export type ProductAttributeRefDtoDataType = typeof ProductAttributeRefDtoDataType[keyof typeof ProductAttributeRefDtoDataType];
+
+
+export const ProductAttributeRefDtoDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  DATETIME: 'DATETIME',
+  BOOLEAN: 'BOOLEAN',
+  ENUM: 'ENUM',
+} as const;
+
+export interface ProductAttributeRefDto {
+  id: string;
+  key: string;
+  displayName: string;
+  dataType: ProductAttributeRefDtoDataType;
+  isRequired: boolean;
+  isVariantAttribute: boolean;
+  isFilterable: boolean;
+  displayOrder: number;
+  isHidden: boolean;
+}
+
+export interface ProductAttributeEnumValueDto {
+  id: string;
+  value: string;
+  /** @nullable */
+  displayName: string | null;
+  displayOrder: number;
+  /** @nullable */
+  businessId: string | null;
+}
+
+export interface ProductAttributeDto {
+  id: string;
+  attributeId: string;
+  /** @nullable */
+  enumValueId: string | null;
+  /** @nullable */
+  valueString: string | null;
+  /** @nullable */
+  valueInteger: number | null;
+  /** @nullable */
+  valueDecimal: string | null;
+  /** @nullable */
+  valueBoolean: boolean | null;
+  /** @nullable */
+  valueDateTime: string | null;
+  attribute: ProductAttributeRefDto;
+  enumValue: ProductAttributeEnumValueDto | null;
+}
+
+export interface ProductVariantSummaryDto {
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  activeCount: number;
+  /** @nullable */
+  totalStock: number | null;
+  /** @nullable */
+  singleVariantId: string | null;
+}
+
+export type ProductVariantPickerOptionDtoStatus = typeof ProductVariantPickerOptionDtoStatus[keyof typeof ProductVariantPickerOptionDtoStatus];
+
+
+export const ProductVariantPickerOptionDtoStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantPickerOptionDto {
+  id: string;
+  label: string;
+  /** @nullable */
+  price: string | null;
+  /** @nullable */
+  stock: number | null;
+  status: ProductVariantPickerOptionDtoStatus;
+  isAvailable: boolean;
+  /** @nullable */
+  saleUnitId: string | null;
+  /** @nullable */
+  saleUnitPrice: string | null;
+  /** @nullable */
+  maxQuantity: number | null;
+}
+
+export type ProductWithAttributesDtoPriceState = typeof ProductWithAttributesDtoPriceState[keyof typeof ProductWithAttributesDtoPriceState];
+
+
+export const ProductWithAttributesDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductWithAttributesDtoAvailabilityState = typeof ProductWithAttributesDtoAvailabilityState[keyof typeof ProductWithAttributesDtoAvailabilityState];
+
+
+export const ProductWithAttributesDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductWithAttributesDtoStatus = typeof ProductWithAttributesDtoStatus[keyof typeof ProductWithAttributesDtoStatus];
+
+
+export const ProductWithAttributesDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductWithAttributesDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductWithAttributesDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductWithAttributesDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductWithAttributesDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+}
+
+export interface ProductCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * Стабильный seed для детерминированной рандомизации
+   * @nullable
+   */
+  seed: string | null;
+}
+
+export interface ProductInfinitePageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+  /**
+   * Стабильный seed для детерминированной рандомизации
+   * @nullable
+   */
+  seed: string | null;
+}
+
+export interface ProductCursorCardPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+}
+
+export interface ProductCursorPageDto {
+  items: ProductWithAttributesDto[];
+  /** @nullable */
+  nextCursor: string | null;
+}
+
+export interface VariantAttributeDto {
+  id: string;
+  attributeId: string;
+  enumValueId: string;
+  attribute: ProductAttributeRefDto;
+  enumValue: ProductAttributeEnumValueDto;
+}
+
+export interface ProductVariantCatalogSaleUnitDto {
+  id: string;
+  code: string;
+  name: string;
+  defaultBaseQuantity: string;
+}
+
+export interface ProductVariantSaleUnitDto {
+  id: string;
+  /** @nullable */
+  catalogSaleUnitId: string | null;
+  code: string;
+  name: string;
+  baseQuantity: string;
+  price: string;
+  /** @nullable */
+  barcode: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
+}
+
+export type ProductVariantDtoKind = typeof ProductVariantDtoKind[keyof typeof ProductVariantDtoKind];
+
+
+export const ProductVariantDtoKind = {
+  DEFAULT: 'DEFAULT',
+  MATRIX: 'MATRIX',
+} as const;
+
+export type ProductVariantDtoStatus = typeof ProductVariantDtoStatus[keyof typeof ProductVariantDtoStatus];
+
+
+export const ProductVariantDtoStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantDto {
+  id: string;
+  sku: string;
+  variantKey: string;
+  kind: ProductVariantDtoKind;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  price: string | null;
+  status: ProductVariantDtoStatus;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+  attributes: VariantAttributeDto[];
+  saleUnits: ProductVariantSaleUnitDto[];
+  integration?: ProductIntegrationDto | null;
+}
+
+export type SeoDtoEntityType = typeof SeoDtoEntityType[keyof typeof SeoDtoEntityType];
+
+
+export const SeoDtoEntityType = {
+  CATALOG: 'CATALOG',
+  CATEGORY: 'CATEGORY',
+  PRODUCT: 'PRODUCT',
+  PAGE: 'PAGE',
+  BRAND: 'BRAND',
+  ARTICLE: 'ARTICLE',
+  OTHER: 'OTHER',
+} as const;
+
+/**
+ * @nullable
+ */
+export type SeoDtoSitemapChangeFreq = typeof SeoDtoSitemapChangeFreq[keyof typeof SeoDtoSitemapChangeFreq] | null;
+
+
+export const SeoDtoSitemapChangeFreq = {
+  ALWAYS: 'ALWAYS',
+  HOURLY: 'HOURLY',
+  DAILY: 'DAILY',
+  WEEKLY: 'WEEKLY',
+  MONTHLY: 'MONTHLY',
+  YEARLY: 'YEARLY',
+  NEVER: 'NEVER',
+} as const;
+
+export interface SeoDto {
+  id: string;
+  catalogId: string;
+  entityType: SeoDtoEntityType;
+  entityId: string;
+  /** @nullable */
+  urlPath: string | null;
+  /** @nullable */
+  canonicalUrl: string | null;
+  /** @nullable */
+  title: string | null;
+  /** @nullable */
+  description: string | null;
+  /** @nullable */
+  keywords: string | null;
+  /** @nullable */
+  h1: string | null;
+  /** @nullable */
+  seoText: string | null;
+  /** @nullable */
+  robots: string | null;
+  isIndexable: boolean;
+  isFollowable: boolean;
+  /** @nullable */
+  ogTitle: string | null;
+  /** @nullable */
+  ogDescription: string | null;
+  ogMedia: MediaDto | null;
+  /** @nullable */
+  ogType: string | null;
+  /** @nullable */
+  ogUrl: string | null;
+  /** @nullable */
+  ogSiteName: string | null;
+  /** @nullable */
+  ogLocale: string | null;
+  /** @nullable */
+  twitterCard: string | null;
+  /** @nullable */
+  twitterTitle: string | null;
+  /** @nullable */
+  twitterDescription: string | null;
+  twitterMedia: MediaDto | null;
+  faviconMedia: MediaDto | null;
+  /** @nullable */
+  twitterSite: string | null;
+  /** @nullable */
+  twitterCreator: string | null;
+  /** @nullable */
+  hreflang: string | null;
+  /** @nullable */
+  structuredData: string | null;
+  /** @nullable */
+  extras: string | null;
+  /** @nullable */
+  sitemapPriority: number | null;
+  /** @nullable */
+  sitemapChangeFreq: SeoDtoSitemapChangeFreq;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ProductWithDetailsDtoPriceState = typeof ProductWithDetailsDtoPriceState[keyof typeof ProductWithDetailsDtoPriceState];
+
+
+export const ProductWithDetailsDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductWithDetailsDtoAvailabilityState = typeof ProductWithDetailsDtoAvailabilityState[keyof typeof ProductWithDetailsDtoAvailabilityState];
+
+
+export const ProductWithDetailsDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductWithDetailsDtoStatus = typeof ProductWithDetailsDtoStatus[keyof typeof ProductWithDetailsDtoStatus];
+
+
+export const ProductWithDetailsDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductWithDetailsDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductWithDetailsDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductWithDetailsDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductWithDetailsDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+}
+
+export interface ProductAttributeValueDto {
+  attributeId: string;
+  enumValueId?: string;
+  /** @maxLength 3000 */
+  valueString?: string;
+  valueInteger?: number;
+  valueDecimal?: number;
+  valueBoolean?: boolean;
+  valueDateTime?: string;
+}
+
+export interface ProductVariantAttributeDtoReq {
+  attributeId: string;
+  /** Идентификатор значения перечисления */
+  enumValueId?: string;
+  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
+  value?: string;
+}
+
+export interface ProductVariantSaleUnitDtoReq {
+  /** Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name. */
+  catalogSaleUnitId?: string;
+  /** Технический код можно не передавать: backend сгенерирует его из названия. */
+  code?: string;
+  /** Название формата продажи. Не нужно, если передан catalogSaleUnitId. */
+  name?: string;
+  /** Сколько базовых единиц внутри для конкретного товара/варианта. */
+  baseQuantity?: number;
+  price: number;
+  barcode?: string;
+  isDefault?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type ProductVariantDtoReqStatus = typeof ProductVariantDtoReqStatus[keyof typeof ProductVariantDtoReqStatus];
+
+
+export const ProductVariantDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantDtoReq {
+  /** @nullable */
+  price?: number | null;
+  /**
+   * null означает, что остаток не ведется
+   * @nullable
+   */
+  stock?: number | null;
+  isAvailable?: boolean;
+  status?: ProductVariantDtoReqStatus;
+  attributes?: ProductVariantAttributeDtoReq[];
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
+}
+
+export interface CreateProductDtoReq {
+  name: string;
+  /** @nullable */
+  price?: number | null;
+  mediaIds?: string[];
+  isPopular?: boolean;
+  status?: string;
+  position?: number;
+  brandId?: string;
+  /** @nullable */
+  productTypeId?: string | null;
+  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
+  categories?: string[];
+  attributes?: ProductAttributeValueDto[];
+  variants?: ProductVariantDtoReq[];
+}
+
+export type ProductCreateResponseDtoPriceState = typeof ProductCreateResponseDtoPriceState[keyof typeof ProductCreateResponseDtoPriceState];
+
+
+export const ProductCreateResponseDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductCreateResponseDtoAvailabilityState = typeof ProductCreateResponseDtoAvailabilityState[keyof typeof ProductCreateResponseDtoAvailabilityState];
+
+
+export const ProductCreateResponseDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductCreateResponseDtoStatus = typeof ProductCreateResponseDtoStatus[keyof typeof ProductCreateResponseDtoStatus];
+
+
+export const ProductCreateResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductCreateResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductCreateResponseDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductCreateResponseDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductCreateResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+  ok: boolean;
+}
+
+export interface ProductTypeCompatibilityPreviewDtoReq {
+  /**
+   * Next product type inside current catalog. Pass null to clear.
+   * @nullable
+   */
+  productTypeId: string | null;
+}
+
+export type ProductTypeCompatibilityIssueDtoReason = typeof ProductTypeCompatibilityIssueDtoReason[keyof typeof ProductTypeCompatibilityIssueDtoReason];
+
+
+export const ProductTypeCompatibilityIssueDtoReason = {
+  MISSING_IN_TARGET_TYPE: 'MISSING_IN_TARGET_TYPE',
+  SCOPE_MISMATCH: 'SCOPE_MISMATCH',
+  TARGET_TYPE_EMPTY: 'TARGET_TYPE_EMPTY',
+} as const;
+
+export interface ProductTypeCompatibilityIssueDto {
+  attributeId: string;
+  key: string;
+  displayName: string;
+  variantKeys: string[];
+  reason: ProductTypeCompatibilityIssueDtoReason;
+  /** @nullable */
+  targetIsVariant: boolean | null;
+}
+
+export interface ProductTypeCompatibilityPreviewDto {
+  productId: string;
+  /** @nullable */
+  currentProductTypeId: string | null;
+  /** @nullable */
+  requestedProductTypeId: string | null;
+  sameProductType: boolean;
+  hasScopedData: boolean;
+  canChangeNow: boolean;
+  compatible: boolean;
+  requiresUserDecision: boolean;
+  /** @nullable */
+  blockingReason: string | null;
+  productAttributeCount: number;
+  variantAttributeCount: number;
+  productAttributeConflicts: ProductTypeCompatibilityIssueDto[];
+  variantAttributeConflicts: ProductTypeCompatibilityIssueDto[];
+}
+
+export interface ApplyProductTypeChangeDtoReq {
+  /**
+   * Next product type inside current catalog. Pass null to clear.
+   * @nullable
+   */
+  productTypeId: string | null;
+  /**
+   * Optional stale-preview guard. Apply fails if current product type differs.
+   * @nullable
+   */
+  expectedCurrentProductTypeId?: string | null;
+  /** Explicit user confirmation for changing typed product data. */
+  confirm: boolean;
+  /** Product attribute ids to remove when they are incompatible with target product type. */
+  removeAttributeIds?: string[];
+  /** Product attributes to upsert after switching to the target product type. */
+  attributes?: ProductAttributeValueDto[];
+  /** Full replacement matrix. Required when existing variant attributes conflict with target product type. */
+  items?: ProductVariantDtoReq[];
+}
+
+export type ProductUpdateResponseDtoPriceState = typeof ProductUpdateResponseDtoPriceState[keyof typeof ProductUpdateResponseDtoPriceState];
+
+
+export const ProductUpdateResponseDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductUpdateResponseDtoAvailabilityState = typeof ProductUpdateResponseDtoAvailabilityState[keyof typeof ProductUpdateResponseDtoAvailabilityState];
+
+
+export const ProductUpdateResponseDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductUpdateResponseDtoStatus = typeof ProductUpdateResponseDtoStatus[keyof typeof ProductUpdateResponseDtoStatus];
+
+
+export const ProductUpdateResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductUpdateResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductUpdateResponseDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductUpdateResponseDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductUpdateResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+  ok: boolean;
+}
+
+export type ProductVariantUpdateDtoReqStatus = typeof ProductVariantUpdateDtoReqStatus[keyof typeof ProductVariantUpdateDtoReqStatus];
+
+
+export const ProductVariantUpdateDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantUpdateDtoReq {
+  /** Ключ варианта, приходит из ответа товара */
+  variantKey: string;
+  /** @nullable */
+  price?: number | null;
+  /**
+   * null означает, что остаток не ведется
+   * @nullable
+   */
+  stock?: number | null;
+  status?: ProductVariantUpdateDtoReqStatus;
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
+}
+
+export interface UpdateProductDtoReq {
+  name?: string;
+  /** @nullable */
+  price?: number | null;
+  mediaIds?: string[];
+  isPopular?: boolean;
+  status?: string;
+  position?: number;
+  /** @nullable */
+  brandId?: string | null;
+  /**
+   * Product type inside current catalog. Pass null to clear.
+   * @nullable
+   */
+  productTypeId?: string | null;
+  /** Список категорий товара. При редактировании заменяет набор привязок товара к категориям. */
+  categories?: string[];
+  /** ID категории, в которой нужно изменить/установить позицию товара */
+  categoryId?: string;
+  /**
+   * Позиция товара внутри категории (передавать только вместе с categoryId)
+   * @minimum 0
+   */
+  categoryPosition?: number;
+  /** Только видимые атрибуты (isHidden=false) */
+  attributes?: ProductAttributeValueDto[];
+  /** ID атрибутов товара, которые нужно удалить при редактировании */
+  removeAttributeIds?: string[];
+  variants?: ProductVariantUpdateDtoReq[];
+  /** Full variant matrix replacement applied atomically with product update. */
+  variantMatrix?: ProductVariantDtoReq[];
+}
+
+export interface UpdateProductCategoryPositionDtoReq {
+  /** ID категории, внутри которой нужно изменить позицию товара */
+  categoryId: string;
+  /**
+   * Новая позиция товара внутри категории
+   * @minimum 0
+   */
+  position: number;
+}
+
+export type ProductVariantItemDtoReqStatus = typeof ProductVariantItemDtoReqStatus[keyof typeof ProductVariantItemDtoReqStatus];
+
+
+export const ProductVariantItemDtoReqStatus = {
+  ACTIVE: 'ACTIVE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  DISABLED: 'DISABLED',
+} as const;
+
+export interface ProductVariantItemDtoReq {
+  /** @nullable */
+  price?: number | null;
+  /**
+   * null означает, что остаток не ведется
+   * @nullable
+   */
+  stock?: number | null;
+  status?: ProductVariantItemDtoReqStatus;
+  /** Идентификатор значения перечисления */
+  enumValueId?: string;
+  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
+  value?: string;
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
+}
+
+export interface SetProductVariantsDtoReq {
+  variantAttributeId: string;
+  items: ProductVariantItemDtoReq[];
+}
+
+export type ProductVariantsResponseDtoPriceState = typeof ProductVariantsResponseDtoPriceState[keyof typeof ProductVariantsResponseDtoPriceState];
+
+
+export const ProductVariantsResponseDtoPriceState = {
+  UNKNOWN: 'UNKNOWN',
+  KNOWN: 'KNOWN',
+  RANGE: 'RANGE',
+} as const;
+
+export type ProductVariantsResponseDtoAvailabilityState = typeof ProductVariantsResponseDtoAvailabilityState[keyof typeof ProductVariantsResponseDtoAvailabilityState];
+
+
+export const ProductVariantsResponseDtoAvailabilityState = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  UNAVAILABLE: 'UNAVAILABLE',
+} as const;
+
+export type ProductVariantsResponseDtoStatus = typeof ProductVariantsResponseDtoStatus[keyof typeof ProductVariantsResponseDtoStatus];
+
+
+export const ProductVariantsResponseDtoStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  ARCHIVED: 'ARCHIVED',
+  HIDDEN: 'HIDDEN',
+  DELETE: 'DELETE',
+} as const;
+
+export interface ProductVariantsResponseDto {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  /** @nullable */
+  price: string | null;
+  priceState: ProductVariantsResponseDtoPriceState;
+  /** @nullable */
+  displayPrice: string | null;
+  /** @nullable */
+  minPrice: string | null;
+  /** @nullable */
+  maxPrice: string | null;
+  availabilityState: ProductVariantsResponseDtoAvailabilityState;
+  /** @nullable */
+  stock: number | null;
+  /** @nullable */
+  defaultVariantId: string | null;
+  requiresVariantSelection: boolean;
+  media: ProductMediaDto[];
+  brand: ProductBrandDto | null;
+  productType: ProductTypeRefDto | null;
+  categories: ProductCategoryDto[];
+  integration: ProductIntegrationDto | null;
+  isPopular: boolean;
+  status: ProductVariantsResponseDtoStatus;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+  productAttributes: ProductAttributeDto[];
+  variantSummary: ProductVariantSummaryDto;
+  variantPickerOptions: ProductVariantPickerOptionDto[];
+  variants: ProductVariantDto[];
+  seo: SeoDto | null;
+  ok: boolean;
+}
+
+export interface SetProductVariantMatrixDtoReq {
+  items: ProductVariantDtoReq[];
 }
 
 export interface AttributeEnumValueAliasDto {
@@ -1849,97 +2844,6 @@ export interface CatalogContactDto {
   value: string;
 }
 
-export type SeoDtoEntityType = typeof SeoDtoEntityType[keyof typeof SeoDtoEntityType];
-
-
-export const SeoDtoEntityType = {
-  CATALOG: 'CATALOG',
-  CATEGORY: 'CATEGORY',
-  PRODUCT: 'PRODUCT',
-  PAGE: 'PAGE',
-  BRAND: 'BRAND',
-  ARTICLE: 'ARTICLE',
-  OTHER: 'OTHER',
-} as const;
-
-/**
- * @nullable
- */
-export type SeoDtoSitemapChangeFreq = typeof SeoDtoSitemapChangeFreq[keyof typeof SeoDtoSitemapChangeFreq] | null;
-
-
-export const SeoDtoSitemapChangeFreq = {
-  ALWAYS: 'ALWAYS',
-  HOURLY: 'HOURLY',
-  DAILY: 'DAILY',
-  WEEKLY: 'WEEKLY',
-  MONTHLY: 'MONTHLY',
-  YEARLY: 'YEARLY',
-  NEVER: 'NEVER',
-} as const;
-
-export interface SeoDto {
-  id: string;
-  catalogId: string;
-  entityType: SeoDtoEntityType;
-  entityId: string;
-  /** @nullable */
-  urlPath: string | null;
-  /** @nullable */
-  canonicalUrl: string | null;
-  /** @nullable */
-  title: string | null;
-  /** @nullable */
-  description: string | null;
-  /** @nullable */
-  keywords: string | null;
-  /** @nullable */
-  h1: string | null;
-  /** @nullable */
-  seoText: string | null;
-  /** @nullable */
-  robots: string | null;
-  isIndexable: boolean;
-  isFollowable: boolean;
-  /** @nullable */
-  ogTitle: string | null;
-  /** @nullable */
-  ogDescription: string | null;
-  ogMedia: MediaDto | null;
-  /** @nullable */
-  ogType: string | null;
-  /** @nullable */
-  ogUrl: string | null;
-  /** @nullable */
-  ogSiteName: string | null;
-  /** @nullable */
-  ogLocale: string | null;
-  /** @nullable */
-  twitterCard: string | null;
-  /** @nullable */
-  twitterTitle: string | null;
-  /** @nullable */
-  twitterDescription: string | null;
-  twitterMedia: MediaDto | null;
-  faviconMedia: MediaDto | null;
-  /** @nullable */
-  twitterSite: string | null;
-  /** @nullable */
-  twitterCreator: string | null;
-  /** @nullable */
-  hreflang: string | null;
-  /** @nullable */
-  structuredData: string | null;
-  /** @nullable */
-  extras: string | null;
-  /** @nullable */
-  sitemapPriority: number | null;
-  /** @nullable */
-  sitemapChangeFreq: SeoDtoSitemapChangeFreq;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface CatalogTypeDto {
   id: string;
   code: string;
@@ -2354,909 +3258,6 @@ export interface MoySkladQueuedOrderExportDto {
   jobId: string | null;
   /** @nullable */
   reason: string | null;
-}
-
-export interface ProductMediaDto {
-  position: number;
-  /** @nullable */
-  kind: string | null;
-  media: MediaDto;
-}
-
-export interface ProductBrandDto {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-export interface ProductTypeRefDto {
-  id: string;
-  code: string;
-  name: string;
-}
-
-export interface ProductCategoryDto {
-  id: string;
-  name: string;
-  position: number;
-}
-
-export type ProductIntegrationDtoProvider = typeof ProductIntegrationDtoProvider[keyof typeof ProductIntegrationDtoProvider];
-
-
-export const ProductIntegrationDtoProvider = {
-  MOYSKLAD: 'MOYSKLAD',
-} as const;
-
-export interface ProductIntegrationDto {
-  provider: ProductIntegrationDtoProvider;
-  externalId: string;
-  /** @nullable */
-  externalCode: string | null;
-  /** @nullable */
-  lastSyncedAt: string | null;
-}
-
-export type ProductAttributeRefDtoDataType = typeof ProductAttributeRefDtoDataType[keyof typeof ProductAttributeRefDtoDataType];
-
-
-export const ProductAttributeRefDtoDataType = {
-  STRING: 'STRING',
-  INTEGER: 'INTEGER',
-  DECIMAL: 'DECIMAL',
-  DATETIME: 'DATETIME',
-  BOOLEAN: 'BOOLEAN',
-  ENUM: 'ENUM',
-} as const;
-
-export interface ProductAttributeRefDto {
-  id: string;
-  key: string;
-  displayName: string;
-  dataType: ProductAttributeRefDtoDataType;
-  isRequired: boolean;
-  isVariantAttribute: boolean;
-  isFilterable: boolean;
-  displayOrder: number;
-  isHidden: boolean;
-}
-
-export interface ProductAttributeEnumValueDto {
-  id: string;
-  value: string;
-  /** @nullable */
-  displayName: string | null;
-  displayOrder: number;
-  /** @nullable */
-  businessId: string | null;
-}
-
-export interface ProductAttributeDto {
-  id: string;
-  attributeId: string;
-  /** @nullable */
-  enumValueId: string | null;
-  /** @nullable */
-  valueString: string | null;
-  /** @nullable */
-  valueInteger: number | null;
-  /** @nullable */
-  valueDecimal: string | null;
-  /** @nullable */
-  valueBoolean: boolean | null;
-  /** @nullable */
-  valueDateTime: string | null;
-  attribute: ProductAttributeRefDto;
-  enumValue: ProductAttributeEnumValueDto | null;
-}
-
-export interface ProductVariantSummaryDto {
-  /** @nullable */
-  minPrice: string | null;
-  /** @nullable */
-  maxPrice: string | null;
-  activeCount: number;
-  /** @nullable */
-  totalStock: number | null;
-  /** @nullable */
-  singleVariantId: string | null;
-}
-
-export type ProductVariantPickerOptionDtoStatus = typeof ProductVariantPickerOptionDtoStatus[keyof typeof ProductVariantPickerOptionDtoStatus];
-
-
-export const ProductVariantPickerOptionDtoStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantPickerOptionDto {
-  id: string;
-  label: string;
-  /** @nullable */
-  price: string | null;
-  /** @nullable */
-  stock: number | null;
-  status: ProductVariantPickerOptionDtoStatus;
-  isAvailable: boolean;
-  /** @nullable */
-  saleUnitId: string | null;
-  /** @nullable */
-  saleUnitPrice: string | null;
-  /** @nullable */
-  maxQuantity: number | null;
-}
-
-export type ProductWithAttributesDtoPriceState = typeof ProductWithAttributesDtoPriceState[keyof typeof ProductWithAttributesDtoPriceState];
-
-
-export const ProductWithAttributesDtoPriceState = {
-  UNKNOWN: 'UNKNOWN',
-  KNOWN: 'KNOWN',
-  RANGE: 'RANGE',
-} as const;
-
-export type ProductWithAttributesDtoAvailabilityState = typeof ProductWithAttributesDtoAvailabilityState[keyof typeof ProductWithAttributesDtoAvailabilityState];
-
-
-export const ProductWithAttributesDtoAvailabilityState = {
-  AVAILABLE: 'AVAILABLE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  UNAVAILABLE: 'UNAVAILABLE',
-} as const;
-
-export type ProductWithAttributesDtoStatus = typeof ProductWithAttributesDtoStatus[keyof typeof ProductWithAttributesDtoStatus];
-
-
-export const ProductWithAttributesDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductWithAttributesDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  priceState: ProductWithAttributesDtoPriceState;
-  /** @nullable */
-  displayPrice: string | null;
-  /** @nullable */
-  minPrice: string | null;
-  /** @nullable */
-  maxPrice: string | null;
-  availabilityState: ProductWithAttributesDtoAvailabilityState;
-  /** @nullable */
-  stock: number | null;
-  /** @nullable */
-  defaultVariantId: string | null;
-  requiresVariantSelection: boolean;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductWithAttributesDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-}
-
-export interface ProductCardPageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-  /**
-   * Стабильный seed для детерминированной рандомизации
-   * @nullable
-   */
-  seed: string | null;
-}
-
-export interface ProductInfinitePageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-  /**
-   * Стабильный seed для детерминированной рандомизации
-   * @nullable
-   */
-  seed: string | null;
-}
-
-export interface ProductCursorCardPageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-}
-
-export interface ProductCursorPageDto {
-  items: ProductWithAttributesDto[];
-  /** @nullable */
-  nextCursor: string | null;
-}
-
-export interface ProductDefaultVariantDiagnosticSampleDto {
-  productId: string;
-  productName: string;
-  productSku: string;
-  /** @nullable */
-  variantId: string | null;
-  /** @nullable */
-  variantKey: string | null;
-  /** @nullable */
-  variantSku: string | null;
-  /** @nullable */
-  details: string | null;
-}
-
-export type ProductDefaultVariantDiagnosticCheckDtoCode = typeof ProductDefaultVariantDiagnosticCheckDtoCode[keyof typeof ProductDefaultVariantDiagnosticCheckDtoCode];
-
-
-export const ProductDefaultVariantDiagnosticCheckDtoCode = {
-  SIMPLE_WITHOUT_DEFAULT_VARIANT: 'SIMPLE_WITHOUT_DEFAULT_VARIANT',
-  MULTIPLE_DEFAULT_VARIANTS: 'MULTIPLE_DEFAULT_VARIANTS',
-  CUSTOM_VARIANT_WITHOUT_ATTRIBUTES: 'CUSTOM_VARIANT_WITHOUT_ATTRIBUTES',
-  DEFAULT_VARIANT_WITH_ATTRIBUTES: 'DEFAULT_VARIANT_WITH_ATTRIBUTES',
-  DEFAULT_VARIANT_PRICE_MISMATCH: 'DEFAULT_VARIANT_PRICE_MISMATCH',
-} as const;
-
-export type ProductDefaultVariantDiagnosticCheckDtoStatus = typeof ProductDefaultVariantDiagnosticCheckDtoStatus[keyof typeof ProductDefaultVariantDiagnosticCheckDtoStatus];
-
-
-export const ProductDefaultVariantDiagnosticCheckDtoStatus = {
-  ok: 'ok',
-  warn: 'warn',
-  fail: 'fail',
-} as const;
-
-export interface ProductDefaultVariantDiagnosticCheckDto {
-  code: ProductDefaultVariantDiagnosticCheckDtoCode;
-  status: ProductDefaultVariantDiagnosticCheckDtoStatus;
-  count: number;
-  message: string;
-  samples: ProductDefaultVariantDiagnosticSampleDto[];
-}
-
-export interface ProductDefaultVariantDiagnosticsResponseDto {
-  catalogId: string;
-  sampleLimit: number;
-  checks: ProductDefaultVariantDiagnosticCheckDto[];
-  warnCount: number;
-  failCount: number;
-  ok: boolean;
-}
-
-export interface VariantAttributeDto {
-  id: string;
-  attributeId: string;
-  enumValueId: string;
-  attribute: ProductAttributeRefDto;
-  enumValue: ProductAttributeEnumValueDto;
-}
-
-export interface ProductVariantCatalogSaleUnitDto {
-  id: string;
-  code: string;
-  name: string;
-  defaultBaseQuantity: string;
-}
-
-export interface ProductVariantSaleUnitDto {
-  id: string;
-  /** @nullable */
-  catalogSaleUnitId: string | null;
-  code: string;
-  name: string;
-  baseQuantity: string;
-  price: string;
-  /** @nullable */
-  barcode: string | null;
-  isDefault: boolean;
-  isActive: boolean;
-  displayOrder: number;
-  createdAt: string;
-  updatedAt: string;
-  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
-}
-
-export type ProductVariantDtoKind = typeof ProductVariantDtoKind[keyof typeof ProductVariantDtoKind];
-
-
-export const ProductVariantDtoKind = {
-  DEFAULT: 'DEFAULT',
-  MATRIX: 'MATRIX',
-} as const;
-
-export type ProductVariantDtoStatus = typeof ProductVariantDtoStatus[keyof typeof ProductVariantDtoStatus];
-
-
-export const ProductVariantDtoStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantDto {
-  id: string;
-  sku: string;
-  variantKey: string;
-  kind: ProductVariantDtoKind;
-  /** @nullable */
-  stock: number | null;
-  /** @nullable */
-  price: string | null;
-  status: ProductVariantDtoStatus;
-  isAvailable: boolean;
-  createdAt: string;
-  updatedAt: string;
-  attributes: VariantAttributeDto[];
-  saleUnits: ProductVariantSaleUnitDto[];
-  integration?: ProductIntegrationDto | null;
-}
-
-export type ProductWithDetailsDtoPriceState = typeof ProductWithDetailsDtoPriceState[keyof typeof ProductWithDetailsDtoPriceState];
-
-
-export const ProductWithDetailsDtoPriceState = {
-  UNKNOWN: 'UNKNOWN',
-  KNOWN: 'KNOWN',
-  RANGE: 'RANGE',
-} as const;
-
-export type ProductWithDetailsDtoAvailabilityState = typeof ProductWithDetailsDtoAvailabilityState[keyof typeof ProductWithDetailsDtoAvailabilityState];
-
-
-export const ProductWithDetailsDtoAvailabilityState = {
-  AVAILABLE: 'AVAILABLE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  UNAVAILABLE: 'UNAVAILABLE',
-} as const;
-
-export type ProductWithDetailsDtoStatus = typeof ProductWithDetailsDtoStatus[keyof typeof ProductWithDetailsDtoStatus];
-
-
-export const ProductWithDetailsDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductWithDetailsDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  priceState: ProductWithDetailsDtoPriceState;
-  /** @nullable */
-  displayPrice: string | null;
-  /** @nullable */
-  minPrice: string | null;
-  /** @nullable */
-  maxPrice: string | null;
-  availabilityState: ProductWithDetailsDtoAvailabilityState;
-  /** @nullable */
-  stock: number | null;
-  /** @nullable */
-  defaultVariantId: string | null;
-  requiresVariantSelection: boolean;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductWithDetailsDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-}
-
-export interface ProductAttributeValueDto {
-  attributeId: string;
-  enumValueId?: string;
-  valueString?: string;
-  valueInteger?: number;
-  valueDecimal?: number;
-  valueBoolean?: boolean;
-  valueDateTime?: string;
-}
-
-export interface ProductVariantAttributeDtoReq {
-  attributeId: string;
-  /** Идентификатор значения перечисления */
-  enumValueId?: string;
-  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
-  value?: string;
-}
-
-export interface ProductVariantSaleUnitDtoReq {
-  /** Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name. */
-  catalogSaleUnitId?: string;
-  /** Технический код можно не передавать: backend сгенерирует его из названия. */
-  code?: string;
-  /** Название формата продажи. Не нужно, если передан catalogSaleUnitId. */
-  name?: string;
-  /** Сколько базовых единиц внутри для конкретного товара/варианта. */
-  baseQuantity?: number;
-  price: number;
-  barcode?: string;
-  isDefault?: boolean;
-  isActive?: boolean;
-  displayOrder?: number;
-}
-
-export type ProductVariantDtoReqStatus = typeof ProductVariantDtoReqStatus[keyof typeof ProductVariantDtoReqStatus];
-
-
-export const ProductVariantDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantDtoReq {
-  /** @nullable */
-  price?: number | null;
-  /**
-   * null означает, что остаток не ведется
-   * @nullable
-   */
-  stock?: number | null;
-  isAvailable?: boolean;
-  status?: ProductVariantDtoReqStatus;
-  attributes?: ProductVariantAttributeDtoReq[];
-  saleUnits?: ProductVariantSaleUnitDtoReq[];
-}
-
-export interface CreateProductDtoReq {
-  name: string;
-  /** @nullable */
-  price?: number | null;
-  mediaIds?: string[];
-  isPopular?: boolean;
-  status?: string;
-  position?: number;
-  brandId?: string;
-  /** @nullable */
-  productTypeId?: string | null;
-  /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
-  categories?: string[];
-  attributes?: ProductAttributeValueDto[];
-  variants?: ProductVariantDtoReq[];
-}
-
-export type ProductCreateResponseDtoPriceState = typeof ProductCreateResponseDtoPriceState[keyof typeof ProductCreateResponseDtoPriceState];
-
-
-export const ProductCreateResponseDtoPriceState = {
-  UNKNOWN: 'UNKNOWN',
-  KNOWN: 'KNOWN',
-  RANGE: 'RANGE',
-} as const;
-
-export type ProductCreateResponseDtoAvailabilityState = typeof ProductCreateResponseDtoAvailabilityState[keyof typeof ProductCreateResponseDtoAvailabilityState];
-
-
-export const ProductCreateResponseDtoAvailabilityState = {
-  AVAILABLE: 'AVAILABLE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  UNAVAILABLE: 'UNAVAILABLE',
-} as const;
-
-export type ProductCreateResponseDtoStatus = typeof ProductCreateResponseDtoStatus[keyof typeof ProductCreateResponseDtoStatus];
-
-
-export const ProductCreateResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductCreateResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  priceState: ProductCreateResponseDtoPriceState;
-  /** @nullable */
-  displayPrice: string | null;
-  /** @nullable */
-  minPrice: string | null;
-  /** @nullable */
-  maxPrice: string | null;
-  availabilityState: ProductCreateResponseDtoAvailabilityState;
-  /** @nullable */
-  stock: number | null;
-  /** @nullable */
-  defaultVariantId: string | null;
-  requiresVariantSelection: boolean;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductCreateResponseDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-  ok: boolean;
-}
-
-export interface ProductDefaultVariantRepairResponseDto {
-  checkedProducts: number;
-  repairedProducts: number;
-  affectedCatalogs: number;
-}
-
-export interface RepairDefaultVariantPriceMismatchDtoReq {
-  /** false = dry-run only. true = copy the technical default variant price into legacy Product.price for safe simple products. */
-  apply?: boolean;
-  /**
-   * @minimum 1
-   * @maximum 1000
-   */
-  batchSize?: number;
-  /**
-   * @minimum 1
-   * @maximum 100
-   */
-  sampleLimit?: number;
-}
-
-export interface ProductDefaultVariantPriceMismatchRepairSampleDto {
-  productId: string;
-  productName: string;
-  productSku: string;
-  variantId: string;
-  variantSku: string;
-  variantKey: string;
-  /** @nullable */
-  previousProductPrice: string | null;
-  /** @nullable */
-  nextProductPrice: string | null;
-}
-
-export interface ProductDefaultVariantPriceMismatchRepairResponseDto {
-  catalogId: string;
-  dryRun: boolean;
-  checkedProducts: number;
-  repairableProducts: number;
-  updatedProducts: number;
-  affectedCatalogs: number;
-  batchSize: number;
-  sampleLimit: number;
-  samples: ProductDefaultVariantPriceMismatchRepairSampleDto[];
-}
-
-export interface ProductTypeCompatibilityPreviewDtoReq {
-  /**
-   * Next product type inside current catalog. Pass null to clear.
-   * @nullable
-   */
-  productTypeId: string | null;
-}
-
-export type ProductTypeCompatibilityIssueDtoReason = typeof ProductTypeCompatibilityIssueDtoReason[keyof typeof ProductTypeCompatibilityIssueDtoReason];
-
-
-export const ProductTypeCompatibilityIssueDtoReason = {
-  MISSING_IN_TARGET_TYPE: 'MISSING_IN_TARGET_TYPE',
-  SCOPE_MISMATCH: 'SCOPE_MISMATCH',
-  TARGET_TYPE_EMPTY: 'TARGET_TYPE_EMPTY',
-} as const;
-
-export interface ProductTypeCompatibilityIssueDto {
-  attributeId: string;
-  key: string;
-  displayName: string;
-  variantKeys: string[];
-  reason: ProductTypeCompatibilityIssueDtoReason;
-  /** @nullable */
-  targetIsVariant: boolean | null;
-}
-
-export interface ProductTypeCompatibilityPreviewDto {
-  productId: string;
-  /** @nullable */
-  currentProductTypeId: string | null;
-  /** @nullable */
-  requestedProductTypeId: string | null;
-  sameProductType: boolean;
-  hasScopedData: boolean;
-  canChangeNow: boolean;
-  compatible: boolean;
-  requiresUserDecision: boolean;
-  /** @nullable */
-  blockingReason: string | null;
-  productAttributeCount: number;
-  variantAttributeCount: number;
-  productAttributeConflicts: ProductTypeCompatibilityIssueDto[];
-  variantAttributeConflicts: ProductTypeCompatibilityIssueDto[];
-}
-
-export interface ApplyProductTypeChangeDtoReq {
-  /**
-   * Next product type inside current catalog. Pass null to clear.
-   * @nullable
-   */
-  productTypeId: string | null;
-  /**
-   * Optional stale-preview guard. Apply fails if current product type differs.
-   * @nullable
-   */
-  expectedCurrentProductTypeId?: string | null;
-  /** Explicit user confirmation for changing typed product data. */
-  confirm: boolean;
-  /** Product attribute ids to remove when they are incompatible with target product type. */
-  removeAttributeIds?: string[];
-  /** Product attributes to upsert after switching to the target product type. */
-  attributes?: ProductAttributeValueDto[];
-  /** Full replacement matrix. Required when existing variant attributes conflict with target product type. */
-  items?: ProductVariantDtoReq[];
-}
-
-export type ProductUpdateResponseDtoPriceState = typeof ProductUpdateResponseDtoPriceState[keyof typeof ProductUpdateResponseDtoPriceState];
-
-
-export const ProductUpdateResponseDtoPriceState = {
-  UNKNOWN: 'UNKNOWN',
-  KNOWN: 'KNOWN',
-  RANGE: 'RANGE',
-} as const;
-
-export type ProductUpdateResponseDtoAvailabilityState = typeof ProductUpdateResponseDtoAvailabilityState[keyof typeof ProductUpdateResponseDtoAvailabilityState];
-
-
-export const ProductUpdateResponseDtoAvailabilityState = {
-  AVAILABLE: 'AVAILABLE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  UNAVAILABLE: 'UNAVAILABLE',
-} as const;
-
-export type ProductUpdateResponseDtoStatus = typeof ProductUpdateResponseDtoStatus[keyof typeof ProductUpdateResponseDtoStatus];
-
-
-export const ProductUpdateResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductUpdateResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  priceState: ProductUpdateResponseDtoPriceState;
-  /** @nullable */
-  displayPrice: string | null;
-  /** @nullable */
-  minPrice: string | null;
-  /** @nullable */
-  maxPrice: string | null;
-  availabilityState: ProductUpdateResponseDtoAvailabilityState;
-  /** @nullable */
-  stock: number | null;
-  /** @nullable */
-  defaultVariantId: string | null;
-  requiresVariantSelection: boolean;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductUpdateResponseDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-  ok: boolean;
-}
-
-export type ProductVariantUpdateDtoReqStatus = typeof ProductVariantUpdateDtoReqStatus[keyof typeof ProductVariantUpdateDtoReqStatus];
-
-
-export const ProductVariantUpdateDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantUpdateDtoReq {
-  /** Ключ варианта, приходит из ответа товара */
-  variantKey: string;
-  /** @nullable */
-  price?: number | null;
-  /**
-   * null означает, что остаток не ведется
-   * @nullable
-   */
-  stock?: number | null;
-  status?: ProductVariantUpdateDtoReqStatus;
-  saleUnits?: ProductVariantSaleUnitDtoReq[];
-}
-
-export interface UpdateProductDtoReq {
-  name?: string;
-  /** @nullable */
-  price?: number | null;
-  mediaIds?: string[];
-  isPopular?: boolean;
-  status?: string;
-  position?: number;
-  /** @nullable */
-  brandId?: string | null;
-  /**
-   * Product type inside current catalog. Pass null to clear.
-   * @nullable
-   */
-  productTypeId?: string | null;
-  /** Список категорий товара. При редактировании заменяет набор привязок товара к категориям. */
-  categories?: string[];
-  /** ID категории, в которой нужно изменить/установить позицию товара */
-  categoryId?: string;
-  /**
-   * Позиция товара внутри категории (передавать только вместе с categoryId)
-   * @minimum 0
-   */
-  categoryPosition?: number;
-  /** Только видимые атрибуты (isHidden=false) */
-  attributes?: ProductAttributeValueDto[];
-  /** ID атрибутов товара, которые нужно удалить при редактировании */
-  removeAttributeIds?: string[];
-  variants?: ProductVariantUpdateDtoReq[];
-  /** Full variant matrix replacement applied atomically with product update. */
-  variantMatrix?: ProductVariantDtoReq[];
-}
-
-export interface UpdateProductCategoryPositionDtoReq {
-  /** ID категории, внутри которой нужно изменить позицию товара */
-  categoryId: string;
-  /**
-   * Новая позиция товара внутри категории
-   * @minimum 0
-   */
-  position: number;
-}
-
-export type ProductVariantItemDtoReqStatus = typeof ProductVariantItemDtoReqStatus[keyof typeof ProductVariantItemDtoReqStatus];
-
-
-export const ProductVariantItemDtoReqStatus = {
-  ACTIVE: 'ACTIVE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  DISABLED: 'DISABLED',
-} as const;
-
-export interface ProductVariantItemDtoReq {
-  /** @nullable */
-  price?: number | null;
-  /**
-   * null означает, что остаток не ведется
-   * @nullable
-   */
-  stock?: number | null;
-  status?: ProductVariantItemDtoReqStatus;
-  /** Идентификатор значения перечисления */
-  enumValueId?: string;
-  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
-  value?: string;
-  saleUnits?: ProductVariantSaleUnitDtoReq[];
-}
-
-export interface SetProductVariantsDtoReq {
-  variantAttributeId: string;
-  items: ProductVariantItemDtoReq[];
-}
-
-export type ProductVariantsResponseDtoPriceState = typeof ProductVariantsResponseDtoPriceState[keyof typeof ProductVariantsResponseDtoPriceState];
-
-
-export const ProductVariantsResponseDtoPriceState = {
-  UNKNOWN: 'UNKNOWN',
-  KNOWN: 'KNOWN',
-  RANGE: 'RANGE',
-} as const;
-
-export type ProductVariantsResponseDtoAvailabilityState = typeof ProductVariantsResponseDtoAvailabilityState[keyof typeof ProductVariantsResponseDtoAvailabilityState];
-
-
-export const ProductVariantsResponseDtoAvailabilityState = {
-  AVAILABLE: 'AVAILABLE',
-  OUT_OF_STOCK: 'OUT_OF_STOCK',
-  UNAVAILABLE: 'UNAVAILABLE',
-} as const;
-
-export type ProductVariantsResponseDtoStatus = typeof ProductVariantsResponseDtoStatus[keyof typeof ProductVariantsResponseDtoStatus];
-
-
-export const ProductVariantsResponseDtoStatus = {
-  DRAFT: 'DRAFT',
-  ACTIVE: 'ACTIVE',
-  ARCHIVED: 'ARCHIVED',
-  HIDDEN: 'HIDDEN',
-  DELETE: 'DELETE',
-} as const;
-
-export interface ProductVariantsResponseDto {
-  id: string;
-  sku: string;
-  name: string;
-  slug: string;
-  /** @nullable */
-  price: string | null;
-  priceState: ProductVariantsResponseDtoPriceState;
-  /** @nullable */
-  displayPrice: string | null;
-  /** @nullable */
-  minPrice: string | null;
-  /** @nullable */
-  maxPrice: string | null;
-  availabilityState: ProductVariantsResponseDtoAvailabilityState;
-  /** @nullable */
-  stock: number | null;
-  /** @nullable */
-  defaultVariantId: string | null;
-  requiresVariantSelection: boolean;
-  media: ProductMediaDto[];
-  brand: ProductBrandDto | null;
-  productType: ProductTypeRefDto | null;
-  categories: ProductCategoryDto[];
-  integration: ProductIntegrationDto | null;
-  isPopular: boolean;
-  status: ProductVariantsResponseDtoStatus;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-  productAttributes: ProductAttributeDto[];
-  variantSummary: ProductVariantSummaryDto;
-  variantPickerOptions: ProductVariantPickerOptionDto[];
-  variants: ProductVariantDto[];
-  seo: SeoDto | null;
-  ok: boolean;
-}
-
-export interface SetProductVariantMatrixDtoReq {
-  items: ProductVariantDtoReq[];
 }
 
 export interface CatalogSaleUnitDto {
@@ -4202,6 +4203,14 @@ export const AdminControllerGetCatalogsSortOrder = {
   desc: 'desc',
 } as const;
 
+export type AdminControllerDiagnoseCatalogDefaultVariantsParams = {
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+sampleLimit?: number;
+};
+
 export type AdminControllerGetActivitiesParams = {
 typeId: string;
 };
@@ -4234,31 +4243,6 @@ export type S3ControllerEnqueueFromS3Body = {
   key: string;
 } | {
   items: UploadFromS3ItemDtoReq[];
-};
-
-export type CatalogAdvancedSettingsControllerGetMoySkladRunsParams = {
-/**
- * Сколько последних запусков вернуть
- */
-limit?: number;
-};
-
-export type IntegrationControllerGetMoySkladRunsParams = {
-/**
- * Сколько последних запусков вернуть
- */
-limit?: number;
-};
-
-export type IntegrationControllerGetMoySkladOrderExportsParams = {
-/**
- * Сколько последних экспортов заказов вернуть
- */
-limit?: number;
-};
-
-export type IntegrationControllerReceiveMoySkladStockWebhookParams = {
-requestId?: string;
 };
 
 export type ProductControllerGetInfiniteCardsParams = {
@@ -4494,8 +4478,47 @@ export type ProductControllerDiagnoseDefaultVariantsParams = {
 sampleLimit?: number;
 };
 
+export type CatalogAdvancedSettingsControllerGetMoySkladRunsParams = {
+/**
+ * Сколько последних запусков вернуть
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetMoySkladRunsParams = {
+/**
+ * Сколько последних запусков вернуть
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetMoySkladOrderExportsParams = {
+/**
+ * Сколько последних экспортов заказов вернуть
+ */
+limit?: number;
+};
+
+export type IntegrationControllerReceiveMoySkladStockWebhookParams = {
+requestId?: string;
+};
+
 export type CatalogSaleUnitControllerGetAllParams = {
 includeArchived?: boolean;
+};
+
+export type CategoryControllerGetAllParams = {
+/**
+ * Если false, вернет только категории с активными товарами. По умолчанию true.
+ */
+includeEmpty?: boolean;
+};
+
+export type CategoryControllerRemoveParams = {
+/**
+ * Если true, soft-delete всех активных товаров категории
+ */
+deleteProducts?: boolean;
 };
 
 export type CategoryControllerGetProductsByCategoryParams = {
@@ -6410,6 +6433,232 @@ export const useAdminControllerUpdateCatalogFeatureEntitlement = <TError = unkno
     }
     
 /**
+ * @summary Diagnose legacy default variant consistency for catalog
+ */
+export const adminControllerDiagnoseCatalogDefaultVariants = (
+    id: string,
+    params?: AdminControllerDiagnoseCatalogDefaultVariantsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductDefaultVariantDiagnosticsResponseDto>(
+      {url: `/admin/catalogs/${id}/maintenance/default-variants/diagnostics`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getAdminControllerDiagnoseCatalogDefaultVariantsQueryKey = (id: string,
+    params?: AdminControllerDiagnoseCatalogDefaultVariantsParams,) => {
+    return [
+    `/admin/catalogs/${id}/maintenance/default-variants/diagnostics`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getAdminControllerDiagnoseCatalogDefaultVariantsQueryOptions = <TData = Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError = unknown>(id: string,
+    params?: AdminControllerDiagnoseCatalogDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminControllerDiagnoseCatalogDefaultVariantsQueryKey(id,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>> = ({ signal }) => adminControllerDiagnoseCatalogDefaultVariants(id,params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type AdminControllerDiagnoseCatalogDefaultVariantsQueryResult = NonNullable<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>>
+export type AdminControllerDiagnoseCatalogDefaultVariantsQueryError = unknown
+
+
+export function useAdminControllerDiagnoseCatalogDefaultVariants<TData = Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError = unknown>(
+ id: string,
+    params: undefined |  AdminControllerDiagnoseCatalogDefaultVariantsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerDiagnoseCatalogDefaultVariants<TData = Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError = unknown>(
+ id: string,
+    params?: AdminControllerDiagnoseCatalogDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>,
+          TError,
+          Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useAdminControllerDiagnoseCatalogDefaultVariants<TData = Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError = unknown>(
+ id: string,
+    params?: AdminControllerDiagnoseCatalogDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Diagnose legacy default variant consistency for catalog
+ */
+
+export function useAdminControllerDiagnoseCatalogDefaultVariants<TData = Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError = unknown>(
+ id: string,
+    params?: AdminControllerDiagnoseCatalogDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getAdminControllerDiagnoseCatalogDefaultVariantsQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Repair missing technical default variants for catalog
+ */
+export const adminControllerRepairCatalogMissingDefaultVariants = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductDefaultVariantRepairResponseDto>(
+      {url: `/admin/catalogs/${id}/maintenance/default-variants/repair`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getAdminControllerRepairCatalogMissingDefaultVariantsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogMissingDefaultVariants>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogMissingDefaultVariants>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['adminControllerRepairCatalogMissingDefaultVariants'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerRepairCatalogMissingDefaultVariants>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  adminControllerRepairCatalogMissingDefaultVariants(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminControllerRepairCatalogMissingDefaultVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof adminControllerRepairCatalogMissingDefaultVariants>>>
+    
+    export type AdminControllerRepairCatalogMissingDefaultVariantsMutationError = unknown
+
+    /**
+ * @summary Repair missing technical default variants for catalog
+ */
+export const useAdminControllerRepairCatalogMissingDefaultVariants = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogMissingDefaultVariants>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminControllerRepairCatalogMissingDefaultVariants>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getAdminControllerRepairCatalogMissingDefaultVariantsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Dry-run or repair legacy product price mirror mismatches
+ */
+export const adminControllerRepairCatalogDefaultVariantPriceMismatches = (
+    id: string,
+    repairDefaultVariantPriceMismatchDtoReq: RepairDefaultVariantPriceMismatchDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductDefaultVariantPriceMismatchRepairResponseDto>(
+      {url: `/admin/catalogs/${id}/maintenance/default-variants/price-mismatches/repair`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: repairDefaultVariantPriceMismatchDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getAdminControllerRepairCatalogDefaultVariantPriceMismatchesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogDefaultVariantPriceMismatches>>, TError,{id: string;data: RepairDefaultVariantPriceMismatchDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogDefaultVariantPriceMismatches>>, TError,{id: string;data: RepairDefaultVariantPriceMismatchDtoReq}, TContext> => {
+
+const mutationKey = ['adminControllerRepairCatalogDefaultVariantPriceMismatches'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adminControllerRepairCatalogDefaultVariantPriceMismatches>>, {id: string;data: RepairDefaultVariantPriceMismatchDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  adminControllerRepairCatalogDefaultVariantPriceMismatches(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdminControllerRepairCatalogDefaultVariantPriceMismatchesMutationResult = NonNullable<Awaited<ReturnType<typeof adminControllerRepairCatalogDefaultVariantPriceMismatches>>>
+    export type AdminControllerRepairCatalogDefaultVariantPriceMismatchesMutationBody = RepairDefaultVariantPriceMismatchDtoReq
+    export type AdminControllerRepairCatalogDefaultVariantPriceMismatchesMutationError = unknown
+
+    /**
+ * @summary Dry-run or repair legacy product price mirror mismatches
+ */
+export const useAdminControllerRepairCatalogDefaultVariantPriceMismatches = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogDefaultVariantPriceMismatches>>, TError,{id: string;data: RepairDefaultVariantPriceMismatchDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof adminControllerRepairCatalogDefaultVariantPriceMismatches>>,
+        TError,
+        {id: string;data: RepairDefaultVariantPriceMismatchDtoReq},
+        TContext
+      > => {
+      return useMutation(getAdminControllerRepairCatalogDefaultVariantPriceMismatchesMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Get MoySklad stock sync diagnostics for catalog
  */
 export const adminControllerGetCatalogMoySkladStockDiagnostics = (
@@ -8090,6 +8339,1955 @@ export function useS3ControllerStreamQueue<TData = Awaited<ReturnType<typeof s3C
 
 
 
+/**
+ * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * @summary Список товаров
+ */
+export const productControllerGetAll = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetAllQueryKey = () => {
+    return [
+    `/product`
+    ] as const;
+    }
+
+    
+export const getProductControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetAllQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetAll>>> = ({ signal }) => productControllerGetAll(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetAllQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetAll>>>
+export type ProductControllerGetAllQueryError = unknown
+
+
+export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список товаров
+ */
+
+export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории). При необходимости можно сразу передать variants.
+ * @summary Создать товар
+ */
+export const productControllerCreate = (
+    createProductDtoReq: CreateProductDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCreateResponseDto>(
+      {url: `/product`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createProductDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerCreate>>, TError,{data: CreateProductDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerCreate>>, TError,{data: CreateProductDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerCreate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerCreate>>, {data: CreateProductDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  productControllerCreate(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerCreate>>>
+    export type ProductControllerCreateMutationBody = CreateProductDtoReq
+    export type ProductControllerCreateMutationError = unknown
+
+    /**
+ * @summary Создать товар
+ */
+export const useProductControllerCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerCreate>>, TError,{data: CreateProductDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerCreate>>,
+        TError,
+        {data: CreateProductDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerCreateMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Возвращает карточки товаров с productAttributes и variantSummary, но без полного variants. Поддерживает те же фильтры, что и /product/infinite.
+ * @summary Лёгкий card-feed товаров (бесконечный скролл)
+ */
+export const productControllerGetInfiniteCards = (
+    params?: ProductControllerGetInfiniteCardsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetInfiniteCardsQueryKey = (params?: ProductControllerGetInfiniteCardsParams,) => {
+    return [
+    `/product/cards/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteCardsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>> = ({ signal }) => productControllerGetInfiniteCards(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>>
+export type ProductControllerGetInfiniteCardsQueryError = unknown
+
+
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params: undefined |  ProductControllerGetInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий card-feed товаров (бесконечный скролл)
+ */
+
+export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetInfiniteCardsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
+ * @summary Список товаров с фильтрами (бесконечный скролл)
+ */
+export const productControllerGetInfinite = (
+    params?: ProductControllerGetInfiniteParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductInfinitePageDto>(
+      {url: `/product/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetInfiniteQueryKey = (params?: ProductControllerGetInfiniteParams,) => {
+    return [
+    `/product/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfinite>>> = ({ signal }) => productControllerGetInfinite(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetInfinite>>>
+export type ProductControllerGetInfiniteQueryError = unknown
+
+
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params: undefined |  ProductControllerGetInfiniteParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список товаров с фильтрами (бесконечный скролл)
+ */
+
+export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
+ params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetInfiniteQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Возвращает карточки рекомендаций с productAttributes и variantSummary, но без полного variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
+ * @summary Лёгкий card-feed рекомендаций
+ */
+export const productControllerGetRecommendationsInfiniteCards = (
+    params?: ProductControllerGetRecommendationsInfiniteCardsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCardPageDto>(
+      {url: `/product/cards/recommendations/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetRecommendationsInfiniteCardsQueryKey = (params?: ProductControllerGetRecommendationsInfiniteCardsParams,) => {
+    return [
+    `/product/cards/recommendations/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetRecommendationsInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetRecommendationsInfiniteCardsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>> = ({ signal }) => productControllerGetRecommendationsInfiniteCards(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetRecommendationsInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>>
+export type ProductControllerGetRecommendationsInfiniteCardsQueryError = unknown
+
+
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params: undefined |  ProductControllerGetRecommendationsInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий card-feed рекомендаций
+ */
+
+export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetRecommendationsInfiniteCardsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Временная реализация: возвращает товары, которые не попадают в текущий фильтр. Поддерживает те же query-параметры и deterministic seed, что и /product/infinite.
+ * @summary Список рекомендаций под фильтром (бесконечный скролл)
+ */
+export const productControllerGetRecommendationsInfinite = (
+    params?: ProductControllerGetRecommendationsInfiniteParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductInfinitePageDto>(
+      {url: `/product/recommendations/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetRecommendationsInfiniteQueryKey = (params?: ProductControllerGetRecommendationsInfiniteParams,) => {
+    return [
+    `/product/recommendations/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetRecommendationsInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetRecommendationsInfiniteQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>> = ({ signal }) => productControllerGetRecommendationsInfinite(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetRecommendationsInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>>
+export type ProductControllerGetRecommendationsInfiniteQueryError = unknown
+
+
+export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
+ params: undefined |  ProductControllerGetRecommendationsInfiniteParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список рекомендаций под фильтром (бесконечный скролл)
+ */
+
+export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
+ params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetRecommendationsInfiniteQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Возвращает популярные товары с productAttributes и variantSummary, но без полного variants.
+ * @summary Лёгкий список популярных товаров
+ */
+export const productControllerGetPopularCards = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product/cards/popular`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetPopularCardsQueryKey = () => {
+    return [
+    `/product/cards/popular`
+    ] as const;
+    }
+
+    
+export const getProductControllerGetPopularCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetPopularCardsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetPopularCards>>> = ({ signal }) => productControllerGetPopularCards(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetPopularCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetPopularCards>>>
+export type ProductControllerGetPopularCardsQueryError = unknown
+
+
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetPopularCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий список популярных товаров
+ */
+
+export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetPopularCardsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Возвращает карточки товаров без активной категории с productAttributes и variantSummary, но без полного variants.
+ * @summary Лёгкий список товаров без категории
+ */
+export const productControllerGetUncategorizedInfiniteCards = (
+    params?: ProductControllerGetUncategorizedInfiniteCardsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCursorCardPageDto>(
+      {url: `/product/cards/uncategorized/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetUncategorizedInfiniteCardsQueryKey = (params?: ProductControllerGetUncategorizedInfiniteCardsParams,) => {
+    return [
+    `/product/cards/uncategorized/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetUncategorizedInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetUncategorizedInfiniteCardsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>> = ({ signal }) => productControllerGetUncategorizedInfiniteCards(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetUncategorizedInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>>
+export type ProductControllerGetUncategorizedInfiniteCardsQueryError = unknown
+
+
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params: undefined |  ProductControllerGetUncategorizedInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Лёгкий список товаров без категории
+ */
+
+export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetUncategorizedInfiniteCardsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * @summary Список товаров без категории (бесконечный скролл)
+ */
+export const productControllerGetUncategorizedInfinite = (
+    params?: ProductControllerGetUncategorizedInfiniteParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCursorPageDto>(
+      {url: `/product/uncategorized/infinite`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetUncategorizedInfiniteQueryKey = (params?: ProductControllerGetUncategorizedInfiniteParams,) => {
+    return [
+    `/product/uncategorized/infinite`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerGetUncategorizedInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetUncategorizedInfiniteQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>> = ({ signal }) => productControllerGetUncategorizedInfinite(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetUncategorizedInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>>
+export type ProductControllerGetUncategorizedInfiniteQueryError = unknown
+
+
+export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
+ params: undefined |  ProductControllerGetUncategorizedInfiniteParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список товаров без категории (бесконечный скролл)
+ */
+
+export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
+ params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetUncategorizedInfiniteQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
+ * @summary Список популярных товаров
+ */
+export const productControllerGetPopular = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductWithAttributesDto[]>(
+      {url: `/product/popular`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetPopularQueryKey = () => {
+    return [
+    `/product/popular`
+    ] as const;
+    }
+
+    
+export const getProductControllerGetPopularQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetPopularQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetPopular>>> = ({ signal }) => productControllerGetPopular(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetPopularQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetPopular>>>
+export type ProductControllerGetPopularQueryError = unknown
+
+
+export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetPopular>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetPopular>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetPopular>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetPopular>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список популярных товаров
+ */
+
+export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetPopularQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Read-only diagnostics for missing default variants, multiple defaults, malformed matrix variants and legacy price mismatches.
+ * @summary Diagnose technical default variant consistency for current catalog
+ */
+export const productControllerDiagnoseDefaultVariants = (
+    params?: ProductControllerDiagnoseDefaultVariantsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductDefaultVariantDiagnosticsResponseDto>(
+      {url: `/product/maintenance/default-variants/diagnostics`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerDiagnoseDefaultVariantsQueryKey = (params?: ProductControllerDiagnoseDefaultVariantsParams,) => {
+    return [
+    `/product/maintenance/default-variants/diagnostics`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getProductControllerDiagnoseDefaultVariantsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerDiagnoseDefaultVariantsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>> = ({ signal }) => productControllerDiagnoseDefaultVariants(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerDiagnoseDefaultVariantsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>>
+export type ProductControllerDiagnoseDefaultVariantsQueryError = unknown
+
+
+export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
+ params: undefined |  ProductControllerDiagnoseDefaultVariantsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
+ params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
+ params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Diagnose technical default variant consistency for current catalog
+ */
+
+export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
+ params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerDiagnoseDefaultVariantsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
+ * @summary Получить товар по slug
+ */
+export const productControllerGetBySlug = (
+    slug: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductWithDetailsDto>(
+      {url: `/product/slug/${slug}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetBySlugQueryKey = (slug: string,) => {
+    return [
+    `/product/slug/${slug}`
+    ] as const;
+    }
+
+    
+export const getProductControllerGetBySlugQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetBySlugQueryKey(slug);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetBySlug>>> = ({ signal }) => productControllerGetBySlug(slug, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetBySlugQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetBySlug>>>
+export type ProductControllerGetBySlugQueryError = unknown
+
+
+export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetBySlug>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetBySlug>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetBySlug>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetBySlug>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить товар по slug
+ */
+
+export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetBySlugQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
+ * @summary Получить товар по id
+ */
+export const productControllerGetById = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductWithDetailsDto>(
+      {url: `/product/${id}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getProductControllerGetByIdQueryKey = (id: string,) => {
+    return [
+    `/product/${id}`
+    ] as const;
+    }
+
+    
+export const getProductControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetByIdQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetById>>> = ({ signal }) => productControllerGetById(id, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProductControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetById>>>
+export type ProductControllerGetByIdQueryError = unknown
+
+
+export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetById>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof productControllerGetById>>,
+          TError,
+          Awaited<ReturnType<typeof productControllerGetById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить товар по id
+ */
+
+export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProductControllerGetByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * Для замены привязок товара передайте массив categories. Для изменения позиции товара внутри одной категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Обновить товар
+ */
+export const productControllerUpdate = (
+    id: string,
+    updateProductDtoReq: UpdateProductDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateProductDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerUpdateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdate>>, TError,{id: string;data: UpdateProductDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdate>>, TError,{id: string;data: UpdateProductDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerUpdate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerUpdate>>, {id: string;data: UpdateProductDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  productControllerUpdate(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerUpdate>>>
+    export type ProductControllerUpdateMutationBody = UpdateProductDtoReq
+    export type ProductControllerUpdateMutationError = unknown
+
+    /**
+ * @summary Обновить товар
+ */
+export const useProductControllerUpdate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdate>>, TError,{id: string;data: UpdateProductDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerUpdate>>,
+        TError,
+        {id: string;data: UpdateProductDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerUpdateMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Удалить товар
+ */
+export const productControllerRemove = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/product/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerRemoveMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRemove>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerRemove>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['productControllerRemove'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRemove>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  productControllerRemove(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRemove>>>
+    
+    export type ProductControllerRemoveMutationError = unknown
+
+    /**
+ * @summary Удалить товар
+ */
+export const useProductControllerRemove = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRemove>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerRemove>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getProductControllerRemoveMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Создает копию товара со всеми медиа, атрибутами, вариантами и категориями. Новый товар создается со status=HIDDEN.
+ * @summary Дублировать товар
+ */
+export const productControllerDuplicate = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductCreateResponseDto>(
+      {url: `/product/${id}/duplicate`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerDuplicateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerDuplicate>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerDuplicate>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['productControllerDuplicate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerDuplicate>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  productControllerDuplicate(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerDuplicateMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerDuplicate>>>
+    
+    export type ProductControllerDuplicateMutationError = unknown
+
+    /**
+ * @summary Дублировать товар
+ */
+export const useProductControllerDuplicate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerDuplicate>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerDuplicate>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getProductControllerDuplicateMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Creates or restores a technical default variant only for legacy simple products that do not have real custom variants.
+ * @summary Repair missing technical default variants for current catalog
+ */
+export const productControllerRepairMissingDefaultVariants = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductDefaultVariantRepairResponseDto>(
+      {url: `/product/maintenance/default-variants/repair`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerRepairMissingDefaultVariantsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext> => {
+
+const mutationKey = ['productControllerRepairMissingDefaultVariants'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, void> = () => {
+          
+
+          return  productControllerRepairMissingDefaultVariants()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerRepairMissingDefaultVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>>
+    
+    export type ProductControllerRepairMissingDefaultVariantsMutationError = unknown
+
+    /**
+ * @summary Repair missing technical default variants for current catalog
+ */
+export const useProductControllerRepairMissingDefaultVariants = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getProductControllerRepairMissingDefaultVariantsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Dry-run by default. With apply=true copies the technical default variant price into legacy Product.price only for safe simple products with exactly one clean default variant and no custom variants.
+ * @summary Repair legacy product price mirror from technical default variants
+ */
+export const productControllerRepairDefaultVariantPriceMismatches = (
+    repairDefaultVariantPriceMismatchDtoReq: RepairDefaultVariantPriceMismatchDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductDefaultVariantPriceMismatchRepairResponseDto>(
+      {url: `/product/maintenance/default-variants/price-mismatches/repair`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: repairDefaultVariantPriceMismatchDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerRepairDefaultVariantPriceMismatchesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, TError,{data: RepairDefaultVariantPriceMismatchDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, TError,{data: RepairDefaultVariantPriceMismatchDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerRepairDefaultVariantPriceMismatches'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, {data: RepairDefaultVariantPriceMismatchDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  productControllerRepairDefaultVariantPriceMismatches(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerRepairDefaultVariantPriceMismatchesMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>>
+    export type ProductControllerRepairDefaultVariantPriceMismatchesMutationBody = RepairDefaultVariantPriceMismatchDtoReq
+    export type ProductControllerRepairDefaultVariantPriceMismatchesMutationError = unknown
+
+    /**
+ * @summary Repair legacy product price mirror from technical default variants
+ */
+export const useProductControllerRepairDefaultVariantPriceMismatches = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, TError,{data: RepairDefaultVariantPriceMismatchDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>,
+        TError,
+        {data: RepairDefaultVariantPriceMismatchDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerRepairDefaultVariantPriceMismatchesMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Preview product type change compatibility without writing
+ */
+export const productControllerPreviewProductTypeCompatibility = (
+    id: string,
+    productTypeCompatibilityPreviewDtoReq: ProductTypeCompatibilityPreviewDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductTypeCompatibilityPreviewDto>(
+      {url: `/product/${id}/product-type/compatibility-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: productTypeCompatibilityPreviewDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerPreviewProductTypeCompatibilityMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, TError,{id: string;data: ProductTypeCompatibilityPreviewDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, TError,{id: string;data: ProductTypeCompatibilityPreviewDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerPreviewProductTypeCompatibility'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, {id: string;data: ProductTypeCompatibilityPreviewDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  productControllerPreviewProductTypeCompatibility(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerPreviewProductTypeCompatibilityMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>>
+    export type ProductControllerPreviewProductTypeCompatibilityMutationBody = ProductTypeCompatibilityPreviewDtoReq
+    export type ProductControllerPreviewProductTypeCompatibilityMutationError = unknown
+
+    /**
+ * @summary Preview product type change compatibility without writing
+ */
+export const useProductControllerPreviewProductTypeCompatibility = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, TError,{id: string;data: ProductTypeCompatibilityPreviewDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>,
+        TError,
+        {id: string;data: ProductTypeCompatibilityPreviewDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerPreviewProductTypeCompatibilityMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Apply explicit product type change with confirmed remap/removal
+ */
+export const productControllerApplyProductTypeChange = (
+    id: string,
+    applyProductTypeChangeDtoReq: ApplyProductTypeChangeDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/product-type/apply`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: applyProductTypeChangeDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerApplyProductTypeChangeMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, TError,{id: string;data: ApplyProductTypeChangeDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, TError,{id: string;data: ApplyProductTypeChangeDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerApplyProductTypeChange'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, {id: string;data: ApplyProductTypeChangeDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  productControllerApplyProductTypeChange(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerApplyProductTypeChangeMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>>
+    export type ProductControllerApplyProductTypeChangeMutationBody = ApplyProductTypeChangeDtoReq
+    export type ProductControllerApplyProductTypeChangeMutationError = unknown
+
+    /**
+ * @summary Apply explicit product type change with confirmed remap/removal
+ */
+export const useProductControllerApplyProductTypeChange = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, TError,{id: string;data: ApplyProductTypeChangeDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>,
+        TError,
+        {id: string;data: ApplyProductTypeChangeDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerApplyProductTypeChangeMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
+ * @summary Изменить позицию товара в категории
+ */
+export const productControllerUpdateCategoryPosition = (
+    id: string,
+    updateProductCategoryPositionDtoReq: UpdateProductCategoryPositionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/category-position`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateProductCategoryPositionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerUpdateCategoryPositionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, TError,{id: string;data: UpdateProductCategoryPositionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, TError,{id: string;data: UpdateProductCategoryPositionDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerUpdateCategoryPosition'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, {id: string;data: UpdateProductCategoryPositionDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  productControllerUpdateCategoryPosition(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerUpdateCategoryPositionMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>>
+    export type ProductControllerUpdateCategoryPositionMutationBody = UpdateProductCategoryPositionDtoReq
+    export type ProductControllerUpdateCategoryPositionMutationError = unknown
+
+    /**
+ * @summary Изменить позицию товара в категории
+ */
+export const useProductControllerUpdateCategoryPosition = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, TError,{id: string;data: UpdateProductCategoryPositionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>,
+        TError,
+        {id: string;data: UpdateProductCategoryPositionDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerUpdateCategoryPositionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Переключает статус товара между ACTIVE и HIDDEN. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Переключить статус товара
+ */
+export const productControllerToggleStatus = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/toggle-status`, method: 'PATCH', signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerToggleStatusMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerToggleStatus>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerToggleStatus>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['productControllerToggleStatus'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerToggleStatus>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  productControllerToggleStatus(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerToggleStatusMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerToggleStatus>>>
+    
+    export type ProductControllerToggleStatusMutationError = unknown
+
+    /**
+ * @summary Переключить статус товара
+ */
+export const useProductControllerToggleStatus = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerToggleStatus>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerToggleStatus>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getProductControllerToggleStatusMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Переключает флаг isPopular у товара. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Переключить популярность товара
+ */
+export const productControllerTogglePopular = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductUpdateResponseDto>(
+      {url: `/product/${id}/toggle-popular`, method: 'PATCH', signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerTogglePopularMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerTogglePopular>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerTogglePopular>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['productControllerTogglePopular'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerTogglePopular>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  productControllerTogglePopular(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerTogglePopularMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerTogglePopular>>>
+    
+    export type ProductControllerTogglePopularMutationError = unknown
+
+    /**
+ * @summary Переключить популярность товара
+ */
+export const useProductControllerTogglePopular = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerTogglePopular>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerTogglePopular>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getProductControllerTogglePopularMutationOptions(options), queryClient);
+    }
+    
+/**
+ * В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Создать/заменить вариации товара
+ */
+export const productControllerSetVariants = (
+    id: string,
+    setProductVariantsDtoReq: SetProductVariantsDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductVariantsResponseDto>(
+      {url: `/product/${id}/variants`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: setProductVariantsDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerSetVariantsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariants>>, TError,{id: string;data: SetProductVariantsDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariants>>, TError,{id: string;data: SetProductVariantsDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerSetVariants'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerSetVariants>>, {id: string;data: SetProductVariantsDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  productControllerSetVariants(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerSetVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerSetVariants>>>
+    export type ProductControllerSetVariantsMutationBody = SetProductVariantsDtoReq
+    export type ProductControllerSetVariantsMutationError = unknown
+
+    /**
+ * @summary Создать/заменить вариации товара
+ */
+export const useProductControllerSetVariants = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariants>>, TError,{id: string;data: SetProductVariantsDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerSetVariants>>,
+        TError,
+        {id: string;data: SetProductVariantsDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerSetVariantsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * Заменяет полную матрицу вариантов товара. В ответе media.variants возвращаются варианты thumb и detail.
+ * @summary Создать/заменить матрицу вариаций товара
+ */
+export const productControllerSetVariantMatrix = (
+    id: string,
+    setProductVariantMatrixDtoReq: SetProductVariantMatrixDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<ProductVariantsResponseDto>(
+      {url: `/product/${id}/variant-matrix`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: setProductVariantMatrixDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getProductControllerSetVariantMatrixMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, TError,{id: string;data: SetProductVariantMatrixDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, TError,{id: string;data: SetProductVariantMatrixDtoReq}, TContext> => {
+
+const mutationKey = ['productControllerSetVariantMatrix'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, {id: string;data: SetProductVariantMatrixDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  productControllerSetVariantMatrix(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProductControllerSetVariantMatrixMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>>
+    export type ProductControllerSetVariantMatrixMutationBody = SetProductVariantMatrixDtoReq
+    export type ProductControllerSetVariantMatrixMutationError = unknown
+
+    /**
+ * @summary Создать/заменить матрицу вариаций товара
+ */
+export const useProductControllerSetVariantMatrix = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, TError,{id: string;data: SetProductVariantMatrixDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof productControllerSetVariantMatrix>>,
+        TError,
+        {id: string;data: SetProductVariantMatrixDtoReq},
+        TContext
+      > => {
+      return useMutation(getProductControllerSetVariantMatrixMutationOptions(options), queryClient);
+    }
+    
 /**
  * @summary List attributes by type
  */
@@ -13377,6 +15575,195 @@ export const useIntegrationControllerReceiveMoySkladStockWebhook = <TError = unk
     }
     
 /**
+ * @summary Receive MoySklad product delete webhook
+ */
+export const integrationControllerReceiveMoySkladProductDeleteWebhook = (
+    integrationId: string,
+    secret: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/integration/webhooks/moysklad/product-delete/${integrationId}/${secret}`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerReceiveMoySkladProductDeleteWebhookMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductDeleteWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductDeleteWebhook>>, TError,{integrationId: string;secret: string}, TContext> => {
+
+const mutationKey = ['integrationControllerReceiveMoySkladProductDeleteWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductDeleteWebhook>>, {integrationId: string;secret: string}> = (props) => {
+          const {integrationId,secret} = props ?? {};
+
+          return  integrationControllerReceiveMoySkladProductDeleteWebhook(integrationId,secret,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerReceiveMoySkladProductDeleteWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductDeleteWebhook>>>
+    
+    export type IntegrationControllerReceiveMoySkladProductDeleteWebhookMutationError = unknown
+
+    /**
+ * @summary Receive MoySklad product delete webhook
+ */
+export const useIntegrationControllerReceiveMoySkladProductDeleteWebhook = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductDeleteWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductDeleteWebhook>>,
+        TError,
+        {integrationId: string;secret: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerReceiveMoySkladProductDeleteWebhookMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Receive MoySklad product change webhook
+ */
+export const integrationControllerReceiveMoySkladProductChangeWebhook = (
+    integrationId: string,
+    secret: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/integration/webhooks/moysklad/product-change/${integrationId}/${secret}`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerReceiveMoySkladProductChangeWebhookMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductChangeWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductChangeWebhook>>, TError,{integrationId: string;secret: string}, TContext> => {
+
+const mutationKey = ['integrationControllerReceiveMoySkladProductChangeWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductChangeWebhook>>, {integrationId: string;secret: string}> = (props) => {
+          const {integrationId,secret} = props ?? {};
+
+          return  integrationControllerReceiveMoySkladProductChangeWebhook(integrationId,secret,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerReceiveMoySkladProductChangeWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductChangeWebhook>>>
+    
+    export type IntegrationControllerReceiveMoySkladProductChangeWebhookMutationError = unknown
+
+    /**
+ * @summary Receive MoySklad product change webhook
+ */
+export const useIntegrationControllerReceiveMoySkladProductChangeWebhook = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductChangeWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductChangeWebhook>>,
+        TError,
+        {integrationId: string;secret: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerReceiveMoySkladProductChangeWebhookMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Receive MoySklad product folder webhook
+ */
+export const integrationControllerReceiveMoySkladProductFolderWebhook = (
+    integrationId: string,
+    secret: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/integration/webhooks/moysklad/productfolder/${integrationId}/${secret}`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerReceiveMoySkladProductFolderWebhookMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductFolderWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductFolderWebhook>>, TError,{integrationId: string;secret: string}, TContext> => {
+
+const mutationKey = ['integrationControllerReceiveMoySkladProductFolderWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductFolderWebhook>>, {integrationId: string;secret: string}> = (props) => {
+          const {integrationId,secret} = props ?? {};
+
+          return  integrationControllerReceiveMoySkladProductFolderWebhook(integrationId,secret,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerReceiveMoySkladProductFolderWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductFolderWebhook>>>
+    
+    export type IntegrationControllerReceiveMoySkladProductFolderWebhookMutationError = unknown
+
+    /**
+ * @summary Receive MoySklad product folder webhook
+ */
+export const useIntegrationControllerReceiveMoySkladProductFolderWebhook = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductFolderWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerReceiveMoySkladProductFolderWebhook>>,
+        TError,
+        {integrationId: string;secret: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerReceiveMoySkladProductFolderWebhookMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Повторно поставить экспорт заказа MoySklad в очередь
  */
 export const integrationControllerRetryMoySkladOrderExport = (
@@ -13436,1955 +15823,6 @@ export const useIntegrationControllerRetryMoySkladOrderExport = <TError = unknow
         TContext
       > => {
       return useMutation(getIntegrationControllerRetryMoySkladOrderExportMutationOptions(options), queryClient);
-    }
-    
-/**
- * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
- * @summary Список товаров
- */
-export const productControllerGetAll = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductWithAttributesDto[]>(
-      {url: `/product`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetAllQueryKey = () => {
-    return [
-    `/product`
-    ] as const;
-    }
-
-    
-export const getProductControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetAllQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetAll>>> = ({ signal }) => productControllerGetAll(signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetAllQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetAll>>>
-export type ProductControllerGetAllQueryError = unknown
-
-
-export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetAll>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetAll>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetAll>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetAll>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Список товаров
- */
-
-export function useProductControllerGetAll<TData = Awaited<ReturnType<typeof productControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetAllQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Для привязки к категориям передайте массив categories (товар добавится в начало каждой категории). При необходимости можно сразу передать variants.
- * @summary Создать товар
- */
-export const productControllerCreate = (
-    createProductDtoReq: CreateProductDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductCreateResponseDto>(
-      {url: `/product`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createProductDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerCreate>>, TError,{data: CreateProductDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerCreate>>, TError,{data: CreateProductDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerCreate'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerCreate>>, {data: CreateProductDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  productControllerCreate(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerCreate>>>
-    export type ProductControllerCreateMutationBody = CreateProductDtoReq
-    export type ProductControllerCreateMutationError = unknown
-
-    /**
- * @summary Создать товар
- */
-export const useProductControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerCreate>>, TError,{data: CreateProductDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerCreate>>,
-        TError,
-        {data: CreateProductDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerCreateMutationOptions(options), queryClient);
-    }
-    
-/**
- * Возвращает карточки товаров с productAttributes и variantSummary, но без полного variants. Поддерживает те же фильтры, что и /product/infinite.
- * @summary Лёгкий card-feed товаров (бесконечный скролл)
- */
-export const productControllerGetInfiniteCards = (
-    params?: ProductControllerGetInfiniteCardsParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductCardPageDto>(
-      {url: `/product/cards/infinite`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetInfiniteCardsQueryKey = (params?: ProductControllerGetInfiniteCardsParams,) => {
-    return [
-    `/product/cards/infinite`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getProductControllerGetInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteCardsQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>> = ({ signal }) => productControllerGetInfiniteCards(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>>
-export type ProductControllerGetInfiniteCardsQueryError = unknown
-
-
-export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
- params: undefined |  ProductControllerGetInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetInfiniteCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Лёгкий card-feed товаров (бесконечный скролл)
- */
-
-export function useProductControllerGetInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetInfiniteCardsQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Поддерживает фильтры по категориям/брендам/цене/поиску, фильтрацию по атрибутам и детерминированный рандом через seed. В media.variants возвращается только variant с назначением card.
- * @summary Список товаров с фильтрами (бесконечный скролл)
- */
-export const productControllerGetInfinite = (
-    params?: ProductControllerGetInfiniteParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductInfinitePageDto>(
-      {url: `/product/infinite`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetInfiniteQueryKey = (params?: ProductControllerGetInfiniteParams,) => {
-    return [
-    `/product/infinite`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getProductControllerGetInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetInfiniteQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetInfinite>>> = ({ signal }) => productControllerGetInfinite(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetInfinite>>>
-export type ProductControllerGetInfiniteQueryError = unknown
-
-
-export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
- params: undefined |  ProductControllerGetInfiniteParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetInfinite>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetInfinite>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
- params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetInfinite>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetInfinite>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
- params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Список товаров с фильтрами (бесконечный скролл)
- */
-
-export function useProductControllerGetInfinite<TData = Awaited<ReturnType<typeof productControllerGetInfinite>>, TError = unknown>(
- params?: ProductControllerGetInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetInfiniteQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Возвращает карточки рекомендаций с productAttributes и variantSummary, но без полного variants. Поддерживает те же query-параметры, что и /product/recommendations/infinite.
- * @summary Лёгкий card-feed рекомендаций
- */
-export const productControllerGetRecommendationsInfiniteCards = (
-    params?: ProductControllerGetRecommendationsInfiniteCardsParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductCardPageDto>(
-      {url: `/product/cards/recommendations/infinite`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetRecommendationsInfiniteCardsQueryKey = (params?: ProductControllerGetRecommendationsInfiniteCardsParams,) => {
-    return [
-    `/product/cards/recommendations/infinite`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getProductControllerGetRecommendationsInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetRecommendationsInfiniteCardsQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>> = ({ signal }) => productControllerGetRecommendationsInfiniteCards(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetRecommendationsInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>>
-export type ProductControllerGetRecommendationsInfiniteCardsQueryError = unknown
-
-
-export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
- params: undefined |  ProductControllerGetRecommendationsInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Лёгкий card-feed рекомендаций
- */
-
-export function useProductControllerGetRecommendationsInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetRecommendationsInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetRecommendationsInfiniteCardsQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Временная реализация: возвращает товары, которые не попадают в текущий фильтр. Поддерживает те же query-параметры и deterministic seed, что и /product/infinite.
- * @summary Список рекомендаций под фильтром (бесконечный скролл)
- */
-export const productControllerGetRecommendationsInfinite = (
-    params?: ProductControllerGetRecommendationsInfiniteParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductInfinitePageDto>(
-      {url: `/product/recommendations/infinite`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetRecommendationsInfiniteQueryKey = (params?: ProductControllerGetRecommendationsInfiniteParams,) => {
-    return [
-    `/product/recommendations/infinite`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getProductControllerGetRecommendationsInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetRecommendationsInfiniteQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>> = ({ signal }) => productControllerGetRecommendationsInfinite(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetRecommendationsInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>>
-export type ProductControllerGetRecommendationsInfiniteQueryError = unknown
-
-
-export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
- params: undefined |  ProductControllerGetRecommendationsInfiniteParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
- params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
- params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Список рекомендаций под фильтром (бесконечный скролл)
- */
-
-export function useProductControllerGetRecommendationsInfinite<TData = Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError = unknown>(
- params?: ProductControllerGetRecommendationsInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetRecommendationsInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetRecommendationsInfiniteQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Возвращает популярные товары с productAttributes и variantSummary, но без полного variants.
- * @summary Лёгкий список популярных товаров
- */
-export const productControllerGetPopularCards = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductWithAttributesDto[]>(
-      {url: `/product/cards/popular`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetPopularCardsQueryKey = () => {
-    return [
-    `/product/cards/popular`
-    ] as const;
-    }
-
-    
-export const getProductControllerGetPopularCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetPopularCardsQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetPopularCards>>> = ({ signal }) => productControllerGetPopularCards(signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetPopularCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetPopularCards>>>
-export type ProductControllerGetPopularCardsQueryError = unknown
-
-
-export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetPopularCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetPopularCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetPopularCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetPopularCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Лёгкий список популярных товаров
- */
-
-export function useProductControllerGetPopularCards<TData = Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopularCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetPopularCardsQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Возвращает карточки товаров без активной категории с productAttributes и variantSummary, но без полного variants.
- * @summary Лёгкий список товаров без категории
- */
-export const productControllerGetUncategorizedInfiniteCards = (
-    params?: ProductControllerGetUncategorizedInfiniteCardsParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductCursorCardPageDto>(
-      {url: `/product/cards/uncategorized/infinite`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetUncategorizedInfiniteCardsQueryKey = (params?: ProductControllerGetUncategorizedInfiniteCardsParams,) => {
-    return [
-    `/product/cards/uncategorized/infinite`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getProductControllerGetUncategorizedInfiniteCardsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetUncategorizedInfiniteCardsQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>> = ({ signal }) => productControllerGetUncategorizedInfiniteCards(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetUncategorizedInfiniteCardsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>>
-export type ProductControllerGetUncategorizedInfiniteCardsQueryError = unknown
-
-
-export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
- params: undefined |  ProductControllerGetUncategorizedInfiniteCardsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Лёгкий список товаров без категории
- */
-
-export function useProductControllerGetUncategorizedInfiniteCards<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError = unknown>(
- params?: ProductControllerGetUncategorizedInfiniteCardsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfiniteCards>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetUncategorizedInfiniteCardsQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Возвращает товары без активной привязки к категориям. В media.variants для каждого изображения возвращается только variant с назначением card.
- * @summary Список товаров без категории (бесконечный скролл)
- */
-export const productControllerGetUncategorizedInfinite = (
-    params?: ProductControllerGetUncategorizedInfiniteParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductCursorPageDto>(
-      {url: `/product/uncategorized/infinite`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetUncategorizedInfiniteQueryKey = (params?: ProductControllerGetUncategorizedInfiniteParams,) => {
-    return [
-    `/product/uncategorized/infinite`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getProductControllerGetUncategorizedInfiniteQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetUncategorizedInfiniteQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>> = ({ signal }) => productControllerGetUncategorizedInfinite(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetUncategorizedInfiniteQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>>
-export type ProductControllerGetUncategorizedInfiniteQueryError = unknown
-
-
-export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
- params: undefined |  ProductControllerGetUncategorizedInfiniteParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
- params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
- params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Список товаров без категории (бесконечный скролл)
- */
-
-export function useProductControllerGetUncategorizedInfinite<TData = Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError = unknown>(
- params?: ProductControllerGetUncategorizedInfiniteParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetUncategorizedInfinite>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetUncategorizedInfiniteQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * В массовой выдаче возвращаются productAttributes и variantSummary, но без полного variants. В media.variants для каждого изображения возвращается только variant с назначением card.
- * @summary Список популярных товаров
- */
-export const productControllerGetPopular = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductWithAttributesDto[]>(
-      {url: `/product/popular`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetPopularQueryKey = () => {
-    return [
-    `/product/popular`
-    ] as const;
-    }
-
-    
-export const getProductControllerGetPopularQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetPopularQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetPopular>>> = ({ signal }) => productControllerGetPopular(signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetPopularQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetPopular>>>
-export type ProductControllerGetPopularQueryError = unknown
-
-
-export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetPopular>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetPopular>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetPopular>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetPopular>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Список популярных товаров
- */
-
-export function useProductControllerGetPopular<TData = Awaited<ReturnType<typeof productControllerGetPopular>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetPopular>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetPopularQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Read-only diagnostics for missing default variants, multiple defaults, malformed matrix variants and legacy price mismatches.
- * @summary Diagnose technical default variant consistency for current catalog
- */
-export const productControllerDiagnoseDefaultVariants = (
-    params?: ProductControllerDiagnoseDefaultVariantsParams,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductDefaultVariantDiagnosticsResponseDto>(
-      {url: `/product/maintenance/default-variants/diagnostics`, method: 'GET',
-        params, signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerDiagnoseDefaultVariantsQueryKey = (params?: ProductControllerDiagnoseDefaultVariantsParams,) => {
-    return [
-    `/product/maintenance/default-variants/diagnostics`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-    
-export const getProductControllerDiagnoseDefaultVariantsQueryOptions = <TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerDiagnoseDefaultVariantsQueryKey(params);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>> = ({ signal }) => productControllerDiagnoseDefaultVariants(params, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerDiagnoseDefaultVariantsQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>>
-export type ProductControllerDiagnoseDefaultVariantsQueryError = unknown
-
-
-export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
- params: undefined |  ProductControllerDiagnoseDefaultVariantsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
- params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
- params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Diagnose technical default variant consistency for current catalog
- */
-
-export function useProductControllerDiagnoseDefaultVariants<TData = Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError = unknown>(
- params?: ProductControllerDiagnoseDefaultVariantsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerDiagnoseDefaultVariants>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerDiagnoseDefaultVariantsQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
- * @summary Получить товар по slug
- */
-export const productControllerGetBySlug = (
-    slug: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductWithDetailsDto>(
-      {url: `/product/slug/${slug}`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetBySlugQueryKey = (slug: string,) => {
-    return [
-    `/product/slug/${slug}`
-    ] as const;
-    }
-
-    
-export const getProductControllerGetBySlugQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetBySlugQueryKey(slug);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetBySlug>>> = ({ signal }) => productControllerGetBySlug(slug, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(slug), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetBySlugQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetBySlug>>>
-export type ProductControllerGetBySlugQueryError = unknown
-
-
-export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
- slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetBySlug>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetBySlug>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
- slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetBySlug>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetBySlug>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
- slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Получить товар по slug
- */
-
-export function useProductControllerGetBySlug<TData = Awaited<ReturnType<typeof productControllerGetBySlug>>, TError = unknown>(
- slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetBySlug>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetBySlugQueryOptions(slug,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * В media.variants возвращаются варианты thumb и detail. thumb подходит для миниатюр и корзины, detail для страницы товара.
- * @summary Получить товар по id
- */
-export const productControllerGetById = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductWithDetailsDto>(
-      {url: `/product/${id}`, method: 'GET', signal
-    },
-      );
-    }
-  
-
-
-
-export const getProductControllerGetByIdQueryKey = (id: string,) => {
-    return [
-    `/product/${id}`
-    ] as const;
-    }
-
-    
-export const getProductControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getProductControllerGetByIdQueryKey(id);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof productControllerGetById>>> = ({ signal }) => productControllerGetById(id, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ProductControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof productControllerGetById>>>
-export type ProductControllerGetByIdQueryError = unknown
-
-
-export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
- id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetById>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetById>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof productControllerGetById>>,
-          TError,
-          Awaited<ReturnType<typeof productControllerGetById>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Получить товар по id
- */
-
-export function useProductControllerGetById<TData = Awaited<ReturnType<typeof productControllerGetById>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof productControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getProductControllerGetByIdQueryOptions(id,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-/**
- * Для замены привязок товара передайте массив categories. Для изменения позиции товара внутри одной категории передайте categoryId и categoryPosition. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Обновить товар
- */
-export const productControllerUpdate = (
-    id: string,
-    updateProductDtoReq: UpdateProductDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: updateProductDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdate>>, TError,{id: string;data: UpdateProductDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdate>>, TError,{id: string;data: UpdateProductDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerUpdate'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerUpdate>>, {id: string;data: UpdateProductDtoReq}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  productControllerUpdate(id,data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerUpdate>>>
-    export type ProductControllerUpdateMutationBody = UpdateProductDtoReq
-    export type ProductControllerUpdateMutationError = unknown
-
-    /**
- * @summary Обновить товар
- */
-export const useProductControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdate>>, TError,{id: string;data: UpdateProductDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerUpdate>>,
-        TError,
-        {id: string;data: UpdateProductDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerUpdateMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Удалить товар
- */
-export const productControllerRemove = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<OkResponseDto>(
-      {url: `/product/${id}`, method: 'DELETE', signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRemove>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerRemove>>, TError,{id: string}, TContext> => {
-
-const mutationKey = ['productControllerRemove'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRemove>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
-
-          return  productControllerRemove(id,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRemove>>>
-    
-    export type ProductControllerRemoveMutationError = unknown
-
-    /**
- * @summary Удалить товар
- */
-export const useProductControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRemove>>, TError,{id: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerRemove>>,
-        TError,
-        {id: string},
-        TContext
-      > => {
-      return useMutation(getProductControllerRemoveMutationOptions(options), queryClient);
-    }
-    
-/**
- * Создает копию товара со всеми медиа, атрибутами, вариантами и категориями. Новый товар создается со status=HIDDEN.
- * @summary Дублировать товар
- */
-export const productControllerDuplicate = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductCreateResponseDto>(
-      {url: `/product/${id}/duplicate`, method: 'POST', signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerDuplicateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerDuplicate>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerDuplicate>>, TError,{id: string}, TContext> => {
-
-const mutationKey = ['productControllerDuplicate'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerDuplicate>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
-
-          return  productControllerDuplicate(id,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerDuplicateMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerDuplicate>>>
-    
-    export type ProductControllerDuplicateMutationError = unknown
-
-    /**
- * @summary Дублировать товар
- */
-export const useProductControllerDuplicate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerDuplicate>>, TError,{id: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerDuplicate>>,
-        TError,
-        {id: string},
-        TContext
-      > => {
-      return useMutation(getProductControllerDuplicateMutationOptions(options), queryClient);
-    }
-    
-/**
- * Creates or restores a technical default variant only for legacy simple products that do not have real custom variants.
- * @summary Repair missing technical default variants for current catalog
- */
-export const productControllerRepairMissingDefaultVariants = (
-    
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductDefaultVariantRepairResponseDto>(
-      {url: `/product/maintenance/default-variants/repair`, method: 'POST', signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerRepairMissingDefaultVariantsMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext> => {
-
-const mutationKey = ['productControllerRepairMissingDefaultVariants'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, void> = () => {
-          
-
-          return  productControllerRepairMissingDefaultVariants()
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerRepairMissingDefaultVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>>
-    
-    export type ProductControllerRepairMissingDefaultVariantsMutationError = unknown
-
-    /**
- * @summary Repair missing technical default variants for current catalog
- */
-export const useProductControllerRepairMissingDefaultVariants = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>, TError,void, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerRepairMissingDefaultVariants>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getProductControllerRepairMissingDefaultVariantsMutationOptions(options), queryClient);
-    }
-    
-/**
- * Dry-run by default. With apply=true copies the technical default variant price into legacy Product.price only for safe simple products with exactly one clean default variant and no custom variants.
- * @summary Repair legacy product price mirror from technical default variants
- */
-export const productControllerRepairDefaultVariantPriceMismatches = (
-    repairDefaultVariantPriceMismatchDtoReq: RepairDefaultVariantPriceMismatchDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductDefaultVariantPriceMismatchRepairResponseDto>(
-      {url: `/product/maintenance/default-variants/price-mismatches/repair`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: repairDefaultVariantPriceMismatchDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerRepairDefaultVariantPriceMismatchesMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, TError,{data: RepairDefaultVariantPriceMismatchDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, TError,{data: RepairDefaultVariantPriceMismatchDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerRepairDefaultVariantPriceMismatches'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, {data: RepairDefaultVariantPriceMismatchDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  productControllerRepairDefaultVariantPriceMismatches(data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerRepairDefaultVariantPriceMismatchesMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>>
-    export type ProductControllerRepairDefaultVariantPriceMismatchesMutationBody = RepairDefaultVariantPriceMismatchDtoReq
-    export type ProductControllerRepairDefaultVariantPriceMismatchesMutationError = unknown
-
-    /**
- * @summary Repair legacy product price mirror from technical default variants
- */
-export const useProductControllerRepairDefaultVariantPriceMismatches = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>, TError,{data: RepairDefaultVariantPriceMismatchDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerRepairDefaultVariantPriceMismatches>>,
-        TError,
-        {data: RepairDefaultVariantPriceMismatchDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerRepairDefaultVariantPriceMismatchesMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Preview product type change compatibility without writing
- */
-export const productControllerPreviewProductTypeCompatibility = (
-    id: string,
-    productTypeCompatibilityPreviewDtoReq: ProductTypeCompatibilityPreviewDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductTypeCompatibilityPreviewDto>(
-      {url: `/product/${id}/product-type/compatibility-preview`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: productTypeCompatibilityPreviewDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerPreviewProductTypeCompatibilityMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, TError,{id: string;data: ProductTypeCompatibilityPreviewDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, TError,{id: string;data: ProductTypeCompatibilityPreviewDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerPreviewProductTypeCompatibility'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, {id: string;data: ProductTypeCompatibilityPreviewDtoReq}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  productControllerPreviewProductTypeCompatibility(id,data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerPreviewProductTypeCompatibilityMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>>
-    export type ProductControllerPreviewProductTypeCompatibilityMutationBody = ProductTypeCompatibilityPreviewDtoReq
-    export type ProductControllerPreviewProductTypeCompatibilityMutationError = unknown
-
-    /**
- * @summary Preview product type change compatibility without writing
- */
-export const useProductControllerPreviewProductTypeCompatibility = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>, TError,{id: string;data: ProductTypeCompatibilityPreviewDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerPreviewProductTypeCompatibility>>,
-        TError,
-        {id: string;data: ProductTypeCompatibilityPreviewDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerPreviewProductTypeCompatibilityMutationOptions(options), queryClient);
-    }
-    
-/**
- * @summary Apply explicit product type change with confirmed remap/removal
- */
-export const productControllerApplyProductTypeChange = (
-    id: string,
-    applyProductTypeChangeDtoReq: ApplyProductTypeChangeDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/product-type/apply`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: applyProductTypeChangeDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerApplyProductTypeChangeMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, TError,{id: string;data: ApplyProductTypeChangeDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, TError,{id: string;data: ApplyProductTypeChangeDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerApplyProductTypeChange'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, {id: string;data: ApplyProductTypeChangeDtoReq}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  productControllerApplyProductTypeChange(id,data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerApplyProductTypeChangeMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>>
-    export type ProductControllerApplyProductTypeChangeMutationBody = ApplyProductTypeChangeDtoReq
-    export type ProductControllerApplyProductTypeChangeMutationError = unknown
-
-    /**
- * @summary Apply explicit product type change with confirmed remap/removal
- */
-export const useProductControllerApplyProductTypeChange = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>, TError,{id: string;data: ApplyProductTypeChangeDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerApplyProductTypeChange>>,
-        TError,
-        {id: string;data: ApplyProductTypeChangeDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerApplyProductTypeChangeMutationOptions(options), queryClient);
-    }
-    
-/**
- * Меняет позицию товара внутри конкретной категории. Если товар еще не привязан к категории, привязка будет создана на указанной позиции.
- * @summary Изменить позицию товара в категории
- */
-export const productControllerUpdateCategoryPosition = (
-    id: string,
-    updateProductCategoryPositionDtoReq: UpdateProductCategoryPositionDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/category-position`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: updateProductCategoryPositionDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerUpdateCategoryPositionMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, TError,{id: string;data: UpdateProductCategoryPositionDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, TError,{id: string;data: UpdateProductCategoryPositionDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerUpdateCategoryPosition'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, {id: string;data: UpdateProductCategoryPositionDtoReq}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  productControllerUpdateCategoryPosition(id,data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerUpdateCategoryPositionMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>>
-    export type ProductControllerUpdateCategoryPositionMutationBody = UpdateProductCategoryPositionDtoReq
-    export type ProductControllerUpdateCategoryPositionMutationError = unknown
-
-    /**
- * @summary Изменить позицию товара в категории
- */
-export const useProductControllerUpdateCategoryPosition = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>, TError,{id: string;data: UpdateProductCategoryPositionDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerUpdateCategoryPosition>>,
-        TError,
-        {id: string;data: UpdateProductCategoryPositionDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerUpdateCategoryPositionMutationOptions(options), queryClient);
-    }
-    
-/**
- * Переключает статус товара между ACTIVE и HIDDEN. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Переключить статус товара
- */
-export const productControllerToggleStatus = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/toggle-status`, method: 'PATCH', signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerToggleStatusMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerToggleStatus>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerToggleStatus>>, TError,{id: string}, TContext> => {
-
-const mutationKey = ['productControllerToggleStatus'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerToggleStatus>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
-
-          return  productControllerToggleStatus(id,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerToggleStatusMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerToggleStatus>>>
-    
-    export type ProductControllerToggleStatusMutationError = unknown
-
-    /**
- * @summary Переключить статус товара
- */
-export const useProductControllerToggleStatus = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerToggleStatus>>, TError,{id: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerToggleStatus>>,
-        TError,
-        {id: string},
-        TContext
-      > => {
-      return useMutation(getProductControllerToggleStatusMutationOptions(options), queryClient);
-    }
-    
-/**
- * Переключает флаг isPopular у товара. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Переключить популярность товара
- */
-export const productControllerTogglePopular = (
-    id: string,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductUpdateResponseDto>(
-      {url: `/product/${id}/toggle-popular`, method: 'PATCH', signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerTogglePopularMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerTogglePopular>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerTogglePopular>>, TError,{id: string}, TContext> => {
-
-const mutationKey = ['productControllerTogglePopular'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerTogglePopular>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
-
-          return  productControllerTogglePopular(id,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerTogglePopularMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerTogglePopular>>>
-    
-    export type ProductControllerTogglePopularMutationError = unknown
-
-    /**
- * @summary Переключить популярность товара
- */
-export const useProductControllerTogglePopular = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerTogglePopular>>, TError,{id: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerTogglePopular>>,
-        TError,
-        {id: string},
-        TContext
-      > => {
-      return useMutation(getProductControllerTogglePopularMutationOptions(options), queryClient);
-    }
-    
-/**
- * В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Создать/заменить вариации товара
- */
-export const productControllerSetVariants = (
-    id: string,
-    setProductVariantsDtoReq: SetProductVariantsDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductVariantsResponseDto>(
-      {url: `/product/${id}/variants`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: setProductVariantsDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerSetVariantsMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariants>>, TError,{id: string;data: SetProductVariantsDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariants>>, TError,{id: string;data: SetProductVariantsDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerSetVariants'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerSetVariants>>, {id: string;data: SetProductVariantsDtoReq}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  productControllerSetVariants(id,data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerSetVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerSetVariants>>>
-    export type ProductControllerSetVariantsMutationBody = SetProductVariantsDtoReq
-    export type ProductControllerSetVariantsMutationError = unknown
-
-    /**
- * @summary Создать/заменить вариации товара
- */
-export const useProductControllerSetVariants = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariants>>, TError,{id: string;data: SetProductVariantsDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerSetVariants>>,
-        TError,
-        {id: string;data: SetProductVariantsDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerSetVariantsMutationOptions(options), queryClient);
-    }
-    
-/**
- * Заменяет полную матрицу вариантов товара. В ответе media.variants возвращаются варианты thumb и detail.
- * @summary Создать/заменить матрицу вариаций товара
- */
-export const productControllerSetVariantMatrix = (
-    id: string,
-    setProductVariantMatrixDtoReq: SetProductVariantMatrixDtoReq,
- signal?: AbortSignal
-) => {
-      
-      
-      return mutator<ProductVariantsResponseDto>(
-      {url: `/product/${id}/variant-matrix`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: setProductVariantMatrixDtoReq, signal
-    },
-      );
-    }
-  
-
-
-export const getProductControllerSetVariantMatrixMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, TError,{id: string;data: SetProductVariantMatrixDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, TError,{id: string;data: SetProductVariantMatrixDtoReq}, TContext> => {
-
-const mutationKey = ['productControllerSetVariantMatrix'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, {id: string;data: SetProductVariantMatrixDtoReq}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  productControllerSetVariantMatrix(id,data,)
-        }
-
-
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ProductControllerSetVariantMatrixMutationResult = NonNullable<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>>
-    export type ProductControllerSetVariantMatrixMutationBody = SetProductVariantMatrixDtoReq
-    export type ProductControllerSetVariantMatrixMutationError = unknown
-
-    /**
- * @summary Создать/заменить матрицу вариаций товара
- */
-export const useProductControllerSetVariantMatrix = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof productControllerSetVariantMatrix>>, TError,{id: string;data: SetProductVariantMatrixDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof productControllerSetVariantMatrix>>,
-        TError,
-        {id: string;data: SetProductVariantMatrixDtoReq},
-        TContext
-      > => {
-      return useMutation(getProductControllerSetVariantMatrixMutationOptions(options), queryClient);
     }
     
 /**
@@ -15765,13 +16203,14 @@ export const useCatalogSaleUnitControllerArchive = <TError = void,
  * @summary List categories
  */
 export const categoryControllerGetAll = (
-    
+    params?: CategoryControllerGetAllParams,
  signal?: AbortSignal
 ) => {
       
       
       return mutator<CategoryDto[]>(
-      {url: `/category`, method: 'GET', signal
+      {url: `/category`, method: 'GET',
+        params, signal
     },
       );
     }
@@ -15779,23 +16218,23 @@ export const categoryControllerGetAll = (
 
 
 
-export const getCategoryControllerGetAllQueryKey = () => {
+export const getCategoryControllerGetAllQueryKey = (params?: CategoryControllerGetAllParams,) => {
     return [
-    `/category`
+    `/category`, ...(params ? [params] : [])
     ] as const;
     }
 
     
-export const getCategoryControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
+export const getCategoryControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>(params?: CategoryControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getCategoryControllerGetAllQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getCategoryControllerGetAllQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof categoryControllerGetAll>>> = ({ signal }) => categoryControllerGetAll(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof categoryControllerGetAll>>> = ({ signal }) => categoryControllerGetAll(params, signal);
 
       
 
@@ -15809,7 +16248,7 @@ export type CategoryControllerGetAllQueryError = unknown
 
 
 export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>> & Pick<
+ params: undefined |  CategoryControllerGetAllParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof categoryControllerGetAll>>,
           TError,
@@ -15819,7 +16258,7 @@ export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof ca
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>> & Pick<
+ params?: CategoryControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof categoryControllerGetAll>>,
           TError,
@@ -15829,7 +16268,7 @@ export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof ca
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
+ params?: CategoryControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -15837,11 +16276,11 @@ export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof ca
  */
 
 export function useCategoryControllerGetAll<TData = Awaited<ReturnType<typeof categoryControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
+ params?: CategoryControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof categoryControllerGetAll>>, TError, TData>>, }
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getCategoryControllerGetAllQueryOptions(options)
+  const queryOptions = getCategoryControllerGetAllQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -16077,12 +16516,14 @@ export const useCategoryControllerUpdate = <TError = void,
  */
 export const categoryControllerRemove = (
     id: string,
+    params?: CategoryControllerRemoveParams,
  signal?: AbortSignal
 ) => {
       
       
       return mutator<OkResponseDto>(
-      {url: `/category/${id}`, method: 'DELETE', signal
+      {url: `/category/${id}`, method: 'DELETE',
+        params, signal
     },
       );
     }
@@ -16090,8 +16531,8 @@ export const categoryControllerRemove = (
 
 
 export const getCategoryControllerRemoveMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerRemove>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof categoryControllerRemove>>, TError,{id: string}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerRemove>>, TError,{id: string;params?: CategoryControllerRemoveParams}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof categoryControllerRemove>>, TError,{id: string;params?: CategoryControllerRemoveParams}, TContext> => {
 
 const mutationKey = ['categoryControllerRemove'];
 const {mutation: mutationOptions} = options ?
@@ -16103,10 +16544,10 @@ const {mutation: mutationOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerRemove>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof categoryControllerRemove>>, {id: string;params?: CategoryControllerRemoveParams}> = (props) => {
+          const {id,params} = props ?? {};
 
-          return  categoryControllerRemove(id,)
+          return  categoryControllerRemove(id,params,)
         }
 
 
@@ -16124,11 +16565,11 @@ const {mutation: mutationOptions} = options ?
  * @summary Delete category
  */
 export const useCategoryControllerRemove = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerRemove>>, TError,{id: string}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof categoryControllerRemove>>, TError,{id: string;params?: CategoryControllerRemoveParams}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof categoryControllerRemove>>,
         TError,
-        {id: string},
+        {id: string;params?: CategoryControllerRemoveParams},
         TContext
       > => {
       return useMutation(getCategoryControllerRemoveMutationOptions(options), queryClient);
