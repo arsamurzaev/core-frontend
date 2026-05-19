@@ -5,6 +5,7 @@ import {
   getSelectableProductVariants,
   isProductVariantSelectionRequired,
   resolveNextProductSaleUnitId,
+  resolveProductPurchaseEffectiveMaxQuantity,
   resolveProductPurchaseMaxQuantity,
   resolveProductPurchasePricing,
   resolveProductPurchaseTotalPricing,
@@ -187,6 +188,26 @@ describe("product purchase selection model", () => {
     ).toBe(2);
   });
 
+  it("falls back to the product default variant stock when no variant is selected", () => {
+    expect(
+      resolveProductPurchaseMaxQuantity({
+        product: {
+          defaultVariantId: "default-variant",
+          stock: 99,
+          variants: [
+            variant({
+              id: "default-variant",
+              attributes: [],
+              stock: 6,
+            }),
+          ],
+        } as ProductWithDetailsDto,
+        selectedSaleUnit: saleUnit({ baseQuantity: 4 }),
+        selectedVariant: null,
+      }),
+    ).toBe(1);
+  });
+
   it("does not limit max quantity when stock enforcement is disabled", () => {
     expect(
       resolveProductPurchaseMaxQuantity({
@@ -198,6 +219,24 @@ describe("product purchase selection model", () => {
         shouldEnforceStock: false,
       }),
     ).toBeUndefined();
+  });
+
+  it("uses cart line max quantity when purchase selection has no stock limit", () => {
+    expect(
+      resolveProductPurchaseEffectiveMaxQuantity({
+        cartLineMaxQuantity: 16,
+        purchaseMaxQuantity: undefined,
+      }),
+    ).toBe(16);
+  });
+
+  it("uses the stricter max quantity when both sources are known", () => {
+    expect(
+      resolveProductPurchaseEffectiveMaxQuantity({
+        cartLineMaxQuantity: 16,
+        purchaseMaxQuantity: 20,
+      }),
+    ).toBe(16);
   });
 
   it("requires a variant only when the selected variant is not purchasable", () => {

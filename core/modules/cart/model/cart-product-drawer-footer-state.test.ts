@@ -11,6 +11,10 @@ describe("shouldShowCartProductDrawerAddButton", () => {
     expect(shouldShowCartProductDrawerAddButton(-1)).toBe(true);
     expect(shouldShowCartProductDrawerAddButton(1)).toBe(false);
   });
+
+  it("shows add button while variant selection is required", () => {
+    expect(shouldShowCartProductDrawerAddButton(26, true)).toBe(true);
+  });
 });
 
 describe("getCartProductDrawerAddLabel", () => {

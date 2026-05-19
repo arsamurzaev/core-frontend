@@ -35,10 +35,19 @@ export function getSelectableProductVariants(params: {
 export function getBaseProductVariant(
   product: ProductWithDetailsDto | null,
 ): ProductVariantDto | null {
+  const variants = product?.variants ?? [];
+  const defaultVariantId = product?.defaultVariantId?.trim();
+
   return (
-    product?.variants?.find(
-      (variant) => (variant.attributes ?? []).length === 0,
-    ) ?? null
+    (defaultVariantId
+      ? (variants.find((variant) => variant.id === defaultVariantId) ?? null)
+      : null) ??
+    variants.find(
+      (variant) =>
+        variant.kind === "DEFAULT" || variant.variantKey === "default",
+    ) ??
+    variants.find((variant) => (variant.attributes ?? []).length === 0) ??
+    null
   );
 }
 
@@ -172,6 +181,23 @@ export function resolveProductPurchaseMaxQuantity(params: {
     params.product?.stock;
 
   return getSaleUnitMaxQuantity(stock, params.selectedSaleUnit);
+}
+
+export function resolveProductPurchaseEffectiveMaxQuantity(params: {
+  cartLineMaxQuantity?: number;
+  purchaseMaxQuantity?: number;
+}): number | undefined {
+  const candidates = [
+    params.cartLineMaxQuantity,
+    params.purchaseMaxQuantity,
+  ].filter(
+    (value): value is number =>
+      typeof value === "number" && Number.isFinite(value),
+  );
+
+  return candidates.length > 0
+    ? Math.max(0, Math.min(...candidates))
+    : undefined;
 }
 
 export function isProductVariantSelectionRequired(params: {

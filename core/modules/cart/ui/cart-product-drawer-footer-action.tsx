@@ -45,7 +45,7 @@ export const CartProductDrawerFooterAction: React.FC<
     quantity,
   } = controls;
 
-  if (shouldShowCartProductDrawerAddButton(quantity)) {
+  if (shouldShowCartProductDrawerAddButton(quantity, requiresVariantSelection)) {
     const isAddDisabled =
       disabled || isBusy || (!requiresVariantSelection && isIncrementDisabled);
 

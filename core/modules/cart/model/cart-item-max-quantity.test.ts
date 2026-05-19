@@ -117,7 +117,58 @@ describe("getCartItemMaxQuantity", () => {
     ).toBe(2);
   });
 
+  it("falls back to product stock for simple cart lines without variant id", () => {
+    expect(
+      getCartItemMaxQuantity(
+        cartItemView({
+          product: product({
+            stock: 5,
+          }),
+        }),
+      ),
+    ).toBe(5);
+  });
+
+  it("falls back to the hidden default variant stock for cart lines without visible variant id", () => {
+    expect(
+      getCartItemMaxQuantity(
+        cartItemView({
+          saleUnitId: "box",
+          product: product({
+            defaultVariantId: "default-variant",
+            stock: 99,
+            variants: [
+              variant({
+                id: "default-variant",
+                stock: 8,
+                saleUnits: [
+                  {
+                    id: "box",
+                    catalogSaleUnitId: null,
+                    code: "box",
+                    name: "Box",
+                    baseQuantity: "3",
+                    price: "120",
+                    barcode: null,
+                    isDefault: true,
+                    isActive: true,
+                    displayOrder: 0,
+                    createdAt: NOW,
+                    updatedAt: NOW,
+                    catalogSaleUnit: null,
+                  },
+                ],
+              }),
+            ],
+          }),
+        }),
+      ),
+    ).toBe(2);
+  });
+
   it("does not enforce stock while product details are unavailable", () => {
-    expect(getCartItemMaxQuantity(cartItemView({ product: undefined }))).toBeUndefined();
+    expect(
+      getCartItemMaxQuantity(cartItemView({ product: undefined })),
+    ).toBeUndefined();
   });
 });

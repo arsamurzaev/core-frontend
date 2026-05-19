@@ -1,14 +1,19 @@
 "use client";
 
 import {
+  buildCartLineSelectionKey,
   buildCartProductSelection,
+  getCartItemMaxQuantity,
   useCart,
 } from "@/core/modules/cart";
 import { CART_PRODUCT_CONTROL_MESSAGES } from "@/core/modules/cart/model/cart-product-controls";
 import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import type { ProductUnavailableState } from "@/core/widgets/product-drawer/model/product-availability";
-import { resolveProductPurchaseTotalPricing } from "@/core/widgets/product-drawer/model/product-purchase-selection-model";
+import {
+  resolveProductPurchaseEffectiveMaxQuantity,
+  resolveProductPurchaseTotalPricing,
+} from "@/core/widgets/product-drawer/model/product-purchase-selection-model";
 import type { ProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import { useProductPurchaseSelection } from "@/core/widgets/product-drawer/model/use-product-purchase-selection";
 import { ProductDetailsPanel } from "@/core/widgets/product-drawer/ui/product-details-panel";
@@ -122,7 +127,7 @@ export function ProductPurchaseDetailsPanel({
 }: ProductPurchaseDetailsPanelProps) {
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
-  const { shouldUseCartUi } = useCart();
+  const { items, shouldUseCartUi } = useCart();
   const canUseProductVariants = features.canUseProductVariants;
   const canUseCatalogSaleUnits = features.canUseCatalogSaleUnits;
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
@@ -174,29 +179,64 @@ export function ProductPurchaseDetailsPanel({
     canUseProductVariants && !purchaseSelection.isVariantSelectionRequired
       ? purchaseSelection.selectedVariant?.id
       : undefined;
-  const cartSelection = buildCartProductSelection({
-    productId: product?.id ?? "",
-    saleUnitId: selectedSaleUnitId,
-    variantId: selectedVariantId,
-  });
+  const cartSelection = React.useMemo(
+    () =>
+      buildCartProductSelection({
+        productId: product?.id ?? "",
+        saleUnitId: selectedSaleUnitId,
+        variantId: selectedVariantId,
+      }),
+    [product?.id, selectedSaleUnitId, selectedVariantId],
+  );
+  const cartSelectionKey = React.useMemo(
+    () => buildCartLineSelectionKey(cartSelection),
+    [cartSelection],
+  );
+  const cartLineMaxQuantity = React.useMemo(() => {
+    if (purchaseSelection.isVariantSelectionRequired) {
+      return undefined;
+    }
+
+    const line = items.find(
+      (item) =>
+        buildCartLineSelectionKey({
+          productId: item.productId,
+          saleUnitId: item.saleUnitId,
+          variantId: item.variantId,
+        }) === cartSelectionKey,
+    );
+
+    return line ? getCartItemMaxQuantity(line) : undefined;
+  }, [cartSelectionKey, items, purchaseSelection.isVariantSelectionRequired]);
+  const effectiveMaxQuantity = React.useMemo(
+    () =>
+      resolveProductPurchaseEffectiveMaxQuantity({
+        cartLineMaxQuantity,
+        purchaseMaxQuantity: purchaseSelection.maxQuantity,
+      }),
+    [cartLineMaxQuantity, purchaseSelection.maxQuantity],
+  );
   const cartControls = useCartProductControls(
     cartSelection,
     purchaseSelection.cartProductSnapshot,
     {
-      maxQuantity: purchaseSelection.maxQuantity,
+      maxQuantity: effectiveMaxQuantity,
       onVariantSelectionRequired: handleVariantSelectionRequired,
       requiresVariantSelection: purchaseSelection.isVariantSelectionRequired,
     },
   );
+  const displayedCartQuantity = purchaseSelection.isVariantSelectionRequired
+    ? 0
+    : cartControls.quantity;
   const totalPricing = React.useMemo(
     () =>
       resolveProductPurchaseTotalPricing({
         displayPrice: purchaseSelection.displayPrice,
-        quantity: cartControls.quantity,
+        quantity: displayedCartQuantity,
         selectedBasePrice: purchaseSelection.selectedBasePrice,
       }),
     [
-      cartControls.quantity,
+      displayedCartQuantity,
       purchaseSelection.displayPrice,
       purchaseSelection.selectedBasePrice,
     ],
