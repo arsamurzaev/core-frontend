@@ -6,7 +6,10 @@ import { useProductImageEditor } from "@/core/modules/product/editor/model/use-p
 import { useCreateProductDrawerState } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer-state";
 import { useCreateProductSubmit } from "@/core/widgets/create-product-drawer/model/use-create-product-submit";
 import { useProductControllerCreate } from "@/shared/api/generated/react-query";
-import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import {
+  useCatalogCapabilities,
+  useCatalogProductStructureVisibility,
+} from "@/shared/capabilities/catalog-capabilities";
 import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +33,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
   const { type } = catalog;
   const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const features = useCatalogCapabilities();
+  const productStructure = useCatalogProductStructureVisibility(features);
   const queryClient = useQueryClient();
   const createProduct = useProductControllerCreate();
   const form = useProductEditorForm();
@@ -59,8 +63,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
   } = useProductFormFields({
     form,
     sourceAttributes: type.attributes,
-    canUseProductTypes: features.canUseProductTypes,
-    canUseProductVariants: features.canUseProductVariants,
+    canUseProductTypes: productStructure.canUseProductTypes,
+    canUseProductVariants: productStructure.canUseProductVariants,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     isActive: open,
     supportsBrands,
@@ -81,8 +85,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
   const handleSubmit = useCreateProductSubmit({
     closeDrawer: drawerState.closeDrawer,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
-    canUseProductTypes: features.canUseProductTypes,
-    canUseProductVariants: features.canUseProductVariants,
+    canUseProductTypes: productStructure.canUseProductTypes,
+    canUseProductVariants: productStructure.canUseProductVariants,
     createProduct,
     files: imageEditor.files,
     form,
@@ -114,7 +118,11 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     files: imageEditor.files,
     form,
     formFields,
-    features,
+    features: {
+      ...features,
+      canUseProductTypes: productStructure.canUseProductTypes,
+      canUseProductVariants: productStructure.canUseProductVariants,
+    },
     productAttributes,
     variantAttributes,
     handleCropApply: imageEditor.handleCropApply,

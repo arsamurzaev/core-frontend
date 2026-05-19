@@ -7,7 +7,10 @@ import { EditCatalogMetrikaDrawer } from "@/core/widgets/edit-catalog-drawer/ui/
 import { EditCatalogPasswordDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-password-drawer";
 import { EditCatalogProductTypesDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-product-types-drawer";
 import { EditCatalogSessionsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer";
-import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import {
+  useCatalogCapabilities,
+  useCatalogProductStructureVisibility,
+} from "@/shared/capabilities/catalog-capabilities";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button, type ButtonProps } from "@/shared/ui/button";
@@ -53,6 +56,7 @@ export const EditCatalogAdvancedSettingsDrawer: React.FC<
   EditCatalogAdvancedSettingsDrawerProps
 > = ({ disabled = false }) => {
   const features = useCatalogCapabilities();
+  const productStructure = useCatalogProductStructureVisibility(features);
   const showInventory =
     features.inventoryMode === "INTERNAL" && features.canUseInternalInventory;
 
@@ -77,7 +81,7 @@ export const EditCatalogAdvancedSettingsDrawer: React.FC<
               <EditCatalogSessionsDrawer disabled={disabled} />
               <EditCatalogDomainsDrawer disabled={disabled} />
               <EditCatalogMetrikaDrawer disabled={disabled} />
-              {features.canUseProductTypes ? (
+              {productStructure.canUseProductTypes ? (
                 <EditCatalogProductTypesDrawer disabled={disabled} />
               ) : null}
               {features.canUseMoySkladIntegration ? (

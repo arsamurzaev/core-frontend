@@ -7,7 +7,9 @@ import {
   canShowVariants,
   canUseInternalInventory,
   DEFAULT_CATALOG_CAPABILITIES,
+  resolveCatalogProductStructureVisibility,
   shouldRequestCatalogCapabilities,
+  shouldHideProductStructureControlsForCatalogManager,
 } from "./catalog-capabilities";
 
 describe("shouldRequestCatalogCapabilities", () => {
@@ -83,5 +85,37 @@ describe("capability display helpers", () => {
     expect(canShowBetaField(capabilities, "saleUnits")).toBe(true);
     expect(canShowBetaField(capabilities, "internalInventory")).toBe(false);
     expect(canShowBetaField(capabilities, "moyskladIntegration")).toBe(true);
+  });
+
+  it("hides product structure controls only for catalog managers with MoySklad", () => {
+    expect(
+      shouldHideProductStructureControlsForCatalogManager({
+        capabilities,
+        moySkladConfigured: true,
+        userRole: "CATALOG",
+      }),
+    ).toBe(true);
+    expect(
+      shouldHideProductStructureControlsForCatalogManager({
+        capabilities,
+        moySkladConfigured: true,
+        userRole: "ADMIN",
+      }),
+    ).toBe(false);
+    expect(
+      shouldHideProductStructureControlsForCatalogManager({
+        capabilities,
+        moySkladConfigured: false,
+        userRole: "CATALOG",
+      }),
+    ).toBe(false);
+  });
+
+  it("disables product type and variant gates when product structure is hidden", () => {
+    expect(resolveCatalogProductStructureVisibility(capabilities, true)).toEqual({
+      canUseProductTypes: false,
+      canUseProductVariants: false,
+      hideProductStructureControls: true,
+    });
   });
 });

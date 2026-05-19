@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  AuthUserDtoRole,
   type CatalogCurrentFeaturesDto,
   type CatalogCurrentFeaturesDtoInventoryMode,
+  useCatalogAdvancedSettingsControllerGetMoySkladStatus,
   useCatalogControllerGetCurrentFeatures,
 } from "@/shared/api/generated/react-query";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
@@ -48,6 +50,15 @@ export type CatalogCapabilities = CatalogCapabilityFlags & {
   effective: CatalogCapabilityMap;
   definitions: CatalogCapabilityDefinition[];
   items: CatalogCapabilityItem[];
+};
+type ProductStructureCapabilityFlags = Pick<
+  CatalogCapabilityFlags,
+  "canUseMoySkladIntegration" | "canUseProductTypes" | "canUseProductVariants"
+>;
+export type CatalogProductStructureVisibility = {
+  canUseProductTypes: boolean;
+  canUseProductVariants: boolean;
+  hideProductStructureControls: boolean;
 };
 export type CatalogBetaField =
   | "internalInventory"
@@ -201,6 +212,61 @@ export function useCatalogCapabilities(): CatalogCapabilities {
 export const useCatalogFeatures = useCatalogCapabilities;
 export const resolveCatalogFeatures = resolveCatalogCapabilities;
 export type CatalogFeatureFlags = CatalogCapabilityFlags;
+
+export function shouldHideProductStructureControlsForCatalogManager(params: {
+  capabilities: Pick<ProductStructureCapabilityFlags, "canUseMoySkladIntegration">;
+  moySkladConfigured?: boolean;
+  userRole?: string | null;
+}): boolean {
+  return (
+    params.userRole === AuthUserDtoRole.CATALOG &&
+    params.capabilities.canUseMoySkladIntegration &&
+    params.moySkladConfigured !== false
+  );
+}
+
+export function resolveCatalogProductStructureVisibility(
+  capabilities: ProductStructureCapabilityFlags,
+  hideProductStructureControls: boolean,
+): CatalogProductStructureVisibility {
+  return {
+    canUseProductTypes:
+      capabilities.canUseProductTypes && !hideProductStructureControls,
+    canUseProductVariants:
+      capabilities.canUseProductVariants && !hideProductStructureControls,
+    hideProductStructureControls,
+  };
+}
+
+export function useCatalogProductStructureVisibility(
+  capabilities: ProductStructureCapabilityFlags,
+): CatalogProductStructureVisibility {
+  const { isAuthenticated, user } = useSession();
+  const shouldCheckMoySkladStatus =
+    isAuthenticated &&
+    user?.role === AuthUserDtoRole.CATALOG &&
+    capabilities.canUseMoySkladIntegration;
+  const statusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
+    query: {
+      enabled: shouldCheckMoySkladStatus,
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    },
+  });
+  const hideProductStructureControls =
+    shouldHideProductStructureControlsForCatalogManager({
+      capabilities,
+      moySkladConfigured: shouldCheckMoySkladStatus
+        ? statusQuery.data?.configured
+        : false,
+      userRole: user?.role,
+    });
+
+  return resolveCatalogProductStructureVisibility(
+    capabilities,
+    hideProductStructureControls,
+  );
+}
 
 export function canShowProductTypes(
   capabilities: Pick<CatalogCapabilities, "canUseProductTypes">,

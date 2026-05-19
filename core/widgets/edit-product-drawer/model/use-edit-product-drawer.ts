@@ -19,7 +19,10 @@ import {
   useProductControllerUpdate,
 } from "@/shared/api/generated/react-query";
 import { useCatalog } from "@/shared/providers/catalog-provider";
-import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import {
+  useCatalogCapabilities,
+  useCatalogProductStructureVisibility,
+} from "@/shared/capabilities/catalog-capabilities";
 import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { confirmDelete } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -48,6 +51,7 @@ export function useEditProductDrawer(
   const { type } = catalog;
   const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const features = useCatalogCapabilities();
+  const productStructure = useCatalogProductStructureVisibility(features);
   const queryClient = useQueryClient();
   const updateProduct = useProductControllerUpdate();
   const removeProduct = useProductControllerRemove();
@@ -68,7 +72,7 @@ export function useEditProductDrawer(
   const restoredVariantMatrixKeyRef = React.useRef<string | null>(null);
 
   const handleProductTypeChange = React.useCallback(() => {
-    if (!features.canUseProductTypes || isMoySkladLinkedProduct) {
+    if (!productStructure.canUseProductTypes || isMoySkladLinkedProduct) {
       form.setValue("productTypeId", currentProductTypeId ?? undefined, {
         shouldDirty: false,
         shouldTouch: false,
@@ -78,8 +82,8 @@ export function useEditProductDrawer(
   }, [
     currentProductTypeId,
     form,
-    features.canUseProductTypes,
     isMoySkladLinkedProduct,
+    productStructure.canUseProductTypes,
   ]);
 
   const {
@@ -92,9 +96,9 @@ export function useEditProductDrawer(
     form,
     sourceAttributes: type.attributes,
     disableProductTypeField:
-      !features.canUseProductTypes || isMoySkladLinkedProduct,
-    canUseProductTypes: features.canUseProductTypes,
-    canUseProductVariants: features.canUseProductVariants,
+      !productStructure.canUseProductTypes || isMoySkladLinkedProduct,
+    canUseProductTypes: productStructure.canUseProductTypes,
+    canUseProductVariants: productStructure.canUseProductVariants,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     isActive: open,
     supportsBrands,
@@ -262,8 +266,8 @@ export function useEditProductDrawer(
   const handleBaseSubmit = useEditProductSubmit({
     closeDrawer: handleCloseDrawer,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
-    canUseProductTypes: features.canUseProductTypes,
-    canUseProductVariants: features.canUseProductVariants,
+    canUseProductTypes: productStructure.canUseProductTypes,
+    canUseProductVariants: productStructure.canUseProductVariants,
     form,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isSubmitting,
@@ -296,7 +300,11 @@ export function useEditProductDrawer(
     cropperMode: imageEditor.cropperMode,
     cropperTitle: imageEditor.cropperTitle,
     errorMessage: drawerState.errorMessage,
-    features,
+    features: {
+      ...features,
+      canUseProductTypes: productStructure.canUseProductTypes,
+      canUseProductVariants: productStructure.canUseProductVariants,
+    },
     form,
     formFields,
     productAttributes,
