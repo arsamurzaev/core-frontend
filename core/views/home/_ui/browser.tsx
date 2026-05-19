@@ -102,6 +102,7 @@ export const Browser: React.FC<BrowserProps> = ({
   const { user } = useSession();
   const canManageCategories = isCatalogManagerRole(user?.role);
   const {
+    activePanelIndex,
     queryState,
     swipeTranslatePercent,
     handleTabChange,
@@ -122,6 +123,13 @@ export const Browser: React.FC<BrowserProps> = ({
     () => buildCategoryDisplayList(categories, { hideEmpty: true }),
     [categories],
   );
+  const adminCatalogCategories = React.useMemo(
+    () => buildCategoryDisplayList(categories),
+    [categories],
+  );
+  const catalogCategories = canManageCategories
+    ? adminCatalogCategories
+    : storefrontCategories;
   const effectiveQueryState = React.useMemo(
     () => ({
       ...queryState,
@@ -148,7 +156,7 @@ export const Browser: React.FC<BrowserProps> = ({
     void refetchCategories();
   }, [canManageCategories, refetchCategories]);
   const { activeCategoryId } = useActiveCategoryIntersection({
-    categories: storefrontCategories,
+    categories: catalogCategories,
     enabled: effectiveQueryState.tab === "catalog" && !effectiveIsFilterActive,
   });
   const categoryClickActivation = useCategoryClickActivationDelay({
@@ -175,6 +183,8 @@ export const Browser: React.FC<BrowserProps> = ({
       categoryAdmin.isReorderOpen ||
       categoryAdmin.editingCategory !== null ||
       categoryAdmin.deletingCategory !== null);
+  const isCatalogPanelActive = activePanelIndex === 0;
+  const isCategoriesPanelActive = activePanelIndex === 1;
   const [hasMountedAdminDrawers, setHasMountedAdminDrawers] = React.useState(
     shouldRenderAdminDrawers,
   );
@@ -196,7 +206,7 @@ export const Browser: React.FC<BrowserProps> = ({
     effectiveQueryState.tab === "catalog" ? (
       !effectiveIsFilterActive ? (
         <CategoryBarList
-          items={storefrontCategories}
+          items={catalogCategories}
           isLoading={categoriesQuery.isLoading}
           activeCategoryId={visibleActiveCategoryId}
           onCategoryClick={categoryClickActivation.handleCategoryClick}
@@ -248,7 +258,7 @@ export const Browser: React.FC<BrowserProps> = ({
               ) : null}
               <LazyCatalogFilterDrawer
                 queryState={effectiveQueryState}
-                categories={storefrontCategories}
+                categories={catalogCategories}
                 isCategoriesLoading={categoriesQuery.isLoading}
                 activeFiltersCount={activeFiltersCount}
                 shouldUseBrands={supportsBrands}
@@ -268,10 +278,11 @@ export const Browser: React.FC<BrowserProps> = ({
             <CatalogProductsPanel
               className="w-1/2 shrink-0 space-y-7.5"
               contentClassName="m-1"
-              collapsed={effectiveQueryState.tab === "categories"}
-              categories={storefrontCategories}
+              collapsed={!isCatalogPanelActive}
+              categories={catalogCategories}
               isCategoriesLoading={categoriesQuery.isLoading}
               isFilterActive={effectiveIsFilterActive}
+              ignoreKnownProductCount={canManageCategories}
               queryState={effectiveQueryState}
               activationBlockedCategoryId={
                 categoryClickActivation.activationBlockedCategoryId
@@ -282,7 +293,14 @@ export const Browser: React.FC<BrowserProps> = ({
               loadingSectionsCount={CATEGORY_LOADING_SECTIONS_COUNT}
             />
 
-            <div className="w-1/2 shrink-0">
+            <div
+              className={cn(
+                "w-1/2 shrink-0",
+                !isCategoriesPanelActive &&
+                  "pointer-events-none h-0 overflow-hidden",
+              )}
+              aria-hidden={!isCategoriesPanelActive}
+            >
               {shouldShowCategoryCardsLoading
                 ? Array.from({ length: CATEGORY_LOADING_CARDS_COUNT }).map(
                     (_, index) => (

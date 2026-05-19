@@ -36,6 +36,13 @@ function formatCartItemQuantity(item: CartItemView): string {
     : `${item.quantity} шт.`;
 }
 
+function formatShareProductLabel(item: CartItemView): string {
+  const productLabel = getShareProductName(item.name);
+  const variantLabel = item.variantLabel?.trim();
+
+  return variantLabel ? `${productLabel} (${variantLabel})` : productLabel;
+}
+
 function formatShareMoney(
   value: number,
   currency: string,
@@ -73,7 +80,7 @@ export function buildLegacyCartShareText(params: {
   const normalizedComment = comment?.trim();
   const productsText = items
     .map((item) => {
-      const productLabel = getShareProductName(item.name);
+      const productLabel = formatShareProductLabel(item);
 
       return `•${productLabel} - ${formatCartItemQuantity(item)}`;
     })

@@ -82,6 +82,84 @@ describe("buildProductCardPluginModel", () => {
     });
   });
 
+  it("builds variant summary from picker options without a product type", () => {
+    const model = buildProductCardPluginModel(
+      {
+        id: "product-1",
+        productAttributes: [],
+        productType: null,
+        variantPickerOptions: [
+          {
+            id: "variant-36",
+            label: "36",
+            price: "1000",
+            stock: null,
+            status: "ACTIVE",
+            isAvailable: true,
+            saleUnitId: null,
+            saleUnitPrice: null,
+            maxQuantity: null,
+          },
+        ],
+      } as ProductWithAttributesDto,
+      catalog(),
+      plugin,
+    );
+
+    expect(model.lines).toContainEqual({
+      id: "variants",
+      label: "Вариации",
+      value: "36",
+    });
+  });
+
+  it("keeps the variant summary line for the card header even when a plugin line has the same value", () => {
+    const model = buildProductCardPluginModel(
+      {
+        id: "product-1",
+        productAttributes: [],
+        productType: null,
+        variantPickerOptions: [
+          {
+            id: "variant-36",
+            label: "36",
+            price: "1000",
+            stock: null,
+            status: "ACTIVE",
+            isAvailable: true,
+            saleUnitId: null,
+            saleUnitPrice: null,
+            maxQuantity: null,
+          },
+        ],
+      } as ProductWithAttributesDto,
+      catalog(),
+      {
+        ...plugin,
+        attributes: [
+          {
+            key: "size",
+            fallbackLabel: "Size",
+            fallbackValue: "36",
+          },
+        ],
+      },
+    );
+
+    expect(model.lines.filter((line) => line.value === "36")).toEqual([
+      {
+        id: "size",
+        label: "Size",
+        value: "36",
+      },
+      {
+        id: "variants",
+        label: "Вариации",
+        value: "36",
+      },
+    ]);
+  });
+
   it("uses shared variant labels for detailed product variants", () => {
     const model = buildProductCardPluginModel(
       {

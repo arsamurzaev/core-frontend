@@ -45,4 +45,25 @@ describe("buildLegacyCartShareText", () => {
     expect(text).toContain("750 RUB");
     expect(text).not.toContain("SKU-1");
   });
+
+  it("adds the selected variant to the product line", () => {
+    const text = buildLegacyCartShareText({
+      currency: "RUB",
+      items: [
+        cartItemView({
+          name: "Vest (old suffix)",
+          saleUnitLabel: null,
+          variantLabel: "XL / Khaki",
+        }),
+      ],
+      totals: {
+        originalSubtotal: 900,
+        subtotal: 900,
+      },
+      url: "https://example.test/?c=abc",
+    });
+
+    expect(text).toContain("Vest (XL / Khaki) - 3 шт.");
+    expect(text).not.toContain("old suffix");
+  });
 });

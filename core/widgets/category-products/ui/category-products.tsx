@@ -42,6 +42,7 @@ interface VirtualizedCategoryProductsProps {
   className?: string;
   activationBlockedCategoryId?: string | null;
   forceActivatedCategoryId?: string | null;
+  ignoreKnownProductCount?: boolean;
 }
 
 interface ProductSectionItem {
@@ -65,12 +66,13 @@ const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 2;
 const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
 const PRODUCT_CARD_GAP_PX = 16;
 const GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX = 380;
-const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 390;
-const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 340;
-const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 124;
+const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 430;
+const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 360;
+const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 152;
 const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const CATEGORY_HEADING_COMPACT_ROW_ESTIMATE_PX = 36;
 const CATEGORY_HEADING_TALL_ROW_ESTIMATE_PX = 60;
+const CATEGORY_SECTION_TOP_GAP_PX = 8;
 const EMPTY_CATEGORY_ROW_HEIGHT_PX = 160;
 const VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN = 2;
 const UNCATEGORIZED_QUERY_PARAMS = {
@@ -154,18 +156,21 @@ ProductSectionCard.displayName = "ProductSectionCard";
 function CategorySectionHeading({
   height,
   id,
+  topGap,
   title,
 }: {
   height: number;
   id: string;
+  topGap: number;
   title: string;
 }) {
   return (
     <h2
       id={id}
-      className="px-1 pt-1 text-left"
+      className="px-1 text-left"
       style={{
         height,
+        paddingTop: topGap + 4,
         scrollMarginTop: CATEGORY_SECTION_SCROLL_MARGIN_TOP,
       }}
     >
@@ -223,6 +228,7 @@ type VirtualCatalogRow =
       sectionId: string;
       sectionKey: string;
       title: string;
+      topGap: number;
       type: "heading";
     }
   | {
@@ -333,6 +339,7 @@ export const VirtualizedCategoryProducts: React.FC<
   className,
   activationBlockedCategoryId = null,
   forceActivatedCategoryId = null,
+  ignoreKnownProductCount = false,
 }) => {
   const { isDetailed, hasHydrated } = useProductCardViewMode();
   const { isAuthenticated } = useSession();
@@ -345,7 +352,7 @@ export const VirtualizedCategoryProducts: React.FC<
     const categorySections = categories.map((category) => ({
       categoryId: category.id,
       key: category.id,
-      ...(typeof category.productCount === "number"
+      ...(!ignoreKnownProductCount && typeof category.productCount === "number"
         ? { productCount: Math.max(0, category.productCount) }
         : {}),
       queryKey: [
@@ -412,7 +419,7 @@ export const VirtualizedCategoryProducts: React.FC<
         title: "Остальное",
       },
     ];
-  }, [categories]);
+  }, [categories, ignoreKnownProductCount]);
   const sectionKeys = React.useMemo(
     () => sections.map((section) => section.key),
     [sections],
@@ -606,6 +613,7 @@ export const VirtualizedCategoryProducts: React.FC<
         sectionId: section.sectionId,
         sectionKey: section.key,
         title: section.title,
+        topGap: nextRows.length > 0 ? CATEGORY_SECTION_TOP_GAP_PX : 0,
         type: "heading",
       });
 
@@ -737,7 +745,7 @@ export const VirtualizedCategoryProducts: React.FC<
       }
 
       if (row.type === "heading") {
-        return getCategoryHeadingRowEstimate(row.title, listWidth);
+        return getCategoryHeadingRowEstimate(row.title, listWidth) + row.topGap;
       }
 
       if (row.type === "empty") {
@@ -754,6 +762,27 @@ export const VirtualizedCategoryProducts: React.FC<
   );
   const getVirtualRowKey = React.useCallback(
     (index: number) => rows[index]?.key ?? `virtual-row-${index}`,
+    [rows],
+  );
+  const rowMeasurementKey = React.useMemo(
+    () =>
+      rows
+        .map((row) => {
+          if (row.type === "heading") {
+            return `${row.key}:${row.topGap}`;
+          }
+
+          if (row.type === "products") {
+            return `${row.key}:${row.items.length}:${row.placeholderCount}`;
+          }
+
+          if (row.type === "loader") {
+            return `${row.key}:${Number(row.isFetchingNextPage)}`;
+          }
+
+          return row.key;
+        })
+        .join("|"),
     [rows],
   );
   const rowVirtualizer = useWindowVirtualizer({
@@ -785,7 +814,14 @@ export const VirtualizedCategoryProducts: React.FC<
 
   React.useEffect(() => {
     rowVirtualizer.measure();
-  }, [columns, isDetailed, rowVirtualizer, rows.length]);
+  }, [
+    columns,
+    isDetailed,
+    listWidth,
+    productRowEstimateSize,
+    rowMeasurementKey,
+    rowVirtualizer,
+  ]);
 
   const alignMountedCategoryHeading = React.useCallback(
     (categoryId: string, behavior: ScrollBehavior = "instant") => {
@@ -994,6 +1030,7 @@ export const VirtualizedCategoryProducts: React.FC<
                 key={virtualRow.key}
                 data-index={virtualRow.index}
                 data-catalog-category-id={row.categoryId}
+                ref={rowVirtualizer.measureElement}
                 className="absolute top-0 left-0 w-full"
                 style={{
                   transform: `translateY(${
@@ -1003,11 +1040,12 @@ export const VirtualizedCategoryProducts: React.FC<
               >
                 {row.type === "heading" ? (
                   <CategorySectionHeading
-                    height={getCategoryHeadingRowEstimate(
-                      row.title,
-                      listWidth,
-                    )}
+                    height={
+                      getCategoryHeadingRowEstimate(row.title, listWidth) +
+                      row.topGap
+                    }
                     id={row.sectionId}
+                    topGap={row.topGap}
                     title={row.title}
                   />
                 ) : row.type === "initial-skeleton" ? (
@@ -1044,7 +1082,7 @@ export const VirtualizedCategoryProducts: React.FC<
                     className="grid gap-4"
                     style={{
                       gridTemplateColumns,
-                      height: productRowEstimateSize,
+                      minHeight: productRowEstimateSize,
                     }}
                   >
                     {row.items.map((item, itemIndex) => (

@@ -174,6 +174,19 @@ describe("product purchase selection model", () => {
     ).toBe(2);
   });
 
+  it("falls back to product stock when detailed variants are hidden", () => {
+    expect(
+      resolveProductPurchaseMaxQuantity({
+        product: {
+          stock: 5,
+          variants: [],
+        } as ProductWithDetailsDto,
+        selectedSaleUnit: saleUnit({ baseQuantity: 2 }),
+        selectedVariant: null,
+      }),
+    ).toBe(2);
+  });
+
   it("does not limit max quantity when stock enforcement is disabled", () => {
     expect(
       resolveProductPurchaseMaxQuantity({

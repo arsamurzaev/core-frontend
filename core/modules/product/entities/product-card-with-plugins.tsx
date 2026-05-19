@@ -63,7 +63,9 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
     [data],
   );
   const variantsLine = model.lines.find((line) => line.id === "variants");
-  const visibleLines = model.lines.filter((line) => line.id !== "variants");
+  const visibleLines = model.lines.filter(
+    (line) => line.id !== "variants" && line.value !== variantsLine?.value,
+  );
 
   return (
     <div className={cn("space-y-2", pluginContainerClassName)}>

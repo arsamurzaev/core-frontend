@@ -166,9 +166,12 @@ export function resolveProductPurchaseMaxQuantity(params: {
     return undefined;
   }
 
-  const stockSource =
-    params.selectedVariant ?? getBaseProductVariant(params.product);
-  return getSaleUnitMaxQuantity(stockSource?.stock, params.selectedSaleUnit);
+  const stock =
+    params.selectedVariant?.stock ??
+    getBaseProductVariant(params.product)?.stock ??
+    params.product?.stock;
+
+  return getSaleUnitMaxQuantity(stock, params.selectedSaleUnit);
 }
 
 export function isProductVariantSelectionRequired(params: {

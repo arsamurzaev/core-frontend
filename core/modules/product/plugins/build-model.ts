@@ -24,13 +24,11 @@ function isProductWithDetails(
 function canShowProductVariants(
   product: ProductCardEntity,
 ): product is ProductWithDetailsDto {
-  return Boolean(product.productType?.id) && isProductWithDetails(product);
+  return isProductWithDetails(product);
 }
 
 function hasVariantPickerOptions(product: ProductCardEntity): boolean {
-  return Boolean(
-    product.productType?.id && (product.variantPickerOptions?.length ?? 0) > 0,
-  );
+  return (product.variantPickerOptions?.length ?? 0) > 0;
 }
 
 function toTextValue(value: ParsedAttributeValue): string | null {
@@ -172,7 +170,7 @@ export function buildProductCardPluginModel(
 
   if (plugin.showVariants) {
     const variants = getAllVariantsSummary(product);
-    if (variants && !lines.some((line) => line.value === variants)) {
+    if (variants) {
       lines.push({
         id: "variants",
         label: "Вариации",

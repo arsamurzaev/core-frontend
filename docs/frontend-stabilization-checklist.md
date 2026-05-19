@@ -194,6 +194,14 @@
   - capability variants off;
   - capability variants on.
 
+## Tomorrow Notes (2026-05-19)
+
+- [x] Investigate infinite rerender in `VirtualizedCategoryProducts` / `CategorySectionHeading` after category spacing virtualization changes.
+  - Reproduction: catalog page with category sections; render overlay shows thousands of renders.
+  - Suspects: `rowVirtualizer.measureElement`, the `rowVirtualizer.measure()` effect tied to `rows`, and dynamic row/header measurement after adding category top gaps.
+  - First pass: stabilize row data and measurement dependencies, then check whether section spacing can use fixed estimates without re-measuring every render.
+  - Fixed: `rowVirtualizer.measure()` now depends on a stable row measurement key instead of the `rows` array reference.
+
 ## Assumptions
 
 - В этом чеклисте работаем только со storefront `../frontend`.

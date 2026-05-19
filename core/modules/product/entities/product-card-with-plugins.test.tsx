@@ -112,4 +112,32 @@ describe("ProductCardWithPlugins", () => {
     });
     expect(markup).not.toContain("Вариации");
   });
+
+  it("passes variant summary to the card header when product type is absent", () => {
+    renderToStaticMarkup(
+      <ProductCardWithPlugins
+        data={product({
+          productType: null,
+          variantPickerOptions: [
+            {
+              id: "variant-1",
+              isAvailable: true,
+              label: "Red",
+              maxQuantity: null,
+              price: "690",
+              saleUnitId: null,
+              saleUnitPrice: null,
+              status: "ACTIVE",
+              stock: 1,
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(productCardProps).toHaveLength(1);
+    expect(productCardProps[0]).toMatchObject({
+      headerMeta: "Red",
+    });
+  });
 });

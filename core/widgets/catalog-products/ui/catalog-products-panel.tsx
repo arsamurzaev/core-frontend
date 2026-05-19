@@ -25,6 +25,7 @@ interface CatalogProductsPanelProps {
   categories: CategoryDto[];
   isCategoriesLoading: boolean;
   isFilterActive: boolean;
+  ignoreKnownProductCount?: boolean;
   queryState: CatalogFilterQueryState;
   activationBlockedCategoryId?: string | null;
   forceActivatedCategoryId?: string | null;
@@ -60,6 +61,7 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
   categories,
   isCategoriesLoading,
   isFilterActive,
+  ignoreKnownProductCount = false,
   queryState,
   activationBlockedCategoryId = null,
   forceActivatedCategoryId = null,
@@ -92,6 +94,7 @@ export const CatalogProductsPanel: React.FC<CatalogProductsPanelProps> = ({
             categories={categories}
             activationBlockedCategoryId={activationBlockedCategoryId}
             forceActivatedCategoryId={forceActivatedCategoryId}
+            ignoreKnownProductCount={ignoreKnownProductCount}
           />
         )}
       </div>
