@@ -1,6 +1,10 @@
 "use client";
 
 import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
+import {
+  getProductControllerGetByIdQueryKey,
+  type ProductWithDetailsDto,
+} from "@/shared/api/generated/react-query";
 import { type QueryClient } from "@tanstack/react-query";
 
 export {
@@ -11,7 +15,7 @@ export {
 } from "./edit-product-attribute-values";
 export { buildEditProductFormValues } from "./edit-product-form-values";
 export {
-  buildEditProductBaseSaleUnitVariantPayloads,
+  buildEditProductBaseSaleUnitsPayload,
   findDefaultProductVariant,
   hasExistingBaseSaleUnits,
 } from "./edit-product-sale-units-payload";
@@ -22,4 +26,30 @@ export {
 
 export async function invalidateEditProductQueries(queryClient: QueryClient) {
   await invalidateProductQueries(queryClient);
+}
+
+function isProductDetailsCandidate(
+  value: unknown,
+  productId: string,
+): value is ProductWithDetailsDto {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  return (value as { id?: unknown }).id === productId;
+}
+
+export function writeUpdatedProductToEditCache(
+  queryClient: QueryClient,
+  productId: string,
+  updatedProduct: unknown,
+) {
+  if (!isProductDetailsCandidate(updatedProduct, productId)) {
+    return;
+  }
+
+  queryClient.setQueryData<ProductWithDetailsDto>(
+    getProductControllerGetByIdQueryKey(productId),
+    updatedProduct,
+  );
 }

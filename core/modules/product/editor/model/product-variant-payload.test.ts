@@ -1,6 +1,7 @@
 import {
   AttributeDtoDataType,
   AttributeEnumValueDtoSource,
+  ProductVariantDtoKind,
   ProductVariantDtoStatus,
   type AttributeDto,
   type AttributeEnumValueDto,
@@ -60,6 +61,7 @@ function variant(overrides: Partial<ProductVariantDto>): ProductVariantDto {
     id: "variant-1",
     sku: "SKU-1",
     variantKey: "size=m",
+    kind: ProductVariantDtoKind.MATRIX,
     stock: 1,
     price: "100",
     status: ProductVariantDtoStatus.ACTIVE,
@@ -146,6 +148,7 @@ describe("product variant payload model", () => {
         saleUnits: [
           {
             catalogSaleUnitId: "box",
+            name: "Box",
             baseQuantity: 12,
             price: 900,
             isDefault: true,
@@ -192,6 +195,66 @@ describe("product variant payload model", () => {
     ).toEqual([
       {
         price: 1499,
+        status: "ACTIVE",
+        stock: 5,
+        attributes: [
+          {
+            attributeId: "size",
+            enumValueId: "m",
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("strips stale variant sale units when sale units feature is disabled", () => {
+    const size = attribute({
+      id: "size",
+      enumValues: [
+        enumValue({
+          id: "m",
+          attributeId: "size",
+          value: "m",
+          displayName: "Medium",
+        }),
+      ],
+    });
+    const mediumKey = buildVariantCombinationKey(
+      [{ attributeId: "size", enumValueId: "m" }],
+      [size],
+    );
+
+    expect(
+      buildCreateVariantsPayload(
+        {
+          selectedAttributeIds: ["size"],
+          selectedValueIdsByAttributeId: {
+            size: ["m"],
+          },
+          combinations: {
+            [mediumKey]: {
+              price: "1000",
+              saleUnits: [
+                {
+                  catalogSaleUnitId: "box",
+                  catalogSaleUnitName: "Box",
+                  label: "",
+                  baseQuantity: "12",
+                  price: "900",
+                  isDefault: true,
+                },
+              ],
+              status: "ACTIVE",
+              stock: 5,
+            },
+          },
+        },
+        [size],
+        { canUseCatalogSaleUnits: false },
+      ),
+    ).toEqual([
+      {
+        price: 1000,
         status: "ACTIVE",
         stock: 5,
         attributes: [

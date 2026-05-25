@@ -5,6 +5,7 @@ import {
   buildCreateVariantsPayload,
   normalizeSaleUnitsForPayload,
   type PayloadWithSaleUnits,
+  type SaleUnitPayload,
 } from "@/core/modules/product/editor/model/product-variants";
 import {
   type AttributeDto,
@@ -17,41 +18,47 @@ type CreateVariantPayload = PayloadWithSaleUnits<
 
 export function resolveCreateProductVariantsPayload(params: {
   formValues: CreateProductFormValues;
-  normalizedPrice: number | null;
   variantAttributes: AttributeDto[];
   canUseProductVariants: boolean;
   canUseCatalogSaleUnits: boolean;
 }): CreateVariantPayload[] {
   const {
     formValues,
-    normalizedPrice,
     variantAttributes,
     canUseProductVariants,
     canUseCatalogSaleUnits,
   } = params;
-  const variantsPayload =
-    canUseProductVariants && variantAttributes.length > 0
-      ? buildCreateVariantsPayload(formValues.variants ?? {}, variantAttributes)
-      : [];
-  const baseSaleUnitsPayload = canUseCatalogSaleUnits
-    ? normalizeSaleUnitsForPayload(formValues.saleUnits)
-    : [];
-  const canUseBaseSaleUnitsFallback =
-    !canUseProductVariants || variantAttributes.length === 0;
 
-  if (variantsPayload.length > 0) {
-    return variantsPayload;
-  }
-
-  if (!canUseBaseSaleUnitsFallback || baseSaleUnitsPayload.length === 0) {
+  if (!canUseProductVariants || variantAttributes.length === 0) {
     return [];
   }
 
-  return [
-    {
-      ...(normalizedPrice !== null ? { price: normalizedPrice } : {}),
-      status: "ACTIVE",
-      saleUnits: baseSaleUnitsPayload,
-    },
-  ];
+  return buildCreateVariantsPayload(formValues.variants ?? {}, variantAttributes, {
+    canUseCatalogSaleUnits,
+  });
+}
+
+export function resolveCreateProductBaseSaleUnitsPayload(params: {
+  formValues: CreateProductFormValues;
+  variantAttributes: AttributeDto[];
+  canUseProductVariants: boolean;
+  canUseCatalogSaleUnits: boolean;
+}): SaleUnitPayload[] | undefined {
+  const {
+    formValues,
+    variantAttributes,
+    canUseProductVariants,
+    canUseCatalogSaleUnits,
+  } = params;
+
+  if (!canUseCatalogSaleUnits) {
+    return undefined;
+  }
+
+  if (canUseProductVariants && variantAttributes.length > 0) {
+    return undefined;
+  }
+
+  const baseSaleUnitsPayload = normalizeSaleUnitsForPayload(formValues.saleUnits);
+  return baseSaleUnitsPayload.length > 0 ? baseSaleUnitsPayload : undefined;
 }

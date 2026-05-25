@@ -285,11 +285,21 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
         ...relationByIndex,
         [index]: nextRelation,
       };
+      const shouldClearBaseQuantity =
+        patch.multiplier !== undefined &&
+        toPositiveSaleUnitNumber(nextRelation.multiplier) === null;
+      const nextUnits = shouldClearBaseQuantity
+        ? units.map((unit, itemIndex) =>
+            itemIndex === index
+              ? { ...unit, baseQuantity: itemIndex === 0 ? "1" : "" }
+              : unit,
+          )
+        : units;
 
       setRelationByIndex(nextRelations);
       onChange(
         normalizeSaleUnitRows(
-          applySaleUnitRelationQuantities(units, nextRelations),
+          applySaleUnitRelationQuantities(nextUnits, nextRelations),
         ),
       );
     },

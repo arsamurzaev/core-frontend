@@ -6,7 +6,15 @@ import {
   type AttributeDto,
   type CreateProductDtoReq,
 } from "@/shared/api/generated/react-query";
-import { resolveCreateProductVariantsPayload } from "./create-product-sale-units-payload";
+import { type SaleUnitPayload } from "@/core/modules/product/editor/model/product-sale-units";
+import {
+  resolveCreateProductBaseSaleUnitsPayload,
+  resolveCreateProductVariantsPayload,
+} from "./create-product-sale-units-payload";
+
+type CreateProductWithBaseSaleUnitsDtoReq = CreateProductDtoReq & {
+  saleUnits?: SaleUnitPayload[];
+};
 
 export function parseCreateProductPayload(params: {
   formValues: CreateProductFormValues;
@@ -17,7 +25,7 @@ export function parseCreateProductPayload(params: {
   canUseProductTypes: boolean;
   canUseProductVariants: boolean;
   canUseCatalogSaleUnits: boolean;
-}): CreateProductDtoReq {
+}): CreateProductWithBaseSaleUnitsDtoReq {
   const {
     formValues,
     mediaIds,
@@ -34,7 +42,12 @@ export function parseCreateProductPayload(params: {
   });
   const resolvedVariantsPayload = resolveCreateProductVariantsPayload({
     formValues,
-    normalizedPrice,
+    variantAttributes,
+    canUseProductVariants,
+    canUseCatalogSaleUnits,
+  });
+  const baseSaleUnitsPayload = resolveCreateProductBaseSaleUnitsPayload({
+    formValues,
     variantAttributes,
     canUseProductVariants,
     canUseCatalogSaleUnits,
@@ -54,8 +67,11 @@ export function parseCreateProductPayload(params: {
     ...(basePayload.attributes.length > 0
       ? { attributes: basePayload.attributes }
       : {}),
+    ...(baseSaleUnitsPayload !== undefined
+      ? { saleUnits: baseSaleUnitsPayload }
+      : {}),
     ...(resolvedVariantsPayload.length > 0
       ? { variants: resolvedVariantsPayload }
       : {}),
-  } satisfies CreateProductDtoReq;
+  };
 }

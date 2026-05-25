@@ -183,10 +183,7 @@ export function resolveSaleUnitRelationDraft(
   }
 
   return {
-    multiplier:
-      normalizeText(localRelation.multiplier) ||
-      normalizeText(derivedRelation?.multiplier) ||
-      "",
+    multiplier: normalizeText(localRelation.multiplier),
     parentIndex: localRelation.parentIndex ?? derivedRelation?.parentIndex ?? null,
   };
 }

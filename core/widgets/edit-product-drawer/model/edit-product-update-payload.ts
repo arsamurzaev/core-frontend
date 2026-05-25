@@ -1,18 +1,19 @@
-import {
-  type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
-import {
-  buildRemovedProductAttributeIds,
-} from "@/core/modules/product/editor/model/product-attributes";
+import { buildRemovedProductAttributeIds } from "@/core/modules/product/editor/model/product-attributes";
 import { buildCreateVariantsPayload } from "@/core/modules/product/editor/model/product-variants";
+import { type SaleUnitPayload } from "@/core/modules/product/editor/model/product-sale-units";
 import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
 import {
   type AttributeDto,
   type ProductWithDetailsDto,
   type UpdateProductDtoReq,
 } from "@/shared/api/generated/react-query";
-import { buildEditProductBaseSaleUnitVariantPayloads } from "./edit-product-sale-units-payload";
+import { buildEditProductBaseSaleUnitsPayload } from "./edit-product-sale-units-payload";
+
+type UpdateProductWithBaseSaleUnitsDtoReq = UpdateProductDtoReq & {
+  saleUnits?: SaleUnitPayload[];
+};
 
 function isScopedToProductType(
   attribute: AttributeDto,
@@ -23,9 +24,7 @@ function isScopedToProductType(
 
 function mergeAttributeIds(...groups: string[][]): string[] {
   return [
-    ...new Set(
-      groups.reduce<string[]>((ids, group) => [...ids, ...group], []),
-    ),
+    ...new Set(groups.reduce<string[]>((ids, group) => [...ids, ...group], [])),
   ];
 }
 
@@ -43,12 +42,11 @@ function buildClearedProductTypeAttributeIds(params: {
     .filter((attribute) =>
       isScopedToProductType(attribute, params.currentProductTypeId),
     )
-    .filter(
-      (attribute) =>
-        Object.prototype.hasOwnProperty.call(
-          params.persistedAttributeValues,
-          attribute.id,
-        ),
+    .filter((attribute) =>
+      Object.prototype.hasOwnProperty.call(
+        params.persistedAttributeValues,
+        attribute.id,
+      ),
     )
     .map((attribute) => attribute.id);
 }
@@ -88,7 +86,7 @@ export function buildEditProductUpdatePayloadCandidate(params: {
   canUseProductTypes?: boolean;
   canUseCatalogSaleUnits: boolean;
   canUseProductVariants?: boolean;
-}): UpdateProductDtoReq {
+}): UpdateProductWithBaseSaleUnitsDtoReq {
   const {
     formValues,
     mediaIds,
@@ -151,7 +149,7 @@ export function buildEditProductUpdatePayloadCandidate(params: {
       product,
     }),
   );
-  const variantsPayload = buildEditProductBaseSaleUnitVariantPayloads({
+  const baseSaleUnitsPayload = buildEditProductBaseSaleUnitsPayload({
     formValues,
     product,
     canUseCatalogSaleUnits,
@@ -161,7 +159,9 @@ export function buildEditProductUpdatePayloadCandidate(params: {
     (variantAttributes.length > 0 ||
       (hasProductTypeChange && hasTypedVariants(product)));
   const variantMatrixPayload = shouldReplaceVariantMatrix
-    ? buildCreateVariantsPayload(formValues.variants, variantAttributes)
+    ? buildCreateVariantsPayload(formValues.variants, variantAttributes, {
+        canUseCatalogSaleUnits,
+      })
     : [];
 
   return {
@@ -176,8 +176,8 @@ export function buildEditProductUpdatePayloadCandidate(params: {
     attributes,
     removeAttributeIds:
       removeAttributeIds.length > 0 ? removeAttributeIds : undefined,
-    ...(variantsPayload.length > 0 && !shouldReplaceVariantMatrix
-      ? { variants: variantsPayload }
+    ...(baseSaleUnitsPayload !== undefined && !shouldReplaceVariantMatrix
+      ? { saleUnits: baseSaleUnitsPayload }
       : {}),
     ...(shouldReplaceVariantMatrix
       ? { variantMatrix: variantMatrixPayload }

@@ -37,10 +37,22 @@ export function buildCategoryOptions(
 
 export function buildProductTypeOptions(
   productTypes: ProductTypeDto[] | null | undefined,
+  options: {
+    canUseProductVariants?: boolean;
+    preserveProductTypeIds?: string[];
+  } = {},
 ): FieldOption[] {
+  const canUseProductVariants = options.canUseProductVariants === true;
+  const preservedIds = new Set(options.preserveProductTypeIds ?? []);
+
   return sortByName(
     (productTypes ?? []).filter(
-      (productType) => productType.isActive && !productType.isArchived,
+      (productType) =>
+        productType.isActive &&
+        !productType.isArchived &&
+        (canUseProductVariants ||
+          preservedIds.has(productType.id) ||
+          !(productType.attributes ?? []).some((attribute) => attribute.isVariant)),
     ),
   ).map((productType) => ({
     label: productType.name,

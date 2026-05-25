@@ -200,8 +200,14 @@ export function useProductFormFields({
     [categoriesQuery.data],
   );
   const productTypeOptions = React.useMemo(
-    () => buildProductTypeOptions(productTypesQuery.data),
-    [productTypesQuery.data],
+    () =>
+      buildProductTypeOptions(productTypesQuery.data, {
+        canUseProductVariants,
+        preserveProductTypeIds: watchedProductTypeId
+          ? [watchedProductTypeId]
+          : [],
+      }),
+    [canUseProductVariants, productTypesQuery.data, watchedProductTypeId],
   );
 
   const discountAttributeIds = React.useMemo(

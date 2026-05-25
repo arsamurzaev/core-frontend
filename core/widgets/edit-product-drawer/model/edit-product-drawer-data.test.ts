@@ -2,7 +2,10 @@ import {
   AttributeDtoDataType,
   AttributeEnumValueDtoSource,
   ProductAttributeRefDtoDataType,
+  ProductVariantDtoKind,
   ProductVariantDtoStatus,
+  ProductWithDetailsDtoAvailabilityState,
+  ProductWithDetailsDtoPriceState,
   ProductWithDetailsDtoStatus,
   type AttributeDto,
   type AttributeEnumValueDto,
@@ -11,11 +14,12 @@ import {
   type ProductVariantDto,
   type ProductWithDetailsDto,
 } from "@/shared/api/generated/react-query";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { CREATE_PRODUCT_FORM_DEFAULT_VALUES } from "@/core/modules/product/editor/model/form-config";
 import {
   buildEditProductFormValues,
   parseEditProductUpdatePayload,
+  writeUpdatedProductToEditCache,
 } from "./edit-product-drawer-data";
 
 const NOW = "2026-05-13T00:00:00.000Z";
@@ -94,6 +98,7 @@ function variant(
     id: "variant-1",
     sku: "SKU-1",
     variantKey: "base",
+    kind: ProductVariantDtoKind.DEFAULT,
     stock: 1,
     price: "1000",
     status: ProductVariantDtoStatus.ACTIVE,
@@ -126,11 +131,20 @@ function product(
     name: "Product",
     slug: "product",
     price: "1000",
+    priceState: ProductWithDetailsDtoPriceState.KNOWN,
+    displayPrice: "1000",
+    minPrice: "1000",
+    maxPrice: "1000",
+    availabilityState: ProductWithDetailsDtoAvailabilityState.AVAILABLE,
+    stock: 1,
+    defaultVariantId: "variant-1",
     media: [],
     brand: null,
     productType: null,
     categories: [],
     integration: null,
+    saleUnits: [],
+    requiresVariantSelection: false,
     isPopular: false,
     status: ProductWithDetailsDtoStatus.ACTIVE,
     position: 0,
@@ -152,6 +166,43 @@ function product(
 }
 
 describe("edit product drawer data", () => {
+  it("writes updated product response into the edit product cache", () => {
+    const queryClient = {
+      setQueryData: vi.fn(),
+    };
+    const updatedProduct = product({
+      id: "product-1",
+      saleUnits: [
+        {
+          id: "sale-unit-1",
+          catalogSaleUnitId: "box",
+          code: "box",
+          name: "Box",
+          baseQuantity: "12",
+          price: "950",
+          barcode: null,
+          isDefault: true,
+          isActive: true,
+          displayOrder: 1,
+          createdAt: NOW,
+          updatedAt: NOW,
+          catalogSaleUnit: null,
+        },
+      ],
+    });
+
+    writeUpdatedProductToEditCache(
+      queryClient as never,
+      "product-1",
+      updatedProduct,
+    );
+
+    expect(queryClient.setQueryData).toHaveBeenCalledWith(
+      ["/product/product-1"],
+      updatedProduct,
+    );
+  });
+
   it("builds form values with discount and base sale units from default variant", () => {
     const values = buildEditProductFormValues(
       product({
@@ -270,9 +321,9 @@ describe("edit product drawer data", () => {
       ],
     });
 
-    expect(
-      buildEditProductFormValues(sourceProduct, [], []).variants,
-    ).toEqual(CREATE_PRODUCT_FORM_DEFAULT_VALUES.variants);
+    expect(buildEditProductFormValues(sourceProduct, [], []).variants).toEqual(
+      CREATE_PRODUCT_FORM_DEFAULT_VALUES.variants,
+    );
 
     expect(
       buildEditProductFormValues(sourceProduct, [], [sizeAttribute]).variants,
@@ -292,49 +343,49 @@ describe("edit product drawer data", () => {
   });
 
   it("clears existing base sale units and removed attributes in update payload", () => {
-    expect(
-      parseEditProductUpdatePayload({
-        formValues: {
-          ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
-          name: " Updated product ",
-          price: "1200",
-          categoryIds: [" category-1 "],
-          attributes: {
-            subtitle: "",
-          },
-          saleUnits: [],
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: " Updated product ",
+        price: "1200",
+        categoryIds: [" category-1 "],
+        attributes: {
+          subtitle: "",
         },
-        mediaIds: ["media-1"],
-        persistedAttributeValues: {
-          subtitle: "Old subtitle",
-        },
-        product: product({
-          variants: [
-            variant({
-              saleUnits: [
-                {
-                  id: "sale-unit-1",
-                  catalogSaleUnitId: "box",
-                  code: "box",
-                  name: "Box",
-                  baseQuantity: "12",
-                  price: "950",
-                  barcode: null,
-                  isDefault: true,
-                  isActive: true,
-                  displayOrder: 1,
-                  createdAt: NOW,
-                  updatedAt: NOW,
-                  catalogSaleUnit: null,
-                },
-              ],
-            }),
-          ],
-        }),
-        productAttributes: [attribute()],
-        canUseCatalogSaleUnits: true,
+        saleUnits: [],
+      },
+      mediaIds: ["media-1"],
+      persistedAttributeValues: {
+        subtitle: "Old subtitle",
+      },
+      product: product({
+        variants: [
+          variant({
+            saleUnits: [
+              {
+                id: "sale-unit-1",
+                catalogSaleUnitId: "box",
+                code: "box",
+                name: "Box",
+                baseQuantity: "12",
+                price: "950",
+                barcode: null,
+                isDefault: true,
+                isActive: true,
+                displayOrder: 1,
+                createdAt: NOW,
+                updatedAt: NOW,
+                catalogSaleUnit: null,
+              },
+            ],
+          }),
+        ],
       }),
-    ).toMatchObject({
+      productAttributes: [attribute()],
+      canUseCatalogSaleUnits: true,
+    });
+
+    expect(payload).toMatchObject({
       name: "Updated product",
       price: 1200,
       mediaIds: ["media-1"],
@@ -342,15 +393,49 @@ describe("edit product drawer data", () => {
       categories: ["category-1"],
       attributes: [],
       removeAttributeIds: ["subtitle"],
-      variants: [
+      saleUnits: [],
+    });
+    expect(payload).not.toHaveProperty("variants");
+  });
+
+  it("sends root sale units in update payload when variants feature is disabled", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1200",
+        saleUnits: [
+          {
+            catalogSaleUnitId: "box",
+            catalogSaleUnitName: "Box",
+            label: "Box",
+            baseQuantity: "12",
+            price: "950",
+            isDefault: true,
+          },
+        ],
+      },
+      mediaIds: [],
+      persistedAttributeValues: {},
+      product: product({
+        variants: [variant({ variantKey: "default" })],
+      }),
+      productAttributes: [],
+      canUseCatalogSaleUnits: true,
+      canUseProductVariants: false,
+    });
+
+    expect(payload).toMatchObject({
+      saleUnits: [
         {
-          variantKey: "base",
-          price: 1200,
-          status: "ACTIVE",
-          saleUnits: [],
+          catalogSaleUnitId: "box",
+          baseQuantity: 12,
+          price: 950,
+          isDefault: true,
         },
       ],
     });
+    expect(payload).not.toHaveProperty("variants");
   });
 
   it("includes changed product type in update payload", () => {

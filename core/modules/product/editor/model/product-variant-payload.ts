@@ -129,15 +129,19 @@ export function buildVariantsFormValueFromExisting(
 export function buildCreateVariantsPayload(
   variantsFormValue: unknown,
   variantAttributes: AttributeDto[] = [],
+  options: { canUseCatalogSaleUnits?: boolean } = {},
 ): PayloadWithSaleUnits<ProductVariantDtoReq>[] {
   if (variantAttributes.length === 0) {
     return [];
   }
+  const canUseCatalogSaleUnits = options.canUseCatalogSaleUnits !== false;
 
   return buildVariantMatrixRows(variantsFormValue, variantAttributes)
     .filter((row) => row.item.status !== "DISABLED")
     .map((row) => {
-      const saleUnits = normalizeSaleUnitsForPayload(row.item.saleUnits);
+      const saleUnits = canUseCatalogSaleUnits
+        ? normalizeSaleUnitsForPayload(row.item.saleUnits)
+        : [];
       const price = toOptionalNumber(row.item.price);
 
       return {

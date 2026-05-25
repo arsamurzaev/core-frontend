@@ -142,6 +142,13 @@ describe("product sale units field model", () => {
         { multiplier: "4", parentIndex: 1 },
       ),
     ).toEqual({ multiplier: "", parentIndex: null });
+
+    expect(
+      resolveSaleUnitRelationDraft(
+        { multiplier: "", parentIndex: 1 },
+        { multiplier: "4", parentIndex: 1 },
+      ),
+    ).toEqual({ multiplier: "", parentIndex: 1 });
   });
 
   it("resolves discount preview from a valid sale unit price", () => {

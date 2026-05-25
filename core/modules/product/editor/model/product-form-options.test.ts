@@ -1,7 +1,9 @@
 import {
+  ProductTypeAttributeAttributeDtoDataType,
   ProductTypeDtoScope,
   type BrandDto,
   type CategoryDto,
+  type ProductTypeAttributeDto,
   type ProductTypeDto,
 } from "@/shared/api/generated/react-query";
 import { describe, expect, it } from "vitest";
@@ -60,6 +62,27 @@ function productType(overrides: Partial<ProductTypeDto>): ProductTypeDto {
   };
 }
 
+function productTypeAttribute(
+  overrides: Partial<ProductTypeAttributeDto> = {},
+): ProductTypeAttributeDto {
+  return {
+    productTypeId: "type-1",
+    attributeId: "attribute-1",
+    isVariant: false,
+    isRequired: false,
+    displayOrder: 0,
+    attribute: {
+      id: "attribute-1",
+      key: "attribute",
+      displayName: "Attribute",
+      dataType: ProductTypeAttributeAttributeDtoDataType.ENUM,
+    },
+    createdAt: NOW,
+    updatedAt: NOW,
+    ...overrides,
+  };
+}
+
 describe("product form options", () => {
   it("builds sorted brand options only when brands are supported", () => {
     const brands = [
@@ -111,6 +134,77 @@ describe("product form options", () => {
         description: "Service products",
         label: "Service",
         value: "service",
+      },
+    ]);
+  });
+
+  it("hides variant product types when variants feature is disabled", () => {
+    expect(
+      buildProductTypeOptions(
+        [
+          productType({
+            id: "simple",
+            name: "Simple",
+            attributes: [productTypeAttribute({ isVariant: false })],
+          }),
+          productType({
+            id: "matrix",
+            name: "Matrix",
+            attributes: [productTypeAttribute({ isVariant: true })],
+          }),
+        ],
+        { canUseProductVariants: false },
+      ),
+    ).toEqual([
+      {
+        description: undefined,
+        label: "Simple",
+        value: "simple",
+      },
+    ]);
+  });
+
+  it("keeps variant product types when variants feature is enabled", () => {
+    expect(
+      buildProductTypeOptions(
+        [
+          productType({
+            id: "matrix",
+            name: "Matrix",
+            attributes: [productTypeAttribute({ isVariant: true })],
+          }),
+        ],
+        { canUseProductVariants: true },
+      ),
+    ).toEqual([
+      {
+        description: undefined,
+        label: "Matrix",
+        value: "matrix",
+      },
+    ]);
+  });
+
+  it("preserves selected variant product type while variants feature is disabled", () => {
+    expect(
+      buildProductTypeOptions(
+        [
+          productType({
+            id: "matrix",
+            name: "Matrix",
+            attributes: [productTypeAttribute({ isVariant: true })],
+          }),
+        ],
+        {
+          canUseProductVariants: false,
+          preserveProductTypeIds: ["matrix"],
+        },
+      ),
+    ).toEqual([
+      {
+        description: undefined,
+        label: "Matrix",
+        value: "matrix",
       },
     ]);
   });

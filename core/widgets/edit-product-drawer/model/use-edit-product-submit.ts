@@ -13,6 +13,7 @@ import { type ResolvedEditProductMediaSubmit } from "@/core/widgets/edit-product
 import {
   invalidateEditProductQueries,
   parseEditProductUpdatePayload,
+  writeUpdatedProductToEditCache,
 } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import {
   type AttributeDto,
@@ -179,12 +180,13 @@ export function useEditProductSubmit({
           canUseProductVariants,
         });
 
-        await updateProduct.mutateAsync({
+        const updatedProduct = await updateProduct.mutateAsync({
           id: productId,
           data: updatePayload,
         });
+        writeUpdatedProductToEditCache(queryClient, productId, updatedProduct);
 
-        void invalidateEditProductQueries(queryClient);
+        await invalidateEditProductQueries(queryClient);
 
         if (processingJobIds.length === 0) {
           toast.success("Товар обновлён.", {
@@ -211,7 +213,7 @@ export function useEditProductSubmit({
           });
         }
 
-        void invalidateEditProductQueries(queryClient);
+        await invalidateEditProductQueries(queryClient);
 
         toast.success("Товар обновлён. Фото обработаны.", {
           id: backgroundToastId,

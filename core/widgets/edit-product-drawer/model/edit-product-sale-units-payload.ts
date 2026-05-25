@@ -1,18 +1,9 @@
-import {
-  type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import {
   normalizeSaleUnitsForPayload,
-  type PayloadWithSaleUnits,
+  type SaleUnitPayload,
 } from "@/core/modules/product/editor/model/product-variants";
-import {
-  type ProductWithDetailsDto,
-  type UpdateProductDtoReq,
-} from "@/shared/api/generated/react-query";
-
-type UpdateVariantPayload = PayloadWithSaleUnits<
-  NonNullable<UpdateProductDtoReq["variants"]>[number]
->;
+import { type ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 
 function hasArrayItems(value: unknown): boolean {
   return Array.isArray(value) && value.length > 0;
@@ -35,11 +26,11 @@ export function hasExistingBaseSaleUnits(params: {
   );
 }
 
-export function buildEditProductBaseSaleUnitVariantPayloads(params: {
+export function buildEditProductBaseSaleUnitsPayload(params: {
   formValues: CreateProductFormValues;
   product?: ProductWithDetailsDto | null;
   canUseCatalogSaleUnits: boolean;
-}): UpdateVariantPayload[] {
+}): SaleUnitPayload[] | undefined {
   const { formValues, product, canUseCatalogSaleUnits } = params;
   const baseSaleUnitsPayload = canUseCatalogSaleUnits
     ? normalizeSaleUnitsForPayload(formValues.saleUnits)
@@ -51,21 +42,11 @@ export function buildEditProductBaseSaleUnitVariantPayloads(params: {
   });
 
   if (
-    !defaultVariant?.variantKey ||
     !canUseCatalogSaleUnits ||
     (baseSaleUnitsPayload.length === 0 && !hasExistingSaleUnits)
   ) {
-    return [];
+    return undefined;
   }
 
-  return [
-    {
-      variantKey: defaultVariant.variantKey,
-      ...(formValues.price.trim().length > 0
-        ? { price: Number(formValues.price) }
-        : {}),
-      status: "ACTIVE",
-      saleUnits: baseSaleUnitsPayload,
-    },
-  ];
+  return baseSaleUnitsPayload;
 }
