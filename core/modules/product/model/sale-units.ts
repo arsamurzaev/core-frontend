@@ -239,6 +239,18 @@ export function getProductSaleUnitContainsText(
   }`;
 }
 
+export function getProductSaleUnitsSummary(entity: unknown): string | null {
+  const labels = Array.from(
+    new Set(
+      getProductSaleUnits(entity)
+        .map((unit) => normalizeText(unit.label))
+        .filter(Boolean),
+    ),
+  );
+
+  return labels.length > 0 ? labels.join(" / ") : null;
+}
+
 export function getDefaultProductSaleUnit(
   saleUnits: ProductSaleUnit[],
 ): ProductSaleUnit | null {

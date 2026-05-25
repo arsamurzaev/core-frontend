@@ -172,6 +172,7 @@ interface ProductCardHeaderProps {
   headerMeta?: React.ReactNode;
   isDetailed?: boolean;
   name: string;
+  saleUnitsSummary?: string | null;
   subtitle: string;
 }
 
@@ -180,6 +181,7 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
   headerMeta,
   isDetailed,
   name,
+  saleUnitsSummary,
   subtitle,
 }) => {
   return (
@@ -197,6 +199,11 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
       >
         {subtitle}
       </CardSubTitle>
+      {saleUnitsSummary ? (
+        <div className="line-clamp-1 text-xs leading-tight text-muted-foreground">
+          {saleUnitsSummary}
+        </div>
+      ) : null}
       {isDetailed && (
         <p
           className={cn(
@@ -315,6 +322,7 @@ const ProductCardBase: React.FC<Props> = ({
     imageStatus,
     price,
     pricePrefix,
+    saleUnitsSummary,
     subtitle,
   } = buildProductCardView(data, {
     canUseVariants: features.canUseProductVariants,
@@ -343,6 +351,7 @@ const ProductCardBase: React.FC<Props> = ({
           headerMeta={headerMeta}
           isDetailed={isDetailed}
           name={data.name}
+          saleUnitsSummary={saleUnitsSummary}
           subtitle={subtitle}
         />
         <ProductCardFooterSection

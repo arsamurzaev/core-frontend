@@ -1,5 +1,6 @@
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import type { MediaDto } from "@/shared/api/generated/react-query";
+import { getProductSaleUnitsSummary } from "@/core/modules/product/model/sale-units";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
 import { toOptionalTrimmedString } from "@/shared/lib/text";
@@ -18,6 +19,7 @@ export interface ProductCardView {
   imageStatus: string | null;
   price: number | undefined;
   pricePrefix: string | null;
+  saleUnitsSummary: string | null;
   subtitle: string;
 }
 
@@ -162,6 +164,7 @@ export function buildProductCardView(
     imageStatus: resolveProductCardImageStatus(data),
     price: price ?? undefined,
     pricePrefix: hasProjectedPriceRange || hasVariantPriceRange ? "от" : null,
+    saleUnitsSummary: getProductSaleUnitsSummary(data),
     subtitle,
   };
 }

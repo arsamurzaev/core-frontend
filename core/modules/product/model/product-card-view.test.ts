@@ -18,6 +18,7 @@ function product(
     availabilityState: "AVAILABLE",
     stock: 1,
     defaultVariantId: "default-variant",
+    saleUnits: [],
     requiresVariantSelection: false,
     media: [],
     brand: null,
@@ -236,5 +237,46 @@ describe("buildProductCardView", () => {
     expect(view.price).toBe(0);
     expect(view.displayPrice).toBe(0);
     expect(view.pricePrefix).toBeNull();
+  });
+
+  it("shows active sale units in card summary", () => {
+    const view = buildProductCardView(
+      product({
+        saleUnits: [
+          {
+            id: "piece",
+            catalogSaleUnitId: "catalog-piece",
+            code: "piece",
+            name: "piece",
+            baseQuantity: "1",
+            price: "1000.00",
+            barcode: null,
+            isDefault: true,
+            isActive: true,
+            displayOrder: 0,
+            createdAt: "2026-01-01T00:00:00.000Z",
+            updatedAt: "2026-01-01T00:00:00.000Z",
+            catalogSaleUnit: null,
+          },
+          {
+            id: "box",
+            catalogSaleUnitId: "catalog-box",
+            code: "box",
+            name: "box",
+            baseQuantity: "20",
+            price: "18000.00",
+            barcode: null,
+            isDefault: false,
+            isActive: true,
+            displayOrder: 1,
+            createdAt: "2026-01-01T00:00:00.000Z",
+            updatedAt: "2026-01-01T00:00:00.000Z",
+            catalogSaleUnit: null,
+          },
+        ],
+      }),
+    );
+
+    expect(view.saleUnitsSummary).toBe("piece / box");
   });
 });
