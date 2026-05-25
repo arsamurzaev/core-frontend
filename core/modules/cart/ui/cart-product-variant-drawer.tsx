@@ -128,7 +128,10 @@ function getSaleUnitSource(params: {
     return baseVariant;
   }
 
-  if (getProductSaleUnits(params.detailedProduct).length > 0) {
+  if (
+    params.detailedProduct &&
+    getProductSaleUnits(params.detailedProduct).length > 0
+  ) {
     return params.detailedProduct;
   }
 
