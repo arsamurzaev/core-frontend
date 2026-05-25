@@ -87,7 +87,7 @@ describe("product sale unit helpers", () => {
       "Sale units",
     );
 
-    expect(issue?.message).toContain("нельзя добавить дважды");
+    expect(issue?.message).toContain("нельзя привязать дважды");
   });
 
   it("requires catalog unit selection for touched rows", () => {
@@ -105,7 +105,7 @@ describe("product sale unit helpers", () => {
       "Sale units",
     );
 
-    expect(issue?.message).toContain("выберите формат продажи из справочника");
+    expect(issue?.message).toContain("выберите единицу продажи из справочника");
   });
 
   it("builds form values from backend-like sale units", () => {

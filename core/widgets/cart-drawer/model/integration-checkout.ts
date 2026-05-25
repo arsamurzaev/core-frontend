@@ -187,11 +187,7 @@ function hasHallTableIdentity(data: CheckoutData): boolean {
       data.integrationExternalItemCode ??
       data.hallTableCode ??
       data.tableCode ??
-      data.t ??
-      data.integrationPayloadToken ??
-      data.hallPayloadToken ??
-      data.payloadToken ??
-      data.h,
+      data.t,
   );
 }
 

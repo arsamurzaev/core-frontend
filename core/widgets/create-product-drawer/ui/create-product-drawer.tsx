@@ -113,13 +113,14 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
               trigger={
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 text-muted-foreground"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
                   disabled={isSubmitting || isProductTypeSchemaResolving}
-                  title="Настройки единиц измерения"
+                  title="Добавить/изменить единицы продажи"
                 >
                   <Settings className="size-4" />
+                  Добавить/изменить ед.
                 </Button>
               }
             />

@@ -142,14 +142,13 @@ describe("integration checkout model", () => {
     });
   });
 
-  it("accepts protected hall payload token as table identity", () => {
+  it("does not accept legacy encrypted hall payload as table identity", () => {
     expect(
       resolveIntegrationCheckoutFields({
         catalogMode: "HALL",
         hasIikoItems: true,
         orderInput: {
           checkoutData: {
-            integrationPayloadToken: "ip1.test.encrypted",
             orderMode: "HALL",
             personsCount: 2,
             customerName: "Ivan",
@@ -157,18 +156,17 @@ describe("integration checkout model", () => {
           checkoutMethod: "PICKUP",
         },
       }),
-    ).toEqual([]);
+    ).toEqual(["hallTable"]);
 
     expect(
       validateIntegrationCheckout({
         data: {
-          integrationPayloadToken: "ip1.test.encrypted",
           orderMode: "HALL",
         },
         fields: ["hallTable"],
         method: "PICKUP",
       }),
-    ).toBeNull();
+    ).toBeTruthy();
   });
 
   it("accepts backend-stored hall table code as table identity", () => {

@@ -9,7 +9,6 @@ export type HallTableContext = {
   iikoRestaurantSectionId: string | null;
   iikoRestaurantSectionName: string | null;
   iikoTableId: string | null;
-  integrationPayloadToken: string | null;
   tableCode: string | null;
   tableName: string | null;
   tableNumber: string | null;
@@ -30,7 +29,6 @@ const EMPTY_HALL_TABLE_CONTEXT: HallTableContext = {
   iikoRestaurantSectionId: null,
   iikoRestaurantSectionName: null,
   iikoTableId: null,
-  integrationPayloadToken: null,
   tableCode: null,
   tableName: null,
   tableNumber: null,
@@ -57,13 +55,6 @@ export function useHallTableContext(): HallTableContext {
         "iikoTableId",
         "tableId",
         "hallTableId",
-      ),
-      integrationPayloadToken: readSearchParam(
-        searchParams,
-        "h",
-        "integrationPayloadToken",
-        "hallPayloadToken",
-        "payloadToken",
       ),
       tableCode: readSearchParam(
         searchParams,
@@ -137,10 +128,6 @@ export function buildHallTableCheckoutData(
     data.iikoTableId = context.iikoTableId;
     data.hallTableId = context.iikoTableId;
   }
-  if (context.integrationPayloadToken) {
-    data.integrationPayloadToken = context.integrationPayloadToken;
-    data.h = context.integrationPayloadToken;
-  }
   if (context.tableCode) {
     data.integrationExternalItemCode = context.tableCode;
     data.hallTableCode = context.tableCode;
@@ -169,9 +156,7 @@ export function buildHallTableCheckoutData(
 }
 
 export function hasHallTableLink(context: HallTableContext): boolean {
-  return Boolean(
-    context.iikoTableId || context.integrationPayloadToken || context.tableCode,
-  );
+  return Boolean(context.iikoTableId || context.tableCode);
 }
 
 export function getHallTableLabel(context: HallTableContext): string {

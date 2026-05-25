@@ -17,10 +17,8 @@ export type CheckoutData = {
   address?: string;
   customerName?: string;
   guestsCount?: number;
-  h?: string;
   hallSectionId?: string;
   hallSectionName?: string;
-  hallPayloadToken?: string;
   hallTableCode?: string;
   hallTableId?: string;
   hallTableName?: string;
@@ -29,10 +27,8 @@ export type CheckoutData = {
   iikoRestaurantSectionName?: string;
   iikoTableId?: string;
   integrationExternalItemCode?: string;
-  integrationPayloadToken?: string;
   mapUrl?: string;
   orderMode?: string;
-  payloadToken?: string;
   phone?: string;
   personsCount?: number;
   t?: string;

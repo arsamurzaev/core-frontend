@@ -49,7 +49,7 @@ export const CATALOG_FEATURE_LABELS: Record<
   },
   "catalog.sale_units": {
     title: "Единицы продажи",
-    description: "Форматы продажи внутри каталога: упаковка, коробка и другие.",
+    description: "Единицы продажи внутри каталога: упаковка, коробка и другие.",
   },
   "inventory.internal": {
     title: "Собственный склад",

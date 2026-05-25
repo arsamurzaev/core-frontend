@@ -145,6 +145,13 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
       ),
     [units],
   );
+  const canBindSaleUnit = React.useMemo(
+    () =>
+      catalogUnits.some(
+        (catalogUnit) => !selectedCatalogUnitIds.has(catalogUnit.id),
+      ),
+    [catalogUnits, selectedCatalogUnitIds],
+  );
 
   const handleAdd = React.useCallback(() => {
     const nextUnit = createDefaultSaleUnitFormValue(
@@ -189,8 +196,8 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
       const confirmed = await confirmDelete({
         title: "Удалить единицу продажи?",
         description: name
-          ? `Формат "${name}" будет удален из товара.`
-          : "Формат будет удален из товара.",
+          ? `Единица продажи "${name}" будет удалена из товара.`
+          : "Единица продажи будет удалена из товара.",
         confirmText: "Удалить",
         cancelText: "Отмена",
         tone: "destructive",
@@ -246,7 +253,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
           itemIndex !== index && unit.catalogSaleUnitId === catalogUnitId,
       );
       if (isAlreadySelected) {
-        toast.error("Этот формат уже добавлен.");
+        toast.error("Эта единица продажи уже привязана.");
         return;
       }
 
@@ -313,28 +320,37 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
     [onChange, relationByIndex, units],
   );
 
+  const bindSaleUnitButton = canBindSaleUnit ? (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={handleAdd}
+      disabled={disabled}
+      className="h-8 shrink-0 px-2.5"
+      title="Привязать единицы продажи"
+    >
+      <Plus className="size-4" />
+      Привязать единицы
+    </Button>
+  ) : null;
+
   return (
     <div className="w-full min-w-0 space-y-3 overflow-hidden rounded-md border border-border bg-muted/10 p-2 sm:p-3">
       <div className="flex min-w-0 items-center justify-between gap-3">
-        <div className="min-w-0 text-sm font-medium">{title}</div>
-        <div className="flex shrink-0 items-center gap-2">
-          {settingsAction}
-          {units.length === 0 ? (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAdd}
-              disabled={disabled}
-              className="h-8 shrink-0 px-2.5"
-              title="Добавить единицу"
-            >
-              <Plus className="size-4" />
-              Добавить
-            </Button>
-          ) : null}
+        <div className="min-w-0 flex-1 truncate text-sm font-medium">
+          {title}
         </div>
+        {settingsAction ? (
+          <div className="flex shrink-0 items-center gap-2">
+            {settingsAction}
+          </div>
+        ) : null}
       </div>
+
+      {units.length === 0 && bindSaleUnitButton ? (
+        <div className="flex justify-start">{bindSaleUnitButton}</div>
+      ) : null}
 
       {units.length > 0 ? (
         <div className="space-y-2">
@@ -383,8 +399,8 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
 
                 <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(220px,1.35fr)_minmax(128px,0.65fr)]">
                   <div className="min-w-0 space-y-2">
-                    <span className="text-xs text-muted-foreground">
-                      Формат продажи
+                    <span className="text-xs text-foreground">
+                      Единицы продажи
                     </span>
                     <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                       {selectedName && !unit.catalogSaleUnitId ? (
@@ -434,7 +450,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                   </div>
 
                   <label className="min-w-0 space-y-1">
-                    <span className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+                    <span className="flex min-w-0 items-center gap-1 text-xs text-foreground">
                       <span className="shrink-0">Цена</span>
                       {relationCalculatedPrice ? (
                         <span className="min-w-0 truncate">
@@ -475,7 +491,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
 
                 {parentOptions.length > 0 ? (
                   <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-foreground">
                       Содержит
                     </span>
                     <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -552,21 +568,8 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
         </div>
       ) : null}
 
-      {units.length > 0 ? (
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAdd}
-            disabled={disabled}
-            className="h-8 shrink-0 px-2.5"
-            title="Добавить единицу"
-          >
-            <Plus className="size-4" />
-            Добавить
-          </Button>
-        </div>
+      {units.length > 0 && bindSaleUnitButton ? (
+        <div className="flex justify-start">{bindSaleUnitButton}</div>
       ) : null}
 
     </div>

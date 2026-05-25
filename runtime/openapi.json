@@ -5975,26 +5975,6 @@
         ]
       }
     },
-    "/integration/payload/public-key": {
-      "get": {
-        "operationId": "IntegrationController_getIntegrationPayloadPublicKey",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "csrf": []
-          }
-        ],
-        "summary": "Get public key for integration payload tokens",
-        "tags": [
-          "Integration"
-        ]
-      }
-    },
     "/integration/moysklad": {
       "get": {
         "operationId": "IntegrationController_getMoySklad",

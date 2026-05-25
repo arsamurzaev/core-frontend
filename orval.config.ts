@@ -11,15 +11,14 @@ const apiBaseUrl = (
 const configDir = dirname(fileURLToPath(import.meta.url));
 const localOpenApiPath = resolve(configDir, "runtime/openapi.json");
 const backendOpenApiPath = resolve(configDir, "../backend/runtime/openapi.json");
+const remoteOpenApiUrl = process.env.ORVAL_OPENAPI_URL ?? `${apiBaseUrl}/openapi.yaml`;
 
 const input = {
-  target:
-    process.env.ORVAL_OPENAPI_URL ??
-    (existsSync(localOpenApiPath)
-      ? localOpenApiPath
-      : existsSync(backendOpenApiPath)
-        ? backendOpenApiPath
-        : `${apiBaseUrl}/openapi.yaml`),
+  target: existsSync(localOpenApiPath)
+    ? localOpenApiPath
+    : existsSync(backendOpenApiPath)
+      ? backendOpenApiPath
+      : remoteOpenApiUrl,
 };
 
 export default defineConfig({

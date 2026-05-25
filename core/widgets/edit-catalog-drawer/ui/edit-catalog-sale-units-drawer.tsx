@@ -753,8 +753,8 @@ export const EditCatalogSaleUnitsDrawer: React.FC<
   const handleDelete = React.useCallback(
     async (unit: CatalogSaleUnitDto) => {
       const confirmed = await confirmDelete({
-        title: "Удалить единицу измерения?",
-        description: `Формат "${unit.name}" исчезнет из выбора для новых товаров. В существующих товарах привязки сохранятся.`,
+        title: "Удалить единицу продажи?",
+        description: `Единица продажи "${unit.name}" исчезнет из выбора для новых товаров. В существующих товарах привязки сохранятся.`,
         confirmText: "Удалить",
         cancelText: "Отмена",
         tone: "destructive",
@@ -784,14 +784,14 @@ export const EditCatalogSaleUnitsDrawer: React.FC<
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-foreground">
-            Единицы измерения
+            Единицы продажи
           </span>
           <Badge variant="secondary">
             {activeCount > 0 ? `${activeCount} активн.` : "Не настроено"}
           </Badge>
         </div>
         <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
-          Глобальный список форматов: штука, упаковка, ящик и другие единицы.
+          Глобальный список единиц продажи: штука, упаковка, ящик и другие.
         </p>
       </div>
       <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
@@ -809,8 +809,8 @@ export const EditCatalogSaleUnitsDrawer: React.FC<
       <AppDrawer.Content className="w-full">
         <div className="flex min-h-0 flex-1 flex-col">
           <AppDrawer.Header
-            title="Единицы измерения"
-            description="Создавайте форматы, переименовывайте их и меняйте порядок перетаскиванием."
+            title="Единицы продажи"
+            description="Создавайте единицы продажи, переименовывайте их и меняйте порядок перетаскиванием."
             withCloseButton={!isMutating}
           />
           <hr />
@@ -823,7 +823,7 @@ export const EditCatalogSaleUnitsDrawer: React.FC<
                     className="h-9 min-w-0 px-3 py-2 text-sm"
                     value={createDraft.name}
                     disabled={isBusy}
-                    placeholder="Новый формат"
+                    placeholder="Новая единица продажи"
                     onChange={(event) =>
                       setCreateDraft({ name: event.target.value })
                     }

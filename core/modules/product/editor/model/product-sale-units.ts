@@ -165,20 +165,20 @@ export function validateSaleUnitListForSubmit(
 
     if (!catalogSaleUnitId && !displayName) {
       return {
-        message: `${label}: выберите формат продажи из справочника.`,
+        message: `${label}: выберите единицу продажи из справочника.`,
       };
     }
 
     if (!catalogSaleUnitId) {
       return {
-        message: `${label}: выберите формат продажи из справочника.`,
+        message: `${label}: выберите единицу продажи из справочника.`,
       };
     }
 
     if (catalogSaleUnitId) {
       if (usedCatalogSaleUnitIds.has(catalogSaleUnitId)) {
         return {
-          message: `${label}: один формат продажи нельзя добавить дважды.`,
+          message: `${label}: одну единицу продажи нельзя привязать дважды.`,
         };
       }
       usedCatalogSaleUnitIds.add(catalogSaleUnitId);
@@ -186,7 +186,7 @@ export function validateSaleUnitListForSubmit(
 
     if (baseQuantity === null || baseQuantity <= 0) {
       return {
-        message: `${label}: укажите, из какой единицы собирается формат.`,
+        message: `${label}: укажите, из какой единицы собирается единица продажи.`,
       };
     }
 
@@ -195,7 +195,7 @@ export function validateSaleUnitListForSubmit(
       !isCatalogPriceValueCompatible(price, priceFormatMode)
     ) {
       return {
-        message: `${label}: укажите корректную цену формата продажи.`,
+        message: `${label}: укажите корректную цену единицы продажи.`,
       };
     }
   }

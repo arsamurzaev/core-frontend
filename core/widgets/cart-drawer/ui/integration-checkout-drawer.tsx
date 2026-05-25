@@ -128,11 +128,7 @@ export const IntegrationCheckoutDrawer: React.FC<
       mergedData.integrationExternalItemCode ||
       mergedData.hallTableCode ||
       mergedData.tableCode ||
-      mergedData.t ||
-      mergedData.integrationPayloadToken ||
-      mergedData.hallPayloadToken ||
-      mergedData.payloadToken ||
-      mergedData.h,
+      mergedData.t,
   );
   const isSubmitDisabled = disabled || isBusy || Boolean(validationError);
 
