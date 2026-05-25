@@ -124,7 +124,7 @@ function getSaleUnitSource(params: {
   }
 
   const baseVariant = getBaseProductVariant(params.detailedProduct);
-  if (getProductSaleUnits(baseVariant).length > 0) {
+  if (baseVariant && getProductSaleUnits(baseVariant).length > 0) {
     return baseVariant;
   }
 
