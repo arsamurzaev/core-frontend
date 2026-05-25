@@ -90,19 +90,28 @@ describe("shouldRenderCartProductVariantDrawer", () => {
       shouldRenderCartProductVariantDrawer({
         canUseCatalogSaleUnits: true,
         canUseProductVariants: false,
-        hasSaleUnitChoices: true,
         isVariantDrawerOpen: true,
         requiresVariantSelection: false,
       }),
     ).toBe(true);
   });
 
-  it("does not render a sale-unit drawer when the product has no sale units", () => {
+  it("allows sale-unit drawers to load detailed units when card data has none", () => {
     expect(
       shouldRenderCartProductVariantDrawer({
         canUseCatalogSaleUnits: true,
         canUseProductVariants: false,
-        hasSaleUnitChoices: false,
+        isVariantDrawerOpen: true,
+        requiresVariantSelection: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("does not render a sale-unit drawer when the sale-unit capability is disabled", () => {
+    expect(
+      shouldRenderCartProductVariantDrawer({
+        canUseCatalogSaleUnits: false,
+        canUseProductVariants: false,
         isVariantDrawerOpen: true,
         requiresVariantSelection: false,
       }),

@@ -114,6 +114,27 @@ function getBaseProductVariant(
   );
 }
 
+function getSaleUnitSource(params: {
+  detailedProduct: ProductWithDetailsDto | null | undefined;
+  product: ProductWithAttributesDto;
+  selectedVariant: ProductVariantDto | null;
+}): ProductVariantDto | ProductWithAttributesDto | ProductWithDetailsDto {
+  if (params.selectedVariant) {
+    return params.selectedVariant;
+  }
+
+  const baseVariant = getBaseProductVariant(params.detailedProduct);
+  if (getProductSaleUnits(baseVariant).length > 0) {
+    return baseVariant;
+  }
+
+  if (getProductSaleUnits(params.detailedProduct).length > 0) {
+    return params.detailedProduct;
+  }
+
+  return params.product;
+}
+
 function resolveSelectionMaxQuantity(params: {
   product: ProductWithAttributesDto;
   selectedSaleUnit: ProductSaleUnit | null;
@@ -401,16 +422,19 @@ export function CartProductVariantDrawer({
   );
   const saleUnitSource = React.useMemo(
     () =>
-      selectedVariant ??
-      (detailedProduct ? getBaseProductVariant(detailedProduct) : null),
-    [detailedProduct, selectedVariant],
+      getSaleUnitSource({
+        detailedProduct,
+        product,
+        selectedVariant,
+      }),
+    [detailedProduct, product, selectedVariant],
   );
   const saleUnits = React.useMemo(
     () =>
       canUseCatalogSaleUnits
-        ? getProductSaleUnits(saleUnitSource ?? detailedProduct)
+        ? getProductSaleUnits(saleUnitSource)
         : [],
-    [canUseCatalogSaleUnits, detailedProduct, saleUnitSource],
+    [canUseCatalogSaleUnits, saleUnitSource],
   );
   const selectedSaleUnit = React.useMemo(
     () => {
@@ -427,6 +451,7 @@ export function CartProductVariantDrawer({
   const shouldWaitForSaleUnits =
     canUseCatalogSaleUnits &&
     !shouldShowVariantStep &&
+    saleUnits.length === 0 &&
     !detailedProduct &&
     isFetchingDetailedProduct;
   const shouldShowSaleUnitStep =
@@ -436,7 +461,10 @@ export function CartProductVariantDrawer({
     !shouldWaitForSaleUnits;
   const step: DrawerStep = shouldShowVariantStep
     ? "variant"
-    : isDetailedProductError && canUseCatalogSaleUnits && !detailedProduct
+    : isDetailedProductError &&
+        canUseCatalogSaleUnits &&
+        saleUnits.length === 0 &&
+        !detailedProduct
       ? "error"
       : shouldWaitForSaleUnits
         ? "loading"
