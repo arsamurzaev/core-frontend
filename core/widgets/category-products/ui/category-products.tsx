@@ -14,6 +14,7 @@ import {
   useCart,
 } from "@/core/modules/cart";
 import {
+  isIikoProduct,
   isMoySkladProduct,
   ProductCardSkeleton,
   ProductLink,
@@ -105,6 +106,9 @@ const ProductSectionCard = React.memo(
             data={product}
             imageLoading="eager"
             isDetailed={isDetailed}
+            isIikoLinked={
+              !shouldUseCartUi && isAuthenticated && isIikoProduct(product)
+            }
             isMoySkladLinked={
               !shouldUseCartUi && isAuthenticated && isMoySkladProduct(product)
             }
@@ -113,6 +117,7 @@ const ProductSectionCard = React.memo(
                 <EditProductCardAction
                   categoryId={categoryId}
                   categoryPosition={categoryPosition}
+                  isIikoLinked={isIikoProduct(product)}
                   isMoySkladLinked={isMoySkladProduct(product)}
                   productId={product.id}
                   status={product.status}
@@ -142,6 +147,7 @@ const ProductSectionCard = React.memo(
           <EditProductCardAction
             categoryId={categoryId}
             categoryPosition={categoryPosition}
+            isIikoLinked={isIikoProduct(product)}
             isMoySkladLinked={isMoySkladProduct(product)}
             productId={product.id}
             status={product.status}

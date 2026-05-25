@@ -33,6 +33,7 @@ describe("buildProductEditorCustomFields", () => {
       disableProductTypeField: true,
       includeCategories: true,
       onProductTypeChange,
+      productTypeLockIntegrationName: "iiko",
       productTypeOptions: [{ label: "Service", value: "type-1" }],
       shouldUseBrands: true,
       supportsCategoryDetails: true,
@@ -52,7 +53,8 @@ describe("buildProductEditorCustomFields", () => {
       "Бренд",
     );
     expect(productTypeField?.disabled).toBe(true);
-    expect(String(productTypeField?.description)).toContain("MoySklad");
+    expect(String(productTypeField?.description)).toContain("iiko");
+    expect(String(productTypeField?.description)).not.toContain("MoySklad");
     expect(productTypeField?.render).toEqual(expect.any(Function));
     expect(categoryField?.multiple).toBe(true);
     expect(categoryField?.component).toEqual(expect.any(Function));

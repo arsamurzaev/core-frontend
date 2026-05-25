@@ -48,6 +48,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
   footerAction,
   hidePriceWhenFooterAction,
   imageLoading,
+  isIikoLinked,
   isMoySkladLinked,
   isDetailed,
   plugin = DEFAULT_PRODUCT_CARD_PLUGIN,
@@ -77,6 +78,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
         headerMeta={variantsLine?.value}
         hidePriceWhenFooterAction={hidePriceWhenFooterAction}
         imageLoading={imageLoading}
+        isIikoLinked={isIikoLinked}
         isMoySkladLinked={isMoySkladLinked}
         isDetailed={isDetailed}
       />

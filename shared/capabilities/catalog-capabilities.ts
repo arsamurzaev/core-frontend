@@ -4,6 +4,7 @@ import {
   AuthUserDtoRole,
   type CatalogCurrentFeaturesDto,
   type CatalogCurrentFeaturesDtoInventoryMode,
+  useCatalogAdvancedSettingsControllerGetIikoStatus,
   useCatalogAdvancedSettingsControllerGetMoySkladStatus,
   useCatalogControllerGetCurrentFeatures,
 } from "@/shared/api/generated/react-query";
@@ -17,6 +18,7 @@ export const CATALOG_CAPABILITIES = [
   "catalog.sale_units",
   "inventory.internal",
   "integration.moysklad",
+  "integration.iiko",
 ] as const;
 
 export type CatalogCapability = (typeof CATALOG_CAPABILITIES)[number];
@@ -43,6 +45,7 @@ export type CatalogCapabilityFlags = {
   canUseCatalogSaleUnits: boolean;
   canUseInternalInventory: boolean;
   canUseMoySkladIntegration: boolean;
+  canUseIikoIntegration: boolean;
 };
 
 export type CatalogCapabilities = CatalogCapabilityFlags & {
@@ -53,7 +56,10 @@ export type CatalogCapabilities = CatalogCapabilityFlags & {
 };
 type ProductStructureCapabilityFlags = Pick<
   CatalogCapabilityFlags,
-  "canUseMoySkladIntegration" | "canUseProductTypes" | "canUseProductVariants"
+  | "canUseIikoIntegration"
+  | "canUseMoySkladIntegration"
+  | "canUseProductTypes"
+  | "canUseProductVariants"
 >;
 export type CatalogProductStructureVisibility = {
   canUseProductTypes: boolean;
@@ -62,6 +68,7 @@ export type CatalogProductStructureVisibility = {
 };
 export type CatalogBetaField =
   | "internalInventory"
+  | "iikoIntegration"
   | "moyskladIntegration"
   | "productTypes"
   | "productVariants"
@@ -83,6 +90,7 @@ export const DEFAULT_CAPABILITY_MAP: CatalogCapabilityMap = {
   "catalog.sale_units": false,
   "inventory.internal": false,
   "integration.moysklad": false,
+  "integration.iiko": false,
 };
 
 export const DEFAULT_CATALOG_CAPABILITIES: CatalogCapabilities = {
@@ -92,6 +100,7 @@ export const DEFAULT_CATALOG_CAPABILITIES: CatalogCapabilities = {
   canUseCatalogSaleUnits: false,
   canUseInternalInventory: false,
   canUseMoySkladIntegration: false,
+  canUseIikoIntegration: false,
   raw: DEFAULT_CAPABILITY_MAP,
   effective: DEFAULT_CAPABILITY_MAP,
   definitions: [],
@@ -149,6 +158,8 @@ export function resolveCatalogCapabilities(
       features?.canUseInternalInventory ?? effective["inventory.internal"],
     canUseMoySkladIntegration:
       features?.canUseMoySkladIntegration ?? effective["integration.moysklad"],
+    canUseIikoIntegration:
+      features?.canUseIikoIntegration ?? effective["integration.iiko"],
     raw,
     effective,
     definitions:
@@ -214,14 +225,23 @@ export const resolveCatalogFeatures = resolveCatalogCapabilities;
 export type CatalogFeatureFlags = CatalogCapabilityFlags;
 
 export function shouldHideProductStructureControlsForCatalogManager(params: {
-  capabilities: Pick<ProductStructureCapabilityFlags, "canUseMoySkladIntegration">;
+  capabilities: Pick<
+    ProductStructureCapabilityFlags,
+    "canUseIikoIntegration" | "canUseMoySkladIntegration"
+  >;
+  iikoConfigured?: boolean;
   moySkladConfigured?: boolean;
   userRole?: string | null;
 }): boolean {
+  const hasConfiguredExternalMenu =
+    (params.capabilities.canUseMoySkladIntegration &&
+      params.moySkladConfigured !== false) ||
+    (params.capabilities.canUseIikoIntegration &&
+      params.iikoConfigured !== false);
+
   return (
     params.userRole === AuthUserDtoRole.CATALOG &&
-    params.capabilities.canUseMoySkladIntegration &&
-    params.moySkladConfigured !== false
+    hasConfiguredExternalMenu
   );
 }
 
@@ -246,9 +266,20 @@ export function useCatalogProductStructureVisibility(
     isAuthenticated &&
     user?.role === AuthUserDtoRole.CATALOG &&
     capabilities.canUseMoySkladIntegration;
-  const statusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
+  const shouldCheckIikoStatus =
+    isAuthenticated &&
+    user?.role === AuthUserDtoRole.CATALOG &&
+    capabilities.canUseIikoIntegration;
+  const moySkladStatusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
     query: {
       enabled: shouldCheckMoySkladStatus,
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+    },
+  });
+  const iikoStatusQuery = useCatalogAdvancedSettingsControllerGetIikoStatus({
+    query: {
+      enabled: shouldCheckIikoStatus,
       staleTime: 60_000,
       refetchOnWindowFocus: false,
     },
@@ -256,8 +287,11 @@ export function useCatalogProductStructureVisibility(
   const hideProductStructureControls =
     shouldHideProductStructureControlsForCatalogManager({
       capabilities,
+      iikoConfigured: shouldCheckIikoStatus
+        ? iikoStatusQuery.data?.configured
+        : false,
       moySkladConfigured: shouldCheckMoySkladStatus
-        ? statusQuery.data?.configured
+        ? moySkladStatusQuery.data?.configured
         : false,
       userRole: user?.role,
     });
@@ -298,10 +332,17 @@ export function canShowMoySklad(
   return capabilities.canUseMoySkladIntegration;
 }
 
+export function canShowIiko(
+  capabilities: Pick<CatalogCapabilities, "canUseIikoIntegration">,
+): boolean {
+  return capabilities.canUseIikoIntegration;
+}
+
 export function canShowBetaField(
   capabilities: Pick<
     CatalogCapabilities,
     | "canUseCatalogSaleUnits"
+    | "canUseIikoIntegration"
     | "canUseInternalInventory"
     | "canUseMoySkladIntegration"
     | "canUseProductTypes"
@@ -312,6 +353,8 @@ export function canShowBetaField(
   switch (field) {
     case "internalInventory":
       return capabilities.canUseInternalInventory;
+    case "iikoIntegration":
+      return capabilities.canUseIikoIntegration;
     case "moyskladIntegration":
       return capabilities.canUseMoySkladIntegration;
     case "productTypes":

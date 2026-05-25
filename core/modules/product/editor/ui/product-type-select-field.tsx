@@ -41,7 +41,7 @@ export function ProductTypeSelectField({
       disabled={disabled || readOnly}
       onValueChange={(nextValue) => {
         const resolvedValue =
-          nextValue === EMPTY_PRODUCT_TYPE_VALUE ? undefined : nextValue;
+          nextValue === EMPTY_PRODUCT_TYPE_VALUE ? "" : nextValue;
 
         field.onChange(resolvedValue);
         onProductTypeChange(resolvedValue || null);

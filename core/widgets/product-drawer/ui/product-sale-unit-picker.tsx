@@ -1,6 +1,9 @@
 "use client";
 
-import type { ProductSaleUnit } from "@/core/modules/product/model/sale-units";
+import {
+  getProductSaleUnitContainsText,
+  type ProductSaleUnit,
+} from "@/core/modules/product/model/sale-units";
 import {
   formatCatalogPrice,
   type CatalogPriceFormatMode,
@@ -36,6 +39,8 @@ export function ProductSaleUnitPicker({
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {saleUnits.map((unit) => {
           const isSelected = selectedSaleUnitId === unit.id;
+          const containsText =
+            getProductSaleUnitContainsText(unit) ?? "Минимальная единица";
 
           return (
             <Button
@@ -44,18 +49,18 @@ export function ProductSaleUnitPicker({
               variant={isSelected ? "default" : "outline"}
               onClick={() => onChange(unit.id)}
               className={cn(
-                "h-auto min-h-16 flex-col items-start justify-center rounded-lg px-3 py-2 text-left",
+                "h-auto min-h-16 flex-col items-start justify-center gap-0.5 rounded-lg px-3 py-2 text-left",
                 isSelected && "shadow-custom",
               )}
             >
-              <span className="max-w-full truncate text-sm font-semibold">
+              <span className="max-w-full truncate text-xs font-normal">
                 {unit.label}
               </span>
-              <span className="text-[11px] font-normal opacity-80">
+              <span className="text-sm font-semibold opacity-90">
                 {formatCatalogPrice(unit.price, priceFormatMode)} {currency}
               </span>
-              <span className="text-[10px] font-normal opacity-70">
-                Внутри: {unit.baseQuantity}
+              <span className="max-w-full truncate text-[10px] font-normal opacity-70">
+                {containsText}
               </span>
             </Button>
           );

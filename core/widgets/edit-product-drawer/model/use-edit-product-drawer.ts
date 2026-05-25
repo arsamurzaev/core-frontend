@@ -3,7 +3,10 @@
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
 import { useProductEditorForm } from "@/core/modules/product/editor/model/use-product-editor-form";
-import { isMoySkladProduct } from "@/core/modules/product/model/moysklad-product";
+import {
+  getProductIntegrationProviderLabel,
+  isIntegratedProduct,
+} from "@/core/modules/product/model/moysklad-product";
 import {
   buildVariantsFormValueFromExisting,
   normalizeVariantsFormValue,
@@ -68,23 +71,45 @@ export function useEditProductDrawer(
   });
   const product = productQuery.data ?? null;
   const currentProductTypeId = product?.productType?.id ?? null;
-  const isMoySkladLinkedProduct = isMoySkladProduct(product);
+  const isIntegratedLinkedProduct = isIntegratedProduct(product);
+  const canEditProductStructure = !isIntegratedLinkedProduct;
+  const canDeleteProduct = !isIntegratedLinkedProduct;
+  const productTypeLockIntegrationName =
+    getProductIntegrationProviderLabel(product);
   const restoredVariantMatrixKeyRef = React.useRef<string | null>(null);
+  const hasManualProductTypeChangeRef = React.useRef(false);
 
-  const handleProductTypeChange = React.useCallback(() => {
-    if (!productStructure.canUseProductTypes || isMoySkladLinkedProduct) {
-      form.setValue("productTypeId", currentProductTypeId ?? undefined, {
-        shouldDirty: false,
-        shouldTouch: false,
-        shouldValidate: false,
-      });
-    }
-  }, [
-    currentProductTypeId,
-    form,
-    isMoySkladLinkedProduct,
-    productStructure.canUseProductTypes,
-  ]);
+  const handleProductTypeChange = React.useCallback(
+    (nextProductTypeId: string | null) => {
+      if (!productStructure.canUseProductTypes || !canEditProductStructure) {
+        form.setValue("productTypeId", currentProductTypeId ?? undefined, {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
+        });
+        hasManualProductTypeChangeRef.current = false;
+        return;
+      }
+
+      hasManualProductTypeChangeRef.current =
+        nextProductTypeId !== currentProductTypeId;
+    },
+    [
+      currentProductTypeId,
+      form,
+      canEditProductStructure,
+      productStructure.canUseProductTypes,
+    ],
+  );
+
+  const shouldSkipSchemaDrivenReset = React.useCallback(
+    () => hasManualProductTypeChangeRef.current,
+    [],
+  );
+
+  React.useEffect(() => {
+    hasManualProductTypeChangeRef.current = false;
+  }, [productId]);
 
   const {
     formFields,
@@ -96,13 +121,15 @@ export function useEditProductDrawer(
     form,
     sourceAttributes: type.attributes,
     disableProductTypeField:
-      !productStructure.canUseProductTypes || isMoySkladLinkedProduct,
+      !productStructure.canUseProductTypes || !canEditProductStructure,
     canUseProductTypes: productStructure.canUseProductTypes,
-    canUseProductVariants: productStructure.canUseProductVariants,
+    canUseProductVariants:
+      productStructure.canUseProductVariants && canEditProductStructure,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     isActive: open,
     supportsBrands,
     supportsCategoryDetails,
+    productTypeLockIntegrationName,
     onProductTypeChange: handleProductTypeChange,
   });
   const persistedAttributeValues = React.useMemo(
@@ -132,6 +159,7 @@ export function useEditProductDrawer(
     productQueryIsError: productQuery.isError,
     resetFromMedia: imageEditor.resetFromMedia,
     setOpen,
+    shouldSkipSchemaDrivenReset,
   });
   const variantMatrixRestoreKey = React.useMemo(() => {
     if (!product || variantAttributes.length === 0) {
@@ -165,6 +193,7 @@ export function useEditProductDrawer(
   }, [product, variantAttributes]);
 
   const handleCloseDrawer = React.useCallback(() => {
+    hasManualProductTypeChangeRef.current = false;
     drawerState.closeDrawer();
     onExternalOpenChange?.(false);
   }, [drawerState, onExternalOpenChange]);
@@ -172,6 +201,7 @@ export function useEditProductDrawer(
   React.useEffect(() => {
     if (!open) {
       restoredVariantMatrixKeyRef.current = null;
+      hasManualProductTypeChangeRef.current = false;
     }
   }, [open]);
 
@@ -224,6 +254,13 @@ export function useEditProductDrawer(
       return;
     }
 
+    if (!canDeleteProduct) {
+      toast.error(
+        "Товар управляется интеграцией и удаляется только через синхронизацию.",
+      );
+      return;
+    }
+
     if (!product) {
       const message = getMissingProductMessage({
         error: productQuery.error,
@@ -253,6 +290,7 @@ export function useEditProductDrawer(
       },
     });
   }, [
+    canDeleteProduct,
     drawerState,
     handleCloseDrawer,
     isBusy,
@@ -267,7 +305,8 @@ export function useEditProductDrawer(
     closeDrawer: handleCloseDrawer,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     canUseProductTypes: productStructure.canUseProductTypes,
-    canUseProductVariants: productStructure.canUseProductVariants,
+    canUseProductVariants:
+      productStructure.canUseProductVariants && canEditProductStructure,
     form,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isSubmitting,
@@ -292,6 +331,11 @@ export function useEditProductDrawer(
     void handleBaseSubmit();
   }, [handleBaseSubmit]);
 
+  const handleReset = React.useCallback(() => {
+    hasManualProductTypeChangeRef.current = false;
+    drawerState.handleReset();
+  }, [drawerState]);
+
   return {
     cropperApplyLabel: imageEditor.cropperApplyLabel,
     cropperDescription: imageEditor.cropperDescription,
@@ -299,11 +343,13 @@ export function useEditProductDrawer(
     cropperInitialIndex: imageEditor.cropperInitialIndex,
     cropperMode: imageEditor.cropperMode,
     cropperTitle: imageEditor.cropperTitle,
+    canDeleteProduct,
     errorMessage: drawerState.errorMessage,
     features: {
       ...features,
       canUseProductTypes: productStructure.canUseProductTypes,
-      canUseProductVariants: productStructure.canUseProductVariants,
+      canUseProductVariants:
+        productStructure.canUseProductVariants && canEditProductStructure,
     },
     form,
     formFields,
@@ -315,7 +361,7 @@ export function useEditProductDrawer(
     handleFilesChange: imageEditor.handleFilesChange,
     handleDelete,
     handleOpenChange: drawerState.handleOpenChange,
-    handleReset: drawerState.handleReset,
+    handleReset,
     handleSelectItemForSwap: imageEditor.handleSelectItemForSwap,
     handleSubmit,
     handleToggleReorderMode: imageEditor.handleToggleReorderMode,

@@ -121,6 +121,10 @@ const VALUE_SOURCE_LABELS: Record<string, string> = {
   IMPORTED: "Из импорта",
 };
 
+function isImportedEnumValue(value: AttributeEnumValueDto): boolean {
+  return value.source === "IMPORTED";
+}
+
 function normalizeText(value: string): string | undefined {
   const text = value.trim();
   return text ? text : undefined;
@@ -282,7 +286,12 @@ export const EditCatalogProductTypesDrawer: React.FC<{
   });
   const enumValuesQuery = useAttributeControllerGetEnumValues(
     selectedAttributeId,
-    { query: { enabled: open && Boolean(selectedAttributeId), staleTime: 30_000 } },
+    {
+      query: {
+        enabled: open && Boolean(selectedAttributeId),
+        staleTime: 30_000,
+      },
+    },
   );
 
   const createType = useProductTypeControllerCreate();
@@ -375,7 +384,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
     if (
       !selectedAttributeId ||
-      !variantAttributes.some((item) => item.attributeId === selectedAttributeId)
+      !variantAttributes.some(
+        (item) => item.attributeId === selectedAttributeId,
+      )
     ) {
       setSelectedAttributeId(variantAttributes[0].attributeId);
     }
@@ -419,7 +430,12 @@ export const EditCatalogProductTypesDrawer: React.FC<{
           attributes: nextAttributes,
         },
       });
-      await refreshTypeQueries(queryClient, selectedType.id, undefined, catalogTypeId);
+      await refreshTypeQueries(
+        queryClient,
+        selectedType.id,
+        undefined,
+        catalogTypeId,
+      );
     },
     [catalogTypeId, queryClient, selectedType, updateType],
   );
@@ -427,10 +443,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
   const addQuickVariantValues = React.useCallback((values: string[]) => {
     setQuickForm((current) => ({
       ...current,
-      variantValues: normalizeEnumValues([
-        ...current.variantValues,
-        ...values,
-      ]),
+      variantValues: normalizeEnumValues([...current.variantValues, ...values]),
     }));
   }, []);
 
@@ -477,7 +490,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
     }
 
     if (!currentCatalogTypeId) {
-      setErrorMessage("Не удалось определить текущий каталог. Обновите страницу.");
+      setErrorMessage(
+        "Не удалось определить текущий каталог. Обновите страницу.",
+      );
       return;
     }
 
@@ -589,12 +604,24 @@ export const EditCatalogProductTypesDrawer: React.FC<{
           attributes: getAttributePayload(selectedType.attributes),
         },
       });
-      await refreshTypeQueries(queryClient, selectedType.id, undefined, catalogTypeId);
+      await refreshTypeQueries(
+        queryClient,
+        selectedType.id,
+        undefined,
+        catalogTypeId,
+      );
       toast.success("Тип товара сохранен.");
     } catch (error) {
       handleError(error);
     }
-  }, [catalogTypeId, handleError, queryClient, selectedType, typeForm, updateType]);
+  }, [
+    catalogTypeId,
+    handleError,
+    queryClient,
+    selectedType,
+    typeForm,
+    updateType,
+  ]);
 
   const handleArchiveType = React.useCallback(async () => {
     if (!selectedType) return;
@@ -607,8 +634,15 @@ export const EditCatalogProductTypesDrawer: React.FC<{
     try {
       setErrorMessage(null);
       await archiveType.mutateAsync({ id: selectedType.id });
-      await refreshTypeQueries(queryClient, selectedType.id, undefined, catalogTypeId);
-      setSelectedTypeId(activeTypes.find((type) => type.id !== selectedType.id)?.id ?? "");
+      await refreshTypeQueries(
+        queryClient,
+        selectedType.id,
+        undefined,
+        catalogTypeId,
+      );
+      setSelectedTypeId(
+        activeTypes.find((type) => type.id !== selectedType.id)?.id ?? "",
+      );
       toast.success("Тип товара отправлен в архив.");
     } catch (error) {
       handleError(error);
@@ -634,7 +668,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
     const currentCatalogTypeId =
       catalogQuery.data?.typeId ?? (await catalogQuery.refetch()).data?.typeId;
     if (!currentCatalogTypeId) {
-      setErrorMessage("Не удалось определить текущий каталог. Обновите страницу.");
+      setErrorMessage(
+        "Не удалось определить текущий каталог. Обновите страницу.",
+      );
       return;
     }
 
@@ -693,8 +729,11 @@ export const EditCatalogProductTypesDrawer: React.FC<{
     ) => {
       try {
         setErrorMessage(null);
-        const nextAttributes = getAttributePayload(typeAttributes).map((entry) =>
-          entry.attributeId === item.attributeId ? { ...entry, ...patch } : entry,
+        const nextAttributes = getAttributePayload(typeAttributes).map(
+          (entry) =>
+            entry.attributeId === item.attributeId
+              ? { ...entry, ...patch }
+              : entry,
         );
         await updateTypeAttributes(nextAttributes);
       } catch (error) {
@@ -709,7 +748,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
       const sorted = typeAttributes
         .slice()
         .sort((left, right) => left.displayOrder - right.displayOrder);
-      const index = sorted.findIndex((item) => item.attributeId === attributeId);
+      const index = sorted.findIndex(
+        (item) => item.attributeId === attributeId,
+      );
       const targetIndex = index + direction;
       if (index < 0 || targetIndex < 0 || targetIndex >= sorted.length) return;
 
@@ -834,6 +875,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
   const handleUpdateValue = React.useCallback(
     async (value: AttributeEnumValueDto, displayName: string) => {
       if (displayName === (value.displayName ?? value.value)) return;
+      if (isImportedEnumValue(value)) return;
 
       try {
         setErrorMessage(null);
@@ -881,13 +923,15 @@ export const EditCatalogProductTypesDrawer: React.FC<{
             updateValue.mutateAsync({
               attributeId: item.attributeId,
               id: item.id,
-              data: {
-                value: item.value,
-                displayName: item.displayName ?? undefined,
-                displayOrder: nextIndex,
-                businessId: item.businessId ?? undefined,
-                source: item.source,
-              },
+              data: isImportedEnumValue(item)
+                ? { displayOrder: nextIndex }
+                : {
+                    value: item.value,
+                    displayName: item.displayName ?? undefined,
+                    displayOrder: nextIndex,
+                    businessId: item.businessId ?? undefined,
+                    source: item.source,
+                  },
             }),
           ),
         );
@@ -913,6 +957,8 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
   const handleRemoveValue = React.useCallback(
     async (value: AttributeEnumValueDto) => {
+      if (isImportedEnumValue(value)) return;
+
       try {
         setErrorMessage(null);
         await removeValue.mutateAsync({
@@ -935,6 +981,8 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
   const handleMergeValue = React.useCallback(
     async (value: AttributeEnumValueDto) => {
+      if (isImportedEnumValue(value)) return;
+
       const targetId = mergeTargetBySource[value.id];
       if (!targetId) return;
 
@@ -1070,7 +1118,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                       value={quickValueDraft}
                       disabled={isBusy}
                       placeholder="Например: 42"
-                      onChange={(event) => setQuickValueDraft(event.target.value)}
+                      onChange={(event) =>
+                        setQuickValueDraft(event.target.value)
+                      }
                       onPaste={handleQuickValuePaste}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") {
@@ -1132,7 +1182,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         variant="outline"
                         className="h-8 rounded-full px-3"
                         disabled={isBusy}
-                        onClick={() => addQuickVariantValues([...preset.values])}
+                        onClick={() =>
+                          addQuickVariantValues([...preset.values])
+                        }
                         title={preset.values.join(", ")}
                       >
                         {preset.label}
@@ -1199,14 +1251,18 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
                   <div className="grid gap-2">
                     {typesQuery.isLoading ? (
-                      <p className="text-sm text-muted-foreground">Загрузка...</p>
+                      <p className="text-sm text-muted-foreground">
+                        Загрузка...
+                      </p>
                     ) : null}
 
                     {activeTypes.map((type) => (
                       <Button
                         key={type.id}
                         type="button"
-                        variant={selectedTypeId === type.id ? "secondary" : "outline"}
+                        variant={
+                          selectedTypeId === type.id ? "secondary" : "outline"
+                        }
                         className="h-auto justify-start px-3 py-2 text-left"
                         disabled={isBusy}
                         onClick={() => setSelectedTypeId(type.id)}
@@ -1216,8 +1272,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                             {type.name}
                           </span>
                           <span className="block truncate text-xs text-muted-foreground">
-                            {(type.attributes ?? []).filter((item) => item.isVariant)
-                              .length || 0}{" "}
+                            {(type.attributes ?? []).filter(
+                              (item) => item.isVariant,
+                            ).length || 0}{" "}
                             свойств выбора
                           </span>
                         </span>
@@ -1242,7 +1299,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                             key={type.id}
                             type="button"
                             variant={
-                              selectedTypeId === type.id ? "secondary" : "outline"
+                              selectedTypeId === type.id
+                                ? "secondary"
+                                : "outline"
                             }
                             className="h-auto justify-start px-3 py-2 text-left opacity-70"
                             disabled={isBusy}
@@ -1312,7 +1371,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         </details>
 
                         <div className="space-y-2">
-                          <Label htmlFor="selected-type-description">Описание</Label>
+                          <Label htmlFor="selected-type-description">
+                            Описание
+                          </Label>
                           <Textarea
                             id="selected-type-description"
                             value={typeForm.description}
@@ -1342,7 +1403,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                             onClick={() => void handleArchiveType()}
                           >
                             <Archive className="size-4" />
-                            В архив
+                            <span>В архив</span>
                           </Button>
                         </div>
                       </section>
@@ -1435,8 +1496,13 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                 left.displayOrder - right.displayOrder,
                             )
                             .map((item, index) => {
-                              const attribute = attributesById.get(item.attributeId);
-                              const canEditValues = isEnumAttribute(item, attribute);
+                              const attribute = attributesById.get(
+                                item.attributeId,
+                              );
+                              const canEditValues = isEnumAttribute(
+                                item,
+                                attribute,
+                              );
 
                               return (
                                 <div
@@ -1467,9 +1533,12 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                         </Badge>
                                       ) : null}
                                       {item.isRequired ? (
-                                        <Badge variant="outline">Обязательная</Badge>
+                                        <Badge variant="outline">
+                                          Обязательная
+                                        </Badge>
                                       ) : null}
-                                      {selectedAttributeId === item.attributeId ? (
+                                      {selectedAttributeId ===
+                                      item.attributeId ? (
                                         <Badge>Значения</Badge>
                                       ) : null}
                                     </div>
@@ -1480,7 +1549,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                       <Input
                                         key={attribute.updatedAt}
                                         defaultValue={attribute.displayName}
-                                        disabled={isBusy || selectedType.isArchived}
+                                        disabled={
+                                          isBusy || selectedType.isArchived
+                                        }
                                         onBlur={(event) =>
                                           void handleUpdateAttributeDetails(
                                             attribute,
@@ -1499,9 +1570,12 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                             isBusy || selectedType.isArchived
                                           }
                                           onCheckedChange={(checked) =>
-                                            void handlePatchTypeAttribute(item, {
-                                              isVariant: checked,
-                                            })
+                                            void handlePatchTypeAttribute(
+                                              item,
+                                              {
+                                                isVariant: checked,
+                                              },
+                                            )
                                           }
                                         />
                                         Использовать для выбора товара
@@ -1513,9 +1587,12 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                             isBusy || selectedType.isArchived
                                           }
                                           onCheckedChange={(checked) =>
-                                            void handlePatchTypeAttribute(item, {
-                                              isRequired: checked,
-                                            })
+                                            void handlePatchTypeAttribute(
+                                              item,
+                                              {
+                                                isRequired: checked,
+                                              },
+                                            )
                                           }
                                         />
                                         Обязательная
@@ -1569,7 +1646,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                       size="icon"
                                       variant="outline"
                                       className="size-8"
-                                      disabled={isBusy || selectedType.isArchived}
+                                      disabled={
+                                        isBusy || selectedType.isArchived
+                                      }
                                       title="Убрать из типа"
                                       onClick={() =>
                                         void handleRemoveAttributeFromType(
@@ -1599,7 +1678,8 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                               Значения свойства
                             </h3>
                             <p className="mt-1 text-sm text-muted-foreground">
-                              Эти значения увидит пользователь при выборе товара.
+                              Эти значения увидит пользователь при выборе
+                              товара.
                             </p>
                           </div>
                           <Select
@@ -1626,24 +1706,24 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         {selectedAttribute ? (
                           <>
                             <div className="flex flex-wrap gap-2">
-                              {(Object.keys(VALUE_FILTERS) as ValueFilter[]).map(
-                                (filter) => (
-                                  <Button
-                                    key={filter}
-                                    type="button"
-                                    size="sm"
-                                    variant={
-                                      valueFilter === filter
-                                        ? "secondary"
-                                        : "outline"
-                                    }
-                                    disabled={isBusy}
-                                    onClick={() => setValueFilter(filter)}
-                                  >
-                                    {VALUE_FILTERS[filter]}
-                                  </Button>
-                                ),
-                              )}
+                              {(
+                                Object.keys(VALUE_FILTERS) as ValueFilter[]
+                              ).map((filter) => (
+                                <Button
+                                  key={filter}
+                                  type="button"
+                                  size="sm"
+                                  variant={
+                                    valueFilter === filter
+                                      ? "secondary"
+                                      : "outline"
+                                  }
+                                  disabled={isBusy}
+                                  onClick={() => setValueFilter(filter)}
+                                >
+                                  {VALUE_FILTERS[filter]}
+                                </Button>
+                              ))}
                             </div>
 
                             <div className="flex gap-2">
@@ -1704,10 +1784,13 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
                                   <Input
                                     key={value.updatedAt}
-                                    defaultValue={value.displayName ?? value.value}
+                                    defaultValue={
+                                      value.displayName ?? value.value
+                                    }
                                     disabled={
                                       isBusy ||
                                       selectedType.isArchived ||
+                                      isImportedEnumValue(value) ||
                                       Boolean(value.mergedIntoId)
                                     }
                                     onBlur={(event) =>
@@ -1749,7 +1832,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                         Boolean(value.mergedIntoId)
                                       }
                                       title="Ниже"
-                                      onClick={() => void handleMoveValue(value, 1)}
+                                      onClick={() =>
+                                        void handleMoveValue(value, 1)
+                                      }
                                     >
                                       <ArrowDown className="size-4" />
                                     </Button>
@@ -1761,31 +1846,39 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                       disabled={
                                         isBusy ||
                                         selectedType.isArchived ||
+                                        isImportedEnumValue(value) ||
                                         Boolean(value.mergedIntoId)
                                       }
                                       title="Архивировать"
-                                      onClick={() => void handleRemoveValue(value)}
+                                      onClick={() =>
+                                        void handleRemoveValue(value)
+                                      }
                                     >
                                       <Archive className="size-4" />
                                     </Button>
                                   </div>
 
-                                  {!value.mergedIntoId ? (
+                                  {!value.mergedIntoId &&
+                                  !isImportedEnumValue(value) ? (
                                     <details className="space-y-2">
                                       <summary className="cursor-pointer text-sm text-muted-foreground">
                                         Объединить с другим значением
                                       </summary>
                                       <div className="flex gap-2 pt-2">
                                         <Select
-                                          value={mergeTargetBySource[value.id] ?? ""}
+                                          value={
+                                            mergeTargetBySource[value.id] ?? ""
+                                          }
                                           disabled={
                                             isBusy || selectedType.isArchived
                                           }
                                           onValueChange={(targetId) =>
-                                            setMergeTargetBySource((current) => ({
-                                              ...current,
-                                              [value.id]: targetId,
-                                            }))
+                                            setMergeTargetBySource(
+                                              (current) => ({
+                                                ...current,
+                                                [value.id]: targetId,
+                                              }),
+                                            )
                                           }
                                         >
                                           <SelectTrigger className="min-w-0 flex-1">
@@ -1794,7 +1887,9 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                           <SelectContent>
                                             {mergeTargets
                                               .filter(
-                                                (target) => target.id !== value.id,
+                                                (target) =>
+                                                  target.id !== value.id &&
+                                                  !isImportedEnumValue(target),
                                               )
                                               .map((target) => (
                                                 <SelectItem

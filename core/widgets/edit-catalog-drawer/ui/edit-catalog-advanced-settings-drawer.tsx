@@ -6,6 +6,7 @@ import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawe
 import { EditCatalogMetrikaDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-metrika-drawer";
 import { EditCatalogPasswordDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-password-drawer";
 import { EditCatalogProductTypesDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-product-types-drawer";
+import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
 import { EditCatalogSessionsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer";
 import {
   useCatalogCapabilities,
@@ -81,10 +82,14 @@ export const EditCatalogAdvancedSettingsDrawer: React.FC<
               <EditCatalogSessionsDrawer disabled={disabled} />
               <EditCatalogDomainsDrawer disabled={disabled} />
               <EditCatalogMetrikaDrawer disabled={disabled} />
+              {features.canUseCatalogSaleUnits ? (
+                <EditCatalogSaleUnitsDrawer disabled={disabled} />
+              ) : null}
               {productStructure.canUseProductTypes ? (
                 <EditCatalogProductTypesDrawer disabled={disabled} />
               ) : null}
-              {features.canUseMoySkladIntegration ? (
+              {features.canUseMoySkladIntegration ||
+              features.canUseIikoIntegration ? (
                 <EditCatalogIntegrationsDrawer disabled={disabled} />
               ) : null}
               {showInventory ? (

@@ -3,6 +3,7 @@
 import {
   findProductSaleUnit,
   formatProductVariantLabel,
+  getProductSaleUnitContainsText,
   getProductSaleUnits,
   buildProductCardView,
   type ProductSaleUnit,
@@ -105,8 +106,10 @@ function getSaleUnitLabelFromRaw(rawSaleUnit: unknown): string | null {
 }
 
 function formatSaleUnitLabel(saleUnit: ProductSaleUnit): string {
-  const quantity = formatSaleUnitQuantity(saleUnit.baseQuantity);
-  return quantity ? `${saleUnit.label}, внутри: ${quantity}` : saleUnit.label;
+  const containsText = getProductSaleUnitContainsText(saleUnit);
+  return containsText
+    ? `${saleUnit.label}, ${containsText.toLowerCase()}`
+    : saleUnit.label;
 }
 
 function getSaleUnitLabel(params: {
@@ -115,14 +118,9 @@ function getSaleUnitLabel(params: {
 }): string | null {
   const { item, product } = params;
   const itemSaleUnitId = getCartItemSaleUnitId(item);
-  const rawLabel = getSaleUnitLabelFromRaw((item as CartItemWithSaleUnit).saleUnit);
-
-  if (rawLabel) {
-    return rawLabel;
-  }
 
   if (!itemSaleUnitId) {
-    return null;
+    return getSaleUnitLabelFromRaw((item as CartItemWithSaleUnit).saleUnit);
   }
 
   const variantSaleUnit =
@@ -137,7 +135,10 @@ function getSaleUnitLabel(params: {
   const productSaleUnit =
     variantSaleUnit ?? findProductSaleUnit(getProductSaleUnits(product), itemSaleUnitId);
 
-  return productSaleUnit ? formatSaleUnitLabel(productSaleUnit) : null;
+  return (
+    (productSaleUnit ? formatSaleUnitLabel(productSaleUnit) : null) ??
+    getSaleUnitLabelFromRaw((item as CartItemWithSaleUnit).saleUnit)
+  );
 }
 
 function getBackendPricing(item: CartItemDto) {

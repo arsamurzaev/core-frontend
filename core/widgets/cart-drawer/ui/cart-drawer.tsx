@@ -10,6 +10,7 @@ import { CartDrawerHeader } from "@/core/widgets/cart-drawer/ui/cart-drawer-head
 import { CartDrawerManagerOrderStartBar } from "@/core/widgets/cart-drawer/ui/cart-drawer-manager-order-start-bar";
 import { CartDrawerProductPreview } from "@/core/widgets/cart-drawer/ui/cart-drawer-product-preview";
 import { resolveCartDrawerVisibility } from "@/core/widgets/cart-drawer/model/cart-drawer-state";
+import { hasIikoCartItems } from "@/core/widgets/cart-drawer/model/integration-checkout";
 import { useCartDrawerCheckout } from "@/core/widgets/cart-drawer/model/use-cart-drawer-checkout";
 import { useCartDrawerCompleteOrder } from "@/core/widgets/cart-drawer/model/use-cart-drawer-complete-order";
 import { useCartDrawerHeaderAction } from "@/core/widgets/cart-drawer/model/use-cart-drawer-header-action";
@@ -19,6 +20,10 @@ import {
   getCatalogCheckoutLocation,
   type CheckoutConfig,
 } from "@/shared/lib/checkout-methods";
+import {
+  buildHallTableCheckoutData,
+  useHallTableContext,
+} from "@/shared/lib/hall-table";
 import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
@@ -65,6 +70,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     prepareShareOrder,
     publicAccess,
     startManagerOrder,
+    submitHallOrder,
     status,
     statusMessage,
     shouldUseCartUi,
@@ -72,6 +78,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   } = useCart();
   const { hasBlockingDrawer } = useDrawerCoordinator();
   const catalog = useCatalog();
+  const hallTable = useHallTableContext();
   const pathname = usePathname();
   const checkoutConfig = React.useMemo(
     () => checkoutConfigProp ?? getCatalogCheckoutConfig(catalog),
@@ -173,6 +180,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     completeManagedOrder,
     isCheckoutLocked,
   });
+  const orderInput = React.useMemo(() => {
+    const input = buildOrderInput();
+    if (catalogMode !== "HALL") return input;
+
+    return {
+      ...input,
+      checkoutMethod: "PICKUP" as const,
+      checkoutData: {
+        ...(input.checkoutData ?? {}),
+        ...buildHallTableCheckoutData(hallTable),
+      },
+    };
+  }, [buildOrderInput, catalogMode, hallTable]);
+  const hasIikoIntegrationItems = React.useMemo(
+    () => hasIikoCartItems(items),
+    [items],
+  );
 
   if (shouldHideDrawer || shouldSuspendManagerCartDrawer) {
     if (shouldShowManagerOrderStartBar) {
@@ -254,10 +278,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             <CartDrawerFooter
               canShare={canShare}
+              canSubmitHallOrder={
+                catalogMode === "HALL" &&
+                hasIikoIntegrationItems &&
+                !canCreateManagerOrder &&
+                !isManagedPublicCart
+              }
+              checkoutConfig={checkoutConfig}
+              checkoutLocation={checkoutLocation}
               currency={currency}
               hasDiscount={totals.hasDiscount}
               hasSharedCart={hasSharedCart}
               hasItems={hasItems}
+              hasIikoCartItems={hasIikoIntegrationItems}
               isBusy={isBusy}
               isManagerOrderCart={isManagerOrderCart}
               isShareDisabled={!isCheckoutLocked && Boolean(checkoutValidation.error)}
@@ -268,7 +301,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               }
               onCompleteOrder={handleCompleteOrder}
               onSharePrepared={markSharePrepared}
-              onShareClick={() => prepareShareOrder(buildOrderInput())}
+              onShareClick={(input) =>
+                prepareShareOrder(input ?? orderInput)
+              }
+              onSubmitHallOrder={async (input) => {
+                await submitHallOrder(input ?? orderInput);
+              }}
+              orderInput={orderInput}
               price={totals.subtotal}
               priceFormatMode={priceFormatMode}
               totalPrice={totals.originalSubtotal}

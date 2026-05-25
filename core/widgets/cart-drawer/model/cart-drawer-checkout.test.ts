@@ -81,7 +81,9 @@ describe("cart drawer checkout model", () => {
         checkoutMethod: "PICKUP",
       }),
     ).toEqual({
-      data: { address: "Cafe address" },
+      data: {
+        address: "Cafe address",
+      },
       error: null,
     });
   });

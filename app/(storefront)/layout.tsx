@@ -1,5 +1,6 @@
 import { CartProvider } from "@/core/modules/cart/model/cart-context";
 import {
+  IikoSyncProgressWatcherSlot,
   MoySkladSyncProgressWatcherSlot,
   ProductDrawerInstantHostSlot,
 } from "@/core/catalog-runtime/ui";
@@ -24,6 +25,7 @@ export default async function StorefrontLayout({
     <DrawerCoordinatorProvider>
       <CartProvider>
         <MoySkladSyncProgressWatcherSlot />
+        <IikoSyncProgressWatcherSlot />
         {children}
         <ProductDrawerInstantHostSlot />
         {drawer}

@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  applySaleUnitRelationQuantities,
   clearSaleUnitDraftNameAtIndex,
+  clearSaleUnitRelationAtIndex,
+  deriveSaleUnitRelationDrafts,
   formatSaleUnitQuantity,
   normalizeSaleUnitRows,
   removeSaleUnitDraftNameAtIndex,
+  removeSaleUnitRelationAtIndex,
+  resolveSaleUnitRelationDraft,
+  resolveSaleUnitRelationBaseQuantity,
   resolveSaleUnitDiscountPreview,
   toPositiveSaleUnitNumber,
 } from "./product-sale-units-field-model";
@@ -47,9 +53,95 @@ describe("product sale units field model", () => {
 
   it("formats positive quantities and falls back to one", () => {
     expect(toPositiveSaleUnitNumber("2.5")).toBe(2.5);
+    expect(toPositiveSaleUnitNumber("2,5")).toBe(2.5);
     expect(toPositiveSaleUnitNumber("0")).toBeNull();
     expect(formatSaleUnitQuantity(null)).toBe("1");
     expect(formatSaleUnitQuantity("12")).toBe("12");
+  });
+
+  it("calculates local relations between sale units", () => {
+    expect(resolveSaleUnitRelationBaseQuantity("4", "12")).toBe("48");
+    expect(resolveSaleUnitRelationBaseQuantity("4", "")).toBeNull();
+
+    expect(
+      applySaleUnitRelationQuantities(
+        [
+          {
+            label: "Piece",
+            baseQuantity: "1",
+            price: "100",
+            isDefault: true,
+          },
+          {
+            label: "Box",
+            baseQuantity: "1",
+            price: "1000",
+            isDefault: false,
+          },
+          {
+            label: "Pallet",
+            baseQuantity: "1",
+            price: "4000",
+            isDefault: false,
+          },
+        ],
+        {
+          1: { parentIndex: 0, multiplier: "12" },
+          2: { parentIndex: 1, multiplier: "4" },
+        },
+      ).map((unit) => unit.baseQuantity),
+    ).toEqual(["1", "12", "48"]);
+  });
+
+  it("derives relation drafts from saved absolute quantities", () => {
+    expect(
+      deriveSaleUnitRelationDrafts([
+        {
+          label: "шт.",
+          baseQuantity: "1",
+          price: "100",
+          isDefault: true,
+        },
+        {
+          label: "уп.",
+          baseQuantity: "12",
+          price: "2000",
+          isDefault: false,
+        },
+        {
+          label: "ящ.",
+          baseQuantity: "48",
+          price: "9000",
+          isDefault: false,
+        },
+        {
+          label: "пт.",
+          baseQuantity: "480",
+          price: "80000",
+          isDefault: false,
+        },
+      ]),
+    ).toEqual({
+      1: { multiplier: "12", parentIndex: 0 },
+      2: { multiplier: "4", parentIndex: 1 },
+      3: { multiplier: "10", parentIndex: 2 },
+    });
+  });
+
+  it("fills missing relation parent from derived saved relation", () => {
+    expect(
+      resolveSaleUnitRelationDraft(
+        { multiplier: "4", parentIndex: null },
+        { multiplier: "4", parentIndex: 1 },
+      ),
+    ).toEqual({ multiplier: "4", parentIndex: 1 });
+
+    expect(
+      resolveSaleUnitRelationDraft(
+        { multiplier: "", parentIndex: null },
+        { multiplier: "4", parentIndex: 1 },
+      ),
+    ).toEqual({ multiplier: "", parentIndex: null });
   });
 
   it("resolves discount preview from a valid sale unit price", () => {
@@ -79,5 +171,45 @@ describe("product sale units field model", () => {
     expect(clearSaleUnitDraftNameAtIndex({ 0: "Box", 1: "Pallet" }, 0)).toEqual(
       { 1: "Pallet" },
     );
+  });
+
+  it("keeps relation drafts aligned when a row is removed", () => {
+    expect(
+      removeSaleUnitRelationAtIndex(
+        {
+          1: { parentIndex: 0, multiplier: "12" },
+          2: { parentIndex: 1, multiplier: "4" },
+        },
+        0,
+      ),
+    ).toEqual({
+      1: { parentIndex: 0, multiplier: "4" },
+    });
+
+    expect(
+      removeSaleUnitRelationAtIndex(
+        {
+          1: { parentIndex: 0, multiplier: "12" },
+          2: { parentIndex: 1, multiplier: "4" },
+          3: { parentIndex: 1, multiplier: "8" },
+        },
+        2,
+      ),
+    ).toEqual({
+      1: { parentIndex: 0, multiplier: "12" },
+      2: { parentIndex: 1, multiplier: "8" },
+    });
+
+    expect(
+      clearSaleUnitRelationAtIndex(
+        {
+          1: { parentIndex: 0, multiplier: "12" },
+          2: { parentIndex: 1, multiplier: "4" },
+        },
+        1,
+      ),
+    ).toEqual({
+      2: { parentIndex: 1, multiplier: "4" },
+    });
   });
 });

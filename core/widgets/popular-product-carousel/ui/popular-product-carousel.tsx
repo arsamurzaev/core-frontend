@@ -7,6 +7,7 @@ import {
 } from "@/core/modules/cart";
 import { ProductCardRuntime } from "@/core/catalog-runtime/ui";
 import {
+  isIikoProduct,
   isMoySkladProduct,
   ProductLink,
   ToggleProductPopularAction,
@@ -123,6 +124,11 @@ export const PopularProductCarousel: React.FC<Props> = ({
                   <ProductCardRuntime
                     data={product}
                     isDetailed
+                    isIikoLinked={
+                      !shouldRenderCartUi &&
+                      isAuthenticated &&
+                      isIikoProduct(product)
+                    }
                     isMoySkladLinked={
                       !shouldRenderCartUi &&
                       isAuthenticated &&
@@ -131,6 +137,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
                     actions={
                       !shouldRenderCartUi ? (
                         <EditProductCardAction
+                          isIikoLinked={isIikoProduct(product)}
                           isMoySkladLinked={isMoySkladProduct(product)}
                           productId={product.id}
                           status={product.status}

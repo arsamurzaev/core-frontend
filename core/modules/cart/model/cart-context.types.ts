@@ -89,6 +89,9 @@ export interface CartContextValue {
   quantityByProductId: Record<string, number>;
   shouldUseCartUi: boolean;
   startManagerOrder: () => Promise<void>;
+  submitHallOrder: (
+    input?: PrepareShareOrderInput | string,
+  ) => Promise<CompletedOrderDto>;
   status: CartDto["status"] | null;
   statusMessage: string | null;
   totals: {

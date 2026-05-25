@@ -1,6 +1,9 @@
 ﻿"use client";
 
-import { useCatalogAdvancedSettingsControllerGetMoySkladStatus } from "@/shared/api/generated/react-query";
+import {
+  useCatalogAdvancedSettingsControllerGetIikoStatus,
+  useCatalogAdvancedSettingsControllerGetMoySkladStatus,
+} from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
@@ -9,10 +12,11 @@ import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 
+import { EditCatalogIikoDrawer } from "./edit-catalog-iiko-drawer";
 import { EditCatalogMoySkladDrawer } from "./edit-catalog-moysklad-drawer";
 
 function getIntegrationsSummary(params: {
-  configured: boolean;
+  configuredCount: number;
   hasActiveRun: boolean;
 }) {
   if (params.hasActiveRun) {
@@ -22,10 +26,10 @@ function getIntegrationsSummary(params: {
     };
   }
 
-  if (params.configured) {
+  if (params.configuredCount > 0) {
     return {
-      badge: "1 подключение",
-      description: "МойСклад подключён к текущему каталогу.",
+      badge: `${params.configuredCount} подключение`,
+      description: "Внешние источники подключены к текущему каталогу.",
     };
   }
 
@@ -47,14 +51,24 @@ export const EditCatalogIntegrationsDrawer: React.FC<{
       staleTime: 30_000,
     },
   });
+  const iikoStatusQuery = useCatalogAdvancedSettingsControllerGetIikoStatus({
+    query: {
+      enabled: features.canUseIikoIntegration,
+      staleTime: 30_000,
+    },
+  });
 
-  if (!features.canUseMoySkladIntegration) {
+  if (!features.canUseMoySkladIntegration && !features.canUseIikoIntegration) {
     return null;
   }
 
+  const configuredCount = [
+    features.canUseMoySkladIntegration && statusQuery.data?.configured,
+    features.canUseIikoIntegration && iikoStatusQuery.data?.configured,
+  ].filter(Boolean).length;
   const summary = getIntegrationsSummary({
-    configured: Boolean(statusQuery.data?.configured),
-    hasActiveRun: Boolean(statusQuery.data?.activeRun),
+    configuredCount,
+    hasActiveRun: Boolean(statusQuery.data?.activeRun || iikoStatusQuery.data?.activeRun),
   });
 
   return (
@@ -101,7 +115,12 @@ export const EditCatalogIntegrationsDrawer: React.FC<{
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-4">
-              <EditCatalogMoySkladDrawer disabled={disabled} />
+              {features.canUseMoySkladIntegration ? (
+                <EditCatalogMoySkladDrawer disabled={disabled} />
+              ) : null}
+              {features.canUseIikoIntegration ? (
+                <EditCatalogIikoDrawer disabled={disabled} />
+              ) : null}
             </div>
           </DrawerScrollArea>
 

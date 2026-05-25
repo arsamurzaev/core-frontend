@@ -17,13 +17,20 @@ export function shouldShowCartProductActionQuantity(params: {
 }
 
 export function shouldRenderCartProductVariantDrawer(params: {
+  canUseCatalogSaleUnits?: boolean;
   canUseProductVariants: boolean;
+  hasSaleUnitChoices?: boolean;
   isVariantDrawerOpen: boolean;
   requiresVariantSelection: boolean;
 }): boolean {
   return (
-    params.canUseProductVariants &&
-    (params.requiresVariantSelection || params.isVariantDrawerOpen)
+    (params.canUseProductVariants &&
+      (params.requiresVariantSelection || params.isVariantDrawerOpen)) ||
+    Boolean(
+      params.canUseCatalogSaleUnits &&
+        params.hasSaleUnitChoices &&
+        params.isVariantDrawerOpen,
+    )
   );
 }
 

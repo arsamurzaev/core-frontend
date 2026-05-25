@@ -12,6 +12,7 @@ import { CartProductActionButton } from "@/core/modules/cart/ui/cart-product-act
 import { CartProductVariantDrawer } from "@/core/modules/cart/ui/cart-product-variant-drawer";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
+import { getProductSaleUnits } from "@/core/modules/product/model/sale-units";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { getCatalogCurrency } from "@/shared/lib/utils";
@@ -23,6 +24,8 @@ interface CartProductActionProps {
   product: ProductWithAttributesDto;
 }
 
+const VARIANT_DRAWER_CLOSE_ANIMATION_MS = 350;
+
 export const CartProductAction = React.memo(function CartProductAction({
   className,
   product,
@@ -30,7 +33,12 @@ export const CartProductAction = React.memo(function CartProductAction({
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
   const canUseProductVariants = features.canUseProductVariants;
+  const canUseCatalogSaleUnits = features.canUseCatalogSaleUnits;
   const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
+  const hasProductSaleUnitChoices = React.useMemo(
+    () => canUseCatalogSaleUnits && getProductSaleUnits(product).length > 0,
+    [canUseCatalogSaleUnits, product],
+  );
   const canOpenVariantDrawer = canOpenCartProductVariantDrawer({
     activeVariantCount: product.variantSummary?.activeCount,
     canUseProductVariants,
@@ -38,6 +46,8 @@ export const CartProductAction = React.memo(function CartProductAction({
     requiresVariantSelection: product.requiresVariantSelection,
   });
   const [isVariantDrawerOpen, setIsVariantDrawerOpen] = React.useState(false);
+  const [isVariantDrawerMounted, setIsVariantDrawerMounted] =
+    React.useState(false);
   const handleVariantSelectionRequired = React.useCallback(() => {
     setIsVariantDrawerOpen(true);
   }, [setIsVariantDrawerOpen]);
@@ -88,10 +98,25 @@ export const CartProductAction = React.memo(function CartProductAction({
     requiresVariantSelection,
   });
   const shouldRenderVariantDrawer = shouldRenderCartProductVariantDrawer({
+    canUseCatalogSaleUnits,
     canUseProductVariants: canOpenVariantDrawer,
+    hasSaleUnitChoices: hasProductSaleUnitChoices,
     isVariantDrawerOpen,
     requiresVariantSelection,
   });
+  React.useEffect(() => {
+    if (shouldRenderVariantDrawer) {
+      setIsVariantDrawerMounted(true);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsVariantDrawerMounted(false);
+    }, VARIANT_DRAWER_CLOSE_ANIMATION_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [shouldRenderVariantDrawer]);
+
   const ariaLabel = getCartProductActionAriaLabel({
     isUnavailable,
     quantity,
@@ -111,7 +136,7 @@ export const CartProductAction = React.memo(function CartProductAction({
       return;
     }
 
-    if (requiresVariantSelection) {
+    if (requiresVariantSelection || hasProductSaleUnitChoices) {
       setIsVariantDrawerOpen(true);
       return;
     }
@@ -135,9 +160,11 @@ export const CartProductAction = React.memo(function CartProductAction({
         shouldShowQuantity={shouldShowQuantity}
       />
 
-      {shouldRenderVariantDrawer ? (
+      {isVariantDrawerMounted ? (
         <CartProductVariantDrawer
           open={isVariantDrawerOpen}
+          canUseCatalogSaleUnits={canUseCatalogSaleUnits}
+          canUseProductVariants={canOpenVariantDrawer}
           onOpenChange={setIsVariantDrawerOpen}
           product={product}
         />

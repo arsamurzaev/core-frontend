@@ -84,6 +84,30 @@ describe("shouldRenderCartProductVariantDrawer", () => {
       }),
     ).toBe(false);
   });
+
+  it("allows an open drawer for sale-unit selection without variant capability", () => {
+    expect(
+      shouldRenderCartProductVariantDrawer({
+        canUseCatalogSaleUnits: true,
+        canUseProductVariants: false,
+        hasSaleUnitChoices: true,
+        isVariantDrawerOpen: true,
+        requiresVariantSelection: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("does not render a sale-unit drawer when the product has no sale units", () => {
+    expect(
+      shouldRenderCartProductVariantDrawer({
+        canUseCatalogSaleUnits: true,
+        canUseProductVariants: false,
+        hasSaleUnitChoices: false,
+        isVariantDrawerOpen: true,
+        requiresVariantSelection: false,
+      }),
+    ).toBe(false);
+  });
 });
 
 describe("getCartProductActionAriaLabel", () => {

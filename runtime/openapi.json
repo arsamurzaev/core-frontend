@@ -4393,6 +4393,204 @@
         ]
       }
     },
+    "/catalog/current/advanced-settings/sale-units": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_listSaleUnits",
+        "parameters": [
+          {
+            "name": "includeInactive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Include disabled, non-archived units."
+          },
+          {
+            "name": "includeArchived",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Include archived units."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "List advanced settings catalog sale units",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      },
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_createSaleUnit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCatalogSaleUnitDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create advanced settings catalog sale unit",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/sale-units/{id}": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_getSaleUnit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get advanced settings catalog sale unit",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      },
+      "patch": {
+        "operationId": "CatalogAdvancedSettingsController_updateSaleUnit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCatalogSaleUnitDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogSaleUnitDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update advanced settings catalog sale unit",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      },
+      "delete": {
+        "operationId": "CatalogAdvancedSettingsController_archiveSaleUnit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Archive advanced settings catalog sale unit",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
     "/catalog/current/advanced-settings/metrics/yandex/catalog": {
       "get": {
         "operationId": "CatalogAdvancedSettingsController_getYandexMetrika",
@@ -4816,6 +5014,535 @@
           }
         ],
         "summary": "Cancel advanced settings MoySklad sync",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_getIiko",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get advanced settings iiko integration",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      },
+      "put": {
+        "operationId": "CatalogAdvancedSettingsController_upsertIiko",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertIikoIntegrationDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create or replace advanced settings iiko",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      },
+      "patch": {
+        "operationId": "CatalogAdvancedSettingsController_updateIiko",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIikoIntegrationDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update advanced settings iiko",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      },
+      "delete": {
+        "operationId": "CatalogAdvancedSettingsController_removeIiko",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Remove advanced settings iiko",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/status": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_getIikoStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get advanced settings iiko status",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/runs": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_getIikoRuns",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many recent sync runs to return",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IikoSyncRunDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get advanced settings iiko sync history",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/webhook-events": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_getIikoWebhookEvents",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many recent webhook events to return",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Optional webhook event status filter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IikoWebhookEventDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get advanced settings iiko webhook journal",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/webhook-events/{eventId}/retry": {
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_retryIikoWebhookEvent",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoWebhookEventDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Retry advanced settings iiko webhook event",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/runs/{runId}/progress": {
+      "get": {
+        "operationId": "CatalogAdvancedSettingsController_getIikoRunProgress",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoSyncProgressDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get advanced settings iiko sync progress",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/test-connection": {
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_testIikoConnection",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestIikoConnectionDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoTestConnectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Test advanced settings iiko connection",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/import-preview": {
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_previewIikoImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewIikoImportDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoImportPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Preview advanced settings iiko external menu import",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/sync": {
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_syncIikoCatalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue advanced settings iiko full menu sync",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/stock-sync": {
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_syncIikoStock",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue advanced settings iiko stop-list sync",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/sync-product/{id}": {
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_syncIikoProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Local product ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue advanced settings iiko product sync",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/webhooks/setup": {
+      "post": {
+        "operationId": "CatalogAdvancedSettingsController_setupIikoWebhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoWebhookSetupDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Register advanced settings iiko webhooks",
+        "tags": [
+          "Catalog advanced settings"
+        ]
+      }
+    },
+    "/catalog/current/advanced-settings/integrations/iiko/webhooks": {
+      "delete": {
+        "operationId": "CatalogAdvancedSettingsController_disableIikoWebhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Disable advanced settings iiko webhooks locally",
         "tags": [
           "Catalog advanced settings"
         ]
@@ -5248,6 +5975,26 @@
         ]
       }
     },
+    "/integration/payload/public-key": {
+      "get": {
+        "operationId": "IntegrationController_getIntegrationPayloadPublicKey",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get public key for integration payload tokens",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
     "/integration/moysklad": {
       "get": {
         "operationId": "IntegrationController_getMoySklad",
@@ -5392,6 +6139,602 @@
           }
         ],
         "summary": "Получить статус интеграции MoySklad",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko": {
+      "get": {
+        "operationId": "IntegrationController_getIiko",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko integration settings",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "put": {
+        "operationId": "IntegrationController_upsertIiko",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertIikoIntegrationDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create or replace iiko integration settings",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "patch": {
+        "operationId": "IntegrationController_updateIiko",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIikoIntegrationDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update iiko integration settings",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "delete": {
+        "operationId": "IntegrationController_removeIiko",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Remove iiko integration settings",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/status": {
+      "get": {
+        "operationId": "IntegrationController_getIikoStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoIntegrationStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko integration status",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/test-connection": {
+      "post": {
+        "operationId": "IntegrationController_testIikoConnection",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestIikoConnectionDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoTestConnectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Test iikoCloud connection",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/tables": {
+      "get": {
+        "operationId": "IntegrationController_getIikoTables",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoRestaurantTablesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko restaurant tables for QR hall orders",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/import-preview": {
+      "post": {
+        "operationId": "IntegrationController_previewIikoImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewIikoImportDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoImportPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Preview iiko external menu import",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/sync": {
+      "post": {
+        "operationId": "IntegrationController_syncIikoCatalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue full iiko menu sync",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/stock-sync": {
+      "post": {
+        "operationId": "IntegrationController_syncIikoStock",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue iiko stop-list stock sync",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/sync-product/{id}": {
+      "post": {
+        "operationId": "IntegrationController_syncIikoProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Local product ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue one iiko product sync",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/webhooks/setup": {
+      "post": {
+        "operationId": "IntegrationController_setupIikoWebhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoWebhookSetupDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Register iiko webhooks for the saved integration",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/webhooks": {
+      "delete": {
+        "operationId": "IntegrationController_disableIikoWebhooks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Disable local iiko webhook handling",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/runs": {
+      "get": {
+        "operationId": "IntegrationController_getIikoRuns",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many recent sync runs to return",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IikoSyncRunDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko sync history",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/runs/{runId}/progress": {
+      "get": {
+        "operationId": "IntegrationController_getIikoRunProgress",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoSyncProgressDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko sync progress",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/order-exports": {
+      "get": {
+        "operationId": "IntegrationController_getIikoOrderExports",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many recent order exports to return",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IikoOrderExportDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko order export history",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/webhook-events": {
+      "get": {
+        "operationId": "IntegrationController_getIikoWebhookEvents",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Optional webhook event status filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many recent webhook events to return",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IikoWebhookEventDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko webhook event journal",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/webhook-events/{eventId}/retry": {
+      "post": {
+        "operationId": "IntegrationController_retryIikoWebhookEvent",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoWebhookEventDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Retry failed iiko webhook event processing",
         "tags": [
           "Integration"
         ]
@@ -5893,6 +7236,38 @@
         ]
       }
     },
+    "/integration/webhooks/iiko/{integrationId}/{secret}": {
+      "post": {
+        "operationId": "IntegrationController_receiveIikoWebhook",
+        "parameters": [
+          {
+            "name": "integrationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "secret",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Receive iikoCloud webhook",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
     "/integration/moysklad/order-exports/{id}/retry": {
       "post": {
         "operationId": "IntegrationController_retryMoySkladOrderExport",
@@ -5930,12 +7305,93 @@
         ]
       }
     },
+    "/integration/iiko/order-exports/{id}/retry": {
+      "post": {
+        "operationId": "IntegrationController_retryIikoOrderExport",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "IntegrationOrderExport record id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoQueuedOrderExportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue iiko order export retry",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/iiko/orders/{orderId}/export-timeline": {
+      "get": {
+        "operationId": "IntegrationController_getIikoOrderExportTimeline",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IikoOrderExportTimelineDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get iiko order export timeline by order id",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
     "/catalog-sale-unit": {
       "get": {
         "operationId": "CatalogSaleUnitController_getAll",
         "parameters": [
           {
             "name": "includeArchived",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "includeInactive",
             "required": false,
             "in": "query",
             "schema": {
@@ -7047,6 +8503,71 @@
           }
         },
         "summary": "Issue a public key for the current cart",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/current/hall-order": {
+      "post": {
+        "operationId": "CartController_submitCurrentHallOrder",
+        "parameters": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareCurrentCartDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteCartOrderResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Submit the current cart as a hall table order",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/hall-table/{code}": {
+      "get": {
+        "operationId": "CartController_getHallTableLink",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "description": "Short backend-stored hall table code",
+            "schema": {
+              "example": "Ab7Kp92x",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HallTableLinkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Resolve a short hall table code for display",
         "tags": [
           "Cart"
         ]
@@ -8867,6 +10388,10 @@
           "canUseMoySkladIntegration": {
             "type": "boolean",
             "description": "Whether the catalog can use MoySklad integration."
+          },
+          "canUseIikoIntegration": {
+            "type": "boolean",
+            "description": "Whether the catalog can use iiko integration."
           }
         },
         "required": [
@@ -8876,7 +10401,8 @@
           "canUseProductVariants",
           "canUseCatalogSaleUnits",
           "canUseInternalInventory",
-          "canUseMoySkladIntegration"
+          "canUseMoySkladIntegration",
+          "canUseIikoIntegration"
         ]
       },
       "AdminDeleteInfoDto": {
@@ -9112,6 +10638,34 @@
           "bet"
         ]
       },
+      "AdminCatalogActivityListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "AdminCatalogChildListItemDto": {
         "type": "object",
         "properties": {
@@ -9237,6 +10791,12 @@
               }
             ]
           },
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCatalogActivityListItemDto"
+            }
+          },
           "children": {
             "type": "array",
             "items": {
@@ -9258,6 +10818,7 @@
           "logoMedia",
           "type",
           "promoCode",
+          "activities",
           "children"
         ]
       },
@@ -9422,6 +10983,7 @@
           "metricId": {
             "type": "string",
             "example": "108517746",
+            "nullable": true,
             "description": "Yandex Metrika counter id for MAIN scope."
           },
           "status": {
@@ -9468,7 +11030,8 @@
               "product.variants",
               "catalog.sale_units",
               "inventory.internal",
-              "integration.moysklad"
+              "integration.moysklad",
+              "integration.iiko"
             ]
           },
           "enabled": {
@@ -10078,7 +11641,8 @@
               "product.variants",
               "catalog.sale_units",
               "inventory.internal",
-              "integration.moysklad"
+              "integration.moysklad",
+              "integration.iiko"
             ]
           },
           "enabled": {
@@ -10852,6 +12416,100 @@
           "progress"
         ]
       },
+      "ProductVariantCatalogSaleUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "defaultBaseQuantity": {
+            "type": "string",
+            "example": "1.0000"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "defaultBaseQuantity"
+        ]
+      },
+      "ProductVariantSaleUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "catalogSaleUnitId": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "baseQuantity": {
+            "type": "string",
+            "example": "1.0000"
+          },
+          "price": {
+            "type": "string",
+            "example": "999.00"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "catalogSaleUnit": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductVariantCatalogSaleUnitDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "catalogSaleUnitId",
+          "code",
+          "name",
+          "baseQuantity",
+          "price",
+          "barcode",
+          "isDefault",
+          "isActive",
+          "displayOrder",
+          "createdAt",
+          "updatedAt",
+          "catalogSaleUnit"
+        ]
+      },
       "ProductMediaDto": {
         "type": "object",
         "properties": {
@@ -10935,7 +12593,8 @@
           "provider": {
             "type": "string",
             "enum": [
-              "MOYSKLAD"
+              "MOYSKLAD",
+              "IIKO"
             ]
           },
           "externalId": {
@@ -11244,6 +12903,12 @@
             "type": "string",
             "nullable": true
           },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDto"
+            }
+          },
           "requiresVariantSelection": {
             "type": "boolean"
           },
@@ -11336,6 +13001,7 @@
           "availabilityState",
           "stock",
           "defaultVariantId",
+          "saleUnits",
           "requiresVariantSelection",
           "media",
           "brand",
@@ -11465,100 +13131,6 @@
           "enumValueId",
           "attribute",
           "enumValue"
-        ]
-      },
-      "ProductVariantCatalogSaleUnitDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "defaultBaseQuantity": {
-            "type": "string",
-            "example": "1.0000"
-          }
-        },
-        "required": [
-          "id",
-          "code",
-          "name",
-          "defaultBaseQuantity"
-        ]
-      },
-      "ProductVariantSaleUnitDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "catalogSaleUnitId": {
-            "type": "string",
-            "nullable": true
-          },
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "baseQuantity": {
-            "type": "string",
-            "example": "1.0000"
-          },
-          "price": {
-            "type": "string",
-            "example": "999.00"
-          },
-          "barcode": {
-            "type": "string",
-            "nullable": true
-          },
-          "isDefault": {
-            "type": "boolean"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "displayOrder": {
-            "type": "number"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "catalogSaleUnit": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ProductVariantCatalogSaleUnitDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "catalogSaleUnitId",
-          "code",
-          "name",
-          "baseQuantity",
-          "price",
-          "barcode",
-          "isDefault",
-          "isActive",
-          "displayOrder",
-          "createdAt",
-          "updatedAt",
-          "catalogSaleUnit"
         ]
       },
       "ProductVariantDto": {
@@ -11909,6 +13481,12 @@
             "type": "string",
             "nullable": true
           },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDto"
+            }
+          },
           "requiresVariantSelection": {
             "type": "boolean"
           },
@@ -12015,6 +13593,7 @@
           "availabilityState",
           "stock",
           "defaultVariantId",
+          "saleUnits",
           "requiresVariantSelection",
           "media",
           "brand",
@@ -12098,17 +13677,17 @@
           "catalogSaleUnitId": {
             "type": "string",
             "example": "catalog-sale-unit-id",
-            "description": "Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name."
+            "description": "Ссылка на активную единицу продажи из справочника текущего каталога."
           },
           "code": {
             "type": "string",
             "example": "box-12",
-            "description": "Технический код можно не передавать: backend сгенерирует его из названия."
+            "description": "Не используется для создания справочника: локальная привязка берет код из catalogSaleUnitId."
           },
           "name": {
             "type": "string",
             "example": "Короб",
-            "description": "Название формата продажи. Не нужно, если передан catalogSaleUnitId."
+            "description": "Не используется для создания справочника: локальная привязка берет название из catalogSaleUnitId."
           },
           "baseQuantity": {
             "type": "number",
@@ -12137,6 +13716,8 @@
           }
         },
         "required": [
+          "catalogSaleUnitId",
+          "baseQuantity",
           "price"
         ]
       },
@@ -12311,6 +13892,12 @@
             "type": "string",
             "nullable": true
           },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDto"
+            }
+          },
           "requiresVariantSelection": {
             "type": "boolean"
           },
@@ -12421,6 +14008,7 @@
           "availabilityState",
           "stock",
           "defaultVariantId",
+          "saleUnits",
           "requiresVariantSelection",
           "media",
           "brand",
@@ -12665,6 +14253,12 @@
             "type": "string",
             "nullable": true
           },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDto"
+            }
+          },
           "requiresVariantSelection": {
             "type": "boolean"
           },
@@ -12775,6 +14369,7 @@
           "availabilityState",
           "stock",
           "defaultVariantId",
+          "saleUnits",
           "requiresVariantSelection",
           "media",
           "brand",
@@ -13071,6 +14666,12 @@
             "type": "string",
             "nullable": true
           },
+          "saleUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDto"
+            }
+          },
           "requiresVariantSelection": {
             "type": "boolean"
           },
@@ -13181,6 +14782,7 @@
           "availabilityState",
           "stock",
           "defaultVariantId",
+          "saleUnits",
           "requiresVariantSelection",
           "media",
           "brand",
@@ -13943,6 +15545,126 @@
           "message"
         ]
       },
+      "CatalogSaleUnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "catalogId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "defaultBaseQuantity": {
+            "type": "string",
+            "example": "1.0000"
+          },
+          "barcode": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "catalogId",
+          "code",
+          "name",
+          "defaultBaseQuantity",
+          "barcode",
+          "isActive",
+          "displayOrder",
+          "deleteAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateCatalogSaleUnitDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Короб",
+            "description": "Название формата продажи внутри текущего каталога."
+          },
+          "code": {
+            "type": "string",
+            "example": "box",
+            "description": "Технический код можно не передавать: backend создаст его сам."
+          },
+          "defaultBaseQuantity": {
+            "type": "number",
+            "example": 12,
+            "description": "Подсказка количества внутри. Конкретный товар все равно хранит свое количество."
+          },
+          "barcode": {
+            "type": "string",
+            "example": "4601234567890"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCatalogSaleUnitDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Короб",
+            "description": "Название формата продажи внутри текущего каталога."
+          },
+          "code": {
+            "type": "string",
+            "example": "box",
+            "description": "Технический код можно не передавать: backend создаст его сам."
+          },
+          "defaultBaseQuantity": {
+            "type": "number",
+            "example": 12,
+            "description": "Подсказка количества внутри. Конкретный товар все равно хранит свое количество."
+          },
+          "barcode": {
+            "type": "string",
+            "example": "4601234567890"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Soft availability switch for admin dictionaries. Existing product bindings are preserved."
+          }
+        }
+      },
       "CatalogYandexMetrikaDto": {
         "type": "object",
         "properties": {
@@ -14088,7 +15810,8 @@
           "provider": {
             "type": "string",
             "enum": [
-              "MOYSKLAD"
+              "MOYSKLAD",
+              "IIKO"
             ]
           },
           "capabilities": {
@@ -14448,7 +16171,8 @@
           "provider": {
             "type": "string",
             "enum": [
-              "MOYSKLAD"
+              "MOYSKLAD",
+              "IIKO"
             ]
           },
           "mode": {
@@ -14958,6 +16682,1174 @@
           "trigger"
         ]
       },
+      "IikoWebhookStatusDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "urlPreview": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasSecret": {
+            "type": "boolean"
+          },
+          "lastConfiguredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastReceivedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastEventType": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastError": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "enabled",
+          "urlPreview",
+          "hasSecret",
+          "lastConfiguredAt",
+          "lastReceivedAt",
+          "lastEventType",
+          "lastError"
+        ]
+      },
+      "IikoIntegrationDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "MOYSKLAD",
+              "IIKO"
+            ]
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/IntegrationProviderCapabilitiesDto"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "hasApiLogin": {
+            "type": "boolean"
+          },
+          "apiLoginPreview": {
+            "type": "string",
+            "nullable": true
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "organizationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalMenuId": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalMenuName": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceCategoryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceCategoryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminalGroupId": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminalGroupName": {
+            "type": "string",
+            "nullable": true
+          },
+          "menuVersion": {
+            "type": "number"
+          },
+          "syncSource": {
+            "type": "string"
+          },
+          "importImages": {
+            "type": "boolean"
+          },
+          "exportOrders": {
+            "type": "boolean"
+          },
+          "webhook": {
+            "$ref": "#/components/schemas/IikoWebhookStatusDto"
+          },
+          "orderExportServiceType": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "DeliveryByCourier",
+              "DeliveryByClient"
+            ]
+          },
+          "orderExportSourceKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastRevision": {
+            "type": "number",
+            "nullable": true
+          },
+          "lastMenuSyncedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastStopListSyncedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSyncStatus": {
+            "type": "string",
+            "enum": [
+              "IDLE",
+              "SYNCING",
+              "SUCCESS",
+              "ERROR"
+            ]
+          },
+          "syncStartedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSyncAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSyncError": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalProducts": {
+            "type": "number"
+          },
+          "createdProducts": {
+            "type": "number"
+          },
+          "updatedProducts": {
+            "type": "number"
+          },
+          "deletedProducts": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "provider",
+          "capabilities",
+          "isActive",
+          "hasApiLogin",
+          "apiLoginPreview",
+          "organizationId",
+          "organizationName",
+          "externalMenuId",
+          "externalMenuName",
+          "priceCategoryId",
+          "priceCategoryName",
+          "terminalGroupId",
+          "terminalGroupName",
+          "menuVersion",
+          "syncSource",
+          "importImages",
+          "exportOrders",
+          "webhook",
+          "orderExportServiceType",
+          "orderExportSourceKey",
+          "lastRevision",
+          "lastMenuSyncedAt",
+          "lastStopListSyncedAt",
+          "lastSyncStatus",
+          "syncStartedAt",
+          "lastSyncAt",
+          "lastSyncError",
+          "totalProducts",
+          "createdProducts",
+          "updatedProducts",
+          "deletedProducts",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "IikoSyncRunDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "MOYSKLAD",
+              "IIKO"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "PRODUCT",
+              "STOCK"
+            ]
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "SCHEDULED",
+              "WEBHOOK"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCESS",
+              "ERROR",
+              "SKIPPED"
+            ]
+          },
+          "snapshotCompleteness": {
+            "type": "string",
+            "enum": [
+              "FULL_COMPLETE",
+              "PARTIAL",
+              "WEBHOOK_DELTA",
+              "FAILED_BEFORE_SNAPSHOT"
+            ]
+          },
+          "jobId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalProducts": {
+            "type": "number"
+          },
+          "createdProducts": {
+            "type": "number"
+          },
+          "updatedProducts": {
+            "type": "number"
+          },
+          "deletedProducts": {
+            "type": "number"
+          },
+          "imagesImported": {
+            "type": "number"
+          },
+          "products": {
+            "$ref": "#/components/schemas/MoySkladSyncEntityStatsDto"
+          },
+          "variants": {
+            "$ref": "#/components/schemas/MoySkladSyncEntityStatsDto"
+          },
+          "stockRows": {
+            "$ref": "#/components/schemas/MoySkladSyncStockStatsDto"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoySkladSyncIssueDto"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoySkladSyncIssueDto"
+            }
+          },
+          "progress": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MoySkladSyncProgressDto"
+              }
+            ]
+          },
+          "durationMs": {
+            "type": "number",
+            "nullable": true
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "mode",
+          "trigger",
+          "status",
+          "snapshotCompleteness",
+          "jobId",
+          "productId",
+          "externalId",
+          "error",
+          "totalProducts",
+          "createdProducts",
+          "updatedProducts",
+          "deletedProducts",
+          "imagesImported",
+          "products",
+          "variants",
+          "stockRows",
+          "warnings",
+          "errors",
+          "progress",
+          "durationMs",
+          "requestedAt",
+          "startedAt",
+          "finishedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "IikoIntegrationStatusDto": {
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IikoIntegrationDto"
+              }
+            ]
+          },
+          "activeRun": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IikoSyncRunDto"
+              }
+            ]
+          },
+          "lastRun": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IikoSyncRunDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "configured",
+          "integration",
+          "activeRun",
+          "lastRun"
+        ]
+      },
+      "IikoWebhookEventDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "MOYSKLAD",
+              "IIKO"
+            ]
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PROCESSING",
+              "PROCESSED",
+              "FAILED",
+              "SKIPPED"
+            ]
+          },
+          "jobId": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "details": {
+            "type": "object"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "requestId",
+          "eventType",
+          "status",
+          "jobId",
+          "error",
+          "details",
+          "receivedAt",
+          "processedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "IikoSyncProgressDto": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCESS",
+              "ERROR",
+              "SKIPPED"
+            ]
+          },
+          "phase": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "processed": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number",
+            "nullable": true
+          },
+          "percent": {
+            "type": "number",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "runId",
+          "status",
+          "phase",
+          "message",
+          "processed",
+          "total",
+          "percent",
+          "updatedAt",
+          "startedAt",
+          "finishedAt"
+        ]
+      },
+      "UpsertIikoIntegrationDtoReq": {
+        "type": "object",
+        "properties": {
+          "apiLogin": {
+            "type": "string",
+            "example": "demo-api-login"
+          },
+          "organizationId": {
+            "type": "string",
+            "example": "9d97b2a1-0000-0000-0000-000000000001"
+          },
+          "organizationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Demo Cafe"
+          },
+          "externalMenuId": {
+            "type": "string",
+            "nullable": true,
+            "example": "81651"
+          },
+          "externalMenuName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Main menu"
+          },
+          "priceCategoryId": {
+            "type": "string",
+            "nullable": true,
+            "example": "9d97b2a1-0000-0000-0000-000000000002"
+          },
+          "priceCategoryName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Base price"
+          },
+          "terminalGroupId": {
+            "type": "string",
+            "nullable": true,
+            "example": "9d97b2a1-0000-0000-0000-000000000003"
+          },
+          "terminalGroupName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Main terminal"
+          },
+          "menuVersion": {
+            "type": "number",
+            "example": 4
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "importImages": {
+            "type": "boolean",
+            "example": true
+          },
+          "exportOrders": {
+            "type": "boolean",
+            "example": false
+          },
+          "orderExportServiceType": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "DeliveryByCourier",
+              "DeliveryByClient"
+            ],
+            "example": "DeliveryByClient"
+          },
+          "orderExportSourceKey": {
+            "type": "string",
+            "nullable": true,
+            "example": "catalog-api"
+          }
+        },
+        "required": [
+          "apiLogin",
+          "organizationId"
+        ]
+      },
+      "UpdateIikoIntegrationDtoReq": {
+        "type": "object",
+        "properties": {
+          "apiLogin": {
+            "type": "string",
+            "example": "demo-api-login"
+          },
+          "organizationId": {
+            "type": "string",
+            "example": "9d97b2a1-0000-0000-0000-000000000001"
+          },
+          "organizationName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Demo Cafe"
+          },
+          "externalMenuId": {
+            "type": "string",
+            "nullable": true,
+            "example": "81651"
+          },
+          "externalMenuName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Main menu"
+          },
+          "priceCategoryId": {
+            "type": "string",
+            "nullable": true,
+            "example": "9d97b2a1-0000-0000-0000-000000000002"
+          },
+          "priceCategoryName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Base price"
+          },
+          "terminalGroupId": {
+            "type": "string",
+            "nullable": true,
+            "example": "9d97b2a1-0000-0000-0000-000000000003"
+          },
+          "terminalGroupName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Main terminal"
+          },
+          "menuVersion": {
+            "type": "number",
+            "example": 4
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "importImages": {
+            "type": "boolean",
+            "example": true
+          },
+          "exportOrders": {
+            "type": "boolean",
+            "example": false
+          },
+          "orderExportServiceType": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "DeliveryByCourier",
+              "DeliveryByClient"
+            ],
+            "example": "DeliveryByClient"
+          },
+          "orderExportSourceKey": {
+            "type": "string",
+            "nullable": true,
+            "example": "catalog-api"
+          }
+        }
+      },
+      "TestIikoConnectionDtoReq": {
+        "type": "object",
+        "properties": {
+          "apiLogin": {
+            "type": "string",
+            "example": "demo-api-login"
+          }
+        }
+      },
+      "IikoOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isActive"
+        ]
+      },
+      "IikoExternalMenuDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "IikoPriceCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "IikoTerminalGroupDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isAlive": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "organizationId",
+          "isActive",
+          "isAlive"
+        ]
+      },
+      "IikoTestConnectionDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "organizations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoOrganizationDto"
+            }
+          },
+          "externalMenus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoExternalMenuDto"
+            }
+          },
+          "priceCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoPriceCategoryDto"
+            }
+          },
+          "terminalGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoTerminalGroupDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "organizations",
+          "externalMenus",
+          "priceCategories",
+          "terminalGroups"
+        ]
+      },
+      "PreviewIikoImportDtoReq": {
+        "type": "object",
+        "properties": {
+          "apiLogin": {
+            "type": "string",
+            "description": "Optional apiLogin override. If omitted, saved iiko credentials are used."
+          },
+          "organizationId": {
+            "type": "string",
+            "example": "9d97b2a1-0000-0000-0000-000000000001"
+          },
+          "externalMenuId": {
+            "type": "string",
+            "example": "81651"
+          },
+          "externalMenuName": {
+            "type": "string",
+            "nullable": true,
+            "example": "Main menu"
+          },
+          "priceCategoryId": {
+            "type": "string",
+            "nullable": true,
+            "example": "9d97b2a1-0000-0000-0000-000000000002"
+          },
+          "menuVersion": {
+            "type": "number",
+            "example": 4
+          }
+        }
+      },
+      "IikoImportPreviewStatsDto": {
+        "type": "object",
+        "properties": {
+          "categories": {
+            "type": "number"
+          },
+          "items": {
+            "type": "number"
+          },
+          "visibleItems": {
+            "type": "number"
+          },
+          "hiddenItems": {
+            "type": "number"
+          },
+          "itemsWithoutPrice": {
+            "type": "number"
+          },
+          "itemsWithModifiers": {
+            "type": "number"
+          },
+          "combos": {
+            "type": "number"
+          },
+          "variants": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "categories",
+          "items",
+          "visibleItems",
+          "hiddenItems",
+          "itemsWithoutPrice",
+          "itemsWithModifiers",
+          "combos",
+          "variants"
+        ]
+      },
+      "IikoImportPreviewDiffDto": {
+        "type": "object",
+        "properties": {
+          "newItems": {
+            "type": "number"
+          },
+          "matchedItems": {
+            "type": "number"
+          },
+          "changedItems": {
+            "type": "number"
+          },
+          "priceChanges": {
+            "type": "number"
+          },
+          "nameChanges": {
+            "type": "number"
+          },
+          "unchangedItems": {
+            "type": "number"
+          },
+          "missingLinkedItems": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "newItems",
+          "matchedItems",
+          "changedItems",
+          "priceChanges",
+          "nameChanges",
+          "unchangedItems",
+          "missingLinkedItems"
+        ]
+      },
+      "IikoImportPreviewCategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isHidden": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isHidden",
+          "items"
+        ]
+      },
+      "IikoImportPreviewItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "orderItemType": {
+            "type": "string",
+            "nullable": true
+          },
+          "isHidden": {
+            "type": "boolean"
+          },
+          "hasPrice": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "number",
+            "nullable": true
+          },
+          "variants": {
+            "type": "number"
+          },
+          "hasModifiers": {
+            "type": "boolean"
+          },
+          "willImport": {
+            "type": "boolean"
+          },
+          "skipReasons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "diffStatus": {
+            "type": "string",
+            "nullable": true
+          },
+          "localProductId": {
+            "type": "string",
+            "nullable": true
+          },
+          "localName": {
+            "type": "string",
+            "nullable": true
+          },
+          "localPrice": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "categoryId",
+          "type",
+          "orderItemType",
+          "isHidden",
+          "hasPrice",
+          "price",
+          "variants",
+          "hasModifiers",
+          "willImport",
+          "skipReasons",
+          "diffStatus",
+          "localProductId",
+          "localName",
+          "localPrice"
+        ]
+      },
+      "IikoImportPreviewDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "source": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "number",
+            "nullable": true
+          },
+          "externalMenuId": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalMenuName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stats": {
+            "$ref": "#/components/schemas/IikoImportPreviewStatsDto"
+          },
+          "diff": {
+            "$ref": "#/components/schemas/IikoImportPreviewDiffDto"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoImportPreviewCategoryDto"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoImportPreviewItemDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "source",
+          "revision",
+          "externalMenuId",
+          "externalMenuName",
+          "stats",
+          "diff",
+          "categories",
+          "items"
+        ]
+      },
+      "IikoQueuedSyncDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "queued": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "jobId": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "PRODUCT",
+              "STOCK"
+            ]
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "SCHEDULED",
+              "WEBHOOK"
+            ]
+          }
+        },
+        "required": [
+          "ok",
+          "queued",
+          "runId",
+          "jobId",
+          "mode",
+          "trigger"
+        ]
+      },
+      "IikoWebhookSetupDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "correlationId": {
+            "type": "string"
+          },
+          "webhook": {
+            "$ref": "#/components/schemas/IikoWebhookStatusDto"
+          }
+        },
+        "required": [
+          "ok",
+          "enabled",
+          "correlationId",
+          "webhook"
+        ]
+      },
       "CatalogConfigDto": {
         "type": "object",
         "properties": {
@@ -15171,6 +18063,10 @@
             "type": "boolean",
             "description": "Whether the current catalog can use MoySklad integration."
           },
+          "canUseIikoIntegration": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use iiko integration."
+          },
           "raw": {
             "type": "object",
             "additionalProperties": {
@@ -15207,6 +18103,7 @@
           "canUseCatalogSaleUnits",
           "canUseInternalInventory",
           "canUseMoySkladIntegration",
+          "canUseIikoIntegration",
           "raw",
           "effective",
           "definitions",
@@ -15777,6 +18674,159 @@
           "domain"
         ]
       },
+      "IikoRestaurantTableDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "publicCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "number": {
+            "type": "number",
+            "nullable": true
+          },
+          "displayNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "seatingCapacity": {
+            "type": "number",
+            "nullable": true
+          },
+          "sectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminalGroupId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "publicCode",
+          "number",
+          "displayNumber",
+          "name",
+          "seatingCapacity",
+          "sectionId",
+          "sectionName",
+          "terminalGroupId"
+        ]
+      },
+      "IikoRestaurantTablesDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoRestaurantTableDto"
+            }
+          },
+          "revision": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ok",
+          "tables",
+          "revision"
+        ]
+      },
+      "IikoOrderExportDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "MOYSKLAD",
+              "IIKO"
+            ]
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCESS",
+              "ERROR",
+              "SKIPPED"
+            ]
+          },
+          "attempts": {
+            "type": "number"
+          },
+          "lastError": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "exportedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "orderId",
+          "idempotencyKey",
+          "externalId",
+          "status",
+          "attempts",
+          "lastError",
+          "requestedAt",
+          "startedAt",
+          "exportedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "MoySkladOrderExportDto": {
         "type": "object",
         "properties": {
@@ -15786,7 +18836,8 @@
           "provider": {
             "type": "string",
             "enum": [
-              "MOYSKLAD"
+              "MOYSKLAD",
+              "IIKO"
             ]
           },
           "orderId": {
@@ -16365,121 +19416,112 @@
           "reason"
         ]
       },
-      "CatalogSaleUnitDto": {
+      "IikoQueuedOrderExportDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "queued": {
+            "type": "boolean"
+          },
+          "exportId": {
+            "type": "string",
+            "nullable": true
+          },
+          "jobId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ok",
+          "queued",
+          "exportId",
+          "jobId",
+          "reason"
+        ]
+      },
+      "IikoOrderExportTimelineItemDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "catalogId": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "defaultBaseQuantity": {
+          "provider": {
             "type": "string",
-            "example": "1.0000"
+            "enum": [
+              "MOYSKLAD",
+              "IIKO"
+            ]
           },
-          "barcode": {
+          "exportId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "detail": {
             "type": "string",
             "nullable": true
           },
-          "isActive": {
-            "type": "boolean"
+          "externalId": {
+            "type": "string",
+            "nullable": true
           },
-          "displayOrder": {
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "attempts": {
             "type": "number"
           },
-          "deleteAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
+          "occurredAt": {
             "type": "string",
             "format": "date-time"
           }
         },
         "required": [
           "id",
-          "catalogId",
-          "code",
-          "name",
-          "defaultBaseQuantity",
-          "barcode",
-          "isActive",
-          "displayOrder",
-          "deleteAt",
-          "createdAt",
-          "updatedAt"
+          "provider",
+          "exportId",
+          "type",
+          "status",
+          "title",
+          "detail",
+          "externalId",
+          "error",
+          "attempts",
+          "occurredAt"
         ]
       },
-      "CreateCatalogSaleUnitDtoReq": {
+      "IikoOrderExportTimelineDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "example": "Короб",
-            "description": "Название формата продажи внутри текущего каталога."
+          "orderId": {
+            "type": "string"
           },
-          "code": {
-            "type": "string",
-            "example": "box",
-            "description": "Технический код можно не передавать: backend создаст его сам."
-          },
-          "defaultBaseQuantity": {
-            "type": "number",
-            "example": 12,
-            "description": "Подсказка количества внутри. Конкретный товар все равно хранит свое количество."
-          },
-          "barcode": {
-            "type": "string",
-            "example": "4601234567890"
-          },
-          "displayOrder": {
-            "type": "number",
-            "example": 0
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IikoOrderExportTimelineItemDto"
+            }
           }
         },
         "required": [
-          "name"
+          "orderId",
+          "items"
         ]
-      },
-      "UpdateCatalogSaleUnitDtoReq": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Короб",
-            "description": "Название формата продажи внутри текущего каталога."
-          },
-          "code": {
-            "type": "string",
-            "example": "box",
-            "description": "Технический код можно не передавать: backend создаст его сам."
-          },
-          "defaultBaseQuantity": {
-            "type": "number",
-            "example": 12,
-            "description": "Подсказка количества внутри. Конкретный товар все равно хранит свое количество."
-          },
-          "barcode": {
-            "type": "string",
-            "example": "4601234567890"
-          },
-          "displayOrder": {
-            "type": "number",
-            "example": 0
-          }
-        }
       },
       "CategoryDto": {
         "type": "object",
@@ -17790,36 +20832,6 @@
           "publicKey"
         ]
       },
-      "UpsertCartItemDtoReq": {
-        "type": "object",
-        "properties": {
-          "productId": {
-            "type": "string",
-            "format": "uuid",
-            "example": "d084ec3f-55cb-4ba4-9f50-c18fd01ea124"
-          },
-          "variantId": {
-            "type": "string",
-            "format": "uuid",
-            "example": "9f3f4ec2-9f74-4e03-b8cf-95ce5449cb8e"
-          },
-          "saleUnitId": {
-            "type": "string",
-            "format": "uuid",
-            "example": "0f651b34-c9a7-4e49-92f7-f1545e2711da",
-            "description": "Единица продажи выбранной вариации: штука, упаковка, палета."
-          },
-          "quantity": {
-            "type": "number",
-            "example": 2,
-            "description": "0 = удалить позицию из корзины"
-          }
-        },
-        "required": [
-          "productId",
-          "quantity"
-        ]
-      },
       "OrderStatus": {
         "type": "string",
         "enum": [
@@ -17979,6 +20991,83 @@
         "required": [
           "ok",
           "order"
+        ]
+      },
+      "HallTableLinkDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "tableName": {
+            "type": "string",
+            "nullable": true
+          },
+          "tableNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "tableName",
+          "tableNumber",
+          "sectionId",
+          "sectionName"
+        ]
+      },
+      "HallTableLinkResponseDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          },
+          "table": {
+            "$ref": "#/components/schemas/HallTableLinkDto"
+          }
+        },
+        "required": [
+          "ok",
+          "table"
+        ]
+      },
+      "UpsertCartItemDtoReq": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "d084ec3f-55cb-4ba4-9f50-c18fd01ea124"
+          },
+          "variantId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "9f3f4ec2-9f74-4e03-b8cf-95ce5449cb8e"
+          },
+          "saleUnitId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "0f651b34-c9a7-4e49-92f7-f1545e2711da",
+            "description": "Единица продажи выбранной вариации: штука, упаковка, палета."
+          },
+          "quantity": {
+            "type": "number",
+            "example": 2,
+            "description": "0 = удалить позицию из корзины"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
         ]
       },
       "PublicUpsertCartItemDtoReq": {

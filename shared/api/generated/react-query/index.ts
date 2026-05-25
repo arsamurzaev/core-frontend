@@ -282,6 +282,8 @@ export interface AdminCatalogConfigListItemDto {
   canUseInternalInventory: boolean;
   /** Whether the catalog can use MoySklad integration. */
   canUseMoySkladIntegration: boolean;
+  /** Whether the catalog can use iiko integration. */
+  canUseIikoIntegration: boolean;
 }
 
 export interface AdminDeleteInfoDto {
@@ -364,6 +366,15 @@ export interface AdminPromoCodeListItemDto {
   paymentsCount?: number;
 }
 
+export interface AdminCatalogActivityListItemDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  deleteAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface AdminCatalogChildListItemDto {
   id: string;
   slug: string;
@@ -406,6 +417,7 @@ export interface AdminCatalogListItemDto {
   logoMedia: MediaDto | null;
   type: AdminTypeListItemDto;
   promoCode: AdminPromoCodeListItemDto | null;
+  activities: AdminCatalogActivityListItemDto[];
   children: AdminCatalogChildListItemDto[];
 }
 
@@ -488,8 +500,11 @@ export interface AdminUpdateCatalogDtoReq {
   name?: string;
   typeId?: string;
   activityIds?: string[];
-  /** Yandex Metrika counter id for MAIN scope. */
-  metricId?: string;
+  /**
+   * Yandex Metrika counter id for MAIN scope.
+   * @nullable
+   */
+  metricId?: string | null;
   status?: AdminUpdateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug?: string;
@@ -510,6 +525,7 @@ export const AdminCatalogFeatureEntitlementItemDtoFeature = {
   catalogsale_units: 'catalog.sale_units',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
+  integrationiiko: 'integration.iiko',
 } as const;
 
 /**
@@ -768,6 +784,7 @@ export const AdminUpdateCatalogFeatureEntitlementDtoReqFeature = {
   catalogsale_units: 'catalog.sale_units',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
+  integrationiiko: 'integration.iiko',
 } as const;
 
 /**
@@ -1009,6 +1026,31 @@ export interface UploadQueueStatusDto {
   error?: string;
 }
 
+export interface ProductVariantCatalogSaleUnitDto {
+  id: string;
+  code: string;
+  name: string;
+  defaultBaseQuantity: string;
+}
+
+export interface ProductVariantSaleUnitDto {
+  id: string;
+  /** @nullable */
+  catalogSaleUnitId: string | null;
+  code: string;
+  name: string;
+  baseQuantity: string;
+  price: string;
+  /** @nullable */
+  barcode: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
+}
+
 export interface ProductMediaDto {
   position: number;
   /** @nullable */
@@ -1039,6 +1081,7 @@ export type ProductIntegrationDtoProvider = typeof ProductIntegrationDtoProvider
 
 export const ProductIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export interface ProductIntegrationDto {
@@ -1189,6 +1232,7 @@ export interface ProductWithAttributesDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1245,31 +1289,6 @@ export interface VariantAttributeDto {
   enumValueId: string;
   attribute: ProductAttributeRefDto;
   enumValue: ProductAttributeEnumValueDto;
-}
-
-export interface ProductVariantCatalogSaleUnitDto {
-  id: string;
-  code: string;
-  name: string;
-  defaultBaseQuantity: string;
-}
-
-export interface ProductVariantSaleUnitDto {
-  id: string;
-  /** @nullable */
-  catalogSaleUnitId: string | null;
-  code: string;
-  name: string;
-  baseQuantity: string;
-  price: string;
-  /** @nullable */
-  barcode: string | null;
-  isDefault: boolean;
-  isActive: boolean;
-  displayOrder: number;
-  createdAt: string;
-  updatedAt: string;
-  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
 }
 
 export type ProductVariantDtoKind = typeof ProductVariantDtoKind[keyof typeof ProductVariantDtoKind];
@@ -1446,6 +1465,7 @@ export interface ProductWithDetailsDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1484,14 +1504,14 @@ export interface ProductVariantAttributeDtoReq {
 }
 
 export interface ProductVariantSaleUnitDtoReq {
-  /** Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name. */
-  catalogSaleUnitId?: string;
-  /** Технический код можно не передавать: backend сгенерирует его из названия. */
+  /** Ссылка на активную единицу продажи из справочника текущего каталога. */
+  catalogSaleUnitId: string;
+  /** Не используется для создания справочника: локальная привязка берет код из catalogSaleUnitId. */
   code?: string;
-  /** Название формата продажи. Не нужно, если передан catalogSaleUnitId. */
+  /** Не используется для создания справочника: локальная привязка берет название из catalogSaleUnitId. */
   name?: string;
   /** Сколько базовых единиц внутри для конкретного товара/варианта. */
-  baseQuantity?: number;
+  baseQuantity: number;
   price: number;
   barcode?: string;
   isDefault?: boolean;
@@ -1587,6 +1607,7 @@ export interface ProductCreateResponseDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1721,6 +1742,7 @@ export interface ProductUpdateResponseDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1884,6 +1906,7 @@ export interface ProductVariantsResponseDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -2189,6 +2212,46 @@ export interface CatalogDomainCheckDto {
   message: string;
 }
 
+export interface CatalogSaleUnitDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  defaultBaseQuantity: string;
+  /** @nullable */
+  barcode: string | null;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCatalogSaleUnitDtoReq {
+  /** Название формата продажи внутри текущего каталога. */
+  name: string;
+  /** Технический код можно не передавать: backend создаст его сам. */
+  code?: string;
+  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
+  defaultBaseQuantity?: number;
+  barcode?: string;
+  displayOrder?: number;
+}
+
+export interface UpdateCatalogSaleUnitDtoReq {
+  /** Название формата продажи внутри текущего каталога. */
+  name?: string;
+  /** Технический код можно не передавать: backend создаст его сам. */
+  code?: string;
+  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
+  defaultBaseQuantity?: number;
+  barcode?: string;
+  displayOrder?: number;
+  /** Soft availability switch for admin dictionaries. Existing product bindings are preserved. */
+  isActive?: boolean;
+}
+
 export interface CatalogYandexMetrikaDto {
   /** @nullable */
   counterId: string | null;
@@ -2266,6 +2329,7 @@ export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvid
 
 export const MoySkladIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
@@ -2403,6 +2467,7 @@ export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof
 
 export const MoySkladSyncRunDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
@@ -2661,6 +2726,492 @@ export interface MoySkladQueuedSyncDto {
   trigger: MoySkladQueuedSyncDtoTrigger;
 }
 
+export interface IikoWebhookStatusDto {
+  enabled: boolean;
+  /** @nullable */
+  urlPreview: string | null;
+  hasSecret: boolean;
+  /** @nullable */
+  lastConfiguredAt: string | null;
+  /** @nullable */
+  lastReceivedAt: string | null;
+  /** @nullable */
+  lastEventType: string | null;
+  /** @nullable */
+  lastError: string | null;
+}
+
+export type IikoIntegrationDtoProvider = typeof IikoIntegrationDtoProvider[keyof typeof IikoIntegrationDtoProvider];
+
+
+export const IikoIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+/**
+ * @nullable
+ */
+export type IikoIntegrationDtoOrderExportServiceType = typeof IikoIntegrationDtoOrderExportServiceType[keyof typeof IikoIntegrationDtoOrderExportServiceType] | null;
+
+
+export const IikoIntegrationDtoOrderExportServiceType = {
+  DeliveryByCourier: 'DeliveryByCourier',
+  DeliveryByClient: 'DeliveryByClient',
+} as const;
+
+export type IikoIntegrationDtoLastSyncStatus = typeof IikoIntegrationDtoLastSyncStatus[keyof typeof IikoIntegrationDtoLastSyncStatus];
+
+
+export const IikoIntegrationDtoLastSyncStatus = {
+  IDLE: 'IDLE',
+  SYNCING: 'SYNCING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+} as const;
+
+export interface IikoIntegrationDto {
+  provider: IikoIntegrationDtoProvider;
+  capabilities: IntegrationProviderCapabilitiesDto;
+  isActive: boolean;
+  hasApiLogin: boolean;
+  /** @nullable */
+  apiLoginPreview: string | null;
+  organizationId: string;
+  /** @nullable */
+  organizationName: string | null;
+  /** @nullable */
+  externalMenuId: string | null;
+  /** @nullable */
+  externalMenuName: string | null;
+  /** @nullable */
+  priceCategoryId: string | null;
+  /** @nullable */
+  priceCategoryName: string | null;
+  /** @nullable */
+  terminalGroupId: string | null;
+  /** @nullable */
+  terminalGroupName: string | null;
+  menuVersion: number;
+  syncSource: string;
+  importImages: boolean;
+  exportOrders: boolean;
+  webhook: IikoWebhookStatusDto;
+  /** @nullable */
+  orderExportServiceType: IikoIntegrationDtoOrderExportServiceType;
+  /** @nullable */
+  orderExportSourceKey: string | null;
+  /** @nullable */
+  lastRevision: number | null;
+  /** @nullable */
+  lastMenuSyncedAt: string | null;
+  /** @nullable */
+  lastStopListSyncedAt: string | null;
+  lastSyncStatus: IikoIntegrationDtoLastSyncStatus;
+  /** @nullable */
+  syncStartedAt: string | null;
+  /** @nullable */
+  lastSyncAt: string | null;
+  /** @nullable */
+  lastSyncError: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type IikoSyncRunDtoProvider = typeof IikoSyncRunDtoProvider[keyof typeof IikoSyncRunDtoProvider];
+
+
+export const IikoSyncRunDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export type IikoSyncRunDtoMode = typeof IikoSyncRunDtoMode[keyof typeof IikoSyncRunDtoMode];
+
+
+export const IikoSyncRunDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  STOCK: 'STOCK',
+} as const;
+
+export type IikoSyncRunDtoTrigger = typeof IikoSyncRunDtoTrigger[keyof typeof IikoSyncRunDtoTrigger];
+
+
+export const IikoSyncRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export type IikoSyncRunDtoStatus = typeof IikoSyncRunDtoStatus[keyof typeof IikoSyncRunDtoStatus];
+
+
+export const IikoSyncRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export type IikoSyncRunDtoSnapshotCompleteness = typeof IikoSyncRunDtoSnapshotCompleteness[keyof typeof IikoSyncRunDtoSnapshotCompleteness];
+
+
+export const IikoSyncRunDtoSnapshotCompleteness = {
+  FULL_COMPLETE: 'FULL_COMPLETE',
+  PARTIAL: 'PARTIAL',
+  WEBHOOK_DELTA: 'WEBHOOK_DELTA',
+  FAILED_BEFORE_SNAPSHOT: 'FAILED_BEFORE_SNAPSHOT',
+} as const;
+
+export interface IikoSyncRunDto {
+  id: string;
+  provider: IikoSyncRunDtoProvider;
+  mode: IikoSyncRunDtoMode;
+  trigger: IikoSyncRunDtoTrigger;
+  status: IikoSyncRunDtoStatus;
+  snapshotCompleteness: IikoSyncRunDtoSnapshotCompleteness;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  imagesImported: number;
+  products: MoySkladSyncEntityStatsDto;
+  variants: MoySkladSyncEntityStatsDto;
+  stockRows: MoySkladSyncStockStatsDto;
+  warnings: MoySkladSyncIssueDto[];
+  errors: MoySkladSyncIssueDto[];
+  progress: MoySkladSyncProgressDto | null;
+  /** @nullable */
+  durationMs: number | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IikoIntegrationStatusDto {
+  configured: boolean;
+  integration: IikoIntegrationDto | null;
+  activeRun: IikoSyncRunDto | null;
+  lastRun: IikoSyncRunDto | null;
+}
+
+export type IikoWebhookEventDtoProvider = typeof IikoWebhookEventDtoProvider[keyof typeof IikoWebhookEventDtoProvider];
+
+
+export const IikoWebhookEventDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export type IikoWebhookEventDtoStatus = typeof IikoWebhookEventDtoStatus[keyof typeof IikoWebhookEventDtoStatus];
+
+
+export const IikoWebhookEventDtoStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  PROCESSED: 'PROCESSED',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export type IikoWebhookEventDtoDetails = { [key: string]: unknown };
+
+export interface IikoWebhookEventDto {
+  id: string;
+  provider: IikoWebhookEventDtoProvider;
+  requestId: string;
+  eventType: string;
+  status: IikoWebhookEventDtoStatus;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  error: string | null;
+  details: IikoWebhookEventDtoDetails;
+  receivedAt: string;
+  /** @nullable */
+  processedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type IikoSyncProgressDtoStatus = typeof IikoSyncProgressDtoStatus[keyof typeof IikoSyncProgressDtoStatus];
+
+
+export const IikoSyncProgressDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface IikoSyncProgressDto {
+  runId: string;
+  status: IikoSyncProgressDtoStatus;
+  phase: string;
+  message: string;
+  processed: number;
+  /** @nullable */
+  total: number | null;
+  /** @nullable */
+  percent: number | null;
+  updatedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type UpsertIikoIntegrationDtoReqOrderExportServiceType = typeof UpsertIikoIntegrationDtoReqOrderExportServiceType[keyof typeof UpsertIikoIntegrationDtoReqOrderExportServiceType] | null;
+
+
+export const UpsertIikoIntegrationDtoReqOrderExportServiceType = {
+  DeliveryByCourier: 'DeliveryByCourier',
+  DeliveryByClient: 'DeliveryByClient',
+} as const;
+
+export interface UpsertIikoIntegrationDtoReq {
+  apiLogin: string;
+  organizationId: string;
+  /** @nullable */
+  organizationName?: string | null;
+  /** @nullable */
+  externalMenuId?: string | null;
+  /** @nullable */
+  externalMenuName?: string | null;
+  /** @nullable */
+  priceCategoryId?: string | null;
+  /** @nullable */
+  priceCategoryName?: string | null;
+  /** @nullable */
+  terminalGroupId?: string | null;
+  /** @nullable */
+  terminalGroupName?: string | null;
+  menuVersion?: number;
+  isActive?: boolean;
+  importImages?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  orderExportServiceType?: UpsertIikoIntegrationDtoReqOrderExportServiceType;
+  /** @nullable */
+  orderExportSourceKey?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type UpdateIikoIntegrationDtoReqOrderExportServiceType = typeof UpdateIikoIntegrationDtoReqOrderExportServiceType[keyof typeof UpdateIikoIntegrationDtoReqOrderExportServiceType] | null;
+
+
+export const UpdateIikoIntegrationDtoReqOrderExportServiceType = {
+  DeliveryByCourier: 'DeliveryByCourier',
+  DeliveryByClient: 'DeliveryByClient',
+} as const;
+
+export interface UpdateIikoIntegrationDtoReq {
+  apiLogin?: string;
+  organizationId?: string;
+  /** @nullable */
+  organizationName?: string | null;
+  /** @nullable */
+  externalMenuId?: string | null;
+  /** @nullable */
+  externalMenuName?: string | null;
+  /** @nullable */
+  priceCategoryId?: string | null;
+  /** @nullable */
+  priceCategoryName?: string | null;
+  /** @nullable */
+  terminalGroupId?: string | null;
+  /** @nullable */
+  terminalGroupName?: string | null;
+  menuVersion?: number;
+  isActive?: boolean;
+  importImages?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  orderExportServiceType?: UpdateIikoIntegrationDtoReqOrderExportServiceType;
+  /** @nullable */
+  orderExportSourceKey?: string | null;
+}
+
+export interface TestIikoConnectionDtoReq {
+  apiLogin?: string;
+}
+
+export interface IikoOrganizationDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  isActive: boolean | null;
+}
+
+export interface IikoExternalMenuDto {
+  id: string;
+  name: string;
+}
+
+export interface IikoPriceCategoryDto {
+  id: string;
+  name: string;
+}
+
+export interface IikoTerminalGroupDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  organizationId: string | null;
+  /** @nullable */
+  isActive: boolean | null;
+  /** @nullable */
+  isAlive: boolean | null;
+}
+
+export interface IikoTestConnectionDto {
+  ok: boolean;
+  organizations: IikoOrganizationDto[];
+  externalMenus: IikoExternalMenuDto[];
+  priceCategories: IikoPriceCategoryDto[];
+  terminalGroups: IikoTerminalGroupDto[];
+}
+
+export interface PreviewIikoImportDtoReq {
+  /** Optional apiLogin override. If omitted, saved iiko credentials are used. */
+  apiLogin?: string;
+  organizationId?: string;
+  externalMenuId?: string;
+  /** @nullable */
+  externalMenuName?: string | null;
+  /** @nullable */
+  priceCategoryId?: string | null;
+  menuVersion?: number;
+}
+
+export interface IikoImportPreviewStatsDto {
+  categories: number;
+  items: number;
+  visibleItems: number;
+  hiddenItems: number;
+  itemsWithoutPrice: number;
+  itemsWithModifiers: number;
+  combos: number;
+  variants: number;
+}
+
+export interface IikoImportPreviewDiffDto {
+  newItems: number;
+  matchedItems: number;
+  changedItems: number;
+  priceChanges: number;
+  nameChanges: number;
+  unchangedItems: number;
+  missingLinkedItems: number;
+}
+
+export interface IikoImportPreviewCategoryDto {
+  id: string;
+  name: string;
+  isHidden: boolean;
+  items: number;
+}
+
+export interface IikoImportPreviewItemDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  categoryId: string | null;
+  /** @nullable */
+  type: string | null;
+  /** @nullable */
+  orderItemType: string | null;
+  isHidden: boolean;
+  hasPrice: boolean;
+  /** @nullable */
+  price: number | null;
+  variants: number;
+  hasModifiers: boolean;
+  willImport: boolean;
+  skipReasons: string[];
+  /** @nullable */
+  diffStatus: string | null;
+  /** @nullable */
+  localProductId: string | null;
+  /** @nullable */
+  localName: string | null;
+  /** @nullable */
+  localPrice: number | null;
+}
+
+export interface IikoImportPreviewDto {
+  ok: boolean;
+  source: string;
+  /** @nullable */
+  revision: number | null;
+  /** @nullable */
+  externalMenuId: string | null;
+  /** @nullable */
+  externalMenuName: string | null;
+  stats: IikoImportPreviewStatsDto;
+  diff: IikoImportPreviewDiffDto;
+  categories: IikoImportPreviewCategoryDto[];
+  items: IikoImportPreviewItemDto[];
+}
+
+export type IikoQueuedSyncDtoMode = typeof IikoQueuedSyncDtoMode[keyof typeof IikoQueuedSyncDtoMode];
+
+
+export const IikoQueuedSyncDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  STOCK: 'STOCK',
+} as const;
+
+export type IikoQueuedSyncDtoTrigger = typeof IikoQueuedSyncDtoTrigger[keyof typeof IikoQueuedSyncDtoTrigger];
+
+
+export const IikoQueuedSyncDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export interface IikoQueuedSyncDto {
+  ok: boolean;
+  queued: boolean;
+  runId: string;
+  jobId: string;
+  mode: IikoQueuedSyncDtoMode;
+  trigger: IikoQueuedSyncDtoTrigger;
+}
+
+export interface IikoWebhookSetupDto {
+  ok: boolean;
+  enabled: boolean;
+  correlationId: string;
+  webhook: IikoWebhookStatusDto;
+}
+
 export type CatalogConfigDtoStatus = typeof CatalogConfigDtoStatus[keyof typeof CatalogConfigDtoStatus];
 
 
@@ -2813,6 +3364,8 @@ export interface CatalogCurrentFeaturesDto {
   canUseInternalInventory: boolean;
   /** Whether the current catalog can use MoySklad integration. */
   canUseMoySkladIntegration: boolean;
+  /** Whether the current catalog can use iiko integration. */
+  canUseIikoIntegration: boolean;
   /** Raw admin entitlements before dependency resolution. */
   raw: CatalogCurrentFeaturesDtoRaw;
   /** Effective capabilities after dependency resolution. */
@@ -3035,11 +3588,78 @@ export interface CatalogCreateResponseDto {
   domain: string | null;
 }
 
+export interface IikoRestaurantTableDto {
+  id: string;
+  /** @nullable */
+  publicCode: string | null;
+  /** @nullable */
+  number: number | null;
+  /** @nullable */
+  displayNumber: string | null;
+  /** @nullable */
+  name: string | null;
+  /** @nullable */
+  seatingCapacity: number | null;
+  /** @nullable */
+  sectionId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+  /** @nullable */
+  terminalGroupId: string | null;
+}
+
+export interface IikoRestaurantTablesDto {
+  ok: boolean;
+  tables: IikoRestaurantTableDto[];
+  /** @nullable */
+  revision: number | null;
+}
+
+export type IikoOrderExportDtoProvider = typeof IikoOrderExportDtoProvider[keyof typeof IikoOrderExportDtoProvider];
+
+
+export const IikoOrderExportDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export type IikoOrderExportDtoStatus = typeof IikoOrderExportDtoStatus[keyof typeof IikoOrderExportDtoStatus];
+
+
+export const IikoOrderExportDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface IikoOrderExportDto {
+  id: string;
+  provider: IikoOrderExportDtoProvider;
+  orderId: string;
+  idempotencyKey: string;
+  /** @nullable */
+  externalId: string | null;
+  status: IikoOrderExportDtoStatus;
+  attempts: number;
+  /** @nullable */
+  lastError: string | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  exportedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type MoySkladOrderExportDtoProvider = typeof MoySkladOrderExportDtoProvider[keyof typeof MoySkladOrderExportDtoProvider];
 
 
 export const MoySkladOrderExportDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export type MoySkladOrderExportDtoStatus = typeof MoySkladOrderExportDtoStatus[keyof typeof MoySkladOrderExportDtoStatus];
@@ -3260,42 +3880,45 @@ export interface MoySkladQueuedOrderExportDto {
   reason: string | null;
 }
 
-export interface CatalogSaleUnitDto {
+export interface IikoQueuedOrderExportDto {
+  ok: boolean;
+  queued: boolean;
+  /** @nullable */
+  exportId: string | null;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  reason: string | null;
+}
+
+export type IikoOrderExportTimelineItemDtoProvider = typeof IikoOrderExportTimelineItemDtoProvider[keyof typeof IikoOrderExportTimelineItemDtoProvider];
+
+
+export const IikoOrderExportTimelineItemDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export interface IikoOrderExportTimelineItemDto {
   id: string;
-  catalogId: string;
-  code: string;
-  name: string;
-  defaultBaseQuantity: string;
+  provider: IikoOrderExportTimelineItemDtoProvider;
+  exportId: string;
+  type: string;
+  status: string;
+  title: string;
   /** @nullable */
-  barcode: string | null;
-  isActive: boolean;
-  displayOrder: number;
+  detail: string | null;
   /** @nullable */
-  deleteAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  attempts: number;
+  occurredAt: string;
 }
 
-export interface CreateCatalogSaleUnitDtoReq {
-  /** Название формата продажи внутри текущего каталога. */
-  name: string;
-  /** Технический код можно не передавать: backend создаст его сам. */
-  code?: string;
-  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
-  defaultBaseQuantity?: number;
-  barcode?: string;
-  displayOrder?: number;
-}
-
-export interface UpdateCatalogSaleUnitDtoReq {
-  /** Название формата продажи внутри текущего каталога. */
-  name?: string;
-  /** Технический код можно не передавать: backend создаст его сам. */
-  code?: string;
-  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
-  defaultBaseQuantity?: number;
-  barcode?: string;
-  displayOrder?: number;
+export interface IikoOrderExportTimelineDto {
+  orderId: string;
+  items: IikoOrderExportTimelineItemDto[];
 }
 
 export interface CategoryDto {
@@ -3755,15 +4378,6 @@ export interface ShareCartResponseDto {
   publicKey: string;
 }
 
-export interface UpsertCartItemDtoReq {
-  productId: string;
-  variantId?: string;
-  /** Единица продажи выбранной вариации: штука, упаковка, палета. */
-  saleUnitId?: string;
-  /** 0 = удалить позицию из корзины */
-  quantity: number;
-}
-
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 
@@ -3829,6 +4443,32 @@ export interface CompletedOrderDto {
 export interface CompleteCartOrderResponseDto {
   ok: boolean;
   order: CompletedOrderDto;
+}
+
+export interface HallTableLinkDto {
+  code: string;
+  /** @nullable */
+  tableName: string | null;
+  /** @nullable */
+  tableNumber: string | null;
+  /** @nullable */
+  sectionId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+}
+
+export interface HallTableLinkResponseDto {
+  ok: boolean;
+  table: HallTableLinkDto;
+}
+
+export interface UpsertCartItemDtoReq {
+  productId: string;
+  variantId?: string;
+  /** Единица продажи выбранной вариации: штука, упаковка, палета. */
+  saleUnitId?: string;
+  /** 0 = удалить позицию из корзины */
+  quantity: number;
 }
 
 export interface PublicUpsertCartItemDtoReq {
@@ -4478,9 +5118,63 @@ export type ProductControllerDiagnoseDefaultVariantsParams = {
 sampleLimit?: number;
 };
 
+export type CatalogAdvancedSettingsControllerListSaleUnitsParams = {
+/**
+ * Include disabled, non-archived units.
+ */
+includeInactive?: boolean;
+/**
+ * Include archived units.
+ */
+includeArchived?: boolean;
+};
+
 export type CatalogAdvancedSettingsControllerGetMoySkladRunsParams = {
 /**
  * Сколько последних запусков вернуть
+ */
+limit?: number;
+};
+
+export type CatalogAdvancedSettingsControllerGetIikoRunsParams = {
+/**
+ * How many recent sync runs to return
+ */
+limit?: number;
+};
+
+export type CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams = {
+/**
+ * How many recent webhook events to return
+ */
+limit?: number;
+/**
+ * Optional webhook event status filter
+ */
+status?: string;
+};
+
+export type IntegrationControllerGetIikoRunsParams = {
+/**
+ * How many recent sync runs to return
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetIikoOrderExportsParams = {
+/**
+ * How many recent order exports to return
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetIikoWebhookEventsParams = {
+/**
+ * Optional webhook event status filter
+ */
+status?: string;
+/**
+ * How many recent webhook events to return
  */
 limit?: number;
 };
@@ -4505,6 +5199,7 @@ requestId?: string;
 
 export type CatalogSaleUnitControllerGetAllParams = {
 includeArchived?: boolean;
+includeInactive?: boolean;
 };
 
 export type CategoryControllerGetAllParams = {
@@ -12236,6 +12931,380 @@ export const useCatalogAdvancedSettingsControllerDisableDomain = <TError = unkno
     }
     
 /**
+ * @summary List advanced settings catalog sale units
+ */
+export const catalogAdvancedSettingsControllerListSaleUnits = (
+    params?: CatalogAdvancedSettingsControllerListSaleUnitsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogSaleUnitDto[]>(
+      {url: `/catalog/current/advanced-settings/sale-units`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerListSaleUnitsQueryKey = (params?: CatalogAdvancedSettingsControllerListSaleUnitsParams,) => {
+    return [
+    `/catalog/current/advanced-settings/sale-units`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerListSaleUnitsQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError = unknown>(params?: CatalogAdvancedSettingsControllerListSaleUnitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerListSaleUnitsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>> = ({ signal }) => catalogAdvancedSettingsControllerListSaleUnits(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerListSaleUnitsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>>
+export type CatalogAdvancedSettingsControllerListSaleUnitsQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerListSaleUnits<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError = unknown>(
+ params: undefined |  CatalogAdvancedSettingsControllerListSaleUnitsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerListSaleUnits<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerListSaleUnitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerListSaleUnits<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerListSaleUnitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List advanced settings catalog sale units
+ */
+
+export function useCatalogAdvancedSettingsControllerListSaleUnits<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerListSaleUnitsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerListSaleUnits>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerListSaleUnitsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create advanced settings catalog sale unit
+ */
+export const catalogAdvancedSettingsControllerCreateSaleUnit = (
+    createCatalogSaleUnitDtoReq: CreateCatalogSaleUnitDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogSaleUnitDto>(
+      {url: `/catalog/current/advanced-settings/sale-units`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogSaleUnitDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerCreateSaleUnitMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateSaleUnit>>, TError,{data: CreateCatalogSaleUnitDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateSaleUnit>>, TError,{data: CreateCatalogSaleUnitDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerCreateSaleUnit'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateSaleUnit>>, {data: CreateCatalogSaleUnitDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerCreateSaleUnit(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerCreateSaleUnitMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateSaleUnit>>>
+    export type CatalogAdvancedSettingsControllerCreateSaleUnitMutationBody = CreateCatalogSaleUnitDtoReq
+    export type CatalogAdvancedSettingsControllerCreateSaleUnitMutationError = unknown
+
+    /**
+ * @summary Create advanced settings catalog sale unit
+ */
+export const useCatalogAdvancedSettingsControllerCreateSaleUnit = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateSaleUnit>>, TError,{data: CreateCatalogSaleUnitDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerCreateSaleUnit>>,
+        TError,
+        {data: CreateCatalogSaleUnitDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerCreateSaleUnitMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get advanced settings catalog sale unit
+ */
+export const catalogAdvancedSettingsControllerGetSaleUnit = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogSaleUnitDto>(
+      {url: `/catalog/current/advanced-settings/sale-units/${id}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetSaleUnitQueryKey = (id: string,) => {
+    return [
+    `/catalog/current/advanced-settings/sale-units/${id}`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetSaleUnitQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetSaleUnitQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>> = ({ signal }) => catalogAdvancedSettingsControllerGetSaleUnit(id, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetSaleUnitQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>>
+export type CatalogAdvancedSettingsControllerGetSaleUnitQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetSaleUnit<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetSaleUnit<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetSaleUnit<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings catalog sale unit
+ */
+
+export function useCatalogAdvancedSettingsControllerGetSaleUnit<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetSaleUnit>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetSaleUnitQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Update advanced settings catalog sale unit
+ */
+export const catalogAdvancedSettingsControllerUpdateSaleUnit = (
+    id: string,
+    updateCatalogSaleUnitDtoReq: UpdateCatalogSaleUnitDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CatalogSaleUnitDto>(
+      {url: `/catalog/current/advanced-settings/sale-units/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogSaleUnitDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerUpdateSaleUnitMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateSaleUnit>>, TError,{id: string;data: UpdateCatalogSaleUnitDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateSaleUnit>>, TError,{id: string;data: UpdateCatalogSaleUnitDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerUpdateSaleUnit'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateSaleUnit>>, {id: string;data: UpdateCatalogSaleUnitDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerUpdateSaleUnit(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerUpdateSaleUnitMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateSaleUnit>>>
+    export type CatalogAdvancedSettingsControllerUpdateSaleUnitMutationBody = UpdateCatalogSaleUnitDtoReq
+    export type CatalogAdvancedSettingsControllerUpdateSaleUnitMutationError = unknown
+
+    /**
+ * @summary Update advanced settings catalog sale unit
+ */
+export const useCatalogAdvancedSettingsControllerUpdateSaleUnit = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateSaleUnit>>, TError,{id: string;data: UpdateCatalogSaleUnitDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateSaleUnit>>,
+        TError,
+        {id: string;data: UpdateCatalogSaleUnitDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerUpdateSaleUnitMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Archive advanced settings catalog sale unit
+ */
+export const catalogAdvancedSettingsControllerArchiveSaleUnit = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/sale-units/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerArchiveSaleUnitMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerArchiveSaleUnit>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerArchiveSaleUnit>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerArchiveSaleUnit'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerArchiveSaleUnit>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerArchiveSaleUnit(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerArchiveSaleUnitMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerArchiveSaleUnit>>>
+    
+    export type CatalogAdvancedSettingsControllerArchiveSaleUnitMutationError = unknown
+
+    /**
+ * @summary Archive advanced settings catalog sale unit
+ */
+export const useCatalogAdvancedSettingsControllerArchiveSaleUnit = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerArchiveSaleUnit>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerArchiveSaleUnit>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerArchiveSaleUnitMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Get catalog scoped Yandex Metrika counter
  */
 export const catalogAdvancedSettingsControllerGetYandexMetrika = (
@@ -13287,6 +14356,1153 @@ export const useCatalogAdvancedSettingsControllerCancelMoySkladSync = <TError = 
     }
     
 /**
+ * @summary Get advanced settings iiko integration
+ */
+export const catalogAdvancedSettingsControllerGetIiko = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetIikoQueryKey = () => {
+    return [
+    `/catalog/current/advanced-settings/integrations/iiko`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetIikoQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetIikoQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>> = ({ signal }) => catalogAdvancedSettingsControllerGetIiko(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetIikoQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>>
+export type CatalogAdvancedSettingsControllerGetIikoQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetIiko<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIiko<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIiko<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings iiko integration
+ */
+
+export function useCatalogAdvancedSettingsControllerGetIiko<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIiko>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetIikoQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create or replace advanced settings iiko
+ */
+export const catalogAdvancedSettingsControllerUpsertIiko = (
+    upsertIikoIntegrationDtoReq: UpsertIikoIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertIikoIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerUpsertIikoMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertIiko>>, TError,{data: UpsertIikoIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertIiko>>, TError,{data: UpsertIikoIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerUpsertIiko'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertIiko>>, {data: UpsertIikoIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerUpsertIiko(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerUpsertIikoMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertIiko>>>
+    export type CatalogAdvancedSettingsControllerUpsertIikoMutationBody = UpsertIikoIntegrationDtoReq
+    export type CatalogAdvancedSettingsControllerUpsertIikoMutationError = unknown
+
+    /**
+ * @summary Create or replace advanced settings iiko
+ */
+export const useCatalogAdvancedSettingsControllerUpsertIiko = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertIiko>>, TError,{data: UpsertIikoIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpsertIiko>>,
+        TError,
+        {data: UpsertIikoIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerUpsertIikoMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Update advanced settings iiko
+ */
+export const catalogAdvancedSettingsControllerUpdateIiko = (
+    updateIikoIntegrationDtoReq: UpdateIikoIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateIikoIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerUpdateIikoMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateIiko>>, TError,{data: UpdateIikoIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateIiko>>, TError,{data: UpdateIikoIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerUpdateIiko'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateIiko>>, {data: UpdateIikoIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerUpdateIiko(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerUpdateIikoMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateIiko>>>
+    export type CatalogAdvancedSettingsControllerUpdateIikoMutationBody = UpdateIikoIntegrationDtoReq
+    export type CatalogAdvancedSettingsControllerUpdateIikoMutationError = unknown
+
+    /**
+ * @summary Update advanced settings iiko
+ */
+export const useCatalogAdvancedSettingsControllerUpdateIiko = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateIiko>>, TError,{data: UpdateIikoIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerUpdateIiko>>,
+        TError,
+        {data: UpdateIikoIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerUpdateIikoMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Remove advanced settings iiko
+ */
+export const catalogAdvancedSettingsControllerRemoveIiko = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerRemoveIikoMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveIiko>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveIiko>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerRemoveIiko'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveIiko>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerRemoveIiko()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerRemoveIikoMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveIiko>>>
+    
+    export type CatalogAdvancedSettingsControllerRemoveIikoMutationError = unknown
+
+    /**
+ * @summary Remove advanced settings iiko
+ */
+export const useCatalogAdvancedSettingsControllerRemoveIiko = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveIiko>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRemoveIiko>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerRemoveIikoMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get advanced settings iiko status
+ */
+export const catalogAdvancedSettingsControllerGetIikoStatus = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationStatusDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/status`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetIikoStatusQueryKey = () => {
+    return [
+    `/catalog/current/advanced-settings/integrations/iiko/status`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetIikoStatusQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetIikoStatusQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>> = ({ signal }) => catalogAdvancedSettingsControllerGetIikoStatus(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetIikoStatusQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>>
+export type CatalogAdvancedSettingsControllerGetIikoStatusQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetIikoStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings iiko status
+ */
+
+export function useCatalogAdvancedSettingsControllerGetIikoStatus<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetIikoStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get advanced settings iiko sync history
+ */
+export const catalogAdvancedSettingsControllerGetIikoRuns = (
+    params?: CatalogAdvancedSettingsControllerGetIikoRunsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoSyncRunDto[]>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/runs`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetIikoRunsQueryKey = (params?: CatalogAdvancedSettingsControllerGetIikoRunsParams,) => {
+    return [
+    `/catalog/current/advanced-settings/integrations/iiko/runs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetIikoRunsQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError = unknown>(params?: CatalogAdvancedSettingsControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetIikoRunsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>> = ({ signal }) => catalogAdvancedSettingsControllerGetIikoRuns(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetIikoRunsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>>
+export type CatalogAdvancedSettingsControllerGetIikoRunsQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetIikoRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError = unknown>(
+ params: undefined |  CatalogAdvancedSettingsControllerGetIikoRunsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings iiko sync history
+ */
+
+export function useCatalogAdvancedSettingsControllerGetIikoRuns<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetIikoRunsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get advanced settings iiko webhook journal
+ */
+export const catalogAdvancedSettingsControllerGetIikoWebhookEvents = (
+    params?: CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoWebhookEventDto[]>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhook-events`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryKey = (params?: CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams,) => {
+    return [
+    `/catalog/current/advanced-settings/integrations/iiko/webhook-events`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError = unknown>(params?: CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>> = ({ signal }) => catalogAdvancedSettingsControllerGetIikoWebhookEvents(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>>
+export type CatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params: undefined |  CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings iiko webhook journal
+ */
+
+export function useCatalogAdvancedSettingsControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params?: CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoWebhookEvents>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Retry advanced settings iiko webhook event
+ */
+export const catalogAdvancedSettingsControllerRetryIikoWebhookEvent = (
+    eventId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoWebhookEventDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhook-events/${eventId}/retry`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerRetryIikoWebhookEventMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRetryIikoWebhookEvent>>, TError,{eventId: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRetryIikoWebhookEvent>>, TError,{eventId: string}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerRetryIikoWebhookEvent'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRetryIikoWebhookEvent>>, {eventId: string}> = (props) => {
+          const {eventId} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerRetryIikoWebhookEvent(eventId,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerRetryIikoWebhookEventMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRetryIikoWebhookEvent>>>
+    
+    export type CatalogAdvancedSettingsControllerRetryIikoWebhookEventMutationError = unknown
+
+    /**
+ * @summary Retry advanced settings iiko webhook event
+ */
+export const useCatalogAdvancedSettingsControllerRetryIikoWebhookEvent = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRetryIikoWebhookEvent>>, TError,{eventId: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerRetryIikoWebhookEvent>>,
+        TError,
+        {eventId: string},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerRetryIikoWebhookEventMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get advanced settings iiko sync progress
+ */
+export const catalogAdvancedSettingsControllerGetIikoRunProgress = (
+    runId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoSyncProgressDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/runs/${runId}/progress`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCatalogAdvancedSettingsControllerGetIikoRunProgressQueryKey = (runId: string,) => {
+    return [
+    `/catalog/current/advanced-settings/integrations/iiko/runs/${runId}/progress`
+    ] as const;
+    }
+
+    
+export const getCatalogAdvancedSettingsControllerGetIikoRunProgressQueryOptions = <TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError = unknown>(runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogAdvancedSettingsControllerGetIikoRunProgressQueryKey(runId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>> = ({ signal }) => catalogAdvancedSettingsControllerGetIikoRunProgress(runId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(runId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogAdvancedSettingsControllerGetIikoRunProgressQueryResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>>
+export type CatalogAdvancedSettingsControllerGetIikoRunProgressQueryError = unknown
+
+
+export function useCatalogAdvancedSettingsControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>,
+          TError,
+          Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogAdvancedSettingsControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get advanced settings iiko sync progress
+ */
+
+export function useCatalogAdvancedSettingsControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerGetIikoRunProgress>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogAdvancedSettingsControllerGetIikoRunProgressQueryOptions(runId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Test advanced settings iiko connection
+ */
+export const catalogAdvancedSettingsControllerTestIikoConnection = (
+    testIikoConnectionDtoReq: TestIikoConnectionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoTestConnectionDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testIikoConnectionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerTestIikoConnectionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestIikoConnection>>, TError,{data: TestIikoConnectionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestIikoConnection>>, TError,{data: TestIikoConnectionDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerTestIikoConnection'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestIikoConnection>>, {data: TestIikoConnectionDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerTestIikoConnection(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerTestIikoConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestIikoConnection>>>
+    export type CatalogAdvancedSettingsControllerTestIikoConnectionMutationBody = TestIikoConnectionDtoReq
+    export type CatalogAdvancedSettingsControllerTestIikoConnectionMutationError = unknown
+
+    /**
+ * @summary Test advanced settings iiko connection
+ */
+export const useCatalogAdvancedSettingsControllerTestIikoConnection = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestIikoConnection>>, TError,{data: TestIikoConnectionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerTestIikoConnection>>,
+        TError,
+        {data: TestIikoConnectionDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerTestIikoConnectionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Preview advanced settings iiko external menu import
+ */
+export const catalogAdvancedSettingsControllerPreviewIikoImport = (
+    previewIikoImportDtoReq: PreviewIikoImportDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoImportPreviewDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewIikoImportDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerPreviewIikoImportMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerPreviewIikoImport>>, TError,{data: PreviewIikoImportDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerPreviewIikoImport>>, TError,{data: PreviewIikoImportDtoReq}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerPreviewIikoImport'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerPreviewIikoImport>>, {data: PreviewIikoImportDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerPreviewIikoImport(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerPreviewIikoImportMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerPreviewIikoImport>>>
+    export type CatalogAdvancedSettingsControllerPreviewIikoImportMutationBody = PreviewIikoImportDtoReq
+    export type CatalogAdvancedSettingsControllerPreviewIikoImportMutationError = unknown
+
+    /**
+ * @summary Preview advanced settings iiko external menu import
+ */
+export const useCatalogAdvancedSettingsControllerPreviewIikoImport = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerPreviewIikoImport>>, TError,{data: PreviewIikoImportDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerPreviewIikoImport>>,
+        TError,
+        {data: PreviewIikoImportDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerPreviewIikoImportMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue advanced settings iiko full menu sync
+ */
+export const catalogAdvancedSettingsControllerSyncIikoCatalog = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/sync`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerSyncIikoCatalogMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoCatalog>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoCatalog>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerSyncIikoCatalog'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoCatalog>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerSyncIikoCatalog()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerSyncIikoCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoCatalog>>>
+    
+    export type CatalogAdvancedSettingsControllerSyncIikoCatalogMutationError = unknown
+
+    /**
+ * @summary Queue advanced settings iiko full menu sync
+ */
+export const useCatalogAdvancedSettingsControllerSyncIikoCatalog = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoCatalog>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoCatalog>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerSyncIikoCatalogMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue advanced settings iiko stop-list sync
+ */
+export const catalogAdvancedSettingsControllerSyncIikoStock = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/stock-sync`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerSyncIikoStockMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoStock>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoStock>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerSyncIikoStock'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoStock>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerSyncIikoStock()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerSyncIikoStockMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoStock>>>
+    
+    export type CatalogAdvancedSettingsControllerSyncIikoStockMutationError = unknown
+
+    /**
+ * @summary Queue advanced settings iiko stop-list sync
+ */
+export const useCatalogAdvancedSettingsControllerSyncIikoStock = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoStock>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoStock>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerSyncIikoStockMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue advanced settings iiko product sync
+ */
+export const catalogAdvancedSettingsControllerSyncIikoProduct = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/sync-product/${id}`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerSyncIikoProductMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoProduct>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoProduct>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerSyncIikoProduct'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoProduct>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogAdvancedSettingsControllerSyncIikoProduct(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerSyncIikoProductMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoProduct>>>
+    
+    export type CatalogAdvancedSettingsControllerSyncIikoProductMutationError = unknown
+
+    /**
+ * @summary Queue advanced settings iiko product sync
+ */
+export const useCatalogAdvancedSettingsControllerSyncIikoProduct = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoProduct>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSyncIikoProduct>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerSyncIikoProductMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Register advanced settings iiko webhooks
+ */
+export const catalogAdvancedSettingsControllerSetupIikoWebhooks = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoWebhookSetupDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhooks/setup`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerSetupIikoWebhooksMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSetupIikoWebhooks>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSetupIikoWebhooks>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerSetupIikoWebhooks'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSetupIikoWebhooks>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerSetupIikoWebhooks()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerSetupIikoWebhooksMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSetupIikoWebhooks>>>
+    
+    export type CatalogAdvancedSettingsControllerSetupIikoWebhooksMutationError = unknown
+
+    /**
+ * @summary Register advanced settings iiko webhooks
+ */
+export const useCatalogAdvancedSettingsControllerSetupIikoWebhooks = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSetupIikoWebhooks>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerSetupIikoWebhooks>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerSetupIikoWebhooksMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Disable advanced settings iiko webhooks locally
+ */
+export const catalogAdvancedSettingsControllerDisableIikoWebhooks = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhooks`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getCatalogAdvancedSettingsControllerDisableIikoWebhooksMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableIikoWebhooks>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableIikoWebhooks>>, TError,void, TContext> => {
+
+const mutationKey = ['catalogAdvancedSettingsControllerDisableIikoWebhooks'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableIikoWebhooks>>, void> = () => {
+          
+
+          return  catalogAdvancedSettingsControllerDisableIikoWebhooks()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogAdvancedSettingsControllerDisableIikoWebhooksMutationResult = NonNullable<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableIikoWebhooks>>>
+    
+    export type CatalogAdvancedSettingsControllerDisableIikoWebhooksMutationError = unknown
+
+    /**
+ * @summary Disable advanced settings iiko webhooks locally
+ */
+export const useCatalogAdvancedSettingsControllerDisableIikoWebhooks = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableIikoWebhooks>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogAdvancedSettingsControllerDisableIikoWebhooks>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getCatalogAdvancedSettingsControllerDisableIikoWebhooksMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Get current catalog
  */
 export const catalogControllerGetCurrent = (
@@ -14305,6 +16521,97 @@ export const useCatalogDomainControllerDisable = <TError = unknown,
     }
     
 /**
+ * @summary Get public key for integration payload tokens
+ */
+export const integrationControllerGetIntegrationPayloadPublicKey = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/integration/payload/public-key`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIntegrationPayloadPublicKeyQueryKey = () => {
+    return [
+    `/integration/payload/public-key`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIntegrationPayloadPublicKeyQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIntegrationPayloadPublicKeyQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>> = ({ signal }) => integrationControllerGetIntegrationPayloadPublicKey(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIntegrationPayloadPublicKeyQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>>
+export type IntegrationControllerGetIntegrationPayloadPublicKeyQueryError = unknown
+
+
+export function useIntegrationControllerGetIntegrationPayloadPublicKey<TData = Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIntegrationPayloadPublicKey<TData = Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIntegrationPayloadPublicKey<TData = Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get public key for integration payload tokens
+ */
+
+export function useIntegrationControllerGetIntegrationPayloadPublicKey<TData = Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIntegrationPayloadPublicKey>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIntegrationPayloadPublicKeyQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
  * @summary Получить настройки интеграции MoySklad
  */
 export const integrationControllerGetMoySklad = (
@@ -14676,6 +16983,1336 @@ export function useIntegrationControllerGetMoySkladStatus<TData = Awaited<Return
 
 
 
+/**
+ * @summary Get iiko integration settings
+ */
+export const integrationControllerGetIiko = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationDto>(
+      {url: `/integration/iiko`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoQueryKey = () => {
+    return [
+    `/integration/iiko`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIiko>>> = ({ signal }) => integrationControllerGetIiko(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIiko>>>
+export type IntegrationControllerGetIikoQueryError = unknown
+
+
+export function useIntegrationControllerGetIiko<TData = Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIiko>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIiko>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIiko<TData = Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIiko>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIiko>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIiko<TData = Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko integration settings
+ */
+
+export function useIntegrationControllerGetIiko<TData = Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIiko>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create or replace iiko integration settings
+ */
+export const integrationControllerUpsertIiko = (
+    upsertIikoIntegrationDtoReq: UpsertIikoIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationDto>(
+      {url: `/integration/iiko`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertIikoIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerUpsertIikoMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertIiko>>, TError,{data: UpsertIikoIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertIiko>>, TError,{data: UpsertIikoIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['integrationControllerUpsertIiko'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpsertIiko>>, {data: UpsertIikoIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  integrationControllerUpsertIiko(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerUpsertIikoMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerUpsertIiko>>>
+    export type IntegrationControllerUpsertIikoMutationBody = UpsertIikoIntegrationDtoReq
+    export type IntegrationControllerUpsertIikoMutationError = unknown
+
+    /**
+ * @summary Create or replace iiko integration settings
+ */
+export const useIntegrationControllerUpsertIiko = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpsertIiko>>, TError,{data: UpsertIikoIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerUpsertIiko>>,
+        TError,
+        {data: UpsertIikoIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerUpsertIikoMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Update iiko integration settings
+ */
+export const integrationControllerUpdateIiko = (
+    updateIikoIntegrationDtoReq: UpdateIikoIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationDto>(
+      {url: `/integration/iiko`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateIikoIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerUpdateIikoMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateIiko>>, TError,{data: UpdateIikoIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateIiko>>, TError,{data: UpdateIikoIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['integrationControllerUpdateIiko'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerUpdateIiko>>, {data: UpdateIikoIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  integrationControllerUpdateIiko(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerUpdateIikoMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerUpdateIiko>>>
+    export type IntegrationControllerUpdateIikoMutationBody = UpdateIikoIntegrationDtoReq
+    export type IntegrationControllerUpdateIikoMutationError = unknown
+
+    /**
+ * @summary Update iiko integration settings
+ */
+export const useIntegrationControllerUpdateIiko = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerUpdateIiko>>, TError,{data: UpdateIikoIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerUpdateIiko>>,
+        TError,
+        {data: UpdateIikoIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerUpdateIikoMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Remove iiko integration settings
+ */
+export const integrationControllerRemoveIiko = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/iiko`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerRemoveIikoMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveIiko>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveIiko>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerRemoveIiko'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerRemoveIiko>>, void> = () => {
+          
+
+          return  integrationControllerRemoveIiko()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerRemoveIikoMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerRemoveIiko>>>
+    
+    export type IntegrationControllerRemoveIikoMutationError = unknown
+
+    /**
+ * @summary Remove iiko integration settings
+ */
+export const useIntegrationControllerRemoveIiko = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRemoveIiko>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerRemoveIiko>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerRemoveIikoMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get iiko integration status
+ */
+export const integrationControllerGetIikoStatus = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoIntegrationStatusDto>(
+      {url: `/integration/iiko/status`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoStatusQueryKey = () => {
+    return [
+    `/integration/iiko/status`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoStatusQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoStatusQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>> = ({ signal }) => integrationControllerGetIikoStatus(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoStatusQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>>
+export type IntegrationControllerGetIikoStatusQueryError = unknown
+
+
+export function useIntegrationControllerGetIikoStatus<TData = Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoStatus<TData = Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoStatus<TData = Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko integration status
+ */
+
+export function useIntegrationControllerGetIikoStatus<TData = Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Test iikoCloud connection
+ */
+export const integrationControllerTestIikoConnection = (
+    testIikoConnectionDtoReq: TestIikoConnectionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoTestConnectionDto>(
+      {url: `/integration/iiko/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testIikoConnectionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerTestIikoConnectionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestIikoConnection>>, TError,{data: TestIikoConnectionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestIikoConnection>>, TError,{data: TestIikoConnectionDtoReq}, TContext> => {
+
+const mutationKey = ['integrationControllerTestIikoConnection'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerTestIikoConnection>>, {data: TestIikoConnectionDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  integrationControllerTestIikoConnection(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerTestIikoConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerTestIikoConnection>>>
+    export type IntegrationControllerTestIikoConnectionMutationBody = TestIikoConnectionDtoReq
+    export type IntegrationControllerTestIikoConnectionMutationError = unknown
+
+    /**
+ * @summary Test iikoCloud connection
+ */
+export const useIntegrationControllerTestIikoConnection = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerTestIikoConnection>>, TError,{data: TestIikoConnectionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerTestIikoConnection>>,
+        TError,
+        {data: TestIikoConnectionDtoReq},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerTestIikoConnectionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get iiko restaurant tables for QR hall orders
+ */
+export const integrationControllerGetIikoTables = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoRestaurantTablesDto>(
+      {url: `/integration/iiko/tables`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoTablesQueryKey = () => {
+    return [
+    `/integration/iiko/tables`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoTablesQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoTablesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>> = ({ signal }) => integrationControllerGetIikoTables(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoTablesQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>>
+export type IntegrationControllerGetIikoTablesQueryError = unknown
+
+
+export function useIntegrationControllerGetIikoTables<TData = Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoTables>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoTables>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoTables<TData = Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoTables>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoTables>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoTables<TData = Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko restaurant tables for QR hall orders
+ */
+
+export function useIntegrationControllerGetIikoTables<TData = Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoTables>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoTablesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Preview iiko external menu import
+ */
+export const integrationControllerPreviewIikoImport = (
+    previewIikoImportDtoReq: PreviewIikoImportDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoImportPreviewDto>(
+      {url: `/integration/iiko/import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewIikoImportDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerPreviewIikoImportMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerPreviewIikoImport>>, TError,{data: PreviewIikoImportDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerPreviewIikoImport>>, TError,{data: PreviewIikoImportDtoReq}, TContext> => {
+
+const mutationKey = ['integrationControllerPreviewIikoImport'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerPreviewIikoImport>>, {data: PreviewIikoImportDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  integrationControllerPreviewIikoImport(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerPreviewIikoImportMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerPreviewIikoImport>>>
+    export type IntegrationControllerPreviewIikoImportMutationBody = PreviewIikoImportDtoReq
+    export type IntegrationControllerPreviewIikoImportMutationError = unknown
+
+    /**
+ * @summary Preview iiko external menu import
+ */
+export const useIntegrationControllerPreviewIikoImport = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerPreviewIikoImport>>, TError,{data: PreviewIikoImportDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerPreviewIikoImport>>,
+        TError,
+        {data: PreviewIikoImportDtoReq},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerPreviewIikoImportMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue full iiko menu sync
+ */
+export const integrationControllerSyncIikoCatalog = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/integration/iiko/sync`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerSyncIikoCatalogMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoCatalog>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoCatalog>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerSyncIikoCatalog'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncIikoCatalog>>, void> = () => {
+          
+
+          return  integrationControllerSyncIikoCatalog()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerSyncIikoCatalogMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncIikoCatalog>>>
+    
+    export type IntegrationControllerSyncIikoCatalogMutationError = unknown
+
+    /**
+ * @summary Queue full iiko menu sync
+ */
+export const useIntegrationControllerSyncIikoCatalog = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoCatalog>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerSyncIikoCatalog>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerSyncIikoCatalogMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue iiko stop-list stock sync
+ */
+export const integrationControllerSyncIikoStock = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/integration/iiko/stock-sync`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerSyncIikoStockMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoStock>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoStock>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerSyncIikoStock'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncIikoStock>>, void> = () => {
+          
+
+          return  integrationControllerSyncIikoStock()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerSyncIikoStockMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncIikoStock>>>
+    
+    export type IntegrationControllerSyncIikoStockMutationError = unknown
+
+    /**
+ * @summary Queue iiko stop-list stock sync
+ */
+export const useIntegrationControllerSyncIikoStock = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoStock>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerSyncIikoStock>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerSyncIikoStockMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue one iiko product sync
+ */
+export const integrationControllerSyncIikoProduct = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/integration/iiko/sync-product/${id}`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerSyncIikoProductMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoProduct>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoProduct>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['integrationControllerSyncIikoProduct'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSyncIikoProduct>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  integrationControllerSyncIikoProduct(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerSyncIikoProductMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSyncIikoProduct>>>
+    
+    export type IntegrationControllerSyncIikoProductMutationError = unknown
+
+    /**
+ * @summary Queue one iiko product sync
+ */
+export const useIntegrationControllerSyncIikoProduct = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSyncIikoProduct>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerSyncIikoProduct>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerSyncIikoProductMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Register iiko webhooks for the saved integration
+ */
+export const integrationControllerSetupIikoWebhooks = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoWebhookSetupDto>(
+      {url: `/integration/iiko/webhooks/setup`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerSetupIikoWebhooksMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSetupIikoWebhooks>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSetupIikoWebhooks>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerSetupIikoWebhooks'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerSetupIikoWebhooks>>, void> = () => {
+          
+
+          return  integrationControllerSetupIikoWebhooks()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerSetupIikoWebhooksMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerSetupIikoWebhooks>>>
+    
+    export type IntegrationControllerSetupIikoWebhooksMutationError = unknown
+
+    /**
+ * @summary Register iiko webhooks for the saved integration
+ */
+export const useIntegrationControllerSetupIikoWebhooks = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerSetupIikoWebhooks>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerSetupIikoWebhooks>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerSetupIikoWebhooksMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Disable local iiko webhook handling
+ */
+export const integrationControllerDisableIikoWebhooks = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/iiko/webhooks`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerDisableIikoWebhooksMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerDisableIikoWebhooks>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerDisableIikoWebhooks>>, TError,void, TContext> => {
+
+const mutationKey = ['integrationControllerDisableIikoWebhooks'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerDisableIikoWebhooks>>, void> = () => {
+          
+
+          return  integrationControllerDisableIikoWebhooks()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerDisableIikoWebhooksMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerDisableIikoWebhooks>>>
+    
+    export type IntegrationControllerDisableIikoWebhooksMutationError = unknown
+
+    /**
+ * @summary Disable local iiko webhook handling
+ */
+export const useIntegrationControllerDisableIikoWebhooks = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerDisableIikoWebhooks>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerDisableIikoWebhooks>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerDisableIikoWebhooksMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get iiko sync history
+ */
+export const integrationControllerGetIikoRuns = (
+    params?: IntegrationControllerGetIikoRunsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoSyncRunDto[]>(
+      {url: `/integration/iiko/runs`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoRunsQueryKey = (params?: IntegrationControllerGetIikoRunsParams,) => {
+    return [
+    `/integration/iiko/runs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoRunsQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError = unknown>(params?: IntegrationControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoRunsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>> = ({ signal }) => integrationControllerGetIikoRuns(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoRunsQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>>
+export type IntegrationControllerGetIikoRunsQueryError = unknown
+
+
+export function useIntegrationControllerGetIikoRuns<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError = unknown>(
+ params: undefined |  IntegrationControllerGetIikoRunsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoRuns<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoRuns<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko sync history
+ */
+
+export function useIntegrationControllerGetIikoRuns<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoRunsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get iiko sync progress
+ */
+export const integrationControllerGetIikoRunProgress = (
+    runId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoSyncProgressDto>(
+      {url: `/integration/iiko/runs/${runId}/progress`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoRunProgressQueryKey = (runId: string,) => {
+    return [
+    `/integration/iiko/runs/${runId}/progress`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoRunProgressQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError = unknown>(runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoRunProgressQueryKey(runId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>> = ({ signal }) => integrationControllerGetIikoRunProgress(runId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(runId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoRunProgressQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>>
+export type IntegrationControllerGetIikoRunProgressQueryError = unknown
+
+
+export function useIntegrationControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko sync progress
+ */
+
+export function useIntegrationControllerGetIikoRunProgress<TData = Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoRunProgress>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoRunProgressQueryOptions(runId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get iiko order export history
+ */
+export const integrationControllerGetIikoOrderExports = (
+    params?: IntegrationControllerGetIikoOrderExportsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoOrderExportDto[]>(
+      {url: `/integration/iiko/order-exports`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoOrderExportsQueryKey = (params?: IntegrationControllerGetIikoOrderExportsParams,) => {
+    return [
+    `/integration/iiko/order-exports`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoOrderExportsQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError = unknown>(params?: IntegrationControllerGetIikoOrderExportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoOrderExportsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>> = ({ signal }) => integrationControllerGetIikoOrderExports(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoOrderExportsQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>>
+export type IntegrationControllerGetIikoOrderExportsQueryError = unknown
+
+
+export function useIntegrationControllerGetIikoOrderExports<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError = unknown>(
+ params: undefined |  IntegrationControllerGetIikoOrderExportsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoOrderExports<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoOrderExportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoOrderExports<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoOrderExportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko order export history
+ */
+
+export function useIntegrationControllerGetIikoOrderExports<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoOrderExportsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExports>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoOrderExportsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get iiko webhook event journal
+ */
+export const integrationControllerGetIikoWebhookEvents = (
+    params?: IntegrationControllerGetIikoWebhookEventsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoWebhookEventDto[]>(
+      {url: `/integration/iiko/webhook-events`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoWebhookEventsQueryKey = (params?: IntegrationControllerGetIikoWebhookEventsParams,) => {
+    return [
+    `/integration/iiko/webhook-events`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoWebhookEventsQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError = unknown>(params?: IntegrationControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoWebhookEventsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>> = ({ signal }) => integrationControllerGetIikoWebhookEvents(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoWebhookEventsQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>>
+export type IntegrationControllerGetIikoWebhookEventsQueryError = unknown
+
+
+export function useIntegrationControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params: undefined |  IntegrationControllerGetIikoWebhookEventsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko webhook event journal
+ */
+
+export function useIntegrationControllerGetIikoWebhookEvents<TData = Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError = unknown>(
+ params?: IntegrationControllerGetIikoWebhookEventsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoWebhookEvents>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoWebhookEventsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Retry failed iiko webhook event processing
+ */
+export const integrationControllerRetryIikoWebhookEvent = (
+    eventId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoWebhookEventDto>(
+      {url: `/integration/iiko/webhook-events/${eventId}/retry`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerRetryIikoWebhookEventMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRetryIikoWebhookEvent>>, TError,{eventId: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRetryIikoWebhookEvent>>, TError,{eventId: string}, TContext> => {
+
+const mutationKey = ['integrationControllerRetryIikoWebhookEvent'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerRetryIikoWebhookEvent>>, {eventId: string}> = (props) => {
+          const {eventId} = props ?? {};
+
+          return  integrationControllerRetryIikoWebhookEvent(eventId,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerRetryIikoWebhookEventMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerRetryIikoWebhookEvent>>>
+    
+    export type IntegrationControllerRetryIikoWebhookEventMutationError = unknown
+
+    /**
+ * @summary Retry failed iiko webhook event processing
+ */
+export const useIntegrationControllerRetryIikoWebhookEvent = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRetryIikoWebhookEvent>>, TError,{eventId: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerRetryIikoWebhookEvent>>,
+        TError,
+        {eventId: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerRetryIikoWebhookEventMutationOptions(options), queryClient);
+    }
+    
 /**
  * @summary Получить историю sync MoySklad
  */
@@ -15764,6 +19401,69 @@ export const useIntegrationControllerReceiveMoySkladProductFolderWebhook = <TErr
     }
     
 /**
+ * @summary Receive iikoCloud webhook
+ */
+export const integrationControllerReceiveIikoWebhook = (
+    integrationId: string,
+    secret: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<void>(
+      {url: `/integration/webhooks/iiko/${integrationId}/${secret}`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerReceiveIikoWebhookMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveIikoWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveIikoWebhook>>, TError,{integrationId: string;secret: string}, TContext> => {
+
+const mutationKey = ['integrationControllerReceiveIikoWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerReceiveIikoWebhook>>, {integrationId: string;secret: string}> = (props) => {
+          const {integrationId,secret} = props ?? {};
+
+          return  integrationControllerReceiveIikoWebhook(integrationId,secret,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerReceiveIikoWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerReceiveIikoWebhook>>>
+    
+    export type IntegrationControllerReceiveIikoWebhookMutationError = unknown
+
+    /**
+ * @summary Receive iikoCloud webhook
+ */
+export const useIntegrationControllerReceiveIikoWebhook = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerReceiveIikoWebhook>>, TError,{integrationId: string;secret: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerReceiveIikoWebhook>>,
+        TError,
+        {integrationId: string;secret: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerReceiveIikoWebhookMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Повторно поставить экспорт заказа MoySklad в очередь
  */
 export const integrationControllerRetryMoySkladOrderExport = (
@@ -15825,6 +19525,159 @@ export const useIntegrationControllerRetryMoySkladOrderExport = <TError = unknow
       return useMutation(getIntegrationControllerRetryMoySkladOrderExportMutationOptions(options), queryClient);
     }
     
+/**
+ * @summary Queue iiko order export retry
+ */
+export const integrationControllerRetryIikoOrderExport = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoQueuedOrderExportDto>(
+      {url: `/integration/iiko/order-exports/${id}/retry`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getIntegrationControllerRetryIikoOrderExportMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRetryIikoOrderExport>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRetryIikoOrderExport>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['integrationControllerRetryIikoOrderExport'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof integrationControllerRetryIikoOrderExport>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  integrationControllerRetryIikoOrderExport(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type IntegrationControllerRetryIikoOrderExportMutationResult = NonNullable<Awaited<ReturnType<typeof integrationControllerRetryIikoOrderExport>>>
+    
+    export type IntegrationControllerRetryIikoOrderExportMutationError = unknown
+
+    /**
+ * @summary Queue iiko order export retry
+ */
+export const useIntegrationControllerRetryIikoOrderExport = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof integrationControllerRetryIikoOrderExport>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof integrationControllerRetryIikoOrderExport>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getIntegrationControllerRetryIikoOrderExportMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get iiko order export timeline by order id
+ */
+export const integrationControllerGetIikoOrderExportTimeline = (
+    orderId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<IikoOrderExportTimelineDto>(
+      {url: `/integration/iiko/orders/${orderId}/export-timeline`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getIntegrationControllerGetIikoOrderExportTimelineQueryKey = (orderId: string,) => {
+    return [
+    `/integration/iiko/orders/${orderId}/export-timeline`
+    ] as const;
+    }
+
+    
+export const getIntegrationControllerGetIikoOrderExportTimelineQueryOptions = <TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError = unknown>(orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getIntegrationControllerGetIikoOrderExportTimelineQueryKey(orderId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>> = ({ signal }) => integrationControllerGetIikoOrderExportTimeline(orderId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(orderId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type IntegrationControllerGetIikoOrderExportTimelineQueryResult = NonNullable<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>>
+export type IntegrationControllerGetIikoOrderExportTimelineQueryError = unknown
+
+
+export function useIntegrationControllerGetIikoOrderExportTimeline<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError = unknown>(
+ orderId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoOrderExportTimeline<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError = unknown>(
+ orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>,
+          TError,
+          Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useIntegrationControllerGetIikoOrderExportTimeline<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError = unknown>(
+ orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get iiko order export timeline by order id
+ */
+
+export function useIntegrationControllerGetIikoOrderExportTimeline<TData = Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError = unknown>(
+ orderId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof integrationControllerGetIikoOrderExportTimeline>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getIntegrationControllerGetIikoOrderExportTimelineQueryOptions(orderId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
 /**
  * @summary List current catalog sale units
  */
@@ -17896,6 +21749,161 @@ export const useCartControllerShareCurrent = <TError = unknown,
       return useMutation(getCartControllerShareCurrentMutationOptions(options), queryClient);
     }
     
+/**
+ * @summary Submit the current cart as a hall table order
+ */
+export const cartControllerSubmitCurrentHallOrder = (
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CompleteCartOrderResponseDto>(
+      {url: `/cart/current/hall-order`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerSubmitCurrentHallOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitCurrentHallOrder>>, TError,{data: ShareCurrentCartDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitCurrentHallOrder>>, TError,{data: ShareCurrentCartDtoReq}, TContext> => {
+
+const mutationKey = ['cartControllerSubmitCurrentHallOrder'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerSubmitCurrentHallOrder>>, {data: ShareCurrentCartDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  cartControllerSubmitCurrentHallOrder(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerSubmitCurrentHallOrderMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerSubmitCurrentHallOrder>>>
+    export type CartControllerSubmitCurrentHallOrderMutationBody = ShareCurrentCartDtoReq
+    export type CartControllerSubmitCurrentHallOrderMutationError = unknown
+
+    /**
+ * @summary Submit the current cart as a hall table order
+ */
+export const useCartControllerSubmitCurrentHallOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitCurrentHallOrder>>, TError,{data: ShareCurrentCartDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerSubmitCurrentHallOrder>>,
+        TError,
+        {data: ShareCurrentCartDtoReq},
+        TContext
+      > => {
+      return useMutation(getCartControllerSubmitCurrentHallOrderMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Resolve a short hall table code for display
+ */
+export const cartControllerGetHallTableLink = (
+    code: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<HallTableLinkResponseDto>(
+      {url: `/cart/hall-table/${code}`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCartControllerGetHallTableLinkQueryKey = (code: string,) => {
+    return [
+    `/cart/hall-table/${code}`
+    ] as const;
+    }
+
+    
+export const getCartControllerGetHallTableLinkQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError = unknown>(code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCartControllerGetHallTableLinkQueryKey(code);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>> = ({ signal }) => cartControllerGetHallTableLink(code, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(code), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CartControllerGetHallTableLinkQueryResult = NonNullable<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>>
+export type CartControllerGetHallTableLinkQueryError = unknown
+
+
+export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError = unknown>(
+ code: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof cartControllerGetHallTableLink>>,
+          TError,
+          Awaited<ReturnType<typeof cartControllerGetHallTableLink>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError = unknown>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof cartControllerGetHallTableLink>>,
+          TError,
+          Awaited<ReturnType<typeof cartControllerGetHallTableLink>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError = unknown>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Resolve a short hall table code for display
+ */
+
+export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError = unknown>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCartControllerGetHallTableLinkQueryOptions(code,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
 /**
  * @summary Upsert an item in the current cart
  */

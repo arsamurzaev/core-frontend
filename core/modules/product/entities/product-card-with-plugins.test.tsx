@@ -80,6 +80,17 @@ describe("ProductCardWithPlugins", () => {
     });
   });
 
+  it("forwards iiko marker flag to the base product card", () => {
+    renderToStaticMarkup(
+      <ProductCardWithPlugins data={product()} isIikoLinked />,
+    );
+
+    expect(productCardProps).toHaveLength(1);
+    expect(productCardProps[0]).toMatchObject({
+      isIikoLinked: true,
+    });
+  });
+
   it("passes variant summary to the card header without rendering a plugin label", () => {
     const markup = renderToStaticMarkup(
       <ProductCardWithPlugins

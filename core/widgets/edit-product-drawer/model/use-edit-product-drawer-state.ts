@@ -23,6 +23,7 @@ interface UseEditProductDrawerStateParams {
   productQueryIsError: boolean;
   resetFromMedia: (media: ProductWithDetailsDto["media"]) => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  shouldSkipSchemaDrivenReset?: () => boolean;
 }
 
 export function useEditProductDrawerState({
@@ -37,6 +38,7 @@ export function useEditProductDrawerState({
   productQueryIsError,
   resetFromMedia,
   setOpen,
+  shouldSkipSchemaDrivenReset,
 }: UseEditProductDrawerStateParams) {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const lastResetKeyRef = React.useRef<string | null>(null);
@@ -94,13 +96,23 @@ export function useEditProductDrawerState({
       return;
     }
 
-    if (lastResetKeyRef.current && form.formState.isDirty) {
+    if (
+      lastResetKeyRef.current &&
+      (form.formState.isDirty || shouldSkipSchemaDrivenReset?.())
+    ) {
       return;
     }
 
     lastResetKeyRef.current = resetKey;
     resetFromProduct(product);
-  }, [form.formState.isDirty, open, product, resetFromProduct, resetKey]);
+  }, [
+    form.formState.isDirty,
+    open,
+    product,
+    resetFromProduct,
+    resetKey,
+    shouldSkipSchemaDrivenReset,
+  ]);
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {

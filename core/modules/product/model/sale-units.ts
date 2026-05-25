@@ -9,6 +9,9 @@ export interface ProductSaleUnit {
   kind: ProductSaleUnitKind;
   price: number;
   baseQuantity: number;
+  containsQuantity: number | null;
+  containsSaleUnitId: string | null;
+  containsSaleUnitLabel: string | null;
   isDefault: boolean;
   isActive: boolean;
   displayOrder: number;
@@ -65,6 +68,56 @@ function toOptionalNumber(value: unknown): number | null {
   return null;
 }
 
+function roundSaleUnitQuantity(value: number): number {
+  return Math.round(value * 10_000) / 10_000;
+}
+
+function resolveContainsSaleUnit(
+  unit: ProductSaleUnit,
+  previousUnits: ProductSaleUnit[],
+):
+  | {
+      quantity: number;
+      saleUnit: ProductSaleUnit;
+    }
+  | null {
+  const parentUnit = previousUnits
+    .slice()
+    .reverse()
+    .find(
+      (candidate) =>
+        candidate.baseQuantity > 0 && candidate.baseQuantity < unit.baseQuantity,
+    );
+
+  if (!parentUnit) {
+    return null;
+  }
+
+  const quantity = unit.baseQuantity / parentUnit.baseQuantity;
+
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    return null;
+  }
+
+  return {
+    quantity: roundSaleUnitQuantity(quantity),
+    saleUnit: parentUnit,
+  };
+}
+
+function withContainsInfo(units: ProductSaleUnit[]): ProductSaleUnit[] {
+  return units.map((unit, index) => {
+    const contains = resolveContainsSaleUnit(unit, units.slice(0, index));
+
+    return {
+      ...unit,
+      containsQuantity: contains?.quantity ?? null,
+      containsSaleUnitId: contains?.saleUnit.id ?? null,
+      containsSaleUnitLabel: contains?.saleUnit.label ?? null,
+    };
+  });
+}
+
 function resolveSaleUnitKind(unit: SaleUnitLike): ProductSaleUnitKind {
   const raw = [
     unit.catalogSaleUnit?.code,
@@ -115,7 +168,7 @@ export function getProductSaleUnits(entity: unknown): ProductSaleUnit[] {
     return [];
   }
 
-  return rawSaleUnits
+  const units = rawSaleUnits
     .map((rawUnit): ProductSaleUnit | null => {
       const unit = rawUnit as SaleUnitLike;
       const id = normalizeText(unit.id);
@@ -147,6 +200,9 @@ export function getProductSaleUnits(entity: unknown): ProductSaleUnit[] {
         kind,
         price,
         baseQuantity: Math.max(0.0001, baseQuantity),
+        containsQuantity: null,
+        containsSaleUnitId: null,
+        containsSaleUnitLabel: null,
         isDefault: unit.isDefault === true,
         isActive: unit.isActive !== false,
         displayOrder: toOptionalNumber(unit.displayOrder) ?? 0,
@@ -160,6 +216,27 @@ export function getProductSaleUnits(entity: unknown): ProductSaleUnit[] {
         left.baseQuantity - right.baseQuantity ||
         left.label.localeCompare(right.label),
     );
+
+  return withContainsInfo(units);
+}
+
+export function formatProductSaleUnitQuantity(value: number): string {
+  const rounded = roundSaleUnitQuantity(value);
+  return Number.isInteger(rounded)
+    ? String(rounded)
+    : String(rounded).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+}
+
+export function getProductSaleUnitContainsText(
+  unit: ProductSaleUnit,
+): string | null {
+  if (!unit.containsQuantity || !unit.containsSaleUnitLabel) {
+    return null;
+  }
+
+  return `Внутри: ${formatProductSaleUnitQuantity(unit.containsQuantity)} ${
+    unit.containsSaleUnitLabel
+  }`;
 }
 
 export function getDefaultProductSaleUnit(

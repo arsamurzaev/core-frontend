@@ -5,9 +5,11 @@ import {
   ProductEditorDrawerContent,
   ProductImagesSection,
 } from "@/core/modules/product/editor/ui";
+import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
 import { AppDrawer } from "@/shared/ui/app-drawer";
+import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Settings, Trash2 } from "lucide-react";
 import React from "react";
 
 interface EditProductDrawerProps {
@@ -32,6 +34,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
     cropperInitialIndex,
     cropperMode,
     cropperTitle,
+    canDeleteProduct,
     errorMessage,
     features,
     form,
@@ -123,15 +126,17 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
           formFields={formFields}
           errorMessage={errorMessage}
           trailingTitleNode={
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={isBusy || isCropperOpen}
-              className="rounded p-1 text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
-              title="Удалить товар"
-            >
-              <Trash2 className="size-5" />
-            </button>
+            canDeleteProduct ? (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isBusy || isCropperOpen}
+                className="rounded p-1 text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                title="Удалить товар"
+              >
+                <Trash2 className="size-5" />
+              </button>
+            ) : undefined
           }
           imagesSection={
             <ProductImagesSection
@@ -168,6 +173,25 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
           cropperApplyLabel={cropperApplyLabel}
           canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
           canUseProductVariants={features.canUseProductVariants}
+          saleUnitsSettingsAction={
+            features.canUseCatalogSaleUnits ? (
+              <EditCatalogSaleUnitsDrawer
+                disabled={isBusy || isCropperOpen}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-muted-foreground"
+                    disabled={isBusy || isCropperOpen}
+                    title="Настройки единиц измерения"
+                  >
+                    <Settings className="size-4" />
+                  </Button>
+                }
+              />
+            ) : undefined
+          }
           showImagesSection
           productAttributes={productAttributes}
           variantAttributes={variantAttributes}

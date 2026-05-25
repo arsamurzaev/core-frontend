@@ -16,6 +16,7 @@ interface CartDrawerFooterActionProps {
   isShareDisabled: boolean;
   onCollapse?: () => void;
   onComplete: () => void;
+  onSubmitHallOrder: () => void;
   onShare: () => void;
 }
 
@@ -28,6 +29,7 @@ export const CartDrawerFooterAction: React.FC<CartDrawerFooterActionProps> = ({
   isShareDisabled,
   onCollapse,
   onComplete,
+  onSubmitHallOrder,
   onShare,
 }) => {
   if (action === "complete-order") {
@@ -40,6 +42,20 @@ export const CartDrawerFooterAction: React.FC<CartDrawerFooterActionProps> = ({
         size="full"
       >
         Завершить заказ
+      </Button>
+    );
+  }
+
+  if (action === "submit-hall-order") {
+    return (
+      <Button
+        type="button"
+        className="w-full justify-center"
+        disabled={isBusy || !hasItems}
+        onClick={onSubmitHallOrder}
+        size="full"
+      >
+        Заказать
       </Button>
     );
   }

@@ -15,8 +15,32 @@ export type CheckoutContactValues = Partial<
 
 export type CheckoutData = {
   address?: string;
+  customerName?: string;
+  guestsCount?: number;
+  h?: string;
+  hallSectionId?: string;
+  hallSectionName?: string;
+  hallPayloadToken?: string;
+  hallTableCode?: string;
+  hallTableId?: string;
+  hallTableName?: string;
+  hallTableNumber?: string;
+  iikoRestaurantSectionId?: string;
+  iikoRestaurantSectionName?: string;
+  iikoTableId?: string;
+  integrationExternalItemCode?: string;
+  integrationPayloadToken?: string;
   mapUrl?: string;
+  orderMode?: string;
+  payloadToken?: string;
+  phone?: string;
   personsCount?: number;
+  t?: string;
+  table?: string;
+  tableCode?: string;
+  tableId?: string;
+  tableName?: string;
+  tableNumber?: string;
   visitTime?: string;
 };
 
@@ -207,16 +231,19 @@ export function normalizeCheckoutData(params: {
   data: CheckoutData;
   error: string | null;
 } {
+  const customerData = normalizeCustomerCheckoutData(params.data);
+
   if (params.method === "DELIVERY") {
     const address = normalizeString(params.data.address);
     return address
-      ? { data: { address }, error: null }
+      ? { data: { ...customerData, address }, error: null }
       : { data: {}, error: "Укажите адрес доставки." };
   }
 
   if (params.method === "PICKUP") {
     return {
       data: {
+        ...customerData,
         ...(params.location.address ? { address: params.location.address } : {}),
         ...(params.location.mapUrl ? { mapUrl: params.location.mapUrl } : {}),
       },
@@ -233,6 +260,7 @@ export function normalizeCheckoutData(params: {
     const visitTime = normalizeString(params.data.visitTime);
     return {
       data: {
+        ...customerData,
         personsCount,
         ...(params.location.address ? { address: params.location.address } : {}),
         ...(params.location.mapUrl ? { mapUrl: params.location.mapUrl } : {}),
@@ -250,6 +278,14 @@ export function buildCheckoutSummary(params: {
   method: CheckoutMethod;
 }): string[] {
   const lines = [`Способ оформления: ${CHECKOUT_METHOD_LABELS[params.method]}`];
+
+  if (params.data.customerName) {
+    lines.push(`Имя: ${params.data.customerName}`);
+  }
+
+  if (params.data.phone) {
+    lines.push(`Телефон: ${params.data.phone}`);
+  }
 
   if (params.method === "DELIVERY" && params.data.address) {
     lines.push(`Адрес доставки: ${params.data.address}`);
@@ -354,6 +390,18 @@ function hasCheckoutContacts(contacts: CheckoutContactValues): boolean {
 
 function normalizeString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeCustomerCheckoutData(
+  data: CheckoutData,
+): Pick<CheckoutData, "customerName" | "phone"> {
+  const customerName = normalizeString(data.customerName);
+  const phone = normalizeString(data.phone);
+
+  return {
+    ...(customerName ? { customerName } : {}),
+    ...(phone ? { phone } : {}),
+  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -21,7 +21,10 @@ import { useCartQueries } from "@/core/modules/cart/model/use-cart-queries";
 import { useCartRealtimeHandlers } from "@/core/modules/cart/model/use-cart-realtime-handlers";
 import { useCartShareOrder } from "@/core/modules/cart/model/use-cart-share-order";
 import { useCartSse } from "@/core/modules/cart/model/use-cart-sse";
-import type { CartContextValue } from "@/core/modules/cart/model/cart-context.types";
+import type {
+  CartContextValue,
+  PrepareShareOrderInput,
+} from "@/core/modules/cart/model/cart-context.types";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogMode } from "@/shared/lib/catalog-mode";
@@ -265,9 +268,21 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     mutations.removePublicItemMutation.isPending ||
     mutations.deleteCurrentCartMutation.isPending ||
     mutations.shareCurrentCartMutation.isPending ||
+    mutations.submitHallOrderMutation.isPending ||
     mutations.startManagerOrderMutation.isPending ||
     mutations.completeManagerOrderMutation.isPending ||
     isManagerSessionLoading;
+  const submitHallOrder = React.useCallback(
+    async (input?: PrepareShareOrderInput | string) => {
+      if (!items.length) {
+        throw new Error("Нельзя оформить пустую корзину.");
+      }
+
+      const response = await mutations.submitHallOrderMutation.mutateAsync(input);
+      return response.order;
+    },
+    [items.length, mutations.submitHallOrderMutation],
+  );
 
   const value = useCartProviderValue({
     activeCart,
@@ -303,6 +318,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     setProductQuantity,
     shouldUseCartUi,
     startManagerOrder,
+    submitHallOrder,
     totals,
   });
 

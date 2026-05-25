@@ -51,15 +51,15 @@ function normalizeSaleUnitInput(unit: SaleUnitFormValue): SaleUnitPayload | null
   const baseQuantity = toOptionalNumber(unit.baseQuantity);
   const price = toOptionalNumber(unit.price);
 
-  if ((!catalogSaleUnitId && !label) || baseQuantity === null || price === null) {
+  if (!catalogSaleUnitId || baseQuantity === null || price === null) {
     return null;
   }
 
   const normalizedBaseQuantity = Math.max(0.0001, baseQuantity);
 
   return sanitizeSaleUnitPayload({
-    ...(catalogSaleUnitId ? { catalogSaleUnitId } : {}),
-    ...(!catalogSaleUnitId && label ? { name: label } : {}),
+    catalogSaleUnitId,
+    name: label || undefined,
     baseQuantity: normalizedBaseQuantity,
     price: Math.max(0, price),
     isDefault: unit.isDefault,
@@ -68,20 +68,16 @@ function normalizeSaleUnitInput(unit: SaleUnitFormValue): SaleUnitPayload | null
 
 function sanitizeSaleUnitPayload(unit: SaleUnitPayload): SaleUnitPayload {
   const payload: SaleUnitPayload = {
+    catalogSaleUnitId: unit.catalogSaleUnitId,
+    baseQuantity: unit.baseQuantity,
     price: unit.price,
   };
 
-  if (unit.catalogSaleUnitId) {
-    payload.catalogSaleUnitId = unit.catalogSaleUnitId;
-  }
   if (unit.code) {
     payload.code = unit.code;
   }
   if (unit.name) {
     payload.name = unit.name;
-  }
-  if (unit.baseQuantity !== undefined) {
-    payload.baseQuantity = unit.baseQuantity;
   }
   if (unit.barcode !== undefined) {
     payload.barcode = unit.barcode;
@@ -169,7 +165,13 @@ export function validateSaleUnitListForSubmit(
 
     if (!catalogSaleUnitId && !displayName) {
       return {
-        message: `${label}: выберите формат продажи или создайте новый.`,
+        message: `${label}: выберите формат продажи из справочника.`,
+      };
+    }
+
+    if (!catalogSaleUnitId) {
+      return {
+        message: `${label}: выберите формат продажи из справочника.`,
       };
     }
 
@@ -184,7 +186,7 @@ export function validateSaleUnitListForSubmit(
 
     if (baseQuantity === null || baseQuantity <= 0) {
       return {
-        message: `${label}: укажите количество внутри больше нуля.`,
+        message: `${label}: укажите, из какой единицы собирается формат.`,
       };
     }
 

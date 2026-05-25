@@ -41,6 +41,7 @@ export interface ProductEditorDrawerContentProps {
   submitLabel: string;
   title: string;
   trailingTitleNode?: React.ReactNode;
+  saleUnitsSettingsAction?: React.ReactNode;
   uploadState: UploadState;
   uploadedMediaIds: string[];
   productTypeChangeSection?: React.ReactNode;
@@ -86,6 +87,7 @@ export const ProductEditorDrawerContent: React.FC<
   submitLabel,
   title,
   trailingTitleNode,
+  saleUnitsSettingsAction,
   uploadState,
   uploadedMediaIds,
   productTypeChangeSection,
@@ -150,6 +152,7 @@ export const ProductEditorDrawerContent: React.FC<
                 priceFormatMode={priceFormatMode}
                 priceFallback={priceFallback}
                 productTypeChangeSection={productTypeChangeSection}
+                saleUnitsSettingsAction={saleUnitsSettingsAction}
                 saleUnits={saleUnits}
                 variantAttributes={variantAttributes}
               />

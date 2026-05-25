@@ -41,15 +41,10 @@ describe("product sale unit helpers", () => {
     ).toEqual([
       {
         catalogSaleUnitId: "box",
+        name: "Box",
         baseQuantity: 12,
         price: 1000,
         isDefault: true,
-      },
-      {
-        name: "Piece",
-        baseQuantity: 0.0001,
-        price: 0,
-        isDefault: false,
       },
     ]);
   });
@@ -89,10 +84,28 @@ describe("product sale unit helpers", () => {
           isDefault: false,
         },
       ],
-      "Единицы продажи",
+      "Sale units",
     );
 
     expect(issue?.message).toContain("нельзя добавить дважды");
+  });
+
+  it("requires catalog unit selection for touched rows", () => {
+    const issue = validateSaleUnitListForSubmit(
+      [
+        {
+          catalogSaleUnitId: "",
+          catalogSaleUnitName: "",
+          label: "Piece",
+          baseQuantity: "1",
+          price: "100",
+          isDefault: true,
+        },
+      ],
+      "Sale units",
+    );
+
+    expect(issue?.message).toContain("выберите формат продажи из справочника");
   });
 
   it("builds form values from backend-like sale units", () => {
@@ -102,16 +115,11 @@ describe("product sale unit helpers", () => {
           id: "variant-sale-unit-1",
           catalogSaleUnitId: "catalog-unit-1",
           catalogSaleUnit: {
-            name: "Коробка",
+            name: "Box",
             defaultBaseQuantity: 12,
           },
           price: "1500",
           isDefault: true,
-        },
-        {
-          name: "Палета",
-          quantity: "48",
-          price: 5000,
         },
         {
           name: "Broken",
@@ -122,20 +130,11 @@ describe("product sale unit helpers", () => {
       {
         id: "variant-sale-unit-1",
         catalogSaleUnitId: "catalog-unit-1",
-        catalogSaleUnitName: "Коробка",
-        label: "Коробка",
+        catalogSaleUnitName: "Box",
+        label: "Box",
         baseQuantity: "12",
         price: "1500",
         isDefault: true,
-      },
-      {
-        id: undefined,
-        catalogSaleUnitId: undefined,
-        catalogSaleUnitName: undefined,
-        label: "Палета",
-        baseQuantity: "48",
-        price: "5000",
-        isDefault: false,
       },
     ]);
   });

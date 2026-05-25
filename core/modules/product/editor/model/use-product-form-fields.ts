@@ -57,6 +57,7 @@ export interface UseProductFormFieldsParams {
   supportsBrands?: boolean;
   supportsCategoryDetails?: boolean;
   schemaProductTypeId?: string | null;
+  productTypeLockIntegrationName?: string | null;
   onProductTypeChange?: (productTypeId: string | null) => void;
   useSelectedProductTypeSchema?: boolean;
 }
@@ -73,6 +74,7 @@ export function useProductFormFields({
   supportsBrands = true,
   supportsCategoryDetails = true,
   schemaProductTypeId,
+  productTypeLockIntegrationName,
   onProductTypeChange,
   useSelectedProductTypeSchema = true,
 }: UseProductFormFieldsParams) {
@@ -224,6 +226,7 @@ export function useProductFormFields({
       disableProductTypeField,
       includeCategories,
       onProductTypeChange,
+      productTypeLockIntegrationName,
       productTypeOptions,
       shouldUseBrands,
       supportsCategoryDetails,
@@ -241,6 +244,7 @@ export function useProductFormFields({
     disableProductTypeField,
     includeCategories,
     onProductTypeChange,
+    productTypeLockIntegrationName,
     productTypeOptions,
     shouldUseBrands,
     supportsCategoryDetails,

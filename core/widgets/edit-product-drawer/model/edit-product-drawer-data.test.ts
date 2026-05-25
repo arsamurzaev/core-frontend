@@ -581,6 +581,106 @@ describe("edit product drawer data", () => {
     });
   });
 
+  it("removes persisted old type attributes after cleared type schema disappears", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1000",
+        productTypeId: undefined,
+        attributes: {
+          subtitle: "Keep me",
+        },
+      },
+      mediaIds: [],
+      persistedAttributeValues: {
+        subtitle: "Old subtitle",
+      },
+      product: product({
+        productType: productType(),
+        productAttributes: [
+          productAttribute({
+            attributeId: "material",
+            valueString: "Old leather",
+            attribute: {
+              ...productAttribute().attribute,
+              id: "material",
+              key: "material",
+              displayName: "Material",
+            },
+          }),
+          productAttribute(),
+        ],
+      }),
+      productAttributes: [attribute()],
+      canUseProductTypes: true,
+      canUseCatalogSaleUnits: true,
+    });
+
+    expect(payload).toMatchObject({
+      productTypeId: null,
+      attributes: [{ attributeId: "subtitle", valueString: "Keep me" }],
+      removeAttributeIds: ["material"],
+    });
+  });
+
+  it("clears old variant matrix when product type is cleared after variant schema disappears", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1000",
+        productTypeId: undefined,
+      },
+      mediaIds: [],
+      persistedAttributeValues: {},
+      product: product({
+        productType: productType(),
+        variants: [
+          variant({
+            variantKey: "size=m",
+            attributes: [
+              {
+                id: "variant-attribute-1",
+                attributeId: "size",
+                enumValueId: "m",
+                attribute: {
+                  id: "size",
+                  key: "size",
+                  displayName: "Size",
+                  dataType: "ENUM",
+                  isRequired: false,
+                  isVariantAttribute: true,
+                  isFilterable: false,
+                  displayOrder: 1,
+                  isHidden: false,
+                },
+                enumValue: {
+                  id: "m",
+                  value: "m",
+                  displayName: "Medium",
+                  displayOrder: 1,
+                  businessId: null,
+                },
+              },
+            ],
+          }),
+        ],
+      }),
+      productAttributes: [],
+      variantAttributes: [],
+      canUseProductTypes: true,
+      canUseProductVariants: true,
+      canUseCatalogSaleUnits: true,
+    });
+
+    expect(payload).toMatchObject({
+      productTypeId: null,
+      variantMatrix: [],
+    });
+    expect(payload).not.toHaveProperty("variants");
+  });
+
   it("does not include unchanged product type in update payload", () => {
     const payload = parseEditProductUpdatePayload({
       formValues: {

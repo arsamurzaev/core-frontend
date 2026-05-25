@@ -1,16 +1,22 @@
 export type CartDrawerFooterActionKind =
   | "collapse"
   | "complete-order"
+  | "submit-hall-order"
   | "share"
   | "none";
 
 export function resolveCartDrawerFooterAction(params: {
   canShare: boolean;
+  canSubmitHallOrder?: boolean;
   hasCollapseAction: boolean;
   isManagerOrderCart: boolean;
 }): CartDrawerFooterActionKind {
   if (params.isManagerOrderCart) {
     return "complete-order";
+  }
+
+  if (params.canSubmitHallOrder) {
+    return "submit-hall-order";
   }
 
   if (params.canShare) {

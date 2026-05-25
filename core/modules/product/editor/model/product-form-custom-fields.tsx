@@ -21,6 +21,7 @@ export interface BuildProductEditorCustomFieldsParams {
   disableProductTypeField: boolean;
   includeCategories: boolean;
   onProductTypeChange?: (productTypeId: string | null) => void;
+  productTypeLockIntegrationName?: string | null;
   productTypeOptions: DynamicFieldConfig<CreateProductFormValues>["options"];
   shouldUseBrands: boolean;
   supportsCategoryDetails: boolean;
@@ -33,6 +34,7 @@ export function buildProductEditorCustomFields({
   disableProductTypeField,
   includeCategories,
   onProductTypeChange,
+  productTypeLockIntegrationName,
   productTypeOptions,
   shouldUseBrands,
   supportsCategoryDetails,
@@ -61,7 +63,7 @@ export function buildProductEditorCustomFields({
           placeholder: "Без типа",
           disabled: disableProductTypeField,
           description: disableProductTypeField
-            ? "Тип товара задан интеграцией MoySklad и меняется только через синхронизацию."
+            ? `Тип товара задан интеграцией${productTypeLockIntegrationName ? ` ${productTypeLockIntegrationName}` : ""} и меняется только через синхронизацию.`
             : undefined,
           render: onProductTypeChange
             ? (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
@@ -81,7 +83,9 @@ export function buildProductEditorCustomFields({
       ? {
           name: "categoryIds",
           label: "Категории",
-          component: (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
+          component: (
+            props: DynamicFieldRenderProps<CreateProductFormValues>,
+          ) =>
             React.createElement(CreateProductCategoriesField, {
               ...props,
               supportsCategoryDetails,

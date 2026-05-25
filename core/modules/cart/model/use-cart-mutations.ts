@@ -14,6 +14,7 @@ import {
   cartControllerUpsertCurrentItem,
   cartControllerUpsertPublicItem,
   type CartDto,
+  type CompletedOrderDto,
   type PublicUpsertCartItemDtoReq,
   type UpsertCartItemDtoReq,
 } from "@/shared/api/generated/react-query";
@@ -326,6 +327,32 @@ export function useCartMutations({
     },
   });
 
+  const submitHallOrderMutation = useMutation({
+    mutationFn: async (input?: PrepareShareOrderInput | string) => {
+      const normalizedInput =
+        typeof input === "string" ? { comment: input } : (input ?? {});
+
+      return apiClient.post<{ ok: true; order: CompletedOrderDto }>(
+        "/cart/current/hall-order",
+        {
+          ...(normalizedInput.comment
+            ? { comment: normalizedInput.comment }
+            : {}),
+          ...(normalizedInput.checkoutMethod
+            ? { checkoutMethod: normalizedInput.checkoutMethod }
+            : {}),
+          ...(normalizedInput.checkoutData
+            ? { checkoutData: normalizedInput.checkoutData }
+            : {}),
+        },
+      );
+    },
+    onSuccess: () => {
+      clearStoredCurrentCart();
+      queryClient.removeQueries({ queryKey: cartQueryKeys.current });
+    },
+  });
+
   const startManagerOrderMutation = useMutation({
     mutationFn: () => cartControllerCreateOrGetCurrent(),
     onSuccess: (response) => {
@@ -360,6 +387,7 @@ export function useCartMutations({
     removePublicItemMutation,
     shareCurrentCartMutation,
     startManagerOrderMutation,
+    submitHallOrderMutation,
     upsertCurrentItemMutation,
     upsertPublicItemMutation,
   };

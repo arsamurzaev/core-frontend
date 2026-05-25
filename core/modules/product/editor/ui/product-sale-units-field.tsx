@@ -1,32 +1,33 @@
 "use client";
 
 import {
+  applySaleUnitRelationQuantities,
+  clearSaleUnitRelationAtIndex,
+  deriveSaleUnitRelationDrafts,
+  formatSaleUnitMoney,
+  getSaleUnitDisplayName,
+  normalizeSaleUnitRows,
+  removeSaleUnitRelationAtIndex,
+  resolveSaleUnitDiscountPreview,
+  resolveSaleUnitRelationDraft,
+  toPositiveSaleUnitNumber,
+  type SaleUnitRelationDraftsByIndex,
+} from "@/core/modules/product/editor/model/product-sale-units-field-model";
+import {
   createDefaultSaleUnitFormValue,
   type SaleUnitFormValue,
   type SaleUnitsFormValue,
 } from "@/core/modules/product/editor/model/product-variants";
 import {
-  clearSaleUnitDraftNameAtIndex,
-  formatSaleUnitMoney,
-  formatSaleUnitQuantity,
-  getSaleUnitDisplayName,
-  normalizeSaleUnitRows,
-  removeSaleUnitDraftNameAtIndex,
-  resolveSaleUnitDiscountPreview,
-  toPositiveSaleUnitNumber,
-} from "@/core/modules/product/editor/model/product-sale-units-field-model";
-import {
-  getCatalogSaleUnitControllerGetAllQueryKey,
-  type CatalogSaleUnitDto,
-  useCatalogSaleUnitControllerCreate,
   useCatalogSaleUnitControllerGetAll,
+  type CatalogSaleUnitDto,
 } from "@/shared/api/generated/react-query";
-import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
   getCatalogPriceInputProps,
   type CatalogPriceFormatMode,
 } from "@/shared/lib/price-format";
 import { Button } from "@/shared/ui/button";
+import { confirmDelete } from "@/shared/ui/confirmation";
 import { Input } from "@/shared/ui/input";
 import {
   Select,
@@ -35,8 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import { Switch } from "@/shared/ui/switch";
-import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
@@ -47,6 +46,7 @@ interface ProductSaleUnitsFieldProps {
   priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
   saleUnits: SaleUnitsFormValue | undefined;
+  settingsAction?: React.ReactNode;
   title?: string;
   onChange: (saleUnits: SaleUnitsFormValue) => void;
 }
@@ -55,31 +55,85 @@ function normalizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function sortCatalogSaleUnits(
+  units: CatalogSaleUnitDto[],
+): CatalogSaleUnitDto[] {
+  return units.slice().sort((left, right) => {
+    if (left.displayOrder !== right.displayOrder) {
+      return left.displayOrder - right.displayOrder;
+    }
+
+    return left.name.localeCompare(right.name, "ru");
+  });
+}
+
+function resolveInitialRelationMultiplier(
+  currentBaseQuantity: unknown,
+  parentBaseQuantity: unknown,
+): string {
+  const currentQuantity = toPositiveSaleUnitNumber(currentBaseQuantity);
+  const parentQuantity = toPositiveSaleUnitNumber(parentBaseQuantity);
+
+  if (currentQuantity === null || parentQuantity === null) {
+    return "";
+  }
+
+  const ratio = currentQuantity / parentQuantity;
+  return Number.isFinite(ratio) && ratio > 0 ? String(ratio) : "";
+}
+
+function resolveRelationCalculatedPrice(params: {
+  priceFormatMode: CatalogPriceFormatMode;
+  relation: SaleUnitRelationDraftsByIndex[number];
+  units: SaleUnitsFormValue;
+}): string | null {
+  const { priceFormatMode, relation, units } = params;
+  const multiplier = toPositiveSaleUnitNumber(relation.multiplier);
+  const parentIndex = relation.parentIndex;
+
+  if (multiplier === null || parentIndex === null) {
+    return null;
+  }
+
+  const parentUnit = units[parentIndex];
+  const parentPrice = toPositiveSaleUnitNumber(parentUnit?.price);
+
+  if (parentPrice === null) {
+    return null;
+  }
+
+  const totalPrice = multiplier * parentPrice;
+
+  return `${formatSaleUnitMoney(totalPrice, priceFormatMode)} ₽`;
+}
+
 export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
   disabled,
   discountPercent = 0,
   priceFormatMode = "integer",
   priceFallback,
   saleUnits,
+  settingsAction,
   title = "Единицы продажи",
   onChange,
 }) => {
-  const queryClient = useQueryClient();
   const priceInputProps = getCatalogPriceInputProps(priceFormatMode);
-  const [draftNameByIndex, setDraftNameByIndex] = React.useState<
-    Record<number, string>
-  >({});
+  const [relationByIndex, setRelationByIndex] =
+    React.useState<SaleUnitRelationDraftsByIndex>({});
 
   const catalogUnitsQuery = useCatalogSaleUnitControllerGetAll(undefined, {
     query: {
       staleTime: 60_000,
     },
   });
-  const createCatalogUnit = useCatalogSaleUnitControllerCreate<unknown>();
 
   const units = React.useMemo(() => saleUnits ?? [], [saleUnits]);
+  const derivedRelationByIndex = React.useMemo(
+    () => deriveSaleUnitRelationDrafts(units),
+    [units],
+  );
   const catalogUnits = React.useMemo(
-    () => catalogUnitsQuery.data ?? [],
+    () => sortCatalogSaleUnits(catalogUnitsQuery.data ?? []),
     [catalogUnitsQuery.data],
   );
   const selectedCatalogUnitIds = React.useMemo(
@@ -93,60 +147,94 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
   );
 
   const handleAdd = React.useCallback(() => {
+    const nextUnit = createDefaultSaleUnitFormValue(
+      units.length === 0 ? priceFallback : "",
+    );
+
     onChange(
       normalizeSaleUnitRows([
         ...units,
-        createDefaultSaleUnitFormValue(units.length === 0 ? priceFallback : ""),
+        {
+          ...nextUnit,
+          baseQuantity: units.length === 0 ? "1" : "",
+        },
       ]),
     );
   }, [onChange, priceFallback, units]);
 
   const handleRemove = React.useCallback(
     (index: number) => {
-      onChange(
-        normalizeSaleUnitRows(
-          units.filter((_, itemIndex) => itemIndex !== index),
-        ),
+      const nextRelations = removeSaleUnitRelationAtIndex(
+        relationByIndex,
+        index,
       );
-      setDraftNameByIndex((current) =>
-        removeSaleUnitDraftNameAtIndex(current, index),
-      );
-    },
-    [onChange, units],
-  );
 
-  const handleUnitChange = React.useCallback(
-    (index: number, patch: Partial<SaleUnitFormValue>) => {
       onChange(
         normalizeSaleUnitRows(
-          units.map((unit, itemIndex) =>
-            itemIndex === index ? { ...unit, ...patch } : unit,
+          applySaleUnitRelationQuantities(
+            units.filter((_, itemIndex) => itemIndex !== index),
+            nextRelations,
           ),
         ),
       );
+      setRelationByIndex(nextRelations);
     },
-    [onChange, units],
+    [onChange, relationByIndex, units],
   );
 
-  const handleDefaultChange = React.useCallback(
-    (index: number, checked: boolean) => {
-      if (!checked) {
-        return;
+  const handleConfirmRemove = React.useCallback(
+    async (index: number) => {
+      const unit = units[index];
+      const name = unit ? getSaleUnitDisplayName(unit) : "";
+      const confirmed = await confirmDelete({
+        title: "Удалить единицу продажи?",
+        description: name
+          ? `Формат "${name}" будет удален из товара.`
+          : "Формат будет удален из товара.",
+        confirmText: "Удалить",
+        cancelText: "Отмена",
+        tone: "destructive",
+      });
+
+      if (confirmed) {
+        handleRemove(index);
       }
+    },
+    [handleRemove, units],
+  );
+
+  const handleUnitChange = React.useCallback(
+    (
+      index: number,
+      patch: Partial<SaleUnitFormValue>,
+      options: { clearRelation?: boolean } = {},
+    ) => {
+      const nextRelations = options.clearRelation
+        ? clearSaleUnitRelationAtIndex(relationByIndex, index)
+        : relationByIndex;
 
       onChange(
-        units.map((unit, itemIndex) => ({
-          ...unit,
-          isDefault: itemIndex === index,
-        })),
+        normalizeSaleUnitRows(
+          applySaleUnitRelationQuantities(
+            units.map((unit, itemIndex) =>
+              itemIndex === index ? { ...unit, ...patch } : unit,
+            ),
+            nextRelations,
+          ),
+        ),
       );
+      if (nextRelations !== relationByIndex) {
+        setRelationByIndex(nextRelations);
+      }
     },
-    [onChange, units],
+    [onChange, relationByIndex, units],
   );
 
   const handleSelectCatalogUnit = React.useCallback(
     (index: number, catalogUnitId: string) => {
-      const selectedUnit = catalogUnits.find((unit) => unit.id === catalogUnitId);
+      const selectedUnit = catalogUnits.find(
+        (unit) => unit.id === catalogUnitId,
+      );
       const currentUnit = units[index];
 
       if (!selectedUnit || !currentUnit) {
@@ -162,245 +250,197 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
         return;
       }
 
-      const shouldUseCatalogQuantity =
-        !currentUnit.catalogSaleUnitId &&
-        (!currentUnit.baseQuantity || currentUnit.baseQuantity === "1");
-
-      handleUnitChange(index, {
-        catalogSaleUnitId: selectedUnit.id,
-        catalogSaleUnitName: selectedUnit.name,
-        label: selectedUnit.name,
-        baseQuantity: shouldUseCatalogQuantity
-          ? formatSaleUnitQuantity(selectedUnit.defaultBaseQuantity)
-          : currentUnit.baseQuantity,
-      });
-      setDraftNameByIndex((current) =>
-        clearSaleUnitDraftNameAtIndex(current, index),
+      handleUnitChange(
+        index,
+        {
+          catalogSaleUnitId: selectedUnit.id,
+          catalogSaleUnitName: selectedUnit.name,
+          label: selectedUnit.name,
+          baseQuantity: currentUnit.baseQuantity || (index === 0 ? "1" : ""),
+        },
+        { clearRelation: true },
       );
     },
     [catalogUnits, handleUnitChange, units],
   );
 
-  const handleDraftNameChange = React.useCallback(
-    (index: number, value: string) => {
-      setDraftNameByIndex((current) => ({
-        ...current,
-        [index]: value,
-      }));
+  const handleRelationChange = React.useCallback(
+    (index: number, patch: Partial<SaleUnitRelationDraftsByIndex[number]>) => {
+      const currentRelation = resolveSaleUnitRelationDraft(
+        relationByIndex[index],
+        derivedRelationByIndex[index],
+      );
+      const nextRelation = {
+        ...currentRelation,
+        ...patch,
+      };
+      const nextRelations = {
+        ...relationByIndex,
+        [index]: nextRelation,
+      };
+
+      setRelationByIndex(nextRelations);
+      onChange(
+        normalizeSaleUnitRows(
+          applySaleUnitRelationQuantities(units, nextRelations),
+        ),
+      );
     },
-    [],
+    [derivedRelationByIndex, onChange, relationByIndex, units],
   );
 
-  const handleCreateCatalogUnit = React.useCallback(
-    async (index: number) => {
-      const name = normalizeText(draftNameByIndex[index]);
-      const currentUnit = units[index];
+  const handleRelationClear = React.useCallback(
+    (index: number) => {
+      const nextRelations = {
+        ...clearSaleUnitRelationAtIndex(relationByIndex, index),
+        [index]: {
+          multiplier: "",
+          parentIndex: null,
+        },
+      };
 
-      if (!name) {
-        toast.error("Введите название формата продажи.");
-        return;
-      }
-
-      if (!currentUnit) {
-        return;
-      }
-
-      try {
-        const createdUnit = await createCatalogUnit.mutateAsync({
-          data: {
-            name,
-            defaultBaseQuantity:
-              toPositiveSaleUnitNumber(currentUnit.baseQuantity) ?? undefined,
-          },
-        });
-
-        await queryClient.invalidateQueries({
-          queryKey: getCatalogSaleUnitControllerGetAllQueryKey(),
-        });
-
-        handleUnitChange(index, {
-          catalogSaleUnitId: createdUnit.id,
-          catalogSaleUnitName: createdUnit.name,
-          label: createdUnit.name,
-          baseQuantity:
-            currentUnit.baseQuantity ||
-            formatSaleUnitQuantity(createdUnit.defaultBaseQuantity),
-        });
-
-        setDraftNameByIndex((current) =>
-          clearSaleUnitDraftNameAtIndex(current, index),
-        );
-
-        toast.success("Формат продажи добавлен.");
-      } catch (error) {
-        toast.error(extractApiErrorMessage(error));
-      }
+      setRelationByIndex(nextRelations);
+      onChange(
+        normalizeSaleUnitRows(
+          units.map((unit, itemIndex) =>
+            itemIndex === index
+              ? { ...unit, baseQuantity: itemIndex === 0 ? "1" : "" }
+              : unit,
+          ),
+        ),
+      );
     },
-    [
-      createCatalogUnit,
-      draftNameByIndex,
-      handleUnitChange,
-      queryClient,
-      units,
-    ],
+    [onChange, relationByIndex, units],
   );
-
-  const isCatalogUnitBusy = createCatalogUnit.isPending;
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-3 sm:p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1">
-          <div className="text-sm font-medium">{title}</div>
-          <p className="text-xs leading-5 text-muted-foreground">
-            Форматы сохраняются в этом каталоге. Количество и цена задаются для
-            конкретного товара.
-          </p>
+    <div className="w-full min-w-0 space-y-3 overflow-hidden rounded-md border border-border bg-muted/10 p-2 sm:p-3">
+      <div className="flex min-w-0 items-center justify-between gap-3">
+        <div className="min-w-0 text-sm font-medium">{title}</div>
+        <div className="flex shrink-0 items-center gap-2">
+          {settingsAction}
+          {units.length === 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAdd}
+              disabled={disabled}
+              className="h-8 shrink-0 px-2.5"
+              title="Добавить единицу"
+            >
+              <Plus className="size-4" />
+              Добавить
+            </Button>
+          ) : null}
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={handleAdd}
-          disabled={disabled}
-          className="h-8 shrink-0 px-3"
-          title="Добавить формат продажи"
-        >
-          <Plus className="size-4" />
-          Добавить
-        </Button>
       </div>
 
       {units.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {units.map((unit, index) => {
-            const draftName = draftNameByIndex[index] ?? "";
             const selectedName = getSaleUnitDisplayName(unit);
             const preview = resolveSaleUnitDiscountPreview(
               unit.price || priceFallback,
               discountPercent,
             );
-            const isCreateDisabled =
-              Boolean(disabled) || isCatalogUnitBusy || !draftName.trim();
+            const relation = resolveSaleUnitRelationDraft(
+              relationByIndex[index],
+              derivedRelationByIndex[index],
+            );
+            const relationCalculatedPrice = resolveRelationCalculatedPrice({
+              priceFormatMode,
+              relation,
+              units,
+            });
+            const parentOptions = units
+              .map((candidate, candidateIndex) => ({
+                baseQuantity: toPositiveSaleUnitNumber(candidate.baseQuantity),
+                index: candidateIndex,
+                name: getSaleUnitDisplayName(candidate),
+              }))
+              .filter(
+                (candidate) =>
+                  candidate.index < index &&
+                  Boolean(candidate.name) &&
+                  candidate.baseQuantity !== null,
+              );
 
             return (
               <div
                 key={`${unit.id ?? unit.catalogSaleUnitId ?? "new"}-${index}`}
-                className="space-y-3 rounded-md border border-border/70 bg-background p-3"
+                className="relative w-full min-w-0 space-y-2 overflow-hidden rounded-md border border-border/70 bg-background p-2.5 lg:pt-8"
               >
-                <div className="grid gap-3 lg:grid-cols-[minmax(210px,1.35fr)_minmax(110px,0.55fr)_minmax(120px,0.65fr)]">
-                  <div className="min-w-0 space-y-1.5">
+                <button
+                  type="button"
+                  disabled={disabled}
+                  title="Удалить единицу"
+                  onClick={() => void handleConfirmRemove(index)}
+                  className="absolute top-1 right-2 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+
+                <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(220px,1.35fr)_minmax(128px,0.65fr)]">
+                  <div className="min-w-0 space-y-2">
                     <span className="text-xs text-muted-foreground">
                       Формат продажи
                     </span>
-                    <Select
-                      value={unit.catalogSaleUnitId || undefined}
-                      disabled={disabled || catalogUnitsQuery.isLoading}
-                      onValueChange={(value) =>
-                        handleSelectCatalogUnit(index, value)
-                      }
-                    >
-                      <SelectTrigger className="h-9 min-w-0">
-                        <SelectValue
-                          placeholder={
-                            catalogUnitsQuery.isLoading
-                              ? "Загружаем форматы"
-                              : "Выберите формат"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {catalogUnits.map((catalogUnit: CatalogSaleUnitDto) => (
-                          <SelectItem
-                            key={catalogUnit.id}
-                            value={catalogUnit.id}
-                            disabled={
-                              selectedCatalogUnitIds.has(catalogUnit.id) &&
-                              unit.catalogSaleUnitId !== catalogUnit.id
-                            }
-                          >
-                            {catalogUnit.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                      {selectedName && !unit.catalogSaleUnitId ? (
+                        <button
+                          type="button"
+                          disabled={disabled}
+                          className="min-h-8 rounded-full border border-primary bg-primary/10 px-2.5 text-xs font-medium text-primary disabled:opacity-50"
+                        >
+                          {selectedName}
+                        </button>
+                      ) : null}
 
-                    {selectedName && !unit.catalogSaleUnitId ? (
-                      <div className="rounded-md bg-muted px-2.5 py-2 text-xs leading-5 text-muted-foreground">
-                        Сейчас указано: {selectedName}. Выберите существующий
-                        формат или создайте его ниже.
-                      </div>
-                    ) : null}
+                      {catalogUnitsQuery.isLoading ? (
+                        <span className="min-h-8 rounded-full border px-2.5 text-xs leading-8 text-muted-foreground">
+                          Загрузка...
+                        </span>
+                      ) : (
+                        catalogUnits.map((catalogUnit: CatalogSaleUnitDto) => {
+                          const isSelected =
+                            unit.catalogSaleUnitId === catalogUnit.id;
+                          const isUsedElsewhere =
+                            selectedCatalogUnitIds.has(catalogUnit.id) &&
+                            !isSelected;
 
-                    <div className="flex min-w-0 gap-2">
-                      <Input
-                        value={draftName}
-                        disabled={disabled || isCatalogUnitBusy}
-                        placeholder="Новый формат"
-                        onChange={(event) =>
-                          handleDraftNameChange(index, event.target.value)
-                        }
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            event.preventDefault();
-                            void handleCreateCatalogUnit(index);
-                          }
-                        }}
-                        className="h-9 min-w-0 px-3 text-sm"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={isCreateDisabled}
-                        onClick={() => void handleCreateCatalogUnit(index)}
-                        className="h-9 shrink-0 px-3"
-                      >
-                        Создать
-                      </Button>
+                          return (
+                            <button
+                              key={catalogUnit.id}
+                              type="button"
+                              disabled={disabled || isUsedElsewhere}
+                              onClick={() =>
+                                handleSelectCatalogUnit(index, catalogUnit.id)
+                              }
+                              className={[
+                                "min-h-8 rounded-full border px-2.5 text-xs transition-colors disabled:opacity-40",
+                                isSelected
+                                  ? "border-primary bg-primary/10 font-medium text-primary"
+                                  : "border-border text-muted-foreground hover:bg-muted",
+                              ].join(" ")}
+                            >
+                              {catalogUnit.name}
+                            </button>
+                          );
+                        })
+                      )}
+
                     </div>
                   </div>
 
-                  <label className="min-w-0 space-y-1.5">
-                    <span className="text-xs text-muted-foreground">
-                      Кол-во внутри
-                    </span>
-                    <Input
-                      value={unit.baseQuantity}
-                      type="number"
-                      min={0.0001}
-                      step="0.001"
-                      inputMode="decimal"
-                      disabled={disabled}
-                      placeholder="12"
-                      title="Количество базовых единиц внутри"
-                      onChange={(event) =>
-                        handleUnitChange(index, {
-                          baseQuantity: event.target.value,
-                        })
-                      }
-                      className="h-9 px-3 text-sm"
-                    />
-                    {preview ? (
-                      <span className="block text-xs text-muted-foreground">
-                        {formatSaleUnitMoney(
-                          preview.basePrice,
-                          priceFormatMode,
-                        )}{" -> "}
-                        <span className="font-medium text-foreground">
-                          {formatSaleUnitMoney(
-                            preview.finalPrice,
-                            priceFormatMode,
-                          )}
-                        </span>{" "}
-                        (-{discountPercent}%)
-                      </span>
-                    ) : null}
-                  </label>
-
-                  <label className="min-w-0 space-y-1.5">
-                    <span className="text-xs text-muted-foreground">
-                      Цена
+                  <label className="min-w-0 space-y-1">
+                    <span className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+                      <span className="shrink-0">Цена</span>
+                      {relationCalculatedPrice ? (
+                        <span className="min-w-0 truncate">
+                          ({relationCalculatedPrice})
+                        </span>
+                      ) : null}
                     </span>
                     <Input
                       value={unit.price}
@@ -413,74 +453,122 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                       onChange={(event) =>
                         handleUnitChange(index, { price: event.target.value })
                       }
-                      className="h-9 px-3 text-sm"
+                      className="h-8 min-w-0 px-2.5 text-sm"
                     />
+                    {preview ? (
+                      <span className="block text-xs text-muted-foreground">
+                        {formatSaleUnitMoney(
+                          preview.basePrice,
+                          priceFormatMode,
+                        )}
+                        {" -> "}
+                        <span className="font-medium text-foreground">
+                          {formatSaleUnitMoney(
+                            preview.finalPrice,
+                            priceFormatMode,
+                          )}
+                        </span>
+                      </span>
+                    ) : null}
                   </label>
                 </div>
 
-                {catalogUnits.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {catalogUnits.slice(0, 5).map((catalogUnit) => {
-                      const isSelected = unit.catalogSaleUnitId === catalogUnit.id;
-                      const isUsedElsewhere =
-                        selectedCatalogUnitIds.has(catalogUnit.id) && !isSelected;
+                {parentOptions.length > 0 ? (
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-xs text-muted-foreground">
+                      Содержит
+                    </span>
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <Input
+                        value={relation.multiplier}
+                        type="number"
+                        min={0.0001}
+                        step="0.001"
+                        inputMode="decimal"
+                        disabled={disabled}
+                        placeholder="4"
+                        className="h-8 min-w-[0] flex-1 px-2.5 text-sm"
+                        onChange={(event) =>
+                          handleRelationChange(index, {
+                            multiplier: event.target.value,
+                          })
+                        }
+                      />
+                      <Select
+                        value={
+                          relation.parentIndex !== null
+                            ? String(relation.parentIndex)
+                            : undefined
+                        }
+                        disabled={disabled}
+                        onValueChange={(value) => {
+                          const parentIndex = Number(value);
+                          const parentUnit = units[parentIndex];
 
-                      return (
-                        <button
-                          key={catalogUnit.id}
+                          handleRelationChange(index, {
+                            parentIndex,
+                            multiplier:
+                              relation.multiplier ||
+                              resolveInitialRelationMultiplier(
+                                unit.baseQuantity,
+                                parentUnit?.baseQuantity,
+                              ),
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="h-8 min-w-[82px] max-w-[30%] flex-[0_0_30%]">
+                          <SelectValue placeholder="Выберите" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {parentOptions.map((parent) => (
+                            <SelectItem
+                              key={parent.index}
+                              value={String(parent.index)}
+                            >
+                              {parent.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {relation.parentIndex !== null ? (
+                        <Button
                           type="button"
-                          disabled={disabled || isUsedElsewhere}
-                          onClick={() =>
-                            handleSelectCatalogUnit(index, catalogUnit.id)
-                          }
-                          className={[
-                            "min-h-7 rounded-full border px-2.5 text-xs transition-colors disabled:opacity-50",
-                            isSelected
-                              ? "border-primary bg-primary/10 text-primary"
-                              : "border-border text-muted-foreground hover:bg-muted",
-                          ].join(" ")}
+                          variant="ghost"
+                          size="icon"
+                          disabled={disabled}
+                          className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          title="Сбросить связь"
+                          onClick={() => handleRelationClear(index)}
                         >
-                          {catalogUnit.name}
-                        </button>
-                      );
-                    })}
+                          <Trash2 className="size-4" />
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
-
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <label className="flex min-h-9 items-center gap-2 rounded-md border border-border/70 px-3 text-sm text-muted-foreground">
-                    <Switch
-                      size="sm"
-                      checked={unit.isDefault}
-                      disabled={disabled}
-                      onCheckedChange={(checked) =>
-                        handleDefaultChange(index, checked === true)
-                      }
-                    />
-                    Показывать первым
-                  </label>
-
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    title="Удалить формат"
-                    onClick={() => handleRemove(index)}
-                    className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50 sm:justify-start"
-                  >
-                    <Trash2 className="size-4" />
-                    Удалить
-                  </button>
-                </div>
               </div>
             );
           })}
         </div>
-      ) : (
-        <div className="rounded-md border border-dashed border-border px-3 py-3 text-sm leading-5 text-muted-foreground">
-          Дополнительные форматы не нужны, если товар продается только одним
-          способом. Цена возьмется из карточки варианта.
+      ) : null}
+
+      {units.length > 0 ? (
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAdd}
+            disabled={disabled}
+            className="h-8 shrink-0 px-2.5"
+            title="Добавить единицу"
+          >
+            <Plus className="size-4" />
+            Добавить
+          </Button>
         </div>
-      )}
+      ) : null}
+
     </div>
   );
 };

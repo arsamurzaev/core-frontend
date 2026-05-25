@@ -207,6 +207,21 @@ describe("buildCartItemView", () => {
           variant({
             saleUnits: [
               {
+                id: "piece",
+                catalogSaleUnitId: null,
+                code: "piece",
+                name: "Piece",
+                baseQuantity: "1",
+                price: "10",
+                barcode: null,
+                isDefault: false,
+                isActive: true,
+                displayOrder: 0,
+                createdAt: NOW,
+                updatedAt: NOW,
+                catalogSaleUnit: null,
+              },
+              {
                 id: "box",
                 catalogSaleUnitId: null,
                 code: "box",
@@ -216,7 +231,7 @@ describe("buildCartItemView", () => {
                 barcode: null,
                 isDefault: true,
                 isActive: true,
-                displayOrder: 0,
+                displayOrder: 1,
                 createdAt: NOW,
                 updatedAt: NOW,
                 catalogSaleUnit: null,
@@ -230,6 +245,7 @@ describe("buildCartItemView", () => {
     expect(view.saleUnitId).toBe("box");
     expect(view.saleUnitLabel).toContain("Box");
     expect(view.saleUnitLabel).toContain("12");
+    expect(view.saleUnitLabel).toContain("piece");
     expect(view.subtitle).toContain("Box");
   });
 

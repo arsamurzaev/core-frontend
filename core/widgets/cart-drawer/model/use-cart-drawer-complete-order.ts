@@ -31,19 +31,19 @@ export function useCartDrawerCompleteOrder({
   completeManagedOrder,
   isCheckoutLocked,
 }: UseCartDrawerCompleteOrderParams) {
-  return React.useCallback(async () => {
+  return React.useCallback(async (input?: PrepareShareOrderInput) => {
     const isConfirmed = await confirm(COMPLETE_ORDER_CONFIRMATION);
 
     if (!isConfirmed) {
       return;
     }
 
-    if (!isCheckoutLocked && checkoutValidationError) {
+    if (!input && !isCheckoutLocked && checkoutValidationError) {
       toast.error(checkoutValidationError);
       return;
     }
 
-    await completeManagedOrder(buildOrderInput());
+    await completeManagedOrder(input ?? buildOrderInput());
     toast.success(COMPLETE_ORDER_SUCCESS_MESSAGE);
   }, [
     buildOrderInput,

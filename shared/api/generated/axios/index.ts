@@ -263,6 +263,8 @@ export interface AdminCatalogConfigListItemDto {
   canUseInternalInventory: boolean;
   /** Whether the catalog can use MoySklad integration. */
   canUseMoySkladIntegration: boolean;
+  /** Whether the catalog can use iiko integration. */
+  canUseIikoIntegration: boolean;
 }
 
 export interface AdminDeleteInfoDto {
@@ -345,6 +347,15 @@ export interface AdminPromoCodeListItemDto {
   paymentsCount?: number;
 }
 
+export interface AdminCatalogActivityListItemDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  deleteAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface AdminCatalogChildListItemDto {
   id: string;
   slug: string;
@@ -387,6 +398,7 @@ export interface AdminCatalogListItemDto {
   logoMedia: MediaDto | null;
   type: AdminTypeListItemDto;
   promoCode: AdminPromoCodeListItemDto | null;
+  activities: AdminCatalogActivityListItemDto[];
   children: AdminCatalogChildListItemDto[];
 }
 
@@ -469,8 +481,11 @@ export interface AdminUpdateCatalogDtoReq {
   name?: string;
   typeId?: string;
   activityIds?: string[];
-  /** Yandex Metrika counter id for MAIN scope. */
-  metricId?: string;
+  /**
+   * Yandex Metrika counter id for MAIN scope.
+   * @nullable
+   */
+  metricId?: string | null;
   status?: AdminUpdateCatalogDtoReqStatus;
   /** Catalog domain/subdomain stored as slug. */
   slug?: string;
@@ -491,6 +506,7 @@ export const AdminCatalogFeatureEntitlementItemDtoFeature = {
   catalogsale_units: 'catalog.sale_units',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
+  integrationiiko: 'integration.iiko',
 } as const;
 
 /**
@@ -749,6 +765,7 @@ export const AdminUpdateCatalogFeatureEntitlementDtoReqFeature = {
   catalogsale_units: 'catalog.sale_units',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
+  integrationiiko: 'integration.iiko',
 } as const;
 
 /**
@@ -990,6 +1007,31 @@ export interface UploadQueueStatusDto {
   error?: string;
 }
 
+export interface ProductVariantCatalogSaleUnitDto {
+  id: string;
+  code: string;
+  name: string;
+  defaultBaseQuantity: string;
+}
+
+export interface ProductVariantSaleUnitDto {
+  id: string;
+  /** @nullable */
+  catalogSaleUnitId: string | null;
+  code: string;
+  name: string;
+  baseQuantity: string;
+  price: string;
+  /** @nullable */
+  barcode: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
+}
+
 export interface ProductMediaDto {
   position: number;
   /** @nullable */
@@ -1020,6 +1062,7 @@ export type ProductIntegrationDtoProvider = typeof ProductIntegrationDtoProvider
 
 export const ProductIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export interface ProductIntegrationDto {
@@ -1170,6 +1213,7 @@ export interface ProductWithAttributesDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1226,31 +1270,6 @@ export interface VariantAttributeDto {
   enumValueId: string;
   attribute: ProductAttributeRefDto;
   enumValue: ProductAttributeEnumValueDto;
-}
-
-export interface ProductVariantCatalogSaleUnitDto {
-  id: string;
-  code: string;
-  name: string;
-  defaultBaseQuantity: string;
-}
-
-export interface ProductVariantSaleUnitDto {
-  id: string;
-  /** @nullable */
-  catalogSaleUnitId: string | null;
-  code: string;
-  name: string;
-  baseQuantity: string;
-  price: string;
-  /** @nullable */
-  barcode: string | null;
-  isDefault: boolean;
-  isActive: boolean;
-  displayOrder: number;
-  createdAt: string;
-  updatedAt: string;
-  catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
 }
 
 export type ProductVariantDtoKind = typeof ProductVariantDtoKind[keyof typeof ProductVariantDtoKind];
@@ -1427,6 +1446,7 @@ export interface ProductWithDetailsDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1465,14 +1485,14 @@ export interface ProductVariantAttributeDtoReq {
 }
 
 export interface ProductVariantSaleUnitDtoReq {
-  /** Ссылка на формат продажи из справочника текущего каталога. Если не передать, backend создаст/найдет формат по name. */
-  catalogSaleUnitId?: string;
-  /** Технический код можно не передавать: backend сгенерирует его из названия. */
+  /** Ссылка на активную единицу продажи из справочника текущего каталога. */
+  catalogSaleUnitId: string;
+  /** Не используется для создания справочника: локальная привязка берет код из catalogSaleUnitId. */
   code?: string;
-  /** Название формата продажи. Не нужно, если передан catalogSaleUnitId. */
+  /** Не используется для создания справочника: локальная привязка берет название из catalogSaleUnitId. */
   name?: string;
   /** Сколько базовых единиц внутри для конкретного товара/варианта. */
-  baseQuantity?: number;
+  baseQuantity: number;
   price: number;
   barcode?: string;
   isDefault?: boolean;
@@ -1568,6 +1588,7 @@ export interface ProductCreateResponseDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1702,6 +1723,7 @@ export interface ProductUpdateResponseDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -1865,6 +1887,7 @@ export interface ProductVariantsResponseDto {
   stock: number | null;
   /** @nullable */
   defaultVariantId: string | null;
+  saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
   brand: ProductBrandDto | null;
@@ -2170,6 +2193,46 @@ export interface CatalogDomainCheckDto {
   message: string;
 }
 
+export interface CatalogSaleUnitDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  defaultBaseQuantity: string;
+  /** @nullable */
+  barcode: string | null;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCatalogSaleUnitDtoReq {
+  /** Название формата продажи внутри текущего каталога. */
+  name: string;
+  /** Технический код можно не передавать: backend создаст его сам. */
+  code?: string;
+  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
+  defaultBaseQuantity?: number;
+  barcode?: string;
+  displayOrder?: number;
+}
+
+export interface UpdateCatalogSaleUnitDtoReq {
+  /** Название формата продажи внутри текущего каталога. */
+  name?: string;
+  /** Технический код можно не передавать: backend создаст его сам. */
+  code?: string;
+  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
+  defaultBaseQuantity?: number;
+  barcode?: string;
+  displayOrder?: number;
+  /** Soft availability switch for admin dictionaries. Existing product bindings are preserved. */
+  isActive?: boolean;
+}
+
 export interface CatalogYandexMetrikaDto {
   /** @nullable */
   counterId: string | null;
@@ -2247,6 +2310,7 @@ export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvid
 
 export const MoySkladIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
@@ -2384,6 +2448,7 @@ export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof
 
 export const MoySkladSyncRunDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
@@ -2642,6 +2707,492 @@ export interface MoySkladQueuedSyncDto {
   trigger: MoySkladQueuedSyncDtoTrigger;
 }
 
+export interface IikoWebhookStatusDto {
+  enabled: boolean;
+  /** @nullable */
+  urlPreview: string | null;
+  hasSecret: boolean;
+  /** @nullable */
+  lastConfiguredAt: string | null;
+  /** @nullable */
+  lastReceivedAt: string | null;
+  /** @nullable */
+  lastEventType: string | null;
+  /** @nullable */
+  lastError: string | null;
+}
+
+export type IikoIntegrationDtoProvider = typeof IikoIntegrationDtoProvider[keyof typeof IikoIntegrationDtoProvider];
+
+
+export const IikoIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+/**
+ * @nullable
+ */
+export type IikoIntegrationDtoOrderExportServiceType = typeof IikoIntegrationDtoOrderExportServiceType[keyof typeof IikoIntegrationDtoOrderExportServiceType] | null;
+
+
+export const IikoIntegrationDtoOrderExportServiceType = {
+  DeliveryByCourier: 'DeliveryByCourier',
+  DeliveryByClient: 'DeliveryByClient',
+} as const;
+
+export type IikoIntegrationDtoLastSyncStatus = typeof IikoIntegrationDtoLastSyncStatus[keyof typeof IikoIntegrationDtoLastSyncStatus];
+
+
+export const IikoIntegrationDtoLastSyncStatus = {
+  IDLE: 'IDLE',
+  SYNCING: 'SYNCING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+} as const;
+
+export interface IikoIntegrationDto {
+  provider: IikoIntegrationDtoProvider;
+  capabilities: IntegrationProviderCapabilitiesDto;
+  isActive: boolean;
+  hasApiLogin: boolean;
+  /** @nullable */
+  apiLoginPreview: string | null;
+  organizationId: string;
+  /** @nullable */
+  organizationName: string | null;
+  /** @nullable */
+  externalMenuId: string | null;
+  /** @nullable */
+  externalMenuName: string | null;
+  /** @nullable */
+  priceCategoryId: string | null;
+  /** @nullable */
+  priceCategoryName: string | null;
+  /** @nullable */
+  terminalGroupId: string | null;
+  /** @nullable */
+  terminalGroupName: string | null;
+  menuVersion: number;
+  syncSource: string;
+  importImages: boolean;
+  exportOrders: boolean;
+  webhook: IikoWebhookStatusDto;
+  /** @nullable */
+  orderExportServiceType: IikoIntegrationDtoOrderExportServiceType;
+  /** @nullable */
+  orderExportSourceKey: string | null;
+  /** @nullable */
+  lastRevision: number | null;
+  /** @nullable */
+  lastMenuSyncedAt: string | null;
+  /** @nullable */
+  lastStopListSyncedAt: string | null;
+  lastSyncStatus: IikoIntegrationDtoLastSyncStatus;
+  /** @nullable */
+  syncStartedAt: string | null;
+  /** @nullable */
+  lastSyncAt: string | null;
+  /** @nullable */
+  lastSyncError: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type IikoSyncRunDtoProvider = typeof IikoSyncRunDtoProvider[keyof typeof IikoSyncRunDtoProvider];
+
+
+export const IikoSyncRunDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export type IikoSyncRunDtoMode = typeof IikoSyncRunDtoMode[keyof typeof IikoSyncRunDtoMode];
+
+
+export const IikoSyncRunDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  STOCK: 'STOCK',
+} as const;
+
+export type IikoSyncRunDtoTrigger = typeof IikoSyncRunDtoTrigger[keyof typeof IikoSyncRunDtoTrigger];
+
+
+export const IikoSyncRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export type IikoSyncRunDtoStatus = typeof IikoSyncRunDtoStatus[keyof typeof IikoSyncRunDtoStatus];
+
+
+export const IikoSyncRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export type IikoSyncRunDtoSnapshotCompleteness = typeof IikoSyncRunDtoSnapshotCompleteness[keyof typeof IikoSyncRunDtoSnapshotCompleteness];
+
+
+export const IikoSyncRunDtoSnapshotCompleteness = {
+  FULL_COMPLETE: 'FULL_COMPLETE',
+  PARTIAL: 'PARTIAL',
+  WEBHOOK_DELTA: 'WEBHOOK_DELTA',
+  FAILED_BEFORE_SNAPSHOT: 'FAILED_BEFORE_SNAPSHOT',
+} as const;
+
+export interface IikoSyncRunDto {
+  id: string;
+  provider: IikoSyncRunDtoProvider;
+  mode: IikoSyncRunDtoMode;
+  trigger: IikoSyncRunDtoTrigger;
+  status: IikoSyncRunDtoStatus;
+  snapshotCompleteness: IikoSyncRunDtoSnapshotCompleteness;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  imagesImported: number;
+  products: MoySkladSyncEntityStatsDto;
+  variants: MoySkladSyncEntityStatsDto;
+  stockRows: MoySkladSyncStockStatsDto;
+  warnings: MoySkladSyncIssueDto[];
+  errors: MoySkladSyncIssueDto[];
+  progress: MoySkladSyncProgressDto | null;
+  /** @nullable */
+  durationMs: number | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IikoIntegrationStatusDto {
+  configured: boolean;
+  integration: IikoIntegrationDto | null;
+  activeRun: IikoSyncRunDto | null;
+  lastRun: IikoSyncRunDto | null;
+}
+
+export type IikoWebhookEventDtoProvider = typeof IikoWebhookEventDtoProvider[keyof typeof IikoWebhookEventDtoProvider];
+
+
+export const IikoWebhookEventDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export type IikoWebhookEventDtoStatus = typeof IikoWebhookEventDtoStatus[keyof typeof IikoWebhookEventDtoStatus];
+
+
+export const IikoWebhookEventDtoStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  PROCESSED: 'PROCESSED',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export type IikoWebhookEventDtoDetails = { [key: string]: unknown };
+
+export interface IikoWebhookEventDto {
+  id: string;
+  provider: IikoWebhookEventDtoProvider;
+  requestId: string;
+  eventType: string;
+  status: IikoWebhookEventDtoStatus;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  error: string | null;
+  details: IikoWebhookEventDtoDetails;
+  receivedAt: string;
+  /** @nullable */
+  processedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type IikoSyncProgressDtoStatus = typeof IikoSyncProgressDtoStatus[keyof typeof IikoSyncProgressDtoStatus];
+
+
+export const IikoSyncProgressDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface IikoSyncProgressDto {
+  runId: string;
+  status: IikoSyncProgressDtoStatus;
+  phase: string;
+  message: string;
+  processed: number;
+  /** @nullable */
+  total: number | null;
+  /** @nullable */
+  percent: number | null;
+  updatedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type UpsertIikoIntegrationDtoReqOrderExportServiceType = typeof UpsertIikoIntegrationDtoReqOrderExportServiceType[keyof typeof UpsertIikoIntegrationDtoReqOrderExportServiceType] | null;
+
+
+export const UpsertIikoIntegrationDtoReqOrderExportServiceType = {
+  DeliveryByCourier: 'DeliveryByCourier',
+  DeliveryByClient: 'DeliveryByClient',
+} as const;
+
+export interface UpsertIikoIntegrationDtoReq {
+  apiLogin: string;
+  organizationId: string;
+  /** @nullable */
+  organizationName?: string | null;
+  /** @nullable */
+  externalMenuId?: string | null;
+  /** @nullable */
+  externalMenuName?: string | null;
+  /** @nullable */
+  priceCategoryId?: string | null;
+  /** @nullable */
+  priceCategoryName?: string | null;
+  /** @nullable */
+  terminalGroupId?: string | null;
+  /** @nullable */
+  terminalGroupName?: string | null;
+  menuVersion?: number;
+  isActive?: boolean;
+  importImages?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  orderExportServiceType?: UpsertIikoIntegrationDtoReqOrderExportServiceType;
+  /** @nullable */
+  orderExportSourceKey?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type UpdateIikoIntegrationDtoReqOrderExportServiceType = typeof UpdateIikoIntegrationDtoReqOrderExportServiceType[keyof typeof UpdateIikoIntegrationDtoReqOrderExportServiceType] | null;
+
+
+export const UpdateIikoIntegrationDtoReqOrderExportServiceType = {
+  DeliveryByCourier: 'DeliveryByCourier',
+  DeliveryByClient: 'DeliveryByClient',
+} as const;
+
+export interface UpdateIikoIntegrationDtoReq {
+  apiLogin?: string;
+  organizationId?: string;
+  /** @nullable */
+  organizationName?: string | null;
+  /** @nullable */
+  externalMenuId?: string | null;
+  /** @nullable */
+  externalMenuName?: string | null;
+  /** @nullable */
+  priceCategoryId?: string | null;
+  /** @nullable */
+  priceCategoryName?: string | null;
+  /** @nullable */
+  terminalGroupId?: string | null;
+  /** @nullable */
+  terminalGroupName?: string | null;
+  menuVersion?: number;
+  isActive?: boolean;
+  importImages?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  orderExportServiceType?: UpdateIikoIntegrationDtoReqOrderExportServiceType;
+  /** @nullable */
+  orderExportSourceKey?: string | null;
+}
+
+export interface TestIikoConnectionDtoReq {
+  apiLogin?: string;
+}
+
+export interface IikoOrganizationDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  isActive: boolean | null;
+}
+
+export interface IikoExternalMenuDto {
+  id: string;
+  name: string;
+}
+
+export interface IikoPriceCategoryDto {
+  id: string;
+  name: string;
+}
+
+export interface IikoTerminalGroupDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  organizationId: string | null;
+  /** @nullable */
+  isActive: boolean | null;
+  /** @nullable */
+  isAlive: boolean | null;
+}
+
+export interface IikoTestConnectionDto {
+  ok: boolean;
+  organizations: IikoOrganizationDto[];
+  externalMenus: IikoExternalMenuDto[];
+  priceCategories: IikoPriceCategoryDto[];
+  terminalGroups: IikoTerminalGroupDto[];
+}
+
+export interface PreviewIikoImportDtoReq {
+  /** Optional apiLogin override. If omitted, saved iiko credentials are used. */
+  apiLogin?: string;
+  organizationId?: string;
+  externalMenuId?: string;
+  /** @nullable */
+  externalMenuName?: string | null;
+  /** @nullable */
+  priceCategoryId?: string | null;
+  menuVersion?: number;
+}
+
+export interface IikoImportPreviewStatsDto {
+  categories: number;
+  items: number;
+  visibleItems: number;
+  hiddenItems: number;
+  itemsWithoutPrice: number;
+  itemsWithModifiers: number;
+  combos: number;
+  variants: number;
+}
+
+export interface IikoImportPreviewDiffDto {
+  newItems: number;
+  matchedItems: number;
+  changedItems: number;
+  priceChanges: number;
+  nameChanges: number;
+  unchangedItems: number;
+  missingLinkedItems: number;
+}
+
+export interface IikoImportPreviewCategoryDto {
+  id: string;
+  name: string;
+  isHidden: boolean;
+  items: number;
+}
+
+export interface IikoImportPreviewItemDto {
+  id: string;
+  name: string;
+  /** @nullable */
+  categoryId: string | null;
+  /** @nullable */
+  type: string | null;
+  /** @nullable */
+  orderItemType: string | null;
+  isHidden: boolean;
+  hasPrice: boolean;
+  /** @nullable */
+  price: number | null;
+  variants: number;
+  hasModifiers: boolean;
+  willImport: boolean;
+  skipReasons: string[];
+  /** @nullable */
+  diffStatus: string | null;
+  /** @nullable */
+  localProductId: string | null;
+  /** @nullable */
+  localName: string | null;
+  /** @nullable */
+  localPrice: number | null;
+}
+
+export interface IikoImportPreviewDto {
+  ok: boolean;
+  source: string;
+  /** @nullable */
+  revision: number | null;
+  /** @nullable */
+  externalMenuId: string | null;
+  /** @nullable */
+  externalMenuName: string | null;
+  stats: IikoImportPreviewStatsDto;
+  diff: IikoImportPreviewDiffDto;
+  categories: IikoImportPreviewCategoryDto[];
+  items: IikoImportPreviewItemDto[];
+}
+
+export type IikoQueuedSyncDtoMode = typeof IikoQueuedSyncDtoMode[keyof typeof IikoQueuedSyncDtoMode];
+
+
+export const IikoQueuedSyncDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  STOCK: 'STOCK',
+} as const;
+
+export type IikoQueuedSyncDtoTrigger = typeof IikoQueuedSyncDtoTrigger[keyof typeof IikoQueuedSyncDtoTrigger];
+
+
+export const IikoQueuedSyncDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export interface IikoQueuedSyncDto {
+  ok: boolean;
+  queued: boolean;
+  runId: string;
+  jobId: string;
+  mode: IikoQueuedSyncDtoMode;
+  trigger: IikoQueuedSyncDtoTrigger;
+}
+
+export interface IikoWebhookSetupDto {
+  ok: boolean;
+  enabled: boolean;
+  correlationId: string;
+  webhook: IikoWebhookStatusDto;
+}
+
 export type CatalogConfigDtoStatus = typeof CatalogConfigDtoStatus[keyof typeof CatalogConfigDtoStatus];
 
 
@@ -2794,6 +3345,8 @@ export interface CatalogCurrentFeaturesDto {
   canUseInternalInventory: boolean;
   /** Whether the current catalog can use MoySklad integration. */
   canUseMoySkladIntegration: boolean;
+  /** Whether the current catalog can use iiko integration. */
+  canUseIikoIntegration: boolean;
   /** Raw admin entitlements before dependency resolution. */
   raw: CatalogCurrentFeaturesDtoRaw;
   /** Effective capabilities after dependency resolution. */
@@ -3016,11 +3569,78 @@ export interface CatalogCreateResponseDto {
   domain: string | null;
 }
 
+export interface IikoRestaurantTableDto {
+  id: string;
+  /** @nullable */
+  publicCode: string | null;
+  /** @nullable */
+  number: number | null;
+  /** @nullable */
+  displayNumber: string | null;
+  /** @nullable */
+  name: string | null;
+  /** @nullable */
+  seatingCapacity: number | null;
+  /** @nullable */
+  sectionId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+  /** @nullable */
+  terminalGroupId: string | null;
+}
+
+export interface IikoRestaurantTablesDto {
+  ok: boolean;
+  tables: IikoRestaurantTableDto[];
+  /** @nullable */
+  revision: number | null;
+}
+
+export type IikoOrderExportDtoProvider = typeof IikoOrderExportDtoProvider[keyof typeof IikoOrderExportDtoProvider];
+
+
+export const IikoOrderExportDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export type IikoOrderExportDtoStatus = typeof IikoOrderExportDtoStatus[keyof typeof IikoOrderExportDtoStatus];
+
+
+export const IikoOrderExportDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface IikoOrderExportDto {
+  id: string;
+  provider: IikoOrderExportDtoProvider;
+  orderId: string;
+  idempotencyKey: string;
+  /** @nullable */
+  externalId: string | null;
+  status: IikoOrderExportDtoStatus;
+  attempts: number;
+  /** @nullable */
+  lastError: string | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  exportedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type MoySkladOrderExportDtoProvider = typeof MoySkladOrderExportDtoProvider[keyof typeof MoySkladOrderExportDtoProvider];
 
 
 export const MoySkladOrderExportDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
 } as const;
 
 export type MoySkladOrderExportDtoStatus = typeof MoySkladOrderExportDtoStatus[keyof typeof MoySkladOrderExportDtoStatus];
@@ -3241,42 +3861,45 @@ export interface MoySkladQueuedOrderExportDto {
   reason: string | null;
 }
 
-export interface CatalogSaleUnitDto {
+export interface IikoQueuedOrderExportDto {
+  ok: boolean;
+  queued: boolean;
+  /** @nullable */
+  exportId: string | null;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  reason: string | null;
+}
+
+export type IikoOrderExportTimelineItemDtoProvider = typeof IikoOrderExportTimelineItemDtoProvider[keyof typeof IikoOrderExportTimelineItemDtoProvider];
+
+
+export const IikoOrderExportTimelineItemDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+} as const;
+
+export interface IikoOrderExportTimelineItemDto {
   id: string;
-  catalogId: string;
-  code: string;
-  name: string;
-  defaultBaseQuantity: string;
+  provider: IikoOrderExportTimelineItemDtoProvider;
+  exportId: string;
+  type: string;
+  status: string;
+  title: string;
   /** @nullable */
-  barcode: string | null;
-  isActive: boolean;
-  displayOrder: number;
+  detail: string | null;
   /** @nullable */
-  deleteAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  attempts: number;
+  occurredAt: string;
 }
 
-export interface CreateCatalogSaleUnitDtoReq {
-  /** Название формата продажи внутри текущего каталога. */
-  name: string;
-  /** Технический код можно не передавать: backend создаст его сам. */
-  code?: string;
-  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
-  defaultBaseQuantity?: number;
-  barcode?: string;
-  displayOrder?: number;
-}
-
-export interface UpdateCatalogSaleUnitDtoReq {
-  /** Название формата продажи внутри текущего каталога. */
-  name?: string;
-  /** Технический код можно не передавать: backend создаст его сам. */
-  code?: string;
-  /** Подсказка количества внутри. Конкретный товар все равно хранит свое количество. */
-  defaultBaseQuantity?: number;
-  barcode?: string;
-  displayOrder?: number;
+export interface IikoOrderExportTimelineDto {
+  orderId: string;
+  items: IikoOrderExportTimelineItemDto[];
 }
 
 export interface CategoryDto {
@@ -3736,15 +4359,6 @@ export interface ShareCartResponseDto {
   publicKey: string;
 }
 
-export interface UpsertCartItemDtoReq {
-  productId: string;
-  variantId?: string;
-  /** Единица продажи выбранной вариации: штука, упаковка, палета. */
-  saleUnitId?: string;
-  /** 0 = удалить позицию из корзины */
-  quantity: number;
-}
-
 export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 
@@ -3810,6 +4424,32 @@ export interface CompletedOrderDto {
 export interface CompleteCartOrderResponseDto {
   ok: boolean;
   order: CompletedOrderDto;
+}
+
+export interface HallTableLinkDto {
+  code: string;
+  /** @nullable */
+  tableName: string | null;
+  /** @nullable */
+  tableNumber: string | null;
+  /** @nullable */
+  sectionId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+}
+
+export interface HallTableLinkResponseDto {
+  ok: boolean;
+  table: HallTableLinkDto;
+}
+
+export interface UpsertCartItemDtoReq {
+  productId: string;
+  variantId?: string;
+  /** Единица продажи выбранной вариации: штука, упаковка, палета. */
+  saleUnitId?: string;
+  /** 0 = удалить позицию из корзины */
+  quantity: number;
 }
 
 export interface PublicUpsertCartItemDtoReq {
@@ -4459,9 +5099,63 @@ export type ProductControllerDiagnoseDefaultVariantsParams = {
 sampleLimit?: number;
 };
 
+export type CatalogAdvancedSettingsControllerListSaleUnitsParams = {
+/**
+ * Include disabled, non-archived units.
+ */
+includeInactive?: boolean;
+/**
+ * Include archived units.
+ */
+includeArchived?: boolean;
+};
+
 export type CatalogAdvancedSettingsControllerGetMoySkladRunsParams = {
 /**
  * Сколько последних запусков вернуть
+ */
+limit?: number;
+};
+
+export type CatalogAdvancedSettingsControllerGetIikoRunsParams = {
+/**
+ * How many recent sync runs to return
+ */
+limit?: number;
+};
+
+export type CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams = {
+/**
+ * How many recent webhook events to return
+ */
+limit?: number;
+/**
+ * Optional webhook event status filter
+ */
+status?: string;
+};
+
+export type IntegrationControllerGetIikoRunsParams = {
+/**
+ * How many recent sync runs to return
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetIikoOrderExportsParams = {
+/**
+ * How many recent order exports to return
+ */
+limit?: number;
+};
+
+export type IntegrationControllerGetIikoWebhookEventsParams = {
+/**
+ * Optional webhook event status filter
+ */
+status?: string;
+/**
+ * How many recent webhook events to return
  */
 limit?: number;
 };
@@ -4486,6 +5180,7 @@ requestId?: string;
 
 export type CatalogSaleUnitControllerGetAllParams = {
 includeArchived?: boolean;
+includeInactive?: boolean;
 };
 
 export type CategoryControllerGetAllParams = {
@@ -5948,6 +6643,72 @@ const catalogAdvancedSettingsControllerDisableDomain = (
     }
   
 /**
+ * @summary List advanced settings catalog sale units
+ */
+const catalogAdvancedSettingsControllerListSaleUnits = (
+    params?: CatalogAdvancedSettingsControllerListSaleUnitsParams,
+ ) => {
+      return mutator<CatalogSaleUnitDto[]>(
+      {url: `/catalog/current/advanced-settings/sale-units`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Create advanced settings catalog sale unit
+ */
+const catalogAdvancedSettingsControllerCreateSaleUnit = (
+    createCatalogSaleUnitDtoReq: CreateCatalogSaleUnitDtoReq,
+ ) => {
+      return mutator<CatalogSaleUnitDto>(
+      {url: `/catalog/current/advanced-settings/sale-units`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogSaleUnitDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings catalog sale unit
+ */
+const catalogAdvancedSettingsControllerGetSaleUnit = (
+    id: string,
+ ) => {
+      return mutator<CatalogSaleUnitDto>(
+      {url: `/catalog/current/advanced-settings/sale-units/${id}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Update advanced settings catalog sale unit
+ */
+const catalogAdvancedSettingsControllerUpdateSaleUnit = (
+    id: string,
+    updateCatalogSaleUnitDtoReq: UpdateCatalogSaleUnitDtoReq,
+ ) => {
+      return mutator<CatalogSaleUnitDto>(
+      {url: `/catalog/current/advanced-settings/sale-units/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogSaleUnitDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Archive advanced settings catalog sale unit
+ */
+const catalogAdvancedSettingsControllerArchiveSaleUnit = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/sale-units/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
  * @summary Get catalog scoped Yandex Metrika counter
  */
 const catalogAdvancedSettingsControllerGetYandexMetrika = (
@@ -6125,6 +6886,208 @@ const catalogAdvancedSettingsControllerCancelMoySkladSync = (
     }
   
 /**
+ * @summary Get advanced settings iiko integration
+ */
+const catalogAdvancedSettingsControllerGetIiko = (
+    
+ ) => {
+      return mutator<IikoIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create or replace advanced settings iiko
+ */
+const catalogAdvancedSettingsControllerUpsertIiko = (
+    upsertIikoIntegrationDtoReq: UpsertIikoIntegrationDtoReq,
+ ) => {
+      return mutator<IikoIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertIikoIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Update advanced settings iiko
+ */
+const catalogAdvancedSettingsControllerUpdateIiko = (
+    updateIikoIntegrationDtoReq: UpdateIikoIntegrationDtoReq,
+ ) => {
+      return mutator<IikoIntegrationDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateIikoIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Remove advanced settings iiko
+ */
+const catalogAdvancedSettingsControllerRemoveIiko = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings iiko status
+ */
+const catalogAdvancedSettingsControllerGetIikoStatus = (
+    
+ ) => {
+      return mutator<IikoIntegrationStatusDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/status`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings iiko sync history
+ */
+const catalogAdvancedSettingsControllerGetIikoRuns = (
+    params?: CatalogAdvancedSettingsControllerGetIikoRunsParams,
+ ) => {
+      return mutator<IikoSyncRunDto[]>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/runs`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings iiko webhook journal
+ */
+const catalogAdvancedSettingsControllerGetIikoWebhookEvents = (
+    params?: CatalogAdvancedSettingsControllerGetIikoWebhookEventsParams,
+ ) => {
+      return mutator<IikoWebhookEventDto[]>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhook-events`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Retry advanced settings iiko webhook event
+ */
+const catalogAdvancedSettingsControllerRetryIikoWebhookEvent = (
+    eventId: string,
+ ) => {
+      return mutator<IikoWebhookEventDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhook-events/${eventId}/retry`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Get advanced settings iiko sync progress
+ */
+const catalogAdvancedSettingsControllerGetIikoRunProgress = (
+    runId: string,
+ ) => {
+      return mutator<IikoSyncProgressDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/runs/${runId}/progress`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Test advanced settings iiko connection
+ */
+const catalogAdvancedSettingsControllerTestIikoConnection = (
+    testIikoConnectionDtoReq: TestIikoConnectionDtoReq,
+ ) => {
+      return mutator<IikoTestConnectionDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testIikoConnectionDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Preview advanced settings iiko external menu import
+ */
+const catalogAdvancedSettingsControllerPreviewIikoImport = (
+    previewIikoImportDtoReq: PreviewIikoImportDtoReq,
+ ) => {
+      return mutator<IikoImportPreviewDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewIikoImportDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Queue advanced settings iiko full menu sync
+ */
+const catalogAdvancedSettingsControllerSyncIikoCatalog = (
+    
+ ) => {
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/sync`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Queue advanced settings iiko stop-list sync
+ */
+const catalogAdvancedSettingsControllerSyncIikoStock = (
+    
+ ) => {
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/stock-sync`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Queue advanced settings iiko product sync
+ */
+const catalogAdvancedSettingsControllerSyncIikoProduct = (
+    id: string,
+ ) => {
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/sync-product/${id}`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Register advanced settings iiko webhooks
+ */
+const catalogAdvancedSettingsControllerSetupIikoWebhooks = (
+    
+ ) => {
+      return mutator<IikoWebhookSetupDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhooks/setup`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Disable advanced settings iiko webhooks locally
+ */
+const catalogAdvancedSettingsControllerDisableIikoWebhooks = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog/current/advanced-settings/integrations/iiko/webhooks`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
  * @summary Get current catalog
  */
 const catalogControllerGetCurrent = (
@@ -6290,6 +7253,18 @@ const catalogDomainControllerDisable = (
     }
   
 /**
+ * @summary Get public key for integration payload tokens
+ */
+const integrationControllerGetIntegrationPayloadPublicKey = (
+    
+ ) => {
+      return mutator<void>(
+      {url: `/integration/payload/public-key`, method: 'GET'
+    },
+      );
+    }
+  
+/**
  * @summary Получить настройки интеграции MoySklad
  */
 const integrationControllerGetMoySklad = (
@@ -6349,6 +7324,233 @@ const integrationControllerGetMoySkladStatus = (
  ) => {
       return mutator<MoySkladIntegrationStatusDto>(
       {url: `/integration/moysklad/status`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko integration settings
+ */
+const integrationControllerGetIiko = (
+    
+ ) => {
+      return mutator<IikoIntegrationDto>(
+      {url: `/integration/iiko`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create or replace iiko integration settings
+ */
+const integrationControllerUpsertIiko = (
+    upsertIikoIntegrationDtoReq: UpsertIikoIntegrationDtoReq,
+ ) => {
+      return mutator<IikoIntegrationDto>(
+      {url: `/integration/iiko`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertIikoIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Update iiko integration settings
+ */
+const integrationControllerUpdateIiko = (
+    updateIikoIntegrationDtoReq: UpdateIikoIntegrationDtoReq,
+ ) => {
+      return mutator<IikoIntegrationDto>(
+      {url: `/integration/iiko`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateIikoIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Remove iiko integration settings
+ */
+const integrationControllerRemoveIiko = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/iiko`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko integration status
+ */
+const integrationControllerGetIikoStatus = (
+    
+ ) => {
+      return mutator<IikoIntegrationStatusDto>(
+      {url: `/integration/iiko/status`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Test iikoCloud connection
+ */
+const integrationControllerTestIikoConnection = (
+    testIikoConnectionDtoReq: TestIikoConnectionDtoReq,
+ ) => {
+      return mutator<IikoTestConnectionDto>(
+      {url: `/integration/iiko/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testIikoConnectionDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko restaurant tables for QR hall orders
+ */
+const integrationControllerGetIikoTables = (
+    
+ ) => {
+      return mutator<IikoRestaurantTablesDto>(
+      {url: `/integration/iiko/tables`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Preview iiko external menu import
+ */
+const integrationControllerPreviewIikoImport = (
+    previewIikoImportDtoReq: PreviewIikoImportDtoReq,
+ ) => {
+      return mutator<IikoImportPreviewDto>(
+      {url: `/integration/iiko/import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewIikoImportDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Queue full iiko menu sync
+ */
+const integrationControllerSyncIikoCatalog = (
+    
+ ) => {
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/integration/iiko/sync`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Queue iiko stop-list stock sync
+ */
+const integrationControllerSyncIikoStock = (
+    
+ ) => {
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/integration/iiko/stock-sync`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Queue one iiko product sync
+ */
+const integrationControllerSyncIikoProduct = (
+    id: string,
+ ) => {
+      return mutator<IikoQueuedSyncDto>(
+      {url: `/integration/iiko/sync-product/${id}`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Register iiko webhooks for the saved integration
+ */
+const integrationControllerSetupIikoWebhooks = (
+    
+ ) => {
+      return mutator<IikoWebhookSetupDto>(
+      {url: `/integration/iiko/webhooks/setup`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Disable local iiko webhook handling
+ */
+const integrationControllerDisableIikoWebhooks = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/iiko/webhooks`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko sync history
+ */
+const integrationControllerGetIikoRuns = (
+    params?: IntegrationControllerGetIikoRunsParams,
+ ) => {
+      return mutator<IikoSyncRunDto[]>(
+      {url: `/integration/iiko/runs`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko sync progress
+ */
+const integrationControllerGetIikoRunProgress = (
+    runId: string,
+ ) => {
+      return mutator<IikoSyncProgressDto>(
+      {url: `/integration/iiko/runs/${runId}/progress`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko order export history
+ */
+const integrationControllerGetIikoOrderExports = (
+    params?: IntegrationControllerGetIikoOrderExportsParams,
+ ) => {
+      return mutator<IikoOrderExportDto[]>(
+      {url: `/integration/iiko/order-exports`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko webhook event journal
+ */
+const integrationControllerGetIikoWebhookEvents = (
+    params?: IntegrationControllerGetIikoWebhookEventsParams,
+ ) => {
+      return mutator<IikoWebhookEventDto[]>(
+      {url: `/integration/iiko/webhook-events`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Retry failed iiko webhook event processing
+ */
+const integrationControllerRetryIikoWebhookEvent = (
+    eventId: string,
+ ) => {
+      return mutator<IikoWebhookEventDto>(
+      {url: `/integration/iiko/webhook-events/${eventId}/retry`, method: 'POST'
     },
       );
     }
@@ -6546,6 +7748,19 @@ const integrationControllerReceiveMoySkladProductFolderWebhook = (
     }
   
 /**
+ * @summary Receive iikoCloud webhook
+ */
+const integrationControllerReceiveIikoWebhook = (
+    integrationId: string,
+    secret: string,
+ ) => {
+      return mutator<void>(
+      {url: `/integration/webhooks/iiko/${integrationId}/${secret}`, method: 'POST'
+    },
+      );
+    }
+  
+/**
  * @summary Повторно поставить экспорт заказа MoySklad в очередь
  */
 const integrationControllerRetryMoySkladOrderExport = (
@@ -6553,6 +7768,30 @@ const integrationControllerRetryMoySkladOrderExport = (
  ) => {
       return mutator<MoySkladQueuedOrderExportDto>(
       {url: `/integration/moysklad/order-exports/${id}/retry`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Queue iiko order export retry
+ */
+const integrationControllerRetryIikoOrderExport = (
+    id: string,
+ ) => {
+      return mutator<IikoQueuedOrderExportDto>(
+      {url: `/integration/iiko/order-exports/${id}/retry`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Get iiko order export timeline by order id
+ */
+const integrationControllerGetIikoOrderExportTimeline = (
+    orderId: string,
+ ) => {
+      return mutator<IikoOrderExportTimelineDto>(
+      {url: `/integration/iiko/orders/${orderId}/export-timeline`, method: 'GET'
     },
       );
     }
@@ -6914,6 +8153,32 @@ const cartControllerShareCurrent = (
       {url: `/cart/current/share`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: shareCurrentCartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Submit the current cart as a hall table order
+ */
+const cartControllerSubmitCurrentHallOrder = (
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
+ ) => {
+      return mutator<CompleteCartOrderResponseDto>(
+      {url: `/cart/current/hall-order`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Resolve a short hall table code for display
+ */
+const cartControllerGetHallTableLink = (
+    code: string,
+ ) => {
+      return mutator<HallTableLinkResponseDto>(
+      {url: `/cart/hall-table/${code}`, method: 'GET'
     },
       );
     }
@@ -7293,7 +8558,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetDomainEventOutbox,adminControllerGetDomainEventOutboxStats,adminControllerRetryDomainEventOutboxItem,adminControllerRetryFailedDomainEvents,adminControllerDrainDomainEventOutbox,adminControllerCleanupDomainEventOutbox,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDiagnoseCatalogDefaultVariants,adminControllerRepairCatalogMissingDefaultVariants,adminControllerRepairCatalogDefaultVariantPriceMismatches,adminControllerGetCatalogMoySkladStockDiagnostics,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerDiagnoseDefaultVariants,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerRepairDefaultVariantPriceMismatches,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerReceiveMoySkladProductDeleteWebhook,integrationControllerReceiveMoySkladProductChangeWebhook,integrationControllerReceiveMoySkladProductFolderWebhook,integrationControllerRetryMoySkladOrderExport,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetDomainEventOutbox,adminControllerGetDomainEventOutboxStats,adminControllerRetryDomainEventOutboxItem,adminControllerRetryFailedDomainEvents,adminControllerDrainDomainEventOutbox,adminControllerCleanupDomainEventOutbox,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDiagnoseCatalogDefaultVariants,adminControllerRepairCatalogMissingDefaultVariants,adminControllerRepairCatalogDefaultVariantPriceMismatches,adminControllerGetCatalogMoySkladStockDiagnostics,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerDiagnoseDefaultVariants,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerRepairDefaultVariantPriceMismatches,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerListSaleUnits,catalogAdvancedSettingsControllerCreateSaleUnit,catalogAdvancedSettingsControllerGetSaleUnit,catalogAdvancedSettingsControllerUpdateSaleUnit,catalogAdvancedSettingsControllerArchiveSaleUnit,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogAdvancedSettingsControllerGetIiko,catalogAdvancedSettingsControllerUpsertIiko,catalogAdvancedSettingsControllerUpdateIiko,catalogAdvancedSettingsControllerRemoveIiko,catalogAdvancedSettingsControllerGetIikoStatus,catalogAdvancedSettingsControllerGetIikoRuns,catalogAdvancedSettingsControllerGetIikoWebhookEvents,catalogAdvancedSettingsControllerRetryIikoWebhookEvent,catalogAdvancedSettingsControllerGetIikoRunProgress,catalogAdvancedSettingsControllerTestIikoConnection,catalogAdvancedSettingsControllerPreviewIikoImport,catalogAdvancedSettingsControllerSyncIikoCatalog,catalogAdvancedSettingsControllerSyncIikoStock,catalogAdvancedSettingsControllerSyncIikoProduct,catalogAdvancedSettingsControllerSetupIikoWebhooks,catalogAdvancedSettingsControllerDisableIikoWebhooks,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetIntegrationPayloadPublicKey,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetIiko,integrationControllerUpsertIiko,integrationControllerUpdateIiko,integrationControllerRemoveIiko,integrationControllerGetIikoStatus,integrationControllerTestIikoConnection,integrationControllerGetIikoTables,integrationControllerPreviewIikoImport,integrationControllerSyncIikoCatalog,integrationControllerSyncIikoStock,integrationControllerSyncIikoProduct,integrationControllerSetupIikoWebhooks,integrationControllerDisableIikoWebhooks,integrationControllerGetIikoRuns,integrationControllerGetIikoRunProgress,integrationControllerGetIikoOrderExports,integrationControllerGetIikoWebhookEvents,integrationControllerRetryIikoWebhookEvent,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerReceiveMoySkladProductDeleteWebhook,integrationControllerReceiveMoySkladProductChangeWebhook,integrationControllerReceiveMoySkladProductFolderWebhook,integrationControllerReceiveIikoWebhook,integrationControllerRetryMoySkladOrderExport,integrationControllerRetryIikoOrderExport,integrationControllerGetIikoOrderExportTimeline,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerSubmitCurrentHallOrder,cartControllerGetHallTableLink,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -7397,6 +8662,11 @@ export type CatalogAdvancedSettingsControllerListDomainsResult = NonNullable<Awa
 export type CatalogAdvancedSettingsControllerCreateDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerCreateDomain']>>>
 export type CatalogAdvancedSettingsControllerCheckDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerCheckDomain']>>>
 export type CatalogAdvancedSettingsControllerDisableDomainResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerDisableDomain']>>>
+export type CatalogAdvancedSettingsControllerListSaleUnitsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerListSaleUnits']>>>
+export type CatalogAdvancedSettingsControllerCreateSaleUnitResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerCreateSaleUnit']>>>
+export type CatalogAdvancedSettingsControllerGetSaleUnitResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetSaleUnit']>>>
+export type CatalogAdvancedSettingsControllerUpdateSaleUnitResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerUpdateSaleUnit']>>>
+export type CatalogAdvancedSettingsControllerArchiveSaleUnitResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerArchiveSaleUnit']>>>
 export type CatalogAdvancedSettingsControllerGetYandexMetrikaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetYandexMetrika']>>>
 export type CatalogAdvancedSettingsControllerUpdateYandexMetrikaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerUpdateYandexMetrika']>>>
 export type CatalogAdvancedSettingsControllerDeleteYandexMetrikaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerDeleteYandexMetrika']>>>
@@ -7411,6 +8681,22 @@ export type CatalogAdvancedSettingsControllerGetMoySkladOrderExportRefsResult = 
 export type CatalogAdvancedSettingsControllerTestMoySkladConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerTestMoySkladConnection']>>>
 export type CatalogAdvancedSettingsControllerSyncMoySkladCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerSyncMoySkladCatalog']>>>
 export type CatalogAdvancedSettingsControllerCancelMoySkladSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerCancelMoySkladSync']>>>
+export type CatalogAdvancedSettingsControllerGetIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetIiko']>>>
+export type CatalogAdvancedSettingsControllerUpsertIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerUpsertIiko']>>>
+export type CatalogAdvancedSettingsControllerUpdateIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerUpdateIiko']>>>
+export type CatalogAdvancedSettingsControllerRemoveIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerRemoveIiko']>>>
+export type CatalogAdvancedSettingsControllerGetIikoStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetIikoStatus']>>>
+export type CatalogAdvancedSettingsControllerGetIikoRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetIikoRuns']>>>
+export type CatalogAdvancedSettingsControllerGetIikoWebhookEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetIikoWebhookEvents']>>>
+export type CatalogAdvancedSettingsControllerRetryIikoWebhookEventResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerRetryIikoWebhookEvent']>>>
+export type CatalogAdvancedSettingsControllerGetIikoRunProgressResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerGetIikoRunProgress']>>>
+export type CatalogAdvancedSettingsControllerTestIikoConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerTestIikoConnection']>>>
+export type CatalogAdvancedSettingsControllerPreviewIikoImportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerPreviewIikoImport']>>>
+export type CatalogAdvancedSettingsControllerSyncIikoCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerSyncIikoCatalog']>>>
+export type CatalogAdvancedSettingsControllerSyncIikoStockResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerSyncIikoStock']>>>
+export type CatalogAdvancedSettingsControllerSyncIikoProductResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerSyncIikoProduct']>>>
+export type CatalogAdvancedSettingsControllerSetupIikoWebhooksResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerSetupIikoWebhooks']>>>
+export type CatalogAdvancedSettingsControllerDisableIikoWebhooksResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogAdvancedSettingsControllerDisableIikoWebhooks']>>>
 export type CatalogControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrent']>>>
 export type CatalogControllerUpdateCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerUpdateCurrent']>>>
 export type CatalogControllerGetCurrentShellResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogControllerGetCurrentShell']>>>
@@ -7424,11 +8710,30 @@ export type CatalogDomainControllerListResult = NonNullable<Awaited<ReturnType<R
 export type CatalogDomainControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogDomainControllerCreate']>>>
 export type CatalogDomainControllerCheckResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogDomainControllerCheck']>>>
 export type CatalogDomainControllerDisableResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogDomainControllerDisable']>>>
+export type IntegrationControllerGetIntegrationPayloadPublicKeyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIntegrationPayloadPublicKey']>>>
 export type IntegrationControllerGetMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySklad']>>>
 export type IntegrationControllerUpsertMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpsertMoySklad']>>>
 export type IntegrationControllerUpdateMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpdateMoySklad']>>>
 export type IntegrationControllerRemoveMoySkladResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRemoveMoySklad']>>>
 export type IntegrationControllerGetMoySkladStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladStatus']>>>
+export type IntegrationControllerGetIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIiko']>>>
+export type IntegrationControllerUpsertIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpsertIiko']>>>
+export type IntegrationControllerUpdateIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerUpdateIiko']>>>
+export type IntegrationControllerRemoveIikoResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRemoveIiko']>>>
+export type IntegrationControllerGetIikoStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoStatus']>>>
+export type IntegrationControllerTestIikoConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerTestIikoConnection']>>>
+export type IntegrationControllerGetIikoTablesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoTables']>>>
+export type IntegrationControllerPreviewIikoImportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerPreviewIikoImport']>>>
+export type IntegrationControllerSyncIikoCatalogResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncIikoCatalog']>>>
+export type IntegrationControllerSyncIikoStockResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncIikoStock']>>>
+export type IntegrationControllerSyncIikoProductResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSyncIikoProduct']>>>
+export type IntegrationControllerSetupIikoWebhooksResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerSetupIikoWebhooks']>>>
+export type IntegrationControllerDisableIikoWebhooksResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerDisableIikoWebhooks']>>>
+export type IntegrationControllerGetIikoRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoRuns']>>>
+export type IntegrationControllerGetIikoRunProgressResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoRunProgress']>>>
+export type IntegrationControllerGetIikoOrderExportsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoOrderExports']>>>
+export type IntegrationControllerGetIikoWebhookEventsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoWebhookEvents']>>>
+export type IntegrationControllerRetryIikoWebhookEventResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRetryIikoWebhookEvent']>>>
 export type IntegrationControllerGetMoySkladRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladRuns']>>>
 export type IntegrationControllerGetMoySkladRunProgressResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladRunProgress']>>>
 export type IntegrationControllerGetMoySkladOrderExportsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetMoySkladOrderExports']>>>
@@ -7444,7 +8749,10 @@ export type IntegrationControllerReceiveMoySkladStockWebhookResult = NonNullable
 export type IntegrationControllerReceiveMoySkladProductDeleteWebhookResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerReceiveMoySkladProductDeleteWebhook']>>>
 export type IntegrationControllerReceiveMoySkladProductChangeWebhookResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerReceiveMoySkladProductChangeWebhook']>>>
 export type IntegrationControllerReceiveMoySkladProductFolderWebhookResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerReceiveMoySkladProductFolderWebhook']>>>
+export type IntegrationControllerReceiveIikoWebhookResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerReceiveIikoWebhook']>>>
 export type IntegrationControllerRetryMoySkladOrderExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRetryMoySkladOrderExport']>>>
+export type IntegrationControllerRetryIikoOrderExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRetryIikoOrderExport']>>>
+export type IntegrationControllerGetIikoOrderExportTimelineResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoOrderExportTimeline']>>>
 export type CatalogSaleUnitControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetAll']>>>
 export type CatalogSaleUnitControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerCreate']>>>
 export type CatalogSaleUnitControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetById']>>>
@@ -7472,6 +8780,8 @@ export type CartControllerCreateOrGetCurrentResult = NonNullable<Awaited<ReturnT
 export type CartControllerGetCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetCurrent']>>>
 export type CartControllerDeleteCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerDeleteCurrent']>>>
 export type CartControllerShareCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerShareCurrent']>>>
+export type CartControllerSubmitCurrentHallOrderResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSubmitCurrentHallOrder']>>>
+export type CartControllerGetHallTableLinkResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetHallTableLink']>>>
 export type CartControllerUpsertCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerUpsertCurrentItem']>>>
 export type CartControllerRemoveCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerRemoveCurrentItem']>>>
 export type CartControllerSseCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSseCurrent']>>>

@@ -12,6 +12,7 @@ import {
 } from "@/core/modules/cart";
 import { ProductCardRuntime } from "@/core/catalog-runtime/ui";
 import {
+  isIikoProduct,
   isMoySkladProduct,
   ProductCardSkeleton,
   ProductLink,
@@ -78,6 +79,9 @@ const FilterProductCard = React.memo(
           data={product}
           imageLoading="eager"
           isDetailed={isDetailed}
+          isIikoLinked={
+            !shouldUseCartUi && isAuthenticated && isIikoProduct(product)
+          }
           isMoySkladLinked={
             !shouldUseCartUi &&
             isAuthenticated &&
@@ -86,6 +90,7 @@ const FilterProductCard = React.memo(
           actions={
             !shouldUseCartUi && isDetailed ? (
               <EditProductCardAction
+                isIikoLinked={isIikoProduct(product)}
                 isMoySkladLinked={isMoySkladProduct(product)}
                 productId={product.id}
                 status={product.status}
@@ -113,6 +118,7 @@ const FilterProductCard = React.memo(
       {shouldUseCartUi ? <CartProductAction product={product} /> : null}
       {!shouldUseCartUi && !isDetailed ? (
         <EditProductCardAction
+          isIikoLinked={isIikoProduct(product)}
           isMoySkladLinked={isMoySkladProduct(product)}
           productId={product.id}
           status={product.status}

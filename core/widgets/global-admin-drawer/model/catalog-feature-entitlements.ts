@@ -59,6 +59,10 @@ export const CATALOG_FEATURE_LABELS: Record<
     title: "МойСклад",
     description: "Синхронизация каталога, остатков и экспорт заказов.",
   },
+  "integration.iiko": {
+    title: "iiko",
+    description: "Импорт меню iikoCloud: категории, товары, варианты и изображения.",
+  },
 };
 
 export function getCatalogFeatureEntitlements(catalogId: string) {

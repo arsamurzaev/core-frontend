@@ -19,6 +19,7 @@ import {
   CardSubTitle,
   CardTitle,
 } from "@/shared/ui/card";
+import { IikoIcon } from "@/shared/ui/icons/iiko-icon";
 import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
 
 import React from "react";
@@ -32,6 +33,7 @@ interface Props {
   headerMeta?: React.ReactNode;
   hidePriceWhenFooterAction?: boolean;
   imageLoading?: React.ImgHTMLAttributes<HTMLImageElement>["loading"];
+  isIikoLinked?: boolean;
   isMoySkladLinked?: boolean;
   isDetailed?: boolean;
 }
@@ -66,6 +68,7 @@ interface ProductCardContentProps {
   imageFallbackUrl?: string;
   imageLoading?: React.ImgHTMLAttributes<HTMLImageElement>["loading"];
   imageUrl?: string;
+  isIikoLinked?: boolean;
   isMoySkladLinked?: boolean;
 }
 
@@ -75,6 +78,7 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
   imageFallbackUrl,
   imageLoading = "lazy",
   imageUrl,
+  isIikoLinked = false,
   isMoySkladLinked = false,
 }) => {
   const isImageProcessing =
@@ -117,6 +121,18 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
     image.src = resolvedImageUrl;
   }, [imageLoading, resolvedImageUrl]);
 
+  const integrationMarker = isIikoLinked
+    ? {
+        icon: <IikoIcon />,
+        label: "Товар из iiko",
+      }
+    : isMoySkladLinked
+      ? {
+          icon: <MoyskladIcon />,
+          label: "Товар из MoySklad",
+        }
+      : null;
+
   return (
     <CardContent className="relative flex-[0_1_160px]">
       <div className="min-w-25">
@@ -137,13 +153,13 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
           ) : null}
         </AspectRatio>
       </div>
-      {isMoySkladLinked ? (
+      {integrationMarker ? (
         <div
           className="pointer-events-none absolute top-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-custom"
-          title="Товар из MoySklad"
-          aria-label="Товар из MoySklad"
+          title={integrationMarker.label}
+          aria-label={integrationMarker.label}
         >
-          <MoyskladIcon />
+          {integrationMarker.icon}
         </div>
       ) : null}
       {actions}
@@ -277,6 +293,7 @@ const ProductCardBase: React.FC<Props> = ({
   headerMeta,
   hidePriceWhenFooterAction,
   imageLoading,
+  isIikoLinked,
   isMoySkladLinked,
   isDetailed,
   className,
@@ -312,6 +329,7 @@ const ProductCardBase: React.FC<Props> = ({
         imageFallbackUrl={imageFallbackUrl}
         imageLoading={imageLoading}
         imageUrl={imageUrl}
+        isIikoLinked={Boolean(isIikoLinked)}
         isMoySkladLinked={Boolean(isMoySkladLinked)}
       />
       <div

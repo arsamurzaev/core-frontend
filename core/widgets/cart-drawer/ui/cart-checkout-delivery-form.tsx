@@ -27,7 +27,7 @@ export const CartCheckoutDeliveryForm: React.FC<
           onChange(updateCheckoutData(data, "address", event.target.value))
         }
         disabled={disabled}
-        placeholder="Город, улица 1"
+        placeholder="Москва, Тверская, 1"
         className="border border-black/10"
       />
     </div>

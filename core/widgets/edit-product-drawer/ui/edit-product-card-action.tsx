@@ -2,6 +2,7 @@
 
 import {
   ChangeProductCategoryPositionAction,
+  SyncIikoProductAction,
   SyncMoySkladProductAction,
 } from "@/core/modules/product/actions/ui";
 import { useEditProductDrawerHost } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
@@ -23,6 +24,7 @@ import { toast } from "sonner";
 interface EditProductCardActionProps {
   categoryId?: string;
   categoryPosition?: number;
+  isIikoLinked?: boolean;
   isMoySkladLinked?: boolean;
   productId: string;
   status: ProductWithAttributesDtoStatus;
@@ -31,6 +33,7 @@ interface EditProductCardActionProps {
 export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
   categoryId,
   categoryPosition,
+  isIikoLinked = false,
   isMoySkladLinked = false,
   productId,
   status,
@@ -42,14 +45,17 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
   const toggleProductStatus = useProductControllerToggleStatus();
   const [isUpdatingCategoryPosition, setIsUpdatingCategoryPosition] =
     React.useState(false);
+  const [isSyncingIiko, setIsSyncingIiko] = React.useState(false);
   const [isSyncingMoySklad, setIsSyncingMoySklad] = React.useState(false);
   const isStatusActive = status === ProductWithAttributesDtoStatus.ACTIVE;
   const isStatusHidden = status === ProductWithAttributesDtoStatus.HIDDEN;
   const canToggleStatus = isStatusActive || isStatusHidden;
+  const isIntegrationLinked = isMoySkladLinked || isIikoLinked;
   const isActionPending =
     duplicateProduct.isPending ||
     toggleProductStatus.isPending ||
     isUpdatingCategoryPosition ||
+    isSyncingIiko ||
     isSyncingMoySklad;
 
   const handleTriggerClick = React.useCallback(
@@ -146,6 +152,16 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
         </div>
       ) : null}
 
+      {!isMoySkladLinked && isIikoLinked ? (
+        <div className="absolute top-11 left-2 z-20 opacity-60">
+          <SyncIikoProductAction
+            productId={productId}
+            disabled={isActionPending}
+            onPendingChange={setIsSyncingIiko}
+          />
+        </div>
+      ) : null}
+
       <div className="absolute top-[5px] right-[5px] z-20 flex flex-col gap-2 opacity-60">
         {typeof categoryId === "string" && typeof categoryPosition === "number" ? (
           <ChangeProductCategoryPositionAction
@@ -172,16 +188,18 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
             )}
           </Button>
         ) : null}
-        <Button
-          type="button"
-          size="icon"
-          disabled={isActionPending}
-          onClick={handleDuplicateClick}
-          className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
-          aria-label="Дублировать товар"
-        >
-          <Copy className="text-muted-foreground size-4" />
-        </Button>
+        {!isIntegrationLinked ? (
+          <Button
+            type="button"
+            size="icon"
+            disabled={isActionPending}
+            onClick={handleDuplicateClick}
+            className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+            aria-label="Дублировать товар"
+          >
+            <Copy className="text-muted-foreground size-4" />
+          </Button>
+        ) : null}
         <Button
           type="button"
           size="icon"

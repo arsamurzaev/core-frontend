@@ -170,6 +170,18 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
                     )}
                   />
 
+                  <p className="mx-auto max-w-full text-center text-sm text-[#979797] max-sm:text-xs">
+                    Нажимая кнопку «Войти», вы соглашаетесь с <br />{" "}
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href="https://catalog.kreati.ru/правила пользования сайтом и сервисом.pdf"
+                      className="underline"
+                    >
+                      правилами пользования сайтом и сервисом.
+                    </a>
+                  </p>
+
                   {form.formState.errors.root?.message && (
                     <FieldError className="text-center">
                       {form.formState.errors.root.message}

@@ -53,6 +53,31 @@ function buildClearedProductTypeAttributeIds(params: {
     .map((attribute) => attribute.id);
 }
 
+function buildStaleProductTypeAttributeIds(params: {
+  editableProductAttributes: AttributeDto[];
+  hasProductTypeChange: boolean;
+  product?: ProductWithDetailsDto | null;
+}): string[] {
+  if (!params.hasProductTypeChange || !params.product) {
+    return [];
+  }
+
+  const editableAttributeIds = new Set(
+    params.editableProductAttributes.map((attribute) => attribute.id),
+  );
+
+  return (params.product.productAttributes ?? [])
+    .filter((attribute) => !attribute.attribute.isHidden)
+    .map((attribute) => attribute.attributeId)
+    .filter((attributeId) => !editableAttributeIds.has(attributeId));
+}
+
+function hasTypedVariants(product?: ProductWithDetailsDto | null): boolean {
+  return Boolean(
+    product?.variants?.some((variant) => (variant.attributes ?? []).length > 0),
+  );
+}
+
 export function buildEditProductUpdatePayloadCandidate(params: {
   formValues: CreateProductFormValues;
   mediaIds: string[];
@@ -120,6 +145,11 @@ export function buildEditProductUpdatePayloadCandidate(params: {
       persistedAttributeValues,
       productAttributes,
     }),
+    buildStaleProductTypeAttributeIds({
+      editableProductAttributes,
+      hasProductTypeChange,
+      product,
+    }),
   );
   const variantsPayload = buildEditProductBaseSaleUnitVariantPayloads({
     formValues,
@@ -127,7 +157,9 @@ export function buildEditProductUpdatePayloadCandidate(params: {
     canUseCatalogSaleUnits,
   });
   const shouldReplaceVariantMatrix =
-    canUseProductVariants && variantAttributes.length > 0;
+    canUseProductVariants &&
+    (variantAttributes.length > 0 ||
+      (hasProductTypeChange && hasTypedVariants(product)));
   const variantMatrixPayload = shouldReplaceVariantMatrix
     ? buildCreateVariantsPayload(formValues.variants, variantAttributes)
     : [];

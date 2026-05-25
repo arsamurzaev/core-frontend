@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canShowBetaField,
+  canShowIiko,
   canShowMoySklad,
   canShowProductTypes,
   canShowSaleUnits,
@@ -66,6 +67,7 @@ describe("capability display helpers", () => {
     ...DEFAULT_CATALOG_CAPABILITIES,
     canUseCatalogSaleUnits: true,
     canUseInternalInventory: false,
+    canUseIikoIntegration: true,
     canUseMoySkladIntegration: true,
     canUseProductTypes: true,
     canUseProductVariants: false,
@@ -77,6 +79,7 @@ describe("capability display helpers", () => {
     expect(canShowSaleUnits(capabilities)).toBe(true);
     expect(canUseInternalInventory(capabilities)).toBe(false);
     expect(canShowMoySklad(capabilities)).toBe(true);
+    expect(canShowIiko(capabilities)).toBe(true);
   });
 
   it("maps beta field names to effective gates", () => {
@@ -85,30 +88,53 @@ describe("capability display helpers", () => {
     expect(canShowBetaField(capabilities, "saleUnits")).toBe(true);
     expect(canShowBetaField(capabilities, "internalInventory")).toBe(false);
     expect(canShowBetaField(capabilities, "moyskladIntegration")).toBe(true);
+    expect(canShowBetaField(capabilities, "iikoIntegration")).toBe(true);
   });
 
   it("hides product structure controls only for catalog managers with MoySklad", () => {
     expect(
       shouldHideProductStructureControlsForCatalogManager({
-        capabilities,
+        capabilities: {
+          ...capabilities,
+          canUseIikoIntegration: false,
+        },
         moySkladConfigured: true,
         userRole: "CATALOG",
       }),
     ).toBe(true);
     expect(
       shouldHideProductStructureControlsForCatalogManager({
-        capabilities,
+        capabilities: {
+          ...capabilities,
+          canUseIikoIntegration: false,
+        },
         moySkladConfigured: true,
         userRole: "ADMIN",
       }),
     ).toBe(false);
     expect(
       shouldHideProductStructureControlsForCatalogManager({
-        capabilities,
+        capabilities: {
+          ...capabilities,
+          canUseIikoIntegration: false,
+        },
         moySkladConfigured: false,
         userRole: "CATALOG",
       }),
     ).toBe(false);
+  });
+
+  it("hides product structure controls for catalog managers with configured iiko", () => {
+    expect(
+      shouldHideProductStructureControlsForCatalogManager({
+        capabilities: {
+          ...capabilities,
+          canUseMoySkladIntegration: false,
+        },
+        iikoConfigured: true,
+        userRole: "CATALOG",
+      }),
+    ).toBe(true);
   });
 
   it("disables product type and variant gates when product structure is hidden", () => {

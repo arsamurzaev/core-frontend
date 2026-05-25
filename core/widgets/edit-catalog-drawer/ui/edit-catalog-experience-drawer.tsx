@@ -14,6 +14,7 @@ import {
   type CatalogEditFormValues,
 } from "@/core/widgets/edit-catalog-drawer/model/form-config";
 import { resolveCurrentAbsoluteUrl } from "@/core/widgets/share-drawer/model/share-drawer-helpers";
+import { apiClient } from "@/shared/api/client";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -27,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/shared/ui/popover";
 import { Switch } from "@/shared/ui/switch";
-import { Check, ChevronRight, Copy, Download, ExternalLink, QrCode } from "lucide-react";
+import { Check, ChevronRight, Copy, Download, ExternalLink, QrCode, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import QRCodeLib from "qrcode";
 import React from "react";
@@ -39,16 +40,92 @@ function buildModeUrl(mode: CatalogExperienceMode): string {
   return resolveCurrentAbsoluteUrl(`/?${params.toString()}`);
 }
 
+type IikoRestaurantTableOption = {
+  id: string;
+  publicCode: string | null;
+  number: number | null;
+  displayNumber: string | null;
+  name: string | null;
+  seatingCapacity: number | null;
+  sectionId: string | null;
+  sectionName: string | null;
+  terminalGroupId: string | null;
+};
+
+type IikoRestaurantTablesResponse = {
+  ok: true;
+  tables: IikoRestaurantTableOption[];
+  revision: number | null;
+};
+
+function buildHallTableUrl(table: {
+  code: string;
+}): string {
+  const params = new URLSearchParams({
+    mode: "HALL",
+    t: table.code,
+  });
+
+  return resolveCurrentAbsoluteUrl(`/?${params.toString()}`);
+}
+
+function getIikoTableLabel(table: IikoRestaurantTableOption): string {
+  if (table.name?.trim()) return table.name.trim();
+
+  const iikoNumber =
+    table.number !== null && table.number !== undefined
+      ? String(table.number)
+      : table.displayNumber;
+
+  return iikoNumber ? `Стол ${iikoNumber}` : table.name ?? "Стол";
+}
+
+function getIikoTableDetails(table: IikoRestaurantTableOption): string[] {
+  const details: string[] = [];
+  if (table.sectionName) {
+    details.push(table.sectionName);
+  }
+  if (table.seatingCapacity) {
+    details.push(`${table.seatingCapacity} мест`);
+  }
+  return details;
+}
+
 function buildSiteUrl(): string {
   return resolveCurrentAbsoluteUrl("/");
+}
+
+function buildQrFileName(label: string): string {
+  const normalized =
+    label
+      .toLowerCase()
+      .replace(/[^a-zа-яё0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 48) || "table";
+  return `qr-${normalized}.png`;
 }
 
 function useQrDataUrl(url: string): string | null {
   const [dataUrl, setDataUrl] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    if (!url) return;
-    void QRCodeLib.toDataURL(url, { width: 256, margin: 2, color: { dark: "#000000", light: "#ffffff" } }).then(setDataUrl);
+    if (!url) {
+      setDataUrl(null);
+      return;
+    }
+
+    let isCancelled = false;
+    void QRCodeLib.toDataURL(url, {
+      width: 512,
+      margin: 2,
+      color: { dark: "#000000", light: "#ffffff" },
+    }).then((nextDataUrl) => {
+      if (!isCancelled) setDataUrl(nextDataUrl);
+    });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [url]);
 
   return dataUrl;
@@ -342,6 +419,224 @@ function SiteLinkRow({
   );
 }
 
+function HallTableCard({
+  table,
+}: {
+  table: IikoRestaurantTableOption;
+}) {
+  const [copied, setCopied] = React.useState(false);
+  const [qrOpen, setQrOpen] = React.useState(false);
+  const tableCode = table.publicCode?.trim() ?? "";
+  const url = React.useMemo(
+    () => (tableCode ? buildHallTableUrl({ code: tableCode }) : ""),
+    [tableCode],
+  );
+  const label = getIikoTableLabel(table);
+  const details = getIikoTableDetails(table);
+  const qrDataUrl = useQrDataUrl(qrOpen ? url : "");
+  const isActionEnabled = Boolean(url);
+
+  const handleCopy = React.useCallback(async () => {
+    if (!url) return;
+
+    try {
+      await copyTextToClipboard(url);
+      setCopied(true);
+      toast.success("QR-ссылка стола скопирована.");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Не удалось скопировать ссылку.");
+    }
+  }, [url]);
+
+  const handleOpen = React.useCallback(() => {
+    if (!url) return;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, [url]);
+
+  return (
+    <div className="rounded-lg border border-black/10 px-3 py-2 text-sm">
+      <div className="flex min-w-0 items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <span className="block font-medium">{label}</span>
+          <span className="mt-0.5 block text-xs text-muted-foreground">
+            {details.join(" · ") ||
+              (tableCode ? "Без секции" : "Нет короткого кода")}
+          </span>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={!isActionEnabled}
+            onClick={() => void handleCopy()}
+            title="Скопировать ссылку"
+            className="size-8"
+          >
+            {copied ? (
+              <Check className="size-4 text-green-500" />
+            ) : (
+              <Copy className="size-4" />
+            )}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            disabled={!isActionEnabled}
+            onClick={handleOpen}
+            title="Открыть в новой вкладке"
+            className="size-8"
+          >
+            <ExternalLink className="size-4" />
+          </Button>
+
+          <Popover open={qrOpen} onOpenChange={setQrOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                disabled={!isActionEnabled}
+                title="QR и PNG"
+                className="size-8"
+              >
+                <Download className="size-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-auto p-4">
+              <p className="mb-3 text-sm font-medium">{label}</p>
+              {qrDataUrl ? (
+                <>
+                  <Image
+                    src={qrDataUrl}
+                    alt={`QR-код для ${label}`}
+                    className="size-52 rounded-lg border bg-white p-2"
+                    width={208}
+                    height={208}
+                    unoptimized
+                  />
+                  <a
+                    href={qrDataUrl}
+                    download={buildQrFileName(label)}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                  >
+                    <Download className="size-4" />
+                    Скачать PNG
+                  </a>
+                </>
+              ) : (
+                <div className="flex size-52 items-center justify-center rounded-lg border text-muted-foreground">
+                  <QrCode className="size-8 animate-pulse" />
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HallTableQrDrawer({
+  disabled,
+}: {
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [tables, setTables] = React.useState<IikoRestaurantTableOption[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const loadTables = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiClient.get<IikoRestaurantTablesResponse>(
+        "/integration/iiko/tables",
+      );
+      setTables(response.tables);
+    } catch (error) {
+      setTables([]);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Не удалось загрузить столы iiko.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    void loadTables();
+  }, [loadTables, open]);
+
+  return (
+    <AppDrawer
+      open={open}
+      onOpenChange={setOpen}
+      trigger={
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full justify-center gap-2"
+          disabled={disabled}
+        >
+          <QrCode className="size-4" />
+          QR-код стола
+        </Button>
+      }
+    >
+      <AppDrawer.Content className="max-h-[92dvh]">
+        <AppDrawer.Header
+          title="QR-код для стола"
+          description="Ссылка откроет каталог в режиме заказа в зале, а настоящий iiko UUID стола останется на сервере."
+        />
+
+        <DrawerScrollArea>
+          <div className="space-y-5 px-4 pb-4">
+            <section className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold">Столы iiko</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Берем список из настроенной группы терминалов.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={isLoading}
+                  onClick={() => void loadTables()}
+                  title="Обновить столы"
+                >
+                  <RefreshCw className={isLoading ? "size-4 animate-spin" : "size-4"} />
+                </Button>
+              </div>
+
+              {tables.length > 0 ? (
+                <div className="grid gap-2">
+                  {tables.map((table) => (
+                    <HallTableCard key={table.id} table={table} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-black/10 p-3 text-sm text-muted-foreground">
+                  Столы не загрузились. Проверьте выбранную группу терминалов iiko и обновите список.
+                </div>
+              )}
+            </section>
+          </div>
+        </DrawerScrollArea>
+      </AppDrawer.Content>
+    </AppDrawer>
+  );
+}
+
 type EditCatalogExperienceDrawerProps = {
   form: UseFormReturn<CatalogEditFormValues>;
   disabled?: boolean;
@@ -546,6 +841,9 @@ export const EditCatalogExperienceDrawer: React.FC<
                       />
                     );
                   })}
+                  {canUseHallMode && allowedModes.includes("HALL") ? (
+                    <HallTableQrDrawer disabled={disabled} />
+                  ) : null}
                 </div>
 
                 {allowedModesError ? (

@@ -1,12 +1,15 @@
 "use client";
 
-import type { CartSharePayload } from "@/core/modules/cart/model/cart-context.types";
+import type {
+  CartSharePayload,
+  PrepareShareOrderInput,
+} from "@/core/modules/cart/model/cart-context.types";
 import React from "react";
 import { toast } from "sonner";
 
 interface UseCartDrawerShareParams {
   hasSharedCart: boolean;
-  onShareClick: () => Promise<CartSharePayload>;
+  onShareClick: (input?: PrepareShareOrderInput) => Promise<CartSharePayload>;
   onSharePrepared?: () => void;
 }
 
@@ -26,15 +29,17 @@ export function useCartDrawerShare({
   const [sharePayload, setSharePayload] =
     React.useState<CartSharePayload | null>(null);
 
-  const handleShare = React.useCallback(async () => {
+  const handleShare = React.useCallback(async (input?: PrepareShareOrderInput) => {
     try {
-      const nextPayload = await onShareClick();
+      const nextPayload = await onShareClick(input);
       setSharePayload(nextPayload);
       setHasOpenedShareDrawer(true);
       onSharePrepared?.();
       setIsShareDrawerOpen(true);
+      return true;
     } catch (error) {
       toast.error(getShareErrorMessage(error));
+      return false;
     }
   }, [onShareClick, onSharePrepared]);
 

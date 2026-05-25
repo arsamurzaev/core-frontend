@@ -27,6 +27,7 @@ interface ProductEditorMainSectionProps {
   hasVariantAttributes: boolean;
   priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
+  saleUnitsSettingsAction?: React.ReactNode;
   productTypeChangeSection?: React.ReactNode;
   saleUnits: SaleUnitsFormValue | undefined;
   variantAttributes?: AttributeDto[];
@@ -43,21 +44,51 @@ export const ProductEditorMainSection: React.FC<
   hasVariantAttributes,
   priceFormatMode = "integer",
   priceFallback,
+  saleUnitsSettingsAction,
   productTypeChangeSection,
   saleUnits,
   variantAttributes,
 }) => {
+  const showBaseSaleUnits = canUseCatalogSaleUnits && !hasVariantAttributes;
+  const saleUnitsInsertOrder = React.useMemo(() => {
+    const discountToggleOrder = formFields.find(
+      (field) => field.name === "hasDiscount",
+    )?.layout?.order;
+
+    return typeof discountToggleOrder === "number" ? discountToggleOrder : 70;
+  }, [formFields]);
+  const formFieldsBeforeSaleUnits = React.useMemo(
+    () =>
+      formFields.filter(
+        (field) => (field.layout?.order ?? 0) < saleUnitsInsertOrder,
+      ),
+    [formFields, saleUnitsInsertOrder],
+  );
+  const formFieldsAfterSaleUnits = React.useMemo(
+    () =>
+      formFields.filter(
+        (field) => (field.layout?.order ?? 0) >= saleUnitsInsertOrder,
+      ),
+    [formFields, saleUnitsInsertOrder],
+  );
+
   function handleSaleUnitsChange(nextSaleUnits: SaleUnitsFormValue) {
     form.setValue("saleUnits", nextSaleUnits, {
       shouldDirty: true,
     });
   }
 
-  return (
-    <section className="space-y-3">
+  function renderDynamicForm(
+    fields: DynamicFieldConfig<CreateProductFormValues>[],
+  ) {
+    if (fields.length === 0) {
+      return null;
+    }
+
+    return (
       <DynamicForm
         form={form}
-        fields={formFields}
+        fields={fields}
         onSubmit={() => undefined}
         disabled={disabled}
         className="space-y-0"
@@ -65,20 +96,31 @@ export const ProductEditorMainSection: React.FC<
         fieldSetProps={CREATE_PRODUCT_FIELDSET_PROPS}
         fieldGroupProps={CREATE_PRODUCT_FIELD_GROUP_PROPS}
       />
+    );
+  }
 
-      {canUseCatalogSaleUnits && !hasVariantAttributes ? (
-        <div className="pl-0 sm:pl-[200px]">
+  return (
+    <section className="space-y-3">
+      {showBaseSaleUnits
+        ? renderDynamicForm(formFieldsBeforeSaleUnits)
+        : renderDynamicForm(formFields)}
+
+      {showBaseSaleUnits ? (
+        <div className="min-w-0 px-0">
           <ProductSaleUnitsField
             disabled={disabled}
             discountPercent={discountPercent}
             priceFormatMode={priceFormatMode}
             priceFallback={priceFallback}
             saleUnits={saleUnits}
+            settingsAction={saleUnitsSettingsAction}
             title="Единицы продажи"
             onChange={handleSaleUnitsChange}
           />
         </div>
       ) : null}
+
+      {showBaseSaleUnits ? renderDynamicForm(formFieldsAfterSaleUnits) : null}
 
       {productTypeChangeSection}
 

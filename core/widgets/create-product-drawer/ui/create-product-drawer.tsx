@@ -2,9 +2,11 @@
 
 import { ProductEditorDrawerContent } from "@/core/modules/product/editor/ui";
 import { useCreateProductDrawer } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer";
+import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
 import { cn } from "@/shared/lib/utils";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
+import { Settings } from "lucide-react";
 import React from "react";
 
 interface CreateProductDrawerProps {
@@ -104,6 +106,25 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         cropperApplyLabel={cropperApplyLabel}
         canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
         canUseProductVariants={features.canUseProductVariants}
+        saleUnitsSettingsAction={
+          features.canUseCatalogSaleUnits ? (
+            <EditCatalogSaleUnitsDrawer
+              disabled={isSubmitting || isProductTypeSchemaResolving}
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-muted-foreground"
+                  disabled={isSubmitting || isProductTypeSchemaResolving}
+                  title="Настройки единиц измерения"
+                >
+                  <Settings className="size-4" />
+                </Button>
+              }
+            />
+          ) : undefined
+        }
         productAttributes={productAttributes}
         variantAttributes={variantAttributes}
         onReset={handleReset}

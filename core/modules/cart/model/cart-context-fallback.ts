@@ -38,6 +38,7 @@ export const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
   quantityByProductId: {},
   shouldUseCartUi: false,
   startManagerOrder: async () => {},
+  submitHallOrder: rejectCartNotReady,
   status: null,
   statusMessage: null,
   totals: {

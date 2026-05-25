@@ -34,6 +34,7 @@ interface UseCartProviderValueParams
     | "setProductQuantity"
     | "shouldUseCartUi"
     | "startManagerOrder"
+    | "submitHallOrder"
     | "totals"
   > {
   activeCart: CartDto | null;
@@ -81,6 +82,7 @@ export function useCartProviderValue({
   setProductQuantity,
   shouldUseCartUi,
   startManagerOrder,
+  submitHallOrder,
   totals,
 }: UseCartProviderValueParams): CartContextValue {
   return React.useMemo<CartContextValue>(
@@ -118,6 +120,7 @@ export function useCartProviderValue({
       quantityByProductId,
       shouldUseCartUi,
       startManagerOrder,
+      submitHallOrder,
       status: activeCartStatus,
       statusMessage: activeCartStatusMessage,
       totals,
@@ -156,6 +159,7 @@ export function useCartProviderValue({
       setProductQuantity,
       shouldUseCartUi,
       startManagerOrder,
+      submitHallOrder,
       totals,
     ],
   );
