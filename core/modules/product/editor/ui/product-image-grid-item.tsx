@@ -79,7 +79,7 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
         type="button"
         variant="ghost"
         disabled={disabled || isReorderMode}
-        className="shadow-custom absolute -right-2 -top-2 z-10 size-6 rounded-full bg-white text-black"
+        className="shadow-custom absolute right-1.5 top-1.5 z-10 size-6 rounded-full bg-white text-black"
         onClick={(event) => {
           event.stopPropagation();
           onRemove();

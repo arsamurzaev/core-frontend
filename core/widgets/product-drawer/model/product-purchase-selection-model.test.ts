@@ -3,6 +3,7 @@ import {
   buildProductPurchaseCartSnapshot,
   getAvailableProductSaleUnits,
   getSelectableProductVariants,
+  isProductSaleUnitSelectionRequired,
   isProductVariantSelectionRequired,
   resolveNextProductSaleUnitId,
   resolveProductPurchaseEffectiveMaxQuantity,
@@ -109,7 +110,7 @@ describe("product purchase selection model", () => {
     ).toBe("box");
   });
 
-  it("falls back to the default sale unit when selection is missing", () => {
+  it("does not auto-select a sale unit when multiple units are available", () => {
     expect(
       resolveNextProductSaleUnitId({
         currentSaleUnitId: "missing",
@@ -120,7 +121,33 @@ describe("product purchase selection model", () => {
         ],
         shouldApplyInitialSaleUnit: false,
       }),
+    ).toBeNull();
+  });
+
+  it("auto-selects the only available sale unit", () => {
+    expect(
+      resolveNextProductSaleUnitId({
+        currentSaleUnitId: null,
+        saleUnits: [saleUnit({ id: "piece", isDefault: true })],
+        shouldApplyInitialSaleUnit: false,
+      }),
     ).toBe("piece");
+  });
+
+  it("requires sale unit selection only when multiple units are available", () => {
+    expect(
+      isProductSaleUnitSelectionRequired({
+        saleUnits: [saleUnit({ id: "piece" }), saleUnit({ id: "box" })],
+        selectedSaleUnit: null,
+      }),
+    ).toBe(true);
+
+    expect(
+      isProductSaleUnitSelectionRequired({
+        saleUnits: [saleUnit({ id: "piece" })],
+        selectedSaleUnit: null,
+      }),
+    ).toBe(false);
   });
 
   it("prices selected sale unit before selected variant and applies discount", () => {

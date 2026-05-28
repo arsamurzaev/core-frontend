@@ -83,8 +83,8 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     >
       <ProductEditorDrawerContent
         contentClassName="mx-auto w-full max-w-2xl"
-        title="Редактор позиции"
-        submitLabel="Сохранить изменения"
+        title="Добавление позиции"
+        submitLabel="Добавить позицию"
         form={form}
         formFields={formFields}
         errorMessage={errorMessage}

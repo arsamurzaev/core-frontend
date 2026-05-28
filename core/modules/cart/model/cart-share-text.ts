@@ -56,6 +56,36 @@ function formatShareMoney(
     : `${formattedValue}${normalizedCurrency}`;
 }
 
+function isKnownMoney(value: number | null | undefined): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function formatCartItemLinePrice(
+  item: CartItemView,
+  fallbackCurrency: string,
+  priceFormatMode: CatalogPriceFormatMode,
+): string | null {
+  const displayLineTotal = item.displayLineTotal;
+
+  if (!isKnownMoney(displayLineTotal)) {
+    return null;
+  }
+
+  const currency = item.currency || fallbackCurrency;
+  const originalLineTotal = item.originalLineTotal;
+  const displayPrice = formatShareMoney(
+    displayLineTotal,
+    currency,
+    priceFormatMode,
+  );
+
+  if (isKnownMoney(originalLineTotal) && originalLineTotal > displayLineTotal) {
+    return `~${formatShareMoney(originalLineTotal, currency, priceFormatMode)}~ ${displayPrice}`;
+  }
+
+  return displayPrice;
+}
+
 export function buildLegacyCartShareText(params: {
   checkoutSummary?: string[];
   comment?: string;
@@ -81,8 +111,12 @@ export function buildLegacyCartShareText(params: {
   const productsText = items
     .map((item) => {
       const productLabel = formatShareProductLabel(item);
+      const linePrice = formatCartItemLinePrice(item, currency, priceFormatMode);
+      const quantityText = formatCartItemQuantity(item);
 
-      return `•${productLabel} - ${formatCartItemQuantity(item)}`;
+      return linePrice
+        ? `•${productLabel} - ${quantityText} - ${linePrice}`
+        : `•${productLabel} - ${quantityText}`;
     })
     .join("\n\n");
   const priceText =

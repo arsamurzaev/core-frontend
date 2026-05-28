@@ -132,8 +132,12 @@ export function ProductPurchaseDetailsPanel({
   const canUseCatalogSaleUnits = features.canUseCatalogSaleUnits;
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
   const variantPickerRef = React.useRef<HTMLDivElement | null>(null);
+  const saleUnitPickerRef = React.useRef<HTMLDivElement | null>(null);
   const variantHighlightTimerRef = React.useRef<number | null>(null);
+  const saleUnitHighlightTimerRef = React.useRef<number | null>(null);
   const [isVariantPickerHighlighted, setIsVariantPickerHighlighted] =
+    React.useState(false);
+  const [isSaleUnitPickerHighlighted, setIsSaleUnitPickerHighlighted] =
     React.useState(false);
   const purchaseSelection = useProductPurchaseSelection({
     canUseCatalogSaleUnits,
@@ -159,10 +163,27 @@ export function ProductPurchaseDetailsPanel({
       variantHighlightTimerRef.current = null;
     }, 1600);
   }, []);
+  const handleSaleUnitSelectionRequired = React.useCallback(() => {
+    toast.error(CART_PRODUCT_CONTROL_MESSAGES.saleUnitSelectionRequired);
+    setIsSaleUnitPickerHighlighted(true);
+    scrollVariantPickerIntoView(saleUnitPickerRef.current);
+
+    if (saleUnitHighlightTimerRef.current !== null) {
+      window.clearTimeout(saleUnitHighlightTimerRef.current);
+    }
+
+    saleUnitHighlightTimerRef.current = window.setTimeout(() => {
+      setIsSaleUnitPickerHighlighted(false);
+      saleUnitHighlightTimerRef.current = null;
+    }, 1600);
+  }, []);
   React.useEffect(
     () => () => {
       if (variantHighlightTimerRef.current !== null) {
         window.clearTimeout(variantHighlightTimerRef.current);
+      }
+      if (saleUnitHighlightTimerRef.current !== null) {
+        window.clearTimeout(saleUnitHighlightTimerRef.current);
       }
     },
     [],
@@ -172,6 +193,11 @@ export function ProductPurchaseDetailsPanel({
       setIsVariantPickerHighlighted(false);
     }
   }, [purchaseSelection.isVariantSelectionRequired]);
+  React.useEffect(() => {
+    if (!purchaseSelection.isSaleUnitSelectionRequired) {
+      setIsSaleUnitPickerHighlighted(false);
+    }
+  }, [purchaseSelection.isSaleUnitSelectionRequired]);
   const selectedSaleUnitId = canUseCatalogSaleUnits
     ? purchaseSelection.selectedSaleUnit?.id
     : undefined;
@@ -193,7 +219,10 @@ export function ProductPurchaseDetailsPanel({
     [cartSelection],
   );
   const cartLineMaxQuantity = React.useMemo(() => {
-    if (purchaseSelection.isVariantSelectionRequired) {
+    if (
+      purchaseSelection.isVariantSelectionRequired ||
+      purchaseSelection.isSaleUnitSelectionRequired
+    ) {
       return undefined;
     }
 
@@ -207,7 +236,12 @@ export function ProductPurchaseDetailsPanel({
     );
 
     return line ? getCartItemMaxQuantity(line) : undefined;
-  }, [cartSelectionKey, items, purchaseSelection.isVariantSelectionRequired]);
+  }, [
+    cartSelectionKey,
+    items,
+    purchaseSelection.isSaleUnitSelectionRequired,
+    purchaseSelection.isVariantSelectionRequired,
+  ]);
   const effectiveMaxQuantity = React.useMemo(
     () =>
       resolveProductPurchaseEffectiveMaxQuantity({
@@ -225,9 +259,52 @@ export function ProductPurchaseDetailsPanel({
       requiresVariantSelection: purchaseSelection.isVariantSelectionRequired,
     },
   );
-  const displayedCartQuantity = purchaseSelection.isVariantSelectionRequired
+  const isProductSelectionRequired =
+    purchaseSelection.isVariantSelectionRequired ||
+    purchaseSelection.isSaleUnitSelectionRequired;
+  const displayedCartQuantity = isProductSelectionRequired
     ? 0
     : cartControls.quantity;
+  const drawerCartControls = React.useMemo(
+    () => ({
+      ...cartControls,
+      handleAdd: async () => {
+        if (purchaseSelection.isVariantSelectionRequired) {
+          handleVariantSelectionRequired();
+          return;
+        }
+
+        if (purchaseSelection.isSaleUnitSelectionRequired) {
+          handleSaleUnitSelectionRequired();
+          return;
+        }
+
+        await cartControls.handleAdd();
+      },
+      handleIncrement: async () => {
+        if (purchaseSelection.isVariantSelectionRequired) {
+          handleVariantSelectionRequired();
+          return;
+        }
+
+        if (purchaseSelection.isSaleUnitSelectionRequired) {
+          handleSaleUnitSelectionRequired();
+          return;
+        }
+
+        await cartControls.handleIncrement();
+      },
+      quantity: displayedCartQuantity,
+    }),
+    [
+      cartControls,
+      displayedCartQuantity,
+      handleSaleUnitSelectionRequired,
+      handleVariantSelectionRequired,
+      purchaseSelection.isSaleUnitSelectionRequired,
+      purchaseSelection.isVariantSelectionRequired,
+    ],
+  );
   const totalPricing = React.useMemo(
     () =>
       resolveProductPurchaseTotalPricing({
@@ -255,10 +332,8 @@ export function ProductPurchaseDetailsPanel({
       footerAction={
         !unavailableState && shouldUseCartUi && product?.id ? (
           <CartProductDrawerFooterAction
-            controls={cartControls}
-            requiresVariantSelection={
-              purchaseSelection.isVariantSelectionRequired
-            }
+            controls={drawerCartControls}
+            requiresSelection={isProductSelectionRequired}
           />
         ) : null
       }
@@ -299,13 +374,22 @@ export function ProductPurchaseDetailsPanel({
       }
       saleUnitPicker={
         !unavailableState && canUseCatalogSaleUnits && product ? (
-          <ProductSaleUnitPicker
-            currency={viewModel.currency}
-            onChange={purchaseSelection.setSelectedSaleUnitId}
-            priceFormatMode={viewModel.priceFormatMode}
-            saleUnits={purchaseSelection.saleUnits}
-            selectedSaleUnitId={purchaseSelection.selectedSaleUnit?.id ?? null}
-          />
+          <div
+            ref={saleUnitPickerRef}
+            className={cn(
+              "scroll-mt-8 rounded-2xl transition-shadow",
+              isSaleUnitPickerHighlighted &&
+                "ring-primary/45 ring-2 ring-offset-2 ring-offset-background",
+            )}
+          >
+            <ProductSaleUnitPicker
+              currency={viewModel.currency}
+              onChange={purchaseSelection.setSelectedSaleUnitId}
+              priceFormatMode={viewModel.priceFormatMode}
+              saleUnits={purchaseSelection.saleUnits}
+              selectedSaleUnitId={purchaseSelection.selectedSaleUnit?.id ?? null}
+            />
+          </div>
         ) : null
       }
       variantsSummary={

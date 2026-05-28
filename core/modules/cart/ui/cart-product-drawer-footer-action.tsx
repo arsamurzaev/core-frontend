@@ -25,6 +25,7 @@ interface CartProductDrawerFooterActionProps {
   className?: string;
   controls: CartProductDrawerControls;
   disabled?: boolean;
+  requiresSelection?: boolean;
   requiresVariantSelection?: boolean;
 }
 
@@ -34,6 +35,7 @@ export const CartProductDrawerFooterAction: React.FC<
   className,
   controls,
   disabled = false,
+  requiresSelection,
   requiresVariantSelection = false,
 }) => {
   const {
@@ -44,15 +46,16 @@ export const CartProductDrawerFooterAction: React.FC<
     isIncrementDisabled,
     quantity,
   } = controls;
+  const isSelectionRequired = requiresSelection ?? requiresVariantSelection;
 
-  if (shouldShowCartProductDrawerAddButton(quantity, requiresVariantSelection)) {
+  if (shouldShowCartProductDrawerAddButton(quantity, isSelectionRequired)) {
     const isAddDisabled =
-      disabled || isBusy || (!requiresVariantSelection && isIncrementDisabled);
+      disabled || isBusy || (!isSelectionRequired && isIncrementDisabled);
 
     return (
       <CartProductDrawerAddButton
         ariaLabel={getCartProductDrawerAddLabel(
-          disabled || requiresVariantSelection,
+          disabled || isSelectionRequired,
         )}
         className={className}
         disabled={isAddDisabled}

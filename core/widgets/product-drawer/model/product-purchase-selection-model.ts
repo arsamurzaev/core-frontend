@@ -111,9 +111,14 @@ export function resolveNextProductSaleUnitId(params: {
     return initialSaleUnit.id;
   }
 
-  return (
-    saleUnits.find((unit) => unit.isDefault)?.id ?? saleUnits[0]?.id ?? null
-  );
+  return saleUnits.length === 1 ? saleUnits[0].id : null;
+}
+
+export function isProductSaleUnitSelectionRequired(params: {
+  saleUnits: ProductSaleUnit[];
+  selectedSaleUnit: ProductSaleUnit | null;
+}): boolean {
+  return params.saleUnits.length > 1 && !params.selectedSaleUnit;
 }
 
 export function resolveProductPurchasePricing({

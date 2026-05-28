@@ -18,9 +18,9 @@ describe("shouldShowCartProductDrawerAddButton", () => {
 });
 
 describe("getCartProductDrawerAddLabel", () => {
-  it("uses disabled label when a valid variant is required", () => {
+  it("uses disabled label when product options are required", () => {
     expect(getCartProductDrawerAddLabel(true)).toBe(
-      CART_PRODUCT_DRAWER_FOOTER_LABELS.selectAvailableVariant,
+      CART_PRODUCT_DRAWER_FOOTER_LABELS.selectProductOptions,
     );
     expect(getCartProductDrawerAddLabel(false)).toBe(
       CART_PRODUCT_DRAWER_FOOTER_LABELS.addToCart,

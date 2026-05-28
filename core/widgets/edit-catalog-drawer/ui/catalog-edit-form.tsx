@@ -34,7 +34,7 @@ const CATALOG_EDIT_TEXTAREA_FIELDS: CatalogEditTextareaControllerConfig[] = [
     label: "Имя",
     required: true,
     maxLength: 35,
-    minRows: 2,
+    minRows: 1,
     placeholder: "Например: Urban Style",
   },
   {
@@ -42,7 +42,7 @@ const CATALOG_EDIT_TEXTAREA_FIELDS: CatalogEditTextareaControllerConfig[] = [
     label: "О себе",
     required: true,
     maxLength: 100,
-    minRows: 2,
+    minRows: 1,
     placeholder: "Например: магазин мебели, спа-салон",
   },
   {
@@ -50,7 +50,7 @@ const CATALOG_EDIT_TEXTAREA_FIELDS: CatalogEditTextareaControllerConfig[] = [
     label: "Общая информация",
     required: true,
     maxLength: 500,
-    minRows: 4,
+    minRows: 1,
     placeholder:
       "Например: г. Грозный, ул. Назарбаева 5. График работы: 10:00 до 18:00.",
   },
@@ -59,7 +59,7 @@ const CATALOG_EDIT_TEXTAREA_FIELDS: CatalogEditTextareaControllerConfig[] = [
     label: "Адрес заведения",
     required: false,
     maxLength: 500,
-    minRows: 2,
+    minRows: 1,
     placeholder: "Например: г. Грозный, ул. Назарбаева 5",
   },
 ];

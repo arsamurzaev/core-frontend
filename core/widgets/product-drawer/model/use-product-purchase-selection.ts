@@ -8,6 +8,7 @@ import {
 import {
   buildProductPurchaseCartSnapshot,
   getAvailableProductSaleUnits,
+  isProductSaleUnitSelectionRequired,
   getSelectableProductVariants,
   isProductVariantSelectionRequired,
   resolveNextProductSaleUnitId,
@@ -55,6 +56,7 @@ export function useProductPurchaseSelection({
   displayPrice: number | null;
   hasSelectedDiscount: boolean;
   isVariantSelectionRequired: boolean;
+  isSaleUnitSelectionRequired: boolean;
   maxQuantity?: number;
   saleUnits: ProductSaleUnit[];
   selectedBasePrice: number | null;
@@ -181,11 +183,16 @@ export function useProductPurchaseSelection({
     selectedVariant,
     shouldEnforceStock,
   });
+  const isSaleUnitSelectionRequired = isProductSaleUnitSelectionRequired({
+    saleUnits,
+    selectedSaleUnit,
+  });
 
   return {
     cartProductSnapshot,
     displayPrice,
     hasSelectedDiscount,
+    isSaleUnitSelectionRequired,
     isVariantSelectionRequired,
     maxQuantity,
     saleUnits,

@@ -38,7 +38,7 @@ describe("buildLegacyCartShareText", () => {
     });
 
     expect(text).toContain("https://example.test/?c=abc");
-    expect(text).toContain("Coffee - 3 Box, 12");
+    expect(text).toContain("Coffee - 3 Box, 12 - ~900 RUB~ 750 RUB");
     expect(text).toContain("Method: pickup");
     expect(text).toContain("call first");
     expect(text).toContain("900 RUB");
@@ -51,7 +51,10 @@ describe("buildLegacyCartShareText", () => {
       currency: "RUB",
       items: [
         cartItemView({
+          displayLineTotal: 900,
+          hasDiscount: false,
           name: "Vest (old suffix)",
+          originalLineTotal: 900,
           saleUnitLabel: null,
           variantLabel: "XL / Khaki",
         }),
@@ -63,7 +66,27 @@ describe("buildLegacyCartShareText", () => {
       url: "https://example.test/?c=abc",
     });
 
-    expect(text).toContain("Vest (XL / Khaki) - 3 шт.");
+    expect(text).toContain("Vest (XL / Khaki) - 3 шт. - 900 RUB");
     expect(text).not.toContain("old suffix");
+  });
+
+  it("omits item price when line total is unknown", () => {
+    const text = buildLegacyCartShareText({
+      currency: "RUB",
+      items: [
+        cartItemView({
+          displayLineTotal: null,
+          originalLineTotal: null,
+        }),
+      ],
+      totals: {
+        originalSubtotal: 0,
+        subtotal: 0,
+      },
+      url: "https://example.test/?c=abc",
+    });
+
+    expect(text).toContain("Coffee - 3 Box, 12");
+    expect(text).not.toContain("Coffee - 3 Box, 12 - 0 RUB");
   });
 });
