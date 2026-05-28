@@ -99,7 +99,7 @@ export function CreateProductCategoriesField(
         onToggleValue={toggleDraftValue}
         hasChanges={hasChanges}
         onApply={handleApply}
-      />
+      >
 
       <CreateProductCategoryEditorDrawer
         open={isCreateDrawerOpen}
@@ -186,6 +186,7 @@ export function CreateProductCategoriesField(
           </label>
         ) : null}
       </ConfirmationDrawer>
+      </CreateProductCategorySelectionDrawer>
     </>
   );
 }

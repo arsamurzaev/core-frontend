@@ -83,9 +83,7 @@ export function buildProductEditorCustomFields({
       ? {
           name: "categoryIds",
           label: "Категории",
-          component: (
-            props: DynamicFieldRenderProps<CreateProductFormValues>,
-          ) =>
+          render: (props: DynamicFieldRenderProps<CreateProductFormValues>) =>
             React.createElement(CreateProductCategoriesField, {
               ...props,
               supportsCategoryDetails,

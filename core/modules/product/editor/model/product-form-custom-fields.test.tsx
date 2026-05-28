@@ -57,7 +57,7 @@ describe("buildProductEditorCustomFields", () => {
     expect(String(productTypeField?.description)).not.toContain("MoySklad");
     expect(productTypeField?.render).toEqual(expect.any(Function));
     expect(categoryField?.multiple).toBe(true);
-    expect(categoryField?.component).toEqual(expect.any(Function));
+    expect(categoryField?.render).toEqual(expect.any(Function));
   });
 
   it("uses the default product type select renderer when no change handler is provided", () => {

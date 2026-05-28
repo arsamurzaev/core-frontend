@@ -6,9 +6,11 @@ import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import * as React from "react";
 
 interface CreateProductCategorySelectionDrawerProps {
   categoryList: CategoryListItem[];
+  children?: React.ReactNode;
   draftValues: string[];
   hasChanges: boolean;
   isControlDisabled: boolean;
@@ -24,6 +26,7 @@ interface CreateProductCategorySelectionDrawerProps {
 
 export function CreateProductCategorySelectionDrawer({
   categoryList,
+  children,
   draftValues,
   hasChanges,
   isControlDisabled,
@@ -143,6 +146,7 @@ export function CreateProductCategorySelectionDrawer({
           />
         </div>
       </AppDrawer.Content>
+      {children}
     </AppDrawer>
   );
 }

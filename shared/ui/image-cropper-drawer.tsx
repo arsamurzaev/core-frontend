@@ -21,11 +21,14 @@ import { ImageCropperDrawerStatus } from "@/shared/ui/image-cropper-drawer-statu
 import { Crop, Loader2 } from "lucide-react";
 import React from "react";
 import {
+  CircleStencil,
   Cropper,
   ImageRestriction,
   Priority,
   RectangleStencil,
 } from "react-advanced-cropper";
+
+type ImageCropperStencilShape = "rectangle" | "circle";
 
 export type ImageCropperDrawerProps = {
   open: boolean;
@@ -41,6 +44,7 @@ export type ImageCropperDrawerProps = {
   cancelLabel?: string;
   applyLabel?: string;
   outputOptions?: CropperOutputOptions;
+  stencilShape?: ImageCropperStencilShape;
 };
 
 export const ImageCropperDrawer: React.FC<ImageCropperDrawerProps> = ({
@@ -57,6 +61,7 @@ export const ImageCropperDrawer: React.FC<ImageCropperDrawerProps> = ({
   cancelLabel = "Отмена",
   applyLabel = "Применить",
   outputOptions,
+  stencilShape = "rectangle",
 }) => {
   const {
     activeDraft,
@@ -88,6 +93,8 @@ export const ImageCropperDrawer: React.FC<ImageCropperDrawerProps> = ({
     applyLabel,
     outputOptions,
   });
+  const isCircleStencil = stencilShape === "circle";
+  const StencilComponent = isCircleStencil ? CircleStencil : RectangleStencil;
 
   return (
     <Drawer
@@ -127,9 +134,11 @@ export const ImageCropperDrawer: React.FC<ImageCropperDrawerProps> = ({
                       ref={cropperRef}
                       src={activeItem.sourceUrl}
                       className="h-[58dvh] w-full"
-                      stencilComponent={RectangleStencil}
+                      stencilComponent={StencilComponent}
                       stencilProps={{
-                        aspectRatio,
+                        ...(isCircleStencil ? {} : { aspectRatio }),
+                        grid: true,
+                        gridClassName: "!opacity-100",
                         movable: true,
                         resizable: true,
                       }}

@@ -119,6 +119,7 @@ export const CatalogEditMediaField: React.FC<CatalogEditMediaFieldProps> = ({
         title={cropperTitle}
         description={cropperDescription}
         outputOptions={outputOptions}
+        stencilShape={shape === "circle" ? "circle" : "rectangle"}
       />
     </>
   );
