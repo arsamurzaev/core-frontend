@@ -149,6 +149,80 @@ function MethodContactsEditor({
   );
 }
 
+function PreorderSettingsEditor({
+  disabled,
+  form,
+}: {
+  disabled: boolean;
+  form: UseFormReturn<CatalogEditFormValues>;
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <Controller
+        control={form.control}
+        name="preorderMinLeadTimeMinutes"
+        render={({ field }) => (
+          <label className="grid gap-1 text-sm">
+            <span className="text-muted-foreground">
+              Минимум до визита, мин
+            </span>
+            <Input
+              type="number"
+              min={0}
+              max={1440}
+              step={1}
+              value={Number.isFinite(field.value) ? field.value : ""}
+              onChange={(event) =>
+                field.onChange(
+                  event.target.value === "" ? Number.NaN : Number(event.target.value),
+                )
+              }
+              onBlur={field.onBlur}
+              ref={field.ref}
+              disabled={disabled}
+              className="border border-black/10"
+            />
+            <FieldError>
+              {form.formState.errors.preorderMinLeadTimeMinutes?.message}
+            </FieldError>
+          </label>
+        )}
+      />
+
+      <Controller
+        control={form.control}
+        name="preorderMaxAdvanceDays"
+        render={({ field }) => (
+          <label className="grid gap-1 text-sm">
+            <span className="text-muted-foreground">
+              Окно предзаказа, дней
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={365}
+              step={1}
+              value={Number.isFinite(field.value) ? field.value : ""}
+              onChange={(event) =>
+                field.onChange(
+                  event.target.value === "" ? Number.NaN : Number(event.target.value),
+                )
+              }
+              onBlur={field.onBlur}
+              ref={field.ref}
+              disabled={disabled}
+              className="border border-black/10"
+            />
+            <FieldError>
+              {form.formState.errors.preorderMaxAdvanceDays?.message}
+            </FieldError>
+          </label>
+        )}
+      />
+    </div>
+  );
+}
+
 function getMethodContactsCount(
   contacts: Partial<Record<CheckoutMethod, CheckoutContactValues>> | undefined,
   method: CheckoutMethod,
@@ -392,6 +466,13 @@ export const EditCatalogCheckoutDrawer: React.FC<
                           ) : null}
                         </div>
                       </div>
+
+                      {isEnabled && method === "PREORDER" ? (
+                        <PreorderSettingsEditor
+                          disabled={disabled}
+                          form={form}
+                        />
+                      ) : null}
 
                       {isEnabled ? (
                         <MethodContactsEditor

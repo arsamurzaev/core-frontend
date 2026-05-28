@@ -1649,6 +1649,17 @@ export const ProductControllerCreateBody = zod.object({
   "valueBoolean": zod.boolean().optional(),
   "valueDateTime": zod.iso.datetime({}).optional()
 })).optional(),
+  "saleUnits": zod.array(zod.object({
+  "catalogSaleUnitId": zod.string().describe('Ссылка на активную единицу продажи из справочника текущего каталога.'),
+  "code": zod.string().optional().describe('Не используется для создания справочника: локальная привязка берет код из catalogSaleUnitId.'),
+  "name": zod.string().optional().describe('Не используется для создания справочника: локальная привязка берет название из catalogSaleUnitId.'),
+  "baseQuantity": zod.number().describe('Сколько базовых единиц внутри для конкретного товара\/варианта.'),
+  "price": zod.number(),
+  "barcode": zod.string().optional(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional().describe('Единицы продажи простого товара. Сохраняются на технический default-вариант.'),
   "variants": zod.array(zod.object({
   "price": zod.number().nullish(),
   "stock": zod.number().nullish().describe('null означает, что остаток не ведется'),
@@ -3540,6 +3551,17 @@ export const ProductControllerUpdateBody = zod.object({
   "valueDateTime": zod.iso.datetime({}).optional()
 })).optional().describe('Только видимые атрибуты (isHidden=false)'),
   "removeAttributeIds": zod.array(zod.string()).optional().describe('ID атрибутов товара, которые нужно удалить при редактировании'),
+  "saleUnits": zod.array(zod.object({
+  "catalogSaleUnitId": zod.string().describe('Ссылка на активную единицу продажи из справочника текущего каталога.'),
+  "code": zod.string().optional().describe('Не используется для создания справочника: локальная привязка берет код из catalogSaleUnitId.'),
+  "name": zod.string().optional().describe('Не используется для создания справочника: локальная привязка берет название из catalogSaleUnitId.'),
+  "baseQuantity": zod.number().describe('Сколько базовых единиц внутри для конкретного товара\/варианта.'),
+  "price": zod.number(),
+  "barcode": zod.string().optional(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional().describe('Единицы продажи простого товара. Сохраняются на технический default-вариант.'),
   "variants": zod.array(zod.object({
   "variantKey": zod.string().describe('Ключ варианта, приходит из ответа товара'),
   "price": zod.number().nullish(),
@@ -8166,6 +8188,10 @@ export const CatalogControllerGetCurrentResponse = zod.object({
 }),
   "methodFields": zod.object({
 
+}),
+  "preorder": zod.object({
+  "minLeadTimeMinutes": zod.number(),
+  "maxAdvanceDays": zod.number()
 })
 }),
   "googleVerification": zod.string().nullable(),
@@ -8450,6 +8476,10 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
 }),
   "methodFields": zod.object({
 
+}),
+  "preorder": zod.object({
+  "minLeadTimeMinutes": zod.number(),
+  "maxAdvanceDays": zod.number()
 })
 }),
   "googleVerification": zod.string().nullable(),
@@ -8661,6 +8691,10 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
 }),
   "methodFields": zod.object({
 
+}),
+  "preorder": zod.object({
+  "minLeadTimeMinutes": zod.number(),
+  "maxAdvanceDays": zod.number()
 })
 }),
   "googleVerification": zod.string().nullable(),
@@ -8941,6 +8975,10 @@ export const CatalogControllerGetAllResponseItem = zod.object({
 }),
   "methodFields": zod.object({
 
+}),
+  "preorder": zod.object({
+  "minLeadTimeMinutes": zod.number(),
+  "maxAdvanceDays": zod.number()
 })
 }),
   "googleVerification": zod.string().nullable(),
@@ -9051,6 +9089,10 @@ export const CatalogControllerGetByIdResponse = zod.object({
 }),
   "methodFields": zod.object({
 
+}),
+  "preorder": zod.object({
+  "minLeadTimeMinutes": zod.number(),
+  "maxAdvanceDays": zod.number()
 })
 }),
   "googleVerification": zod.string().nullable(),
@@ -9177,6 +9219,10 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
 }),
   "methodFields": zod.object({
 
+}),
+  "preorder": zod.object({
+  "minLeadTimeMinutes": zod.number(),
+  "maxAdvanceDays": zod.number()
 })
 }),
   "googleVerification": zod.string().nullable(),
@@ -12950,6 +12996,18 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
  */
 export const CartControllerCompleteManagerOrderParams = zod.object({
   "publicKey": zod.string().describe('Public cart key')
+})
+
+export const cartControllerCompleteManagerOrderBodyCommentMax = 1000;
+
+
+
+export const CartControllerCompleteManagerOrderBody = zod.object({
+  "comment": zod.string().max(cartControllerCompleteManagerOrderBodyCommentMax).optional(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).optional(),
+  "checkoutData": zod.object({
+
+}).optional()
 })
 
 export const CartControllerCompleteManagerOrderResponse = zod.object({

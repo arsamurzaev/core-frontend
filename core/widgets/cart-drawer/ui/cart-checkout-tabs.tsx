@@ -93,6 +93,7 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
             disabled={disabled}
             location={location}
             onChange={(nextData) => onChange("PREORDER", nextData)}
+            preorder={config.preorder}
           />
         </TabsContent>
       </Tabs>

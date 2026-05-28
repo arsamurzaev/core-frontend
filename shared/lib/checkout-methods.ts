@@ -37,6 +37,8 @@ export type CheckoutData = {
   tableId?: string;
   tableName?: string;
   tableNumber?: string;
+  scheduledAt?: string;
+  visitDate?: string;
   visitTime?: string;
 };
 
@@ -44,7 +46,12 @@ export type CheckoutField = {
   key: string;
   label: string;
   required: boolean;
-  type: "number" | "text" | "time";
+  type: "date" | "number" | "text" | "time";
+};
+
+export type CheckoutPreorderSettings = {
+  minLeadTimeMinutes: number;
+  maxAdvanceDays: number;
 };
 
 export type CheckoutConfig = {
@@ -52,6 +59,7 @@ export type CheckoutConfig = {
   enabledMethods: CheckoutMethod[];
   methodContacts: Partial<Record<CheckoutMethod, CheckoutContactValues>>;
   methodFields: Record<CheckoutMethod, CheckoutField[]>;
+  preorder: CheckoutPreorderSettings;
 };
 
 export type CheckoutLocation = {
@@ -78,6 +86,10 @@ export const CHECKOUT_METHODS: CheckoutMethod[] = [
 ];
 
 const DEFAULT_AVAILABLE_METHODS: CheckoutMethod[] = ["DELIVERY", "PICKUP"];
+export const DEFAULT_PREORDER_SETTINGS: CheckoutPreorderSettings = {
+  minLeadTimeMinutes: 30,
+  maxAdvanceDays: 14,
+};
 
 export const CHECKOUT_CONTACT_TYPES = [
   CatalogContactDtoType.PHONE,
@@ -106,9 +118,15 @@ export const METHOD_FIELDS: Record<CheckoutMethod, CheckoutField[]> = {
       type: "number",
     },
     {
+      key: "visitDate",
+      label: "Дата визита",
+      required: true,
+      type: "date",
+    },
+    {
       key: "visitTime",
       label: "Время визита",
-      required: false,
+      required: true,
       type: "time",
     },
   ],
@@ -157,6 +175,7 @@ export function getCatalogCheckoutConfig(
     enabledMethods,
     methodContacts: normalizeMethodContacts(rawCheckout.methodContacts),
     methodFields: rawCheckout.methodFields ?? METHOD_FIELDS,
+    preorder: normalizePreorderSettings(rawCheckout.preorder),
   };
 }
 
@@ -220,6 +239,7 @@ export function normalizeCheckoutMethod(value: unknown): CheckoutMethod | null {
 }
 
 export function normalizeCheckoutData(params: {
+  config?: Pick<CheckoutConfig, "preorder">;
   data: CheckoutData;
   location: CheckoutLocation;
   method: CheckoutMethod;
@@ -248,19 +268,54 @@ export function normalizeCheckoutData(params: {
   }
 
   if (params.method === "PREORDER") {
+    const preorder = params.config?.preorder ?? DEFAULT_PREORDER_SETTINGS;
     const personsCount = Number(params.data.personsCount);
     if (!Number.isInteger(personsCount) || personsCount < 1) {
       return { data: {}, error: "Укажите количество человек." };
     }
 
-    const visitTime = normalizeString(params.data.visitTime);
+    const visitDate = normalizeDateInput(params.data.visitDate);
+    if (!visitDate) {
+      return { data: {}, error: "Выберите дату визита." };
+    }
+
+    const visitTime = normalizeTimeInput(params.data.visitTime);
+    if (!visitTime) {
+      return { data: {}, error: "Выберите время визита." };
+    }
+
+    const scheduledAt = `${visitDate}T${visitTime}:00.000`;
+    const scheduledDate = parseLocalDateTime(visitDate, visitTime);
+    if (
+      !scheduledDate ||
+      scheduledDate.getTime() <
+        Date.now() + preorder.minLeadTimeMinutes * 60 * 1000
+    ) {
+      return {
+        data: {},
+        error: `Выберите время визита не раньше чем через ${preorder.minLeadTimeMinutes} мин.`,
+      };
+    }
+
+    if (
+      scheduledDate.getTime() >
+      Date.now() + preorder.maxAdvanceDays * 24 * 60 * 60 * 1000
+    ) {
+      return {
+        data: {},
+        error: `Выберите дату визита не позднее чем через ${preorder.maxAdvanceDays} дн.`,
+      };
+    }
+
     return {
       data: {
         ...customerData,
         personsCount,
         ...(params.location.address ? { address: params.location.address } : {}),
         ...(params.location.mapUrl ? { mapUrl: params.location.mapUrl } : {}),
-        ...(visitTime ? { visitTime } : {}),
+        scheduledAt,
+        visitDate,
+        visitTime,
       },
       error: null,
     };
@@ -305,6 +360,9 @@ export function buildCheckoutSummary(params: {
   if (params.method === "PREORDER") {
     if (params.data.personsCount) {
       lines.push(`Гостей: ${params.data.personsCount}`);
+    }
+    if (params.data.visitDate) {
+      lines.push(`Дата визита: ${formatDisplayDate(params.data.visitDate)}`);
     }
     if (params.data.visitTime) {
       lines.push(`Время визита: ${params.data.visitTime}`);
@@ -380,12 +438,113 @@ function normalizeMethodContacts(value: unknown): CheckoutConfig["methodContacts
   );
 }
 
+function normalizePreorderSettings(value: unknown): CheckoutPreorderSettings {
+  if (!isRecord(value)) {
+    return DEFAULT_PREORDER_SETTINGS;
+  }
+
+  return {
+    minLeadTimeMinutes:
+      normalizeIntInRange(value.minLeadTimeMinutes, 0, 24 * 60) ??
+      DEFAULT_PREORDER_SETTINGS.minLeadTimeMinutes,
+    maxAdvanceDays:
+      normalizeIntInRange(value.maxAdvanceDays, 1, 365) ??
+      DEFAULT_PREORDER_SETTINGS.maxAdvanceDays,
+  };
+}
+
+function normalizeIntInRange(
+  value: unknown,
+  min: number,
+  max: number,
+): number | null {
+  const numeric =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value.trim())
+        : Number.NaN;
+
+  if (!Number.isInteger(numeric) || numeric < min || numeric > max) {
+    return null;
+  }
+
+  return numeric;
+}
+
 function hasCheckoutContacts(contacts: CheckoutContactValues): boolean {
   return Object.values(contacts).some((value) => normalizeString(value).length > 0);
 }
 
 function normalizeString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeDateInput(value: unknown): string | null {
+  const raw = normalizeString(value);
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  return `${year}-${pad2(month)}-${pad2(day)}`;
+}
+
+function normalizeTimeInput(value: unknown): string | null {
+  const raw = normalizeString(value);
+  const match = raw.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) {
+    return null;
+  }
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (
+    !Number.isInteger(hours) ||
+    !Number.isInteger(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    return null;
+  }
+
+  return `${pad2(hours)}:${pad2(minutes)}`;
+}
+
+function parseLocalDateTime(visitDate: string, visitTime: string): Date | null {
+  const date = normalizeDateInput(visitDate);
+  const time = normalizeTimeInput(visitTime);
+  if (!date || !time) {
+    return null;
+  }
+
+  const [year, month, day] = date.split("-").map(Number);
+  const [hours, minutes] = time.split(":").map(Number);
+  const parsed = new Date(year, month - 1, day, hours, minutes, 0, 0);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function formatDisplayDate(value: string): string {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : value;
+}
+
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
 }
 
 function normalizeCustomerCheckoutData(

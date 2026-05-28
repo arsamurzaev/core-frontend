@@ -13,6 +13,7 @@ import {
 } from "@/core/widgets/edit-catalog-drawer/model/catalog-experience";
 import {
   CHECKOUT_METHODS,
+  DEFAULT_PREORDER_SETTINGS,
   type CheckoutConfig,
   type CheckoutContactValues,
   type CheckoutMethod,
@@ -30,6 +31,8 @@ const PHONE_ERROR_MESSAGE =
   "Введите полный номер в формате +7 (xxx) xxx-xx-xx.";
 const EMAIL_ERROR_MESSAGE = "Введите корректный email адрес.";
 const CONTACT_REQUIRED_MESSAGE = "Укажите хотя бы один контакт.";
+const PREORDER_MIN_LEAD_MINUTES_MAX = 24 * 60;
+const PREORDER_MAX_ADVANCE_DAYS_MAX = 365;
 
 export type CatalogEditFormValues = {
   name: string;
@@ -48,6 +51,8 @@ export type CatalogEditFormValues = {
   allowedModes: CatalogExperienceMode[];
   checkoutEnabledMethods: CheckoutMethod[];
   checkoutContacts: Partial<Record<CheckoutMethod, CheckoutContactValues>>;
+  preorderMinLeadTimeMinutes: number;
+  preorderMaxAdvanceDays: number;
   logoFile?: File;
   bgFile?: File;
 };
@@ -67,6 +72,18 @@ function createFieldError(message: string) {
 
 function normalizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeNumber(value: unknown): number {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    return Number(value.trim());
+  }
+
+  return Number.NaN;
 }
 
 function normalizeOptionalFile(value: unknown): File | undefined {
@@ -201,6 +218,31 @@ function validateCatalogEditExperienceSettings(
   }
 }
 
+function validateCatalogEditPreorderSettings(
+  errors: FieldErrors<CatalogEditFormValues>,
+  values: CatalogEditFormValues,
+) {
+  if (
+    !Number.isInteger(values.preorderMinLeadTimeMinutes) ||
+    values.preorderMinLeadTimeMinutes < 0 ||
+    values.preorderMinLeadTimeMinutes > PREORDER_MIN_LEAD_MINUTES_MAX
+  ) {
+    errors.preorderMinLeadTimeMinutes = createFieldError(
+      "Минимальное время должно быть от 0 до 1440 минут.",
+    );
+  }
+
+  if (
+    !Number.isInteger(values.preorderMaxAdvanceDays) ||
+    values.preorderMaxAdvanceDays < 1 ||
+    values.preorderMaxAdvanceDays > PREORDER_MAX_ADVANCE_DAYS_MAX
+  ) {
+    errors.preorderMaxAdvanceDays = createFieldError(
+      "Окно предзаказа должно быть от 1 до 365 дней.",
+    );
+  }
+}
+
 function buildCatalogEditFormErrors(
   values: CatalogEditFormValues,
 ): FieldErrors<CatalogEditFormValues> {
@@ -233,6 +275,7 @@ function buildCatalogEditFormErrors(
 
   validateCatalogEditContacts(errors, values);
   validateCatalogEditExperienceSettings(errors, values);
+  validateCatalogEditPreorderSettings(errors, values);
 
   return errors;
 }
@@ -273,6 +316,10 @@ export function normalizeCatalogEditFormValues(
     allowedModes,
     checkoutEnabledMethods,
     checkoutContacts: values.checkoutContacts ?? {},
+    preorderMinLeadTimeMinutes: normalizeNumber(
+      values.preorderMinLeadTimeMinutes,
+    ),
+    preorderMaxAdvanceDays: normalizeNumber(values.preorderMaxAdvanceDays),
     logoFile: normalizeOptionalFile(values.logoFile),
     bgFile: normalizeOptionalFile(values.bgFile),
   };
@@ -428,6 +475,12 @@ export function buildCatalogEditFormDefaultValues(
     allowedModes: experience.allowedModes,
     checkoutEnabledMethods: checkout.enabledMethods,
     checkoutContacts: checkout.methodContacts,
+    preorderMinLeadTimeMinutes:
+      checkout.preorder?.minLeadTimeMinutes ??
+      DEFAULT_PREORDER_SETTINGS.minLeadTimeMinutes,
+    preorderMaxAdvanceDays:
+      checkout.preorder?.maxAdvanceDays ??
+      DEFAULT_PREORDER_SETTINGS.maxAdvanceDays,
     logoFile: undefined,
     bgFile: undefined,
   };
@@ -479,6 +532,10 @@ export function buildCatalogEditUpdatePayload(
     checkout: {
       enabledMethods: values.checkoutEnabledMethods,
       methodContacts: values.checkoutContacts,
+      preorder: {
+        minLeadTimeMinutes: values.preorderMinLeadTimeMinutes,
+        maxAdvanceDays: values.preorderMaxAdvanceDays,
+      },
     },
     contacts,
     ...(logoMediaId ? { logoMediaId } : {}),

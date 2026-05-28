@@ -142,6 +142,86 @@ describe("integration checkout model", () => {
     });
   });
 
+  it("requires an iiko table for preorder only when manager completes it", () => {
+    expect(
+      resolveIntegrationCheckoutFields({
+        hasIikoItems: true,
+        orderInput: {
+          checkoutData: {
+            customerName: "Ivan",
+            phone: "+79990000000",
+            personsCount: 2,
+            visitDate: "2026-05-26",
+            visitTime: "19:30",
+          },
+          checkoutMethod: "PREORDER",
+        },
+      }),
+    ).toEqual([]);
+
+    expect(
+      resolveIntegrationCheckoutFields({
+        hasIikoItems: true,
+        requirePreorderTable: true,
+        orderInput: {
+          checkoutData: {
+            customerName: "Ivan",
+            phone: "+79990000000",
+            personsCount: 2,
+            visitDate: "2026-05-26",
+            visitTime: "19:30",
+          },
+          checkoutMethod: "PREORDER",
+        },
+      }),
+    ).toEqual(["hallTable"]);
+
+    expect(
+      resolveIntegrationCheckoutFields({
+        hasIikoItems: true,
+        requirePreorderTable: true,
+        orderInput: {
+          checkoutData: {
+            customerName: "Ivan",
+            phone: "+79990000000",
+            personsCount: 2,
+            tableNumber: "11",
+            visitDate: "2026-05-26",
+            visitTime: "19:30",
+          },
+          checkoutMethod: "PREORDER",
+        },
+      }),
+    ).toEqual(["hallTable"]);
+
+    expect(
+      resolveIntegrationCheckoutFields({
+        hasIikoItems: true,
+        requirePreorderTable: true,
+        orderInput: {
+          checkoutData: {
+            customerName: "Ivan",
+            iikoTableId: "table-11",
+            phone: "+79990000000",
+            personsCount: 2,
+            tableNumber: "11",
+            visitDate: "2026-05-26",
+            visitTime: "19:30",
+          },
+          checkoutMethod: "PREORDER",
+        },
+      }),
+    ).toEqual([]);
+
+    expect(
+      validateIntegrationCheckout({
+        data: { iikoTableId: "table-11", tableNumber: "11" },
+        fields: ["hallTable"],
+        method: "PREORDER",
+      }),
+    ).toBeNull();
+  });
+
   it("does not accept legacy encrypted hall payload as table identity", () => {
     expect(
       resolveIntegrationCheckoutFields({

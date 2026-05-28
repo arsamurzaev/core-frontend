@@ -1,7 +1,14 @@
 import type { CatalogCurrentDto } from "@/shared/api/generated/react-query";
-import { METHOD_FIELDS, type CheckoutConfig } from "@/shared/lib/checkout-methods";
+import {
+  DEFAULT_PREORDER_SETTINGS,
+  METHOD_FIELDS,
+  type CheckoutConfig,
+} from "@/shared/lib/checkout-methods";
 import { describe, expect, it } from "vitest";
-import { buildCatalogEditFormDefaultValues } from "./form-config";
+import {
+  buildCatalogEditFormDefaultValues,
+  buildCatalogEditUpdatePayload,
+} from "./form-config";
 
 function catalog(): CatalogCurrentDto {
   return {
@@ -61,6 +68,10 @@ describe("buildCatalogEditFormDefaultValues", () => {
         },
       },
       methodFields: METHOD_FIELDS,
+      preorder: {
+        minLeadTimeMinutes: 45,
+        maxAdvanceDays: 10,
+      },
     };
 
     const values = buildCatalogEditFormDefaultValues(catalog(), {
@@ -69,5 +80,33 @@ describe("buildCatalogEditFormDefaultValues", () => {
 
     expect(values.checkoutEnabledMethods).toEqual(["DELIVERY", "PICKUP"]);
     expect(values.checkoutContacts.PREORDER?.TELEGRAM).toBe("@cafe");
+    expect(values.preorderMinLeadTimeMinutes).toBe(45);
+    expect(values.preorderMaxAdvanceDays).toBe(10);
+  });
+
+  it("includes preorder settings in update payload", () => {
+    const values = buildCatalogEditFormDefaultValues(catalog(), {
+      checkoutConfig: {
+        availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
+        enabledMethods: ["PREORDER"],
+        methodContacts: {},
+        methodFields: METHOD_FIELDS,
+        preorder: DEFAULT_PREORDER_SETTINGS,
+      },
+    });
+
+    const payload = buildCatalogEditUpdatePayload({
+      ...values,
+      preorderMinLeadTimeMinutes: 60,
+      preorderMaxAdvanceDays: 21,
+    });
+
+    expect(payload.checkout).toMatchObject({
+      enabledMethods: ["PREORDER"],
+      preorder: {
+        minLeadTimeMinutes: 60,
+        maxAdvanceDays: 21,
+      },
+    });
   });
 });

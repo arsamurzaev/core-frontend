@@ -63,8 +63,13 @@ export function useCartManagerOrder({
         };
       }
 
-      const result =
-        await mutations.completeManagerOrderMutation.mutateAsync(access);
+      const result = await mutations.completeManagerOrderMutation.mutateAsync({
+        access,
+        input: {
+          ...shareInput,
+          comment: normalizedComment || undefined,
+        },
+      });
 
       if (shouldResetCurrentCartAfterComplete) {
         clearActiveManagerOrder();

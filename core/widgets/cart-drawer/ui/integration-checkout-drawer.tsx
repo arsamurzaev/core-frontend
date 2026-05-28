@@ -9,6 +9,7 @@ import {
   type IntegrationCheckoutField,
 } from "@/core/widgets/cart-drawer/model/integration-checkout";
 import { CartDrawerFooterSummary } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-summary";
+import { apiClient } from "@/shared/api/client";
 import {
   CHECKOUT_METHOD_LABELS,
   type CheckoutData,
@@ -22,7 +23,15 @@ import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { PhoneInput } from "@/shared/ui/phone-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { RefreshCw } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
@@ -42,6 +51,24 @@ interface IntegrationCheckoutDrawerProps {
   priceFormatMode: CatalogPriceFormatMode;
   totalPrice: number;
 }
+
+type IikoRestaurantTableOption = {
+  id: string;
+  publicCode: string | null;
+  number: number | null;
+  displayNumber: string | null;
+  name: string | null;
+  seatingCapacity: number | null;
+  sectionId: string | null;
+  sectionName: string | null;
+  terminalGroupId: string | null;
+};
+
+type IikoRestaurantTablesResponse = {
+  ok: true;
+  tables: IikoRestaurantTableOption[];
+  revision: number | null;
+};
 
 function getInitialMethod(params: {
   availableMethods: CheckoutMethod[];
@@ -75,6 +102,105 @@ function getHallTableLabel(data: CheckoutData): string {
   return "Стол";
 }
 
+function getIikoTableLabel(table: IikoRestaurantTableOption): string {
+  const name = table.name?.trim();
+  if (name) return name;
+
+  const number =
+    table.displayNumber ??
+    (table.number !== null && table.number !== undefined
+      ? String(table.number)
+      : null);
+  return number ? `Стол ${number}` : "Стол";
+}
+
+function getIikoTableDetails(table: IikoRestaurantTableOption): string {
+  const details: string[] = [];
+  if (table.sectionName) {
+    details.push(table.sectionName);
+  }
+  if (table.displayNumber) {
+    details.push(`№${table.displayNumber}`);
+  }
+  if (table.seatingCapacity) {
+    details.push(`${table.seatingCapacity} мест`);
+  }
+  return details.join(" · ");
+}
+
+function normalizeTableRef(value: unknown): string | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().toLowerCase();
+  return normalized || null;
+}
+
+function tableMatchesRef(
+  table: IikoRestaurantTableOption,
+  ref: unknown,
+): boolean {
+  const expected = normalizeTableRef(ref);
+  if (!expected) return false;
+
+  const refs = [
+    table.id,
+    table.name,
+    table.displayNumber,
+    table.number,
+  ].map(normalizeTableRef);
+  return refs.some((value) => value === expected);
+}
+
+function applyIikoTableToCheckoutData(
+  data: CheckoutData,
+  table: IikoRestaurantTableOption,
+): CheckoutData {
+  const label = getIikoTableLabel(table);
+  const tableNumber =
+    table.displayNumber ??
+    (table.number !== null && table.number !== undefined
+      ? String(table.number)
+      : undefined);
+
+  return {
+    ...data,
+    hallTableId: table.id,
+    iikoTableId: table.id,
+    tableId: table.id,
+    ...(table.publicCode
+      ? {
+          hallTableCode: table.publicCode,
+          integrationExternalItemCode: table.publicCode,
+          t: table.publicCode,
+          tableCode: table.publicCode,
+        }
+      : {}),
+    ...(table.sectionId
+      ? {
+          hallSectionId: table.sectionId,
+          iikoRestaurantSectionId: table.sectionId,
+        }
+      : {}),
+    ...(table.sectionName
+      ? {
+          hallSectionName: table.sectionName,
+          iikoRestaurantSectionName: table.sectionName,
+        }
+      : {}),
+    hallTableName: label,
+    tableName: label,
+    ...(tableNumber
+      ? {
+          hallTableNumber: tableNumber,
+          table: tableNumber,
+          tableNumber,
+        }
+      : {}),
+  };
+}
+
 export const IntegrationCheckoutDrawer: React.FC<
   IntegrationCheckoutDrawerProps
 > = ({
@@ -103,6 +229,10 @@ export const IntegrationCheckoutDrawer: React.FC<
   const [draftData, setDraftData] = React.useState<CheckoutData>(
     orderInput.checkoutData ?? {},
   );
+  const [iikoTables, setIikoTables] = React.useState<
+    IikoRestaurantTableOption[]
+  >([]);
+  const [isIikoTablesLoading, setIsIikoTablesLoading] = React.useState(false);
   const mergedData = React.useMemo(
     () => ({
       ...(orderInput.checkoutData ?? {}),
@@ -110,27 +240,73 @@ export const IntegrationCheckoutDrawer: React.FC<
     }),
     [draftData, orderInput.checkoutData],
   );
+  const effectiveFields = React.useMemo(() => {
+    if (
+      draftMethod !== "PREORDER" ||
+      !hasField(fields, "checkoutMethod")
+    ) {
+      return fields;
+    }
+
+    const next = [...fields];
+    for (const field of ["hallTable", "personsCount"] as const) {
+      if (!next.includes(field)) {
+        next.push(field);
+      }
+    }
+    return next;
+  }, [draftMethod, fields]);
   const validationError = validateIntegrationCheckout({
     data: mergedData,
-    fields,
+    fields: effectiveFields,
     method: draftMethod,
   });
-  const shouldShowMethod = hasField(fields, "checkoutMethod");
-  const shouldShowHallTable = hasField(fields, "hallTable");
-  const shouldShowPersonsCount = hasField(fields, "personsCount");
+  const shouldShowMethod = hasField(effectiveFields, "checkoutMethod");
+  const shouldShowHallTable = hasField(effectiveFields, "hallTable");
+  const shouldShowPreorderTableInput =
+    shouldShowHallTable && draftMethod === "PREORDER";
+  const shouldShowPersonsCount = hasField(effectiveFields, "personsCount");
   const shouldShowAddress =
-    draftMethod === "DELIVERY" && hasField(fields, "address");
+    draftMethod === "DELIVERY" && hasField(effectiveFields, "address");
   const hallTableLabel = getHallTableLabel(mergedData);
   const isHallOrder = Boolean(
-    mergedData.orderMode === "HALL" ||
-      mergedData.iikoTableId ||
-      mergedData.hallTableId ||
-      mergedData.integrationExternalItemCode ||
-      mergedData.hallTableCode ||
-      mergedData.tableCode ||
-      mergedData.t,
+    draftMethod !== "PREORDER" &&
+      (mergedData.orderMode === "HALL" ||
+        mergedData.iikoTableId ||
+        mergedData.hallTableId ||
+        mergedData.integrationExternalItemCode ||
+        mergedData.hallTableCode ||
+        mergedData.tableCode ||
+        mergedData.t),
+  );
+  const selectedIikoTableId =
+    draftData.iikoTableId ?? draftData.hallTableId ?? draftData.tableId ?? "";
+  const selectedIikoTable = React.useMemo(
+    () => iikoTables.find((table) => table.id === selectedIikoTableId) ?? null,
+    [iikoTables, selectedIikoTableId],
   );
   const isSubmitDisabled = disabled || isBusy || Boolean(validationError);
+
+  const loadIikoTables = React.useCallback(async () => {
+    if (!shouldShowPreorderTableInput) return;
+
+    setIsIikoTablesLoading(true);
+    try {
+      const response = await apiClient.get<IikoRestaurantTablesResponse>(
+        "/integration/iiko/tables",
+      );
+      setIikoTables(response.tables.filter((table) => table.id));
+    } catch (error) {
+      setIikoTables([]);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Не удалось загрузить столы iiko.",
+      );
+    } finally {
+      setIsIikoTablesLoading(false);
+    }
+  }, [shouldShowPreorderTableInput]);
 
   React.useEffect(() => {
     if (!open) {
@@ -143,6 +319,30 @@ export const IntegrationCheckoutDrawer: React.FC<
     setDraftData(orderInput.checkoutData ?? {});
   }, [open, orderInput, selectableMethods]);
 
+  React.useEffect(() => {
+    if (!open || !shouldShowPreorderTableInput) return;
+    void loadIikoTables();
+  }, [loadIikoTables, open, shouldShowPreorderTableInput]);
+
+  React.useEffect(() => {
+    if (!shouldShowPreorderTableInput || iikoTables.length === 0) return;
+
+    setDraftData((current) => {
+      if (current.iikoTableId || current.hallTableId || current.tableId) {
+        return current;
+      }
+
+      const tableRef =
+        current.tableNumber ??
+        current.hallTableNumber ??
+        current.table ??
+        current.tableName ??
+        current.hallTableName;
+      const table = iikoTables.find((item) => tableMatchesRef(item, tableRef));
+      return table ? applyIikoTableToCheckoutData(current, table) : current;
+    });
+  }, [iikoTables, shouldShowPreorderTableInput]);
+
   const updateDraftData = React.useCallback(
     (key: keyof CheckoutData, value: string) => {
       setDraftData((current) => updateCheckoutData(current, key, value));
@@ -150,10 +350,19 @@ export const IntegrationCheckoutDrawer: React.FC<
     [],
   );
 
+  const handleIikoTableChange = React.useCallback(
+    (tableId: string) => {
+      const table = iikoTables.find((item) => item.id === tableId);
+      if (!table) return;
+      setDraftData((current) => applyIikoTableToCheckoutData(current, table));
+    },
+    [iikoTables],
+  );
+
   const handleSubmit = React.useCallback(async () => {
     const error = validateIntegrationCheckout({
       data: mergedData,
-      fields,
+      fields: effectiveFields,
       method: draftMethod,
     });
 
@@ -174,7 +383,7 @@ export const IntegrationCheckoutDrawer: React.FC<
     checkoutLocation,
     draftData,
     draftMethod,
-    fields,
+    effectiveFields,
     mergedData,
     onSubmit,
     orderInput,
@@ -247,7 +456,69 @@ export const IntegrationCheckoutDrawer: React.FC<
               </section>
             ) : null}
 
-            {shouldShowHallTable ? (
+            {shouldShowPreorderTableInput ? (
+              <section className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="integration-checkout-table-id">
+                    Стол iiko
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    disabled={disabled || isIikoTablesLoading}
+                    onClick={() => void loadIikoTables()}
+                    title="Обновить столы"
+                  >
+                    <RefreshCw
+                      className={
+                        isIikoTablesLoading ? "size-4 animate-spin" : "size-4"
+                      }
+                    />
+                  </Button>
+                </div>
+                <Select
+                  value={selectedIikoTableId}
+                  onValueChange={handleIikoTableChange}
+                  disabled={
+                    disabled || isIikoTablesLoading || iikoTables.length === 0
+                  }
+                >
+                  <SelectTrigger
+                    id="integration-checkout-table-id"
+                    className="border border-black/10"
+                  >
+                    <SelectValue
+                      placeholder={
+                        isIikoTablesLoading
+                          ? "Загружаем столы"
+                          : "Выберите стол"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {iikoTables.map((table) => {
+                      const details = getIikoTableDetails(table);
+                      return (
+                        <SelectItem key={table.id} value={table.id}>
+                          {getIikoTableLabel(table)}
+                          {details ? ` · ${details}` : ""}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                {selectedIikoTable ? (
+                  <p className="text-sm text-muted-foreground">
+                    {getIikoTableDetails(selectedIikoTable) || selectedIikoTable.id}
+                  </p>
+                ) : !isIikoTablesLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Обновите список и выберите стол из iiko.
+                  </p>
+                ) : null}
+              </section>
+            ) : shouldShowHallTable ? (
               <section className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700">
                 Откройте каталог по QR-коду конкретного стола. Для iiko нужен
                 UUID стола, поэтому обычной ссылки режима зала недостаточно.

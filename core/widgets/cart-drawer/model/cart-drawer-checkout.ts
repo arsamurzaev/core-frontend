@@ -3,6 +3,7 @@ import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import {
   buildCheckoutSummary,
   normalizeCheckoutData,
+  type CheckoutConfig,
   type CheckoutData,
   type CheckoutLocation,
   type CheckoutMethod,
@@ -78,6 +79,7 @@ export function resolveCartDrawerCheckoutDisplay(params: {
 }
 
 export function validateCartDrawerCheckout(params: {
+  checkoutConfig?: Pick<CheckoutConfig, "preorder">;
   checkoutData: CheckoutData;
   isCheckoutEnabled?: boolean;
   checkoutLocation: CheckoutLocation;
@@ -88,6 +90,7 @@ export function validateCartDrawerCheckout(params: {
   }
 
   return normalizeCheckoutData({
+    config: params.checkoutConfig,
     data: params.checkoutData,
     location: params.checkoutLocation,
     method: params.checkoutMethod,

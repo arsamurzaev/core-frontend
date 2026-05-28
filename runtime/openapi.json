@@ -8816,6 +8816,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareCurrentCartDtoReq"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -13629,28 +13639,6 @@
           "attributeId"
         ]
       },
-      "ProductVariantAttributeDtoReq": {
-        "type": "object",
-        "properties": {
-          "attributeId": {
-            "type": "string",
-            "example": "attribute-id"
-          },
-          "enumValueId": {
-            "type": "string",
-            "example": "enum-value-id",
-            "description": "Идентификатор значения перечисления"
-          },
-          "value": {
-            "type": "string",
-            "example": "1.5л",
-            "description": "Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений"
-          }
-        },
-        "required": [
-          "attributeId"
-        ]
-      },
       "ProductVariantSaleUnitDtoReq": {
         "type": "object",
         "properties": {
@@ -13699,6 +13687,28 @@
           "catalogSaleUnitId",
           "baseQuantity",
           "price"
+        ]
+      },
+      "ProductVariantAttributeDtoReq": {
+        "type": "object",
+        "properties": {
+          "attributeId": {
+            "type": "string",
+            "example": "attribute-id"
+          },
+          "enumValueId": {
+            "type": "string",
+            "example": "enum-value-id",
+            "description": "Идентификатор значения перечисления"
+          },
+          "value": {
+            "type": "string",
+            "example": "1.5л",
+            "description": "Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений"
+          }
+        },
+        "required": [
+          "attributeId"
         ]
       },
       "ProductVariantDtoReq": {
@@ -13800,6 +13810,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductAttributeValueDto"
+            }
+          },
+          "saleUnits": {
+            "description": "Единицы продажи простого товара. Сохраняются на технический default-вариант.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
             }
           },
           "variants": {
@@ -14490,6 +14507,13 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          },
+          "saleUnits": {
+            "description": "Единицы продажи простого товара. Сохраняются на технический default-вариант.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductVariantSaleUnitDtoReq"
             }
           },
           "variants": {
@@ -17886,6 +17910,23 @@
           "note"
         ]
       },
+      "CatalogCheckoutPreorderSettingsDto": {
+        "type": "object",
+        "properties": {
+          "minLeadTimeMinutes": {
+            "type": "number",
+            "example": 30
+          },
+          "maxAdvanceDays": {
+            "type": "number",
+            "example": 14
+          }
+        },
+        "required": [
+          "minLeadTimeMinutes",
+          "maxAdvanceDays"
+        ]
+      },
       "CatalogCheckoutConfigDto": {
         "type": "object",
         "properties": {
@@ -17916,13 +17957,17 @@
           },
           "methodFields": {
             "type": "object"
+          },
+          "preorder": {
+            "$ref": "#/components/schemas/CatalogCheckoutPreorderSettingsDto"
           }
         },
         "required": [
           "availableMethods",
           "enabledMethods",
           "methodContacts",
-          "methodFields"
+          "methodFields",
+          "preorder"
         ]
       },
       "CatalogSettingsDto": {
@@ -20786,6 +20831,7 @@
             "type": "object",
             "example": {
               "personsCount": 4,
+              "visitDate": "2026-05-26",
               "visitTime": "19:30"
             }
           }

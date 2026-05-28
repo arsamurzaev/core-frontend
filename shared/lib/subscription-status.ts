@@ -40,13 +40,14 @@ export function getDaysUntilSubscriptionEnd(endDate: Date | null): number {
     today.getMonth(),
     today.getDate(),
   );
-  const normalizedEnd = new Date(
+  const inclusiveEndBoundary = new Date(
     endDate.getFullYear(),
     endDate.getMonth(),
     endDate.getDate(),
   );
+  inclusiveEndBoundary.setDate(inclusiveEndBoundary.getDate() + 1);
   const diffDays = Math.ceil(
-    (normalizedEnd.getTime() - normalizedToday.getTime()) / DAY_IN_MS,
+    (inclusiveEndBoundary.getTime() - normalizedToday.getTime()) / DAY_IN_MS,
   );
 
   return Math.max(0, diffDays);

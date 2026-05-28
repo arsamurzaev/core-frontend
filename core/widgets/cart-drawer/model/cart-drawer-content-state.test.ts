@@ -1,4 +1,7 @@
-import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
+import {
+  DEFAULT_PREORDER_SETTINGS,
+  type CheckoutConfig,
+} from "@/shared/lib/checkout-methods";
 import { describe, expect, it } from "vitest";
 import { resolveCartDrawerContentState } from "./cart-drawer-content-state";
 
@@ -11,6 +14,7 @@ const checkoutConfig: CheckoutConfig = {
     PICKUP: [],
     PREORDER: [],
   },
+  preorder: DEFAULT_PREORDER_SETTINGS,
 };
 
 describe("cart drawer content state", () => {

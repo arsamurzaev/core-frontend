@@ -90,12 +90,19 @@ export function useCartDrawerCheckout({
   const checkoutValidation = React.useMemo(
     () =>
       validateCartDrawerCheckout({
+        checkoutConfig,
         checkoutData,
         isCheckoutEnabled,
         checkoutLocation,
         checkoutMethod,
       }),
-    [checkoutData, checkoutLocation, checkoutMethod, isCheckoutEnabled],
+    [
+      checkoutConfig,
+      checkoutData,
+      checkoutLocation,
+      checkoutMethod,
+      isCheckoutEnabled,
+    ],
   );
 
   React.useEffect(() => {

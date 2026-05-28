@@ -1476,14 +1476,6 @@ export interface ProductAttributeValueDto {
   valueDateTime?: string;
 }
 
-export interface ProductVariantAttributeDtoReq {
-  attributeId: string;
-  /** Идентификатор значения перечисления */
-  enumValueId?: string;
-  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
-  value?: string;
-}
-
 export interface ProductVariantSaleUnitDtoReq {
   /** Ссылка на активную единицу продажи из справочника текущего каталога. */
   catalogSaleUnitId: string;
@@ -1498,6 +1490,14 @@ export interface ProductVariantSaleUnitDtoReq {
   isDefault?: boolean;
   isActive?: boolean;
   displayOrder?: number;
+}
+
+export interface ProductVariantAttributeDtoReq {
+  attributeId: string;
+  /** Идентификатор значения перечисления */
+  enumValueId?: string;
+  /** Сырой текст значения. Разрешён, если у атрибута нет фиксированных значений */
+  value?: string;
 }
 
 export type ProductVariantDtoReqStatus = typeof ProductVariantDtoReqStatus[keyof typeof ProductVariantDtoReqStatus];
@@ -1537,6 +1537,8 @@ export interface CreateProductDtoReq {
   /** Список категорий. Товар будет добавлен в начало (position=0) каждой категории. */
   categories?: string[];
   attributes?: ProductAttributeValueDto[];
+  /** Единицы продажи простого товара. Сохраняются на технический default-вариант. */
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
   variants?: ProductVariantDtoReq[];
 }
 
@@ -1794,6 +1796,8 @@ export interface UpdateProductDtoReq {
   attributes?: ProductAttributeValueDto[];
   /** ID атрибутов товара, которые нужно удалить при редактировании */
   removeAttributeIds?: string[];
+  /** Единицы продажи простого товара. Сохраняются на технический default-вариант. */
+  saleUnits?: ProductVariantSaleUnitDtoReq[];
   variants?: ProductVariantUpdateDtoReq[];
   /** Full variant matrix replacement applied atomically with product update. */
   variantMatrix?: ProductVariantDtoReq[];
@@ -3218,6 +3222,11 @@ export interface CatalogConfigDto {
   note: string | null;
 }
 
+export interface CatalogCheckoutPreorderSettingsDto {
+  minLeadTimeMinutes: number;
+  maxAdvanceDays: number;
+}
+
 export type CatalogCheckoutConfigDtoAvailableMethodsItem = typeof CatalogCheckoutConfigDtoAvailableMethodsItem[keyof typeof CatalogCheckoutConfigDtoAvailableMethodsItem];
 
 
@@ -3245,6 +3254,7 @@ export interface CatalogCheckoutConfigDto {
   enabledMethods: CatalogCheckoutConfigDtoEnabledMethodsItem[];
   methodContacts: CatalogCheckoutConfigDtoMethodContacts;
   methodFields: CatalogCheckoutConfigDtoMethodFields;
+  preorder: CatalogCheckoutPreorderSettingsDto;
 }
 
 export type CatalogSettingsDtoDefaultMode = typeof CatalogSettingsDtoDefaultMode[keyof typeof CatalogSettingsDtoDefaultMode];
@@ -8262,9 +8272,12 @@ const cartControllerReleaseManagerSession = (
  */
 const cartControllerCompleteManagerOrder = (
     publicKey: string,
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
  ) => {
       return mutator<CompleteCartOrderResponseDto>(
-      {url: `/cart/public/${publicKey}/manager/complete`, method: 'POST'
+      {url: `/cart/public/${publicKey}/manager/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq
     },
       );
     }

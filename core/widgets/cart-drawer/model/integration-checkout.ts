@@ -32,6 +32,7 @@ export function resolveIntegrationCheckoutFields(params: {
   catalogMode?: CatalogExperienceMode;
   hasIikoItems: boolean;
   orderInput: PrepareShareOrderInput;
+  requirePreorderTable?: boolean;
 }): IntegrationCheckoutField[] {
   if (!params.hasIikoItems) {
     return [];
@@ -74,6 +75,18 @@ export function resolveIntegrationCheckoutFields(params: {
     fields.push("address");
   }
 
+  if (effectiveMethod === "PREORDER" && params.requirePreorderTable) {
+    if (!hasPreorderTableRef(data)) {
+      fields.push("hallTable");
+    }
+  }
+
+  if (effectiveMethod === "PREORDER") {
+    if (!hasPositiveInt(data.personsCount ?? data.guestsCount)) {
+      fields.push("personsCount");
+    }
+  }
+
   return fields;
 }
 
@@ -110,6 +123,15 @@ export function validateIntegrationCheckout(params: {
 }): string | null {
   if (
     params.fields.includes("hallTable") &&
+    params.method === "PREORDER" &&
+    !hasPreorderTableRef(params.data)
+  ) {
+    return "Выберите стол iiko.";
+  }
+
+  if (
+    params.fields.includes("hallTable") &&
+    params.method !== "PREORDER" &&
     !hasHallTableIdentity(params.data)
   ) {
     return "Откройте заказ по QR-коду конкретного стола.";
@@ -189,6 +211,10 @@ function hasHallTableIdentity(data: CheckoutData): boolean {
       data.tableCode ??
       data.t,
   );
+}
+
+function hasPreorderTableRef(data: CheckoutData): boolean {
+  return hasHallTableIdentity(data);
 }
 
 function hasPositiveInt(value: unknown): boolean {

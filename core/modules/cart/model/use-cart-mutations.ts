@@ -6,7 +6,6 @@ import type { CartPublicAccess } from "@/core/modules/cart/model/cart-public-lin
 import { createOptimisticCart } from "@/core/modules/cart/model/cart-optimistic";
 import { apiClient } from "@/shared/api/client";
 import {
-  cartControllerCompleteManagerOrder,
   cartControllerCreateOrGetCurrent,
   cartControllerRemoveCurrentItem,
   cartControllerRemovePublicItem,
@@ -362,13 +361,34 @@ export function useCartMutations({
   });
 
   const completeManagerOrderMutation = useMutation({
-    mutationFn: async (access: CartPublicAccess) => {
-      const response = await cartControllerCompleteManagerOrder(
-        access.publicKey,
+    mutationFn: async (params: {
+      access: CartPublicAccess;
+      input?: PrepareShareOrderInput | string;
+    }) => {
+      const normalizedInput =
+        typeof params.input === "string"
+          ? { comment: params.input }
+          : (params.input ?? {});
+      const response = await apiClient.post<{
+        ok: true;
+        order: CompletedOrderDto;
+      }>(
+        `/cart/public/${encodeURIComponent(params.access.publicKey)}/manager/complete`,
+        {
+          ...(normalizedInput.comment
+            ? { comment: normalizedInput.comment }
+            : {}),
+          ...(normalizedInput.checkoutMethod
+            ? { checkoutMethod: normalizedInput.checkoutMethod }
+            : {}),
+          ...(normalizedInput.checkoutData
+            ? { checkoutData: normalizedInput.checkoutData }
+            : {}),
+        },
       );
 
       return {
-        access,
+        access: params.access,
         order: response.order,
       };
     },

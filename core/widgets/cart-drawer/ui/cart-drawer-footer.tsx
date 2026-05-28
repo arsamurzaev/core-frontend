@@ -102,16 +102,17 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
         hasIikoItems: hasIikoCartItems,
         catalogMode: canSubmitHallOrder ? "HALL" : undefined,
         orderInput,
+        requirePreorderTable: action === "complete-order",
       }),
-    [canSubmitHallOrder, hasIikoCartItems, orderInput],
+    [action, canSubmitHallOrder, hasIikoCartItems, orderInput],
   );
   const shouldOpenCheckoutDrawer =
     (action === "share" ||
       action === "complete-order" ||
       action === "submit-hall-order") &&
     integrationCheckoutFields.length > 0 &&
-    !hasSharedCart &&
-    !share.hasOpenedShareDrawer;
+    (action === "complete-order" ||
+      (!hasSharedCart && !share.hasOpenedShareDrawer));
 
   const handleComplete = React.useCallback(async (input?: PrepareShareOrderInput) => {
     try {
