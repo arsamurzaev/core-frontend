@@ -4,6 +4,7 @@ import {
   resolveCartDrawerCheckoutDisplay,
   resolveCartDrawerCheckoutLocks,
   validateCartDrawerCheckout,
+  validateDisplayedCartDrawerCheckout,
 } from "./cart-drawer-checkout";
 
 describe("cart drawer checkout model", () => {
@@ -54,8 +55,36 @@ describe("cart drawer checkout model", () => {
       }),
     ).toEqual({
       displayedCheckoutData: { address: "Draft address" },
-      displayedCheckoutMethod: "DELIVERY",
+      displayedCheckoutMethod: "PICKUP",
       displayedComment: "draft comment",
+    });
+  });
+
+  it("validates saved checkout state while shared cart is locked after reload", () => {
+    const display = resolveCartDrawerCheckoutDisplay({
+      cart: {
+        checkoutData: {},
+        checkoutMethod: "PICKUP",
+      },
+      checkoutData: {},
+      checkoutMethod: "DELIVERY",
+      comment: "",
+      isCheckoutLocked: true,
+      isCommentLocked: true,
+    });
+
+    expect(
+      validateDisplayedCartDrawerCheckout({
+        displayedCheckoutData: display.displayedCheckoutData,
+        displayedCheckoutMethod: display.displayedCheckoutMethod,
+        checkoutLocation: {
+          address: "Cafe address",
+          mapUrl: null,
+        },
+      }),
+    ).toEqual({
+      data: { address: "Cafe address" },
+      error: null,
     });
   });
 

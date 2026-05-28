@@ -2,7 +2,10 @@
 
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
-import { CART_DRAWER_SNAP_POINTS } from "@/core/widgets/cart-drawer/model/cart-drawer-state";
+import {
+  CART_DRAWER_SNAP_POINTS,
+  isCheckoutCartStatus,
+} from "@/core/widgets/cart-drawer/model/cart-drawer-state";
 import { useCartDrawerSnap } from "@/core/widgets/cart-drawer/model/use-cart-drawer-snap";
 import { CartDrawerContent } from "@/core/widgets/cart-drawer/ui/cart-drawer-content";
 import { CartDrawerFooter } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer";
@@ -104,7 +107,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const shouldHideCartWhileProductRouteOpen =
     pathname?.startsWith("/product/") ?? false;
   const publicAccessPublicKey = publicAccess?.publicKey ?? null;
-  const hasSharedCart = Boolean(publicAccessPublicKey);
+  const cartPublicKey =
+    (cart as { publicKey?: string | null } | null | undefined)?.publicKey ??
+    null;
+  const hasSharedCart = Boolean(
+    publicAccessPublicKey || cartPublicKey || isCheckoutCartStatus(status),
+  );
   const {
     buildOrderInput,
     checkoutValidation,

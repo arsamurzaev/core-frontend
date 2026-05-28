@@ -13,7 +13,7 @@ import {
   buildCartDrawerCheckoutOrderInput,
   resolveCartDrawerCheckoutDisplay,
   resolveCartDrawerCheckoutLocks,
-  validateCartDrawerCheckout,
+  validateDisplayedCartDrawerCheckout,
 } from "./cart-drawer-checkout";
 
 interface UseCartDrawerCheckoutParams {
@@ -89,18 +89,18 @@ export function useCartDrawerCheckout({
   );
   const checkoutValidation = React.useMemo(
     () =>
-      validateCartDrawerCheckout({
+      validateDisplayedCartDrawerCheckout({
         checkoutConfig,
-        checkoutData,
+        displayedCheckoutData,
+        displayedCheckoutMethod,
         isCheckoutEnabled,
         checkoutLocation,
-        checkoutMethod,
       }),
     [
       checkoutConfig,
-      checkoutData,
       checkoutLocation,
-      checkoutMethod,
+      displayedCheckoutData,
+      displayedCheckoutMethod,
       isCheckoutEnabled,
     ],
   );

@@ -69,7 +69,8 @@ export function resolveCartDrawerCheckoutDisplay(params: {
         params.checkoutData)
       : {},
     displayedCheckoutMethod: isCheckoutEnabled
-      ? (getCartCheckoutMethod(params.cart) ?? params.checkoutMethod)
+      ? ((params.isCheckoutLocked ? getCartCheckoutMethod(params.cart) : null) ??
+        params.checkoutMethod)
       : null,
     displayedComment: params.isCommentLocked
       ? ((params.cart as { comment?: string | null } | null | undefined)
@@ -94,6 +95,22 @@ export function validateCartDrawerCheckout(params: {
     data: params.checkoutData,
     location: params.checkoutLocation,
     method: params.checkoutMethod,
+  });
+}
+
+export function validateDisplayedCartDrawerCheckout(params: {
+  checkoutConfig?: Pick<CheckoutConfig, "preorder">;
+  displayedCheckoutData: CheckoutData;
+  displayedCheckoutMethod: CheckoutMethod | null;
+  isCheckoutEnabled?: boolean;
+  checkoutLocation: CheckoutLocation;
+}) {
+  return validateCartDrawerCheckout({
+    checkoutConfig: params.checkoutConfig,
+    checkoutData: params.displayedCheckoutData,
+    checkoutLocation: params.checkoutLocation,
+    checkoutMethod: params.displayedCheckoutMethod,
+    isCheckoutEnabled: params.isCheckoutEnabled,
   });
 }
 
