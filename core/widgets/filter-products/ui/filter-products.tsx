@@ -16,7 +16,9 @@ import {
   isMoySkladProduct,
   ProductCardSkeleton,
   ProductLink,
+  scrollWindowWithStableProductCardMeasurements,
   ToggleProductPopularAction,
+  useProductCardVirtualGridLayout,
   useProductCardViewMode,
 } from "@/core/modules/product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
@@ -42,13 +44,6 @@ type FilterSectionProduct = {
   slug: string;
 } & React.ComponentProps<typeof ProductCardRuntime>["data"];
 
-const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
-const PRODUCT_CARD_GAP_PX = 16;
-const GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX = 380;
-const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 430;
-const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 360;
-const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 152;
-const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const FILTER_PRODUCTS_HEADING_ROW_ESTIMATE_PX = 40;
 const FILTER_PRODUCTS_EMPTY_ROW_ESTIMATE_PX = 72;
 const FILTER_PRODUCTS_VIRTUAL_OVERSCAN = 2;
@@ -202,38 +197,18 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
   const [listWidth, setListWidth] = React.useState(0);
   const [scrollMargin, setScrollMargin] = React.useState(0);
   const [scrollPaddingStart, setScrollPaddingStart] = React.useState(0);
-  const columns = React.useMemo(() => {
-    if (isDetailed || listWidth <= 0) {
-      return 1;
-    }
-
-    return Math.max(
-      1,
-      Math.floor(
-        (listWidth + PRODUCT_CARD_GAP_PX) /
-          (PRODUCT_CARD_GRID_MIN_WIDTH_PX + PRODUCT_CARD_GAP_PX),
-      ),
-    );
-  }, [isDetailed, listWidth]);
-  const productRowEstimateSize = React.useMemo(() => {
-    if (isDetailed) {
-      return DETAILED_VIRTUAL_ROW_ESTIMATE_PX;
-    }
-
-    if (listWidth <= 0) {
-      return GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX;
-    }
-
-    const columnWidth =
-      (listWidth - PRODUCT_CARD_GAP_PX * Math.max(0, columns - 1)) / columns;
-    const estimatedHeight =
-      Math.ceil(columnWidth * (4 / 3)) + GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX;
-
-    return Math.min(
-      GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX,
-      Math.max(GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX, estimatedHeight),
-    );
-  }, [columns, isDetailed, listWidth]);
+  const {
+    columns,
+    gridStyle,
+    productRowEstimateSize,
+    productRowMinHeight,
+    rowGap,
+  } = useProductCardVirtualGridLayout({
+    isDetailed,
+    listWidth,
+    quantityByProductId,
+    shouldUseCartUi,
+  });
   const skeletonCount = isDetailed
     ? DETAILED_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT
     : GRID_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT;
@@ -416,23 +391,24 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
     (index: number) => rows[index]?.key ?? `filter-row-${index}`,
     [rows],
   );
-  const gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
   const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
     estimateSize: estimateRowSize,
     overscan: FILTER_PRODUCTS_VIRTUAL_OVERSCAN,
     scrollMargin,
     scrollPaddingStart,
-    gap: PRODUCT_CARD_GAP_PX,
+    scrollToFn: scrollWindowWithStableProductCardMeasurements,
+    gap: rowGap,
     enabled: rows.length > 0,
     getItemKey: getVirtualRowKey,
+    useAnimationFrameWithResizeObserver: true,
     useFlushSync: false,
   });
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   React.useEffect(() => {
     rowVirtualizer.measure();
-  }, [columns, isDetailed, rowVirtualizer, rows.length]);
+  }, [columns, isDetailed, productRowEstimateSize, rowVirtualizer]);
 
   React.useEffect(() => {
     sections.forEach((section) => {
@@ -512,9 +488,9 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
     if (row.type === "initial-skeleton" || row.type === "loader") {
       return (
         <div
-          className="grid gap-4"
+          className="grid items-stretch"
           style={{
-            gridTemplateColumns,
+            ...gridStyle,
             height: productRowEstimateSize,
           }}
         >
@@ -530,10 +506,10 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
 
     return (
       <div
-        className="grid gap-4"
+        className="grid items-stretch"
         style={{
-          gridTemplateColumns,
-          height: productRowEstimateSize,
+          ...gridStyle,
+          minHeight: productRowMinHeight,
         }}
       >
         {row.items.map((product) => (

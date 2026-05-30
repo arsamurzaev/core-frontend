@@ -1,6 +1,6 @@
 "use client";
 
-import type { PrepareShareOrderInput } from "@/core/modules/cart/model/cart-context.types";
+import type { PrepareShareOrderInput } from "@/core/modules/cart";
 import {
   getInitialCheckoutMethod,
   type CheckoutConfig,

@@ -23,6 +23,7 @@ import { IikoIcon } from "@/shared/ui/icons/iiko-icon";
 import { MoyskladIcon } from "@/shared/ui/icons/moysklad-icon";
 
 import React from "react";
+import { PRODUCT_CARD_GRID_BASE_HEIGHT_PX } from "../model/product-card-layout";
 import { buildProductCardView } from "../model/product-card-view";
 
 interface Props {
@@ -56,6 +57,11 @@ const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
         isDetailed && "flex-row",
         className,
       )}
+      style={
+        isDetailed
+          ? undefined
+          : { minHeight: `max(100%, ${PRODUCT_CARD_GRID_BASE_HEIGHT_PX}px)` }
+      }
     >
       {children}
     </Card>

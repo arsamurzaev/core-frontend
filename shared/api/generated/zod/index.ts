@@ -752,7 +752,7 @@ export const AdminControllerGetCatalogFeatureEntitlementsResponse = zod.object({
 
 })).describe('Per-capability state with disabled reasons.'),
   "features": zod.array(zod.object({
-  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko']),
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
   "enabled": zod.boolean(),
   "expiresAt": zod.iso.datetime({}).nullable(),
   "metadata": zod.object({
@@ -770,7 +770,7 @@ export const AdminControllerUpdateCatalogFeatureEntitlementParams = zod.object({
 })
 
 export const AdminControllerUpdateCatalogFeatureEntitlementBody = zod.object({
-  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko']),
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
   "enabled": zod.boolean(),
   "expiresAt": zod.iso.datetime({}).nullish().describe('When omitted the entitlement does not expire.'),
   "metadata": zod.object({
@@ -789,7 +789,7 @@ export const AdminControllerUpdateCatalogFeatureEntitlementResponse = zod.object
 
 })).describe('Per-capability state with disabled reasons.'),
   "features": zod.array(zod.object({
-  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko']),
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
   "enabled": zod.boolean(),
   "expiresAt": zod.iso.datetime({}).nullable(),
   "metadata": zod.object({
@@ -1562,7 +1562,7 @@ export const ProductControllerGetAllResponseItem = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -1780,7 +1780,7 @@ export const ProductControllerGetInfiniteCardsResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -1937,7 +1937,7 @@ export const ProductControllerGetInfiniteResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -2094,7 +2094,7 @@ export const ProductControllerGetRecommendationsInfiniteCardsResponse = zod.obje
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -2251,7 +2251,7 @@ export const ProductControllerGetRecommendationsInfiniteResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -2392,7 +2392,7 @@ export const ProductControllerGetPopularCardsResponseItem = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -2537,7 +2537,7 @@ export const ProductControllerGetUncategorizedInfiniteCardsResponse = zod.object
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -2683,7 +2683,7 @@ export const ProductControllerGetUncategorizedInfiniteResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -2823,7 +2823,7 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -2998,7 +2998,7 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -3109,7 +3109,7 @@ export const ProductControllerGetBySlugResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -3298,7 +3298,7 @@ export const ProductControllerGetByIdResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -3409,7 +3409,7 @@ export const ProductControllerGetByIdResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -3678,7 +3678,7 @@ export const ProductControllerUpdateResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -3789,7 +3789,7 @@ export const ProductControllerUpdateResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -4134,7 +4134,7 @@ export const ProductControllerApplyProductTypeChangeResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -4245,7 +4245,7 @@ export const ProductControllerApplyProductTypeChangeResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -4444,7 +4444,7 @@ export const ProductControllerUpdateCategoryPositionResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -4555,7 +4555,7 @@ export const ProductControllerUpdateCategoryPositionResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -4745,7 +4745,7 @@ export const ProductControllerToggleStatusResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -4856,7 +4856,7 @@ export const ProductControllerToggleStatusResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -5046,7 +5046,7 @@ export const ProductControllerTogglePopularResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -5157,7 +5157,7 @@ export const ProductControllerTogglePopularResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -5369,7 +5369,7 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -5480,7 +5480,7 @@ export const ProductControllerSetVariantsResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -5695,7 +5695,7 @@ export const ProductControllerSetVariantMatrixResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -5806,7 +5806,7 @@ export const ProductControllerSetVariantMatrixResponse = zod.object({
 }).nullable()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -6725,7 +6725,7 @@ export const CatalogAdvancedSettingsControllerDeleteYandexMetrikaResponse = zod.
  * @summary Get advanced settings MoySklad integration
  */
 export const CatalogAdvancedSettingsControllerGetMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -6803,7 +6803,7 @@ export const CatalogAdvancedSettingsControllerUpsertMoySkladBody = zod.object({
 })
 
 export const CatalogAdvancedSettingsControllerUpsertMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -6881,7 +6881,7 @@ export const CatalogAdvancedSettingsControllerUpdateMoySkladBody = zod.object({
 })
 
 export const CatalogAdvancedSettingsControllerUpdateMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -6947,7 +6947,7 @@ export const CatalogAdvancedSettingsControllerRemoveMoySkladResponse = zod.objec
 export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.object({
   "configured": zod.boolean(),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -6999,8 +6999,8 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
 }).nullable(),
   "activeRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -7082,8 +7082,8 @@ export const CatalogAdvancedSettingsControllerGetMoySkladStatusResponse = zod.ob
 }).nullable(),
   "lastRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -7175,8 +7175,8 @@ export const CatalogAdvancedSettingsControllerGetMoySkladRunsQueryParams = zod.o
 
 export const CatalogAdvancedSettingsControllerGetMoySkladRunsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -7328,7 +7328,7 @@ export const CatalogAdvancedSettingsControllerSyncMoySkladCatalogResponse = zod.
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -7345,7 +7345,7 @@ export const CatalogAdvancedSettingsControllerCancelMoySkladSyncResponse = zod.o
  * @summary Get advanced settings iiko integration
  */
 export const CatalogAdvancedSettingsControllerGetIikoResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -7419,7 +7419,7 @@ export const CatalogAdvancedSettingsControllerUpsertIikoBody = zod.object({
 })
 
 export const CatalogAdvancedSettingsControllerUpsertIikoResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -7493,7 +7493,7 @@ export const CatalogAdvancedSettingsControllerUpdateIikoBody = zod.object({
 })
 
 export const CatalogAdvancedSettingsControllerUpdateIikoResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -7559,7 +7559,7 @@ export const CatalogAdvancedSettingsControllerRemoveIikoResponse = zod.object({
 export const CatalogAdvancedSettingsControllerGetIikoStatusResponse = zod.object({
   "configured": zod.boolean(),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -7611,8 +7611,8 @@ export const CatalogAdvancedSettingsControllerGetIikoStatusResponse = zod.object
 }).nullable(),
   "activeRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -7694,8 +7694,8 @@ export const CatalogAdvancedSettingsControllerGetIikoStatusResponse = zod.object
 }).nullable(),
   "lastRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -7787,8 +7787,8 @@ export const CatalogAdvancedSettingsControllerGetIikoRunsQueryParams = zod.objec
 
 export const CatalogAdvancedSettingsControllerGetIikoRunsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -7881,7 +7881,7 @@ export const CatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryParams = 
 
 export const CatalogAdvancedSettingsControllerGetIikoWebhookEventsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "requestId": zod.string(),
   "eventType": zod.string(),
   "status": zod.enum(['PENDING', 'PROCESSING', 'PROCESSED', 'FAILED', 'SKIPPED']),
@@ -7907,7 +7907,7 @@ export const CatalogAdvancedSettingsControllerRetryIikoWebhookEventParams = zod.
 
 export const CatalogAdvancedSettingsControllerRetryIikoWebhookEventResponse = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "requestId": zod.string(),
   "eventType": zod.string(),
   "status": zod.enum(['PENDING', 'PROCESSING', 'PROCESSED', 'FAILED', 'SKIPPED']),
@@ -8048,7 +8048,7 @@ export const CatalogAdvancedSettingsControllerSyncIikoCatalogResponse = zod.obje
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -8061,7 +8061,7 @@ export const CatalogAdvancedSettingsControllerSyncIikoStockResponse = zod.object
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -8078,7 +8078,7 @@ export const CatalogAdvancedSettingsControllerSyncIikoProductResponse = zod.obje
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -8210,6 +8210,7 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the current catalog can use 1C integration.'),
   "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
   "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
   "definitions": zod.array(zod.object({
@@ -8498,6 +8499,7 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the current catalog can use 1C integration.'),
   "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
   "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
   "definitions": zod.array(zod.object({
@@ -8713,6 +8715,7 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the current catalog can use 1C integration.'),
   "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
   "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
   "definitions": zod.array(zod.object({
@@ -8886,6 +8889,7 @@ export const CatalogControllerGetCurrentFeaturesResponse = zod.object({
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the current catalog can use 1C integration.'),
   "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
   "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
   "definitions": zod.array(zod.object({
@@ -9395,7 +9399,7 @@ export const CatalogDomainControllerDisableResponse = zod.object({
  * @summary Получить настройки интеграции MoySklad
  */
 export const IntegrationControllerGetMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -9473,7 +9477,7 @@ export const IntegrationControllerUpsertMoySkladBody = zod.object({
 })
 
 export const IntegrationControllerUpsertMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -9551,7 +9555,7 @@ export const IntegrationControllerUpdateMoySkladBody = zod.object({
 })
 
 export const IntegrationControllerUpdateMoySkladResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -9617,7 +9621,7 @@ export const IntegrationControllerRemoveMoySkladResponse = zod.object({
 export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
   "configured": zod.boolean(),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -9669,8 +9673,8 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
 }).nullable(),
   "activeRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -9752,8 +9756,8 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
 }).nullable(),
   "lastRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -9840,7 +9844,7 @@ export const IntegrationControllerGetMoySkladStatusResponse = zod.object({
  * @summary Get iiko integration settings
  */
 export const IntegrationControllerGetIikoResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -9914,7 +9918,7 @@ export const IntegrationControllerUpsertIikoBody = zod.object({
 })
 
 export const IntegrationControllerUpsertIikoResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -9988,7 +9992,7 @@ export const IntegrationControllerUpdateIikoBody = zod.object({
 })
 
 export const IntegrationControllerUpdateIikoResponse = zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -10054,7 +10058,7 @@ export const IntegrationControllerRemoveIikoResponse = zod.object({
 export const IntegrationControllerGetIikoStatusResponse = zod.object({
   "configured": zod.boolean(),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "capabilities": zod.object({
   "productImport": zod.boolean(),
   "variantImport": zod.boolean(),
@@ -10106,8 +10110,8 @@ export const IntegrationControllerGetIikoStatusResponse = zod.object({
 }).nullable(),
   "activeRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -10189,8 +10193,8 @@ export const IntegrationControllerGetIikoStatusResponse = zod.object({
 }).nullable(),
   "lastRun": zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -10397,7 +10401,7 @@ export const IntegrationControllerSyncIikoCatalogResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -10410,7 +10414,7 @@ export const IntegrationControllerSyncIikoStockResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -10427,7 +10431,7 @@ export const IntegrationControllerSyncIikoProductResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -10468,8 +10472,8 @@ export const IntegrationControllerGetIikoRunsQueryParams = zod.object({
 
 export const IntegrationControllerGetIikoRunsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -10582,7 +10586,7 @@ export const IntegrationControllerGetIikoOrderExportsQueryParams = zod.object({
 
 export const IntegrationControllerGetIikoOrderExportsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "orderId": zod.string(),
   "idempotencyKey": zod.string(),
   "externalId": zod.string().nullable(),
@@ -10608,7 +10612,7 @@ export const IntegrationControllerGetIikoWebhookEventsQueryParams = zod.object({
 
 export const IntegrationControllerGetIikoWebhookEventsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "requestId": zod.string(),
   "eventType": zod.string(),
   "status": zod.enum(['PENDING', 'PROCESSING', 'PROCESSED', 'FAILED', 'SKIPPED']),
@@ -10634,7 +10638,7 @@ export const IntegrationControllerRetryIikoWebhookEventParams = zod.object({
 
 export const IntegrationControllerRetryIikoWebhookEventResponse = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "requestId": zod.string(),
   "eventType": zod.string(),
   "status": zod.enum(['PENDING', 'PROCESSING', 'PROCESSED', 'FAILED', 'SKIPPED']),
@@ -10659,8 +10663,8 @@ export const IntegrationControllerGetMoySkladRunsQueryParams = zod.object({
 
 export const IntegrationControllerGetMoySkladRunsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
   "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
   "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
@@ -10773,7 +10777,7 @@ export const IntegrationControllerGetMoySkladOrderExportsQueryParams = zod.objec
 
 export const IntegrationControllerGetMoySkladOrderExportsResponseItem = zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "orderId": zod.string(),
   "idempotencyKey": zod.string(),
   "externalId": zod.string().nullable(),
@@ -10957,7 +10961,7 @@ export const IntegrationControllerSyncMoySkladCatalogResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -10982,7 +10986,7 @@ export const IntegrationControllerSyncMoySkladProductResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -10995,7 +10999,7 @@ export const IntegrationControllerSyncMoySkladStockResponse = zod.object({
   "queued": zod.boolean(),
   "runId": zod.string(),
   "jobId": zod.string(),
-  "mode": zod.enum(['FULL', 'PRODUCT', 'STOCK']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
   "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
@@ -11092,7 +11096,7 @@ export const IntegrationControllerGetIikoOrderExportTimelineResponse = zod.objec
   "orderId": zod.string(),
   "items": zod.array(zod.object({
   "id": zod.string(),
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "exportId": zod.string(),
   "type": zod.string(),
   "status": zod.string(),
@@ -11103,6 +11107,1635 @@ export const IntegrationControllerGetIikoOrderExportTimelineResponse = zod.objec
   "attempts": zod.number(),
   "occurredAt": zod.iso.datetime({})
 }))
+})
+
+
+/**
+ * @summary Get ONE_C integration settings
+ */
+export const OneCIntegrationControllerGetOneCResponse = zod.object({
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
+  "isActive": zod.boolean(),
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']),
+  "authKind": zod.enum(['BASIC', 'BEARER', 'NONE']),
+  "baseUrl": zod.string(),
+  "username": zod.string().nullable(),
+  "hasPassword": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "timeoutMs": zod.number(),
+  "importProducts": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "productSyncEntityMappingId": zod.string().nullable(),
+  "productSyncLimit": zod.number(),
+  "productSyncFilter": zod.string().nullable(),
+  "variantSyncEntityMappingId": zod.string().nullable(),
+  "variantSyncLimit": zod.number(),
+  "variantSyncFilter": zod.string().nullable(),
+  "stockSyncEntityMappingId": zod.string().nullable(),
+  "stockSyncLimit": zod.number(),
+  "stockSyncFilter": zod.string().nullable(),
+  "priceSyncEntityMappingId": zod.string().nullable(),
+  "priceSyncLimit": zod.number(),
+  "priceSyncFilter": zod.string().nullable(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "stockScheduleEnabled": zod.boolean(),
+  "stockSchedulePattern": zod.string().nullable(),
+  "stockScheduleTimezone": zod.string(),
+  "priceScheduleEnabled": zod.boolean(),
+  "priceSchedulePattern": zod.string().nullable(),
+  "priceScheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Create or replace ONE_C integration settings
+ */
+export const OneCIntegrationControllerUpsertOneCBody = zod.object({
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']),
+  "authKind": zod.enum(['BASIC', 'BEARER', 'NONE']),
+  "baseUrl": zod.string(),
+  "username": zod.string().nullish(),
+  "password": zod.string().nullish(),
+  "token": zod.string().nullish(),
+  "timeoutMs": zod.number().optional(),
+  "isActive": zod.boolean().optional(),
+  "importProducts": zod.boolean().optional(),
+  "syncStock": zod.boolean().optional(),
+  "exportOrders": zod.boolean().optional(),
+  "productSyncEntityMappingId": zod.string().nullish(),
+  "productSyncLimit": zod.number().optional(),
+  "productSyncFilter": zod.string().nullish(),
+  "variantSyncEntityMappingId": zod.string().nullish(),
+  "variantSyncLimit": zod.number().optional(),
+  "variantSyncFilter": zod.string().nullish(),
+  "stockSyncEntityMappingId": zod.string().nullish(),
+  "stockSyncLimit": zod.number().optional(),
+  "stockSyncFilter": zod.string().nullish(),
+  "priceSyncEntityMappingId": zod.string().nullish(),
+  "priceSyncLimit": zod.number().optional(),
+  "priceSyncFilter": zod.string().nullish(),
+  "scheduleEnabled": zod.boolean().optional(),
+  "schedulePattern": zod.string().nullish(),
+  "scheduleTimezone": zod.string().nullish(),
+  "stockScheduleEnabled": zod.boolean().optional(),
+  "stockSchedulePattern": zod.string().nullish(),
+  "stockScheduleTimezone": zod.string().nullish(),
+  "priceScheduleEnabled": zod.boolean().optional(),
+  "priceSchedulePattern": zod.string().nullish(),
+  "priceScheduleTimezone": zod.string().nullish()
+})
+
+export const OneCIntegrationControllerUpsertOneCResponse = zod.object({
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
+  "isActive": zod.boolean(),
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']),
+  "authKind": zod.enum(['BASIC', 'BEARER', 'NONE']),
+  "baseUrl": zod.string(),
+  "username": zod.string().nullable(),
+  "hasPassword": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "timeoutMs": zod.number(),
+  "importProducts": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "productSyncEntityMappingId": zod.string().nullable(),
+  "productSyncLimit": zod.number(),
+  "productSyncFilter": zod.string().nullable(),
+  "variantSyncEntityMappingId": zod.string().nullable(),
+  "variantSyncLimit": zod.number(),
+  "variantSyncFilter": zod.string().nullable(),
+  "stockSyncEntityMappingId": zod.string().nullable(),
+  "stockSyncLimit": zod.number(),
+  "stockSyncFilter": zod.string().nullable(),
+  "priceSyncEntityMappingId": zod.string().nullable(),
+  "priceSyncLimit": zod.number(),
+  "priceSyncFilter": zod.string().nullable(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "stockScheduleEnabled": zod.boolean(),
+  "stockSchedulePattern": zod.string().nullable(),
+  "stockScheduleTimezone": zod.string(),
+  "priceScheduleEnabled": zod.boolean(),
+  "priceSchedulePattern": zod.string().nullable(),
+  "priceScheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update ONE_C integration settings
+ */
+export const OneCIntegrationControllerUpdateOneCBody = zod.object({
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']).optional(),
+  "authKind": zod.enum(['BASIC', 'BEARER', 'NONE']).optional(),
+  "baseUrl": zod.string().optional(),
+  "username": zod.string().nullish(),
+  "password": zod.string().nullish(),
+  "token": zod.string().nullish(),
+  "timeoutMs": zod.number().optional(),
+  "isActive": zod.boolean().optional(),
+  "importProducts": zod.boolean().optional(),
+  "syncStock": zod.boolean().optional(),
+  "exportOrders": zod.boolean().optional(),
+  "productSyncEntityMappingId": zod.string().nullish(),
+  "productSyncLimit": zod.number().optional(),
+  "productSyncFilter": zod.string().nullish(),
+  "variantSyncEntityMappingId": zod.string().nullish(),
+  "variantSyncLimit": zod.number().optional(),
+  "variantSyncFilter": zod.string().nullish(),
+  "stockSyncEntityMappingId": zod.string().nullish(),
+  "stockSyncLimit": zod.number().optional(),
+  "stockSyncFilter": zod.string().nullish(),
+  "priceSyncEntityMappingId": zod.string().nullish(),
+  "priceSyncLimit": zod.number().optional(),
+  "priceSyncFilter": zod.string().nullish(),
+  "scheduleEnabled": zod.boolean().optional(),
+  "schedulePattern": zod.string().nullish(),
+  "scheduleTimezone": zod.string().nullish(),
+  "stockScheduleEnabled": zod.boolean().optional(),
+  "stockSchedulePattern": zod.string().nullish(),
+  "stockScheduleTimezone": zod.string().nullish(),
+  "priceScheduleEnabled": zod.boolean().optional(),
+  "priceSchedulePattern": zod.string().nullish(),
+  "priceScheduleTimezone": zod.string().nullish()
+})
+
+export const OneCIntegrationControllerUpdateOneCResponse = zod.object({
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
+  "isActive": zod.boolean(),
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']),
+  "authKind": zod.enum(['BASIC', 'BEARER', 'NONE']),
+  "baseUrl": zod.string(),
+  "username": zod.string().nullable(),
+  "hasPassword": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "timeoutMs": zod.number(),
+  "importProducts": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "productSyncEntityMappingId": zod.string().nullable(),
+  "productSyncLimit": zod.number(),
+  "productSyncFilter": zod.string().nullable(),
+  "variantSyncEntityMappingId": zod.string().nullable(),
+  "variantSyncLimit": zod.number(),
+  "variantSyncFilter": zod.string().nullable(),
+  "stockSyncEntityMappingId": zod.string().nullable(),
+  "stockSyncLimit": zod.number(),
+  "stockSyncFilter": zod.string().nullable(),
+  "priceSyncEntityMappingId": zod.string().nullable(),
+  "priceSyncLimit": zod.number(),
+  "priceSyncFilter": zod.string().nullable(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "stockScheduleEnabled": zod.boolean(),
+  "stockSchedulePattern": zod.string().nullable(),
+  "stockScheduleTimezone": zod.string(),
+  "priceScheduleEnabled": zod.boolean(),
+  "priceSchedulePattern": zod.string().nullable(),
+  "priceScheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Remove ONE_C integration settings
+ */
+export const OneCIntegrationControllerRemoveOneCResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Get ONE_C integration status
+ */
+export const OneCIntegrationControllerGetOneCStatusResponse = zod.object({
+  "configured": zod.boolean(),
+  "integration": zod.object({
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "capabilities": zod.object({
+  "productImport": zod.boolean(),
+  "variantImport": zod.boolean(),
+  "stockImport": zod.boolean(),
+  "imageImport": zod.boolean(),
+  "orderExport": zod.boolean(),
+  "reservation": zod.boolean(),
+  "webhook": zod.boolean()
+}),
+  "isActive": zod.boolean(),
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']),
+  "authKind": zod.enum(['BASIC', 'BEARER', 'NONE']),
+  "baseUrl": zod.string(),
+  "username": zod.string().nullable(),
+  "hasPassword": zod.boolean(),
+  "hasToken": zod.boolean(),
+  "tokenPreview": zod.string().nullable(),
+  "timeoutMs": zod.number(),
+  "importProducts": zod.boolean(),
+  "syncStock": zod.boolean(),
+  "exportOrders": zod.boolean(),
+  "productSyncEntityMappingId": zod.string().nullable(),
+  "productSyncLimit": zod.number(),
+  "productSyncFilter": zod.string().nullable(),
+  "variantSyncEntityMappingId": zod.string().nullable(),
+  "variantSyncLimit": zod.number(),
+  "variantSyncFilter": zod.string().nullable(),
+  "stockSyncEntityMappingId": zod.string().nullable(),
+  "stockSyncLimit": zod.number(),
+  "stockSyncFilter": zod.string().nullable(),
+  "priceSyncEntityMappingId": zod.string().nullable(),
+  "priceSyncLimit": zod.number(),
+  "priceSyncFilter": zod.string().nullable(),
+  "scheduleEnabled": zod.boolean(),
+  "schedulePattern": zod.string().nullable(),
+  "scheduleTimezone": zod.string(),
+  "stockScheduleEnabled": zod.boolean(),
+  "stockSchedulePattern": zod.string().nullable(),
+  "stockScheduleTimezone": zod.string(),
+  "priceScheduleEnabled": zod.boolean(),
+  "priceSchedulePattern": zod.string().nullable(),
+  "priceScheduleTimezone": zod.string(),
+  "lastSyncStatus": zod.enum(['IDLE', 'SYNCING', 'SUCCESS', 'ERROR']),
+  "syncStartedAt": zod.iso.datetime({}).nullable(),
+  "lastSyncAt": zod.iso.datetime({}).nullable(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "lastSyncError": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "activeRun": zod.object({
+  "id": zod.string(),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
+  "jobId": zod.string().nullable(),
+  "productId": zod.string().nullable(),
+  "externalId": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "imagesImported": zod.number(),
+  "skippedProducts": zod.number(),
+  "failedProducts": zod.number(),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "durationMs": zod.number().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "lastRun": zod.object({
+  "id": zod.string(),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
+  "jobId": zod.string().nullable(),
+  "productId": zod.string().nullable(),
+  "externalId": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "imagesImported": zod.number(),
+  "skippedProducts": zod.number(),
+  "failedProducts": zod.number(),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "durationMs": zod.number().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable()
+})
+
+
+/**
+ * @summary Get ONE_C sync history
+ */
+export const OneCIntegrationControllerGetOneCRunsQueryParams = zod.object({
+  "limit": zod.number().optional().describe('How many recent sync runs to return')
+})
+
+export const OneCIntegrationControllerGetOneCRunsResponseItem = zod.object({
+  "id": zod.string(),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK']),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "snapshotCompleteness": zod.enum(['FULL_COMPLETE', 'PARTIAL', 'WEBHOOK_DELTA', 'FAILED_BEFORE_SNAPSHOT']),
+  "jobId": zod.string().nullable(),
+  "productId": zod.string().nullable(),
+  "externalId": zod.string().nullable(),
+  "error": zod.string().nullable(),
+  "totalProducts": zod.number(),
+  "createdProducts": zod.number(),
+  "updatedProducts": zod.number(),
+  "deletedProducts": zod.number(),
+  "imagesImported": zod.number(),
+  "skippedProducts": zod.number(),
+  "failedProducts": zod.number(),
+  "progress": zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+}).nullable(),
+  "durationMs": zod.number().nullable(),
+  "requestedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const OneCIntegrationControllerGetOneCRunsResponse = zod.array(OneCIntegrationControllerGetOneCRunsResponseItem)
+
+
+/**
+ * @summary Get ONE_C sync progress
+ */
+export const OneCIntegrationControllerGetOneCRunProgressParams = zod.object({
+  "runId": zod.string()
+})
+
+export const OneCIntegrationControllerGetOneCRunProgressResponse = zod.object({
+  "runId": zod.string(),
+  "status": zod.enum(['PENDING', 'RUNNING', 'SUCCESS', 'ERROR', 'SKIPPED']),
+  "phase": zod.string(),
+  "message": zod.string(),
+  "processed": zod.number(),
+  "total": zod.number().nullable(),
+  "percent": zod.number().nullable(),
+  "updatedAt": zod.iso.datetime({}),
+  "startedAt": zod.iso.datetime({}).nullable(),
+  "finishedAt": zod.iso.datetime({}).nullable()
+})
+
+
+/**
+ * @summary Get recommended ONE_C PRODUCT mapping
+ */
+export const OneCIntegrationControllerGetOneCRecommendedProductMappingResponse = zod.object({
+  "ok": zod.boolean(),
+  "ready": zod.boolean(),
+  "mappingId": zod.string().nullable(),
+  "mapping": zod.object({
+  "id": zod.string(),
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectId": zod.string().nullable(),
+  "externalObjectCode": zod.string(),
+  "identityField": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "conflictPolicy": zod.string().nullable(),
+  "filters": zod.object({
+
+}).nullable(),
+  "options": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "externalObject": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "fieldMappings": zod.array(zod.object({
+  "id": zod.string(),
+  "entityMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "transform": zod.object({
+
+}).nullable(),
+  "defaultValue": zod.object({
+
+}).nullable(),
+  "isRequired": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "reason": zod.string().nullable()
+})
+
+
+/**
+ * @summary Get recommended ONE_C PRODUCT_VARIANT mapping
+ */
+export const OneCIntegrationControllerGetOneCRecommendedVariantMappingResponse = zod.object({
+  "ok": zod.boolean(),
+  "ready": zod.boolean(),
+  "mappingId": zod.string().nullable(),
+  "mapping": zod.object({
+  "id": zod.string(),
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectId": zod.string().nullable(),
+  "externalObjectCode": zod.string(),
+  "identityField": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "conflictPolicy": zod.string().nullable(),
+  "filters": zod.object({
+
+}).nullable(),
+  "options": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "externalObject": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "fieldMappings": zod.array(zod.object({
+  "id": zod.string(),
+  "entityMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "transform": zod.object({
+
+}).nullable(),
+  "defaultValue": zod.object({
+
+}).nullable(),
+  "isRequired": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "reason": zod.string().nullable()
+})
+
+
+/**
+ * @summary Test ONE_C API connection
+ */
+export const OneCIntegrationControllerTestOneCConnectionBody = zod.object({
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']).optional(),
+  "authKind": zod.enum(['BASIC', 'BEARER', 'NONE']).optional(),
+  "baseUrl": zod.string().optional(),
+  "username": zod.string().nullish(),
+  "password": zod.string().nullish(),
+  "token": zod.string().nullish(),
+  "timeoutMs": zod.number().optional(),
+  "isActive": zod.boolean().optional(),
+  "importProducts": zod.boolean().optional(),
+  "syncStock": zod.boolean().optional(),
+  "exportOrders": zod.boolean().optional(),
+  "productSyncEntityMappingId": zod.string().nullish(),
+  "productSyncLimit": zod.number().optional(),
+  "productSyncFilter": zod.string().nullish(),
+  "variantSyncEntityMappingId": zod.string().nullish(),
+  "variantSyncLimit": zod.number().optional(),
+  "variantSyncFilter": zod.string().nullish(),
+  "stockSyncEntityMappingId": zod.string().nullish(),
+  "stockSyncLimit": zod.number().optional(),
+  "stockSyncFilter": zod.string().nullish(),
+  "priceSyncEntityMappingId": zod.string().nullish(),
+  "priceSyncLimit": zod.number().optional(),
+  "priceSyncFilter": zod.string().nullish(),
+  "scheduleEnabled": zod.boolean().optional(),
+  "schedulePattern": zod.string().nullish(),
+  "scheduleTimezone": zod.string().nullish(),
+  "stockScheduleEnabled": zod.boolean().optional(),
+  "stockSchedulePattern": zod.string().nullish(),
+  "stockScheduleTimezone": zod.string().nullish(),
+  "priceScheduleEnabled": zod.boolean().optional(),
+  "priceSchedulePattern": zod.string().nullish(),
+  "priceScheduleTimezone": zod.string().nullish()
+})
+
+export const OneCIntegrationControllerTestOneCConnectionResponse = zod.object({
+  "ok": zod.boolean(),
+  "apiKind": zod.enum(['ODATA', 'HTTP_SERVICE', 'CUSTOM']),
+  "baseUrl": zod.string(),
+  "status": zod.number().nullable(),
+  "objectsDiscovered": zod.number()
+})
+
+
+/**
+ * @summary Discover ONE_C OData objects and fields
+ */
+export const OneCIntegrationControllerDiscoverOneCObjectsBody = zod.object({
+  "persist": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerDiscoverOneCObjectsResponse = zod.object({
+  "ok": zod.boolean(),
+  "total": zod.number(),
+  "persisted": zod.boolean(),
+  "objects": zod.array(zod.object({
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "fields": zod.array(zod.object({
+  "code": zod.string(),
+  "name": zod.string(),
+  "dataType": zod.string().nullable(),
+  "nullable": zod.boolean().nullable(),
+  "kind": zod.enum(['property', 'navigation'])
+}))
+}))
+})
+
+
+/**
+ * @summary List configured ONE_C external objects
+ */
+export const OneCIntegrationControllerListOneCObjectsResponseItem = zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const OneCIntegrationControllerListOneCObjectsResponse = zod.array(OneCIntegrationControllerListOneCObjectsResponseItem)
+
+
+/**
+ * @summary Create or update ONE_C external object
+ */
+export const OneCIntegrationControllerCreateOneCObjectBody = zod.object({
+  "code": zod.string(),
+  "name": zod.string().optional(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']).optional(),
+  "endpoint": zod.string().nullish(),
+  "method": zod.string().nullish(),
+  "schema": zod.object({
+
+}).nullish(),
+  "sample": zod.object({
+
+}).nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerCreateOneCObjectResponse = zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update ONE_C external object
+ */
+export const OneCIntegrationControllerUpdateOneCObjectParams = zod.object({
+  "id": zod.string()
+})
+
+export const OneCIntegrationControllerUpdateOneCObjectBody = zod.object({
+  "code": zod.string().optional(),
+  "name": zod.string().optional(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']).optional(),
+  "endpoint": zod.string().nullish(),
+  "method": zod.string().nullish(),
+  "schema": zod.object({
+
+}).nullish(),
+  "sample": zod.object({
+
+}).nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerUpdateOneCObjectResponse = zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Delete ONE_C external object
+ */
+export const OneCIntegrationControllerDeleteOneCObjectParams = zod.object({
+  "id": zod.string()
+})
+
+export const OneCIntegrationControllerDeleteOneCObjectResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary List ONE_C entity mappings
+ */
+export const OneCIntegrationControllerListOneCEntityMappingsResponseItem = zod.object({
+  "id": zod.string(),
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectId": zod.string().nullable(),
+  "externalObjectCode": zod.string(),
+  "identityField": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "conflictPolicy": zod.string().nullable(),
+  "filters": zod.object({
+
+}).nullable(),
+  "options": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "externalObject": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "fieldMappings": zod.array(zod.object({
+  "id": zod.string(),
+  "entityMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "transform": zod.object({
+
+}).nullable(),
+  "defaultValue": zod.object({
+
+}).nullable(),
+  "isRequired": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+export const OneCIntegrationControllerListOneCEntityMappingsResponse = zod.array(OneCIntegrationControllerListOneCEntityMappingsResponseItem)
+
+
+/**
+ * @summary Create ONE_C entity mapping
+ */
+export const OneCIntegrationControllerCreateOneCEntityMappingBody = zod.object({
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectId": zod.string().nullish(),
+  "externalObjectCode": zod.string(),
+  "identityField": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']).optional(),
+  "conflictPolicy": zod.string().nullish(),
+  "filters": zod.object({
+
+}).nullish(),
+  "options": zod.object({
+
+}).nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerCreateOneCEntityMappingResponse = zod.object({
+  "id": zod.string(),
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectId": zod.string().nullable(),
+  "externalObjectCode": zod.string(),
+  "identityField": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "conflictPolicy": zod.string().nullable(),
+  "filters": zod.object({
+
+}).nullable(),
+  "options": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "externalObject": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "fieldMappings": zod.array(zod.object({
+  "id": zod.string(),
+  "entityMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "transform": zod.object({
+
+}).nullable(),
+  "defaultValue": zod.object({
+
+}).nullable(),
+  "isRequired": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update ONE_C entity mapping
+ */
+export const OneCIntegrationControllerUpdateOneCEntityMappingParams = zod.object({
+  "id": zod.string()
+})
+
+export const OneCIntegrationControllerUpdateOneCEntityMappingBody = zod.object({
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']).optional(),
+  "externalObjectId": zod.string().nullish(),
+  "externalObjectCode": zod.string().optional(),
+  "identityField": zod.string().optional(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']).optional(),
+  "conflictPolicy": zod.string().nullish(),
+  "filters": zod.object({
+
+}).nullish(),
+  "options": zod.object({
+
+}).nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerUpdateOneCEntityMappingResponse = zod.object({
+  "id": zod.string(),
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectId": zod.string().nullable(),
+  "externalObjectCode": zod.string(),
+  "identityField": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "conflictPolicy": zod.string().nullable(),
+  "filters": zod.object({
+
+}).nullable(),
+  "options": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "externalObject": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "kind": zod.enum(['ODATA_ENTITY', 'HTTP_ENDPOINT', 'CATALOG', 'DOCUMENT', 'REGISTER', 'CUSTOM']),
+  "endpoint": zod.string().nullable(),
+  "method": zod.string().nullable(),
+  "schema": zod.object({
+
+}).nullable(),
+  "sample": zod.object({
+
+}).nullable(),
+  "isActive": zod.boolean(),
+  "lastDiscoveredAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "fieldMappings": zod.array(zod.object({
+  "id": zod.string(),
+  "entityMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "transform": zod.object({
+
+}).nullable(),
+  "defaultValue": zod.object({
+
+}).nullable(),
+  "isRequired": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Delete ONE_C entity mapping
+ */
+export const OneCIntegrationControllerDeleteOneCEntityMappingParams = zod.object({
+  "id": zod.string()
+})
+
+export const OneCIntegrationControllerDeleteOneCEntityMappingResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Create ONE_C field mapping
+ */
+export const OneCIntegrationControllerCreateOneCFieldMappingParams = zod.object({
+  "id": zod.string()
+})
+
+export const OneCIntegrationControllerCreateOneCFieldMappingBody = zod.object({
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']).optional(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']).optional(),
+  "transform": zod.object({
+
+}).nullish(),
+  "defaultValue": zod.object({
+
+}).nullish(),
+  "isRequired": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const OneCIntegrationControllerCreateOneCFieldMappingResponse = zod.object({
+  "id": zod.string(),
+  "entityMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "transform": zod.object({
+
+}).nullable(),
+  "defaultValue": zod.object({
+
+}).nullable(),
+  "isRequired": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Update ONE_C field mapping
+ */
+export const OneCIntegrationControllerUpdateOneCFieldMappingParams = zod.object({
+  "id": zod.string()
+})
+
+export const OneCIntegrationControllerUpdateOneCFieldMappingBody = zod.object({
+  "localPath": zod.string().optional(),
+  "externalPath": zod.string().optional(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']).optional(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']).optional(),
+  "transform": zod.object({
+
+}).nullish(),
+  "defaultValue": zod.object({
+
+}).nullish(),
+  "isRequired": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const OneCIntegrationControllerUpdateOneCFieldMappingResponse = zod.object({
+  "id": zod.string(),
+  "entityMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "direction": zod.enum(['IMPORT', 'EXPORT', 'IMPORT_EXPORT']),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "transform": zod.object({
+
+}).nullable(),
+  "defaultValue": zod.object({
+
+}).nullable(),
+  "isRequired": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+
+
+/**
+ * @summary Delete ONE_C field mapping
+ */
+export const OneCIntegrationControllerDeleteOneCFieldMappingParams = zod.object({
+  "id": zod.string()
+})
+
+export const OneCIntegrationControllerDeleteOneCFieldMappingResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Preview ONE_C field mapping against a sample payload
+ */
+export const OneCIntegrationControllerPreviewOneCMappingBody = zod.object({
+  "entityMappingId": zod.string(),
+  "externalPayload": zod.object({
+
+})
+})
+
+export const OneCIntegrationControllerPreviewOneCMappingResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectCode": zod.string(),
+  "items": zod.array(zod.object({
+  "fieldMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "externalValue": zod.object({
+
+}).nullable(),
+  "mappedValue": zod.object({
+
+}).nullable(),
+  "missing": zod.boolean(),
+  "error": zod.string().nullable()
+})),
+  "errors": zod.array(zod.string()),
+  "result": zod.object({
+
+}).optional()
+})
+
+
+/**
+ * @summary Fetch ONE_C rows and preview field mapping without writing locally
+ */
+export const OneCIntegrationControllerPreviewOneCRemoteMappingBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerPreviewOneCRemoteMappingResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "localEntity": zod.enum(['PRODUCT', 'PRODUCT_VARIANT', 'CATEGORY', 'ORDER', 'STOCK', 'PRICE', 'WAREHOUSE', 'CUSTOMER']),
+  "externalObjectCode": zod.string(),
+  "totalFetched": zod.number(),
+  "totalWithErrors": zod.number(),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "items": zod.array(zod.object({
+  "fieldMappingId": zod.string(),
+  "localPath": zod.string(),
+  "externalPath": zod.string(),
+  "dataType": zod.enum(['STRING', 'INTEGER', 'DECIMAL', 'BOOLEAN', 'DATETIME', 'JSON', 'REFERENCE']),
+  "externalValue": zod.object({
+
+}).nullable(),
+  "mappedValue": zod.object({
+
+}).nullable(),
+  "missing": zod.boolean(),
+  "error": zod.string().nullable()
+})),
+  "errors": zod.array(zod.string()),
+  "result": zod.object({
+
+}),
+  "raw": zod.object({
+
+}).nullish()
+}))
+})
+
+
+/**
+ * @summary Build ONE_C product import dry-run plan without writing locally
+ */
+export const OneCIntegrationControllerPreviewOneCProductImportBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerPreviewOneCProductImportResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "totalFetched": zod.number(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "create": zod.number(),
+  "update": zod.number(),
+  "skip": zod.number(),
+  "error": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "action": zod.enum(['CREATE', 'UPDATE', 'SKIP', 'ERROR']),
+  "matchBy": zod.enum(['externalId', 'sku', 'none']),
+  "productId": zod.string().nullable(),
+  "productName": zod.string().nullable(),
+  "productSku": zod.string().nullable(),
+  "mapped": zod.object({
+
+}),
+  "changes": zod.array(zod.object({
+  "field": zod.string(),
+  "currentValue": zod.object({
+
+}).nullable(),
+  "nextValue": zod.object({
+
+}).nullable()
+})),
+  "errors": zod.array(zod.string()),
+  "raw": zod.object({
+
+}).nullish()
+}))
+})
+
+
+/**
+ * @summary Import ONE_C products using configured field mapping
+ */
+export const OneCIntegrationControllerImportOneCProductsBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerImportOneCProductsResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "skipped": zod.number(),
+  "failed": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "status": zod.enum(['CREATED', 'UPDATED', 'SKIPPED', 'FAILED']),
+  "productId": zod.string().nullable(),
+  "errors": zod.array(zod.string())
+}))
+})
+
+
+/**
+ * @summary Build ONE_C product variant import dry-run plan without writing locally
+ */
+export const OneCIntegrationControllerPreviewOneCVariantImportBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerPreviewOneCVariantImportResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "totalFetched": zod.number(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "create": zod.number(),
+  "update": zod.number(),
+  "skip": zod.number(),
+  "error": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "action": zod.enum(['CREATE', 'UPDATE', 'SKIP', 'ERROR']),
+  "matchBy": zod.enum(['externalId', 'sku', 'variantKey', 'none']),
+  "productId": zod.string().nullable(),
+  "productName": zod.string().nullable(),
+  "productSku": zod.string().nullable(),
+  "variantId": zod.string().nullable(),
+  "variantSku": zod.string().nullable(),
+  "variantKey": zod.string().nullable(),
+  "mapped": zod.object({
+
+}),
+  "changes": zod.array(zod.object({
+  "field": zod.string(),
+  "currentValue": zod.object({
+
+}).nullable(),
+  "nextValue": zod.object({
+
+}).nullable()
+})),
+  "errors": zod.array(zod.string()),
+  "raw": zod.object({
+
+}).nullish()
+}))
+})
+
+
+/**
+ * @summary Import ONE_C product variants using configured field mapping
+ */
+export const OneCIntegrationControllerImportOneCVariantsBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerImportOneCVariantsResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "created": zod.number(),
+  "updated": zod.number(),
+  "skipped": zod.number(),
+  "failed": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "status": zod.enum(['CREATED', 'UPDATED', 'SKIPPED', 'FAILED']),
+  "productId": zod.string().nullable(),
+  "variantId": zod.string().nullable(),
+  "errors": zod.array(zod.string())
+}))
+})
+
+
+/**
+ * @summary Build ONE_C stock sync dry-run plan without writing locally
+ */
+export const OneCIntegrationControllerPreviewOneCStockSyncBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerPreviewOneCStockSyncResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "totalFetched": zod.number(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "update": zod.number(),
+  "skip": zod.number(),
+  "error": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "action": zod.enum(['UPDATE', 'SKIP', 'ERROR']),
+  "targetKind": zod.enum(['product', 'variant']).nullable(),
+  "matchBy": zod.enum(['externalId', 'id', 'sku', 'none']),
+  "productId": zod.string().nullable(),
+  "productName": zod.string().nullable(),
+  "productSku": zod.string().nullable(),
+  "variantId": zod.string().nullable(),
+  "variantSku": zod.string().nullable(),
+  "variantKey": zod.string().nullable(),
+  "mapped": zod.object({
+
+}),
+  "currentValue": zod.object({
+
+}).nullable(),
+  "nextValue": zod.object({
+
+}).nullable(),
+  "errors": zod.array(zod.string()),
+  "raw": zod.object({
+
+}).nullish()
+}))
+})
+
+
+/**
+ * @summary Apply ONE_C stock rows using configured field mapping
+ */
+export const OneCIntegrationControllerApplyOneCStockSyncBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerApplyOneCStockSyncResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "updated": zod.number(),
+  "skipped": zod.number(),
+  "failed": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "status": zod.enum(['UPDATED', 'SKIPPED', 'FAILED']),
+  "targetKind": zod.enum(['product', 'variant']).nullable(),
+  "productId": zod.string().nullable(),
+  "variantId": zod.string().nullable(),
+  "previousValue": zod.object({
+
+}).nullable(),
+  "nextValue": zod.object({
+
+}).nullable(),
+  "errors": zod.array(zod.string())
+}))
+})
+
+
+/**
+ * @summary Build ONE_C price sync dry-run plan without writing locally
+ */
+export const OneCIntegrationControllerPreviewOneCPriceSyncBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerPreviewOneCPriceSyncResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "totalFetched": zod.number(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "update": zod.number(),
+  "skip": zod.number(),
+  "error": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "action": zod.enum(['UPDATE', 'SKIP', 'ERROR']),
+  "targetKind": zod.enum(['product', 'variant']).nullable(),
+  "matchBy": zod.enum(['externalId', 'id', 'sku', 'none']),
+  "productId": zod.string().nullable(),
+  "productName": zod.string().nullable(),
+  "productSku": zod.string().nullable(),
+  "variantId": zod.string().nullable(),
+  "variantSku": zod.string().nullable(),
+  "variantKey": zod.string().nullable(),
+  "mapped": zod.object({
+
+}),
+  "currentValue": zod.object({
+
+}).nullable(),
+  "nextValue": zod.object({
+
+}).nullable(),
+  "errors": zod.array(zod.string()),
+  "raw": zod.object({
+
+}).nullish()
+}))
+})
+
+
+/**
+ * @summary Apply ONE_C price rows using configured field mapping
+ */
+export const OneCIntegrationControllerApplyOneCPriceSyncBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerApplyOneCPriceSyncResponse = zod.object({
+  "ok": zod.boolean(),
+  "entityMappingId": zod.string(),
+  "externalObjectCode": zod.string(),
+  "counters": zod.object({
+  "total": zod.number(),
+  "updated": zod.number(),
+  "skipped": zod.number(),
+  "failed": zod.number()
+}),
+  "rows": zod.array(zod.object({
+  "index": zod.number(),
+  "externalIdentity": zod.string().nullable(),
+  "status": zod.enum(['UPDATED', 'SKIPPED', 'FAILED']),
+  "targetKind": zod.enum(['product', 'variant']).nullable(),
+  "productId": zod.string().nullable(),
+  "variantId": zod.string().nullable(),
+  "previousValue": zod.object({
+
+}).nullable(),
+  "nextValue": zod.object({
+
+}).nullable(),
+  "errors": zod.array(zod.string())
+}))
+})
+
+
+/**
+ * @summary Queue managed ONE_C product sync and record sync history
+ */
+export const OneCIntegrationControllerSyncOneCProductsBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerSyncOneCProductsResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "runId": zod.string(),
+  "jobId": zod.string(),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
+})
+
+
+/**
+ * @summary Queue managed ONE_C product variant sync and record sync history
+ */
+export const OneCIntegrationControllerSyncOneCVariantsBody = zod.object({
+  "entityMappingId": zod.string(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerSyncOneCVariantsResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "runId": zod.string(),
+  "jobId": zod.string(),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
+})
+
+
+/**
+ * @summary Queue managed ONE_C stock sync and record sync history
+ */
+export const OneCIntegrationControllerSyncOneCStockBody = zod.object({
+  "entityMappingId": zod.string().nullish(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerSyncOneCStockResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "runId": zod.string(),
+  "jobId": zod.string(),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
+})
+
+
+/**
+ * @summary Queue managed ONE_C price sync and record sync history
+ */
+export const OneCIntegrationControllerSyncOneCPricesBody = zod.object({
+  "entityMappingId": zod.string().nullish(),
+  "limit": zod.number().optional(),
+  "filter": zod.string().nullish(),
+  "includeRaw": zod.boolean().optional(),
+  "failOnRowError": zod.boolean().optional()
+})
+
+export const OneCIntegrationControllerSyncOneCPricesResponse = zod.object({
+  "ok": zod.boolean(),
+  "queued": zod.boolean(),
+  "runId": zod.string(),
+  "jobId": zod.string(),
+  "mode": zod.enum(['FULL', 'PRODUCT', 'VARIANT', 'STOCK', 'PRICE']),
+  "trigger": zod.enum(['MANUAL', 'SCHEDULED', 'WEBHOOK'])
 })
 
 
@@ -11539,7 +13172,7 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -11698,7 +13331,7 @@ export const CategoryControllerGetProductCardsByCategoryResponse = zod.object({
   "position": zod.number()
 })),
   "integration": zod.object({
-  "provider": zod.enum(['MOYSKLAD', 'IIKO']),
+  "provider": zod.enum(['MOYSKLAD', 'IIKO', 'ONE_C']),
   "externalId": zod.string(),
   "externalCode": zod.string().nullable(),
   "lastSyncedAt": zod.iso.datetime({}).nullable()
@@ -12112,6 +13745,8 @@ export const CartControllerGetCurrentResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12163,6 +13798,23 @@ export const CartControllerGetCurrentResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -12219,6 +13871,8 @@ export const CartControllerShareCurrentResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12270,6 +13924,23 @@ export const CartControllerShareCurrentResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -12319,6 +13990,8 @@ export const CartControllerSubmitCurrentHallOrderResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullable(),
+  "guestSessionId": zod.string().nullable(),
+  "guestName": zod.string().nullable(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "unitPrice": zod.number(),
@@ -12386,17 +14059,35 @@ export const CartControllerGetHallTableLinkResponse = zod.object({
 
 
 /**
- * @summary Upsert an item in the current cart
+ * @summary List iiko hall tables with active cart sessions
  */
-export const CartControllerUpsertCurrentItemBody = zod.object({
-  "productId": zod.uuid(),
-  "variantId": zod.uuid().optional(),
-  "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
-  "quantity": zod.number().describe('0 = удалить позицию из корзины')
-})
-
-export const CartControllerUpsertCurrentItemResponse = zod.object({
+export const CartControllerListHallTablesResponse = zod.object({
   "ok": zod.boolean(),
+  "tables": zod.array(zod.object({
+  "code": zod.string(),
+  "tableName": zod.string().nullable(),
+  "tableNumber": zod.string().nullable(),
+  "sectionId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "tableExternalId": zod.string(),
+  "publicKey": zod.string().nullable(),
+  "session": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "cart": zod.object({
   "id": zod.uuid(),
   "catalogId": zod.uuid(),
@@ -12422,6 +14113,8 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12473,6 +14166,309 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "hasItems": zod.boolean(),
+  "needsConfirmation": zod.boolean(),
+  "itemsCount": zod.number(),
+  "total": zod.number(),
+  "updatedAt": zod.iso.datetime({}).nullable()
+}))
+})
+
+
+/**
+ * @summary Create or return a shared cart session for a hall table
+ */
+export const CartControllerJoinHallTableSessionParams = zod.object({
+  "code": zod.string().describe('Short backend-stored hall table code')
+})
+
+export const cartControllerJoinHallTableSessionBodyGuestSessionIdMax = 64;
+
+export const cartControllerJoinHallTableSessionBodyGuestNameMax = 120;
+
+
+
+export const CartControllerJoinHallTableSessionBody = zod.object({
+  "guestSessionId": zod.string().max(cartControllerJoinHallTableSessionBodyGuestSessionIdMax).optional(),
+  "guestName": zod.string().max(cartControllerJoinHallTableSessionBodyGuestNameMax).optional(),
+  "guestsCount": zod.number().optional()
+})
+
+export const CartControllerJoinHallTableSessionResponse = zod.object({
+  "ok": zod.boolean(),
+  "tableSession": zod.object({
+  "session": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).nullable(),
+  "checkoutData": zod.object({
+
+}).nullable(),
+  "checkoutContacts": zod.object({
+
+}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "baseQuantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number().nullable()
+}),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}),
+  "publicKey": zod.string(),
+  "guestSessionId": zod.string().nullable()
+})
+})
+
+
+/**
+ * @summary Upsert an item in the current cart
+ */
+export const cartControllerUpsertCurrentItemBodyGuestSessionIdMax = 64;
+
+export const cartControllerUpsertCurrentItemBodyGuestNameMax = 120;
+
+
+
+export const CartControllerUpsertCurrentItemBody = zod.object({
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().optional(),
+  "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
+  "quantity": zod.number().describe('0 = удалить позицию из корзины'),
+  "guestSessionId": zod.string().max(cartControllerUpsertCurrentItemBodyGuestSessionIdMax).optional(),
+  "guestName": zod.string().max(cartControllerUpsertCurrentItemBodyGuestNameMax).optional()
+})
+
+export const CartControllerUpsertCurrentItemResponse = zod.object({
+  "ok": zod.boolean(),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).nullable(),
+  "checkoutData": zod.object({
+
+}).nullable(),
+  "checkoutContacts": zod.object({
+
+}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "baseQuantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number().nullable()
+}),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -12521,6 +14517,8 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12572,6 +14570,23 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -12629,6 +14644,8 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12680,6 +14697,23 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -12728,6 +14762,8 @@ export const CartControllerStartManagerSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12779,6 +14815,23 @@ export const CartControllerStartManagerSessionResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -12827,6 +14880,8 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12878,6 +14933,23 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -12926,6 +14998,8 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -12977,6 +15051,23 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -13029,6 +15120,8 @@ export const CartControllerCompleteManagerOrderResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullable(),
+  "guestSessionId": zod.string().nullable(),
+  "guestName": zod.string().nullable(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "unitPrice": zod.number(),
@@ -13077,20 +15170,13 @@ export const CartControllerCompleteManagerOrderResponse = zod.object({
 
 
 /**
- * @summary Upsert an item in a public cart
+ * @summary Close an open shared hall table cart
  */
-export const CartControllerUpsertPublicItemParams = zod.object({
+export const CartControllerCloseHallTableSessionParams = zod.object({
   "publicKey": zod.string().describe('Public cart key')
 })
 
-export const CartControllerUpsertPublicItemBody = zod.object({
-  "productId": zod.uuid(),
-  "variantId": zod.uuid().optional(),
-  "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
-  "quantity": zod.number().describe('0 = удалить позицию из корзины')
-})
-
-export const CartControllerUpsertPublicItemResponse = zod.object({
+export const CartControllerCloseHallTableSessionResponse = zod.object({
   "ok": zod.boolean(),
   "cart": zod.object({
   "id": zod.uuid(),
@@ -13117,6 +15203,8 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -13168,6 +15256,491 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Reset an open shared hall table cart
+ */
+export const CartControllerResetHallTableSessionParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const CartControllerResetHallTableSessionResponse = zod.object({
+  "ok": zod.boolean(),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).nullable(),
+  "checkoutData": zod.object({
+
+}).nullable(),
+  "checkoutContacts": zod.object({
+
+}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "baseQuantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number().nullable()
+}),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Confirm a shared hall table cart and send it to iiko
+ */
+export const CartControllerConfirmHallTableOrderParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const cartControllerConfirmHallTableOrderBodyCommentMax = 1000;
+
+
+
+export const CartControllerConfirmHallTableOrderBody = zod.object({
+  "comment": zod.string().max(cartControllerConfirmHallTableOrderBodyCommentMax).optional(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).optional(),
+  "checkoutData": zod.object({
+
+}).optional()
+})
+
+export const CartControllerConfirmHallTableOrderResponse = zod.object({
+  "ok": zod.boolean(),
+  "order": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['PENDING', 'COMPLETED']),
+  "catalogId": zod.uuid(),
+  "totalAmount": zod.number(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).nullable(),
+  "checkoutData": zod.object({
+
+}).nullable(),
+  "checkoutContacts": zod.object({
+
+}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullable(),
+  "guestSessionId": zod.string().nullable(),
+  "guestName": zod.string().nullable(),
+  "quantity": zod.number(),
+  "baseQuantity": zod.number(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number(),
+  "discountPercent": zod.number(),
+  "hasDiscount": zod.boolean(),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable()
+})),
+  "createdAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Send a public shared hall table cart to waiter confirmation
+ */
+export const CartControllerSubmitPublicHallOrderParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const cartControllerSubmitPublicHallOrderBodyCommentMax = 1000;
+
+
+
+export const CartControllerSubmitPublicHallOrderBody = zod.object({
+  "comment": zod.string().max(cartControllerSubmitPublicHallOrderBodyCommentMax).optional(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).optional(),
+  "checkoutData": zod.object({
+
+}).optional()
+})
+
+export const CartControllerSubmitPublicHallOrderResponse = zod.object({
+  "ok": zod.boolean(),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).nullable(),
+  "checkoutData": zod.object({
+
+}).nullable(),
+  "checkoutContacts": zod.object({
+
+}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "baseQuantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number().nullable()
+}),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
+  "totals": zod.object({
+  "itemsCount": zod.number(),
+  "subtotal": zod.number(),
+  "baseSubtotal": zod.number().describe('Сумма без скидок'),
+  "discountTotal": zod.number().describe('Суммарная экономия по корзине'),
+  "hasDiscount": zod.boolean().describe('Есть ли скидка хотя бы в одной строке'),
+  "total": zod.number().describe('Итого к оплате (subtotal с учётом скидок)')
+}),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})
+})
+
+
+/**
+ * @summary Upsert an item in a public cart
+ */
+export const CartControllerUpsertPublicItemParams = zod.object({
+  "publicKey": zod.string().describe('Public cart key')
+})
+
+export const cartControllerUpsertPublicItemBodyGuestSessionIdMax = 64;
+
+export const cartControllerUpsertPublicItemBodyGuestNameMax = 120;
+
+
+
+export const CartControllerUpsertPublicItemBody = zod.object({
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().optional(),
+  "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
+  "quantity": zod.number().describe('0 = удалить позицию из корзины'),
+  "guestSessionId": zod.string().max(cartControllerUpsertPublicItemBodyGuestSessionIdMax).optional(),
+  "guestName": zod.string().max(cartControllerUpsertPublicItemBodyGuestNameMax).optional()
+})
+
+export const CartControllerUpsertPublicItemResponse = zod.object({
+  "ok": zod.boolean(),
+  "cart": zod.object({
+  "id": zod.uuid(),
+  "catalogId": zod.uuid(),
+  "status": zod.enum(['DRAFT', 'SHARED', 'IN_PROGRESS', 'PAUSED', 'CONVERTED', 'CANCELLED', 'EXPIRED']),
+  "statusMessage": zod.string().nullable(),
+  "statusChangedAt": zod.iso.datetime({}),
+  "publicKey": zod.string().nullable(),
+  "checkoutAt": zod.iso.datetime({}).nullable(),
+  "comment": zod.string().nullable(),
+  "checkoutMethod": zod.enum(['DELIVERY', 'PICKUP', 'PREORDER']).nullable(),
+  "checkoutData": zod.object({
+
+}).nullable(),
+  "checkoutContacts": zod.object({
+
+}).nullable(),
+  "assignedManagerId": zod.uuid().nullable(),
+  "managerSessionStartedAt": zod.iso.datetime({}).nullable(),
+  "managerLastSeenAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "items": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productId": zod.uuid(),
+  "variantId": zod.uuid().nullable(),
+  "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "baseQuantity": zod.number(),
+  "product": zod.object({
+  "id": zod.uuid(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "price": zod.number().nullable()
+}),
+  "variant": zod.object({
+  "id": zod.uuid(),
+  "sku": zod.string(),
+  "variantKey": zod.string(),
+  "label": zod.string(),
+  "price": zod.number().nullable(),
+  "stock": zod.number().nullable(),
+  "status": zod.enum(['ACTIVE', 'OUT_OF_STOCK', 'DISABLED']),
+  "isAvailable": zod.boolean(),
+  "attributes": zod.array(zod.object({
+  "attribute": zod.object({
+  "id": zod.uuid(),
+  "key": zod.string(),
+  "displayName": zod.string()
+}),
+  "enumValue": zod.object({
+  "id": zod.uuid(),
+  "value": zod.string(),
+  "displayName": zod.string().nullable()
+})
+}))
+}).nullable(),
+  "saleUnit": zod.object({
+  "id": zod.uuid(),
+  "variantId": zod.uuid(),
+  "catalogSaleUnitId": zod.uuid().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "baseQuantity": zod.number(),
+  "price": zod.number(),
+  "barcode": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number()
+}).nullable(),
+  "unitPrice": zod.number(),
+  "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
+  "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
+  "hasDiscount": zod.boolean().describe('Признак активной скидки в сохраненном снимке цены'),
+  "lineTotal": zod.number(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+})),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),
@@ -13217,6 +15790,8 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "guestSessionId": zod.string().nullish(),
+  "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
   "product": zod.object({
@@ -13268,6 +15843,23 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "createdAt": zod.iso.datetime({}),
   "updatedAt": zod.iso.datetime({})
 })),
+  "tableSession": zod.object({
+  "id": zod.uuid(),
+  "status": zod.enum(['OPEN', 'PENDING_CONFIRMATION', 'SUBMITTED', 'EXPORT_ERROR', 'CLOSED', 'CANCELLED', 'EXPIRED']),
+  "publicCode": zod.string(),
+  "tableExternalId": zod.string(),
+  "tableNumber": zod.string().nullable(),
+  "tableName": zod.string().nullable(),
+  "sectionExternalId": zod.string().nullable(),
+  "sectionName": zod.string().nullable(),
+  "guestsCount": zod.number().nullable(),
+  "externalOrderId": zod.string().nullable(),
+  "submittedOrderId": zod.uuid().nullable(),
+  "submittedAt": zod.iso.datetime({}).nullable(),
+  "closedAt": zod.iso.datetime({}).nullable(),
+  "createdAt": zod.iso.datetime({}),
+  "updatedAt": zod.iso.datetime({})
+}).nullable(),
   "totals": zod.object({
   "itemsCount": zod.number(),
   "subtotal": zod.number(),

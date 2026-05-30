@@ -20,7 +20,9 @@ import React from "react";
 const SYNC_TOAST_TITLES: Record<MoySkladSyncRunDto["mode"], string> = {
   FULL: "Синхронизация каталога MoySklad",
   PRODUCT: "Синхронизация товара MoySklad",
+  PRICE: "Синхронизация цен MoySklad",
   STOCK: "Синхронизация остатков MoySklad",
+  VARIANT: "Синхронизация вариантов MoySklad",
 };
 
 async function invalidateAdvancedMoySkladQueries(queryClient: QueryClient) {

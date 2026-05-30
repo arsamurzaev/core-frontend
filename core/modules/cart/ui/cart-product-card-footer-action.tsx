@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  getCartPricingForProduct,
-} from "@/core/modules/cart/model/cart-item-view";
+import { getCartPricingForProduct } from "@/core/modules/cart/model/cart-item-view";
 import { getCartItemMaxQuantity } from "@/core/modules/cart/model/cart-item-max-quantity";
 import { useCart } from "@/core/modules/cart/model/cart-context";
 import {
@@ -39,7 +37,7 @@ export const CartProductCardFooterAction = React.memo(
     const { catalog } = useCatalogState();
     const features = useCatalogCapabilities();
     const canUseProductVariants = features.canUseProductVariants;
-    const { items } = useCart();
+    const { hallTableSession, items } = useCart();
     const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
     const productSnapshot = React.useMemo(
       () =>
@@ -51,8 +49,15 @@ export const CartProductCardFooterAction = React.memo(
     );
     const priceFormatMode = getCatalogPriceFormatMode(catalog);
     const productCartLines = React.useMemo(
-      () => items.filter((item) => item.productId === product.id),
-      [items, product.id],
+      () =>
+        items.filter(
+          (item) =>
+            item.productId === product.id &&
+            (!hallTableSession.guestSessionId ||
+              !item.guestSessionId ||
+              item.guestSessionId === hallTableSession.guestSessionId),
+        ),
+      [hallTableSession.guestSessionId, items, product.id],
     );
     const singleCartLine =
       productCartLines.length === 1 ? productCartLines[0] : null;
@@ -90,6 +95,8 @@ export const CartProductCardFooterAction = React.memo(
     );
     const singleLineControls = useCartProductControls(
       {
+        guestName: singleCartLine?.guestName,
+        guestSessionId: singleCartLine?.guestSessionId,
         productId: product.id,
         saleUnitId: singleCartLine?.saleUnitId,
         variantId: singleCartLine?.variantId,
@@ -97,6 +104,7 @@ export const CartProductCardFooterAction = React.memo(
       singleLineProduct,
       {
         maxQuantity: singleLineMaxQuantity,
+        quantityOverride: singleCartLine?.quantity,
         quantityScope: "line",
       },
     );
@@ -107,7 +115,11 @@ export const CartProductCardFooterAction = React.memo(
             currency: singleCartLine.currency,
             displayTotal: singleCartLine.displayLineTotal,
           }
-        : getCartPricingForProduct(product, controls.quantity, fallbackCurrency);
+        : getCartPricingForProduct(
+            product,
+            controls.quantity,
+            fallbackCurrency,
+          );
 
     const handlePreventCardNavigation = (event: React.SyntheticEvent) => {
       event.preventDefault();

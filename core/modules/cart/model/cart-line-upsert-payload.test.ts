@@ -42,12 +42,16 @@ describe("cart line upsert payload", () => {
       buildCartLineUpsertPayload({
         quantity: 3,
         selection: {
+          guestName: " Guest ",
+          guestSessionId: " guest-1 ",
           productId: " product-1 ",
           saleUnitId: " kg ",
           variantId: " variant-1 ",
         },
       }),
     ).toEqual({
+      guestName: "Guest",
+      guestSessionId: "guest-1",
       productId: "product-1",
       quantity: 3,
       saleUnitId: "kg",
@@ -94,6 +98,28 @@ describe("cart line upsert payload", () => {
         variantId: "variant-1",
       })?.id,
     ).toBe("kg-item");
+  });
+
+  it("finds a line in the selected guest scope", () => {
+    const items = [
+      cartItem({
+        id: "guest-1-item",
+        guestSessionId: "guest-1",
+        quantity: 2,
+      }),
+      cartItem({
+        id: "guest-2-item",
+        guestSessionId: "guest-2",
+        quantity: 3,
+      }),
+    ];
+
+    expect(
+      findCartItemForLineSelection(items, {
+        guestSessionId: "guest-2",
+        productId: "product-1",
+      })?.id,
+    ).toBe("guest-2-item");
   });
 
   it("prefers the default product line for legacy product-only calls", () => {

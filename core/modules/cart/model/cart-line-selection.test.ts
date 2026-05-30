@@ -31,6 +31,15 @@ describe("cart line selection", () => {
     ).toBe("product-1:variant-1:kg");
   });
 
+  it("scopes line keys by guest session when provided", () => {
+    expect(
+      buildCartLineSelectionKey({
+        guestSessionId: "guest-1",
+        productId: "product-1",
+      }),
+    ).toBe("product-1:default:default:guest:guest-1");
+  });
+
   it("reads product or line quantity depending on selection scope", () => {
     const quantityByProductId = { "product-1": 5 };
     const quantityByLineKey = { "product-1:variant-1:kg": 2 };

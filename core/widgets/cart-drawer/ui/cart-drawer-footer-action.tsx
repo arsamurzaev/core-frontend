@@ -14,9 +14,9 @@ interface CartDrawerFooterActionProps {
   hasSharedCart: boolean;
   isBusy: boolean;
   isShareDisabled: boolean;
+  completeLabel?: string;
   onCollapse?: () => void;
   onComplete: () => void;
-  onSubmitHallOrder: () => void;
   onShare: () => void;
 }
 
@@ -27,9 +27,9 @@ export const CartDrawerFooterAction: React.FC<CartDrawerFooterActionProps> = ({
   hasSharedCart,
   isBusy,
   isShareDisabled,
+  completeLabel = "Завершить заказ",
   onCollapse,
   onComplete,
-  onSubmitHallOrder,
   onShare,
 }) => {
   if (action === "complete-order") {
@@ -37,25 +37,11 @@ export const CartDrawerFooterAction: React.FC<CartDrawerFooterActionProps> = ({
       <Button
         type="button"
         className="w-full justify-center"
-        disabled={isBusy}
+        disabled={isBusy || !hasItems}
         onClick={onComplete}
         size="full"
       >
-        Завершить заказ
-      </Button>
-    );
-  }
-
-  if (action === "submit-hall-order") {
-    return (
-      <Button
-        type="button"
-        className="w-full justify-center"
-        disabled={isBusy || !hasItems}
-        onClick={onSubmitHallOrder}
-        size="full"
-      >
-        Заказать
+        {completeLabel}
       </Button>
     );
   }

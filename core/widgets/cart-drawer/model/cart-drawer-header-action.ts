@@ -36,6 +36,7 @@ export const DETACH_PUBLIC_CART_CONFIRMATION: CartDeleteConfirmationCopy = {
 
 export const DETACH_PUBLIC_CART_SUCCESS_MESSAGE =
   "Публичная корзина откреплена.";
+export const EXIT_PUBLIC_CART_SUCCESS_MESSAGE = "Вы вышли из корзины.";
 export const DELETE_ASSIGNED_CART_SUCCESS_MESSAGE = "Корзина отвязана.";
 export const DELETE_CART_SUCCESS_MESSAGE = "Корзина удалена.";
 
@@ -46,7 +47,7 @@ export function resolveCartDrawerHeaderAction(params: {
   isPublicMode: boolean;
 }): CartDrawerHeaderActionKind {
   if (params.isManagedPublicCart) {
-    return "none";
+    return "detach-public-cart";
   }
 
   if (params.isPublicMode) {

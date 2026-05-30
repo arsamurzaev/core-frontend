@@ -507,6 +507,7 @@ export const AdminCatalogFeatureEntitlementItemDtoFeature = {
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
+  integrationone_c: 'integration.one_c',
 } as const;
 
 /**
@@ -766,6 +767,7 @@ export const AdminUpdateCatalogFeatureEntitlementDtoReqFeature = {
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
+  integrationone_c: 'integration.one_c',
 } as const;
 
 /**
@@ -1063,6 +1065,7 @@ export type ProductIntegrationDtoProvider = typeof ProductIntegrationDtoProvider
 export const ProductIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export interface ProductIntegrationDto {
@@ -2315,6 +2318,7 @@ export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvid
 export const MoySkladIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
@@ -2453,6 +2457,7 @@ export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof
 export const MoySkladSyncRunDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
@@ -2461,7 +2466,9 @@ export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof 
 export const MoySkladSyncRunDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof typeof MoySkladSyncRunDtoTrigger];
@@ -2690,7 +2697,9 @@ export type MoySkladQueuedSyncDtoMode = typeof MoySkladQueuedSyncDtoMode[keyof t
 export const MoySkladQueuedSyncDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[keyof typeof MoySkladQueuedSyncDtoTrigger];
@@ -2732,6 +2741,7 @@ export type IikoIntegrationDtoProvider = typeof IikoIntegrationDtoProvider[keyof
 export const IikoIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 /**
@@ -2813,6 +2823,7 @@ export type IikoSyncRunDtoProvider = typeof IikoSyncRunDtoProvider[keyof typeof 
 export const IikoSyncRunDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type IikoSyncRunDtoMode = typeof IikoSyncRunDtoMode[keyof typeof IikoSyncRunDtoMode];
@@ -2821,7 +2832,9 @@ export type IikoSyncRunDtoMode = typeof IikoSyncRunDtoMode[keyof typeof IikoSync
 export const IikoSyncRunDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type IikoSyncRunDtoTrigger = typeof IikoSyncRunDtoTrigger[keyof typeof IikoSyncRunDtoTrigger];
@@ -2904,6 +2917,7 @@ export type IikoWebhookEventDtoProvider = typeof IikoWebhookEventDtoProvider[key
 export const IikoWebhookEventDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type IikoWebhookEventDtoStatus = typeof IikoWebhookEventDtoStatus[keyof typeof IikoWebhookEventDtoStatus];
@@ -3169,7 +3183,9 @@ export type IikoQueuedSyncDtoMode = typeof IikoQueuedSyncDtoMode[keyof typeof Ii
 export const IikoQueuedSyncDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type IikoQueuedSyncDtoTrigger = typeof IikoQueuedSyncDtoTrigger[keyof typeof IikoQueuedSyncDtoTrigger];
@@ -3357,6 +3373,8 @@ export interface CatalogCurrentFeaturesDto {
   canUseMoySkladIntegration: boolean;
   /** Whether the current catalog can use iiko integration. */
   canUseIikoIntegration: boolean;
+  /** Whether the current catalog can use 1C integration. */
+  canUseOneCIntegration: boolean;
   /** Raw admin entitlements before dependency resolution. */
   raw: CatalogCurrentFeaturesDtoRaw;
   /** Effective capabilities after dependency resolution. */
@@ -3612,6 +3630,7 @@ export type IikoOrderExportDtoProvider = typeof IikoOrderExportDtoProvider[keyof
 export const IikoOrderExportDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type IikoOrderExportDtoStatus = typeof IikoOrderExportDtoStatus[keyof typeof IikoOrderExportDtoStatus];
@@ -3651,6 +3670,7 @@ export type MoySkladOrderExportDtoProvider = typeof MoySkladOrderExportDtoProvid
 export const MoySkladOrderExportDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type MoySkladOrderExportDtoStatus = typeof MoySkladOrderExportDtoStatus[keyof typeof MoySkladOrderExportDtoStatus];
@@ -3888,6 +3908,7 @@ export type IikoOrderExportTimelineItemDtoProvider = typeof IikoOrderExportTimel
 export const IikoOrderExportTimelineItemDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export interface IikoOrderExportTimelineItemDto {
@@ -3910,6 +3931,1568 @@ export interface IikoOrderExportTimelineItemDto {
 export interface IikoOrderExportTimelineDto {
   orderId: string;
   items: IikoOrderExportTimelineItemDto[];
+}
+
+export type OneCIntegrationDtoProvider = typeof OneCIntegrationDtoProvider[keyof typeof OneCIntegrationDtoProvider];
+
+
+export const OneCIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
+} as const;
+
+export type OneCIntegrationDtoApiKind = typeof OneCIntegrationDtoApiKind[keyof typeof OneCIntegrationDtoApiKind];
+
+
+export const OneCIntegrationDtoApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type OneCIntegrationDtoAuthKind = typeof OneCIntegrationDtoAuthKind[keyof typeof OneCIntegrationDtoAuthKind];
+
+
+export const OneCIntegrationDtoAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export type OneCIntegrationDtoLastSyncStatus = typeof OneCIntegrationDtoLastSyncStatus[keyof typeof OneCIntegrationDtoLastSyncStatus];
+
+
+export const OneCIntegrationDtoLastSyncStatus = {
+  IDLE: 'IDLE',
+  SYNCING: 'SYNCING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+} as const;
+
+export interface OneCIntegrationDto {
+  provider: OneCIntegrationDtoProvider;
+  capabilities: IntegrationProviderCapabilitiesDto;
+  isActive: boolean;
+  apiKind: OneCIntegrationDtoApiKind;
+  authKind: OneCIntegrationDtoAuthKind;
+  baseUrl: string;
+  /** @nullable */
+  username: string | null;
+  hasPassword: boolean;
+  hasToken: boolean;
+  /** @nullable */
+  tokenPreview: string | null;
+  timeoutMs: number;
+  importProducts: boolean;
+  syncStock: boolean;
+  exportOrders: boolean;
+  /** @nullable */
+  productSyncEntityMappingId: string | null;
+  productSyncLimit: number;
+  /** @nullable */
+  productSyncFilter: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId: string | null;
+  variantSyncLimit: number;
+  /** @nullable */
+  variantSyncFilter: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId: string | null;
+  stockSyncLimit: number;
+  /** @nullable */
+  stockSyncFilter: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId: string | null;
+  priceSyncLimit: number;
+  /** @nullable */
+  priceSyncFilter: string | null;
+  scheduleEnabled: boolean;
+  /** @nullable */
+  schedulePattern: string | null;
+  scheduleTimezone: string;
+  stockScheduleEnabled: boolean;
+  /** @nullable */
+  stockSchedulePattern: string | null;
+  stockScheduleTimezone: string;
+  priceScheduleEnabled: boolean;
+  /** @nullable */
+  priceSchedulePattern: string | null;
+  priceScheduleTimezone: string;
+  lastSyncStatus: OneCIntegrationDtoLastSyncStatus;
+  /** @nullable */
+  syncStartedAt: string | null;
+  /** @nullable */
+  lastSyncAt: string | null;
+  /** @nullable */
+  lastDiscoveredAt: string | null;
+  /** @nullable */
+  lastSyncError: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OneCSyncProgressDtoStatus = typeof OneCSyncProgressDtoStatus[keyof typeof OneCSyncProgressDtoStatus];
+
+
+export const OneCSyncProgressDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface OneCSyncProgressDto {
+  runId: string;
+  status: OneCSyncProgressDtoStatus;
+  phase: string;
+  message: string;
+  processed: number;
+  /** @nullable */
+  total: number | null;
+  /** @nullable */
+  percent: number | null;
+  updatedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+}
+
+export type OneCSyncRunDtoProvider = typeof OneCSyncRunDtoProvider[keyof typeof OneCSyncRunDtoProvider];
+
+
+export const OneCSyncRunDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
+} as const;
+
+export type OneCSyncRunDtoMode = typeof OneCSyncRunDtoMode[keyof typeof OneCSyncRunDtoMode];
+
+
+export const OneCSyncRunDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+} as const;
+
+export type OneCSyncRunDtoTrigger = typeof OneCSyncRunDtoTrigger[keyof typeof OneCSyncRunDtoTrigger];
+
+
+export const OneCSyncRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export type OneCSyncRunDtoStatus = typeof OneCSyncRunDtoStatus[keyof typeof OneCSyncRunDtoStatus];
+
+
+export const OneCSyncRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export type OneCSyncRunDtoSnapshotCompleteness = typeof OneCSyncRunDtoSnapshotCompleteness[keyof typeof OneCSyncRunDtoSnapshotCompleteness];
+
+
+export const OneCSyncRunDtoSnapshotCompleteness = {
+  FULL_COMPLETE: 'FULL_COMPLETE',
+  PARTIAL: 'PARTIAL',
+  WEBHOOK_DELTA: 'WEBHOOK_DELTA',
+  FAILED_BEFORE_SNAPSHOT: 'FAILED_BEFORE_SNAPSHOT',
+} as const;
+
+export interface OneCSyncRunDto {
+  id: string;
+  provider: OneCSyncRunDtoProvider;
+  mode: OneCSyncRunDtoMode;
+  trigger: OneCSyncRunDtoTrigger;
+  status: OneCSyncRunDtoStatus;
+  snapshotCompleteness: OneCSyncRunDtoSnapshotCompleteness;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  imagesImported: number;
+  skippedProducts: number;
+  failedProducts: number;
+  progress: OneCSyncProgressDto | null;
+  /** @nullable */
+  durationMs: number | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OneCIntegrationStatusDto {
+  configured: boolean;
+  integration: OneCIntegrationDto | null;
+  activeRun: OneCSyncRunDto | null;
+  lastRun: OneCSyncRunDto | null;
+}
+
+export type OneCExternalObjectDtoKind = typeof OneCExternalObjectDtoKind[keyof typeof OneCExternalObjectDtoKind];
+
+
+export const OneCExternalObjectDtoKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CATALOG: 'CATALOG',
+  DOCUMENT: 'DOCUMENT',
+  REGISTER: 'REGISTER',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCExternalObjectDtoSchema = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCExternalObjectDtoSample = { [key: string]: unknown } | null;
+
+export interface OneCExternalObjectDto {
+  id: string;
+  code: string;
+  name: string;
+  kind: OneCExternalObjectDtoKind;
+  /** @nullable */
+  endpoint: string | null;
+  /** @nullable */
+  method: string | null;
+  /** @nullable */
+  schema: OneCExternalObjectDtoSchema;
+  /** @nullable */
+  sample: OneCExternalObjectDtoSample;
+  isActive: boolean;
+  /** @nullable */
+  lastDiscoveredAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OneCFieldMappingDtoDirection = typeof OneCFieldMappingDtoDirection[keyof typeof OneCFieldMappingDtoDirection];
+
+
+export const OneCFieldMappingDtoDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+export type OneCFieldMappingDtoDataType = typeof OneCFieldMappingDtoDataType[keyof typeof OneCFieldMappingDtoDataType];
+
+
+export const OneCFieldMappingDtoDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCFieldMappingDtoTransform = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCFieldMappingDtoDefaultValue = { [key: string]: unknown } | null;
+
+export interface OneCFieldMappingDto {
+  id: string;
+  entityMappingId: string;
+  localPath: string;
+  externalPath: string;
+  direction: OneCFieldMappingDtoDirection;
+  dataType: OneCFieldMappingDtoDataType;
+  /** @nullable */
+  transform: OneCFieldMappingDtoTransform;
+  /** @nullable */
+  defaultValue: OneCFieldMappingDtoDefaultValue;
+  isRequired: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OneCEntityMappingDtoLocalEntity = typeof OneCEntityMappingDtoLocalEntity[keyof typeof OneCEntityMappingDtoLocalEntity];
+
+
+export const OneCEntityMappingDtoLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type OneCEntityMappingDtoDirection = typeof OneCEntityMappingDtoDirection[keyof typeof OneCEntityMappingDtoDirection];
+
+
+export const OneCEntityMappingDtoDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCEntityMappingDtoFilters = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCEntityMappingDtoOptions = { [key: string]: unknown } | null;
+
+export interface OneCEntityMappingDto {
+  id: string;
+  localEntity: OneCEntityMappingDtoLocalEntity;
+  /** @nullable */
+  externalObjectId: string | null;
+  externalObjectCode: string;
+  identityField: string;
+  direction: OneCEntityMappingDtoDirection;
+  /** @nullable */
+  conflictPolicy: string | null;
+  /** @nullable */
+  filters: OneCEntityMappingDtoFilters;
+  /** @nullable */
+  options: OneCEntityMappingDtoOptions;
+  isActive: boolean;
+  externalObject: OneCExternalObjectDto | null;
+  fieldMappings: OneCFieldMappingDto[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OneCRecommendedProductMappingDto {
+  ok: boolean;
+  ready: boolean;
+  /** @nullable */
+  mappingId: string | null;
+  mapping: OneCEntityMappingDto | null;
+  /** @nullable */
+  reason: string | null;
+}
+
+export interface OneCRecommendedVariantMappingDto {
+  ok: boolean;
+  ready: boolean;
+  /** @nullable */
+  mappingId: string | null;
+  mapping: OneCEntityMappingDto | null;
+  /** @nullable */
+  reason: string | null;
+}
+
+export type UpsertOneCIntegrationDtoReqApiKind = typeof UpsertOneCIntegrationDtoReqApiKind[keyof typeof UpsertOneCIntegrationDtoReqApiKind];
+
+
+export const UpsertOneCIntegrationDtoReqApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type UpsertOneCIntegrationDtoReqAuthKind = typeof UpsertOneCIntegrationDtoReqAuthKind[keyof typeof UpsertOneCIntegrationDtoReqAuthKind];
+
+
+export const UpsertOneCIntegrationDtoReqAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export interface UpsertOneCIntegrationDtoReq {
+  apiKind: UpsertOneCIntegrationDtoReqApiKind;
+  authKind: UpsertOneCIntegrationDtoReqAuthKind;
+  baseUrl: string;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  password?: string | null;
+  /** @nullable */
+  token?: string | null;
+  timeoutMs?: number;
+  isActive?: boolean;
+  importProducts?: boolean;
+  syncStock?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  productSyncEntityMappingId?: string | null;
+  productSyncLimit?: number;
+  /** @nullable */
+  productSyncFilter?: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId?: string | null;
+  variantSyncLimit?: number;
+  /** @nullable */
+  variantSyncFilter?: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId?: string | null;
+  stockSyncLimit?: number;
+  /** @nullable */
+  stockSyncFilter?: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId?: string | null;
+  priceSyncLimit?: number;
+  /** @nullable */
+  priceSyncFilter?: string | null;
+  scheduleEnabled?: boolean;
+  /** @nullable */
+  schedulePattern?: string | null;
+  /** @nullable */
+  scheduleTimezone?: string | null;
+  stockScheduleEnabled?: boolean;
+  /** @nullable */
+  stockSchedulePattern?: string | null;
+  /** @nullable */
+  stockScheduleTimezone?: string | null;
+  priceScheduleEnabled?: boolean;
+  /** @nullable */
+  priceSchedulePattern?: string | null;
+  /** @nullable */
+  priceScheduleTimezone?: string | null;
+}
+
+export type UpdateOneCIntegrationDtoReqApiKind = typeof UpdateOneCIntegrationDtoReqApiKind[keyof typeof UpdateOneCIntegrationDtoReqApiKind];
+
+
+export const UpdateOneCIntegrationDtoReqApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type UpdateOneCIntegrationDtoReqAuthKind = typeof UpdateOneCIntegrationDtoReqAuthKind[keyof typeof UpdateOneCIntegrationDtoReqAuthKind];
+
+
+export const UpdateOneCIntegrationDtoReqAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export interface UpdateOneCIntegrationDtoReq {
+  apiKind?: UpdateOneCIntegrationDtoReqApiKind;
+  authKind?: UpdateOneCIntegrationDtoReqAuthKind;
+  baseUrl?: string;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  password?: string | null;
+  /** @nullable */
+  token?: string | null;
+  timeoutMs?: number;
+  isActive?: boolean;
+  importProducts?: boolean;
+  syncStock?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  productSyncEntityMappingId?: string | null;
+  productSyncLimit?: number;
+  /** @nullable */
+  productSyncFilter?: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId?: string | null;
+  variantSyncLimit?: number;
+  /** @nullable */
+  variantSyncFilter?: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId?: string | null;
+  stockSyncLimit?: number;
+  /** @nullable */
+  stockSyncFilter?: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId?: string | null;
+  priceSyncLimit?: number;
+  /** @nullable */
+  priceSyncFilter?: string | null;
+  scheduleEnabled?: boolean;
+  /** @nullable */
+  schedulePattern?: string | null;
+  /** @nullable */
+  scheduleTimezone?: string | null;
+  stockScheduleEnabled?: boolean;
+  /** @nullable */
+  stockSchedulePattern?: string | null;
+  /** @nullable */
+  stockScheduleTimezone?: string | null;
+  priceScheduleEnabled?: boolean;
+  /** @nullable */
+  priceSchedulePattern?: string | null;
+  /** @nullable */
+  priceScheduleTimezone?: string | null;
+}
+
+export type TestOneCConnectionDtoReqApiKind = typeof TestOneCConnectionDtoReqApiKind[keyof typeof TestOneCConnectionDtoReqApiKind];
+
+
+export const TestOneCConnectionDtoReqApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type TestOneCConnectionDtoReqAuthKind = typeof TestOneCConnectionDtoReqAuthKind[keyof typeof TestOneCConnectionDtoReqAuthKind];
+
+
+export const TestOneCConnectionDtoReqAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export interface TestOneCConnectionDtoReq {
+  apiKind?: TestOneCConnectionDtoReqApiKind;
+  authKind?: TestOneCConnectionDtoReqAuthKind;
+  baseUrl?: string;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  password?: string | null;
+  /** @nullable */
+  token?: string | null;
+  timeoutMs?: number;
+  isActive?: boolean;
+  importProducts?: boolean;
+  syncStock?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  productSyncEntityMappingId?: string | null;
+  productSyncLimit?: number;
+  /** @nullable */
+  productSyncFilter?: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId?: string | null;
+  variantSyncLimit?: number;
+  /** @nullable */
+  variantSyncFilter?: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId?: string | null;
+  stockSyncLimit?: number;
+  /** @nullable */
+  stockSyncFilter?: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId?: string | null;
+  priceSyncLimit?: number;
+  /** @nullable */
+  priceSyncFilter?: string | null;
+  scheduleEnabled?: boolean;
+  /** @nullable */
+  schedulePattern?: string | null;
+  /** @nullable */
+  scheduleTimezone?: string | null;
+  stockScheduleEnabled?: boolean;
+  /** @nullable */
+  stockSchedulePattern?: string | null;
+  /** @nullable */
+  stockScheduleTimezone?: string | null;
+  priceScheduleEnabled?: boolean;
+  /** @nullable */
+  priceSchedulePattern?: string | null;
+  /** @nullable */
+  priceScheduleTimezone?: string | null;
+}
+
+export type OneCTestConnectionDtoApiKind = typeof OneCTestConnectionDtoApiKind[keyof typeof OneCTestConnectionDtoApiKind];
+
+
+export const OneCTestConnectionDtoApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export interface OneCTestConnectionDto {
+  ok: boolean;
+  apiKind: OneCTestConnectionDtoApiKind;
+  baseUrl: string;
+  /** @nullable */
+  status: number | null;
+  objectsDiscovered: number;
+}
+
+export interface DiscoverOneCObjectsDtoReq {
+  persist?: boolean;
+}
+
+export type OneCObjectFieldDtoKind = typeof OneCObjectFieldDtoKind[keyof typeof OneCObjectFieldDtoKind];
+
+
+export const OneCObjectFieldDtoKind = {
+  property: 'property',
+  navigation: 'navigation',
+} as const;
+
+export interface OneCObjectFieldDto {
+  code: string;
+  name: string;
+  /** @nullable */
+  dataType: string | null;
+  /** @nullable */
+  nullable: boolean | null;
+  kind: OneCObjectFieldDtoKind;
+}
+
+export type OneCDiscoveredObjectDtoKind = typeof OneCDiscoveredObjectDtoKind[keyof typeof OneCDiscoveredObjectDtoKind];
+
+
+export const OneCDiscoveredObjectDtoKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export interface OneCDiscoveredObjectDto {
+  code: string;
+  name: string;
+  kind: OneCDiscoveredObjectDtoKind;
+  /** @nullable */
+  endpoint: string | null;
+  fields: OneCObjectFieldDto[];
+}
+
+export interface OneCDiscoverObjectsDto {
+  ok: boolean;
+  total: number;
+  persisted: boolean;
+  objects: OneCDiscoveredObjectDto[];
+}
+
+export type CreateOneCExternalObjectDtoReqKind = typeof CreateOneCExternalObjectDtoReqKind[keyof typeof CreateOneCExternalObjectDtoReqKind];
+
+
+export const CreateOneCExternalObjectDtoReqKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CATALOG: 'CATALOG',
+  DOCUMENT: 'DOCUMENT',
+  REGISTER: 'REGISTER',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CreateOneCExternalObjectDtoReqSchema = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CreateOneCExternalObjectDtoReqSample = { [key: string]: unknown } | null;
+
+export interface CreateOneCExternalObjectDtoReq {
+  code: string;
+  name?: string;
+  kind?: CreateOneCExternalObjectDtoReqKind;
+  /** @nullable */
+  endpoint?: string | null;
+  /** @nullable */
+  method?: string | null;
+  /** @nullable */
+  schema?: CreateOneCExternalObjectDtoReqSchema;
+  /** @nullable */
+  sample?: CreateOneCExternalObjectDtoReqSample;
+  isActive?: boolean;
+}
+
+export type UpdateOneCExternalObjectDtoReqKind = typeof UpdateOneCExternalObjectDtoReqKind[keyof typeof UpdateOneCExternalObjectDtoReqKind];
+
+
+export const UpdateOneCExternalObjectDtoReqKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CATALOG: 'CATALOG',
+  DOCUMENT: 'DOCUMENT',
+  REGISTER: 'REGISTER',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCExternalObjectDtoReqSchema = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCExternalObjectDtoReqSample = { [key: string]: unknown } | null;
+
+export interface UpdateOneCExternalObjectDtoReq {
+  code?: string;
+  name?: string;
+  kind?: UpdateOneCExternalObjectDtoReqKind;
+  /** @nullable */
+  endpoint?: string | null;
+  /** @nullable */
+  method?: string | null;
+  /** @nullable */
+  schema?: UpdateOneCExternalObjectDtoReqSchema;
+  /** @nullable */
+  sample?: UpdateOneCExternalObjectDtoReqSample;
+  isActive?: boolean;
+}
+
+export type CreateOneCEntityMappingDtoReqLocalEntity = typeof CreateOneCEntityMappingDtoReqLocalEntity[keyof typeof CreateOneCEntityMappingDtoReqLocalEntity];
+
+
+export const CreateOneCEntityMappingDtoReqLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type CreateOneCEntityMappingDtoReqDirection = typeof CreateOneCEntityMappingDtoReqDirection[keyof typeof CreateOneCEntityMappingDtoReqDirection];
+
+
+export const CreateOneCEntityMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CreateOneCEntityMappingDtoReqFilters = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CreateOneCEntityMappingDtoReqOptions = { [key: string]: unknown } | null;
+
+export interface CreateOneCEntityMappingDtoReq {
+  localEntity: CreateOneCEntityMappingDtoReqLocalEntity;
+  /** @nullable */
+  externalObjectId?: string | null;
+  externalObjectCode: string;
+  identityField: string;
+  direction?: CreateOneCEntityMappingDtoReqDirection;
+  /** @nullable */
+  conflictPolicy?: string | null;
+  /** @nullable */
+  filters?: CreateOneCEntityMappingDtoReqFilters;
+  /** @nullable */
+  options?: CreateOneCEntityMappingDtoReqOptions;
+  isActive?: boolean;
+}
+
+export type UpdateOneCEntityMappingDtoReqLocalEntity = typeof UpdateOneCEntityMappingDtoReqLocalEntity[keyof typeof UpdateOneCEntityMappingDtoReqLocalEntity];
+
+
+export const UpdateOneCEntityMappingDtoReqLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type UpdateOneCEntityMappingDtoReqDirection = typeof UpdateOneCEntityMappingDtoReqDirection[keyof typeof UpdateOneCEntityMappingDtoReqDirection];
+
+
+export const UpdateOneCEntityMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCEntityMappingDtoReqFilters = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCEntityMappingDtoReqOptions = { [key: string]: unknown } | null;
+
+export interface UpdateOneCEntityMappingDtoReq {
+  localEntity?: UpdateOneCEntityMappingDtoReqLocalEntity;
+  /** @nullable */
+  externalObjectId?: string | null;
+  externalObjectCode?: string;
+  identityField?: string;
+  direction?: UpdateOneCEntityMappingDtoReqDirection;
+  /** @nullable */
+  conflictPolicy?: string | null;
+  /** @nullable */
+  filters?: UpdateOneCEntityMappingDtoReqFilters;
+  /** @nullable */
+  options?: UpdateOneCEntityMappingDtoReqOptions;
+  isActive?: boolean;
+}
+
+export type CreateOneCFieldMappingDtoReqDirection = typeof CreateOneCFieldMappingDtoReqDirection[keyof typeof CreateOneCFieldMappingDtoReqDirection];
+
+
+export const CreateOneCFieldMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+export type CreateOneCFieldMappingDtoReqDataType = typeof CreateOneCFieldMappingDtoReqDataType[keyof typeof CreateOneCFieldMappingDtoReqDataType];
+
+
+export const CreateOneCFieldMappingDtoReqDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CreateOneCFieldMappingDtoReqTransform = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CreateOneCFieldMappingDtoReqDefaultValue = { [key: string]: unknown } | null;
+
+export interface CreateOneCFieldMappingDtoReq {
+  localPath: string;
+  externalPath: string;
+  direction?: CreateOneCFieldMappingDtoReqDirection;
+  dataType?: CreateOneCFieldMappingDtoReqDataType;
+  /** @nullable */
+  transform?: CreateOneCFieldMappingDtoReqTransform;
+  /** @nullable */
+  defaultValue?: CreateOneCFieldMappingDtoReqDefaultValue;
+  isRequired?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type UpdateOneCFieldMappingDtoReqDirection = typeof UpdateOneCFieldMappingDtoReqDirection[keyof typeof UpdateOneCFieldMappingDtoReqDirection];
+
+
+export const UpdateOneCFieldMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+export type UpdateOneCFieldMappingDtoReqDataType = typeof UpdateOneCFieldMappingDtoReqDataType[keyof typeof UpdateOneCFieldMappingDtoReqDataType];
+
+
+export const UpdateOneCFieldMappingDtoReqDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCFieldMappingDtoReqTransform = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCFieldMappingDtoReqDefaultValue = { [key: string]: unknown } | null;
+
+export interface UpdateOneCFieldMappingDtoReq {
+  localPath?: string;
+  externalPath?: string;
+  direction?: UpdateOneCFieldMappingDtoReqDirection;
+  dataType?: UpdateOneCFieldMappingDtoReqDataType;
+  /** @nullable */
+  transform?: UpdateOneCFieldMappingDtoReqTransform;
+  /** @nullable */
+  defaultValue?: UpdateOneCFieldMappingDtoReqDefaultValue;
+  isRequired?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type PreviewOneCMappingDtoReqExternalPayload = { [key: string]: unknown };
+
+export interface PreviewOneCMappingDtoReq {
+  entityMappingId: string;
+  externalPayload: PreviewOneCMappingDtoReqExternalPayload;
+}
+
+export type OneCMappingPreviewItemDtoDataType = typeof OneCMappingPreviewItemDtoDataType[keyof typeof OneCMappingPreviewItemDtoDataType];
+
+
+export const OneCMappingPreviewItemDtoDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCMappingPreviewItemDtoExternalValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCMappingPreviewItemDtoMappedValue = { [key: string]: unknown } | null;
+
+export interface OneCMappingPreviewItemDto {
+  fieldMappingId: string;
+  localPath: string;
+  externalPath: string;
+  dataType: OneCMappingPreviewItemDtoDataType;
+  /** @nullable */
+  externalValue: OneCMappingPreviewItemDtoExternalValue;
+  /** @nullable */
+  mappedValue: OneCMappingPreviewItemDtoMappedValue;
+  missing: boolean;
+  /** @nullable */
+  error: string | null;
+}
+
+export type OneCMappingPreviewDtoLocalEntity = typeof OneCMappingPreviewDtoLocalEntity[keyof typeof OneCMappingPreviewDtoLocalEntity];
+
+
+export const OneCMappingPreviewDtoLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type OneCMappingPreviewDtoResult = { [key: string]: unknown };
+
+export interface OneCMappingPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  localEntity: OneCMappingPreviewDtoLocalEntity;
+  externalObjectCode: string;
+  items: OneCMappingPreviewItemDto[];
+  errors: string[];
+  result?: OneCMappingPreviewDtoResult;
+}
+
+export interface PreviewOneCRemoteMappingDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export type OneCRemoteMappingPreviewRowDtoResult = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCRemoteMappingPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCRemoteMappingPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  items: OneCMappingPreviewItemDto[];
+  errors: string[];
+  result: OneCRemoteMappingPreviewRowDtoResult;
+  /** @nullable */
+  raw?: OneCRemoteMappingPreviewRowDtoRaw;
+}
+
+export type OneCRemoteMappingPreviewDtoLocalEntity = typeof OneCRemoteMappingPreviewDtoLocalEntity[keyof typeof OneCRemoteMappingPreviewDtoLocalEntity];
+
+
+export const OneCRemoteMappingPreviewDtoLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export interface OneCRemoteMappingPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  localEntity: OneCRemoteMappingPreviewDtoLocalEntity;
+  externalObjectCode: string;
+  totalFetched: number;
+  totalWithErrors: number;
+  rows: OneCRemoteMappingPreviewRowDto[];
+}
+
+export interface PreviewOneCProductImportDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export interface OneCImportPreviewCountersDto {
+  total: number;
+  create: number;
+  update: number;
+  skip: number;
+  error: number;
+}
+
+/**
+ * @nullable
+ */
+export type OneCImportPreviewChangeDtoCurrentValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCImportPreviewChangeDtoNextValue = { [key: string]: unknown } | null;
+
+export interface OneCImportPreviewChangeDto {
+  field: string;
+  /** @nullable */
+  currentValue: OneCImportPreviewChangeDtoCurrentValue;
+  /** @nullable */
+  nextValue: OneCImportPreviewChangeDtoNextValue;
+}
+
+export type OneCProductImportPreviewRowDtoAction = typeof OneCProductImportPreviewRowDtoAction[keyof typeof OneCProductImportPreviewRowDtoAction];
+
+
+export const OneCProductImportPreviewRowDtoAction = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  SKIP: 'SKIP',
+  ERROR: 'ERROR',
+} as const;
+
+export type OneCProductImportPreviewRowDtoMatchBy = typeof OneCProductImportPreviewRowDtoMatchBy[keyof typeof OneCProductImportPreviewRowDtoMatchBy];
+
+
+export const OneCProductImportPreviewRowDtoMatchBy = {
+  externalId: 'externalId',
+  sku: 'sku',
+  none: 'none',
+} as const;
+
+export type OneCProductImportPreviewRowDtoMapped = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCProductImportPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCProductImportPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  action: OneCProductImportPreviewRowDtoAction;
+  matchBy: OneCProductImportPreviewRowDtoMatchBy;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  productName: string | null;
+  /** @nullable */
+  productSku: string | null;
+  mapped: OneCProductImportPreviewRowDtoMapped;
+  changes: OneCImportPreviewChangeDto[];
+  errors: string[];
+  /** @nullable */
+  raw?: OneCProductImportPreviewRowDtoRaw;
+}
+
+export interface OneCProductImportPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCImportPreviewCountersDto;
+  rows: OneCProductImportPreviewRowDto[];
+}
+
+export interface ImportOneCProductsDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface OneCProductImportResultCountersDto {
+  total: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+}
+
+export type OneCProductImportResultRowDtoStatus = typeof OneCProductImportResultRowDtoStatus[keyof typeof OneCProductImportResultRowDtoStatus];
+
+
+export const OneCProductImportResultRowDtoStatus = {
+  CREATED: 'CREATED',
+  UPDATED: 'UPDATED',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED',
+} as const;
+
+export interface OneCProductImportResultRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  status: OneCProductImportResultRowDtoStatus;
+  /** @nullable */
+  productId: string | null;
+  errors: string[];
+}
+
+export interface OneCProductImportResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCProductImportResultCountersDto;
+  rows: OneCProductImportResultRowDto[];
+}
+
+export interface PreviewOneCVariantImportDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export type OneCVariantImportPreviewRowDtoAction = typeof OneCVariantImportPreviewRowDtoAction[keyof typeof OneCVariantImportPreviewRowDtoAction];
+
+
+export const OneCVariantImportPreviewRowDtoAction = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  SKIP: 'SKIP',
+  ERROR: 'ERROR',
+} as const;
+
+export type OneCVariantImportPreviewRowDtoMatchBy = typeof OneCVariantImportPreviewRowDtoMatchBy[keyof typeof OneCVariantImportPreviewRowDtoMatchBy];
+
+
+export const OneCVariantImportPreviewRowDtoMatchBy = {
+  externalId: 'externalId',
+  sku: 'sku',
+  variantKey: 'variantKey',
+  none: 'none',
+} as const;
+
+export type OneCVariantImportPreviewRowDtoMapped = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCVariantImportPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCVariantImportPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  action: OneCVariantImportPreviewRowDtoAction;
+  matchBy: OneCVariantImportPreviewRowDtoMatchBy;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  productName: string | null;
+  /** @nullable */
+  productSku: string | null;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  variantSku: string | null;
+  /** @nullable */
+  variantKey: string | null;
+  mapped: OneCVariantImportPreviewRowDtoMapped;
+  changes: OneCImportPreviewChangeDto[];
+  errors: string[];
+  /** @nullable */
+  raw?: OneCVariantImportPreviewRowDtoRaw;
+}
+
+export interface OneCVariantImportPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCImportPreviewCountersDto;
+  rows: OneCVariantImportPreviewRowDto[];
+}
+
+export interface ImportOneCVariantsDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export type OneCVariantImportResultRowDtoStatus = typeof OneCVariantImportResultRowDtoStatus[keyof typeof OneCVariantImportResultRowDtoStatus];
+
+
+export const OneCVariantImportResultRowDtoStatus = {
+  CREATED: 'CREATED',
+  UPDATED: 'UPDATED',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED',
+} as const;
+
+export interface OneCVariantImportResultRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  status: OneCVariantImportResultRowDtoStatus;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  variantId: string | null;
+  errors: string[];
+}
+
+export interface OneCVariantImportResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCProductImportResultCountersDto;
+  rows: OneCVariantImportResultRowDto[];
+}
+
+export interface PreviewOneCStockSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export interface OneCValueSyncPreviewCountersDto {
+  total: number;
+  update: number;
+  skip: number;
+  error: number;
+}
+
+export type OneCValueSyncPreviewRowDtoAction = typeof OneCValueSyncPreviewRowDtoAction[keyof typeof OneCValueSyncPreviewRowDtoAction];
+
+
+export const OneCValueSyncPreviewRowDtoAction = {
+  UPDATE: 'UPDATE',
+  SKIP: 'SKIP',
+  ERROR: 'ERROR',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoTargetKind = typeof OneCValueSyncPreviewRowDtoTargetKind[keyof typeof OneCValueSyncPreviewRowDtoTargetKind] | null;
+
+
+export const OneCValueSyncPreviewRowDtoTargetKind = {
+  product: 'product',
+  variant: 'variant',
+} as const;
+
+export type OneCValueSyncPreviewRowDtoMatchBy = typeof OneCValueSyncPreviewRowDtoMatchBy[keyof typeof OneCValueSyncPreviewRowDtoMatchBy];
+
+
+export const OneCValueSyncPreviewRowDtoMatchBy = {
+  externalId: 'externalId',
+  id: 'id',
+  sku: 'sku',
+  none: 'none',
+} as const;
+
+export type OneCValueSyncPreviewRowDtoMapped = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoCurrentValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoNextValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCValueSyncPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  action: OneCValueSyncPreviewRowDtoAction;
+  /** @nullable */
+  targetKind: OneCValueSyncPreviewRowDtoTargetKind;
+  matchBy: OneCValueSyncPreviewRowDtoMatchBy;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  productName: string | null;
+  /** @nullable */
+  productSku: string | null;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  variantSku: string | null;
+  /** @nullable */
+  variantKey: string | null;
+  mapped: OneCValueSyncPreviewRowDtoMapped;
+  /** @nullable */
+  currentValue: OneCValueSyncPreviewRowDtoCurrentValue;
+  /** @nullable */
+  nextValue: OneCValueSyncPreviewRowDtoNextValue;
+  errors: string[];
+  /** @nullable */
+  raw?: OneCValueSyncPreviewRowDtoRaw;
+}
+
+export interface OneCStockSyncPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCValueSyncPreviewCountersDto;
+  rows: OneCValueSyncPreviewRowDto[];
+}
+
+export interface ApplyOneCStockSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface OneCValueSyncResultCountersDto {
+  total: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+}
+
+export type OneCValueSyncResultRowDtoStatus = typeof OneCValueSyncResultRowDtoStatus[keyof typeof OneCValueSyncResultRowDtoStatus];
+
+
+export const OneCValueSyncResultRowDtoStatus = {
+  UPDATED: 'UPDATED',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncResultRowDtoTargetKind = typeof OneCValueSyncResultRowDtoTargetKind[keyof typeof OneCValueSyncResultRowDtoTargetKind] | null;
+
+
+export const OneCValueSyncResultRowDtoTargetKind = {
+  product: 'product',
+  variant: 'variant',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncResultRowDtoPreviousValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncResultRowDtoNextValue = { [key: string]: unknown } | null;
+
+export interface OneCValueSyncResultRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  status: OneCValueSyncResultRowDtoStatus;
+  /** @nullable */
+  targetKind: OneCValueSyncResultRowDtoTargetKind;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  previousValue: OneCValueSyncResultRowDtoPreviousValue;
+  /** @nullable */
+  nextValue: OneCValueSyncResultRowDtoNextValue;
+  errors: string[];
+}
+
+export interface OneCStockSyncResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCValueSyncResultCountersDto;
+  rows: OneCValueSyncResultRowDto[];
+}
+
+export interface PreviewOneCPriceSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export interface OneCPriceSyncPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCValueSyncPreviewCountersDto;
+  rows: OneCValueSyncPreviewRowDto[];
+}
+
+export interface ApplyOneCPriceSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface OneCPriceSyncResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCValueSyncResultCountersDto;
+  rows: OneCValueSyncResultRowDto[];
+}
+
+export interface RunOneCProductSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export type OneCQueuedSyncDtoMode = typeof OneCQueuedSyncDtoMode[keyof typeof OneCQueuedSyncDtoMode];
+
+
+export const OneCQueuedSyncDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+} as const;
+
+export type OneCQueuedSyncDtoTrigger = typeof OneCQueuedSyncDtoTrigger[keyof typeof OneCQueuedSyncDtoTrigger];
+
+
+export const OneCQueuedSyncDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export interface OneCQueuedSyncDto {
+  ok: boolean;
+  queued: boolean;
+  runId: string;
+  jobId: string;
+  mode: OneCQueuedSyncDtoMode;
+  trigger: OneCQueuedSyncDtoTrigger;
+}
+
+export interface RunOneCVariantSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface RunOneCStockSyncDtoReq {
+  /** @nullable */
+  entityMappingId?: string | null;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface RunOneCPriceSyncDtoReq {
+  /** @nullable */
+  entityMappingId?: string | null;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
 }
 
 export interface CategoryDto {
@@ -4255,6 +5838,10 @@ export interface CartItemDto {
   variantId: string | null;
   /** @nullable */
   saleUnitId?: string | null;
+  /** @nullable */
+  guestSessionId?: string | null;
+  /** @nullable */
+  guestName?: string | null;
   quantity: number;
   baseQuantity: number;
   product: CartProductShortDto;
@@ -4268,6 +5855,46 @@ export interface CartItemDto {
   /** Признак активной скидки в сохраненном снимке цены */
   hasDiscount: boolean;
   lineTotal: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CartTableSessionStatus = typeof CartTableSessionStatus[keyof typeof CartTableSessionStatus];
+
+
+export const CartTableSessionStatus = {
+  OPEN: 'OPEN',
+  PENDING_CONFIRMATION: 'PENDING_CONFIRMATION',
+  SUBMITTED: 'SUBMITTED',
+  EXPORT_ERROR: 'EXPORT_ERROR',
+  CLOSED: 'CLOSED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+} as const;
+
+export interface CartTableSessionDto {
+  id: string;
+  status: CartTableSessionStatus;
+  publicCode: string;
+  tableExternalId: string;
+  /** @nullable */
+  tableNumber: string | null;
+  /** @nullable */
+  tableName: string | null;
+  /** @nullable */
+  sectionExternalId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+  /** @nullable */
+  guestsCount: number | null;
+  /** @nullable */
+  externalOrderId: string | null;
+  /** @nullable */
+  submittedOrderId: string | null;
+  /** @nullable */
+  submittedAt: string | null;
+  /** @nullable */
+  closedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -4335,6 +5962,7 @@ export interface CartDto {
   /** @nullable */
   closedAt: string | null;
   items: CartItemDto[];
+  tableSession: CartTableSessionDto | null;
   totals: CartTotalsDto;
   createdAt: string;
   updatedAt: string;
@@ -4384,6 +6012,10 @@ export interface CompletedOrderItemDto {
   variantId: string | null;
   /** @nullable */
   saleUnitId: string | null;
+  /** @nullable */
+  guestSessionId: string | null;
+  /** @nullable */
+  guestName: string | null;
   quantity: number;
   baseQuantity: number;
   unitPrice: number;
@@ -4453,6 +6085,55 @@ export interface HallTableLinkResponseDto {
   table: HallTableLinkDto;
 }
 
+export interface HallTableOverviewDto {
+  code: string;
+  /** @nullable */
+  tableName: string | null;
+  /** @nullable */
+  tableNumber: string | null;
+  /** @nullable */
+  sectionId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+  tableExternalId: string;
+  /** @nullable */
+  publicKey: string | null;
+  session: CartTableSessionDto | null;
+  cart: CartDto | null;
+  hasItems: boolean;
+  needsConfirmation: boolean;
+  itemsCount: number;
+  total: number;
+  /** @nullable */
+  updatedAt: string | null;
+}
+
+export interface HallTableOverviewResponseDto {
+  ok: boolean;
+  tables: HallTableOverviewDto[];
+}
+
+export interface JoinHallTableSessionDtoReq {
+  /** @maxLength 64 */
+  guestSessionId?: string;
+  /** @maxLength 120 */
+  guestName?: string;
+  guestsCount?: number;
+}
+
+export interface HallTableSessionDto {
+  session: CartTableSessionDto;
+  cart: CartDto;
+  publicKey: string;
+  /** @nullable */
+  guestSessionId: string | null;
+}
+
+export interface HallTableSessionResponseDto {
+  ok: boolean;
+  tableSession: HallTableSessionDto;
+}
+
 export interface UpsertCartItemDtoReq {
   productId: string;
   variantId?: string;
@@ -4460,6 +6141,10 @@ export interface UpsertCartItemDtoReq {
   saleUnitId?: string;
   /** 0 = удалить позицию из корзины */
   quantity: number;
+  /** @maxLength 64 */
+  guestSessionId?: string;
+  /** @maxLength 120 */
+  guestName?: string;
 }
 
 export interface PublicUpsertCartItemDtoReq {
@@ -4469,6 +6154,10 @@ export interface PublicUpsertCartItemDtoReq {
   saleUnitId?: string;
   /** 0 = удалить позицию из корзины */
   quantity: number;
+  /** @maxLength 64 */
+  guestSessionId?: string;
+  /** @maxLength 120 */
+  guestName?: string;
 }
 
 export type ProductTypeAttributeAttributeDtoDataType = typeof ProductTypeAttributeAttributeDtoDataType[keyof typeof ProductTypeAttributeAttributeDtoDataType];
@@ -5186,6 +6875,13 @@ limit?: number;
 
 export type IntegrationControllerReceiveMoySkladStockWebhookParams = {
 requestId?: string;
+};
+
+export type OneCIntegrationControllerGetOneCRunsParams = {
+/**
+ * How many recent sync runs to return
+ */
+limit?: number;
 };
 
 export type CatalogSaleUnitControllerGetAllParams = {
@@ -7795,6 +9491,491 @@ const integrationControllerGetIikoOrderExportTimeline = (
     }
   
 /**
+ * @summary Get ONE_C integration settings
+ */
+const oneCIntegrationControllerGetOneC = (
+    
+ ) => {
+      return mutator<OneCIntegrationDto>(
+      {url: `/integration/1c`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create or replace ONE_C integration settings
+ */
+const oneCIntegrationControllerUpsertOneC = (
+    upsertOneCIntegrationDtoReq: UpsertOneCIntegrationDtoReq,
+ ) => {
+      return mutator<OneCIntegrationDto>(
+      {url: `/integration/1c`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertOneCIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Update ONE_C integration settings
+ */
+const oneCIntegrationControllerUpdateOneC = (
+    updateOneCIntegrationDtoReq: UpdateOneCIntegrationDtoReq,
+ ) => {
+      return mutator<OneCIntegrationDto>(
+      {url: `/integration/1c`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCIntegrationDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Remove ONE_C integration settings
+ */
+const oneCIntegrationControllerRemoveOneC = (
+    
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Get ONE_C integration status
+ */
+const oneCIntegrationControllerGetOneCStatus = (
+    
+ ) => {
+      return mutator<OneCIntegrationStatusDto>(
+      {url: `/integration/1c/status`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get ONE_C sync history
+ */
+const oneCIntegrationControllerGetOneCRuns = (
+    params?: OneCIntegrationControllerGetOneCRunsParams,
+ ) => {
+      return mutator<OneCSyncRunDto[]>(
+      {url: `/integration/1c/runs`, method: 'GET',
+        params
+    },
+      );
+    }
+  
+/**
+ * @summary Get ONE_C sync progress
+ */
+const oneCIntegrationControllerGetOneCRunProgress = (
+    runId: string,
+ ) => {
+      return mutator<OneCSyncProgressDto>(
+      {url: `/integration/1c/runs/${runId}/progress`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get recommended ONE_C PRODUCT mapping
+ */
+const oneCIntegrationControllerGetOneCRecommendedProductMapping = (
+    
+ ) => {
+      return mutator<OneCRecommendedProductMappingDto>(
+      {url: `/integration/1c/product-mapping-default`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Get recommended ONE_C PRODUCT_VARIANT mapping
+ */
+const oneCIntegrationControllerGetOneCRecommendedVariantMapping = (
+    
+ ) => {
+      return mutator<OneCRecommendedVariantMappingDto>(
+      {url: `/integration/1c/variant-mapping-default`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Test ONE_C API connection
+ */
+const oneCIntegrationControllerTestOneCConnection = (
+    testOneCConnectionDtoReq: TestOneCConnectionDtoReq,
+ ) => {
+      return mutator<OneCTestConnectionDto>(
+      {url: `/integration/1c/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testOneCConnectionDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Discover ONE_C OData objects and fields
+ */
+const oneCIntegrationControllerDiscoverOneCObjects = (
+    discoverOneCObjectsDtoReq: DiscoverOneCObjectsDtoReq,
+ ) => {
+      return mutator<OneCDiscoverObjectsDto>(
+      {url: `/integration/1c/discover`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: discoverOneCObjectsDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary List configured ONE_C external objects
+ */
+const oneCIntegrationControllerListOneCObjects = (
+    
+ ) => {
+      return mutator<OneCExternalObjectDto[]>(
+      {url: `/integration/1c/objects`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create or update ONE_C external object
+ */
+const oneCIntegrationControllerCreateOneCObject = (
+    createOneCExternalObjectDtoReq: CreateOneCExternalObjectDtoReq,
+ ) => {
+      return mutator<OneCExternalObjectDto>(
+      {url: `/integration/1c/objects`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOneCExternalObjectDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Update ONE_C external object
+ */
+const oneCIntegrationControllerUpdateOneCObject = (
+    id: string,
+    updateOneCExternalObjectDtoReq: UpdateOneCExternalObjectDtoReq,
+ ) => {
+      return mutator<OneCExternalObjectDto>(
+      {url: `/integration/1c/objects/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCExternalObjectDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Delete ONE_C external object
+ */
+const oneCIntegrationControllerDeleteOneCObject = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c/objects/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary List ONE_C entity mappings
+ */
+const oneCIntegrationControllerListOneCEntityMappings = (
+    
+ ) => {
+      return mutator<OneCEntityMappingDto[]>(
+      {url: `/integration/1c/entity-mappings`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create ONE_C entity mapping
+ */
+const oneCIntegrationControllerCreateOneCEntityMapping = (
+    createOneCEntityMappingDtoReq: CreateOneCEntityMappingDtoReq,
+ ) => {
+      return mutator<OneCEntityMappingDto>(
+      {url: `/integration/1c/entity-mappings`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOneCEntityMappingDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Update ONE_C entity mapping
+ */
+const oneCIntegrationControllerUpdateOneCEntityMapping = (
+    id: string,
+    updateOneCEntityMappingDtoReq: UpdateOneCEntityMappingDtoReq,
+ ) => {
+      return mutator<OneCEntityMappingDto>(
+      {url: `/integration/1c/entity-mappings/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCEntityMappingDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Delete ONE_C entity mapping
+ */
+const oneCIntegrationControllerDeleteOneCEntityMapping = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c/entity-mappings/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Create ONE_C field mapping
+ */
+const oneCIntegrationControllerCreateOneCFieldMapping = (
+    id: string,
+    createOneCFieldMappingDtoReq: CreateOneCFieldMappingDtoReq,
+ ) => {
+      return mutator<OneCFieldMappingDto>(
+      {url: `/integration/1c/entity-mappings/${id}/field-mappings`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOneCFieldMappingDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Update ONE_C field mapping
+ */
+const oneCIntegrationControllerUpdateOneCFieldMapping = (
+    id: string,
+    updateOneCFieldMappingDtoReq: UpdateOneCFieldMappingDtoReq,
+ ) => {
+      return mutator<OneCFieldMappingDto>(
+      {url: `/integration/1c/field-mappings/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCFieldMappingDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Delete ONE_C field mapping
+ */
+const oneCIntegrationControllerDeleteOneCFieldMapping = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c/field-mappings/${id}`, method: 'DELETE'
+    },
+      );
+    }
+  
+/**
+ * @summary Preview ONE_C field mapping against a sample payload
+ */
+const oneCIntegrationControllerPreviewOneCMapping = (
+    previewOneCMappingDtoReq: PreviewOneCMappingDtoReq,
+ ) => {
+      return mutator<OneCMappingPreviewDto>(
+      {url: `/integration/1c/mapping-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCMappingDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Fetch ONE_C rows and preview field mapping without writing locally
+ */
+const oneCIntegrationControllerPreviewOneCRemoteMapping = (
+    previewOneCRemoteMappingDtoReq: PreviewOneCRemoteMappingDtoReq,
+ ) => {
+      return mutator<OneCRemoteMappingPreviewDto>(
+      {url: `/integration/1c/remote-mapping-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCRemoteMappingDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Build ONE_C product import dry-run plan without writing locally
+ */
+const oneCIntegrationControllerPreviewOneCProductImport = (
+    previewOneCProductImportDtoReq: PreviewOneCProductImportDtoReq,
+ ) => {
+      return mutator<OneCProductImportPreviewDto>(
+      {url: `/integration/1c/product-import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCProductImportDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Import ONE_C products using configured field mapping
+ */
+const oneCIntegrationControllerImportOneCProducts = (
+    importOneCProductsDtoReq: ImportOneCProductsDtoReq,
+ ) => {
+      return mutator<OneCProductImportResultDto>(
+      {url: `/integration/1c/import-products`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: importOneCProductsDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Build ONE_C product variant import dry-run plan without writing locally
+ */
+const oneCIntegrationControllerPreviewOneCVariantImport = (
+    previewOneCVariantImportDtoReq: PreviewOneCVariantImportDtoReq,
+ ) => {
+      return mutator<OneCVariantImportPreviewDto>(
+      {url: `/integration/1c/variant-import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCVariantImportDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Import ONE_C product variants using configured field mapping
+ */
+const oneCIntegrationControllerImportOneCVariants = (
+    importOneCVariantsDtoReq: ImportOneCVariantsDtoReq,
+ ) => {
+      return mutator<OneCVariantImportResultDto>(
+      {url: `/integration/1c/import-variants`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: importOneCVariantsDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Build ONE_C stock sync dry-run plan without writing locally
+ */
+const oneCIntegrationControllerPreviewOneCStockSync = (
+    previewOneCStockSyncDtoReq: PreviewOneCStockSyncDtoReq,
+ ) => {
+      return mutator<OneCStockSyncPreviewDto>(
+      {url: `/integration/1c/stock-sync-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCStockSyncDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Apply ONE_C stock rows using configured field mapping
+ */
+const oneCIntegrationControllerApplyOneCStockSync = (
+    applyOneCStockSyncDtoReq: ApplyOneCStockSyncDtoReq,
+ ) => {
+      return mutator<OneCStockSyncResultDto>(
+      {url: `/integration/1c/apply-stock`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: applyOneCStockSyncDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Build ONE_C price sync dry-run plan without writing locally
+ */
+const oneCIntegrationControllerPreviewOneCPriceSync = (
+    previewOneCPriceSyncDtoReq: PreviewOneCPriceSyncDtoReq,
+ ) => {
+      return mutator<OneCPriceSyncPreviewDto>(
+      {url: `/integration/1c/price-sync-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCPriceSyncDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Apply ONE_C price rows using configured field mapping
+ */
+const oneCIntegrationControllerApplyOneCPriceSync = (
+    applyOneCPriceSyncDtoReq: ApplyOneCPriceSyncDtoReq,
+ ) => {
+      return mutator<OneCPriceSyncResultDto>(
+      {url: `/integration/1c/apply-prices`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: applyOneCPriceSyncDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Queue managed ONE_C product sync and record sync history
+ */
+const oneCIntegrationControllerSyncOneCProducts = (
+    runOneCProductSyncDtoReq: RunOneCProductSyncDtoReq,
+ ) => {
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-products`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCProductSyncDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Queue managed ONE_C product variant sync and record sync history
+ */
+const oneCIntegrationControllerSyncOneCVariants = (
+    runOneCVariantSyncDtoReq: RunOneCVariantSyncDtoReq,
+ ) => {
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-variants`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCVariantSyncDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Queue managed ONE_C stock sync and record sync history
+ */
+const oneCIntegrationControllerSyncOneCStock = (
+    runOneCStockSyncDtoReq: RunOneCStockSyncDtoReq,
+ ) => {
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-stock`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCStockSyncDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Queue managed ONE_C price sync and record sync history
+ */
+const oneCIntegrationControllerSyncOneCPrices = (
+    runOneCPriceSyncDtoReq: RunOneCPriceSyncDtoReq,
+ ) => {
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-prices`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCPriceSyncDtoReq
+    },
+      );
+    }
+  
+/**
  * @summary List current catalog sale units
  */
 const catalogSaleUnitControllerGetAll = (
@@ -8182,6 +10363,33 @@ const cartControllerGetHallTableLink = (
     }
   
 /**
+ * @summary List iiko hall tables with active cart sessions
+ */
+const cartControllerListHallTables = (
+    
+ ) => {
+      return mutator<HallTableOverviewResponseDto>(
+      {url: `/cart/hall-tables`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Create or return a shared cart session for a hall table
+ */
+const cartControllerJoinHallTableSession = (
+    code: string,
+    joinHallTableSessionDtoReq?: JoinHallTableSessionDtoReq,
+ ) => {
+      return mutator<HallTableSessionResponseDto>(
+      {url: `/cart/hall-table/${code}/session`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: joinHallTableSessionDtoReq
+    },
+      );
+    }
+  
+/**
  * @summary Upsert an item in the current cart
  */
 const cartControllerUpsertCurrentItem = (
@@ -8276,6 +10484,60 @@ const cartControllerCompleteManagerOrder = (
  ) => {
       return mutator<CompleteCartOrderResponseDto>(
       {url: `/cart/public/${publicKey}/manager/complete`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Close an open shared hall table cart
+ */
+const cartControllerCloseHallTableSession = (
+    publicKey: string,
+ ) => {
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-table/close`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Reset an open shared hall table cart
+ */
+const cartControllerResetHallTableSession = (
+    publicKey: string,
+ ) => {
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-table/reset`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Confirm a shared hall table cart and send it to iiko
+ */
+const cartControllerConfirmHallTableOrder = (
+    publicKey: string,
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
+ ) => {
+      return mutator<CompleteCartOrderResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-table/confirm`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq
+    },
+      );
+    }
+  
+/**
+ * @summary Send a public shared hall table cart to waiter confirmation
+ */
+const cartControllerSubmitPublicHallOrder = (
+    publicKey: string,
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
+ ) => {
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-order`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: shareCurrentCartDtoReq
     },
@@ -8559,7 +10821,7 @@ const seoControllerRemove = (
       );
     }
   
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetDomainEventOutbox,adminControllerGetDomainEventOutboxStats,adminControllerRetryDomainEventOutboxItem,adminControllerRetryFailedDomainEvents,adminControllerDrainDomainEventOutbox,adminControllerCleanupDomainEventOutbox,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDiagnoseCatalogDefaultVariants,adminControllerRepairCatalogMissingDefaultVariants,adminControllerRepairCatalogDefaultVariantPriceMismatches,adminControllerGetCatalogMoySkladStockDiagnostics,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerDiagnoseDefaultVariants,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerRepairDefaultVariantPriceMismatches,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerListSaleUnits,catalogAdvancedSettingsControllerCreateSaleUnit,catalogAdvancedSettingsControllerGetSaleUnit,catalogAdvancedSettingsControllerUpdateSaleUnit,catalogAdvancedSettingsControllerArchiveSaleUnit,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogAdvancedSettingsControllerGetIiko,catalogAdvancedSettingsControllerUpsertIiko,catalogAdvancedSettingsControllerUpdateIiko,catalogAdvancedSettingsControllerRemoveIiko,catalogAdvancedSettingsControllerGetIikoStatus,catalogAdvancedSettingsControllerGetIikoRuns,catalogAdvancedSettingsControllerGetIikoWebhookEvents,catalogAdvancedSettingsControllerRetryIikoWebhookEvent,catalogAdvancedSettingsControllerGetIikoRunProgress,catalogAdvancedSettingsControllerTestIikoConnection,catalogAdvancedSettingsControllerPreviewIikoImport,catalogAdvancedSettingsControllerSyncIikoCatalog,catalogAdvancedSettingsControllerSyncIikoStock,catalogAdvancedSettingsControllerSyncIikoProduct,catalogAdvancedSettingsControllerSetupIikoWebhooks,catalogAdvancedSettingsControllerDisableIikoWebhooks,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetIiko,integrationControllerUpsertIiko,integrationControllerUpdateIiko,integrationControllerRemoveIiko,integrationControllerGetIikoStatus,integrationControllerTestIikoConnection,integrationControllerGetIikoTables,integrationControllerPreviewIikoImport,integrationControllerSyncIikoCatalog,integrationControllerSyncIikoStock,integrationControllerSyncIikoProduct,integrationControllerSetupIikoWebhooks,integrationControllerDisableIikoWebhooks,integrationControllerGetIikoRuns,integrationControllerGetIikoRunProgress,integrationControllerGetIikoOrderExports,integrationControllerGetIikoWebhookEvents,integrationControllerRetryIikoWebhookEvent,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerReceiveMoySkladProductDeleteWebhook,integrationControllerReceiveMoySkladProductChangeWebhook,integrationControllerReceiveMoySkladProductFolderWebhook,integrationControllerReceiveIikoWebhook,integrationControllerRetryMoySkladOrderExport,integrationControllerRetryIikoOrderExport,integrationControllerGetIikoOrderExportTimeline,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerSubmitCurrentHallOrder,cartControllerGetHallTableLink,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetDomainEventOutbox,adminControllerGetDomainEventOutboxStats,adminControllerRetryDomainEventOutboxItem,adminControllerRetryFailedDomainEvents,adminControllerDrainDomainEventOutbox,adminControllerCleanupDomainEventOutbox,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDiagnoseCatalogDefaultVariants,adminControllerRepairCatalogMissingDefaultVariants,adminControllerRepairCatalogDefaultVariantPriceMismatches,adminControllerGetCatalogMoySkladStockDiagnostics,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerDiagnoseDefaultVariants,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerRepairDefaultVariantPriceMismatches,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerListSaleUnits,catalogAdvancedSettingsControllerCreateSaleUnit,catalogAdvancedSettingsControllerGetSaleUnit,catalogAdvancedSettingsControllerUpdateSaleUnit,catalogAdvancedSettingsControllerArchiveSaleUnit,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogAdvancedSettingsControllerGetIiko,catalogAdvancedSettingsControllerUpsertIiko,catalogAdvancedSettingsControllerUpdateIiko,catalogAdvancedSettingsControllerRemoveIiko,catalogAdvancedSettingsControllerGetIikoStatus,catalogAdvancedSettingsControllerGetIikoRuns,catalogAdvancedSettingsControllerGetIikoWebhookEvents,catalogAdvancedSettingsControllerRetryIikoWebhookEvent,catalogAdvancedSettingsControllerGetIikoRunProgress,catalogAdvancedSettingsControllerTestIikoConnection,catalogAdvancedSettingsControllerPreviewIikoImport,catalogAdvancedSettingsControllerSyncIikoCatalog,catalogAdvancedSettingsControllerSyncIikoStock,catalogAdvancedSettingsControllerSyncIikoProduct,catalogAdvancedSettingsControllerSetupIikoWebhooks,catalogAdvancedSettingsControllerDisableIikoWebhooks,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetIiko,integrationControllerUpsertIiko,integrationControllerUpdateIiko,integrationControllerRemoveIiko,integrationControllerGetIikoStatus,integrationControllerTestIikoConnection,integrationControllerGetIikoTables,integrationControllerPreviewIikoImport,integrationControllerSyncIikoCatalog,integrationControllerSyncIikoStock,integrationControllerSyncIikoProduct,integrationControllerSetupIikoWebhooks,integrationControllerDisableIikoWebhooks,integrationControllerGetIikoRuns,integrationControllerGetIikoRunProgress,integrationControllerGetIikoOrderExports,integrationControllerGetIikoWebhookEvents,integrationControllerRetryIikoWebhookEvent,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerReceiveMoySkladProductDeleteWebhook,integrationControllerReceiveMoySkladProductChangeWebhook,integrationControllerReceiveMoySkladProductFolderWebhook,integrationControllerReceiveIikoWebhook,integrationControllerRetryMoySkladOrderExport,integrationControllerRetryIikoOrderExport,integrationControllerGetIikoOrderExportTimeline,oneCIntegrationControllerGetOneC,oneCIntegrationControllerUpsertOneC,oneCIntegrationControllerUpdateOneC,oneCIntegrationControllerRemoveOneC,oneCIntegrationControllerGetOneCStatus,oneCIntegrationControllerGetOneCRuns,oneCIntegrationControllerGetOneCRunProgress,oneCIntegrationControllerGetOneCRecommendedProductMapping,oneCIntegrationControllerGetOneCRecommendedVariantMapping,oneCIntegrationControllerTestOneCConnection,oneCIntegrationControllerDiscoverOneCObjects,oneCIntegrationControllerListOneCObjects,oneCIntegrationControllerCreateOneCObject,oneCIntegrationControllerUpdateOneCObject,oneCIntegrationControllerDeleteOneCObject,oneCIntegrationControllerListOneCEntityMappings,oneCIntegrationControllerCreateOneCEntityMapping,oneCIntegrationControllerUpdateOneCEntityMapping,oneCIntegrationControllerDeleteOneCEntityMapping,oneCIntegrationControllerCreateOneCFieldMapping,oneCIntegrationControllerUpdateOneCFieldMapping,oneCIntegrationControllerDeleteOneCFieldMapping,oneCIntegrationControllerPreviewOneCMapping,oneCIntegrationControllerPreviewOneCRemoteMapping,oneCIntegrationControllerPreviewOneCProductImport,oneCIntegrationControllerImportOneCProducts,oneCIntegrationControllerPreviewOneCVariantImport,oneCIntegrationControllerImportOneCVariants,oneCIntegrationControllerPreviewOneCStockSync,oneCIntegrationControllerApplyOneCStockSync,oneCIntegrationControllerPreviewOneCPriceSync,oneCIntegrationControllerApplyOneCPriceSync,oneCIntegrationControllerSyncOneCProducts,oneCIntegrationControllerSyncOneCVariants,oneCIntegrationControllerSyncOneCStock,oneCIntegrationControllerSyncOneCPrices,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerSubmitCurrentHallOrder,cartControllerGetHallTableLink,cartControllerListHallTables,cartControllerJoinHallTableSession,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerCloseHallTableSession,cartControllerResetHallTableSession,cartControllerConfirmHallTableOrder,cartControllerSubmitPublicHallOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -8753,6 +11015,42 @@ export type IntegrationControllerReceiveIikoWebhookResult = NonNullable<Awaited<
 export type IntegrationControllerRetryMoySkladOrderExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRetryMoySkladOrderExport']>>>
 export type IntegrationControllerRetryIikoOrderExportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerRetryIikoOrderExport']>>>
 export type IntegrationControllerGetIikoOrderExportTimelineResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['integrationControllerGetIikoOrderExportTimeline']>>>
+export type OneCIntegrationControllerGetOneCResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerGetOneC']>>>
+export type OneCIntegrationControllerUpsertOneCResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerUpsertOneC']>>>
+export type OneCIntegrationControllerUpdateOneCResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerUpdateOneC']>>>
+export type OneCIntegrationControllerRemoveOneCResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerRemoveOneC']>>>
+export type OneCIntegrationControllerGetOneCStatusResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerGetOneCStatus']>>>
+export type OneCIntegrationControllerGetOneCRunsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerGetOneCRuns']>>>
+export type OneCIntegrationControllerGetOneCRunProgressResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerGetOneCRunProgress']>>>
+export type OneCIntegrationControllerGetOneCRecommendedProductMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerGetOneCRecommendedProductMapping']>>>
+export type OneCIntegrationControllerGetOneCRecommendedVariantMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerGetOneCRecommendedVariantMapping']>>>
+export type OneCIntegrationControllerTestOneCConnectionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerTestOneCConnection']>>>
+export type OneCIntegrationControllerDiscoverOneCObjectsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerDiscoverOneCObjects']>>>
+export type OneCIntegrationControllerListOneCObjectsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerListOneCObjects']>>>
+export type OneCIntegrationControllerCreateOneCObjectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerCreateOneCObject']>>>
+export type OneCIntegrationControllerUpdateOneCObjectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerUpdateOneCObject']>>>
+export type OneCIntegrationControllerDeleteOneCObjectResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerDeleteOneCObject']>>>
+export type OneCIntegrationControllerListOneCEntityMappingsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerListOneCEntityMappings']>>>
+export type OneCIntegrationControllerCreateOneCEntityMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerCreateOneCEntityMapping']>>>
+export type OneCIntegrationControllerUpdateOneCEntityMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerUpdateOneCEntityMapping']>>>
+export type OneCIntegrationControllerDeleteOneCEntityMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerDeleteOneCEntityMapping']>>>
+export type OneCIntegrationControllerCreateOneCFieldMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerCreateOneCFieldMapping']>>>
+export type OneCIntegrationControllerUpdateOneCFieldMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerUpdateOneCFieldMapping']>>>
+export type OneCIntegrationControllerDeleteOneCFieldMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerDeleteOneCFieldMapping']>>>
+export type OneCIntegrationControllerPreviewOneCMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerPreviewOneCMapping']>>>
+export type OneCIntegrationControllerPreviewOneCRemoteMappingResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerPreviewOneCRemoteMapping']>>>
+export type OneCIntegrationControllerPreviewOneCProductImportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerPreviewOneCProductImport']>>>
+export type OneCIntegrationControllerImportOneCProductsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerImportOneCProducts']>>>
+export type OneCIntegrationControllerPreviewOneCVariantImportResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerPreviewOneCVariantImport']>>>
+export type OneCIntegrationControllerImportOneCVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerImportOneCVariants']>>>
+export type OneCIntegrationControllerPreviewOneCStockSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerPreviewOneCStockSync']>>>
+export type OneCIntegrationControllerApplyOneCStockSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerApplyOneCStockSync']>>>
+export type OneCIntegrationControllerPreviewOneCPriceSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerPreviewOneCPriceSync']>>>
+export type OneCIntegrationControllerApplyOneCPriceSyncResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerApplyOneCPriceSync']>>>
+export type OneCIntegrationControllerSyncOneCProductsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerSyncOneCProducts']>>>
+export type OneCIntegrationControllerSyncOneCVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerSyncOneCVariants']>>>
+export type OneCIntegrationControllerSyncOneCStockResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerSyncOneCStock']>>>
+export type OneCIntegrationControllerSyncOneCPricesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['oneCIntegrationControllerSyncOneCPrices']>>>
 export type CatalogSaleUnitControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetAll']>>>
 export type CatalogSaleUnitControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerCreate']>>>
 export type CatalogSaleUnitControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetById']>>>
@@ -8782,6 +11080,8 @@ export type CartControllerDeleteCurrentResult = NonNullable<Awaited<ReturnType<R
 export type CartControllerShareCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerShareCurrent']>>>
 export type CartControllerSubmitCurrentHallOrderResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSubmitCurrentHallOrder']>>>
 export type CartControllerGetHallTableLinkResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerGetHallTableLink']>>>
+export type CartControllerListHallTablesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerListHallTables']>>>
+export type CartControllerJoinHallTableSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerJoinHallTableSession']>>>
 export type CartControllerUpsertCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerUpsertCurrentItem']>>>
 export type CartControllerRemoveCurrentItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerRemoveCurrentItem']>>>
 export type CartControllerSseCurrentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSseCurrent']>>>
@@ -8790,6 +11090,10 @@ export type CartControllerStartManagerSessionResult = NonNullable<Awaited<Return
 export type CartControllerHeartbeatManagerSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerHeartbeatManagerSession']>>>
 export type CartControllerReleaseManagerSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerReleaseManagerSession']>>>
 export type CartControllerCompleteManagerOrderResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCompleteManagerOrder']>>>
+export type CartControllerCloseHallTableSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerCloseHallTableSession']>>>
+export type CartControllerResetHallTableSessionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerResetHallTableSession']>>>
+export type CartControllerConfirmHallTableOrderResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerConfirmHallTableOrder']>>>
+export type CartControllerSubmitPublicHallOrderResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSubmitPublicHallOrder']>>>
 export type CartControllerUpsertPublicItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerUpsertPublicItem']>>>
 export type CartControllerRemovePublicItemResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerRemovePublicItem']>>>
 export type CartControllerSsePublicResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['cartControllerSsePublic']>>>

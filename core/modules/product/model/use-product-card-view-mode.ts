@@ -6,7 +6,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 export const PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME =
-  "grid grid-cols-[repeat(auto-fill,minmax(127px,1fr))] gap-4";
+  "grid grid-cols-[repeat(auto-fill,minmax(127px,1fr))] gap-3";
 export const PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME = "grid grid-cols-1 gap-4";
 export const PRODUCT_CARD_VIEW_MODES = ["grid", "detailed"] as const;
 

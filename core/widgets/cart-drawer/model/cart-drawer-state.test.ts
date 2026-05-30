@@ -57,6 +57,37 @@ describe("cart drawer state", () => {
     expect(state.shouldHideDrawer).toBe(true);
   });
 
+  it("hides an empty hall table public cart", () => {
+    const state = resolveCartDrawerVisibility({
+      canCreateManagerOrder: false,
+      cart: { publicKey: "public-key", status: "SHARED" },
+      hasItems: false,
+      hasPreparedShareOrder: false,
+      isHallTablePublicCart: true,
+      isPublicMode: true,
+      publicAccessPublicKey: "public-key",
+      shouldUseCartUi: true,
+    });
+
+    expect(state.shouldKeepEmptySharedCartOpen).toBe(false);
+    expect(state.shouldHideDrawer).toBe(true);
+  });
+
+  it("keeps ordinary empty public carts visible", () => {
+    const state = resolveCartDrawerVisibility({
+      canCreateManagerOrder: false,
+      cart: { publicKey: "public-key", status: "SHARED" },
+      hasItems: false,
+      hasPreparedShareOrder: false,
+      isPublicMode: true,
+      publicAccessPublicKey: "public-key",
+      shouldUseCartUi: true,
+    });
+
+    expect(state.shouldKeepEmptySharedCartOpen).toBe(true);
+    expect(state.shouldHideDrawer).toBe(false);
+  });
+
   it("exposes manager start bar when catalog supports manager orders without active cart UI", () => {
     const state = resolveCartDrawerVisibility({
       canCreateManagerOrder: true,

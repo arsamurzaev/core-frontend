@@ -55,6 +55,14 @@ export function useCartPublicAccess({ catalogId }: UseCartPublicAccessParams) {
     [storageKey],
   );
 
+  const openPublicAccess = React.useCallback(
+    (access: CartPublicAccess) => {
+      setAutoExpandPublicCartAccessKey(getPublicAccessKey(access));
+      persistPublicAccess(access);
+    },
+    [persistPublicAccess],
+  );
+
   const notifyPublicCartUnavailable = React.useCallback(() => {
     const now = Date.now();
 
@@ -119,6 +127,7 @@ export function useCartPublicAccess({ catalogId }: UseCartPublicAccessParams) {
     clearStoredPublicAccess,
     isHydrated,
     notifyPublicCartUnavailable,
+    openPublicAccess,
     persistPublicAccess,
     setStoredPublicAccess,
     storageKey,

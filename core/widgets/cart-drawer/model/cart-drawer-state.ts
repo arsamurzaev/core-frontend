@@ -41,6 +41,7 @@ export function resolveCartDrawerVisibility(params: {
   cart: CartVisibilitySnapshot | null | undefined;
   hasItems: boolean;
   hasPreparedShareOrder: boolean;
+  isHallTablePublicCart?: boolean;
   isPublicMode: boolean;
   publicAccessPublicKey: string | null | undefined;
   shouldUseCartUi: boolean;
@@ -55,12 +56,13 @@ export function resolveCartDrawerVisibility(params: {
     !params.isPublicMode &&
     Boolean(params.cart) &&
     (params.hasItems || hasPublicCartLink);
+  const shouldKeepPublicCartOpen = !params.isHallTablePublicCart;
   const shouldKeepEmptySharedCartOpen =
-    params.isPublicMode ||
-    hasPublicCartLink ||
-    hasSharedCart ||
+    (params.isPublicMode && shouldKeepPublicCartOpen) ||
+    (hasPublicCartLink && shouldKeepPublicCartOpen) ||
+    (hasSharedCart && shouldKeepPublicCartOpen) ||
     params.hasPreparedShareOrder ||
-    checkoutCartStatus;
+    (checkoutCartStatus && shouldKeepPublicCartOpen);
   const shouldHideDrawer =
     !params.shouldUseCartUi ||
     (!params.hasItems && !shouldKeepEmptySharedCartOpen);

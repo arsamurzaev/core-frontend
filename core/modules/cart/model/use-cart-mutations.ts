@@ -25,6 +25,20 @@ import type {
   PrepareShareOrderInput,
 } from "./cart-context.types";
 
+type HallTableOverviewCache = {
+  tables: Array<{
+    cart: CartDto | null;
+    code: string;
+    hasItems: boolean;
+    itemsCount: number;
+    needsConfirmation: boolean;
+    publicKey: string | null;
+    session: CartDto["tableSession"] | null;
+    total: number;
+    updatedAt: string | null;
+  }>;
+};
+
 interface UseCartMutationsParams {
   activeCart: CartDto | null;
   catalogId: string;
@@ -62,6 +76,50 @@ export function useCartMutations({
   storedPublicAccess,
 }: UseCartMutationsParams) {
   const cartItemMutationSequenceRef = React.useRef(0);
+  const invalidateHallTables = React.useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: ["cart", "hall-tables", catalogId],
+    });
+  }, [catalogId, queryClient]);
+  const clearHallTableOverviewNotification = React.useCallback(
+    (access: CartPublicAccess) => {
+      queryClient.setQueryData<HallTableOverviewCache>(
+        ["cart", "hall-tables", catalogId],
+        (current) => {
+          if (!current?.tables.length) {
+            return current;
+          }
+
+          let changed = false;
+          const tables = current.tables.map((table) => {
+            const matches =
+              table.publicKey === access.publicKey ||
+              Boolean(access.tableCode && table.code === access.tableCode);
+
+            if (!matches) {
+              return table;
+            }
+
+            changed = true;
+            return {
+              ...table,
+              cart: null,
+              hasItems: false,
+              itemsCount: 0,
+              needsConfirmation: false,
+              publicKey: null,
+              session: null,
+              total: 0,
+              updatedAt: new Date().toISOString(),
+            };
+          });
+
+          return changed ? { ...current, tables } : current;
+        },
+      );
+    },
+    [catalogId, queryClient],
+  );
   const nextCartItemMutationSequence = React.useCallback(() => {
     cartItemMutationSequenceRef.current += 1;
     return cartItemMutationSequenceRef.current;
@@ -76,6 +134,8 @@ export function useCartMutations({
 
   const upsertCurrentItemMutation = useMutation({
     mutationFn: async (params: {
+      guestName?: string;
+      guestSessionId?: string;
       product?: CartProductSnapshot;
       productId: string;
       quantity: number;
@@ -87,6 +147,10 @@ export function useCartMutations({
         quantity: params.quantity,
         ...(params.variantId ? { variantId: params.variantId } : {}),
         ...(params.saleUnitId ? { saleUnitId: params.saleUnitId } : {}),
+        ...(params.guestSessionId
+          ? { guestSessionId: params.guestSessionId }
+          : {}),
+        ...(params.guestName ? { guestName: params.guestName } : {}),
       };
       const response = await cartControllerUpsertCurrentItem(payload);
 
@@ -102,6 +166,8 @@ export function useCartMutations({
         cart: previousCart ?? activeCart,
         catalogId,
         product: params.product,
+        guestName: params.guestName,
+        guestSessionId: params.guestSessionId,
         productId: params.productId,
         quantity: params.quantity,
         saleUnitId: params.saleUnitId,
@@ -140,17 +206,32 @@ export function useCartMutations({
   const upsertPublicItemMutation = useMutation({
     mutationFn: async (params: {
       access: CartPublicAccess;
+      guestName?: string;
+      guestSessionId?: string;
       product?: CartProductSnapshot;
       productId: string;
       quantity: number;
       saleUnitId?: string;
       variantId?: string;
     }) => {
-      const payload: PublicUpsertCartItemDtoReq & { saleUnitId?: string } = {
+      const payload: PublicUpsertCartItemDtoReq & {
+        guestName?: string;
+        guestSessionId?: string;
+        saleUnitId?: string;
+      } = {
         productId: params.productId,
         quantity: params.quantity,
         ...(params.variantId ? { variantId: params.variantId } : {}),
         ...(params.saleUnitId ? { saleUnitId: params.saleUnitId } : {}),
+        ...(params.guestSessionId ?? params.access.guestSessionId
+          ? {
+              guestSessionId:
+                params.guestSessionId ?? params.access.guestSessionId,
+            }
+          : {}),
+        ...(params.guestName ?? params.access.guestName
+          ? { guestName: params.guestName ?? params.access.guestName }
+          : {}),
       };
       const response = await cartControllerUpsertPublicItem(
         params.access.publicKey,
@@ -171,6 +252,8 @@ export function useCartMutations({
         cart: previousCart ?? activeCart,
         catalogId,
         product: params.product,
+        guestName: params.guestName ?? params.access.guestName,
+        guestSessionId: params.guestSessionId ?? params.access.guestSessionId,
         productId: params.productId,
         quantity: params.quantity,
         saleUnitId: params.saleUnitId,
@@ -352,6 +435,45 @@ export function useCartMutations({
     },
   });
 
+  const submitPublicHallOrderMutation = useMutation({
+    mutationFn: async (params: {
+      access: CartPublicAccess;
+      input?: PrepareShareOrderInput | string;
+    }) => {
+      const normalizedInput =
+        typeof params.input === "string"
+          ? { comment: params.input }
+          : (params.input ?? {});
+
+      const response = await apiClient.post<{
+        ok: true;
+        cart: CartDto;
+      }>(
+        `/cart/public/${encodeURIComponent(params.access.publicKey)}/hall-order`,
+        {
+          ...(normalizedInput.comment
+            ? { comment: normalizedInput.comment }
+            : {}),
+          ...(normalizedInput.checkoutMethod
+            ? { checkoutMethod: normalizedInput.checkoutMethod }
+            : {}),
+          ...(normalizedInput.checkoutData
+            ? { checkoutData: normalizedInput.checkoutData }
+            : {}),
+        },
+      );
+
+      return {
+        access: params.access,
+        cart: response.cart,
+      };
+    },
+    onSuccess: ({ access, cart }) => {
+      setPublicCartData(access, cart);
+      invalidateHallTables();
+    },
+  });
+
   const startManagerOrderMutation = useMutation({
     mutationFn: () => cartControllerCreateOrGetCurrent(),
     onSuccess: (response) => {
@@ -393,14 +515,59 @@ export function useCartMutations({
       };
     },
     onSuccess: ({ access }) => {
+      clearHallTableOverviewNotification(access);
       queryClient.removeQueries({
         queryKey: cartQueryKeys.public(access.publicKey),
       });
       clearStoredPublicAccess();
     },
+    onSettled: invalidateHallTables,
+  });
+
+  const confirmHallTableOrderMutation = useMutation({
+    mutationFn: async (params: {
+      access: CartPublicAccess;
+      input?: PrepareShareOrderInput | string;
+    }) => {
+      const normalizedInput =
+        typeof params.input === "string"
+          ? { comment: params.input }
+          : (params.input ?? {});
+      const response = await apiClient.post<{
+        ok: true;
+        order: CompletedOrderDto;
+      }>(
+        `/cart/public/${encodeURIComponent(params.access.publicKey)}/hall-table/confirm`,
+        {
+          ...(normalizedInput.comment
+            ? { comment: normalizedInput.comment }
+            : {}),
+          ...(normalizedInput.checkoutMethod
+            ? { checkoutMethod: normalizedInput.checkoutMethod }
+            : {}),
+          ...(normalizedInput.checkoutData
+            ? { checkoutData: normalizedInput.checkoutData }
+            : {}),
+        },
+      );
+
+      return {
+        access: params.access,
+        order: response.order,
+      };
+    },
+    onSuccess: ({ access }) => {
+      clearHallTableOverviewNotification(access);
+      queryClient.removeQueries({
+        queryKey: cartQueryKeys.public(access.publicKey),
+      });
+      clearStoredPublicAccess();
+    },
+    onSettled: invalidateHallTables,
   });
 
   return {
+    confirmHallTableOrderMutation,
     completeManagerOrderMutation,
     deleteCurrentCartMutation,
     removeCurrentItemMutation,
@@ -408,6 +575,7 @@ export function useCartMutations({
     shareCurrentCartMutation,
     startManagerOrderMutation,
     submitHallOrderMutation,
+    submitPublicHallOrderMutation,
     upsertCurrentItemMutation,
     upsertPublicItemMutation,
   };

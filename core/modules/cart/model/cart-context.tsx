@@ -17,6 +17,7 @@ import { useCartManagerSession } from "@/core/modules/cart/model/use-cart-manage
 import { useCartMutations } from "@/core/modules/cart/model/use-cart-mutations";
 import { useCartProviderValue } from "@/core/modules/cart/model/use-cart-provider-value";
 import { useCartPublicAccess } from "@/core/modules/cart/model/use-cart-public-access";
+import { useHallTableSession } from "@/core/modules/cart/model/use-hall-table-session";
 import { useCartQueries } from "@/core/modules/cart/model/use-cart-queries";
 import { useCartRealtimeHandlers } from "@/core/modules/cart/model/use-cart-realtime-handlers";
 import { useCartShareOrder } from "@/core/modules/cart/model/use-cart-share-order";
@@ -25,9 +26,14 @@ import type {
   CartContextValue,
   PrepareShareOrderInput,
 } from "@/core/modules/cart/model/cart-context.types";
-import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
+import type { CartPublicAccess } from "@/core/modules/cart/model/cart-public-link";
+import type {
+  CartDto,
+  ProductWithAttributesDto,
+} from "@/shared/api/generated/react-query";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogMode } from "@/shared/lib/catalog-mode";
+import { useHallTableContext } from "@/shared/lib/hall-table";
 import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { getCatalogCurrency } from "@/shared/lib/utils";
@@ -69,6 +75,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
   const runtime = useCatalogRuntime();
   const { isAuthenticated, isLoading: isSessionLoading, user } = useSession();
   const queryClient = useQueryClient();
+  const catalogMode = useCatalogMode();
+  const hallTable = useHallTableContext();
   const fallbackCurrency = React.useMemo(
     () => getCatalogCurrency(catalog, "RUB"),
     [catalog],
@@ -80,6 +88,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     clearStoredPublicAccess,
     isHydrated,
     notifyPublicCartUnavailable,
+    openPublicAccess,
+    persistPublicAccess,
     setStoredPublicAccess,
     storedPublicAccess,
   } = useCartPublicAccess({ catalogId: catalog.id });
@@ -106,6 +116,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     canCreateManagerOrder,
     clearActiveManagerOrder,
     clearStoredCurrentCart,
+    clearStoredPublicAccess,
     hasActiveManagerOrder,
     hasStoredCurrentCart,
     isAuthenticated,
@@ -124,6 +135,23 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     onCurrentCartPresent: handleCurrentCartPresent,
     persistStoredCurrentCart,
     queryClient,
+  });
+  const openPublicCart = React.useCallback(
+    (access: CartPublicAccess, cart?: CartDto | null) => {
+      openPublicAccess(access);
+      if (cart !== undefined) {
+        setPublicCartData(access, cart);
+      }
+    },
+    [openPublicAccess, setPublicCartData],
+  );
+  const hallTableSession = useHallTableSession({
+    catalogId: catalog.id,
+    context: hallTable,
+    enabled: catalogMode === "HALL" && !canCreateManagerOrder,
+    persistPublicAccess,
+    setPublicCartData,
+    storedPublicAccess,
   });
 
   React.useEffect(() => {
@@ -146,8 +174,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     useCartDerivedState({
       cart: activeCart,
       fallbackCurrency,
+      quantityGuestSessionId: hallTableSession.guestSessionId,
     });
-  const catalogMode = useCatalogMode();
   const shouldUseCartUi =
     isHydrated &&
     catalogMode !== "BROWSE" &&
@@ -235,6 +263,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     clearActiveManagerOrder,
     clearStoredCurrentCart,
     clearStoredPublicAccess,
+    guestSessionId: hallTableSession.guestSessionId,
     hasActiveManagerOrder,
     mode,
     mutations,
@@ -253,6 +282,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     totals,
   });
   const { completeManagedOrder, startManagerOrder } = useCartManagerOrder({
+    activeCart,
     canCreateManagerOrder,
     clearActiveManagerOrder,
     clearStoredCurrentCart,
@@ -269,8 +299,11 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     mutations.deleteCurrentCartMutation.isPending ||
     mutations.shareCurrentCartMutation.isPending ||
     mutations.submitHallOrderMutation.isPending ||
+    mutations.submitPublicHallOrderMutation.isPending ||
     mutations.startManagerOrderMutation.isPending ||
     mutations.completeManagerOrderMutation.isPending ||
+    mutations.confirmHallTableOrderMutation.isPending ||
+    hallTableSession.isJoining ||
     isManagerSessionLoading;
   const submitHallOrder = React.useCallback(
     async (input?: PrepareShareOrderInput | string) => {
@@ -278,10 +311,26 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
         throw new Error("Нельзя оформить пустую корзину.");
       }
 
-      const response = await mutations.submitHallOrderMutation.mutateAsync(input);
+      if (mode === "public" && storedPublicAccess) {
+        const response =
+          await mutations.submitPublicHallOrderMutation.mutateAsync({
+            access: storedPublicAccess,
+            input,
+          });
+        return response.cart;
+      }
+
+      const response =
+        await mutations.submitHallOrderMutation.mutateAsync(input);
       return response.order;
     },
-    [items.length, mutations.submitHallOrderMutation],
+    [
+      items.length,
+      mode,
+      mutations.submitHallOrderMutation,
+      mutations.submitPublicHallOrderMutation,
+      storedPublicAccess,
+    ],
   );
 
   const value = useCartProviderValue({
@@ -300,6 +349,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     decrementLine,
     decrementProduct,
     detachPublicCart: clearStoredPublicAccess,
+    hallTableSession,
     incrementLine,
     incrementProduct,
     isBusy,
@@ -310,6 +360,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
     isSessionLoading,
     items,
     mode,
+    openPublicCart,
     prepareShareOrder,
     publicAccess: storedPublicAccess,
     quantityByLineKey,

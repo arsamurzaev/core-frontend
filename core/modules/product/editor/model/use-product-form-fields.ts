@@ -150,13 +150,21 @@ export function useProductFormFields({
       }),
     [matrixAttributes, shouldResolveFromProductType],
   );
+  const resolvedSourceAttributes = React.useMemo(
+    () =>
+      mergeProductEditorAttributes({
+        productTypeAttributes: catalog?.type.attributes ?? [],
+        sourceAttributes,
+      }),
+    [catalog?.type.attributes, sourceAttributes],
+  );
   const resolvedProductAttributes = React.useMemo(
     () =>
       mergeProductEditorAttributes({
         productTypeAttributes,
-        sourceAttributes,
+        sourceAttributes: resolvedSourceAttributes,
       }),
-    [productTypeAttributes, sourceAttributes],
+    [productTypeAttributes, resolvedSourceAttributes],
   );
 
   const productAttributes = React.useMemo(

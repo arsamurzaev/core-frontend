@@ -16,6 +16,7 @@ import type {
 } from "@/shared/api/generated/react-query";
 import { resolveAttributes, toNumberValue } from "@/shared/lib/attributes";
 import { calculatePrice } from "@/shared/lib/calculate-price";
+import { getCartItemGuestName, getCartItemGuestSessionId } from "./cart-guest";
 
 const FALLBACK_IMAGE_URL = "/not-found-photo.png";
 
@@ -133,7 +134,8 @@ function getSaleUnitLabel(params: {
         )
       : null;
   const productSaleUnit =
-    variantSaleUnit ?? findProductSaleUnit(getProductSaleUnits(product), itemSaleUnitId);
+    variantSaleUnit ??
+    findProductSaleUnit(getProductSaleUnits(product), itemSaleUnitId);
 
   return (
     (productSaleUnit ? formatSaleUnitLabel(productSaleUnit) : null) ??
@@ -144,7 +146,8 @@ function getSaleUnitLabel(params: {
 function getBackendPricing(item: CartItemDto) {
   const pricing = item as CartItemWithSaleUnit;
   const baseUnitPrice =
-    typeof pricing.baseUnitPrice === "number" && Number.isFinite(pricing.baseUnitPrice)
+    typeof pricing.baseUnitPrice === "number" &&
+    Number.isFinite(pricing.baseUnitPrice)
       ? pricing.baseUnitPrice
       : null;
   const hasDiscount = pricing.hasDiscount === true && baseUnitPrice !== null;
@@ -158,7 +161,8 @@ function getBackendPricing(item: CartItemDto) {
   return {
     displayLineTotal: lineTotal,
     hasDiscount: true,
-    originalLineTotal: lineTotal !== null ? baseUnitPrice * item.quantity : null,
+    originalLineTotal:
+      lineTotal !== null ? baseUnitPrice * item.quantity : null,
   };
 }
 
@@ -217,6 +221,8 @@ export interface CartItemView {
   productId: string;
   productSlug: string;
   quantity: number;
+  guestName?: string | null;
+  guestSessionId?: string | null;
   saleUnitId: string | null;
   saleUnitLabel: string | null;
   subtitle: string;
@@ -287,23 +293,24 @@ export function buildCartItemView(params: {
   if (!product) {
     const variantLabel = getVariantLabel(item);
     const saleUnitLabel = getSaleUnitLabel({ item });
+    const guestName = getCartItemGuestName(item);
     const backendPricing = getBackendPricing(item);
     return {
       currency: fallbackCurrency,
       displayLineTotal:
-        backendPricing?.displayLineTotal ??
-        getKnownCartLineTotal(item),
+        backendPricing?.displayLineTotal ?? getKnownCartLineTotal(item),
       hasDiscount: backendPricing?.hasDiscount ?? false,
       id: item.id,
       imageUrl: resolveCartItemImageUrl(),
       name: item.product.name,
       originalLineTotal:
-        backendPricing?.originalLineTotal ??
-        getKnownCartLineTotal(item),
+        backendPricing?.originalLineTotal ?? getKnownCartLineTotal(item),
       product: undefined,
       productId: item.productId,
       productSlug: item.product.slug,
       quantity: item.quantity,
+      guestName,
+      guestSessionId: getCartItemGuestSessionId(item),
       saleUnitId: getCartItemSaleUnitId(item),
       saleUnitLabel,
       subtitle: [variantLabel, saleUnitLabel].filter(Boolean).join(" · "),
@@ -317,6 +324,7 @@ export function buildCartItemView(params: {
   );
   const variantLabel = getVariantLabel(item);
   const saleUnitLabel = getSaleUnitLabel({ item, product });
+  const guestName = getCartItemGuestName(item);
   const itemLineTotal = getKnownCartLineTotal(item);
   const backendPricing = getBackendPricing(item);
   const pricing = getCartPricingForProduct(
@@ -327,18 +335,18 @@ export function buildCartItemView(params: {
 
   return {
     currency: pricing.currency,
-    displayLineTotal:
-      backendPricing?.displayLineTotal ?? itemLineTotal,
+    displayLineTotal: backendPricing?.displayLineTotal ?? itemLineTotal,
     hasDiscount: backendPricing?.hasDiscount ?? false,
     id: item.id,
     imageUrl: productCardView.imageUrl || FALLBACK_IMAGE_URL,
     name: product.name,
-    originalLineTotal:
-      backendPricing?.originalLineTotal ?? itemLineTotal,
+    originalLineTotal: backendPricing?.originalLineTotal ?? itemLineTotal,
     product,
     productId: item.productId,
     productSlug: item.product.slug,
     quantity: item.quantity,
+    guestName,
+    guestSessionId: getCartItemGuestSessionId(item),
     saleUnitId: getCartItemSaleUnitId(item),
     saleUnitLabel,
     subtitle:

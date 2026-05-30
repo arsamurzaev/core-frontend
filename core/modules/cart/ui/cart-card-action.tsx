@@ -7,16 +7,22 @@ import React from "react";
 
 interface CartCardActionProps {
   className?: string;
+  guestName?: string | null;
+  guestSessionId?: string | null;
   maxQuantity?: number;
   productId: string;
+  quantity?: number;
   saleUnitId?: string | null;
   variantId?: string | null;
 }
 
 export const CartCardAction = React.memo(function CartCardAction({
   className,
+  guestName,
+  guestSessionId,
   maxQuantity,
   productId,
+  quantity: quantityOverride,
   saleUnitId,
   variantId,
 }: CartCardActionProps) {
@@ -29,6 +35,8 @@ export const CartCardAction = React.memo(function CartCardAction({
   } =
     useCartProductControls(
       {
+        guestName,
+        guestSessionId,
         productId,
         saleUnitId,
         variantId,
@@ -36,6 +44,7 @@ export const CartCardAction = React.memo(function CartCardAction({
       undefined,
       {
         maxQuantity,
+        quantityOverride,
         quantityScope: "line",
       },
     );

@@ -14,6 +14,7 @@ import {
 } from "@/shared/api/generated/react-query";
 import { useQueries } from "@tanstack/react-query";
 import React from "react";
+import { isCartItemForGuest } from "./cart-guest";
 
 function mapProductDetailsById(
   productIds: string[],
@@ -34,11 +35,13 @@ function mapProductDetailsById(
 interface UseCartDerivedStateParams {
   cart: CartDto | null;
   fallbackCurrency: string;
+  quantityGuestSessionId?: string | null;
 }
 
 export function useCartDerivedState({
   cart,
   fallbackCurrency,
+  quantityGuestSessionId,
 }: UseCartDerivedStateParams) {
   const productIds = React.useMemo(
     () =>
@@ -79,25 +82,29 @@ export function useCartDerivedState({
 
   const quantityByProductId = React.useMemo(
     () =>
-      (cart?.items ?? []).reduce<Record<string, number>>((acc, item) => {
-        acc[item.productId] = (acc[item.productId] ?? 0) + item.quantity;
-        return acc;
-      }, {}),
-    [cart?.items],
+      (cart?.items ?? [])
+        .filter((item) => isCartItemForGuest(item, quantityGuestSessionId))
+        .reduce<Record<string, number>>((acc, item) => {
+          acc[item.productId] = (acc[item.productId] ?? 0) + item.quantity;
+          return acc;
+        }, {}),
+    [cart?.items, quantityGuestSessionId],
   );
 
   const quantityByLineKey = React.useMemo(
     () =>
-      (cart?.items ?? []).reduce<Record<string, number>>((acc, item) => {
-        const lineKey = buildCartLineSelectionKey({
-          productId: item.productId,
-          saleUnitId: getCartItemSaleUnitId(item),
-          variantId: item.variantId,
-        });
-        acc[lineKey] = (acc[lineKey] ?? 0) + item.quantity;
-        return acc;
-      }, {}),
-    [cart?.items],
+      (cart?.items ?? [])
+        .filter((item) => isCartItemForGuest(item, quantityGuestSessionId))
+        .reduce<Record<string, number>>((acc, item) => {
+          const lineKey = buildCartLineSelectionKey({
+            productId: item.productId,
+            saleUnitId: getCartItemSaleUnitId(item),
+            variantId: item.variantId,
+          });
+          acc[lineKey] = (acc[lineKey] ?? 0) + item.quantity;
+          return acc;
+        }, {}),
+    [cart?.items, quantityGuestSessionId],
   );
 
   return {

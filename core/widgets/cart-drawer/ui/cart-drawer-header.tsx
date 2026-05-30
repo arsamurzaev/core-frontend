@@ -13,13 +13,15 @@ import {
   DrawerTitle,
 } from "@/shared/ui/drawer";
 import { CartIcon } from "@/shared/ui/icons/cart-icon";
-import { Trash2, X } from "lucide-react";
+import { LogOut, Trash2, X } from "lucide-react";
 import React from "react";
+import type { CartDrawerHeaderActionKind } from "../model/cart-drawer-header-action";
 
 interface CartDrawerHeaderProps {
   className?: string;
   currency: string;
   hasAction: boolean;
+  actionKind?: CartDrawerHeaderActionKind;
   hasDiscount: boolean;
   onActionClick: () => void;
   price: number;
@@ -34,6 +36,7 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
   className,
   currency,
   hasAction,
+  actionKind = "none",
   hasDiscount,
   onActionClick,
   price,
@@ -43,6 +46,9 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
   totalPrice,
   totalQuantity,
 }) => {
+  const isExitAction = actionKind === "detach-public-cart";
+  const HeaderActionIcon = isExitAction ? LogOut : Trash2;
+
   return (
     <DrawerHeader className="grid gap-1.5 px-4 py-0">
       <DrawerTitle className="sr-only">
@@ -98,9 +104,9 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
               !hasAction && "pointer-events-none opacity-0",
             )}
             size="icon"
-            aria-label="Действие с корзиной"
+            aria-label={isExitAction ? "Выйти из корзины" : "Удалить корзину"}
           >
-            <Trash2 className="text-muted" />
+            <HeaderActionIcon className="text-muted" />
           </Button>
 
           <h3 className="sm:text-2xl">Корзина</h3>

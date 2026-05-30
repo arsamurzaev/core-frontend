@@ -32,12 +32,10 @@ interface CartDrawerContentProps {
   isCommentLocked?: boolean;
   isPublicMode: boolean;
   items: CartItemView[];
-  actionRenderer?: (
-    productId: string,
-    item?: CartItemView,
-  ) => React.ReactNode;
+  actionRenderer?: (productId: string, item?: CartItemView) => React.ReactNode;
   onCommentChange: (comment: string) => void;
   onCheckoutChange: (method: CheckoutMethod, data: CheckoutData) => void;
+  onExitPublicCart?: () => void;
   onItemClick: (item: CartItemView) => void;
   priceFormatMode: CatalogPriceFormatMode;
   status: string | null;
@@ -62,6 +60,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   actionRenderer,
   onCommentChange,
   onCheckoutChange,
+  onExitPublicCart,
   onItemClick,
   priceFormatMode,
   status,
@@ -99,7 +98,10 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
           }}
         />
       ) : (
-        <CartDrawerEmptyState isPublicMode={isPublicMode} />
+        <CartDrawerEmptyState
+          isPublicMode={isPublicMode}
+          onExitPublicCart={onExitPublicCart}
+        />
       )}
 
       {!isLoading && state.hasItems && state.shouldShowCommentEditor ? (

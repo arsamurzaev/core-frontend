@@ -2,6 +2,7 @@ import { cn } from "@/shared/lib/utils";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";
 import { Skeleton } from "@/shared/ui/skeleton";
 import React from "react";
+import { PRODUCT_CARD_GRID_BASE_HEIGHT_PX } from "../model/product-card-layout";
 
 interface Props {
   className?: string;
@@ -19,6 +20,11 @@ export const ProductCardSkeleton: React.FC<Props> = ({
         isDetailed && "min-h-[160px] flex-row",
         className,
       )}
+      style={
+        isDetailed
+          ? undefined
+          : { minHeight: `max(100%, ${PRODUCT_CARD_GRID_BASE_HEIGHT_PX}px)` }
+      }
       aria-hidden
     >
       <div className="min-w-25 flex-[0_1_160px]">

@@ -7358,6 +7358,1293 @@
         ]
       }
     },
+    "/integration/1c": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneC",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get ONE_C integration settings",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "put": {
+        "operationId": "OneCIntegrationController_upsertOneC",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertOneCIntegrationDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create or replace ONE_C integration settings",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "patch": {
+        "operationId": "OneCIntegrationController_updateOneC",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOneCIntegrationDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCIntegrationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update ONE_C integration settings",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "delete": {
+        "operationId": "OneCIntegrationController_removeOneC",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Remove ONE_C integration settings",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/status": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneCStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCIntegrationStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get ONE_C integration status",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/runs": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneCRuns",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many recent sync runs to return",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OneCSyncRunDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get ONE_C sync history",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/runs/{runId}/progress": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneCRunProgress",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCSyncProgressDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get ONE_C sync progress",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/product-mapping-default": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneCRecommendedProductMapping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCRecommendedProductMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get recommended ONE_C PRODUCT mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/variant-mapping-default": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneCRecommendedVariantMapping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCRecommendedVariantMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get recommended ONE_C PRODUCT_VARIANT mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/test-connection": {
+      "post": {
+        "operationId": "OneCIntegrationController_testOneCConnection",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestOneCConnectionDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCTestConnectionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Test ONE_C API connection",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/discover": {
+      "post": {
+        "operationId": "OneCIntegrationController_discoverOneCObjects",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscoverOneCObjectsDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCDiscoverObjectsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Discover ONE_C OData objects and fields",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/objects": {
+      "get": {
+        "operationId": "OneCIntegrationController_listOneCObjects",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OneCExternalObjectDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "List configured ONE_C external objects",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "post": {
+        "operationId": "OneCIntegrationController_createOneCObject",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOneCExternalObjectDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCExternalObjectDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create or update ONE_C external object",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/objects/{id}": {
+      "patch": {
+        "operationId": "OneCIntegrationController_updateOneCObject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOneCExternalObjectDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCExternalObjectDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update ONE_C external object",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "delete": {
+        "operationId": "OneCIntegrationController_deleteOneCObject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Delete ONE_C external object",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/entity-mappings": {
+      "get": {
+        "operationId": "OneCIntegrationController_listOneCEntityMappings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OneCEntityMappingDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "List ONE_C entity mappings",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "post": {
+        "operationId": "OneCIntegrationController_createOneCEntityMapping",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOneCEntityMappingDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCEntityMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create ONE_C entity mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/entity-mappings/{id}": {
+      "patch": {
+        "operationId": "OneCIntegrationController_updateOneCEntityMapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOneCEntityMappingDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCEntityMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update ONE_C entity mapping",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "delete": {
+        "operationId": "OneCIntegrationController_deleteOneCEntityMapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Delete ONE_C entity mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/entity-mappings/{id}/field-mappings": {
+      "post": {
+        "operationId": "OneCIntegrationController_createOneCFieldMapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOneCFieldMappingDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCFieldMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Create ONE_C field mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/field-mappings/{id}": {
+      "patch": {
+        "operationId": "OneCIntegrationController_updateOneCFieldMapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOneCFieldMappingDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCFieldMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Update ONE_C field mapping",
+        "tags": [
+          "Integration"
+        ]
+      },
+      "delete": {
+        "operationId": "OneCIntegrationController_deleteOneCFieldMapping",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Delete ONE_C field mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/mapping-preview": {
+      "post": {
+        "operationId": "OneCIntegrationController_previewOneCMapping",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewOneCMappingDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCMappingPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Preview ONE_C field mapping against a sample payload",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/remote-mapping-preview": {
+      "post": {
+        "operationId": "OneCIntegrationController_previewOneCRemoteMapping",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewOneCRemoteMappingDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCRemoteMappingPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Fetch ONE_C rows and preview field mapping without writing locally",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/product-import-preview": {
+      "post": {
+        "operationId": "OneCIntegrationController_previewOneCProductImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewOneCProductImportDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCProductImportPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Build ONE_C product import dry-run plan without writing locally",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/import-products": {
+      "post": {
+        "operationId": "OneCIntegrationController_importOneCProducts",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportOneCProductsDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCProductImportResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Import ONE_C products using configured field mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/variant-import-preview": {
+      "post": {
+        "operationId": "OneCIntegrationController_previewOneCVariantImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewOneCVariantImportDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCVariantImportPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Build ONE_C product variant import dry-run plan without writing locally",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/import-variants": {
+      "post": {
+        "operationId": "OneCIntegrationController_importOneCVariants",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportOneCVariantsDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCVariantImportResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Import ONE_C product variants using configured field mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/stock-sync-preview": {
+      "post": {
+        "operationId": "OneCIntegrationController_previewOneCStockSync",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewOneCStockSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCStockSyncPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Build ONE_C stock sync dry-run plan without writing locally",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/apply-stock": {
+      "post": {
+        "operationId": "OneCIntegrationController_applyOneCStockSync",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyOneCStockSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCStockSyncResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Apply ONE_C stock rows using configured field mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/price-sync-preview": {
+      "post": {
+        "operationId": "OneCIntegrationController_previewOneCPriceSync",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewOneCPriceSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCPriceSyncPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Build ONE_C price sync dry-run plan without writing locally",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/apply-prices": {
+      "post": {
+        "operationId": "OneCIntegrationController_applyOneCPriceSync",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyOneCPriceSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCPriceSyncResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Apply ONE_C price rows using configured field mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/sync-products": {
+      "post": {
+        "operationId": "OneCIntegrationController_syncOneCProducts",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunOneCProductSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue managed ONE_C product sync and record sync history",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/sync-variants": {
+      "post": {
+        "operationId": "OneCIntegrationController_syncOneCVariants",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunOneCVariantSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue managed ONE_C product variant sync and record sync history",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/sync-stock": {
+      "post": {
+        "operationId": "OneCIntegrationController_syncOneCStock",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunOneCStockSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue managed ONE_C stock sync and record sync history",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/sync-prices": {
+      "post": {
+        "operationId": "OneCIntegrationController_syncOneCPrices",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunOneCPriceSyncDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCQueuedSyncDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Queue managed ONE_C price sync and record sync history",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
     "/catalog-sale-unit": {
       "get": {
         "operationId": "CatalogSaleUnitController_getAll",
@@ -8553,6 +9840,71 @@
         ]
       }
     },
+    "/cart/hall-tables": {
+      "get": {
+        "operationId": "CartController_listHallTables",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HallTableOverviewResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List iiko hall tables with active cart sessions",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/hall-table/{code}/session": {
+      "post": {
+        "operationId": "CartController_joinHallTableSession",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "path",
+            "description": "Short backend-stored hall table code",
+            "schema": {
+              "example": "Ab7Kp92x",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinHallTableSessionDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HallTableSessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create or return a shared cart session for a hall table",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
     "/cart/current/items": {
       "put": {
         "operationId": "CartController_upsertCurrentItem",
@@ -8839,6 +10191,158 @@
           }
         },
         "summary": "Convert a shared cart to a completed order",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/public/{publicKey}/hall-table/close": {
+      "post": {
+        "operationId": "CartController_closeHallTableSession",
+        "parameters": [
+          {
+            "name": "publicKey",
+            "required": true,
+            "in": "path",
+            "description": "Public cart key",
+            "schema": {
+              "example": "5f7ec4ac9cc6c392419eec11850d45f1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Close an open shared hall table cart",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/public/{publicKey}/hall-table/reset": {
+      "post": {
+        "operationId": "CartController_resetHallTableSession",
+        "parameters": [
+          {
+            "name": "publicKey",
+            "required": true,
+            "in": "path",
+            "description": "Public cart key",
+            "schema": {
+              "example": "5f7ec4ac9cc6c392419eec11850d45f1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Reset an open shared hall table cart",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/public/{publicKey}/hall-table/confirm": {
+      "post": {
+        "operationId": "CartController_confirmHallTableOrder",
+        "parameters": [
+          {
+            "name": "publicKey",
+            "required": true,
+            "in": "path",
+            "description": "Public cart key",
+            "schema": {
+              "example": "5f7ec4ac9cc6c392419eec11850d45f1",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareCurrentCartDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteCartOrderResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Confirm a shared hall table cart and send it to iiko",
+        "tags": [
+          "Cart"
+        ]
+      }
+    },
+    "/cart/public/{publicKey}/hall-order": {
+      "post": {
+        "operationId": "CartController_submitPublicHallOrder",
+        "parameters": [
+          {
+            "name": "publicKey",
+            "required": true,
+            "in": "path",
+            "description": "Public cart key",
+            "schema": {
+              "example": "5f7ec4ac9cc6c392419eec11850d45f1",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareCurrentCartDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Send a public shared hall table cart to waiter confirmation",
         "tags": [
           "Cart"
         ]
@@ -11021,7 +12525,8 @@
               "catalog.sale_units",
               "inventory.internal",
               "integration.moysklad",
-              "integration.iiko"
+              "integration.iiko",
+              "integration.one_c"
             ]
           },
           "enabled": {
@@ -11632,7 +13137,8 @@
               "catalog.sale_units",
               "inventory.internal",
               "integration.moysklad",
-              "integration.iiko"
+              "integration.iiko",
+              "integration.one_c"
             ]
           },
           "enabled": {
@@ -12584,7 +14090,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "externalId": {
@@ -15815,7 +17322,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "capabilities": {
@@ -16176,7 +17684,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "mode": {
@@ -16184,7 +17693,9 @@
             "enum": [
               "FULL",
               "PRODUCT",
-              "STOCK"
+              "VARIANT",
+              "STOCK",
+              "PRICE"
             ]
           },
           "trigger": {
@@ -16665,7 +18176,9 @@
             "enum": [
               "FULL",
               "PRODUCT",
-              "STOCK"
+              "VARIANT",
+              "STOCK",
+              "PRICE"
             ]
           },
           "trigger": {
@@ -16735,7 +18248,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "capabilities": {
@@ -16913,7 +18427,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "mode": {
@@ -16921,7 +18436,9 @@
             "enum": [
               "FULL",
               "PRODUCT",
-              "STOCK"
+              "VARIANT",
+              "STOCK",
+              "PRICE"
             ]
           },
           "trigger": {
@@ -17116,7 +18633,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "requestId": {
@@ -17810,7 +19328,9 @@
             "enum": [
               "FULL",
               "PRODUCT",
-              "STOCK"
+              "VARIANT",
+              "STOCK",
+              "PRICE"
             ]
           },
           "trigger": {
@@ -18092,6 +19612,10 @@
             "type": "boolean",
             "description": "Whether the current catalog can use iiko integration."
           },
+          "canUseOneCIntegration": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use 1C integration."
+          },
           "raw": {
             "type": "object",
             "additionalProperties": {
@@ -18129,6 +19653,7 @@
           "canUseInternalInventory",
           "canUseMoySkladIntegration",
           "canUseIikoIntegration",
+          "canUseOneCIntegration",
           "raw",
           "effective",
           "definitions",
@@ -18783,7 +20308,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "orderId": {
@@ -18862,7 +20388,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "orderId": {
@@ -19481,7 +21008,8 @@
             "type": "string",
             "enum": [
               "MOYSKLAD",
-              "IIKO"
+              "IIKO",
+              "ONE_C"
             ]
           },
           "exportId": {
@@ -19547,6 +21075,3001 @@
           "orderId",
           "items"
         ]
+      },
+      "OneCIntegrationDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "MOYSKLAD",
+              "IIKO",
+              "ONE_C"
+            ]
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/IntegrationProviderCapabilitiesDto"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "apiKind": {
+            "type": "string",
+            "enum": [
+              "ODATA",
+              "HTTP_SERVICE",
+              "CUSTOM"
+            ]
+          },
+          "authKind": {
+            "type": "string",
+            "enum": [
+              "BASIC",
+              "BEARER",
+              "NONE"
+            ]
+          },
+          "baseUrl": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasPassword": {
+            "type": "boolean"
+          },
+          "hasToken": {
+            "type": "boolean"
+          },
+          "tokenPreview": {
+            "type": "string",
+            "nullable": true
+          },
+          "timeoutMs": {
+            "type": "number"
+          },
+          "importProducts": {
+            "type": "boolean"
+          },
+          "syncStock": {
+            "type": "boolean"
+          },
+          "exportOrders": {
+            "type": "boolean"
+          },
+          "productSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productSyncLimit": {
+            "type": "number"
+          },
+          "productSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncLimit": {
+            "type": "number"
+          },
+          "variantSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncLimit": {
+            "type": "number"
+          },
+          "stockSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncLimit": {
+            "type": "number"
+          },
+          "priceSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleEnabled": {
+            "type": "boolean"
+          },
+          "schedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleTimezone": {
+            "type": "string"
+          },
+          "stockScheduleEnabled": {
+            "type": "boolean"
+          },
+          "stockSchedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockScheduleTimezone": {
+            "type": "string"
+          },
+          "priceScheduleEnabled": {
+            "type": "boolean"
+          },
+          "priceSchedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceScheduleTimezone": {
+            "type": "string"
+          },
+          "lastSyncStatus": {
+            "type": "string",
+            "enum": [
+              "IDLE",
+              "SYNCING",
+              "SUCCESS",
+              "ERROR"
+            ]
+          },
+          "syncStartedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSyncAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastDiscoveredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSyncError": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalProducts": {
+            "type": "number"
+          },
+          "createdProducts": {
+            "type": "number"
+          },
+          "updatedProducts": {
+            "type": "number"
+          },
+          "deletedProducts": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "provider",
+          "capabilities",
+          "isActive",
+          "apiKind",
+          "authKind",
+          "baseUrl",
+          "username",
+          "hasPassword",
+          "hasToken",
+          "tokenPreview",
+          "timeoutMs",
+          "importProducts",
+          "syncStock",
+          "exportOrders",
+          "productSyncEntityMappingId",
+          "productSyncLimit",
+          "productSyncFilter",
+          "variantSyncEntityMappingId",
+          "variantSyncLimit",
+          "variantSyncFilter",
+          "stockSyncEntityMappingId",
+          "stockSyncLimit",
+          "stockSyncFilter",
+          "priceSyncEntityMappingId",
+          "priceSyncLimit",
+          "priceSyncFilter",
+          "scheduleEnabled",
+          "schedulePattern",
+          "scheduleTimezone",
+          "stockScheduleEnabled",
+          "stockSchedulePattern",
+          "stockScheduleTimezone",
+          "priceScheduleEnabled",
+          "priceSchedulePattern",
+          "priceScheduleTimezone",
+          "lastSyncStatus",
+          "syncStartedAt",
+          "lastSyncAt",
+          "lastDiscoveredAt",
+          "lastSyncError",
+          "totalProducts",
+          "createdProducts",
+          "updatedProducts",
+          "deletedProducts",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OneCSyncProgressDto": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCESS",
+              "ERROR",
+              "SKIPPED"
+            ]
+          },
+          "phase": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "processed": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number",
+            "nullable": true
+          },
+          "percent": {
+            "type": "number",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "runId",
+          "status",
+          "phase",
+          "message",
+          "processed",
+          "total",
+          "percent",
+          "updatedAt",
+          "startedAt",
+          "finishedAt"
+        ]
+      },
+      "OneCSyncRunDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "MOYSKLAD",
+              "IIKO",
+              "ONE_C"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "PRODUCT",
+              "VARIANT",
+              "STOCK",
+              "PRICE"
+            ]
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "SCHEDULED",
+              "WEBHOOK"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "RUNNING",
+              "SUCCESS",
+              "ERROR",
+              "SKIPPED"
+            ]
+          },
+          "snapshotCompleteness": {
+            "type": "string",
+            "enum": [
+              "FULL_COMPLETE",
+              "PARTIAL",
+              "WEBHOOK_DELTA",
+              "FAILED_BEFORE_SNAPSHOT"
+            ]
+          },
+          "jobId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "totalProducts": {
+            "type": "number"
+          },
+          "createdProducts": {
+            "type": "number"
+          },
+          "updatedProducts": {
+            "type": "number"
+          },
+          "deletedProducts": {
+            "type": "number"
+          },
+          "imagesImported": {
+            "type": "number"
+          },
+          "skippedProducts": {
+            "type": "number"
+          },
+          "failedProducts": {
+            "type": "number"
+          },
+          "progress": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCSyncProgressDto"
+              }
+            ]
+          },
+          "durationMs": {
+            "type": "number",
+            "nullable": true
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "mode",
+          "trigger",
+          "status",
+          "snapshotCompleteness",
+          "jobId",
+          "productId",
+          "externalId",
+          "error",
+          "totalProducts",
+          "createdProducts",
+          "updatedProducts",
+          "deletedProducts",
+          "imagesImported",
+          "skippedProducts",
+          "failedProducts",
+          "progress",
+          "durationMs",
+          "requestedAt",
+          "startedAt",
+          "finishedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OneCIntegrationStatusDto": {
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          },
+          "integration": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCIntegrationDto"
+              }
+            ]
+          },
+          "activeRun": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCSyncRunDto"
+              }
+            ]
+          },
+          "lastRun": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCSyncRunDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "configured",
+          "integration",
+          "activeRun",
+          "lastRun"
+        ]
+      },
+      "OneCExternalObjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ODATA_ENTITY",
+              "HTTP_ENDPOINT",
+              "CATALOG",
+              "DOCUMENT",
+              "REGISTER",
+              "CUSTOM"
+            ]
+          },
+          "endpoint": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "nullable": true
+          },
+          "schema": {
+            "type": "object",
+            "nullable": true
+          },
+          "sample": {
+            "type": "object",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "lastDiscoveredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "kind",
+          "endpoint",
+          "method",
+          "schema",
+          "sample",
+          "isActive",
+          "lastDiscoveredAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OneCFieldMappingDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "localPath": {
+            "type": "string"
+          },
+          "externalPath": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "IMPORT",
+              "EXPORT",
+              "IMPORT_EXPORT"
+            ]
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "STRING",
+              "INTEGER",
+              "DECIMAL",
+              "BOOLEAN",
+              "DATETIME",
+              "JSON",
+              "REFERENCE"
+            ]
+          },
+          "transform": {
+            "type": "object",
+            "nullable": true
+          },
+          "defaultValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "entityMappingId",
+          "localPath",
+          "externalPath",
+          "direction",
+          "dataType",
+          "transform",
+          "defaultValue",
+          "isRequired",
+          "isActive",
+          "displayOrder",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OneCEntityMappingDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "localEntity": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "PRODUCT_VARIANT",
+              "CATEGORY",
+              "ORDER",
+              "STOCK",
+              "PRICE",
+              "WAREHOUSE",
+              "CUSTOMER"
+            ]
+          },
+          "externalObjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "identityField": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "IMPORT",
+              "EXPORT",
+              "IMPORT_EXPORT"
+            ]
+          },
+          "conflictPolicy": {
+            "type": "string",
+            "nullable": true
+          },
+          "filters": {
+            "type": "object",
+            "nullable": true
+          },
+          "options": {
+            "type": "object",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "externalObject": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCExternalObjectDto"
+              }
+            ]
+          },
+          "fieldMappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCFieldMappingDto"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "localEntity",
+          "externalObjectId",
+          "externalObjectCode",
+          "identityField",
+          "direction",
+          "conflictPolicy",
+          "filters",
+          "options",
+          "isActive",
+          "externalObject",
+          "fieldMappings",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OneCRecommendedProductMappingDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "mappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapping": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCEntityMappingDto"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ok",
+          "ready",
+          "mappingId",
+          "mapping",
+          "reason"
+        ]
+      },
+      "OneCRecommendedVariantMappingDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "mappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapping": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCEntityMappingDto"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ok",
+          "ready",
+          "mappingId",
+          "mapping",
+          "reason"
+        ]
+      },
+      "UpsertOneCIntegrationDtoReq": {
+        "type": "object",
+        "properties": {
+          "apiKind": {
+            "type": "string",
+            "enum": [
+              "ODATA",
+              "HTTP_SERVICE",
+              "CUSTOM"
+            ],
+            "example": "ODATA"
+          },
+          "authKind": {
+            "type": "string",
+            "enum": [
+              "BASIC",
+              "BEARER",
+              "NONE"
+            ],
+            "example": "BASIC"
+          },
+          "baseUrl": {
+            "type": "string",
+            "example": "https://client.example/odata/standard.odata"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true,
+            "example": "api_user"
+          },
+          "password": {
+            "type": "string",
+            "nullable": true,
+            "example": "secret"
+          },
+          "token": {
+            "type": "string",
+            "nullable": true,
+            "example": "bearer-token"
+          },
+          "timeoutMs": {
+            "type": "number",
+            "example": 30000
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "importProducts": {
+            "type": "boolean",
+            "example": true
+          },
+          "syncStock": {
+            "type": "boolean",
+            "example": false
+          },
+          "exportOrders": {
+            "type": "boolean",
+            "example": false
+          },
+          "productSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productSyncLimit": {
+            "type": "number",
+            "example": 100
+          },
+          "productSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncLimit": {
+            "type": "number",
+            "example": 100
+          },
+          "variantSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncLimit": {
+            "type": "number",
+            "example": 100
+          },
+          "stockSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncLimit": {
+            "type": "number",
+            "example": 100
+          },
+          "priceSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleEnabled": {
+            "type": "boolean",
+            "example": false
+          },
+          "schedulePattern": {
+            "type": "string",
+            "nullable": true,
+            "example": "0 */6 * * *"
+          },
+          "scheduleTimezone": {
+            "type": "string",
+            "nullable": true,
+            "example": "Europe/Moscow"
+          },
+          "stockScheduleEnabled": {
+            "type": "boolean",
+            "example": false
+          },
+          "stockSchedulePattern": {
+            "type": "string",
+            "nullable": true,
+            "example": "*/15 * * * *"
+          },
+          "stockScheduleTimezone": {
+            "type": "string",
+            "nullable": true,
+            "example": "Europe/Moscow"
+          },
+          "priceScheduleEnabled": {
+            "type": "boolean",
+            "example": false
+          },
+          "priceSchedulePattern": {
+            "type": "string",
+            "nullable": true,
+            "example": "0 */2 * * *"
+          },
+          "priceScheduleTimezone": {
+            "type": "string",
+            "nullable": true,
+            "example": "Europe/Moscow"
+          }
+        },
+        "required": [
+          "apiKind",
+          "authKind",
+          "baseUrl"
+        ]
+      },
+      "UpdateOneCIntegrationDtoReq": {
+        "type": "object",
+        "properties": {
+          "apiKind": {
+            "type": "string",
+            "enum": [
+              "ODATA",
+              "HTTP_SERVICE",
+              "CUSTOM"
+            ]
+          },
+          "authKind": {
+            "type": "string",
+            "enum": [
+              "BASIC",
+              "BEARER",
+              "NONE"
+            ]
+          },
+          "baseUrl": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "timeoutMs": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "importProducts": {
+            "type": "boolean"
+          },
+          "syncStock": {
+            "type": "boolean"
+          },
+          "exportOrders": {
+            "type": "boolean"
+          },
+          "productSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productSyncLimit": {
+            "type": "number"
+          },
+          "productSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncLimit": {
+            "type": "number"
+          },
+          "variantSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncLimit": {
+            "type": "number"
+          },
+          "stockSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncLimit": {
+            "type": "number"
+          },
+          "priceSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleEnabled": {
+            "type": "boolean"
+          },
+          "schedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleTimezone": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockScheduleEnabled": {
+            "type": "boolean"
+          },
+          "stockSchedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockScheduleTimezone": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceScheduleEnabled": {
+            "type": "boolean"
+          },
+          "priceSchedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceScheduleTimezone": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestOneCConnectionDtoReq": {
+        "type": "object",
+        "properties": {
+          "apiKind": {
+            "type": "string",
+            "enum": [
+              "ODATA",
+              "HTTP_SERVICE",
+              "CUSTOM"
+            ]
+          },
+          "authKind": {
+            "type": "string",
+            "enum": [
+              "BASIC",
+              "BEARER",
+              "NONE"
+            ]
+          },
+          "baseUrl": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "timeoutMs": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "importProducts": {
+            "type": "boolean"
+          },
+          "syncStock": {
+            "type": "boolean"
+          },
+          "exportOrders": {
+            "type": "boolean"
+          },
+          "productSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productSyncLimit": {
+            "type": "number"
+          },
+          "productSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSyncLimit": {
+            "type": "number"
+          },
+          "variantSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockSyncLimit": {
+            "type": "number"
+          },
+          "stockSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncEntityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceSyncLimit": {
+            "type": "number"
+          },
+          "priceSyncFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleEnabled": {
+            "type": "boolean"
+          },
+          "schedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduleTimezone": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockScheduleEnabled": {
+            "type": "boolean"
+          },
+          "stockSchedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "stockScheduleTimezone": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceScheduleEnabled": {
+            "type": "boolean"
+          },
+          "priceSchedulePattern": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceScheduleTimezone": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "OneCTestConnectionDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "apiKind": {
+            "type": "string",
+            "enum": [
+              "ODATA",
+              "HTTP_SERVICE",
+              "CUSTOM"
+            ]
+          },
+          "baseUrl": {
+            "type": "string"
+          },
+          "status": {
+            "type": "number",
+            "nullable": true
+          },
+          "objectsDiscovered": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "ok",
+          "apiKind",
+          "baseUrl",
+          "status",
+          "objectsDiscovered"
+        ]
+      },
+      "DiscoverOneCObjectsDtoReq": {
+        "type": "object",
+        "properties": {
+          "persist": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "OneCObjectFieldDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "dataType": {
+            "type": "string",
+            "nullable": true
+          },
+          "nullable": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "property",
+              "navigation"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "dataType",
+          "nullable",
+          "kind"
+        ]
+      },
+      "OneCDiscoveredObjectDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ODATA_ENTITY",
+              "HTTP_ENDPOINT",
+              "CUSTOM"
+            ]
+          },
+          "endpoint": {
+            "type": "string",
+            "nullable": true
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCObjectFieldDto"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "kind",
+          "endpoint",
+          "fields"
+        ]
+      },
+      "OneCDiscoverObjectsDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "number"
+          },
+          "persisted": {
+            "type": "boolean"
+          },
+          "objects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCDiscoveredObjectDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "total",
+          "persisted",
+          "objects"
+        ]
+      },
+      "CreateOneCExternalObjectDtoReq": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "Catalog_Nomenclature"
+          },
+          "name": {
+            "type": "string",
+            "example": "Nomenclature"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ODATA_ENTITY",
+              "HTTP_ENDPOINT",
+              "CATALOG",
+              "DOCUMENT",
+              "REGISTER",
+              "CUSTOM"
+            ],
+            "example": "ODATA_ENTITY"
+          },
+          "endpoint": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "nullable": true,
+            "example": "GET"
+          },
+          "schema": {
+            "type": "object",
+            "nullable": true
+          },
+          "sample": {
+            "type": "object",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "UpdateOneCExternalObjectDtoReq": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ODATA_ENTITY",
+              "HTTP_ENDPOINT",
+              "CATALOG",
+              "DOCUMENT",
+              "REGISTER",
+              "CUSTOM"
+            ]
+          },
+          "endpoint": {
+            "type": "string",
+            "nullable": true
+          },
+          "method": {
+            "type": "string",
+            "nullable": true
+          },
+          "schema": {
+            "type": "object",
+            "nullable": true
+          },
+          "sample": {
+            "type": "object",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateOneCEntityMappingDtoReq": {
+        "type": "object",
+        "properties": {
+          "localEntity": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "PRODUCT_VARIANT",
+              "CATEGORY",
+              "ORDER",
+              "STOCK",
+              "PRICE",
+              "WAREHOUSE",
+              "CUSTOMER"
+            ]
+          },
+          "externalObjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalObjectCode": {
+            "type": "string",
+            "example": "Catalog_Nomenclature"
+          },
+          "identityField": {
+            "type": "string",
+            "example": "Ref_Key"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "IMPORT",
+              "EXPORT",
+              "IMPORT_EXPORT"
+            ],
+            "example": "IMPORT"
+          },
+          "conflictPolicy": {
+            "type": "string",
+            "nullable": true,
+            "example": "external_wins"
+          },
+          "filters": {
+            "type": "object",
+            "nullable": true
+          },
+          "options": {
+            "type": "object",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "localEntity",
+          "externalObjectCode",
+          "identityField"
+        ]
+      },
+      "UpdateOneCEntityMappingDtoReq": {
+        "type": "object",
+        "properties": {
+          "localEntity": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "PRODUCT_VARIANT",
+              "CATEGORY",
+              "ORDER",
+              "STOCK",
+              "PRICE",
+              "WAREHOUSE",
+              "CUSTOMER"
+            ]
+          },
+          "externalObjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "identityField": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "IMPORT",
+              "EXPORT",
+              "IMPORT_EXPORT"
+            ]
+          },
+          "conflictPolicy": {
+            "type": "string",
+            "nullable": true
+          },
+          "filters": {
+            "type": "object",
+            "nullable": true
+          },
+          "options": {
+            "type": "object",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateOneCFieldMappingDtoReq": {
+        "type": "object",
+        "properties": {
+          "localPath": {
+            "type": "string",
+            "example": "name"
+          },
+          "externalPath": {
+            "type": "string",
+            "example": "Description"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "IMPORT",
+              "EXPORT",
+              "IMPORT_EXPORT"
+            ],
+            "example": "IMPORT"
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "STRING",
+              "INTEGER",
+              "DECIMAL",
+              "BOOLEAN",
+              "DATETIME",
+              "JSON",
+              "REFERENCE"
+            ],
+            "example": "STRING"
+          },
+          "transform": {
+            "type": "object",
+            "nullable": true
+          },
+          "defaultValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "localPath",
+          "externalPath"
+        ]
+      },
+      "UpdateOneCFieldMappingDtoReq": {
+        "type": "object",
+        "properties": {
+          "localPath": {
+            "type": "string"
+          },
+          "externalPath": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "IMPORT",
+              "EXPORT",
+              "IMPORT_EXPORT"
+            ]
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "STRING",
+              "INTEGER",
+              "DECIMAL",
+              "BOOLEAN",
+              "DATETIME",
+              "JSON",
+              "REFERENCE"
+            ]
+          },
+          "transform": {
+            "type": "object",
+            "nullable": true
+          },
+          "defaultValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          }
+        }
+      },
+      "PreviewOneCMappingDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalPayload": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "entityMappingId",
+          "externalPayload"
+        ]
+      },
+      "OneCMappingPreviewItemDto": {
+        "type": "object",
+        "properties": {
+          "fieldMappingId": {
+            "type": "string"
+          },
+          "localPath": {
+            "type": "string"
+          },
+          "externalPath": {
+            "type": "string"
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "STRING",
+              "INTEGER",
+              "DECIMAL",
+              "BOOLEAN",
+              "DATETIME",
+              "JSON",
+              "REFERENCE"
+            ]
+          },
+          "externalValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "mappedValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "missing": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "fieldMappingId",
+          "localPath",
+          "externalPath",
+          "dataType",
+          "externalValue",
+          "mappedValue",
+          "missing",
+          "error"
+        ]
+      },
+      "OneCMappingPreviewDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "localEntity": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "PRODUCT_VARIANT",
+              "CATEGORY",
+              "ORDER",
+              "STOCK",
+              "PRICE",
+              "WAREHOUSE",
+              "CUSTOMER"
+            ]
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCMappingPreviewItemDto"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "result": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "localEntity",
+          "externalObjectCode",
+          "items",
+          "errors"
+        ]
+      },
+      "PreviewOneCRemoteMappingDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCRemoteMappingPreviewRowDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "externalIdentity": {
+            "type": "string",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCMappingPreviewItemDto"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "result": {
+            "type": "object"
+          },
+          "raw": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "index",
+          "externalIdentity",
+          "items",
+          "errors",
+          "result"
+        ]
+      },
+      "OneCRemoteMappingPreviewDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "localEntity": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "PRODUCT_VARIANT",
+              "CATEGORY",
+              "ORDER",
+              "STOCK",
+              "PRICE",
+              "WAREHOUSE",
+              "CUSTOMER"
+            ]
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "totalFetched": {
+            "type": "number"
+          },
+          "totalWithErrors": {
+            "type": "number"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCRemoteMappingPreviewRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "localEntity",
+          "externalObjectCode",
+          "totalFetched",
+          "totalWithErrors",
+          "rows"
+        ]
+      },
+      "PreviewOneCProductImportDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCImportPreviewCountersDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "create": {
+            "type": "number"
+          },
+          "update": {
+            "type": "number"
+          },
+          "skip": {
+            "type": "number"
+          },
+          "error": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "create",
+          "update",
+          "skip",
+          "error"
+        ]
+      },
+      "OneCImportPreviewChangeDto": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "currentValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "nextValue": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "field",
+          "currentValue",
+          "nextValue"
+        ]
+      },
+      "OneCProductImportPreviewRowDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "externalIdentity": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CREATE",
+              "UPDATE",
+              "SKIP",
+              "ERROR"
+            ]
+          },
+          "matchBy": {
+            "type": "string",
+            "enum": [
+              "externalId",
+              "sku",
+              "none"
+            ]
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "productSku": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapped": {
+            "type": "object"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCImportPreviewChangeDto"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "raw": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "index",
+          "externalIdentity",
+          "action",
+          "matchBy",
+          "productId",
+          "productName",
+          "productSku",
+          "mapped",
+          "changes",
+          "errors"
+        ]
+      },
+      "OneCProductImportPreviewDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "totalFetched": {
+            "type": "number"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCImportPreviewCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCProductImportPreviewRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "totalFetched",
+          "counters",
+          "rows"
+        ]
+      },
+      "ImportOneCProductsDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCProductImportResultCountersDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "created": {
+            "type": "number"
+          },
+          "updated": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "created",
+          "updated",
+          "skipped",
+          "failed"
+        ]
+      },
+      "OneCProductImportResultRowDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "externalIdentity": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "CREATED",
+              "UPDATED",
+              "SKIPPED",
+              "FAILED"
+            ]
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "index",
+          "externalIdentity",
+          "status",
+          "productId",
+          "errors"
+        ]
+      },
+      "OneCProductImportResultDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCProductImportResultCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCProductImportResultRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "counters",
+          "rows"
+        ]
+      },
+      "PreviewOneCVariantImportDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCVariantImportPreviewRowDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "externalIdentity": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CREATE",
+              "UPDATE",
+              "SKIP",
+              "ERROR"
+            ]
+          },
+          "matchBy": {
+            "type": "string",
+            "enum": [
+              "externalId",
+              "sku",
+              "variantKey",
+              "none"
+            ]
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "productSku": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSku": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapped": {
+            "type": "object"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCImportPreviewChangeDto"
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "raw": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "index",
+          "externalIdentity",
+          "action",
+          "matchBy",
+          "productId",
+          "productName",
+          "productSku",
+          "variantId",
+          "variantSku",
+          "variantKey",
+          "mapped",
+          "changes",
+          "errors"
+        ]
+      },
+      "OneCVariantImportPreviewDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "totalFetched": {
+            "type": "number"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCImportPreviewCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCVariantImportPreviewRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "totalFetched",
+          "counters",
+          "rows"
+        ]
+      },
+      "ImportOneCVariantsDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCVariantImportResultRowDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "externalIdentity": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "CREATED",
+              "UPDATED",
+              "SKIPPED",
+              "FAILED"
+            ]
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "index",
+          "externalIdentity",
+          "status",
+          "productId",
+          "variantId",
+          "errors"
+        ]
+      },
+      "OneCVariantImportResultDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCProductImportResultCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCVariantImportResultRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "counters",
+          "rows"
+        ]
+      },
+      "PreviewOneCStockSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCValueSyncPreviewCountersDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "update": {
+            "type": "number"
+          },
+          "skip": {
+            "type": "number"
+          },
+          "error": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "update",
+          "skip",
+          "error"
+        ]
+      },
+      "OneCValueSyncPreviewRowDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "externalIdentity": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "UPDATE",
+              "SKIP",
+              "ERROR"
+            ]
+          },
+          "targetKind": {
+            "type": "string",
+            "enum": [
+              "product",
+              "variant"
+            ],
+            "nullable": true
+          },
+          "matchBy": {
+            "type": "string",
+            "enum": [
+              "externalId",
+              "id",
+              "sku",
+              "none"
+            ]
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "productSku": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantSku": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapped": {
+            "type": "object"
+          },
+          "currentValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "nextValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "raw": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "index",
+          "externalIdentity",
+          "action",
+          "targetKind",
+          "matchBy",
+          "productId",
+          "productName",
+          "productSku",
+          "variantId",
+          "variantSku",
+          "variantKey",
+          "mapped",
+          "currentValue",
+          "nextValue",
+          "errors"
+        ]
+      },
+      "OneCStockSyncPreviewDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "totalFetched": {
+            "type": "number"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCValueSyncPreviewCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCValueSyncPreviewRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "totalFetched",
+          "counters",
+          "rows"
+        ]
+      },
+      "ApplyOneCStockSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCValueSyncResultCountersDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "updated": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          },
+          "failed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "updated",
+          "skipped",
+          "failed"
+        ]
+      },
+      "OneCValueSyncResultRowDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "externalIdentity": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UPDATED",
+              "SKIPPED",
+              "FAILED"
+            ]
+          },
+          "targetKind": {
+            "type": "string",
+            "enum": [
+              "product",
+              "variant"
+            ],
+            "nullable": true
+          },
+          "productId": {
+            "type": "string",
+            "nullable": true
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "previousValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "nextValue": {
+            "type": "object",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "index",
+          "externalIdentity",
+          "status",
+          "targetKind",
+          "productId",
+          "variantId",
+          "previousValue",
+          "nextValue",
+          "errors"
+        ]
+      },
+      "OneCStockSyncResultDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCValueSyncResultCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCValueSyncResultRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "counters",
+          "rows"
+        ]
+      },
+      "PreviewOneCPriceSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCPriceSyncPreviewDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "totalFetched": {
+            "type": "number"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCValueSyncPreviewCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCValueSyncPreviewRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "totalFetched",
+          "counters",
+          "rows"
+        ]
+      },
+      "ApplyOneCPriceSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCPriceSyncResultDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "entityMappingId": {
+            "type": "string"
+          },
+          "externalObjectCode": {
+            "type": "string"
+          },
+          "counters": {
+            "$ref": "#/components/schemas/OneCValueSyncResultCountersDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OneCValueSyncResultRowDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "entityMappingId",
+          "externalObjectCode",
+          "counters",
+          "rows"
+        ]
+      },
+      "RunOneCProductSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "OneCQueuedSyncDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "queued": {
+            "type": "boolean"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "jobId": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "PRODUCT",
+              "VARIANT",
+              "STOCK",
+              "PRICE"
+            ]
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "SCHEDULED",
+              "WEBHOOK"
+            ]
+          }
+        },
+        "required": [
+          "ok",
+          "queued",
+          "runId",
+          "jobId",
+          "mode",
+          "trigger"
+        ]
+      },
+      "RunOneCVariantSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "example": 10
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "entityMappingId"
+        ]
+      },
+      "RunOneCStockSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "limit": {
+            "type": "number",
+            "example": 100
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "RunOneCPriceSyncDtoReq": {
+        "type": "object",
+        "properties": {
+          "entityMappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "limit": {
+            "type": "number",
+            "example": 100
+          },
+          "filter": {
+            "type": "string",
+            "nullable": true
+          },
+          "includeRaw": {
+            "type": "boolean",
+            "example": false
+          },
+          "failOnRowError": {
+            "type": "boolean",
+            "example": false
+          }
+        }
       },
       "CategoryDto": {
         "type": "object",
@@ -20559,6 +25082,14 @@
             "format": "uuid",
             "nullable": true
           },
+          "guestSessionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "guestName": {
+            "type": "string",
+            "nullable": true
+          },
           "quantity": {
             "type": "number",
             "example": 2
@@ -20631,6 +25162,104 @@
           "discountPercent",
           "hasDiscount",
           "lineTotal",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CartTableSessionStatus": {
+        "type": "string",
+        "enum": [
+          "OPEN",
+          "PENDING_CONFIRMATION",
+          "SUBMITTED",
+          "EXPORT_ERROR",
+          "CLOSED",
+          "CANCELLED",
+          "EXPIRED"
+        ]
+      },
+      "CartTableSessionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CartTableSessionStatus"
+              }
+            ]
+          },
+          "publicCode": {
+            "type": "string"
+          },
+          "tableExternalId": {
+            "type": "string"
+          },
+          "tableNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "tableName": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionExternalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "guestsCount": {
+            "type": "number",
+            "nullable": true
+          },
+          "externalOrderId": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedOrderId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "publicCode",
+          "tableExternalId",
+          "tableNumber",
+          "tableName",
+          "sectionExternalId",
+          "sectionName",
+          "guestsCount",
+          "externalOrderId",
+          "submittedOrderId",
+          "submittedAt",
+          "closedAt",
           "createdAt",
           "updatedAt"
         ]
@@ -20760,6 +25389,14 @@
               "$ref": "#/components/schemas/CartItemDto"
             }
           },
+          "tableSession": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CartTableSessionDto"
+              }
+            ]
+          },
           "totals": {
             "$ref": "#/components/schemas/CartTotalsDto"
           },
@@ -20789,6 +25426,7 @@
           "managerLastSeenAt",
           "closedAt",
           "items",
+          "tableSession",
           "totals",
           "createdAt",
           "updatedAt"
@@ -20886,6 +25524,14 @@
             "format": "uuid",
             "nullable": true
           },
+          "guestSessionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "guestName": {
+            "type": "string",
+            "nullable": true
+          },
           "quantity": {
             "type": "number",
             "example": 2
@@ -20931,6 +25577,8 @@
           "productId",
           "variantId",
           "saleUnitId",
+          "guestSessionId",
+          "guestName",
           "quantity",
           "baseQuantity",
           "unitPrice",
@@ -21066,6 +25714,166 @@
           "table"
         ]
       },
+      "HallTableOverviewDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "tableName": {
+            "type": "string",
+            "nullable": true
+          },
+          "tableNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "tableExternalId": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string",
+            "nullable": true,
+            "example": "5f7ec4ac9cc6c392419eec11850d45f1"
+          },
+          "session": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CartTableSessionDto"
+              }
+            ]
+          },
+          "cart": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CartDto"
+              }
+            ]
+          },
+          "hasItems": {
+            "type": "boolean"
+          },
+          "needsConfirmation": {
+            "type": "boolean"
+          },
+          "itemsCount": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "code",
+          "tableName",
+          "tableNumber",
+          "sectionId",
+          "sectionName",
+          "tableExternalId",
+          "publicKey",
+          "session",
+          "cart",
+          "hasItems",
+          "needsConfirmation",
+          "itemsCount",
+          "total",
+          "updatedAt"
+        ]
+      },
+      "HallTableOverviewResponseDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HallTableOverviewDto"
+            }
+          }
+        },
+        "required": [
+          "ok",
+          "tables"
+        ]
+      },
+      "JoinHallTableSessionDtoReq": {
+        "type": "object",
+        "properties": {
+          "guestSessionId": {
+            "type": "string",
+            "maxLength": 64,
+            "example": "guest-f2b8b2"
+          },
+          "guestName": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Гость 1"
+          },
+          "guestsCount": {
+            "type": "number",
+            "example": 4
+          }
+        }
+      },
+      "HallTableSessionDto": {
+        "type": "object",
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/CartTableSessionDto"
+          },
+          "cart": {
+            "$ref": "#/components/schemas/CartDto"
+          },
+          "publicKey": {
+            "type": "string",
+            "example": "5f7ec4ac9cc6c392419eec11850d45f1"
+          },
+          "guestSessionId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "session",
+          "cart",
+          "publicKey",
+          "guestSessionId"
+        ]
+      },
+      "HallTableSessionResponseDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "example": true
+          },
+          "tableSession": {
+            "$ref": "#/components/schemas/HallTableSessionDto"
+          }
+        },
+        "required": [
+          "ok",
+          "tableSession"
+        ]
+      },
       "UpsertCartItemDtoReq": {
         "type": "object",
         "properties": {
@@ -21089,6 +25897,16 @@
             "type": "number",
             "example": 2,
             "description": "0 = удалить позицию из корзины"
+          },
+          "guestSessionId": {
+            "type": "string",
+            "maxLength": 64,
+            "example": "guest-f2b8b2"
+          },
+          "guestName": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Гость 1"
           }
         },
         "required": [
@@ -21119,6 +25937,16 @@
             "type": "number",
             "example": 2,
             "description": "0 = удалить позицию из корзины"
+          },
+          "guestSessionId": {
+            "type": "string",
+            "maxLength": 64,
+            "example": "guest-f2b8b2"
+          },
+          "guestName": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Гость 1"
           }
         },
         "required": [

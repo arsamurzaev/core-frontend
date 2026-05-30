@@ -4,6 +4,7 @@ export * from "./model/cart-item-max-quantity";
 export * from "./model/cart-item-view";
 export * from "./model/cart-line-selection";
 export * from "./model/cart-line-upsert-payload";
+export * from "./model/cart-public-link";
 export * from "./model/cart-product-action-state";
 export * from "./model/cart-product-card-footer-state";
 export * from "./model/cart-product-controls";

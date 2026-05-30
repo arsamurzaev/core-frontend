@@ -18,7 +18,9 @@ import {
   isMoySkladProduct,
   ProductCardSkeleton,
   ProductLink,
+  scrollWindowWithStableProductCardMeasurements,
   ToggleProductPopularAction,
+  useProductCardVirtualGridLayout,
   useProductCardViewMode,
 } from "@/core/modules/product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
@@ -64,13 +66,6 @@ export const UNCATEGORIZED_PRODUCTS_SECTION_ID =
 const UNCATEGORIZED_SECTION_KEY = "__uncategorized__";
 const GRID_INITIAL_SKELETON_ITEMS_COUNT = 4;
 const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 2;
-const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
-const PRODUCT_CARD_GAP_PX = 16;
-const GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX = 380;
-const GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX = 430;
-const GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX = 360;
-const GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX = 152;
-const DETAILED_VIRTUAL_ROW_ESTIMATE_PX = 220;
 const CATEGORY_HEADING_COMPACT_ROW_ESTIMATE_PX = 36;
 const CATEGORY_HEADING_TALL_ROW_ESTIMATE_PX = 60;
 const CATEGORY_SECTION_TOP_GAP_PX = 8;
@@ -349,7 +344,7 @@ export const VirtualizedCategoryProducts: React.FC<
 }) => {
   const { isDetailed, hasHydrated } = useProductCardViewMode();
   const { isAuthenticated } = useSession();
-  const { shouldUseCartUi } = useCart();
+  const { quantityByProductId, shouldUseCartUi } = useCart();
   const listRef = React.useRef<HTMLDivElement | null>(null);
   const [listWidth, setListWidth] = React.useState(0);
   const [scrollMargin, setScrollMargin] = React.useState(0);
@@ -444,38 +439,18 @@ export const VirtualizedCategoryProducts: React.FC<
   );
   const categoryStartIndexByIdRef = React.useRef(new Map<string, number>());
   const requestedNextPageSectionKeysRef = React.useRef(new Set<string>());
-  const columns = React.useMemo(() => {
-    if (isDetailed || listWidth <= 0) {
-      return 1;
-    }
-
-    return Math.max(
-      1,
-      Math.floor(
-        (listWidth + PRODUCT_CARD_GAP_PX) /
-          (PRODUCT_CARD_GRID_MIN_WIDTH_PX + PRODUCT_CARD_GAP_PX),
-      ),
-    );
-  }, [isDetailed, listWidth]);
-  const productRowEstimateSize = React.useMemo(() => {
-    if (isDetailed) {
-      return DETAILED_VIRTUAL_ROW_ESTIMATE_PX;
-    }
-
-    if (listWidth <= 0) {
-      return GRID_VIRTUAL_ROW_ESTIMATE_FALLBACK_PX;
-    }
-
-    const columnWidth =
-      (listWidth - PRODUCT_CARD_GAP_PX * Math.max(0, columns - 1)) / columns;
-    const estimatedHeight =
-      Math.ceil(columnWidth * (4 / 3)) + GRID_VIRTUAL_ROW_TEXT_ESTIMATE_PX;
-
-    return Math.min(
-      GRID_VIRTUAL_ROW_MAX_ESTIMATE_PX,
-      Math.max(GRID_VIRTUAL_ROW_MIN_ESTIMATE_PX, estimatedHeight),
-    );
-  }, [columns, isDetailed, listWidth]);
+  const {
+    columns,
+    gridStyle,
+    productRowEstimateSize,
+    productRowMinHeight,
+    rowGap,
+  } = useProductCardVirtualGridLayout({
+    isDetailed,
+    listWidth,
+    quantityByProductId,
+    shouldUseCartUi,
+  });
   const skeletonCount = isDetailed
     ? DETAILED_INITIAL_SKELETON_ITEMS_COUNT
     : Math.max(GRID_INITIAL_SKELETON_ITEMS_COUNT, columns);
@@ -770,37 +745,18 @@ export const VirtualizedCategoryProducts: React.FC<
     (index: number) => rows[index]?.key ?? `virtual-row-${index}`,
     [rows],
   );
-  const rowMeasurementKey = React.useMemo(
-    () =>
-      rows
-        .map((row) => {
-          if (row.type === "heading") {
-            return `${row.key}:${row.topGap}`;
-          }
-
-          if (row.type === "products") {
-            return `${row.key}:${row.items.length}:${row.placeholderCount}`;
-          }
-
-          if (row.type === "loader") {
-            return `${row.key}:${Number(row.isFetchingNextPage)}`;
-          }
-
-          return row.key;
-        })
-        .join("|"),
-    [rows],
-  );
   const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
     estimateSize: estimateRowSize,
     overscan: VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN,
     scrollMargin,
     scrollPaddingStart,
+    scrollToFn: scrollWindowWithStableProductCardMeasurements,
     paddingEnd: 0,
-    gap: PRODUCT_CARD_GAP_PX,
+    gap: rowGap,
     enabled: rows.length > 0,
     getItemKey: getVirtualRowKey,
+    useAnimationFrameWithResizeObserver: true,
     useFlushSync: false,
   });
   const virtualRows = rowVirtualizer.getVirtualItems();
@@ -825,7 +781,6 @@ export const VirtualizedCategoryProducts: React.FC<
     isDetailed,
     listWidth,
     productRowEstimateSize,
-    rowMeasurementKey,
     rowVirtualizer,
   ]);
 
@@ -1001,8 +956,6 @@ export const VirtualizedCategoryProducts: React.FC<
     virtualRows,
   ]);
 
-  const gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
-
   return (
     <>
       {sections.map((section) => (
@@ -1057,9 +1010,9 @@ export const VirtualizedCategoryProducts: React.FC<
                 ) : row.type === "initial-skeleton" ? (
                   hasHydrated ? (
                     <div
-                      className="grid gap-4"
+                      className="grid items-stretch"
                       style={{
-                        gridTemplateColumns,
+                        ...gridStyle,
                         height: productRowEstimateSize,
                       }}
                     >
@@ -1085,10 +1038,10 @@ export const VirtualizedCategoryProducts: React.FC<
                   </div>
                 ) : row.type === "products" ? (
                   <div
-                    className="grid gap-4"
+                    className="grid items-stretch"
                     style={{
-                      gridTemplateColumns,
-                      minHeight: productRowEstimateSize,
+                      ...gridStyle,
+                      minHeight: productRowMinHeight,
                     }}
                   >
                     {row.items.map((item, itemIndex) => (
@@ -1114,9 +1067,9 @@ export const VirtualizedCategoryProducts: React.FC<
                   </div>
                 ) : row.isFetchingNextPage ? (
                   <div
-                    className="grid gap-4"
+                    className="grid items-stretch"
                     style={{
-                      gridTemplateColumns,
+                      ...gridStyle,
                       height: productRowEstimateSize,
                     }}
                   >

@@ -7,36 +7,37 @@ import type { CartItemView } from "./cart-item-view";
 import type { CartMode } from "./cart-constants";
 import type { CartPublicAccess } from "./cart-public-link";
 
-interface UseCartProviderValueParams
-  extends Pick<
-    CartContextValue,
-    | "autoExpandPublicCartAccessKey"
-    | "canCreateManagerOrder"
-    | "canShare"
-    | "catalogMode"
-    | "clearCart"
-    | "completeManagedOrder"
-    | "deleteCurrentCart"
-    | "decrementLine"
-    | "decrementProduct"
-    | "detachPublicCart"
-    | "incrementLine"
-    | "incrementProduct"
-    | "isBusy"
-    | "isHydrated"
-    | "isManagerOrderCart"
-    | "isManagedPublicCart"
-    | "isOwnSharedCart"
-    | "prepareShareOrder"
-    | "quantityByLineKey"
-    | "quantityByProductId"
-    | "setLineQuantity"
-    | "setProductQuantity"
-    | "shouldUseCartUi"
-    | "startManagerOrder"
-    | "submitHallOrder"
-    | "totals"
-  > {
+interface UseCartProviderValueParams extends Pick<
+  CartContextValue,
+  | "autoExpandPublicCartAccessKey"
+  | "canCreateManagerOrder"
+  | "canShare"
+  | "catalogMode"
+  | "clearCart"
+  | "completeManagedOrder"
+  | "deleteCurrentCart"
+  | "decrementLine"
+  | "decrementProduct"
+  | "detachPublicCart"
+  | "hallTableSession"
+  | "incrementLine"
+  | "incrementProduct"
+  | "isBusy"
+  | "isHydrated"
+  | "isManagerOrderCart"
+  | "isManagedPublicCart"
+  | "isOwnSharedCart"
+  | "openPublicCart"
+  | "prepareShareOrder"
+  | "quantityByLineKey"
+  | "quantityByProductId"
+  | "setLineQuantity"
+  | "setProductQuantity"
+  | "shouldUseCartUi"
+  | "startManagerOrder"
+  | "submitHallOrder"
+  | "totals"
+> {
   activeCart: CartDto | null;
   activeCartError: unknown;
   activeCartLoading: boolean;
@@ -64,6 +65,7 @@ export function useCartProviderValue({
   decrementLine,
   decrementProduct,
   detachPublicCart,
+  hallTableSession,
   incrementLine,
   incrementProduct,
   isBusy,
@@ -74,6 +76,7 @@ export function useCartProviderValue({
   isSessionLoading,
   items,
   mode,
+  openPublicCart,
   prepareShareOrder,
   publicAccess,
   quantityByLineKey,
@@ -98,6 +101,7 @@ export function useCartProviderValue({
       decrementLine,
       decrementProduct,
       detachPublicCart,
+      hallTableSession,
       incrementLine,
       incrementProduct,
       setLineQuantity,
@@ -114,6 +118,7 @@ export function useCartProviderValue({
       isPublicMode: mode === "public",
       items,
       mode,
+      openPublicCart,
       prepareShareOrder,
       publicAccess,
       quantityByLineKey,
@@ -141,6 +146,7 @@ export function useCartProviderValue({
       decrementLine,
       decrementProduct,
       detachPublicCart,
+      hallTableSession,
       incrementLine,
       incrementProduct,
       isBusy,
@@ -151,6 +157,7 @@ export function useCartProviderValue({
       isSessionLoading,
       items,
       mode,
+      openPublicCart,
       prepareShareOrder,
       publicAccess,
       quantityByLineKey,

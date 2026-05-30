@@ -21,6 +21,27 @@ export function shouldExpandPublicCart(params: {
   );
 }
 
+export function shouldCollapsePublicCartAccessChange(params: {
+  autoExpandPublicCartAccessKey: string | null | undefined;
+  previousPublicCartAccessKey: string | null;
+  publicCartAccessKey: string | null;
+}): boolean {
+  if (params.previousPublicCartAccessKey === params.publicCartAccessKey) {
+    return false;
+  }
+
+  if (
+    params.publicCartAccessKey &&
+    params.autoExpandPublicCartAccessKey === params.publicCartAccessKey
+  ) {
+    return false;
+  }
+
+  return Boolean(
+    params.previousPublicCartAccessKey || params.publicCartAccessKey,
+  );
+}
+
 export function shouldLockCartDrawerPageScroll(params: {
   isFullyExpanded: boolean;
   shouldHideCartWhileProductRouteOpen: boolean;

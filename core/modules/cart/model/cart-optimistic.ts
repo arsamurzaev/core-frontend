@@ -1,9 +1,10 @@
-import type {
-  CartDto,
-  CartItemDto,
-} from "@/shared/api/generated/react-query";
+import type { CartDto, CartItemDto } from "@/shared/api/generated/react-query";
 import { toNumberValue } from "@/shared/lib/attributes";
 import type { CartProductSnapshot } from "./cart-context.types";
+import {
+  getCartItemGuestSessionId,
+  normalizeCartGuestSessionId,
+} from "./cart-guest";
 import {
   getCartItemSaleUnitId,
   normalizeSaleUnitId,
@@ -58,8 +59,7 @@ function resolveOptimisticUnitPrice(params: {
   product?: CartProductSnapshot;
 }): number | null {
   return (
-    getNumber(params.product?.price) ??
-    getExistingLineUnitPrice(params.item)
+    getNumber(params.product?.price) ?? getExistingLineUnitPrice(params.item)
   );
 }
 
@@ -67,6 +67,8 @@ export function createOptimisticCart(params: {
   cart: CartDto | null;
   catalogId: string;
   product?: CartProductSnapshot;
+  guestName?: string | null;
+  guestSessionId?: string | null;
   productId: string;
   quantity: number;
   saleUnitId?: string;
@@ -74,6 +76,8 @@ export function createOptimisticCart(params: {
 }): CartDto | null {
   const {
     cart,
+    guestName,
+    guestSessionId,
     catalogId,
     product,
     productId,
@@ -83,16 +87,23 @@ export function createOptimisticCart(params: {
   } = params;
   const normalizedVariantId = normalizeVariantId(variantId);
   const normalizedSaleUnitId = normalizeSaleUnitId(saleUnitId);
+  const normalizedGuestSessionId = normalizeCartGuestSessionId(guestSessionId);
+  const matchesGuest = (entry: CartItemDto) =>
+    !normalizedGuestSessionId ||
+    getCartItemGuestSessionId(entry) === normalizedGuestSessionId;
   const item =
     cart?.items.find(
       (entry) =>
+        matchesGuest(entry) &&
         entry.productId === productId &&
         normalizeVariantId(entry.variantId) === normalizedVariantId &&
         normalizeSaleUnitId(getCartItemSaleUnitId(entry)) ===
           normalizedSaleUnitId,
     ) ??
     (!normalizedVariantId && !normalizedSaleUnitId
-      ? cart?.items.find((entry) => entry.productId === productId)
+      ? cart?.items.find(
+          (entry) => matchesGuest(entry) && entry.productId === productId,
+        )
       : null) ??
     null;
 
@@ -122,6 +133,7 @@ export function createOptimisticCart(params: {
     managerLastSeenAt: null,
     closedAt: null,
     items: [],
+    tableSession: null,
     totals: {
       itemsCount: 0,
       subtotal: 0,
@@ -167,6 +179,10 @@ export function createOptimisticCart(params: {
               productId,
               saleUnitId: saleUnitId ?? null,
               variantId: variantId ?? null,
+              ...(guestName ? { guestName } : {}),
+              ...(normalizedGuestSessionId
+                ? { guestSessionId: normalizedGuestSessionId }
+                : {}),
               quantity,
               baseQuantity: quantity,
               product: productShort,
@@ -179,7 +195,10 @@ export function createOptimisticCart(params: {
               lineTotal: numericProductPrice * quantity,
               createdAt: now,
               updatedAt: now,
-            } satisfies CartItemDto,
+            } satisfies CartItemDto & {
+              guestName?: string;
+              guestSessionId?: string;
+            },
           ];
   const subtotal = nextItems.reduce((sum, entry) => sum + entry.lineTotal, 0);
 

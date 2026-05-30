@@ -4,6 +4,7 @@ import {
   isCartNotFoundError,
   isCartUnauthorizedError,
 } from "@/core/modules/cart/model/cart-api-errors";
+import { isInactiveHallTableCart } from "@/core/modules/cart/model/cart-events";
 import { cartQueryKeys } from "@/core/modules/cart/model/cart-query-keys";
 import type { CartPublicAccess } from "@/core/modules/cart/model/cart-public-link";
 import type { CartMode } from "@/core/modules/cart/model/cart-constants";
@@ -20,6 +21,7 @@ interface UseCartQueriesParams {
   canCreateManagerOrder: boolean;
   clearActiveManagerOrder: () => void;
   clearStoredCurrentCart: () => void;
+  clearStoredPublicAccess: () => void;
   hasActiveManagerOrder: boolean;
   hasStoredCurrentCart: boolean;
   isAuthenticated: boolean;
@@ -35,6 +37,7 @@ export function useCartQueries({
   canCreateManagerOrder,
   clearActiveManagerOrder,
   clearStoredCurrentCart,
+  clearStoredPublicAccess,
   hasActiveManagerOrder,
   hasStoredCurrentCart,
   isAuthenticated,
@@ -113,8 +116,8 @@ export function useCartQueries({
     () =>
       Boolean(
         storedPublicAccess?.publicKey &&
-          currentCart?.publicKey &&
-          storedPublicAccess.publicKey === currentCart.publicKey,
+        currentCart?.publicKey &&
+        storedPublicAccess.publicKey === currentCart.publicKey,
       ),
     [currentCart?.publicKey, storedPublicAccess?.publicKey],
   );
@@ -169,6 +172,27 @@ export function useCartQueries({
     mode,
     notifyPublicCartUnavailable,
     publicCartQuery.error,
+    queryClient,
+    storedPublicAccess,
+  ]);
+
+  React.useEffect(() => {
+    if (mode !== "public" || !storedPublicAccess || !publicCartQuery.data) {
+      return;
+    }
+
+    if (!isInactiveHallTableCart(publicCartQuery.data, storedPublicAccess)) {
+      return;
+    }
+
+    queryClient.removeQueries({
+      queryKey: cartQueryKeys.public(storedPublicAccess.publicKey),
+    });
+    clearStoredPublicAccess();
+  }, [
+    clearStoredPublicAccess,
+    mode,
+    publicCartQuery.data,
     queryClient,
     storedPublicAccess,
   ]);

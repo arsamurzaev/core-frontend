@@ -1,7 +1,6 @@
 "use client";
 
-import { useCart } from "@/core/modules/cart/model/cart-context";
-import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import { useCart, useCartProductControls } from "@/core/modules/cart";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";

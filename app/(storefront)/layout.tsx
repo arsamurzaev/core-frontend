@@ -1,4 +1,4 @@
-import { CartProvider } from "@/core/modules/cart/model/cart-context";
+import { CartProvider } from "@/core/modules/cart";
 import {
   IikoSyncProgressWatcherSlot,
   MoySkladSyncProgressWatcherSlot,

@@ -1,20 +1,22 @@
 "use client";
 
+import { Button } from "@/shared/ui/button";
+import { LogOut } from "lucide-react";
 import React from "react";
 
 interface CartDrawerEmptyStateProps {
   isPublicMode: boolean;
+  onExitPublicCart?: () => void;
 }
 
 export const CartDrawerEmptyState: React.FC<CartDrawerEmptyStateProps> = ({
   isPublicMode,
+  onExitPublicCart,
 }) => {
   return (
     <div className="space-y-2 text-center">
       <p className="text-xl font-bold sm:text-2xl">
-        {isPublicMode
-          ? "Публичная корзина пуста"
-          : "Новая корзина пуста"}
+        {isPublicMode ? "Публичная корзина пуста" : "Новая корзина пуста"}
       </p>
       <p className="text-xs sm:text-base">
         {isPublicMode ? (
@@ -24,12 +26,22 @@ export const CartDrawerEmptyState: React.FC<CartDrawerEmptyStateProps> = ({
           </>
         ) : (
           <>
-            Вы можете посмотреть все ваши активные заказы <br /> и/или
-            собрать новую корзину. Сверните <br /> окно и выберите, что вам
-            понравится.
+            Вы можете посмотреть все ваши активные заказы <br /> и/или собрать
+            новую корзину. Сверните <br /> окно и выберите, что вам понравится.
           </>
         )}
       </p>
+      {onExitPublicCart ? (
+        <Button
+          type="button"
+          variant="outline"
+          className="mx-auto mt-4 justify-center"
+          onClick={onExitPublicCart}
+        >
+          <LogOut className="size-4" />
+          Выйти из корзины
+        </Button>
+      ) : null}
     </div>
   );
 };

@@ -14,6 +14,7 @@ import { CartDrawerManagerOrderStartBar } from "@/core/widgets/cart-drawer/ui/ca
 import { CartDrawerProductPreview } from "@/core/widgets/cart-drawer/ui/cart-drawer-product-preview";
 import { resolveCartDrawerVisibility } from "@/core/widgets/cart-drawer/model/cart-drawer-state";
 import { hasIikoCartItems } from "@/core/widgets/cart-drawer/model/integration-checkout";
+import { resolveCartDrawerHeaderAction } from "@/core/widgets/cart-drawer/model/cart-drawer-header-action";
 import { useCartDrawerCheckout } from "@/core/widgets/cart-drawer/model/use-cart-drawer-checkout";
 import { useCartDrawerCompleteOrder } from "@/core/widgets/cart-drawer/model/use-cart-drawer-complete-order";
 import { useCartDrawerHeaderAction } from "@/core/widgets/cart-drawer/model/use-cart-drawer-header-action";
@@ -40,10 +41,7 @@ const DEFAULT_COMMENT_PLACEHOLDER =
   "Укажите пожелания к заказу: характеристики, замену, упаковку, доставку или другие важные детали.";
 
 interface CartDrawerProps {
-  actionRenderer?: (
-    productId: string,
-    item?: CartItemView,
-  ) => React.ReactNode;
+  actionRenderer?: (productId: string, item?: CartItemView) => React.ReactNode;
   checkoutConfig?: CheckoutConfig;
   commentPlaceholder?: string;
   supportsBrands?: boolean;
@@ -73,7 +71,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     prepareShareOrder,
     publicAccess,
     startManagerOrder,
-    submitHallOrder,
     status,
     statusMessage,
     shouldUseCartUi,
@@ -113,6 +110,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const hasSharedCart = Boolean(
     publicAccessPublicKey || cartPublicKey || isCheckoutCartStatus(status),
   );
+  const isHallTablePublicCart = Boolean(
+    publicAccess?.kind === "hallTable" || cart?.tableSession,
+  );
+  const isManagedHallTableCart = isManagedPublicCart && isHallTablePublicCart;
+  const shouldShowCheckoutInCart = isCheckoutEnabled && !isManagedHallTableCart;
   const {
     buildOrderInput,
     checkoutValidation,
@@ -130,7 +132,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     checkoutConfig,
     checkoutLocation,
     hasSharedCart,
-    isCheckoutEnabled,
+    isCheckoutEnabled: shouldShowCheckoutInCart,
     isManagedPublicCart,
     isPublicMode,
   });
@@ -145,6 +147,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         cart,
         hasItems,
         hasPreparedShareOrder,
+        isHallTablePublicCart,
         isPublicMode,
         publicAccessPublicKey,
         shouldUseCartUi,
@@ -155,6 +158,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       cart,
       hasItems,
       hasPreparedShareOrder,
+      isHallTablePublicCart,
       isPublicMode,
       publicAccessPublicKey,
       shouldUseCartUi,
@@ -163,6 +167,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   );
   const shouldSuspendManagerCartDrawer =
     hasBlockingDrawer && isManagerOrderCart;
+  const headerActionKind = React.useMemo(
+    () =>
+      resolveCartDrawerHeaderAction({
+        canDeleteCurrentCart,
+        hasItems,
+        isManagedPublicCart,
+        isPublicMode,
+      }),
+    [canDeleteCurrentCart, hasItems, isManagedPublicCart, isPublicMode],
+  );
+  const canExitEmptyPublicCart = Boolean(
+    !hasItems &&
+    (isManagedPublicCart || (isPublicMode && !isHallTablePublicCart)),
+  );
   const { isFullyExpanded, setSnapPoint, snapPoint } = useCartDrawerSnap({
     autoExpandPublicCartAccessKey,
     isPublicMode,
@@ -205,7 +223,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     () => hasIikoCartItems(items),
     [items],
   );
-
   if (shouldHideDrawer || shouldSuspendManagerCartDrawer) {
     if (shouldShowManagerOrderStartBar) {
       return (
@@ -245,9 +262,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           >
             <CartDrawerHeader
               currency={currency}
-              hasAction={
-                !isManagedPublicCart && (isPublicMode || canDeleteCurrentCart)
-              }
+              actionKind={headerActionKind}
+              hasAction={headerActionKind !== "none"}
               hasDiscount={totals.hasDiscount}
               onActionClick={() => void handleHeaderAction()}
               price={totals.subtotal}
@@ -265,7 +281,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 checkoutConfig={checkoutConfig}
                 checkoutData={displayedCheckoutData}
                 checkoutError={checkoutValidation.error}
-                isCheckoutEnabled={isCheckoutEnabled}
+                isCheckoutEnabled={shouldShowCheckoutInCart}
                 checkoutLocked={isCheckoutLocked}
                 checkoutLocation={checkoutLocation}
                 checkoutMethod={displayedCheckoutMethod}
@@ -278,6 +294,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 actionRenderer={actionRenderer}
                 onCommentChange={setComment}
                 onCheckoutChange={handleCheckoutChange}
+                onExitPublicCart={
+                  canExitEmptyPublicCart
+                    ? () => void handleHeaderAction()
+                    : undefined
+                }
                 onItemClick={openProduct}
                 status={status}
                 statusMessage={statusMessage}
@@ -286,14 +307,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             <CartDrawerFooter
               canShare={canShare}
-              canSubmitHallOrder={
-                catalogMode === "HALL" &&
-                hasIikoIntegrationItems &&
-                !canCreateManagerOrder &&
-                !isManagedPublicCart
-              }
               checkoutConfig={checkoutConfig}
               checkoutLocation={checkoutLocation}
+              completeOrderLabel={
+                isManagedHallTableCart ? "Подтвердить" : undefined
+              }
               currency={currency}
               hasDiscount={totals.hasDiscount}
               hasSharedCart={hasSharedCart}
@@ -301,7 +319,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               hasIikoCartItems={hasIikoIntegrationItems}
               isBusy={isBusy}
               isManagerOrderCart={isManagerOrderCart}
-              isShareDisabled={!isCheckoutLocked && Boolean(checkoutValidation.error)}
+              skipIntegrationCheckout={isManagedHallTableCart}
+              isShareDisabled={
+                !isCheckoutLocked && Boolean(checkoutValidation.error)
+              }
               onCollapse={
                 !canShare && !isManagedPublicCart && isFullyExpanded
                   ? () => setSnapPoint(CART_DRAWER_SNAP_POINTS[0])
@@ -309,12 +330,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               }
               onCompleteOrder={handleCompleteOrder}
               onSharePrepared={markSharePrepared}
-              onShareClick={(input) =>
-                prepareShareOrder(input ?? orderInput)
-              }
-              onSubmitHallOrder={async (input) => {
-                await submitHallOrder(input ?? orderInput);
-              }}
+              onShareClick={(input) => prepareShareOrder(input ?? orderInput)}
               orderInput={orderInput}
               price={totals.subtotal}
               priceFormatMode={priceFormatMode}

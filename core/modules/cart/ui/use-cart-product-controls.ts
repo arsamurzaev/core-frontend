@@ -32,6 +32,7 @@ export function useCartProductControls(
     canUseProductVariants?: boolean;
     maxQuantity?: number;
     onVariantSelectionRequired?: () => void;
+    quantityOverride?: number;
     quantityScope?: CartQuantityScope;
     requiresVariantSelection?: boolean;
     saleUnitId?: string | null;
@@ -57,7 +58,17 @@ export function useCartProductControls(
     typeof productIdOrSelection === "string"
       ? options.variantId
       : productIdOrSelection.variantId ?? options.variantId;
+  const selectionGuestName =
+    typeof productIdOrSelection === "string"
+      ? undefined
+      : productIdOrSelection.guestName;
+  const selectionGuestSessionId =
+    typeof productIdOrSelection === "string"
+      ? undefined
+      : productIdOrSelection.guestSessionId;
   const selection = normalizeCartLineSelection({
+    guestName: selectionGuestName,
+    guestSessionId: selectionGuestSessionId,
     productId: selectionProductId,
     saleUnitId: selectionSaleUnitId,
     variantId: selectionVariantId,
@@ -69,9 +80,10 @@ export function useCartProductControls(
     quantityScope: options.quantityScope,
     selection,
   });
+  const resolvedQuantity = options.quantityOverride ?? quantity;
   const isMaxQuantityReached = isCartIncrementDisabled({
     maxQuantity,
-    quantity,
+    quantity: resolvedQuantity,
   });
   const onVariantSelectionRequired = options.onVariantSelectionRequired;
   const shouldRequestVariantSelection =
@@ -122,11 +134,11 @@ export function useCartProductControls(
   ]);
 
   const handleDecrement = React.useCallback(async () => {
-    if (!quantity) {
+    if (!resolvedQuantity) {
       return;
     }
 
-    if (shouldConfirmCartLineRemoval(quantity)) {
+    if (shouldConfirmCartLineRemoval(resolvedQuantity)) {
       const isConfirmed = await confirm({
         title: CART_PRODUCT_CONTROL_MESSAGES.confirmRemoveTitle,
         description: CART_PRODUCT_CONTROL_MESSAGES.confirmRemoveDescription,
@@ -147,7 +159,7 @@ export function useCartProductControls(
   }, [
     decrementLine,
     product,
-    quantity,
+    resolvedQuantity,
     selection,
   ]);
 
@@ -158,6 +170,6 @@ export function useCartProductControls(
     isIncrementDisabled: isMaxQuantityReached,
     isBusy,
     selection,
-    quantity,
+    quantity: resolvedQuantity,
   };
 }

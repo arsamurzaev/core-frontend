@@ -25,6 +25,7 @@ interface UseCartActionsParams {
   clearActiveManagerOrder: () => void;
   clearStoredCurrentCart: () => void;
   clearStoredPublicAccess: () => void;
+  guestSessionId?: string | null;
   hasActiveManagerOrder: boolean;
   mode: CartMode;
   mutations: ReturnType<typeof useCartMutations>;
@@ -38,6 +39,7 @@ export function useCartActions({
   clearActiveManagerOrder,
   clearStoredCurrentCart,
   clearStoredPublicAccess,
+  guestSessionId,
   hasActiveManagerOrder,
   mode,
   mutations,
@@ -79,10 +81,11 @@ export function useCartActions({
 
       return getCartLineSelectionQuantityFromCart({
         cart: getActiveCartSnapshot(),
+        guestSessionId,
         selection: normalizedSelection,
       });
     },
-    [getActiveCartSnapshot],
+    [getActiveCartSnapshot, guestSessionId],
   );
 
   const trackPendingLineQuantity = React.useCallback(
@@ -112,9 +115,11 @@ export function useCartActions({
         return null;
       }
 
-      return findCartItemForLineSelection(cart.items, selection);
+      return findCartItemForLineSelection(cart.items, selection, {
+        guestSessionId,
+      });
     },
-    [getActiveCartSnapshot],
+    [getActiveCartSnapshot, guestSessionId],
   );
 
   const setLineQuantity = React.useCallback(

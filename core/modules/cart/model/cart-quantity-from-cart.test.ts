@@ -49,6 +49,7 @@ function cart(items: CartItemDto[]): CartDto {
     managerLastSeenAt: null,
     closedAt: null,
     items,
+    tableSession: null,
     totals: {
       itemsCount: items.reduce((sum, item) => sum + item.quantity, 0),
       subtotal: 0,
@@ -85,5 +86,21 @@ describe("getCartLineSelectionQuantityFromCart", () => {
     });
 
     expect(value).toBe(3);
+  });
+
+  it("returns quantity in the selected guest scope", () => {
+    const value = getCartLineSelectionQuantityFromCart({
+      cart: cart([
+        cartItem({ id: "item-1", guestSessionId: "guest-1", quantity: 10 }),
+        cartItem({ id: "item-2", guestSessionId: "guest-2", quantity: 1 }),
+      ]),
+      quantityScope: "line",
+      selection: {
+        guestSessionId: "guest-2",
+        productId: "product-1",
+      },
+    });
+
+    expect(value).toBe(1);
   });
 });

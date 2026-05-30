@@ -1,4 +1,5 @@
 import type { CartItemDto } from "@/shared/api/generated/react-query";
+import { isCartItemForGuest } from "./cart-guest";
 import type { CartProductSnapshot } from "./cart-context.types";
 import {
   getCartItemSaleUnitId,
@@ -12,6 +13,8 @@ import {
 } from "./cart-line-selection";
 
 export interface CartLineUpsertPayload {
+  guestName?: string;
+  guestSessionId?: string;
   product?: CartProductSnapshot;
   productId: string;
   quantity: number;
@@ -37,7 +40,10 @@ function isMatchingCartLine(
   );
 }
 
-function isDefaultProductCartLine(item: CartItemDto, productId: string): boolean {
+function isDefaultProductCartLine(
+  item: CartItemDto,
+  productId: string,
+): boolean {
   return (
     item.productId === productId &&
     !normalizeVariantId(item.variantId) &&
@@ -48,21 +54,30 @@ function isDefaultProductCartLine(item: CartItemDto, productId: string): boolean
 export function findCartItemForLineSelection(
   items: CartItemDto[],
   selection: CartLineSelection,
+  options: { guestSessionId?: string | null } = {},
 ): CartItemDto | null {
   const normalizedSelection = normalizeCartLineSelection(selection);
+  const effectiveGuestSessionId =
+    normalizedSelection.guestSessionId ?? options.guestSessionId;
+  const guestItems = items.filter((item) =>
+    isCartItemForGuest(item, effectiveGuestSessionId),
+  );
 
   if (normalizedSelection.variantId || normalizedSelection.saleUnitId) {
     return (
-      items.find((item) => isMatchingCartLine(item, normalizedSelection)) ??
-      null
+      guestItems.find((item) =>
+        isMatchingCartLine(item, normalizedSelection),
+      ) ?? null
     );
   }
 
   return (
-    items.find((item) =>
+    guestItems.find((item) =>
       isDefaultProductCartLine(item, normalizedSelection.productId),
     ) ??
-    items.find((item) => item.productId === normalizedSelection.productId) ??
+    guestItems.find(
+      (item) => item.productId === normalizedSelection.productId,
+    ) ??
     null
   );
 }
@@ -81,6 +96,12 @@ export function buildCartLineUpsertPayload({
     normalizeSaleUnitId(cartItem ? getCartItemSaleUnitId(cartItem) : null);
 
   return {
+    ...(normalizedSelection.guestName
+      ? { guestName: normalizedSelection.guestName }
+      : {}),
+    ...(normalizedSelection.guestSessionId
+      ? { guestSessionId: normalizedSelection.guestSessionId }
+      : {}),
     product,
     productId: normalizedSelection.productId,
     quantity,

@@ -6,6 +6,7 @@ import {
 } from "@/core/widgets/cart-drawer/model/cart-drawer-state";
 import {
   getPublicCartAccessKey,
+  shouldCollapsePublicCartAccessChange,
   shouldExpandPublicCart,
   shouldLockCartDrawerPageScroll,
   type CartDrawerSnapPoint,
@@ -36,6 +37,8 @@ export function useCartDrawerSnap({
     isPublicMode,
     publicAccessPublicKey,
   });
+  const previousPublicCartAccessKeyRef =
+    React.useRef<string | null>(publicCartAccessKey);
 
   React.useEffect(() => {
     if (!publicCartAccessKey) {
@@ -55,6 +58,21 @@ export function useCartDrawerSnap({
 
     setSnapPoint(1);
     autoExpandedPublicCartRef.current = publicCartAccessKey;
+  }, [autoExpandPublicCartAccessKey, publicCartAccessKey]);
+
+  React.useEffect(() => {
+    const previousPublicCartAccessKey = previousPublicCartAccessKeyRef.current;
+    previousPublicCartAccessKeyRef.current = publicCartAccessKey;
+
+    if (
+      shouldCollapsePublicCartAccessChange({
+        autoExpandPublicCartAccessKey,
+        previousPublicCartAccessKey,
+        publicCartAccessKey,
+      })
+    ) {
+      setSnapPoint(CART_DRAWER_SNAP_POINTS[0]);
+    }
   }, [autoExpandPublicCartAccessKey, publicCartAccessKey]);
 
   React.useEffect(() => {

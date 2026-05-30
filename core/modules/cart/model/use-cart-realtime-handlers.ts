@@ -1,6 +1,9 @@
 "use client";
 
-import { isInactiveSharedCartStatus } from "@/core/modules/cart/model/cart-events";
+import {
+  isInactiveHallTableCart,
+  isInactiveSharedCartStatus,
+} from "@/core/modules/cart/model/cart-events";
 import {
   applyCartRealtimeData,
   removePublicCartRealtimeData,
@@ -121,12 +124,19 @@ export function useCartRealtimeHandlers({
         setPublicCartData,
       });
 
-      if (cart.status === "CONVERTED" && !isCatalogManagerRole(userRole)) {
+      const isCatalogManager = isCatalogManagerRole(userRole);
+      const isInactiveHallTable = isInactiveHallTableCart(cart, access);
+
+      if (cart.status === "CONVERTED" && !isCatalogManager) {
         const toastKey = `${cart.id}:${cart.statusChangedAt ?? cart.updatedAt}`;
 
         if (lastClosedOrderToastKeyRef.current !== toastKey) {
           lastClosedOrderToastKeyRef.current = toastKey;
-          toast.success("Заказ был успешно закрыт.");
+          toast.success(
+            isInactiveHallTable
+              ? "Заказ принят. Можно сделать дозаказ."
+              : "Заказ был успешно закрыт.",
+          );
         }
       }
 
@@ -139,11 +149,16 @@ export function useCartRealtimeHandlers({
         return;
       }
 
-      if (!isCatalogManagerRole(userRole) && (access || cart.publicKey)) {
+      if (isInactiveHallTable && !isCatalogManager) {
+        dismissPublicCart(access ?? null);
         return;
       }
 
-      if (!isCatalogManagerRole(userRole)) {
+      if (!isCatalogManager && (access || cart.publicKey)) {
+        return;
+      }
+
+      if (!isCatalogManager) {
         void replaceInactiveUserCart(cart, access);
         return;
       }

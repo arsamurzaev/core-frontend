@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getPublicCartAccessKey,
+  shouldCollapsePublicCartAccessChange,
   shouldExpandPublicCart,
   shouldLockCartDrawerPageScroll,
 } from "./cart-drawer-snap";
@@ -36,6 +37,32 @@ describe("cart drawer snap state", () => {
         autoExpandPublicCartAccessKey: "public-key",
         lastExpandedPublicCartAccessKey: "public-key",
         publicCartAccessKey: "public-key",
+      }),
+    ).toBe(false);
+  });
+
+  it("collapses when public access changes without an explicit auto-expand", () => {
+    expect(
+      shouldCollapsePublicCartAccessChange({
+        autoExpandPublicCartAccessKey: null,
+        previousPublicCartAccessKey: "old-public-key",
+        publicCartAccessKey: null,
+      }),
+    ).toBe(true);
+
+    expect(
+      shouldCollapsePublicCartAccessChange({
+        autoExpandPublicCartAccessKey: null,
+        previousPublicCartAccessKey: "old-public-key",
+        publicCartAccessKey: "new-public-key",
+      }),
+    ).toBe(true);
+
+    expect(
+      shouldCollapsePublicCartAccessChange({
+        autoExpandPublicCartAccessKey: "new-public-key",
+        previousPublicCartAccessKey: "old-public-key",
+        publicCartAccessKey: "new-public-key",
       }),
     ).toBe(false);
   });

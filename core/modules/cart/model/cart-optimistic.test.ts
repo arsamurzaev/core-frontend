@@ -22,6 +22,7 @@ function baseCart(overrides: Partial<CartDto> = {}): CartDto {
     managerLastSeenAt: null,
     closedAt: null,
     items: [],
+    tableSession: null,
     totals: {
       itemsCount: 0,
       subtotal: 0,

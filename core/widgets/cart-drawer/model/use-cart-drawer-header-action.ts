@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import {
   DETACH_PUBLIC_CART_CONFIRMATION,
   DETACH_PUBLIC_CART_SUCCESS_MESSAGE,
+  EXIT_PUBLIC_CART_SUCCESS_MESSAGE,
   getDeleteCartConfirmationCopy,
   getDeleteCartSuccessMessage,
   resolveCartDrawerHeaderAction,
@@ -58,7 +59,8 @@ export function useCartDrawerHeaderAction({
     }
 
     if (action === "detach-public-cart") {
-      const isConfirmed = await confirm(DETACH_PUBLIC_CART_CONFIRMATION);
+      const isConfirmed =
+        isManagedPublicCart || (await confirm(DETACH_PUBLIC_CART_CONFIRMATION));
 
       if (!isConfirmed) {
         return;
@@ -66,7 +68,11 @@ export function useCartDrawerHeaderAction({
 
       detachPublicCart();
       setSnapPoint(CART_DRAWER_SNAP_POINTS[0]);
-      toast.success(DETACH_PUBLIC_CART_SUCCESS_MESSAGE);
+      toast.success(
+        isManagedPublicCart
+          ? EXIT_PUBLIC_CART_SUCCESS_MESSAGE
+          : DETACH_PUBLIC_CART_SUCCESS_MESSAGE,
+      );
       return;
     }
 

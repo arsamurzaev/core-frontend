@@ -1,8 +1,14 @@
 "use client";
 
+export type CartPublicAccessKind = "hallTable" | "shared";
+
 export interface CartPublicAccess {
+  guestName?: string | null;
+  guestSessionId?: string | null;
+  kind?: CartPublicAccessKind;
   publicKey: string;
   rawLink: string;
+  tableCode?: string | null;
 }
 
 const CART_ACCESS_QUERY_PARAM = "c";
@@ -37,10 +43,19 @@ function buildRawLink(publicKey: string): string {
   return `/?${CART_ACCESS_QUERY_PARAM}=${encodeURIComponent(publicKey)}`;
 }
 
-function createAccess(publicKey: string): CartPublicAccess {
+export function createCartPublicAccess(
+  publicKey: string,
+  options: Partial<Omit<CartPublicAccess, "publicKey">> = {},
+): CartPublicAccess {
   return {
+    ...(options.kind ? { kind: options.kind } : {}),
+    ...(options.tableCode ? { tableCode: options.tableCode } : {}),
+    ...(options.guestSessionId
+      ? { guestSessionId: options.guestSessionId }
+      : {}),
+    ...(options.guestName ? { guestName: options.guestName } : {}),
     publicKey,
-    rawLink: buildRawLink(publicKey),
+    rawLink: options.rawLink ?? buildRawLink(publicKey),
   };
 }
 
@@ -78,12 +93,12 @@ export function parseCartPublicAccessFromLink(
       source.searchParams.get(CART_ACCESS_QUERY_PARAM),
     );
     if (shortKey) {
-      return createAccess(shortKey);
+      return createCartPublicAccess(shortKey);
     }
 
     const match = source.pathname.match(/\/cart\/public\/([^/?#]+)/i);
     const publicKey = normalizeValue(match?.[1]);
-    return publicKey ? createAccess(publicKey) : null;
+    return publicKey ? createCartPublicAccess(publicKey) : null;
   } catch {
     return null;
   }
@@ -94,7 +109,7 @@ export function parseCartPublicAccessFromSearchParams(
 ): CartPublicAccess | null {
   const shortKey = normalizeValue(searchParams.get(CART_ACCESS_QUERY_PARAM));
   if (shortKey) {
-    return createAccess(shortKey);
+    return createCartPublicAccess(shortKey);
   }
 
   for (const key of LEGACY_CART_QUERY_PARAM_CANDIDATES) {
@@ -108,7 +123,7 @@ export function parseCartPublicAccessFromSearchParams(
     normalizeValue(searchParams.get(key)),
   ).find(Boolean);
 
-  return publicKey ? createAccess(publicKey) : null;
+  return publicKey ? createCartPublicAccess(publicKey) : null;
 }
 
 export function removeCartPublicAccessParams(
@@ -154,13 +169,21 @@ export function deserializeCartPublicAccess(
       return null;
     }
 
-    return {
-      publicKey: parsed.publicKey,
-      rawLink:
-        typeof parsed.rawLink === "string"
-          ? parsed.rawLink
-          : buildRawLink(parsed.publicKey),
-    };
+    return createCartPublicAccess(parsed.publicKey, {
+      guestName:
+        typeof parsed.guestName === "string" ? parsed.guestName : undefined,
+      guestSessionId:
+        typeof parsed.guestSessionId === "string"
+          ? parsed.guestSessionId
+          : undefined,
+      kind:
+        parsed.kind === "hallTable" || parsed.kind === "shared"
+          ? parsed.kind
+          : undefined,
+      rawLink: typeof parsed.rawLink === "string" ? parsed.rawLink : undefined,
+      tableCode:
+        typeof parsed.tableCode === "string" ? parsed.tableCode : undefined,
+    });
   } catch {
     return parseCartPublicAccessFromLink(normalized);
   }

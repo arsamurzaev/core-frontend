@@ -2,6 +2,7 @@ import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
 import type { CartMode } from "@/core/modules/cart/model/cart-constants";
 import type { CartLineSelection } from "@/core/modules/cart/model/cart-line-selection";
 import type { CartPublicAccess } from "@/core/modules/cart/model/cart-public-link";
+import type { HallTableSessionClientState } from "@/core/modules/cart/model/use-hall-table-session";
 import type {
   CartDto,
   CompletedOrderDto,
@@ -72,6 +73,7 @@ export interface CartContextValue {
     product?: CartProductSnapshot,
   ) => Promise<void>;
   isBusy: boolean;
+  hallTableSession: HallTableSessionClientState;
   isHydrated: boolean;
   isLoading: boolean;
   isManagerOrderCart: boolean;
@@ -80,6 +82,7 @@ export interface CartContextValue {
   isPublicMode: boolean;
   items: CartItemView[];
   mode: CartMode;
+  openPublicCart: (access: CartPublicAccess, cart?: CartDto | null) => void;
   prepareShareOrder: (
     input?: PrepareShareOrderInput | string,
   ) => Promise<CartSharePayload>;
@@ -91,7 +94,7 @@ export interface CartContextValue {
   startManagerOrder: () => Promise<void>;
   submitHallOrder: (
     input?: PrepareShareOrderInput | string,
-  ) => Promise<CompletedOrderDto>;
+  ) => Promise<CartDto | CompletedOrderDto>;
   status: CartDto["status"] | null;
   statusMessage: string | null;
   totals: {

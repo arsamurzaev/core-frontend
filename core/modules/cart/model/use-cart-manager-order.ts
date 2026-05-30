@@ -2,13 +2,17 @@
 
 import type { CartPublicAccess } from "@/core/modules/cart/model/cart-public-link";
 import { cartQueryKeys } from "@/core/modules/cart/model/cart-query-keys";
-import type { CompletedOrderDto } from "@/shared/api/generated/react-query";
+import type {
+  CartDto,
+  CompletedOrderDto,
+} from "@/shared/api/generated/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import React from "react";
 import type { PrepareShareOrderInput } from "./cart-context.types";
 import type { useCartMutations } from "./use-cart-mutations";
 
 interface UseCartManagerOrderParams {
+  activeCart: CartDto | null;
   canCreateManagerOrder: boolean;
   clearActiveManagerOrder: () => void;
   clearStoredCurrentCart: () => void;
@@ -19,6 +23,7 @@ interface UseCartManagerOrderParams {
 }
 
 export function useCartManagerOrder({
+  activeCart,
   canCreateManagerOrder,
   clearActiveManagerOrder,
   clearStoredCurrentCart,
@@ -36,7 +41,9 @@ export function useCartManagerOrder({
   }, [canCreateManagerOrder, mutations.startManagerOrderMutation]);
 
   const completeManagedOrder = React.useCallback(
-    async (input?: PrepareShareOrderInput | string): Promise<CompletedOrderDto> => {
+    async (
+      input?: PrepareShareOrderInput | string,
+    ): Promise<CompletedOrderDto> => {
       const shareInput =
         typeof input === "string" ? { comment: input } : (input ?? {});
       const normalizedComment = shareInput.comment?.trim();
@@ -63,7 +70,11 @@ export function useCartManagerOrder({
         };
       }
 
-      const result = await mutations.completeManagerOrderMutation.mutateAsync({
+      const completeMutation =
+        access.kind === "hallTable" || activeCart?.tableSession
+          ? mutations.confirmHallTableOrderMutation
+          : mutations.completeManagerOrderMutation;
+      const result = await completeMutation.mutateAsync({
         access,
         input: {
           ...shareInput,
@@ -80,9 +91,11 @@ export function useCartManagerOrder({
       return result.order;
     },
     [
+      activeCart?.tableSession,
       clearActiveManagerOrder,
       clearStoredCurrentCart,
       itemsCount,
+      mutations.confirmHallTableOrderMutation,
       mutations.completeManagerOrderMutation,
       mutations.shareCurrentCartMutation,
       queryClient,

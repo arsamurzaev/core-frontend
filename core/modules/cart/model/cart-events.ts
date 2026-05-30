@@ -1,4 +1,5 @@
 import type { CartDto } from "@/shared/api/generated/react-query";
+import type { CartPublicAccess } from "./cart-public-link";
 
 type CartRealtimeEvent = {
   type: string;
@@ -9,9 +10,36 @@ export function isInactiveSharedCartStatus(
   status: CartDto["status"] | null | undefined,
 ) {
   return (
-    status === "CONVERTED" ||
-    status === "CANCELLED" ||
-    status === "EXPIRED"
+    status === "CONVERTED" || status === "CANCELLED" || status === "EXPIRED"
+  );
+}
+
+export function isHallTablePublicCart(
+  cart: CartDto | null | undefined,
+  access?: CartPublicAccess | null,
+) {
+  return Boolean(access?.kind === "hallTable" || cart?.tableSession);
+}
+
+export function isInactiveHallTableCart(
+  cart: CartDto | null | undefined,
+  access?: CartPublicAccess | null,
+) {
+  if (!cart || !isHallTablePublicCart(cart, access)) {
+    return false;
+  }
+
+  if (isInactiveSharedCartStatus(cart.status)) {
+    return true;
+  }
+
+  const tableStatus = cart.tableSession?.status;
+  return (
+    tableStatus === "SUBMITTED" ||
+    tableStatus === "EXPORT_ERROR" ||
+    tableStatus === "CLOSED" ||
+    tableStatus === "CANCELLED" ||
+    tableStatus === "EXPIRED"
   );
 }
 

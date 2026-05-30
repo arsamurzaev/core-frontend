@@ -526,6 +526,7 @@ export const AdminCatalogFeatureEntitlementItemDtoFeature = {
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
+  integrationone_c: 'integration.one_c',
 } as const;
 
 /**
@@ -785,6 +786,7 @@ export const AdminUpdateCatalogFeatureEntitlementDtoReqFeature = {
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
+  integrationone_c: 'integration.one_c',
 } as const;
 
 /**
@@ -1082,6 +1084,7 @@ export type ProductIntegrationDtoProvider = typeof ProductIntegrationDtoProvider
 export const ProductIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export interface ProductIntegrationDto {
@@ -2334,6 +2337,7 @@ export type MoySkladIntegrationDtoProvider = typeof MoySkladIntegrationDtoProvid
 export const MoySkladIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type MoySkladIntegrationDtoLastSyncStatus = typeof MoySkladIntegrationDtoLastSyncStatus[keyof typeof MoySkladIntegrationDtoLastSyncStatus];
@@ -2472,6 +2476,7 @@ export type MoySkladSyncRunDtoProvider = typeof MoySkladSyncRunDtoProvider[keyof
 export const MoySkladSyncRunDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof MoySkladSyncRunDtoMode];
@@ -2480,7 +2485,9 @@ export type MoySkladSyncRunDtoMode = typeof MoySkladSyncRunDtoMode[keyof typeof 
 export const MoySkladSyncRunDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type MoySkladSyncRunDtoTrigger = typeof MoySkladSyncRunDtoTrigger[keyof typeof MoySkladSyncRunDtoTrigger];
@@ -2709,7 +2716,9 @@ export type MoySkladQueuedSyncDtoMode = typeof MoySkladQueuedSyncDtoMode[keyof t
 export const MoySkladQueuedSyncDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type MoySkladQueuedSyncDtoTrigger = typeof MoySkladQueuedSyncDtoTrigger[keyof typeof MoySkladQueuedSyncDtoTrigger];
@@ -2751,6 +2760,7 @@ export type IikoIntegrationDtoProvider = typeof IikoIntegrationDtoProvider[keyof
 export const IikoIntegrationDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 /**
@@ -2832,6 +2842,7 @@ export type IikoSyncRunDtoProvider = typeof IikoSyncRunDtoProvider[keyof typeof 
 export const IikoSyncRunDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type IikoSyncRunDtoMode = typeof IikoSyncRunDtoMode[keyof typeof IikoSyncRunDtoMode];
@@ -2840,7 +2851,9 @@ export type IikoSyncRunDtoMode = typeof IikoSyncRunDtoMode[keyof typeof IikoSync
 export const IikoSyncRunDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type IikoSyncRunDtoTrigger = typeof IikoSyncRunDtoTrigger[keyof typeof IikoSyncRunDtoTrigger];
@@ -2923,6 +2936,7 @@ export type IikoWebhookEventDtoProvider = typeof IikoWebhookEventDtoProvider[key
 export const IikoWebhookEventDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type IikoWebhookEventDtoStatus = typeof IikoWebhookEventDtoStatus[keyof typeof IikoWebhookEventDtoStatus];
@@ -3188,7 +3202,9 @@ export type IikoQueuedSyncDtoMode = typeof IikoQueuedSyncDtoMode[keyof typeof Ii
 export const IikoQueuedSyncDtoMode = {
   FULL: 'FULL',
   PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
   STOCK: 'STOCK',
+  PRICE: 'PRICE',
 } as const;
 
 export type IikoQueuedSyncDtoTrigger = typeof IikoQueuedSyncDtoTrigger[keyof typeof IikoQueuedSyncDtoTrigger];
@@ -3376,6 +3392,8 @@ export interface CatalogCurrentFeaturesDto {
   canUseMoySkladIntegration: boolean;
   /** Whether the current catalog can use iiko integration. */
   canUseIikoIntegration: boolean;
+  /** Whether the current catalog can use 1C integration. */
+  canUseOneCIntegration: boolean;
   /** Raw admin entitlements before dependency resolution. */
   raw: CatalogCurrentFeaturesDtoRaw;
   /** Effective capabilities after dependency resolution. */
@@ -3631,6 +3649,7 @@ export type IikoOrderExportDtoProvider = typeof IikoOrderExportDtoProvider[keyof
 export const IikoOrderExportDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type IikoOrderExportDtoStatus = typeof IikoOrderExportDtoStatus[keyof typeof IikoOrderExportDtoStatus];
@@ -3670,6 +3689,7 @@ export type MoySkladOrderExportDtoProvider = typeof MoySkladOrderExportDtoProvid
 export const MoySkladOrderExportDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export type MoySkladOrderExportDtoStatus = typeof MoySkladOrderExportDtoStatus[keyof typeof MoySkladOrderExportDtoStatus];
@@ -3907,6 +3927,7 @@ export type IikoOrderExportTimelineItemDtoProvider = typeof IikoOrderExportTimel
 export const IikoOrderExportTimelineItemDtoProvider = {
   MOYSKLAD: 'MOYSKLAD',
   IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
 } as const;
 
 export interface IikoOrderExportTimelineItemDto {
@@ -3929,6 +3950,1568 @@ export interface IikoOrderExportTimelineItemDto {
 export interface IikoOrderExportTimelineDto {
   orderId: string;
   items: IikoOrderExportTimelineItemDto[];
+}
+
+export type OneCIntegrationDtoProvider = typeof OneCIntegrationDtoProvider[keyof typeof OneCIntegrationDtoProvider];
+
+
+export const OneCIntegrationDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
+} as const;
+
+export type OneCIntegrationDtoApiKind = typeof OneCIntegrationDtoApiKind[keyof typeof OneCIntegrationDtoApiKind];
+
+
+export const OneCIntegrationDtoApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type OneCIntegrationDtoAuthKind = typeof OneCIntegrationDtoAuthKind[keyof typeof OneCIntegrationDtoAuthKind];
+
+
+export const OneCIntegrationDtoAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export type OneCIntegrationDtoLastSyncStatus = typeof OneCIntegrationDtoLastSyncStatus[keyof typeof OneCIntegrationDtoLastSyncStatus];
+
+
+export const OneCIntegrationDtoLastSyncStatus = {
+  IDLE: 'IDLE',
+  SYNCING: 'SYNCING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+} as const;
+
+export interface OneCIntegrationDto {
+  provider: OneCIntegrationDtoProvider;
+  capabilities: IntegrationProviderCapabilitiesDto;
+  isActive: boolean;
+  apiKind: OneCIntegrationDtoApiKind;
+  authKind: OneCIntegrationDtoAuthKind;
+  baseUrl: string;
+  /** @nullable */
+  username: string | null;
+  hasPassword: boolean;
+  hasToken: boolean;
+  /** @nullable */
+  tokenPreview: string | null;
+  timeoutMs: number;
+  importProducts: boolean;
+  syncStock: boolean;
+  exportOrders: boolean;
+  /** @nullable */
+  productSyncEntityMappingId: string | null;
+  productSyncLimit: number;
+  /** @nullable */
+  productSyncFilter: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId: string | null;
+  variantSyncLimit: number;
+  /** @nullable */
+  variantSyncFilter: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId: string | null;
+  stockSyncLimit: number;
+  /** @nullable */
+  stockSyncFilter: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId: string | null;
+  priceSyncLimit: number;
+  /** @nullable */
+  priceSyncFilter: string | null;
+  scheduleEnabled: boolean;
+  /** @nullable */
+  schedulePattern: string | null;
+  scheduleTimezone: string;
+  stockScheduleEnabled: boolean;
+  /** @nullable */
+  stockSchedulePattern: string | null;
+  stockScheduleTimezone: string;
+  priceScheduleEnabled: boolean;
+  /** @nullable */
+  priceSchedulePattern: string | null;
+  priceScheduleTimezone: string;
+  lastSyncStatus: OneCIntegrationDtoLastSyncStatus;
+  /** @nullable */
+  syncStartedAt: string | null;
+  /** @nullable */
+  lastSyncAt: string | null;
+  /** @nullable */
+  lastDiscoveredAt: string | null;
+  /** @nullable */
+  lastSyncError: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OneCSyncProgressDtoStatus = typeof OneCSyncProgressDtoStatus[keyof typeof OneCSyncProgressDtoStatus];
+
+
+export const OneCSyncProgressDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export interface OneCSyncProgressDto {
+  runId: string;
+  status: OneCSyncProgressDtoStatus;
+  phase: string;
+  message: string;
+  processed: number;
+  /** @nullable */
+  total: number | null;
+  /** @nullable */
+  percent: number | null;
+  updatedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+}
+
+export type OneCSyncRunDtoProvider = typeof OneCSyncRunDtoProvider[keyof typeof OneCSyncRunDtoProvider];
+
+
+export const OneCSyncRunDtoProvider = {
+  MOYSKLAD: 'MOYSKLAD',
+  IIKO: 'IIKO',
+  ONE_C: 'ONE_C',
+} as const;
+
+export type OneCSyncRunDtoMode = typeof OneCSyncRunDtoMode[keyof typeof OneCSyncRunDtoMode];
+
+
+export const OneCSyncRunDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+} as const;
+
+export type OneCSyncRunDtoTrigger = typeof OneCSyncRunDtoTrigger[keyof typeof OneCSyncRunDtoTrigger];
+
+
+export const OneCSyncRunDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export type OneCSyncRunDtoStatus = typeof OneCSyncRunDtoStatus[keyof typeof OneCSyncRunDtoStatus];
+
+
+export const OneCSyncRunDtoStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+  SKIPPED: 'SKIPPED',
+} as const;
+
+export type OneCSyncRunDtoSnapshotCompleteness = typeof OneCSyncRunDtoSnapshotCompleteness[keyof typeof OneCSyncRunDtoSnapshotCompleteness];
+
+
+export const OneCSyncRunDtoSnapshotCompleteness = {
+  FULL_COMPLETE: 'FULL_COMPLETE',
+  PARTIAL: 'PARTIAL',
+  WEBHOOK_DELTA: 'WEBHOOK_DELTA',
+  FAILED_BEFORE_SNAPSHOT: 'FAILED_BEFORE_SNAPSHOT',
+} as const;
+
+export interface OneCSyncRunDto {
+  id: string;
+  provider: OneCSyncRunDtoProvider;
+  mode: OneCSyncRunDtoMode;
+  trigger: OneCSyncRunDtoTrigger;
+  status: OneCSyncRunDtoStatus;
+  snapshotCompleteness: OneCSyncRunDtoSnapshotCompleteness;
+  /** @nullable */
+  jobId: string | null;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  externalId: string | null;
+  /** @nullable */
+  error: string | null;
+  totalProducts: number;
+  createdProducts: number;
+  updatedProducts: number;
+  deletedProducts: number;
+  imagesImported: number;
+  skippedProducts: number;
+  failedProducts: number;
+  progress: OneCSyncProgressDto | null;
+  /** @nullable */
+  durationMs: number | null;
+  requestedAt: string;
+  /** @nullable */
+  startedAt: string | null;
+  /** @nullable */
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OneCIntegrationStatusDto {
+  configured: boolean;
+  integration: OneCIntegrationDto | null;
+  activeRun: OneCSyncRunDto | null;
+  lastRun: OneCSyncRunDto | null;
+}
+
+export type OneCExternalObjectDtoKind = typeof OneCExternalObjectDtoKind[keyof typeof OneCExternalObjectDtoKind];
+
+
+export const OneCExternalObjectDtoKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CATALOG: 'CATALOG',
+  DOCUMENT: 'DOCUMENT',
+  REGISTER: 'REGISTER',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCExternalObjectDtoSchema = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCExternalObjectDtoSample = { [key: string]: unknown } | null;
+
+export interface OneCExternalObjectDto {
+  id: string;
+  code: string;
+  name: string;
+  kind: OneCExternalObjectDtoKind;
+  /** @nullable */
+  endpoint: string | null;
+  /** @nullable */
+  method: string | null;
+  /** @nullable */
+  schema: OneCExternalObjectDtoSchema;
+  /** @nullable */
+  sample: OneCExternalObjectDtoSample;
+  isActive: boolean;
+  /** @nullable */
+  lastDiscoveredAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OneCFieldMappingDtoDirection = typeof OneCFieldMappingDtoDirection[keyof typeof OneCFieldMappingDtoDirection];
+
+
+export const OneCFieldMappingDtoDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+export type OneCFieldMappingDtoDataType = typeof OneCFieldMappingDtoDataType[keyof typeof OneCFieldMappingDtoDataType];
+
+
+export const OneCFieldMappingDtoDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCFieldMappingDtoTransform = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCFieldMappingDtoDefaultValue = { [key: string]: unknown } | null;
+
+export interface OneCFieldMappingDto {
+  id: string;
+  entityMappingId: string;
+  localPath: string;
+  externalPath: string;
+  direction: OneCFieldMappingDtoDirection;
+  dataType: OneCFieldMappingDtoDataType;
+  /** @nullable */
+  transform: OneCFieldMappingDtoTransform;
+  /** @nullable */
+  defaultValue: OneCFieldMappingDtoDefaultValue;
+  isRequired: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OneCEntityMappingDtoLocalEntity = typeof OneCEntityMappingDtoLocalEntity[keyof typeof OneCEntityMappingDtoLocalEntity];
+
+
+export const OneCEntityMappingDtoLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type OneCEntityMappingDtoDirection = typeof OneCEntityMappingDtoDirection[keyof typeof OneCEntityMappingDtoDirection];
+
+
+export const OneCEntityMappingDtoDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCEntityMappingDtoFilters = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCEntityMappingDtoOptions = { [key: string]: unknown } | null;
+
+export interface OneCEntityMappingDto {
+  id: string;
+  localEntity: OneCEntityMappingDtoLocalEntity;
+  /** @nullable */
+  externalObjectId: string | null;
+  externalObjectCode: string;
+  identityField: string;
+  direction: OneCEntityMappingDtoDirection;
+  /** @nullable */
+  conflictPolicy: string | null;
+  /** @nullable */
+  filters: OneCEntityMappingDtoFilters;
+  /** @nullable */
+  options: OneCEntityMappingDtoOptions;
+  isActive: boolean;
+  externalObject: OneCExternalObjectDto | null;
+  fieldMappings: OneCFieldMappingDto[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OneCRecommendedProductMappingDto {
+  ok: boolean;
+  ready: boolean;
+  /** @nullable */
+  mappingId: string | null;
+  mapping: OneCEntityMappingDto | null;
+  /** @nullable */
+  reason: string | null;
+}
+
+export interface OneCRecommendedVariantMappingDto {
+  ok: boolean;
+  ready: boolean;
+  /** @nullable */
+  mappingId: string | null;
+  mapping: OneCEntityMappingDto | null;
+  /** @nullable */
+  reason: string | null;
+}
+
+export type UpsertOneCIntegrationDtoReqApiKind = typeof UpsertOneCIntegrationDtoReqApiKind[keyof typeof UpsertOneCIntegrationDtoReqApiKind];
+
+
+export const UpsertOneCIntegrationDtoReqApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type UpsertOneCIntegrationDtoReqAuthKind = typeof UpsertOneCIntegrationDtoReqAuthKind[keyof typeof UpsertOneCIntegrationDtoReqAuthKind];
+
+
+export const UpsertOneCIntegrationDtoReqAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export interface UpsertOneCIntegrationDtoReq {
+  apiKind: UpsertOneCIntegrationDtoReqApiKind;
+  authKind: UpsertOneCIntegrationDtoReqAuthKind;
+  baseUrl: string;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  password?: string | null;
+  /** @nullable */
+  token?: string | null;
+  timeoutMs?: number;
+  isActive?: boolean;
+  importProducts?: boolean;
+  syncStock?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  productSyncEntityMappingId?: string | null;
+  productSyncLimit?: number;
+  /** @nullable */
+  productSyncFilter?: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId?: string | null;
+  variantSyncLimit?: number;
+  /** @nullable */
+  variantSyncFilter?: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId?: string | null;
+  stockSyncLimit?: number;
+  /** @nullable */
+  stockSyncFilter?: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId?: string | null;
+  priceSyncLimit?: number;
+  /** @nullable */
+  priceSyncFilter?: string | null;
+  scheduleEnabled?: boolean;
+  /** @nullable */
+  schedulePattern?: string | null;
+  /** @nullable */
+  scheduleTimezone?: string | null;
+  stockScheduleEnabled?: boolean;
+  /** @nullable */
+  stockSchedulePattern?: string | null;
+  /** @nullable */
+  stockScheduleTimezone?: string | null;
+  priceScheduleEnabled?: boolean;
+  /** @nullable */
+  priceSchedulePattern?: string | null;
+  /** @nullable */
+  priceScheduleTimezone?: string | null;
+}
+
+export type UpdateOneCIntegrationDtoReqApiKind = typeof UpdateOneCIntegrationDtoReqApiKind[keyof typeof UpdateOneCIntegrationDtoReqApiKind];
+
+
+export const UpdateOneCIntegrationDtoReqApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type UpdateOneCIntegrationDtoReqAuthKind = typeof UpdateOneCIntegrationDtoReqAuthKind[keyof typeof UpdateOneCIntegrationDtoReqAuthKind];
+
+
+export const UpdateOneCIntegrationDtoReqAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export interface UpdateOneCIntegrationDtoReq {
+  apiKind?: UpdateOneCIntegrationDtoReqApiKind;
+  authKind?: UpdateOneCIntegrationDtoReqAuthKind;
+  baseUrl?: string;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  password?: string | null;
+  /** @nullable */
+  token?: string | null;
+  timeoutMs?: number;
+  isActive?: boolean;
+  importProducts?: boolean;
+  syncStock?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  productSyncEntityMappingId?: string | null;
+  productSyncLimit?: number;
+  /** @nullable */
+  productSyncFilter?: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId?: string | null;
+  variantSyncLimit?: number;
+  /** @nullable */
+  variantSyncFilter?: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId?: string | null;
+  stockSyncLimit?: number;
+  /** @nullable */
+  stockSyncFilter?: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId?: string | null;
+  priceSyncLimit?: number;
+  /** @nullable */
+  priceSyncFilter?: string | null;
+  scheduleEnabled?: boolean;
+  /** @nullable */
+  schedulePattern?: string | null;
+  /** @nullable */
+  scheduleTimezone?: string | null;
+  stockScheduleEnabled?: boolean;
+  /** @nullable */
+  stockSchedulePattern?: string | null;
+  /** @nullable */
+  stockScheduleTimezone?: string | null;
+  priceScheduleEnabled?: boolean;
+  /** @nullable */
+  priceSchedulePattern?: string | null;
+  /** @nullable */
+  priceScheduleTimezone?: string | null;
+}
+
+export type TestOneCConnectionDtoReqApiKind = typeof TestOneCConnectionDtoReqApiKind[keyof typeof TestOneCConnectionDtoReqApiKind];
+
+
+export const TestOneCConnectionDtoReqApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type TestOneCConnectionDtoReqAuthKind = typeof TestOneCConnectionDtoReqAuthKind[keyof typeof TestOneCConnectionDtoReqAuthKind];
+
+
+export const TestOneCConnectionDtoReqAuthKind = {
+  BASIC: 'BASIC',
+  BEARER: 'BEARER',
+  NONE: 'NONE',
+} as const;
+
+export interface TestOneCConnectionDtoReq {
+  apiKind?: TestOneCConnectionDtoReqApiKind;
+  authKind?: TestOneCConnectionDtoReqAuthKind;
+  baseUrl?: string;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  password?: string | null;
+  /** @nullable */
+  token?: string | null;
+  timeoutMs?: number;
+  isActive?: boolean;
+  importProducts?: boolean;
+  syncStock?: boolean;
+  exportOrders?: boolean;
+  /** @nullable */
+  productSyncEntityMappingId?: string | null;
+  productSyncLimit?: number;
+  /** @nullable */
+  productSyncFilter?: string | null;
+  /** @nullable */
+  variantSyncEntityMappingId?: string | null;
+  variantSyncLimit?: number;
+  /** @nullable */
+  variantSyncFilter?: string | null;
+  /** @nullable */
+  stockSyncEntityMappingId?: string | null;
+  stockSyncLimit?: number;
+  /** @nullable */
+  stockSyncFilter?: string | null;
+  /** @nullable */
+  priceSyncEntityMappingId?: string | null;
+  priceSyncLimit?: number;
+  /** @nullable */
+  priceSyncFilter?: string | null;
+  scheduleEnabled?: boolean;
+  /** @nullable */
+  schedulePattern?: string | null;
+  /** @nullable */
+  scheduleTimezone?: string | null;
+  stockScheduleEnabled?: boolean;
+  /** @nullable */
+  stockSchedulePattern?: string | null;
+  /** @nullable */
+  stockScheduleTimezone?: string | null;
+  priceScheduleEnabled?: boolean;
+  /** @nullable */
+  priceSchedulePattern?: string | null;
+  /** @nullable */
+  priceScheduleTimezone?: string | null;
+}
+
+export type OneCTestConnectionDtoApiKind = typeof OneCTestConnectionDtoApiKind[keyof typeof OneCTestConnectionDtoApiKind];
+
+
+export const OneCTestConnectionDtoApiKind = {
+  ODATA: 'ODATA',
+  HTTP_SERVICE: 'HTTP_SERVICE',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export interface OneCTestConnectionDto {
+  ok: boolean;
+  apiKind: OneCTestConnectionDtoApiKind;
+  baseUrl: string;
+  /** @nullable */
+  status: number | null;
+  objectsDiscovered: number;
+}
+
+export interface DiscoverOneCObjectsDtoReq {
+  persist?: boolean;
+}
+
+export type OneCObjectFieldDtoKind = typeof OneCObjectFieldDtoKind[keyof typeof OneCObjectFieldDtoKind];
+
+
+export const OneCObjectFieldDtoKind = {
+  property: 'property',
+  navigation: 'navigation',
+} as const;
+
+export interface OneCObjectFieldDto {
+  code: string;
+  name: string;
+  /** @nullable */
+  dataType: string | null;
+  /** @nullable */
+  nullable: boolean | null;
+  kind: OneCObjectFieldDtoKind;
+}
+
+export type OneCDiscoveredObjectDtoKind = typeof OneCDiscoveredObjectDtoKind[keyof typeof OneCDiscoveredObjectDtoKind];
+
+
+export const OneCDiscoveredObjectDtoKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export interface OneCDiscoveredObjectDto {
+  code: string;
+  name: string;
+  kind: OneCDiscoveredObjectDtoKind;
+  /** @nullable */
+  endpoint: string | null;
+  fields: OneCObjectFieldDto[];
+}
+
+export interface OneCDiscoverObjectsDto {
+  ok: boolean;
+  total: number;
+  persisted: boolean;
+  objects: OneCDiscoveredObjectDto[];
+}
+
+export type CreateOneCExternalObjectDtoReqKind = typeof CreateOneCExternalObjectDtoReqKind[keyof typeof CreateOneCExternalObjectDtoReqKind];
+
+
+export const CreateOneCExternalObjectDtoReqKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CATALOG: 'CATALOG',
+  DOCUMENT: 'DOCUMENT',
+  REGISTER: 'REGISTER',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CreateOneCExternalObjectDtoReqSchema = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CreateOneCExternalObjectDtoReqSample = { [key: string]: unknown } | null;
+
+export interface CreateOneCExternalObjectDtoReq {
+  code: string;
+  name?: string;
+  kind?: CreateOneCExternalObjectDtoReqKind;
+  /** @nullable */
+  endpoint?: string | null;
+  /** @nullable */
+  method?: string | null;
+  /** @nullable */
+  schema?: CreateOneCExternalObjectDtoReqSchema;
+  /** @nullable */
+  sample?: CreateOneCExternalObjectDtoReqSample;
+  isActive?: boolean;
+}
+
+export type UpdateOneCExternalObjectDtoReqKind = typeof UpdateOneCExternalObjectDtoReqKind[keyof typeof UpdateOneCExternalObjectDtoReqKind];
+
+
+export const UpdateOneCExternalObjectDtoReqKind = {
+  ODATA_ENTITY: 'ODATA_ENTITY',
+  HTTP_ENDPOINT: 'HTTP_ENDPOINT',
+  CATALOG: 'CATALOG',
+  DOCUMENT: 'DOCUMENT',
+  REGISTER: 'REGISTER',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCExternalObjectDtoReqSchema = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCExternalObjectDtoReqSample = { [key: string]: unknown } | null;
+
+export interface UpdateOneCExternalObjectDtoReq {
+  code?: string;
+  name?: string;
+  kind?: UpdateOneCExternalObjectDtoReqKind;
+  /** @nullable */
+  endpoint?: string | null;
+  /** @nullable */
+  method?: string | null;
+  /** @nullable */
+  schema?: UpdateOneCExternalObjectDtoReqSchema;
+  /** @nullable */
+  sample?: UpdateOneCExternalObjectDtoReqSample;
+  isActive?: boolean;
+}
+
+export type CreateOneCEntityMappingDtoReqLocalEntity = typeof CreateOneCEntityMappingDtoReqLocalEntity[keyof typeof CreateOneCEntityMappingDtoReqLocalEntity];
+
+
+export const CreateOneCEntityMappingDtoReqLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type CreateOneCEntityMappingDtoReqDirection = typeof CreateOneCEntityMappingDtoReqDirection[keyof typeof CreateOneCEntityMappingDtoReqDirection];
+
+
+export const CreateOneCEntityMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CreateOneCEntityMappingDtoReqFilters = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CreateOneCEntityMappingDtoReqOptions = { [key: string]: unknown } | null;
+
+export interface CreateOneCEntityMappingDtoReq {
+  localEntity: CreateOneCEntityMappingDtoReqLocalEntity;
+  /** @nullable */
+  externalObjectId?: string | null;
+  externalObjectCode: string;
+  identityField: string;
+  direction?: CreateOneCEntityMappingDtoReqDirection;
+  /** @nullable */
+  conflictPolicy?: string | null;
+  /** @nullable */
+  filters?: CreateOneCEntityMappingDtoReqFilters;
+  /** @nullable */
+  options?: CreateOneCEntityMappingDtoReqOptions;
+  isActive?: boolean;
+}
+
+export type UpdateOneCEntityMappingDtoReqLocalEntity = typeof UpdateOneCEntityMappingDtoReqLocalEntity[keyof typeof UpdateOneCEntityMappingDtoReqLocalEntity];
+
+
+export const UpdateOneCEntityMappingDtoReqLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type UpdateOneCEntityMappingDtoReqDirection = typeof UpdateOneCEntityMappingDtoReqDirection[keyof typeof UpdateOneCEntityMappingDtoReqDirection];
+
+
+export const UpdateOneCEntityMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCEntityMappingDtoReqFilters = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCEntityMappingDtoReqOptions = { [key: string]: unknown } | null;
+
+export interface UpdateOneCEntityMappingDtoReq {
+  localEntity?: UpdateOneCEntityMappingDtoReqLocalEntity;
+  /** @nullable */
+  externalObjectId?: string | null;
+  externalObjectCode?: string;
+  identityField?: string;
+  direction?: UpdateOneCEntityMappingDtoReqDirection;
+  /** @nullable */
+  conflictPolicy?: string | null;
+  /** @nullable */
+  filters?: UpdateOneCEntityMappingDtoReqFilters;
+  /** @nullable */
+  options?: UpdateOneCEntityMappingDtoReqOptions;
+  isActive?: boolean;
+}
+
+export type CreateOneCFieldMappingDtoReqDirection = typeof CreateOneCFieldMappingDtoReqDirection[keyof typeof CreateOneCFieldMappingDtoReqDirection];
+
+
+export const CreateOneCFieldMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+export type CreateOneCFieldMappingDtoReqDataType = typeof CreateOneCFieldMappingDtoReqDataType[keyof typeof CreateOneCFieldMappingDtoReqDataType];
+
+
+export const CreateOneCFieldMappingDtoReqDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type CreateOneCFieldMappingDtoReqTransform = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type CreateOneCFieldMappingDtoReqDefaultValue = { [key: string]: unknown } | null;
+
+export interface CreateOneCFieldMappingDtoReq {
+  localPath: string;
+  externalPath: string;
+  direction?: CreateOneCFieldMappingDtoReqDirection;
+  dataType?: CreateOneCFieldMappingDtoReqDataType;
+  /** @nullable */
+  transform?: CreateOneCFieldMappingDtoReqTransform;
+  /** @nullable */
+  defaultValue?: CreateOneCFieldMappingDtoReqDefaultValue;
+  isRequired?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type UpdateOneCFieldMappingDtoReqDirection = typeof UpdateOneCFieldMappingDtoReqDirection[keyof typeof UpdateOneCFieldMappingDtoReqDirection];
+
+
+export const UpdateOneCFieldMappingDtoReqDirection = {
+  IMPORT: 'IMPORT',
+  EXPORT: 'EXPORT',
+  IMPORT_EXPORT: 'IMPORT_EXPORT',
+} as const;
+
+export type UpdateOneCFieldMappingDtoReqDataType = typeof UpdateOneCFieldMappingDtoReqDataType[keyof typeof UpdateOneCFieldMappingDtoReqDataType];
+
+
+export const UpdateOneCFieldMappingDtoReqDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCFieldMappingDtoReqTransform = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type UpdateOneCFieldMappingDtoReqDefaultValue = { [key: string]: unknown } | null;
+
+export interface UpdateOneCFieldMappingDtoReq {
+  localPath?: string;
+  externalPath?: string;
+  direction?: UpdateOneCFieldMappingDtoReqDirection;
+  dataType?: UpdateOneCFieldMappingDtoReqDataType;
+  /** @nullable */
+  transform?: UpdateOneCFieldMappingDtoReqTransform;
+  /** @nullable */
+  defaultValue?: UpdateOneCFieldMappingDtoReqDefaultValue;
+  isRequired?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type PreviewOneCMappingDtoReqExternalPayload = { [key: string]: unknown };
+
+export interface PreviewOneCMappingDtoReq {
+  entityMappingId: string;
+  externalPayload: PreviewOneCMappingDtoReqExternalPayload;
+}
+
+export type OneCMappingPreviewItemDtoDataType = typeof OneCMappingPreviewItemDtoDataType[keyof typeof OneCMappingPreviewItemDtoDataType];
+
+
+export const OneCMappingPreviewItemDtoDataType = {
+  STRING: 'STRING',
+  INTEGER: 'INTEGER',
+  DECIMAL: 'DECIMAL',
+  BOOLEAN: 'BOOLEAN',
+  DATETIME: 'DATETIME',
+  JSON: 'JSON',
+  REFERENCE: 'REFERENCE',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCMappingPreviewItemDtoExternalValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCMappingPreviewItemDtoMappedValue = { [key: string]: unknown } | null;
+
+export interface OneCMappingPreviewItemDto {
+  fieldMappingId: string;
+  localPath: string;
+  externalPath: string;
+  dataType: OneCMappingPreviewItemDtoDataType;
+  /** @nullable */
+  externalValue: OneCMappingPreviewItemDtoExternalValue;
+  /** @nullable */
+  mappedValue: OneCMappingPreviewItemDtoMappedValue;
+  missing: boolean;
+  /** @nullable */
+  error: string | null;
+}
+
+export type OneCMappingPreviewDtoLocalEntity = typeof OneCMappingPreviewDtoLocalEntity[keyof typeof OneCMappingPreviewDtoLocalEntity];
+
+
+export const OneCMappingPreviewDtoLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export type OneCMappingPreviewDtoResult = { [key: string]: unknown };
+
+export interface OneCMappingPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  localEntity: OneCMappingPreviewDtoLocalEntity;
+  externalObjectCode: string;
+  items: OneCMappingPreviewItemDto[];
+  errors: string[];
+  result?: OneCMappingPreviewDtoResult;
+}
+
+export interface PreviewOneCRemoteMappingDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export type OneCRemoteMappingPreviewRowDtoResult = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCRemoteMappingPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCRemoteMappingPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  items: OneCMappingPreviewItemDto[];
+  errors: string[];
+  result: OneCRemoteMappingPreviewRowDtoResult;
+  /** @nullable */
+  raw?: OneCRemoteMappingPreviewRowDtoRaw;
+}
+
+export type OneCRemoteMappingPreviewDtoLocalEntity = typeof OneCRemoteMappingPreviewDtoLocalEntity[keyof typeof OneCRemoteMappingPreviewDtoLocalEntity];
+
+
+export const OneCRemoteMappingPreviewDtoLocalEntity = {
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  CATEGORY: 'CATEGORY',
+  ORDER: 'ORDER',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+  WAREHOUSE: 'WAREHOUSE',
+  CUSTOMER: 'CUSTOMER',
+} as const;
+
+export interface OneCRemoteMappingPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  localEntity: OneCRemoteMappingPreviewDtoLocalEntity;
+  externalObjectCode: string;
+  totalFetched: number;
+  totalWithErrors: number;
+  rows: OneCRemoteMappingPreviewRowDto[];
+}
+
+export interface PreviewOneCProductImportDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export interface OneCImportPreviewCountersDto {
+  total: number;
+  create: number;
+  update: number;
+  skip: number;
+  error: number;
+}
+
+/**
+ * @nullable
+ */
+export type OneCImportPreviewChangeDtoCurrentValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCImportPreviewChangeDtoNextValue = { [key: string]: unknown } | null;
+
+export interface OneCImportPreviewChangeDto {
+  field: string;
+  /** @nullable */
+  currentValue: OneCImportPreviewChangeDtoCurrentValue;
+  /** @nullable */
+  nextValue: OneCImportPreviewChangeDtoNextValue;
+}
+
+export type OneCProductImportPreviewRowDtoAction = typeof OneCProductImportPreviewRowDtoAction[keyof typeof OneCProductImportPreviewRowDtoAction];
+
+
+export const OneCProductImportPreviewRowDtoAction = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  SKIP: 'SKIP',
+  ERROR: 'ERROR',
+} as const;
+
+export type OneCProductImportPreviewRowDtoMatchBy = typeof OneCProductImportPreviewRowDtoMatchBy[keyof typeof OneCProductImportPreviewRowDtoMatchBy];
+
+
+export const OneCProductImportPreviewRowDtoMatchBy = {
+  externalId: 'externalId',
+  sku: 'sku',
+  none: 'none',
+} as const;
+
+export type OneCProductImportPreviewRowDtoMapped = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCProductImportPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCProductImportPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  action: OneCProductImportPreviewRowDtoAction;
+  matchBy: OneCProductImportPreviewRowDtoMatchBy;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  productName: string | null;
+  /** @nullable */
+  productSku: string | null;
+  mapped: OneCProductImportPreviewRowDtoMapped;
+  changes: OneCImportPreviewChangeDto[];
+  errors: string[];
+  /** @nullable */
+  raw?: OneCProductImportPreviewRowDtoRaw;
+}
+
+export interface OneCProductImportPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCImportPreviewCountersDto;
+  rows: OneCProductImportPreviewRowDto[];
+}
+
+export interface ImportOneCProductsDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface OneCProductImportResultCountersDto {
+  total: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+}
+
+export type OneCProductImportResultRowDtoStatus = typeof OneCProductImportResultRowDtoStatus[keyof typeof OneCProductImportResultRowDtoStatus];
+
+
+export const OneCProductImportResultRowDtoStatus = {
+  CREATED: 'CREATED',
+  UPDATED: 'UPDATED',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED',
+} as const;
+
+export interface OneCProductImportResultRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  status: OneCProductImportResultRowDtoStatus;
+  /** @nullable */
+  productId: string | null;
+  errors: string[];
+}
+
+export interface OneCProductImportResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCProductImportResultCountersDto;
+  rows: OneCProductImportResultRowDto[];
+}
+
+export interface PreviewOneCVariantImportDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export type OneCVariantImportPreviewRowDtoAction = typeof OneCVariantImportPreviewRowDtoAction[keyof typeof OneCVariantImportPreviewRowDtoAction];
+
+
+export const OneCVariantImportPreviewRowDtoAction = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  SKIP: 'SKIP',
+  ERROR: 'ERROR',
+} as const;
+
+export type OneCVariantImportPreviewRowDtoMatchBy = typeof OneCVariantImportPreviewRowDtoMatchBy[keyof typeof OneCVariantImportPreviewRowDtoMatchBy];
+
+
+export const OneCVariantImportPreviewRowDtoMatchBy = {
+  externalId: 'externalId',
+  sku: 'sku',
+  variantKey: 'variantKey',
+  none: 'none',
+} as const;
+
+export type OneCVariantImportPreviewRowDtoMapped = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCVariantImportPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCVariantImportPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  action: OneCVariantImportPreviewRowDtoAction;
+  matchBy: OneCVariantImportPreviewRowDtoMatchBy;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  productName: string | null;
+  /** @nullable */
+  productSku: string | null;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  variantSku: string | null;
+  /** @nullable */
+  variantKey: string | null;
+  mapped: OneCVariantImportPreviewRowDtoMapped;
+  changes: OneCImportPreviewChangeDto[];
+  errors: string[];
+  /** @nullable */
+  raw?: OneCVariantImportPreviewRowDtoRaw;
+}
+
+export interface OneCVariantImportPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCImportPreviewCountersDto;
+  rows: OneCVariantImportPreviewRowDto[];
+}
+
+export interface ImportOneCVariantsDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export type OneCVariantImportResultRowDtoStatus = typeof OneCVariantImportResultRowDtoStatus[keyof typeof OneCVariantImportResultRowDtoStatus];
+
+
+export const OneCVariantImportResultRowDtoStatus = {
+  CREATED: 'CREATED',
+  UPDATED: 'UPDATED',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED',
+} as const;
+
+export interface OneCVariantImportResultRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  status: OneCVariantImportResultRowDtoStatus;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  variantId: string | null;
+  errors: string[];
+}
+
+export interface OneCVariantImportResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCProductImportResultCountersDto;
+  rows: OneCVariantImportResultRowDto[];
+}
+
+export interface PreviewOneCStockSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export interface OneCValueSyncPreviewCountersDto {
+  total: number;
+  update: number;
+  skip: number;
+  error: number;
+}
+
+export type OneCValueSyncPreviewRowDtoAction = typeof OneCValueSyncPreviewRowDtoAction[keyof typeof OneCValueSyncPreviewRowDtoAction];
+
+
+export const OneCValueSyncPreviewRowDtoAction = {
+  UPDATE: 'UPDATE',
+  SKIP: 'SKIP',
+  ERROR: 'ERROR',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoTargetKind = typeof OneCValueSyncPreviewRowDtoTargetKind[keyof typeof OneCValueSyncPreviewRowDtoTargetKind] | null;
+
+
+export const OneCValueSyncPreviewRowDtoTargetKind = {
+  product: 'product',
+  variant: 'variant',
+} as const;
+
+export type OneCValueSyncPreviewRowDtoMatchBy = typeof OneCValueSyncPreviewRowDtoMatchBy[keyof typeof OneCValueSyncPreviewRowDtoMatchBy];
+
+
+export const OneCValueSyncPreviewRowDtoMatchBy = {
+  externalId: 'externalId',
+  id: 'id',
+  sku: 'sku',
+  none: 'none',
+} as const;
+
+export type OneCValueSyncPreviewRowDtoMapped = { [key: string]: unknown };
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoCurrentValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoNextValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncPreviewRowDtoRaw = { [key: string]: unknown } | null;
+
+export interface OneCValueSyncPreviewRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  action: OneCValueSyncPreviewRowDtoAction;
+  /** @nullable */
+  targetKind: OneCValueSyncPreviewRowDtoTargetKind;
+  matchBy: OneCValueSyncPreviewRowDtoMatchBy;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  productName: string | null;
+  /** @nullable */
+  productSku: string | null;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  variantSku: string | null;
+  /** @nullable */
+  variantKey: string | null;
+  mapped: OneCValueSyncPreviewRowDtoMapped;
+  /** @nullable */
+  currentValue: OneCValueSyncPreviewRowDtoCurrentValue;
+  /** @nullable */
+  nextValue: OneCValueSyncPreviewRowDtoNextValue;
+  errors: string[];
+  /** @nullable */
+  raw?: OneCValueSyncPreviewRowDtoRaw;
+}
+
+export interface OneCStockSyncPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCValueSyncPreviewCountersDto;
+  rows: OneCValueSyncPreviewRowDto[];
+}
+
+export interface ApplyOneCStockSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface OneCValueSyncResultCountersDto {
+  total: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+}
+
+export type OneCValueSyncResultRowDtoStatus = typeof OneCValueSyncResultRowDtoStatus[keyof typeof OneCValueSyncResultRowDtoStatus];
+
+
+export const OneCValueSyncResultRowDtoStatus = {
+  UPDATED: 'UPDATED',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncResultRowDtoTargetKind = typeof OneCValueSyncResultRowDtoTargetKind[keyof typeof OneCValueSyncResultRowDtoTargetKind] | null;
+
+
+export const OneCValueSyncResultRowDtoTargetKind = {
+  product: 'product',
+  variant: 'variant',
+} as const;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncResultRowDtoPreviousValue = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type OneCValueSyncResultRowDtoNextValue = { [key: string]: unknown } | null;
+
+export interface OneCValueSyncResultRowDto {
+  index: number;
+  /** @nullable */
+  externalIdentity: string | null;
+  status: OneCValueSyncResultRowDtoStatus;
+  /** @nullable */
+  targetKind: OneCValueSyncResultRowDtoTargetKind;
+  /** @nullable */
+  productId: string | null;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  previousValue: OneCValueSyncResultRowDtoPreviousValue;
+  /** @nullable */
+  nextValue: OneCValueSyncResultRowDtoNextValue;
+  errors: string[];
+}
+
+export interface OneCStockSyncResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCValueSyncResultCountersDto;
+  rows: OneCValueSyncResultRowDto[];
+}
+
+export interface PreviewOneCPriceSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+}
+
+export interface OneCPriceSyncPreviewDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  totalFetched: number;
+  counters: OneCValueSyncPreviewCountersDto;
+  rows: OneCValueSyncPreviewRowDto[];
+}
+
+export interface ApplyOneCPriceSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface OneCPriceSyncResultDto {
+  ok: boolean;
+  entityMappingId: string;
+  externalObjectCode: string;
+  counters: OneCValueSyncResultCountersDto;
+  rows: OneCValueSyncResultRowDto[];
+}
+
+export interface RunOneCProductSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export type OneCQueuedSyncDtoMode = typeof OneCQueuedSyncDtoMode[keyof typeof OneCQueuedSyncDtoMode];
+
+
+export const OneCQueuedSyncDtoMode = {
+  FULL: 'FULL',
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  STOCK: 'STOCK',
+  PRICE: 'PRICE',
+} as const;
+
+export type OneCQueuedSyncDtoTrigger = typeof OneCQueuedSyncDtoTrigger[keyof typeof OneCQueuedSyncDtoTrigger];
+
+
+export const OneCQueuedSyncDtoTrigger = {
+  MANUAL: 'MANUAL',
+  SCHEDULED: 'SCHEDULED',
+  WEBHOOK: 'WEBHOOK',
+} as const;
+
+export interface OneCQueuedSyncDto {
+  ok: boolean;
+  queued: boolean;
+  runId: string;
+  jobId: string;
+  mode: OneCQueuedSyncDtoMode;
+  trigger: OneCQueuedSyncDtoTrigger;
+}
+
+export interface RunOneCVariantSyncDtoReq {
+  entityMappingId: string;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface RunOneCStockSyncDtoReq {
+  /** @nullable */
+  entityMappingId?: string | null;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
+}
+
+export interface RunOneCPriceSyncDtoReq {
+  /** @nullable */
+  entityMappingId?: string | null;
+  limit?: number;
+  /** @nullable */
+  filter?: string | null;
+  includeRaw?: boolean;
+  failOnRowError?: boolean;
 }
 
 export interface CategoryDto {
@@ -4274,6 +5857,10 @@ export interface CartItemDto {
   variantId: string | null;
   /** @nullable */
   saleUnitId?: string | null;
+  /** @nullable */
+  guestSessionId?: string | null;
+  /** @nullable */
+  guestName?: string | null;
   quantity: number;
   baseQuantity: number;
   product: CartProductShortDto;
@@ -4287,6 +5874,46 @@ export interface CartItemDto {
   /** Признак активной скидки в сохраненном снимке цены */
   hasDiscount: boolean;
   lineTotal: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CartTableSessionStatus = typeof CartTableSessionStatus[keyof typeof CartTableSessionStatus];
+
+
+export const CartTableSessionStatus = {
+  OPEN: 'OPEN',
+  PENDING_CONFIRMATION: 'PENDING_CONFIRMATION',
+  SUBMITTED: 'SUBMITTED',
+  EXPORT_ERROR: 'EXPORT_ERROR',
+  CLOSED: 'CLOSED',
+  CANCELLED: 'CANCELLED',
+  EXPIRED: 'EXPIRED',
+} as const;
+
+export interface CartTableSessionDto {
+  id: string;
+  status: CartTableSessionStatus;
+  publicCode: string;
+  tableExternalId: string;
+  /** @nullable */
+  tableNumber: string | null;
+  /** @nullable */
+  tableName: string | null;
+  /** @nullable */
+  sectionExternalId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+  /** @nullable */
+  guestsCount: number | null;
+  /** @nullable */
+  externalOrderId: string | null;
+  /** @nullable */
+  submittedOrderId: string | null;
+  /** @nullable */
+  submittedAt: string | null;
+  /** @nullable */
+  closedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -4354,6 +5981,7 @@ export interface CartDto {
   /** @nullable */
   closedAt: string | null;
   items: CartItemDto[];
+  tableSession: CartTableSessionDto | null;
   totals: CartTotalsDto;
   createdAt: string;
   updatedAt: string;
@@ -4403,6 +6031,10 @@ export interface CompletedOrderItemDto {
   variantId: string | null;
   /** @nullable */
   saleUnitId: string | null;
+  /** @nullable */
+  guestSessionId: string | null;
+  /** @nullable */
+  guestName: string | null;
   quantity: number;
   baseQuantity: number;
   unitPrice: number;
@@ -4472,6 +6104,55 @@ export interface HallTableLinkResponseDto {
   table: HallTableLinkDto;
 }
 
+export interface HallTableOverviewDto {
+  code: string;
+  /** @nullable */
+  tableName: string | null;
+  /** @nullable */
+  tableNumber: string | null;
+  /** @nullable */
+  sectionId: string | null;
+  /** @nullable */
+  sectionName: string | null;
+  tableExternalId: string;
+  /** @nullable */
+  publicKey: string | null;
+  session: CartTableSessionDto | null;
+  cart: CartDto | null;
+  hasItems: boolean;
+  needsConfirmation: boolean;
+  itemsCount: number;
+  total: number;
+  /** @nullable */
+  updatedAt: string | null;
+}
+
+export interface HallTableOverviewResponseDto {
+  ok: boolean;
+  tables: HallTableOverviewDto[];
+}
+
+export interface JoinHallTableSessionDtoReq {
+  /** @maxLength 64 */
+  guestSessionId?: string;
+  /** @maxLength 120 */
+  guestName?: string;
+  guestsCount?: number;
+}
+
+export interface HallTableSessionDto {
+  session: CartTableSessionDto;
+  cart: CartDto;
+  publicKey: string;
+  /** @nullable */
+  guestSessionId: string | null;
+}
+
+export interface HallTableSessionResponseDto {
+  ok: boolean;
+  tableSession: HallTableSessionDto;
+}
+
 export interface UpsertCartItemDtoReq {
   productId: string;
   variantId?: string;
@@ -4479,6 +6160,10 @@ export interface UpsertCartItemDtoReq {
   saleUnitId?: string;
   /** 0 = удалить позицию из корзины */
   quantity: number;
+  /** @maxLength 64 */
+  guestSessionId?: string;
+  /** @maxLength 120 */
+  guestName?: string;
 }
 
 export interface PublicUpsertCartItemDtoReq {
@@ -4488,6 +6173,10 @@ export interface PublicUpsertCartItemDtoReq {
   saleUnitId?: string;
   /** 0 = удалить позицию из корзины */
   quantity: number;
+  /** @maxLength 64 */
+  guestSessionId?: string;
+  /** @maxLength 120 */
+  guestName?: string;
 }
 
 export type ProductTypeAttributeAttributeDtoDataType = typeof ProductTypeAttributeAttributeDtoDataType[keyof typeof ProductTypeAttributeAttributeDtoDataType];
@@ -5205,6 +6894,13 @@ limit?: number;
 
 export type IntegrationControllerReceiveMoySkladStockWebhookParams = {
 requestId?: string;
+};
+
+export type OneCIntegrationControllerGetOneCRunsParams = {
+/**
+ * How many recent sync runs to return
+ */
+limit?: number;
 };
 
 export type CatalogSaleUnitControllerGetAllParams = {
@@ -19598,6 +21294,2523 @@ export function useIntegrationControllerGetIikoOrderExportTimeline<TData = Await
 
 
 /**
+ * @summary Get ONE_C integration settings
+ */
+export const oneCIntegrationControllerGetOneC = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCIntegrationDto>(
+      {url: `/integration/1c`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerGetOneCQueryKey = () => {
+    return [
+    `/integration/1c`
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerGetOneCQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerGetOneCQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>> = ({ signal }) => oneCIntegrationControllerGetOneC(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerGetOneCQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>>
+export type OneCIntegrationControllerGetOneCQueryError = unknown
+
+
+export function useOneCIntegrationControllerGetOneC<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneC<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneC<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get ONE_C integration settings
+ */
+
+export function useOneCIntegrationControllerGetOneC<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneC>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerGetOneCQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create or replace ONE_C integration settings
+ */
+export const oneCIntegrationControllerUpsertOneC = (
+    upsertOneCIntegrationDtoReq: UpsertOneCIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCIntegrationDto>(
+      {url: `/integration/1c`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: upsertOneCIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerUpsertOneCMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpsertOneC>>, TError,{data: UpsertOneCIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpsertOneC>>, TError,{data: UpsertOneCIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerUpsertOneC'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerUpsertOneC>>, {data: UpsertOneCIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerUpsertOneC(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerUpsertOneCMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerUpsertOneC>>>
+    export type OneCIntegrationControllerUpsertOneCMutationBody = UpsertOneCIntegrationDtoReq
+    export type OneCIntegrationControllerUpsertOneCMutationError = unknown
+
+    /**
+ * @summary Create or replace ONE_C integration settings
+ */
+export const useOneCIntegrationControllerUpsertOneC = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpsertOneC>>, TError,{data: UpsertOneCIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerUpsertOneC>>,
+        TError,
+        {data: UpsertOneCIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerUpsertOneCMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Update ONE_C integration settings
+ */
+export const oneCIntegrationControllerUpdateOneC = (
+    updateOneCIntegrationDtoReq: UpdateOneCIntegrationDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCIntegrationDto>(
+      {url: `/integration/1c`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCIntegrationDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerUpdateOneCMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneC>>, TError,{data: UpdateOneCIntegrationDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneC>>, TError,{data: UpdateOneCIntegrationDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerUpdateOneC'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneC>>, {data: UpdateOneCIntegrationDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerUpdateOneC(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerUpdateOneCMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneC>>>
+    export type OneCIntegrationControllerUpdateOneCMutationBody = UpdateOneCIntegrationDtoReq
+    export type OneCIntegrationControllerUpdateOneCMutationError = unknown
+
+    /**
+ * @summary Update ONE_C integration settings
+ */
+export const useOneCIntegrationControllerUpdateOneC = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneC>>, TError,{data: UpdateOneCIntegrationDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneC>>,
+        TError,
+        {data: UpdateOneCIntegrationDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerUpdateOneCMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Remove ONE_C integration settings
+ */
+export const oneCIntegrationControllerRemoveOneC = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerRemoveOneCMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerRemoveOneC>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerRemoveOneC>>, TError,void, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerRemoveOneC'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerRemoveOneC>>, void> = () => {
+          
+
+          return  oneCIntegrationControllerRemoveOneC()
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerRemoveOneCMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerRemoveOneC>>>
+    
+    export type OneCIntegrationControllerRemoveOneCMutationError = unknown
+
+    /**
+ * @summary Remove ONE_C integration settings
+ */
+export const useOneCIntegrationControllerRemoveOneC = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerRemoveOneC>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerRemoveOneC>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerRemoveOneCMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Get ONE_C integration status
+ */
+export const oneCIntegrationControllerGetOneCStatus = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCIntegrationStatusDto>(
+      {url: `/integration/1c/status`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerGetOneCStatusQueryKey = () => {
+    return [
+    `/integration/1c/status`
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerGetOneCStatusQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerGetOneCStatusQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>> = ({ signal }) => oneCIntegrationControllerGetOneCStatus(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerGetOneCStatusQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>>
+export type OneCIntegrationControllerGetOneCStatusQueryError = unknown
+
+
+export function useOneCIntegrationControllerGetOneCStatus<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCStatus<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCStatus<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get ONE_C integration status
+ */
+
+export function useOneCIntegrationControllerGetOneCStatus<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCStatus>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerGetOneCStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get ONE_C sync history
+ */
+export const oneCIntegrationControllerGetOneCRuns = (
+    params?: OneCIntegrationControllerGetOneCRunsParams,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCSyncRunDto[]>(
+      {url: `/integration/1c/runs`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerGetOneCRunsQueryKey = (params?: OneCIntegrationControllerGetOneCRunsParams,) => {
+    return [
+    `/integration/1c/runs`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerGetOneCRunsQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError = unknown>(params?: OneCIntegrationControllerGetOneCRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerGetOneCRunsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>> = ({ signal }) => oneCIntegrationControllerGetOneCRuns(params, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerGetOneCRunsQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>>
+export type OneCIntegrationControllerGetOneCRunsQueryError = unknown
+
+
+export function useOneCIntegrationControllerGetOneCRuns<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError = unknown>(
+ params: undefined |  OneCIntegrationControllerGetOneCRunsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRuns<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError = unknown>(
+ params?: OneCIntegrationControllerGetOneCRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRuns<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError = unknown>(
+ params?: OneCIntegrationControllerGetOneCRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get ONE_C sync history
+ */
+
+export function useOneCIntegrationControllerGetOneCRuns<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError = unknown>(
+ params?: OneCIntegrationControllerGetOneCRunsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRuns>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerGetOneCRunsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get ONE_C sync progress
+ */
+export const oneCIntegrationControllerGetOneCRunProgress = (
+    runId: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCSyncProgressDto>(
+      {url: `/integration/1c/runs/${runId}/progress`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerGetOneCRunProgressQueryKey = (runId: string,) => {
+    return [
+    `/integration/1c/runs/${runId}/progress`
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerGetOneCRunProgressQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError = unknown>(runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerGetOneCRunProgressQueryKey(runId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>> = ({ signal }) => oneCIntegrationControllerGetOneCRunProgress(runId, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(runId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerGetOneCRunProgressQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>>
+export type OneCIntegrationControllerGetOneCRunProgressQueryError = unknown
+
+
+export function useOneCIntegrationControllerGetOneCRunProgress<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError = unknown>(
+ runId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRunProgress<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRunProgress<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get ONE_C sync progress
+ */
+
+export function useOneCIntegrationControllerGetOneCRunProgress<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError = unknown>(
+ runId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRunProgress>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerGetOneCRunProgressQueryOptions(runId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get recommended ONE_C PRODUCT mapping
+ */
+export const oneCIntegrationControllerGetOneCRecommendedProductMapping = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCRecommendedProductMappingDto>(
+      {url: `/integration/1c/product-mapping-default`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerGetOneCRecommendedProductMappingQueryKey = () => {
+    return [
+    `/integration/1c/product-mapping-default`
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerGetOneCRecommendedProductMappingQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerGetOneCRecommendedProductMappingQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>> = ({ signal }) => oneCIntegrationControllerGetOneCRecommendedProductMapping(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerGetOneCRecommendedProductMappingQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>>
+export type OneCIntegrationControllerGetOneCRecommendedProductMappingQueryError = unknown
+
+
+export function useOneCIntegrationControllerGetOneCRecommendedProductMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRecommendedProductMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRecommendedProductMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get recommended ONE_C PRODUCT mapping
+ */
+
+export function useOneCIntegrationControllerGetOneCRecommendedProductMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedProductMapping>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerGetOneCRecommendedProductMappingQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Get recommended ONE_C PRODUCT_VARIANT mapping
+ */
+export const oneCIntegrationControllerGetOneCRecommendedVariantMapping = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCRecommendedVariantMappingDto>(
+      {url: `/integration/1c/variant-mapping-default`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerGetOneCRecommendedVariantMappingQueryKey = () => {
+    return [
+    `/integration/1c/variant-mapping-default`
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerGetOneCRecommendedVariantMappingQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerGetOneCRecommendedVariantMappingQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>> = ({ signal }) => oneCIntegrationControllerGetOneCRecommendedVariantMapping(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerGetOneCRecommendedVariantMappingQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>>
+export type OneCIntegrationControllerGetOneCRecommendedVariantMappingQueryError = unknown
+
+
+export function useOneCIntegrationControllerGetOneCRecommendedVariantMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRecommendedVariantMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerGetOneCRecommendedVariantMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get recommended ONE_C PRODUCT_VARIANT mapping
+ */
+
+export function useOneCIntegrationControllerGetOneCRecommendedVariantMapping<TData = Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerGetOneCRecommendedVariantMapping>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerGetOneCRecommendedVariantMappingQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Test ONE_C API connection
+ */
+export const oneCIntegrationControllerTestOneCConnection = (
+    testOneCConnectionDtoReq: TestOneCConnectionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCTestConnectionDto>(
+      {url: `/integration/1c/test-connection`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: testOneCConnectionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerTestOneCConnectionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerTestOneCConnection>>, TError,{data: TestOneCConnectionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerTestOneCConnection>>, TError,{data: TestOneCConnectionDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerTestOneCConnection'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerTestOneCConnection>>, {data: TestOneCConnectionDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerTestOneCConnection(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerTestOneCConnectionMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerTestOneCConnection>>>
+    export type OneCIntegrationControllerTestOneCConnectionMutationBody = TestOneCConnectionDtoReq
+    export type OneCIntegrationControllerTestOneCConnectionMutationError = unknown
+
+    /**
+ * @summary Test ONE_C API connection
+ */
+export const useOneCIntegrationControllerTestOneCConnection = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerTestOneCConnection>>, TError,{data: TestOneCConnectionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerTestOneCConnection>>,
+        TError,
+        {data: TestOneCConnectionDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerTestOneCConnectionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Discover ONE_C OData objects and fields
+ */
+export const oneCIntegrationControllerDiscoverOneCObjects = (
+    discoverOneCObjectsDtoReq: DiscoverOneCObjectsDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCDiscoverObjectsDto>(
+      {url: `/integration/1c/discover`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: discoverOneCObjectsDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerDiscoverOneCObjectsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDiscoverOneCObjects>>, TError,{data: DiscoverOneCObjectsDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDiscoverOneCObjects>>, TError,{data: DiscoverOneCObjectsDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerDiscoverOneCObjects'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerDiscoverOneCObjects>>, {data: DiscoverOneCObjectsDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerDiscoverOneCObjects(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerDiscoverOneCObjectsMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerDiscoverOneCObjects>>>
+    export type OneCIntegrationControllerDiscoverOneCObjectsMutationBody = DiscoverOneCObjectsDtoReq
+    export type OneCIntegrationControllerDiscoverOneCObjectsMutationError = unknown
+
+    /**
+ * @summary Discover ONE_C OData objects and fields
+ */
+export const useOneCIntegrationControllerDiscoverOneCObjects = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDiscoverOneCObjects>>, TError,{data: DiscoverOneCObjectsDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerDiscoverOneCObjects>>,
+        TError,
+        {data: DiscoverOneCObjectsDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerDiscoverOneCObjectsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary List configured ONE_C external objects
+ */
+export const oneCIntegrationControllerListOneCObjects = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCExternalObjectDto[]>(
+      {url: `/integration/1c/objects`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerListOneCObjectsQueryKey = () => {
+    return [
+    `/integration/1c/objects`
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerListOneCObjectsQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerListOneCObjectsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>> = ({ signal }) => oneCIntegrationControllerListOneCObjects(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerListOneCObjectsQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>>
+export type OneCIntegrationControllerListOneCObjectsQueryError = unknown
+
+
+export function useOneCIntegrationControllerListOneCObjects<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerListOneCObjects<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerListOneCObjects<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List configured ONE_C external objects
+ */
+
+export function useOneCIntegrationControllerListOneCObjects<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCObjects>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerListOneCObjectsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create or update ONE_C external object
+ */
+export const oneCIntegrationControllerCreateOneCObject = (
+    createOneCExternalObjectDtoReq: CreateOneCExternalObjectDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCExternalObjectDto>(
+      {url: `/integration/1c/objects`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOneCExternalObjectDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerCreateOneCObjectMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCObject>>, TError,{data: CreateOneCExternalObjectDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCObject>>, TError,{data: CreateOneCExternalObjectDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerCreateOneCObject'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCObject>>, {data: CreateOneCExternalObjectDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerCreateOneCObject(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerCreateOneCObjectMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCObject>>>
+    export type OneCIntegrationControllerCreateOneCObjectMutationBody = CreateOneCExternalObjectDtoReq
+    export type OneCIntegrationControllerCreateOneCObjectMutationError = unknown
+
+    /**
+ * @summary Create or update ONE_C external object
+ */
+export const useOneCIntegrationControllerCreateOneCObject = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCObject>>, TError,{data: CreateOneCExternalObjectDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCObject>>,
+        TError,
+        {data: CreateOneCExternalObjectDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerCreateOneCObjectMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Update ONE_C external object
+ */
+export const oneCIntegrationControllerUpdateOneCObject = (
+    id: string,
+    updateOneCExternalObjectDtoReq: UpdateOneCExternalObjectDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCExternalObjectDto>(
+      {url: `/integration/1c/objects/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCExternalObjectDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerUpdateOneCObjectMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCObject>>, TError,{id: string;data: UpdateOneCExternalObjectDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCObject>>, TError,{id: string;data: UpdateOneCExternalObjectDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerUpdateOneCObject'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCObject>>, {id: string;data: UpdateOneCExternalObjectDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  oneCIntegrationControllerUpdateOneCObject(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerUpdateOneCObjectMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCObject>>>
+    export type OneCIntegrationControllerUpdateOneCObjectMutationBody = UpdateOneCExternalObjectDtoReq
+    export type OneCIntegrationControllerUpdateOneCObjectMutationError = unknown
+
+    /**
+ * @summary Update ONE_C external object
+ */
+export const useOneCIntegrationControllerUpdateOneCObject = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCObject>>, TError,{id: string;data: UpdateOneCExternalObjectDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCObject>>,
+        TError,
+        {id: string;data: UpdateOneCExternalObjectDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerUpdateOneCObjectMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Delete ONE_C external object
+ */
+export const oneCIntegrationControllerDeleteOneCObject = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c/objects/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerDeleteOneCObjectMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCObject>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCObject>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerDeleteOneCObject'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCObject>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  oneCIntegrationControllerDeleteOneCObject(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerDeleteOneCObjectMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCObject>>>
+    
+    export type OneCIntegrationControllerDeleteOneCObjectMutationError = unknown
+
+    /**
+ * @summary Delete ONE_C external object
+ */
+export const useOneCIntegrationControllerDeleteOneCObject = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCObject>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCObject>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerDeleteOneCObjectMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary List ONE_C entity mappings
+ */
+export const oneCIntegrationControllerListOneCEntityMappings = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCEntityMappingDto[]>(
+      {url: `/integration/1c/entity-mappings`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getOneCIntegrationControllerListOneCEntityMappingsQueryKey = () => {
+    return [
+    `/integration/1c/entity-mappings`
+    ] as const;
+    }
+
+    
+export const getOneCIntegrationControllerListOneCEntityMappingsQueryOptions = <TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getOneCIntegrationControllerListOneCEntityMappingsQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>> = ({ signal }) => oneCIntegrationControllerListOneCEntityMappings(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type OneCIntegrationControllerListOneCEntityMappingsQueryResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>>
+export type OneCIntegrationControllerListOneCEntityMappingsQueryError = unknown
+
+
+export function useOneCIntegrationControllerListOneCEntityMappings<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerListOneCEntityMappings<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>,
+          TError,
+          Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useOneCIntegrationControllerListOneCEntityMappings<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List ONE_C entity mappings
+ */
+
+export function useOneCIntegrationControllerListOneCEntityMappings<TData = Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof oneCIntegrationControllerListOneCEntityMappings>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getOneCIntegrationControllerListOneCEntityMappingsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create ONE_C entity mapping
+ */
+export const oneCIntegrationControllerCreateOneCEntityMapping = (
+    createOneCEntityMappingDtoReq: CreateOneCEntityMappingDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCEntityMappingDto>(
+      {url: `/integration/1c/entity-mappings`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOneCEntityMappingDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerCreateOneCEntityMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCEntityMapping>>, TError,{data: CreateOneCEntityMappingDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCEntityMapping>>, TError,{data: CreateOneCEntityMappingDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerCreateOneCEntityMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCEntityMapping>>, {data: CreateOneCEntityMappingDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerCreateOneCEntityMapping(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerCreateOneCEntityMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCEntityMapping>>>
+    export type OneCIntegrationControllerCreateOneCEntityMappingMutationBody = CreateOneCEntityMappingDtoReq
+    export type OneCIntegrationControllerCreateOneCEntityMappingMutationError = unknown
+
+    /**
+ * @summary Create ONE_C entity mapping
+ */
+export const useOneCIntegrationControllerCreateOneCEntityMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCEntityMapping>>, TError,{data: CreateOneCEntityMappingDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCEntityMapping>>,
+        TError,
+        {data: CreateOneCEntityMappingDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerCreateOneCEntityMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Update ONE_C entity mapping
+ */
+export const oneCIntegrationControllerUpdateOneCEntityMapping = (
+    id: string,
+    updateOneCEntityMappingDtoReq: UpdateOneCEntityMappingDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCEntityMappingDto>(
+      {url: `/integration/1c/entity-mappings/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCEntityMappingDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerUpdateOneCEntityMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCEntityMapping>>, TError,{id: string;data: UpdateOneCEntityMappingDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCEntityMapping>>, TError,{id: string;data: UpdateOneCEntityMappingDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerUpdateOneCEntityMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCEntityMapping>>, {id: string;data: UpdateOneCEntityMappingDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  oneCIntegrationControllerUpdateOneCEntityMapping(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerUpdateOneCEntityMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCEntityMapping>>>
+    export type OneCIntegrationControllerUpdateOneCEntityMappingMutationBody = UpdateOneCEntityMappingDtoReq
+    export type OneCIntegrationControllerUpdateOneCEntityMappingMutationError = unknown
+
+    /**
+ * @summary Update ONE_C entity mapping
+ */
+export const useOneCIntegrationControllerUpdateOneCEntityMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCEntityMapping>>, TError,{id: string;data: UpdateOneCEntityMappingDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCEntityMapping>>,
+        TError,
+        {id: string;data: UpdateOneCEntityMappingDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerUpdateOneCEntityMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Delete ONE_C entity mapping
+ */
+export const oneCIntegrationControllerDeleteOneCEntityMapping = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c/entity-mappings/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerDeleteOneCEntityMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCEntityMapping>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCEntityMapping>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerDeleteOneCEntityMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCEntityMapping>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  oneCIntegrationControllerDeleteOneCEntityMapping(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerDeleteOneCEntityMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCEntityMapping>>>
+    
+    export type OneCIntegrationControllerDeleteOneCEntityMappingMutationError = unknown
+
+    /**
+ * @summary Delete ONE_C entity mapping
+ */
+export const useOneCIntegrationControllerDeleteOneCEntityMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCEntityMapping>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCEntityMapping>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerDeleteOneCEntityMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Create ONE_C field mapping
+ */
+export const oneCIntegrationControllerCreateOneCFieldMapping = (
+    id: string,
+    createOneCFieldMappingDtoReq: CreateOneCFieldMappingDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCFieldMappingDto>(
+      {url: `/integration/1c/entity-mappings/${id}/field-mappings`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createOneCFieldMappingDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerCreateOneCFieldMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCFieldMapping>>, TError,{id: string;data: CreateOneCFieldMappingDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCFieldMapping>>, TError,{id: string;data: CreateOneCFieldMappingDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerCreateOneCFieldMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCFieldMapping>>, {id: string;data: CreateOneCFieldMappingDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  oneCIntegrationControllerCreateOneCFieldMapping(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerCreateOneCFieldMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCFieldMapping>>>
+    export type OneCIntegrationControllerCreateOneCFieldMappingMutationBody = CreateOneCFieldMappingDtoReq
+    export type OneCIntegrationControllerCreateOneCFieldMappingMutationError = unknown
+
+    /**
+ * @summary Create ONE_C field mapping
+ */
+export const useOneCIntegrationControllerCreateOneCFieldMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCFieldMapping>>, TError,{id: string;data: CreateOneCFieldMappingDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerCreateOneCFieldMapping>>,
+        TError,
+        {id: string;data: CreateOneCFieldMappingDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerCreateOneCFieldMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Update ONE_C field mapping
+ */
+export const oneCIntegrationControllerUpdateOneCFieldMapping = (
+    id: string,
+    updateOneCFieldMappingDtoReq: UpdateOneCFieldMappingDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCFieldMappingDto>(
+      {url: `/integration/1c/field-mappings/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOneCFieldMappingDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerUpdateOneCFieldMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCFieldMapping>>, TError,{id: string;data: UpdateOneCFieldMappingDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCFieldMapping>>, TError,{id: string;data: UpdateOneCFieldMappingDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerUpdateOneCFieldMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCFieldMapping>>, {id: string;data: UpdateOneCFieldMappingDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  oneCIntegrationControllerUpdateOneCFieldMapping(id,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerUpdateOneCFieldMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCFieldMapping>>>
+    export type OneCIntegrationControllerUpdateOneCFieldMappingMutationBody = UpdateOneCFieldMappingDtoReq
+    export type OneCIntegrationControllerUpdateOneCFieldMappingMutationError = unknown
+
+    /**
+ * @summary Update ONE_C field mapping
+ */
+export const useOneCIntegrationControllerUpdateOneCFieldMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCFieldMapping>>, TError,{id: string;data: UpdateOneCFieldMappingDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerUpdateOneCFieldMapping>>,
+        TError,
+        {id: string;data: UpdateOneCFieldMappingDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerUpdateOneCFieldMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Delete ONE_C field mapping
+ */
+export const oneCIntegrationControllerDeleteOneCFieldMapping = (
+    id: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OkResponseDto>(
+      {url: `/integration/1c/field-mappings/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerDeleteOneCFieldMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCFieldMapping>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCFieldMapping>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerDeleteOneCFieldMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCFieldMapping>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  oneCIntegrationControllerDeleteOneCFieldMapping(id,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerDeleteOneCFieldMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCFieldMapping>>>
+    
+    export type OneCIntegrationControllerDeleteOneCFieldMappingMutationError = unknown
+
+    /**
+ * @summary Delete ONE_C field mapping
+ */
+export const useOneCIntegrationControllerDeleteOneCFieldMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCFieldMapping>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerDeleteOneCFieldMapping>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerDeleteOneCFieldMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Preview ONE_C field mapping against a sample payload
+ */
+export const oneCIntegrationControllerPreviewOneCMapping = (
+    previewOneCMappingDtoReq: PreviewOneCMappingDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCMappingPreviewDto>(
+      {url: `/integration/1c/mapping-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCMappingDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerPreviewOneCMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCMapping>>, TError,{data: PreviewOneCMappingDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCMapping>>, TError,{data: PreviewOneCMappingDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerPreviewOneCMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCMapping>>, {data: PreviewOneCMappingDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerPreviewOneCMapping(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerPreviewOneCMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCMapping>>>
+    export type OneCIntegrationControllerPreviewOneCMappingMutationBody = PreviewOneCMappingDtoReq
+    export type OneCIntegrationControllerPreviewOneCMappingMutationError = unknown
+
+    /**
+ * @summary Preview ONE_C field mapping against a sample payload
+ */
+export const useOneCIntegrationControllerPreviewOneCMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCMapping>>, TError,{data: PreviewOneCMappingDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCMapping>>,
+        TError,
+        {data: PreviewOneCMappingDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerPreviewOneCMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Fetch ONE_C rows and preview field mapping without writing locally
+ */
+export const oneCIntegrationControllerPreviewOneCRemoteMapping = (
+    previewOneCRemoteMappingDtoReq: PreviewOneCRemoteMappingDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCRemoteMappingPreviewDto>(
+      {url: `/integration/1c/remote-mapping-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCRemoteMappingDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerPreviewOneCRemoteMappingMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCRemoteMapping>>, TError,{data: PreviewOneCRemoteMappingDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCRemoteMapping>>, TError,{data: PreviewOneCRemoteMappingDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerPreviewOneCRemoteMapping'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCRemoteMapping>>, {data: PreviewOneCRemoteMappingDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerPreviewOneCRemoteMapping(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerPreviewOneCRemoteMappingMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCRemoteMapping>>>
+    export type OneCIntegrationControllerPreviewOneCRemoteMappingMutationBody = PreviewOneCRemoteMappingDtoReq
+    export type OneCIntegrationControllerPreviewOneCRemoteMappingMutationError = unknown
+
+    /**
+ * @summary Fetch ONE_C rows and preview field mapping without writing locally
+ */
+export const useOneCIntegrationControllerPreviewOneCRemoteMapping = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCRemoteMapping>>, TError,{data: PreviewOneCRemoteMappingDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCRemoteMapping>>,
+        TError,
+        {data: PreviewOneCRemoteMappingDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerPreviewOneCRemoteMappingMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Build ONE_C product import dry-run plan without writing locally
+ */
+export const oneCIntegrationControllerPreviewOneCProductImport = (
+    previewOneCProductImportDtoReq: PreviewOneCProductImportDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCProductImportPreviewDto>(
+      {url: `/integration/1c/product-import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCProductImportDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerPreviewOneCProductImportMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCProductImport>>, TError,{data: PreviewOneCProductImportDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCProductImport>>, TError,{data: PreviewOneCProductImportDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerPreviewOneCProductImport'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCProductImport>>, {data: PreviewOneCProductImportDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerPreviewOneCProductImport(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerPreviewOneCProductImportMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCProductImport>>>
+    export type OneCIntegrationControllerPreviewOneCProductImportMutationBody = PreviewOneCProductImportDtoReq
+    export type OneCIntegrationControllerPreviewOneCProductImportMutationError = unknown
+
+    /**
+ * @summary Build ONE_C product import dry-run plan without writing locally
+ */
+export const useOneCIntegrationControllerPreviewOneCProductImport = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCProductImport>>, TError,{data: PreviewOneCProductImportDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCProductImport>>,
+        TError,
+        {data: PreviewOneCProductImportDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerPreviewOneCProductImportMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Import ONE_C products using configured field mapping
+ */
+export const oneCIntegrationControllerImportOneCProducts = (
+    importOneCProductsDtoReq: ImportOneCProductsDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCProductImportResultDto>(
+      {url: `/integration/1c/import-products`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: importOneCProductsDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerImportOneCProductsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCProducts>>, TError,{data: ImportOneCProductsDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCProducts>>, TError,{data: ImportOneCProductsDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerImportOneCProducts'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCProducts>>, {data: ImportOneCProductsDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerImportOneCProducts(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerImportOneCProductsMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCProducts>>>
+    export type OneCIntegrationControllerImportOneCProductsMutationBody = ImportOneCProductsDtoReq
+    export type OneCIntegrationControllerImportOneCProductsMutationError = unknown
+
+    /**
+ * @summary Import ONE_C products using configured field mapping
+ */
+export const useOneCIntegrationControllerImportOneCProducts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCProducts>>, TError,{data: ImportOneCProductsDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCProducts>>,
+        TError,
+        {data: ImportOneCProductsDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerImportOneCProductsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Build ONE_C product variant import dry-run plan without writing locally
+ */
+export const oneCIntegrationControllerPreviewOneCVariantImport = (
+    previewOneCVariantImportDtoReq: PreviewOneCVariantImportDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCVariantImportPreviewDto>(
+      {url: `/integration/1c/variant-import-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCVariantImportDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerPreviewOneCVariantImportMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCVariantImport>>, TError,{data: PreviewOneCVariantImportDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCVariantImport>>, TError,{data: PreviewOneCVariantImportDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerPreviewOneCVariantImport'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCVariantImport>>, {data: PreviewOneCVariantImportDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerPreviewOneCVariantImport(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerPreviewOneCVariantImportMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCVariantImport>>>
+    export type OneCIntegrationControllerPreviewOneCVariantImportMutationBody = PreviewOneCVariantImportDtoReq
+    export type OneCIntegrationControllerPreviewOneCVariantImportMutationError = unknown
+
+    /**
+ * @summary Build ONE_C product variant import dry-run plan without writing locally
+ */
+export const useOneCIntegrationControllerPreviewOneCVariantImport = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCVariantImport>>, TError,{data: PreviewOneCVariantImportDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCVariantImport>>,
+        TError,
+        {data: PreviewOneCVariantImportDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerPreviewOneCVariantImportMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Import ONE_C product variants using configured field mapping
+ */
+export const oneCIntegrationControllerImportOneCVariants = (
+    importOneCVariantsDtoReq: ImportOneCVariantsDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCVariantImportResultDto>(
+      {url: `/integration/1c/import-variants`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: importOneCVariantsDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerImportOneCVariantsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCVariants>>, TError,{data: ImportOneCVariantsDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCVariants>>, TError,{data: ImportOneCVariantsDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerImportOneCVariants'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCVariants>>, {data: ImportOneCVariantsDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerImportOneCVariants(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerImportOneCVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCVariants>>>
+    export type OneCIntegrationControllerImportOneCVariantsMutationBody = ImportOneCVariantsDtoReq
+    export type OneCIntegrationControllerImportOneCVariantsMutationError = unknown
+
+    /**
+ * @summary Import ONE_C product variants using configured field mapping
+ */
+export const useOneCIntegrationControllerImportOneCVariants = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCVariants>>, TError,{data: ImportOneCVariantsDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerImportOneCVariants>>,
+        TError,
+        {data: ImportOneCVariantsDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerImportOneCVariantsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Build ONE_C stock sync dry-run plan without writing locally
+ */
+export const oneCIntegrationControllerPreviewOneCStockSync = (
+    previewOneCStockSyncDtoReq: PreviewOneCStockSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCStockSyncPreviewDto>(
+      {url: `/integration/1c/stock-sync-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCStockSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerPreviewOneCStockSyncMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCStockSync>>, TError,{data: PreviewOneCStockSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCStockSync>>, TError,{data: PreviewOneCStockSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerPreviewOneCStockSync'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCStockSync>>, {data: PreviewOneCStockSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerPreviewOneCStockSync(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerPreviewOneCStockSyncMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCStockSync>>>
+    export type OneCIntegrationControllerPreviewOneCStockSyncMutationBody = PreviewOneCStockSyncDtoReq
+    export type OneCIntegrationControllerPreviewOneCStockSyncMutationError = unknown
+
+    /**
+ * @summary Build ONE_C stock sync dry-run plan without writing locally
+ */
+export const useOneCIntegrationControllerPreviewOneCStockSync = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCStockSync>>, TError,{data: PreviewOneCStockSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCStockSync>>,
+        TError,
+        {data: PreviewOneCStockSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerPreviewOneCStockSyncMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Apply ONE_C stock rows using configured field mapping
+ */
+export const oneCIntegrationControllerApplyOneCStockSync = (
+    applyOneCStockSyncDtoReq: ApplyOneCStockSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCStockSyncResultDto>(
+      {url: `/integration/1c/apply-stock`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: applyOneCStockSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerApplyOneCStockSyncMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCStockSync>>, TError,{data: ApplyOneCStockSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCStockSync>>, TError,{data: ApplyOneCStockSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerApplyOneCStockSync'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCStockSync>>, {data: ApplyOneCStockSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerApplyOneCStockSync(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerApplyOneCStockSyncMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCStockSync>>>
+    export type OneCIntegrationControllerApplyOneCStockSyncMutationBody = ApplyOneCStockSyncDtoReq
+    export type OneCIntegrationControllerApplyOneCStockSyncMutationError = unknown
+
+    /**
+ * @summary Apply ONE_C stock rows using configured field mapping
+ */
+export const useOneCIntegrationControllerApplyOneCStockSync = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCStockSync>>, TError,{data: ApplyOneCStockSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCStockSync>>,
+        TError,
+        {data: ApplyOneCStockSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerApplyOneCStockSyncMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Build ONE_C price sync dry-run plan without writing locally
+ */
+export const oneCIntegrationControllerPreviewOneCPriceSync = (
+    previewOneCPriceSyncDtoReq: PreviewOneCPriceSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCPriceSyncPreviewDto>(
+      {url: `/integration/1c/price-sync-preview`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: previewOneCPriceSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerPreviewOneCPriceSyncMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCPriceSync>>, TError,{data: PreviewOneCPriceSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCPriceSync>>, TError,{data: PreviewOneCPriceSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerPreviewOneCPriceSync'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCPriceSync>>, {data: PreviewOneCPriceSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerPreviewOneCPriceSync(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerPreviewOneCPriceSyncMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCPriceSync>>>
+    export type OneCIntegrationControllerPreviewOneCPriceSyncMutationBody = PreviewOneCPriceSyncDtoReq
+    export type OneCIntegrationControllerPreviewOneCPriceSyncMutationError = unknown
+
+    /**
+ * @summary Build ONE_C price sync dry-run plan without writing locally
+ */
+export const useOneCIntegrationControllerPreviewOneCPriceSync = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCPriceSync>>, TError,{data: PreviewOneCPriceSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerPreviewOneCPriceSync>>,
+        TError,
+        {data: PreviewOneCPriceSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerPreviewOneCPriceSyncMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Apply ONE_C price rows using configured field mapping
+ */
+export const oneCIntegrationControllerApplyOneCPriceSync = (
+    applyOneCPriceSyncDtoReq: ApplyOneCPriceSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCPriceSyncResultDto>(
+      {url: `/integration/1c/apply-prices`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: applyOneCPriceSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerApplyOneCPriceSyncMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCPriceSync>>, TError,{data: ApplyOneCPriceSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCPriceSync>>, TError,{data: ApplyOneCPriceSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerApplyOneCPriceSync'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCPriceSync>>, {data: ApplyOneCPriceSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerApplyOneCPriceSync(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerApplyOneCPriceSyncMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCPriceSync>>>
+    export type OneCIntegrationControllerApplyOneCPriceSyncMutationBody = ApplyOneCPriceSyncDtoReq
+    export type OneCIntegrationControllerApplyOneCPriceSyncMutationError = unknown
+
+    /**
+ * @summary Apply ONE_C price rows using configured field mapping
+ */
+export const useOneCIntegrationControllerApplyOneCPriceSync = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCPriceSync>>, TError,{data: ApplyOneCPriceSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerApplyOneCPriceSync>>,
+        TError,
+        {data: ApplyOneCPriceSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerApplyOneCPriceSyncMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue managed ONE_C product sync and record sync history
+ */
+export const oneCIntegrationControllerSyncOneCProducts = (
+    runOneCProductSyncDtoReq: RunOneCProductSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-products`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCProductSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerSyncOneCProductsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCProducts>>, TError,{data: RunOneCProductSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCProducts>>, TError,{data: RunOneCProductSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerSyncOneCProducts'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCProducts>>, {data: RunOneCProductSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerSyncOneCProducts(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerSyncOneCProductsMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCProducts>>>
+    export type OneCIntegrationControllerSyncOneCProductsMutationBody = RunOneCProductSyncDtoReq
+    export type OneCIntegrationControllerSyncOneCProductsMutationError = unknown
+
+    /**
+ * @summary Queue managed ONE_C product sync and record sync history
+ */
+export const useOneCIntegrationControllerSyncOneCProducts = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCProducts>>, TError,{data: RunOneCProductSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCProducts>>,
+        TError,
+        {data: RunOneCProductSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerSyncOneCProductsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue managed ONE_C product variant sync and record sync history
+ */
+export const oneCIntegrationControllerSyncOneCVariants = (
+    runOneCVariantSyncDtoReq: RunOneCVariantSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-variants`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCVariantSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerSyncOneCVariantsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCVariants>>, TError,{data: RunOneCVariantSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCVariants>>, TError,{data: RunOneCVariantSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerSyncOneCVariants'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCVariants>>, {data: RunOneCVariantSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerSyncOneCVariants(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerSyncOneCVariantsMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCVariants>>>
+    export type OneCIntegrationControllerSyncOneCVariantsMutationBody = RunOneCVariantSyncDtoReq
+    export type OneCIntegrationControllerSyncOneCVariantsMutationError = unknown
+
+    /**
+ * @summary Queue managed ONE_C product variant sync and record sync history
+ */
+export const useOneCIntegrationControllerSyncOneCVariants = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCVariants>>, TError,{data: RunOneCVariantSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCVariants>>,
+        TError,
+        {data: RunOneCVariantSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerSyncOneCVariantsMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue managed ONE_C stock sync and record sync history
+ */
+export const oneCIntegrationControllerSyncOneCStock = (
+    runOneCStockSyncDtoReq: RunOneCStockSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-stock`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCStockSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerSyncOneCStockMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCStock>>, TError,{data: RunOneCStockSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCStock>>, TError,{data: RunOneCStockSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerSyncOneCStock'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCStock>>, {data: RunOneCStockSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerSyncOneCStock(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerSyncOneCStockMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCStock>>>
+    export type OneCIntegrationControllerSyncOneCStockMutationBody = RunOneCStockSyncDtoReq
+    export type OneCIntegrationControllerSyncOneCStockMutationError = unknown
+
+    /**
+ * @summary Queue managed ONE_C stock sync and record sync history
+ */
+export const useOneCIntegrationControllerSyncOneCStock = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCStock>>, TError,{data: RunOneCStockSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCStock>>,
+        TError,
+        {data: RunOneCStockSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerSyncOneCStockMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Queue managed ONE_C price sync and record sync history
+ */
+export const oneCIntegrationControllerSyncOneCPrices = (
+    runOneCPriceSyncDtoReq: RunOneCPriceSyncDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<OneCQueuedSyncDto>(
+      {url: `/integration/1c/sync-prices`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: runOneCPriceSyncDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getOneCIntegrationControllerSyncOneCPricesMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCPrices>>, TError,{data: RunOneCPriceSyncDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCPrices>>, TError,{data: RunOneCPriceSyncDtoReq}, TContext> => {
+
+const mutationKey = ['oneCIntegrationControllerSyncOneCPrices'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCPrices>>, {data: RunOneCPriceSyncDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  oneCIntegrationControllerSyncOneCPrices(data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OneCIntegrationControllerSyncOneCPricesMutationResult = NonNullable<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCPrices>>>
+    export type OneCIntegrationControllerSyncOneCPricesMutationBody = RunOneCPriceSyncDtoReq
+    export type OneCIntegrationControllerSyncOneCPricesMutationError = unknown
+
+    /**
+ * @summary Queue managed ONE_C price sync and record sync history
+ */
+export const useOneCIntegrationControllerSyncOneCPrices = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCPrices>>, TError,{data: RunOneCPriceSyncDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof oneCIntegrationControllerSyncOneCPrices>>,
+        TError,
+        {data: RunOneCPriceSyncDtoReq},
+        TContext
+      > => {
+      return useMutation(getOneCIntegrationControllerSyncOneCPricesMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary List current catalog sale units
  */
 export const catalogSaleUnitControllerGetAll = (
@@ -21824,6 +26037,162 @@ export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typ
 
 
 /**
+ * @summary List iiko hall tables with active cart sessions
+ */
+export const cartControllerListHallTables = (
+    
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<HallTableOverviewResponseDto>(
+      {url: `/cart/hall-tables`, method: 'GET', signal
+    },
+      );
+    }
+  
+
+
+
+export const getCartControllerListHallTablesQueryKey = () => {
+    return [
+    `/cart/hall-tables`
+    ] as const;
+    }
+
+    
+export const getCartControllerListHallTablesQueryOptions = <TData = Awaited<ReturnType<typeof cartControllerListHallTables>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerListHallTables>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCartControllerListHallTablesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cartControllerListHallTables>>> = ({ signal }) => cartControllerListHallTables(signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof cartControllerListHallTables>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CartControllerListHallTablesQueryResult = NonNullable<Awaited<ReturnType<typeof cartControllerListHallTables>>>
+export type CartControllerListHallTablesQueryError = unknown
+
+
+export function useCartControllerListHallTables<TData = Awaited<ReturnType<typeof cartControllerListHallTables>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerListHallTables>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof cartControllerListHallTables>>,
+          TError,
+          Awaited<ReturnType<typeof cartControllerListHallTables>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCartControllerListHallTables<TData = Awaited<ReturnType<typeof cartControllerListHallTables>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerListHallTables>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof cartControllerListHallTables>>,
+          TError,
+          Awaited<ReturnType<typeof cartControllerListHallTables>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCartControllerListHallTables<TData = Awaited<ReturnType<typeof cartControllerListHallTables>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerListHallTables>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List iiko hall tables with active cart sessions
+ */
+
+export function useCartControllerListHallTables<TData = Awaited<ReturnType<typeof cartControllerListHallTables>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cartControllerListHallTables>>, TError, TData>>, }
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCartControllerListHallTablesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Create or return a shared cart session for a hall table
+ */
+export const cartControllerJoinHallTableSession = (
+    code: string,
+    joinHallTableSessionDtoReq?: JoinHallTableSessionDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<HallTableSessionResponseDto>(
+      {url: `/cart/hall-table/${code}/session`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: joinHallTableSessionDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerJoinHallTableSessionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerJoinHallTableSession>>, TError,{code: string;data: JoinHallTableSessionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerJoinHallTableSession>>, TError,{code: string;data: JoinHallTableSessionDtoReq}, TContext> => {
+
+const mutationKey = ['cartControllerJoinHallTableSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerJoinHallTableSession>>, {code: string;data: JoinHallTableSessionDtoReq}> = (props) => {
+          const {code,data} = props ?? {};
+
+          return  cartControllerJoinHallTableSession(code,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerJoinHallTableSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerJoinHallTableSession>>>
+    export type CartControllerJoinHallTableSessionMutationBody = JoinHallTableSessionDtoReq
+    export type CartControllerJoinHallTableSessionMutationError = unknown
+
+    /**
+ * @summary Create or return a shared cart session for a hall table
+ */
+export const useCartControllerJoinHallTableSession = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerJoinHallTableSession>>, TError,{code: string;data: JoinHallTableSessionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerJoinHallTableSession>>,
+        TError,
+        {code: string;data: JoinHallTableSessionDtoReq},
+        TContext
+      > => {
+      return useMutation(getCartControllerJoinHallTableSessionMutationOptions(options), queryClient);
+    }
+    
+/**
  * @summary Upsert an item in the current cart
  */
 export const cartControllerUpsertCurrentItem = (
@@ -22380,6 +26749,260 @@ export const useCartControllerCompleteManagerOrder = <TError = unknown,
         TContext
       > => {
       return useMutation(getCartControllerCompleteManagerOrderMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Close an open shared hall table cart
+ */
+export const cartControllerCloseHallTableSession = (
+    publicKey: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-table/close`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerCloseHallTableSessionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCloseHallTableSession>>, TError,{publicKey: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerCloseHallTableSession>>, TError,{publicKey: string}, TContext> => {
+
+const mutationKey = ['cartControllerCloseHallTableSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerCloseHallTableSession>>, {publicKey: string}> = (props) => {
+          const {publicKey} = props ?? {};
+
+          return  cartControllerCloseHallTableSession(publicKey,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerCloseHallTableSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerCloseHallTableSession>>>
+    
+    export type CartControllerCloseHallTableSessionMutationError = unknown
+
+    /**
+ * @summary Close an open shared hall table cart
+ */
+export const useCartControllerCloseHallTableSession = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCloseHallTableSession>>, TError,{publicKey: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerCloseHallTableSession>>,
+        TError,
+        {publicKey: string},
+        TContext
+      > => {
+      return useMutation(getCartControllerCloseHallTableSessionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Reset an open shared hall table cart
+ */
+export const cartControllerResetHallTableSession = (
+    publicKey: string,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-table/reset`, method: 'POST', signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerResetHallTableSessionMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerResetHallTableSession>>, TError,{publicKey: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerResetHallTableSession>>, TError,{publicKey: string}, TContext> => {
+
+const mutationKey = ['cartControllerResetHallTableSession'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerResetHallTableSession>>, {publicKey: string}> = (props) => {
+          const {publicKey} = props ?? {};
+
+          return  cartControllerResetHallTableSession(publicKey,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerResetHallTableSessionMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerResetHallTableSession>>>
+    
+    export type CartControllerResetHallTableSessionMutationError = unknown
+
+    /**
+ * @summary Reset an open shared hall table cart
+ */
+export const useCartControllerResetHallTableSession = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerResetHallTableSession>>, TError,{publicKey: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerResetHallTableSession>>,
+        TError,
+        {publicKey: string},
+        TContext
+      > => {
+      return useMutation(getCartControllerResetHallTableSessionMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Confirm a shared hall table cart and send it to iiko
+ */
+export const cartControllerConfirmHallTableOrder = (
+    publicKey: string,
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CompleteCartOrderResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-table/confirm`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerConfirmHallTableOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerConfirmHallTableOrder>>, TError,{publicKey: string;data: ShareCurrentCartDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerConfirmHallTableOrder>>, TError,{publicKey: string;data: ShareCurrentCartDtoReq}, TContext> => {
+
+const mutationKey = ['cartControllerConfirmHallTableOrder'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerConfirmHallTableOrder>>, {publicKey: string;data: ShareCurrentCartDtoReq}> = (props) => {
+          const {publicKey,data} = props ?? {};
+
+          return  cartControllerConfirmHallTableOrder(publicKey,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerConfirmHallTableOrderMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerConfirmHallTableOrder>>>
+    export type CartControllerConfirmHallTableOrderMutationBody = ShareCurrentCartDtoReq
+    export type CartControllerConfirmHallTableOrderMutationError = unknown
+
+    /**
+ * @summary Confirm a shared hall table cart and send it to iiko
+ */
+export const useCartControllerConfirmHallTableOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerConfirmHallTableOrder>>, TError,{publicKey: string;data: ShareCurrentCartDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerConfirmHallTableOrder>>,
+        TError,
+        {publicKey: string;data: ShareCurrentCartDtoReq},
+        TContext
+      > => {
+      return useMutation(getCartControllerConfirmHallTableOrderMutationOptions(options), queryClient);
+    }
+    
+/**
+ * @summary Send a public shared hall table cart to waiter confirmation
+ */
+export const cartControllerSubmitPublicHallOrder = (
+    publicKey: string,
+    shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
+ signal?: AbortSignal
+) => {
+      
+      
+      return mutator<CartResponseDto>(
+      {url: `/cart/public/${publicKey}/hall-order`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: shareCurrentCartDtoReq, signal
+    },
+      );
+    }
+  
+
+
+export const getCartControllerSubmitPublicHallOrderMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitPublicHallOrder>>, TError,{publicKey: string;data: ShareCurrentCartDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitPublicHallOrder>>, TError,{publicKey: string;data: ShareCurrentCartDtoReq}, TContext> => {
+
+const mutationKey = ['cartControllerSubmitPublicHallOrder'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cartControllerSubmitPublicHallOrder>>, {publicKey: string;data: ShareCurrentCartDtoReq}> = (props) => {
+          const {publicKey,data} = props ?? {};
+
+          return  cartControllerSubmitPublicHallOrder(publicKey,data,)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CartControllerSubmitPublicHallOrderMutationResult = NonNullable<Awaited<ReturnType<typeof cartControllerSubmitPublicHallOrder>>>
+    export type CartControllerSubmitPublicHallOrderMutationBody = ShareCurrentCartDtoReq
+    export type CartControllerSubmitPublicHallOrderMutationError = unknown
+
+    /**
+ * @summary Send a public shared hall table cart to waiter confirmation
+ */
+export const useCartControllerSubmitPublicHallOrder = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitPublicHallOrder>>, TError,{publicKey: string;data: ShareCurrentCartDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof cartControllerSubmitPublicHallOrder>>,
+        TError,
+        {publicKey: string;data: ShareCurrentCartDtoReq},
+        TContext
+      > => {
+      return useMutation(getCartControllerSubmitPublicHallOrderMutationOptions(options), queryClient);
     }
     
 /**

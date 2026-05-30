@@ -13,6 +13,7 @@ const INTEGRATION_PROVIDER_LABELS: Record<
 > = {
   [ProductIntegrationDtoProvider.MOYSKLAD]: "МойСклад",
   [ProductIntegrationDtoProvider.IIKO]: "iiko",
+  [ProductIntegrationDtoProvider.ONE_C]: "1C",
 };
 
 export function getMoySkladProductMarker(

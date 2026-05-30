@@ -9,7 +9,7 @@ import {
 } from "./cart-drawer-header-action";
 
 describe("cart drawer header action model", () => {
-  it("does not expose actions for managed public carts", () => {
+  it("exposes an exit action for managed public carts", () => {
     expect(
       resolveCartDrawerHeaderAction({
         canDeleteCurrentCart: true,
@@ -17,7 +17,7 @@ describe("cart drawer header action model", () => {
         isManagedPublicCart: true,
         isPublicMode: true,
       }),
-    ).toBe("none");
+    ).toBe("detach-public-cart");
   });
 
   it("detaches public cart in public mode", () => {
