@@ -33,6 +33,8 @@ export const CategoryBarList: React.FC<Props> = ({
   });
   const itemRefsRef = React.useRef(new Map<string, HTMLButtonElement>());
   const scrollFrameRef = React.useRef<number | null>(null);
+  const pointerStartRef = React.useRef<{ x: number; y: number } | null>(null);
+  const suppressNextClickRef = React.useRef(false);
   const skeletonWidths = React.useMemo(
     () => ["w-16", "w-24", "w-20", "w-28", "w-[4.5rem]", "w-[5.5rem]"],
     [],
@@ -73,6 +75,39 @@ export const CategoryBarList: React.FC<Props> = ({
       }
     };
   }, [activeCategoryId, activeIndex, emblaApi]);
+
+  const handlePointerDown = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      pointerStartRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+      suppressNextClickRef.current = false;
+    },
+    [],
+  );
+
+  const handlePointerMove = React.useCallback(
+    (event: React.PointerEvent<HTMLButtonElement>) => {
+      const start = pointerStartRef.current;
+
+      if (!start) {
+        return;
+      }
+
+      const deltaX = Math.abs(event.clientX - start.x);
+      const deltaY = Math.abs(event.clientY - start.y);
+
+      if (deltaX > 6 || deltaY > 6) {
+        suppressNextClickRef.current = true;
+      }
+    },
+    [],
+  );
+
+  const handlePointerEnd = React.useCallback(() => {
+    pointerStartRef.current = null;
+  }, []);
 
   if (isLoading && items.length === 0) {
     return (
@@ -119,7 +154,18 @@ export const CategoryBarList: React.FC<Props> = ({
               }}
               variant={isActive ? "default" : "secondary"}
               aria-current={isActive ? "true" : undefined}
-              onClick={() => onCategoryClick?.(item, index)}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerCancel={handlePointerEnd}
+              onPointerUp={handlePointerEnd}
+              onClick={() => {
+                if (suppressNextClickRef.current) {
+                  suppressNextClickRef.current = false;
+                  return;
+                }
+
+                onCategoryClick?.(item, index);
+              }}
               className={cn(
                 "h-9 min-w-0 shrink-0 grow-0 basis-auto rounded-full px-4 py-2 text-sm",
                 !isActive && "shadow-none",

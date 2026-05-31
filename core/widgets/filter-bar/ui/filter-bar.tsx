@@ -89,6 +89,7 @@ export const FilterBar: React.FC<Props> = ({
     <div
       id="catalog-filter-bar"
       ref={stickyRef}
+      style={{ minHeight: "var(--catalog-filter-bar-height, 120px)" }}
       className={cn(
         "sticky top-0 z-20 rounded-b-2xl border border-transparent bg-white",
         "transition-[margin,padding,border-color,border-radius,box-shadow,background-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
