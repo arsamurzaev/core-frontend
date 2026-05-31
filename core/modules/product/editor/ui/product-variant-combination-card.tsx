@@ -26,6 +26,7 @@ import { Input } from "@/shared/ui/input";
 import React from "react";
 
 interface ProductVariantCombinationCardProps {
+  canEditPrices?: boolean;
   canUseCatalogSaleUnits?: boolean;
   disabled?: boolean;
   discountPercent: number;
@@ -39,6 +40,7 @@ interface ProductVariantCombinationCardProps {
 export const ProductVariantCombinationCard: React.FC<
   ProductVariantCombinationCardProps
 > = ({
+  canEditPrices = true,
   canUseCatalogSaleUnits = false,
   disabled,
   discountPercent,
@@ -147,7 +149,7 @@ export const ProductVariantCombinationCard: React.FC<
                 inputMode={priceInputProps.inputMode}
                 value={item.price ?? ""}
                 placeholder={priceFallback || "0"}
-                disabled={disabled}
+                disabled={disabled || !canEditPrices}
                 onChange={(event) => handlePriceChange(event.target.value)}
                 className="h-9 px-3 text-sm"
               />
@@ -189,6 +191,7 @@ export const ProductVariantCombinationCard: React.FC<
 
           {canUseCatalogSaleUnits ? (
             <ProductSaleUnitsField
+              canEditPrices={canEditPrices}
               disabled={disabled}
               discountPercent={discountPercent}
               priceFormatMode={priceFormatMode}

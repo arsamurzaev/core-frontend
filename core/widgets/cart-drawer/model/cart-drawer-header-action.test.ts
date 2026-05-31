@@ -31,6 +31,30 @@ describe("cart drawer header action model", () => {
     ).toBe("detach-public-cart");
   });
 
+  it("deletes a guest public cart when the guest has items", () => {
+    expect(
+      resolveCartDrawerHeaderAction({
+        canDeleteCurrentCart: false,
+        hasItems: true,
+        isGuestPublicCart: true,
+        isManagedPublicCart: false,
+        isPublicMode: true,
+      }),
+    ).toBe("delete-current-cart");
+  });
+
+  it("hides exit for guest public carts without guest items", () => {
+    expect(
+      resolveCartDrawerHeaderAction({
+        canDeleteCurrentCart: false,
+        hasItems: false,
+        isGuestPublicCart: true,
+        isManagedPublicCart: false,
+        isPublicMode: true,
+      }),
+    ).toBe("none");
+  });
+
   it("deletes current cart only when it can be deleted", () => {
     expect(
       resolveCartDrawerHeaderAction({
@@ -81,5 +105,21 @@ describe("cart drawer header action model", () => {
     expect(getDeleteCartSuccessMessage({ publicKey: "public-1" })).toBe(
       DELETE_CART_SUCCESS_MESSAGE,
     );
+  });
+
+  it("returns guest-specific copy for guest public cart deletion", () => {
+    const copy = getDeleteCartConfirmationCopy(
+      { publicKey: "public-1" },
+      { isGuestPublicCart: true },
+    );
+
+    expect(copy.title).toBe("Удалить корзину гостя?");
+    expect(copy.description).toContain("Ваши позиции");
+    expect(
+      getDeleteCartSuccessMessage(
+        { publicKey: "public-1" },
+        { isGuestPublicCart: true },
+      ),
+    ).toBe("Корзина гостя удалена.");
   });
 });

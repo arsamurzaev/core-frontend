@@ -125,6 +125,10 @@ export const CREATE_PRODUCT_FIELD_GROUP_PROPS = {
   className: "gap-6",
 };
 
+export interface BuildCreateProductFormFieldsOptions {
+  canEditPrice?: boolean;
+}
+
 type AttributeFieldOverride = Omit<
   Partial<DynamicFieldConfig<CreateProductFormValues>>,
   "name"
@@ -389,11 +393,14 @@ export function buildCreateProductFormFields(
   productAttributes: AttributeDto[],
   customFields: DynamicFieldConfig<CreateProductFormValues>[] = [],
   priceFormatMode: CatalogPriceFormatMode = "integer",
+  options: BuildCreateProductFormFieldsOptions = {},
 ): DynamicFieldConfig<CreateProductFormValues>[] {
+  const canEditPrice = options.canEditPrice ?? true;
   const baseFields = BASE_FIELDS.map((field) =>
     field.name === "price"
       ? {
           ...field,
+          disabled: field.disabled || !canEditPrice,
           inputProps: getPriceFieldInputProps(priceFormatMode),
         }
       : field,

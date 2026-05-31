@@ -25,7 +25,7 @@ function item(provider?: "IIKO" | "MOYSKLAD"): CartItemView {
             provider,
           },
           variants: [],
-        } as CartItemView["product"])
+        } as unknown as CartItemView["product"])
       : undefined,
     productId: "product-1",
     productSlug: "pizza",

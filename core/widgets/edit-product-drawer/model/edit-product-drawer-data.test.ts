@@ -270,6 +270,38 @@ describe("edit product drawer data", () => {
     ]);
   });
 
+  it("does not materialize discount values when discounts are disabled", () => {
+    const values = buildEditProductFormValues(
+      product({
+        productAttributes: [
+          productAttribute({
+            attributeId: "discount",
+            valueString: null,
+            valueDecimal: "10",
+            attribute: {
+              id: "discount",
+              key: "discount",
+              displayName: "Discount",
+              dataType: ProductAttributeRefDtoDataType.DECIMAL,
+              isRequired: false,
+              isVariantAttribute: false,
+              isFilterable: false,
+              displayOrder: 1,
+              isHidden: false,
+            },
+          }),
+        ],
+      }),
+      [attribute({ id: "discount", dataType: AttributeDtoDataType.DECIMAL })],
+      [],
+      "integer",
+      false,
+    );
+
+    expect(values.hasDiscount).toBe(false);
+    expect(values.attributes.discount).toBeUndefined();
+  });
+
   it("does not materialize hidden variant defaults but restores saved variants when capability returns", () => {
     const sizeAttribute = attribute({
       id: "size",
@@ -396,6 +428,85 @@ describe("edit product drawer data", () => {
       saleUnits: [],
     });
     expect(payload).not.toHaveProperty("variants");
+  });
+
+  it("removes persisted discount attributes when discounts are disabled", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1000",
+        hasDiscount: true,
+        attributes: {
+          discount: "10",
+        },
+      },
+      mediaIds: [],
+      persistedAttributeValues: {
+        discount: "15",
+      },
+      product: product(),
+      productAttributes: [
+        attribute({
+          id: "discount",
+          key: "discount",
+          dataType: AttributeDtoDataType.DECIMAL,
+        }),
+      ],
+      canUseCatalogSaleUnits: false,
+      canUseDiscounts: false,
+    });
+
+    expect(payload.attributes).toEqual([]);
+    expect(payload.removeAttributeIds).toEqual(["discount"]);
+  });
+
+  it("omits price and sale units when price editing is disabled", () => {
+    const payload = parseEditProductUpdatePayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Product",
+        price: "1",
+        saleUnits: [
+          {
+            catalogSaleUnitId: "box",
+            catalogSaleUnitName: "Box",
+            label: "Box",
+            baseQuantity: "12",
+            price: "1",
+            isDefault: true,
+          },
+        ],
+      },
+      mediaIds: [],
+      persistedAttributeValues: {},
+      product: product({
+        price: "1000",
+        saleUnits: [
+          {
+            id: "sale-unit-1",
+            catalogSaleUnitId: "box",
+            code: "box",
+            name: "Box",
+            baseQuantity: "12",
+            price: "950",
+            barcode: null,
+            isDefault: true,
+            isActive: true,
+            displayOrder: 1,
+            createdAt: NOW,
+            updatedAt: NOW,
+            catalogSaleUnit: null,
+          },
+        ],
+      }),
+      productAttributes: [],
+      canEditPrice: false,
+      canUseCatalogSaleUnits: true,
+    });
+
+    expect(payload).not.toHaveProperty("price");
+    expect(payload).not.toHaveProperty("saleUnits");
   });
 
   it("sends root sale units in update payload when variants feature is disabled", () => {

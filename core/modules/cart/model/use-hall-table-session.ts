@@ -1,6 +1,5 @@
 "use client";
 
-import { cartQueryKeys } from "@/core/modules/cart/model/cart-query-keys";
 import {
   createCartPublicAccess,
   type CartPublicAccess,

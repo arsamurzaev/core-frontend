@@ -104,7 +104,9 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         cropperTitle={cropperTitle}
         cropperDescription={cropperDescription}
         cropperApplyLabel={cropperApplyLabel}
+        canEditPrice={features.canEditProductPrice}
         canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
+        canUseDiscounts={features.canUseProductDiscounts}
         canUseProductVariants={features.canUseProductVariants}
         saleUnitsSettingsAction={
           features.canUseCatalogSaleUnits ? (

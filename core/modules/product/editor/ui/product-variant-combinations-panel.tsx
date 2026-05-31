@@ -10,6 +10,7 @@ import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 
 interface ProductVariantCombinationsPanelProps {
+  canEditPrices?: boolean;
   canUseCatalogSaleUnits?: boolean;
   disabled?: boolean;
   discountPercent: number;
@@ -27,6 +28,7 @@ interface ProductVariantCombinationsPanelProps {
 export const ProductVariantCombinationsPanel: React.FC<
   ProductVariantCombinationsPanelProps
 > = ({
+  canEditPrices = true,
   canUseCatalogSaleUnits = false,
   disabled,
   discountPercent,
@@ -67,6 +69,7 @@ export const ProductVariantCombinationsPanel: React.FC<
           {matrixRows.map((row) => (
             <ProductVariantCombinationCard
               key={row.key}
+              canEditPrices={canEditPrices}
               canUseCatalogSaleUnits={canUseCatalogSaleUnits}
               disabled={disabled}
               discountPercent={discountPercent}

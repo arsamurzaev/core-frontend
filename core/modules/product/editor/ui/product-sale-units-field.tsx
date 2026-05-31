@@ -41,6 +41,7 @@ import React from "react";
 import { toast } from "sonner";
 
 interface ProductSaleUnitsFieldProps {
+  canEditPrices?: boolean;
   disabled?: boolean;
   discountPercent?: number;
   priceFormatMode?: CatalogPriceFormatMode;
@@ -108,6 +109,7 @@ function resolveRelationCalculatedPrice(params: {
 }
 
 export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
+  canEditPrices = true,
   disabled,
   discountPercent = 0,
   priceFormatMode = "integer",
@@ -474,7 +476,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                       min={0}
                       step={priceInputProps.step}
                       inputMode={priceInputProps.inputMode}
-                      disabled={disabled}
+                      disabled={disabled || !canEditPrices}
                       placeholder="1200"
                       onChange={(event) =>
                         handleUnitChange(index, { price: event.target.value })

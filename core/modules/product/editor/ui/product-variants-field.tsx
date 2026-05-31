@@ -21,6 +21,7 @@ import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
 interface ProductVariantsFieldProps {
+  canEditPrices?: boolean;
   canUseCatalogSaleUnits?: boolean;
   disabled?: boolean;
   discountPercent?: number;
@@ -30,6 +31,7 @@ interface ProductVariantsFieldProps {
 }
 
 export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
+  canEditPrices = true,
   canUseCatalogSaleUnits = false,
   disabled,
   discountPercent = 0,
@@ -236,6 +238,7 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
 
           <ProductVariantCombinationsPanel
             canUseCatalogSaleUnits={canUseCatalogSaleUnits}
+            canEditPrices={canEditPrices}
             disabled={disabled}
             discountPercent={discountPercent}
             matrixRows={matrixRows}

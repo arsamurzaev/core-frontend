@@ -22,6 +22,7 @@ import {
 interface ValidateProductFormValuesParams {
   invalidFormMessage: string;
   invalidPriceMessage: string;
+  canEditPrice?: boolean;
   canUseCatalogSaleUnits?: boolean;
   canUseProductVariants?: boolean;
   priceFormatMode?: CatalogPriceFormatMode;
@@ -69,6 +70,7 @@ function hasInvalidEnabledVariantPrice(
 export function validateProductFormValues({
   invalidFormMessage,
   invalidPriceMessage,
+  canEditPrice = true,
   canUseCatalogSaleUnits = false,
   canUseProductVariants = false,
   priceFormatMode = "integer",
@@ -87,8 +89,11 @@ export function validateProductFormValues({
   }
 
   const normalizedPrice =
-    parsedValues.price.trim().length > 0 ? Number(parsedValues.price) : null;
+    canEditPrice && parsedValues.price.trim().length > 0
+      ? Number(parsedValues.price)
+      : null;
   if (
+    canEditPrice &&
     normalizedPrice !== null &&
     !isCatalogPriceValueCompatible(normalizedPrice, priceFormatMode)
   ) {
@@ -99,6 +104,7 @@ export function validateProductFormValues({
   }
 
   if (
+    canEditPrice &&
     hasInvalidEnabledVariantPrice(
       parsedValues,
       activeVariantAttributes,
@@ -151,7 +157,7 @@ export function validateProductFormValues({
     }
   }
 
-  if (canUseCatalogSaleUnits) {
+  if (canUseCatalogSaleUnits && canEditPrice) {
     const saleUnitsIssue = validateSaleUnitsForSubmit(
       parsedValues,
       activeVariantAttributes,

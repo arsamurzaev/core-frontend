@@ -37,6 +37,15 @@ describe("product card layout", () => {
     ).toBe(1);
   });
 
+  it("caps grid view at four columns on wide screens", () => {
+    expect(
+      getProductCardGridColumns({
+        isDetailed: false,
+        listWidth: 1440,
+      }),
+    ).toBe(4);
+  });
+
   it("builds stable cart measurement keys", () => {
     expect(
       getProductCardCartMeasurementKey({

@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { type ShareActionItem } from "@/core/widgets/share-drawer/model/share-drawer-types";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";

@@ -471,9 +471,15 @@ export const EditCatalogIikoDrawer: React.FC<{
     disableWebhooksMutation.isPending ||
     retryWebhookEventMutation.isPending ||
     retryOrderExportMutation.isPending;
-  const orderExports = orderExportsQuery.data ?? [];
-  const webhookEvents = webhookEventsQuery.data ?? [];
-  const runs = runsQuery.data ?? [];
+  const orderExports = React.useMemo(
+    () => orderExportsQuery.data ?? [],
+    [orderExportsQuery.data],
+  );
+  const webhookEvents = React.useMemo(
+    () => webhookEventsQuery.data ?? [],
+    [webhookEventsQuery.data],
+  );
+  const runs = React.useMemo(() => runsQuery.data ?? [], [runsQuery.data]);
   const integrationTimeline = React.useMemo(() => {
     const items = [
       ...webhookEvents.map((event) => ({

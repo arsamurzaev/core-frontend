@@ -1,6 +1,7 @@
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
 import { buildRemovedProductAttributeIds } from "@/core/modules/product/editor/model/product-attributes";
+import { isDiscountAttribute } from "@/core/modules/product/editor/model/product-discount";
 import { buildCreateVariantsPayload } from "@/core/modules/product/editor/model/product-variants";
 import { type SaleUnitPayload } from "@/core/modules/product/editor/model/product-sale-units";
 import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
@@ -70,6 +71,26 @@ function buildStaleProductTypeAttributeIds(params: {
     .filter((attributeId) => !editableAttributeIds.has(attributeId));
 }
 
+function buildDisabledDiscountAttributeIds(params: {
+  canUseDiscounts: boolean;
+  persistedAttributeValues: Record<string, AttributeFormValue>;
+  productAttributes: AttributeDto[];
+}): string[] {
+  if (params.canUseDiscounts) {
+    return [];
+  }
+
+  return params.productAttributes
+    .filter(isDiscountAttribute)
+    .filter((attribute) =>
+      Object.prototype.hasOwnProperty.call(
+        params.persistedAttributeValues,
+        attribute.id,
+      ),
+    )
+    .map((attribute) => attribute.id);
+}
+
 function hasTypedVariants(product?: ProductWithDetailsDto | null): boolean {
   return Boolean(
     product?.variants?.some((variant) => (variant.attributes ?? []).length > 0),
@@ -86,6 +107,8 @@ export function buildEditProductUpdatePayloadCandidate(params: {
   canUseProductTypes?: boolean;
   canUseCatalogSaleUnits: boolean;
   canUseProductVariants?: boolean;
+  canUseDiscounts?: boolean;
+  canEditPrice?: boolean;
 }): UpdateProductWithBaseSaleUnitsDtoReq {
   const {
     formValues,
@@ -97,10 +120,15 @@ export function buildEditProductUpdatePayloadCandidate(params: {
     canUseProductTypes = true,
     canUseCatalogSaleUnits,
     canUseProductVariants = false,
+    canUseDiscounts = true,
+    canEditPrice = true,
   } = params;
+  const writableProductAttributes = canUseDiscounts
+    ? productAttributes
+    : productAttributes.filter((attribute) => !isDiscountAttribute(attribute));
   const basePayload = buildProductEditorBasePayloadFields({
     formValues,
-    productAttributes,
+    productAttributes: writableProductAttributes,
   });
 
   const currentProductTypeId = product?.productType?.id ?? null;
@@ -114,16 +142,16 @@ export function buildEditProductUpdatePayloadCandidate(params: {
   const isClearingProductType = hasProductTypeChange && !nextProductTypeId;
   const editableProductAttributes =
     !canUseProductTypes && currentProductTypeId
-      ? productAttributes.filter(
+      ? writableProductAttributes.filter(
           (attribute) =>
             !isScopedToProductType(attribute, currentProductTypeId),
         )
       : isClearingProductType
-        ? productAttributes.filter(
+        ? writableProductAttributes.filter(
             (attribute) =>
               !isScopedToProductType(attribute, currentProductTypeId),
           )
-        : productAttributes;
+        : writableProductAttributes;
   const attributes = buildProductEditorBasePayloadFields({
     formValues: {
       ...formValues,
@@ -148,13 +176,21 @@ export function buildEditProductUpdatePayloadCandidate(params: {
       hasProductTypeChange,
       product,
     }),
+    buildDisabledDiscountAttributeIds({
+      canUseDiscounts,
+      persistedAttributeValues,
+      productAttributes,
+    }),
   );
-  const baseSaleUnitsPayload = buildEditProductBaseSaleUnitsPayload({
-    formValues,
-    product,
-    canUseCatalogSaleUnits,
-  });
+  const baseSaleUnitsPayload = canEditPrice
+    ? buildEditProductBaseSaleUnitsPayload({
+        formValues,
+        product,
+        canUseCatalogSaleUnits,
+      })
+    : undefined;
   const shouldReplaceVariantMatrix =
+    canEditPrice &&
     canUseProductVariants &&
     (variantAttributes.length > 0 ||
       (hasProductTypeChange && hasTypedVariants(product)));
@@ -166,7 +202,7 @@ export function buildEditProductUpdatePayloadCandidate(params: {
 
   return {
     name: basePayload.name,
-    price: basePayload.price,
+    ...(canEditPrice ? { price: basePayload.price } : {}),
     mediaIds,
     brandId: basePayload.brandId,
     ...(canUseProductTypes && hasProductTypeChange
@@ -195,6 +231,8 @@ export function parseEditProductUpdatePayload(params: {
   canUseProductTypes?: boolean;
   canUseCatalogSaleUnits: boolean;
   canUseProductVariants?: boolean;
+  canUseDiscounts?: boolean;
+  canEditPrice?: boolean;
 }) {
   return buildEditProductUpdatePayloadCandidate(params);
 }

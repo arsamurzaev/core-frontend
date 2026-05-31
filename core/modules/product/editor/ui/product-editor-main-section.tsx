@@ -19,6 +19,7 @@ import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
 interface ProductEditorMainSectionProps {
+  canEditPrice?: boolean;
   canUseCatalogSaleUnits?: boolean;
   disabled?: boolean;
   discountPercent: number;
@@ -36,6 +37,7 @@ interface ProductEditorMainSectionProps {
 export const ProductEditorMainSection: React.FC<
   ProductEditorMainSectionProps
 > = ({
+  canEditPrice = true,
   canUseCatalogSaleUnits = false,
   disabled,
   discountPercent,
@@ -108,7 +110,8 @@ export const ProductEditorMainSection: React.FC<
       {showBaseSaleUnits ? (
         <div className="min-w-0 px-0">
           <ProductSaleUnitsField
-            disabled={disabled}
+            disabled={disabled || !canEditPrice}
+            canEditPrices={canEditPrice}
             discountPercent={discountPercent}
             priceFormatMode={priceFormatMode}
             priceFallback={priceFallback}
@@ -127,6 +130,7 @@ export const ProductEditorMainSection: React.FC<
       {hasVariantAttributes && variantAttributes ? (
         <ProductVariantsField
           canUseCatalogSaleUnits={canUseCatalogSaleUnits}
+          canEditPrices={canEditPrice}
           form={form}
           variantAttributes={variantAttributes}
           discountPercent={discountPercent}

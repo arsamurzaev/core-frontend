@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CatalogSettingsDto } from "@/shared/api/generated/react-query";
 import { resolveCatalogMode } from "./catalog-mode";
+import { DEFAULT_PREORDER_SETTINGS } from "./checkout-methods";
 
 const emptySearchParams = {
   get: () => null,
@@ -26,6 +27,7 @@ function settings(
       enabledMethods: [],
       methodContacts: {},
       methodFields: {},
+      preorder: DEFAULT_PREORDER_SETTINGS,
     },
     googleVerification: null,
     yandexVerification: null,

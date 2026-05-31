@@ -49,8 +49,9 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
   const [isSyncingMoySklad, setIsSyncingMoySklad] = React.useState(false);
   const isStatusActive = status === ProductWithAttributesDtoStatus.ACTIVE;
   const isStatusHidden = status === ProductWithAttributesDtoStatus.HIDDEN;
-  const canToggleStatus = isStatusActive || isStatusHidden;
   const isIntegrationLinked = isMoySkladLinked || isIikoLinked;
+  const canToggleStatus =
+    !isIntegrationLinked && (isStatusActive || isStatusHidden);
   const isActionPending =
     duplicateProduct.isPending ||
     toggleProductStatus.isPending ||
@@ -126,7 +127,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
 
   return (
     <>
-      {isStatusHidden ? (
+      {canToggleStatus && isStatusHidden ? (
         <Button
           type="button"
           variant="ghost"

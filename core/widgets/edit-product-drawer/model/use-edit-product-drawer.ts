@@ -74,6 +74,10 @@ export function useEditProductDrawer(
   const isIntegratedLinkedProduct = isIntegratedProduct(product);
   const canEditProductStructure = !isIntegratedLinkedProduct;
   const canDeleteProduct = !isIntegratedLinkedProduct;
+  const canUseProductDiscounts =
+    canEditProductStructure && !productStructure.hideProductStructureControls;
+  const canEditProductPrice =
+    canEditProductStructure && !productStructure.hideProductStructureControls;
   const productTypeLockIntegrationName =
     getProductIntegrationProviderLabel(product);
   const restoredVariantMatrixKeyRef = React.useRef<string | null>(null);
@@ -125,10 +129,13 @@ export function useEditProductDrawer(
     canUseProductTypes: productStructure.canUseProductTypes,
     canUseProductVariants:
       productStructure.canUseProductVariants && canEditProductStructure,
+    canUseDiscounts: canUseProductDiscounts,
+    canEditPrice: canEditProductPrice,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     isActive: open,
     supportsBrands,
     supportsCategoryDetails,
+    showProductTypeField: canEditProductStructure,
     productTypeLockIntegrationName,
     onProductTypeChange: handleProductTypeChange,
   });
@@ -154,6 +161,7 @@ export function useEditProductDrawer(
     product,
     productAttributes,
     priceFormatMode,
+    canUseDiscounts: canUseProductDiscounts,
     variantAttributes,
     productQueryError: productQuery.error,
     productQueryIsError: productQuery.isError,
@@ -307,6 +315,8 @@ export function useEditProductDrawer(
     canUseProductTypes: productStructure.canUseProductTypes,
     canUseProductVariants:
       productStructure.canUseProductVariants && canEditProductStructure,
+    canUseDiscounts: canUseProductDiscounts,
+    canEditPrice: canEditProductPrice,
     form,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isSubmitting,
@@ -350,6 +360,8 @@ export function useEditProductDrawer(
       canUseProductTypes: productStructure.canUseProductTypes,
       canUseProductVariants:
         productStructure.canUseProductVariants && canEditProductStructure,
+      canUseProductDiscounts,
+      canEditProductPrice,
     },
     form,
     formFields,

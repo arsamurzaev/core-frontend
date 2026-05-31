@@ -18,6 +18,7 @@ interface UseEditProductDrawerStateParams {
   product: ProductWithDetailsDto | null;
   productAttributes: AttributeDto[];
   priceFormatMode?: CatalogPriceFormatMode;
+  canUseDiscounts?: boolean;
   variantAttributes?: AttributeDto[];
   productQueryError: unknown;
   productQueryIsError: boolean;
@@ -33,6 +34,7 @@ export function useEditProductDrawerState({
   product,
   productAttributes,
   priceFormatMode = "integer",
+  canUseDiscounts = true,
   variantAttributes = [],
   productQueryError,
   productQueryIsError,
@@ -73,6 +75,7 @@ export function useEditProductDrawerState({
           productAttributes,
           variantAttributes,
           priceFormatMode,
+          canUseDiscounts,
         ),
       );
       resetFromMedia(nextProduct.media);
@@ -81,6 +84,7 @@ export function useEditProductDrawerState({
     [
       form,
       priceFormatMode,
+      canUseDiscounts,
       productAttributes,
       variantAttributes,
       resetFromMedia,

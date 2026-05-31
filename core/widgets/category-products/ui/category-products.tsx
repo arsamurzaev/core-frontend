@@ -236,6 +236,7 @@ type VirtualCatalogRow =
       categoryId?: string;
       key: string;
       sectionKey: string;
+      skeletonCount: number;
       type: "initial-skeleton";
     }
   | {
@@ -259,6 +260,7 @@ type VirtualCatalogRow =
       isFetchingNextPage: boolean;
       key: string;
       sectionKey: string;
+      skeletonCount: number;
       type: "loader";
     };
 
@@ -599,12 +601,17 @@ export const VirtualizedCategoryProducts: React.FC<
       });
 
       if (!hasKnownProductCount && !hasLoadedFirstPage) {
-        nextRows.push({
-          categoryId: section.categoryId,
-          key: `${section.key}:initial-skeleton`,
-          sectionKey: section.key,
-          type: "initial-skeleton",
-        });
+        for (let index = 0; index < skeletonCount; index += columns) {
+          nextRows.push({
+            categoryId: section.categoryId,
+            key: `${section.key}:initial-skeleton:${Math.floor(
+              index / columns,
+            )}`,
+            sectionKey: section.key,
+            skeletonCount: Math.min(columns, skeletonCount - index),
+            type: "initial-skeleton",
+          });
+        }
         return;
       }
 
@@ -648,6 +655,7 @@ export const VirtualizedCategoryProducts: React.FC<
           isFetchingNextPage: Boolean(snapshot?.isFetchingNextPage),
           key: `${section.key}:loader`,
           sectionKey: section.key,
+          skeletonCount: Math.max(1, columns),
           type: "loader",
         });
       }
@@ -657,7 +665,7 @@ export const VirtualizedCategoryProducts: React.FC<
       categoryStartIndexById: nextCategoryStartIndexById,
       rows: nextRows,
     };
-  }, [columns, querySnapshots, sections]);
+  }, [columns, querySnapshots, sections, skeletonCount]);
 
   const measureList = React.useCallback(() => {
     const list = listRef.current;
@@ -1016,7 +1024,7 @@ export const VirtualizedCategoryProducts: React.FC<
                         height: productRowEstimateSize,
                       }}
                     >
-                      {Array.from({ length: skeletonCount }, (_, index) => (
+                      {Array.from({ length: row.skeletonCount }, (_, index) => (
                         <ProductCardSkeleton
                           key={`${row.sectionKey}-initial-${index}`}
                           isDetailed={isDetailed}
@@ -1073,7 +1081,7 @@ export const VirtualizedCategoryProducts: React.FC<
                       height: productRowEstimateSize,
                     }}
                   >
-                    {Array.from({ length: skeletonCount }, (_, index) => (
+                    {Array.from({ length: row.skeletonCount }, (_, index) => (
                       <ProductCardSkeleton
                         key={`${row.sectionKey}-next-${index}`}
                         isDetailed={isDetailed}

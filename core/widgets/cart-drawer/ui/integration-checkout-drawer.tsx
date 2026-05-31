@@ -115,17 +115,7 @@ function getIikoTableLabel(table: IikoRestaurantTableOption): string {
 }
 
 function getIikoTableDetails(table: IikoRestaurantTableOption): string {
-  const details: string[] = [];
-  if (table.sectionName) {
-    details.push(table.sectionName);
-  }
-  if (table.displayNumber) {
-    details.push(`№${table.displayNumber}`);
-  }
-  if (table.seatingCapacity) {
-    details.push(`${table.seatingCapacity} мест`);
-  }
-  return details.join(" · ");
+  return table.sectionName?.trim() ?? "";
 }
 
 function normalizeTableRef(value: unknown): string | null {
@@ -508,9 +498,9 @@ export const IntegrationCheckoutDrawer: React.FC<
                     })}
                   </SelectContent>
                 </Select>
-                {selectedIikoTable ? (
+                {selectedIikoTable && getIikoTableDetails(selectedIikoTable) ? (
                   <p className="text-sm text-muted-foreground">
-                    {getIikoTableDetails(selectedIikoTable) || selectedIikoTable.id}
+                    {getIikoTableDetails(selectedIikoTable)}
                   </p>
                 ) : !isIikoTablesLoading ? (
                   <p className="text-sm text-muted-foreground">

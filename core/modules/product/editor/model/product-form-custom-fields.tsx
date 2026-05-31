@@ -23,7 +23,9 @@ export interface BuildProductEditorCustomFieldsParams {
   onProductTypeChange?: (productTypeId: string | null) => void;
   productTypeLockIntegrationName?: string | null;
   productTypeOptions: DynamicFieldConfig<CreateProductFormValues>["options"];
+  canUseDiscounts?: boolean;
   shouldUseBrands: boolean;
+  showProductTypeField?: boolean;
   supportsCategoryDetails: boolean;
 }
 
@@ -36,7 +38,9 @@ export function buildProductEditorCustomFields({
   onProductTypeChange,
   productTypeLockIntegrationName,
   productTypeOptions,
+  canUseDiscounts = true,
   shouldUseBrands,
+  showProductTypeField = true,
   supportsCategoryDetails,
 }: BuildProductEditorCustomFieldsParams): DynamicFieldConfig<CreateProductFormValues>[] {
   const fields: Array<DynamicFieldConfig<CreateProductFormValues> | null> = [
@@ -54,7 +58,7 @@ export function buildProductEditorCustomFields({
           layout: { colSpan: 2, order: 40 },
         }
       : null,
-    canUseProductTypes
+    canUseProductTypes && showProductTypeField
       ? {
           name: "productTypeId",
           label: "Тип товара",
@@ -98,15 +102,17 @@ export function buildProductEditorCustomFields({
           layout: { colSpan: 2, order: 50 },
         }
       : null,
-    {
-      name: "hasDiscount",
-      label: "Есть скидка",
-      kind: "checkbox",
-      hideError: true,
-      orientation: "horizontal",
-      className: "items-center",
-      layout: { colSpan: 2, order: 70 },
-    },
+    canUseDiscounts
+      ? {
+          name: "hasDiscount",
+          label: "Есть скидка",
+          kind: "checkbox",
+          hideError: true,
+          orientation: "horizontal",
+          className: "items-center",
+          layout: { colSpan: 2, order: 70 },
+        }
+      : null,
   ];
 
   return fields.filter(

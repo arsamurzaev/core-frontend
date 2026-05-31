@@ -3,6 +3,7 @@ import type {
   CatalogCurrentDto,
   CatalogSettingsDto,
 } from "@/shared/api/generated/react-query";
+import { DEFAULT_PREORDER_SETTINGS } from "@/shared/lib/checkout-methods";
 import { getCatalogRuntimeCheckoutConfig } from "./checkout";
 import { resolveCatalogRuntime } from "./resolve-catalog-runtime";
 
@@ -29,6 +30,7 @@ function catalogSettings(
       enabledMethods: [],
       methodContacts: {},
       methodFields: {},
+      preorder: DEFAULT_PREORDER_SETTINGS,
     },
     googleVerification: null,
     yandexVerification: null,
@@ -136,6 +138,7 @@ describe("resolveCatalogRuntime", () => {
         enabledMethods: ["PREORDER"],
         methodContacts: {},
         methodFields: {},
+        preorder: DEFAULT_PREORDER_SETTINGS,
       },
     }));
     const runtime = resolveCatalogRuntime(catalog);

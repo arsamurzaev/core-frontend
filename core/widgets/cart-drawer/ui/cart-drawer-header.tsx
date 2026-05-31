@@ -7,7 +7,6 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import {
-  DrawerClose,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
@@ -26,6 +25,7 @@ interface CartDrawerHeaderProps {
   onActionClick: () => void;
   price: number;
   priceFormatMode: CatalogPriceFormatMode;
+  collapsedSnapPoint: number | string;
   setSnapPoint: (snapPoint: number | string) => void;
   snapPoint: number | string | null;
   totalPrice: number;
@@ -41,6 +41,7 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
   onActionClick,
   price,
   priceFormatMode,
+  collapsedSnapPoint,
   setSnapPoint,
   snapPoint,
   totalPrice,
@@ -111,17 +112,16 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
 
           <h3 className="sm:text-2xl">Корзина</h3>
 
-          <DrawerClose asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-5 w-5"
-              size="icon"
-              aria-label="Свернуть корзину"
-            >
-              <X className="text-muted" />
-            </Button>
-          </DrawerClose>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-5 w-5"
+            size="icon"
+            onClick={() => setSnapPoint(collapsedSnapPoint)}
+            aria-label="Свернуть корзину"
+          >
+            <X className="text-muted" />
+          </Button>
         </div>
       </div>
       <DrawerDescription className="sr-only">Корзина</DrawerDescription>

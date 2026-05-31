@@ -78,4 +78,36 @@ describe("buildProductEditorCustomFields", () => {
     expect(productTypeField?.render).toBeUndefined();
     expect(productTypeField?.placeholder).toBe("Без типа");
   });
+
+  it("can hide the product type field while preserving product type capability", () => {
+    const fields = buildProductEditorCustomFields({
+      brandOptions: [],
+      canUseProductTypes: true,
+      categoryOptions: [],
+      disableProductTypeField: false,
+      includeCategories: false,
+      productTypeOptions: [{ label: "Service", value: "type-1" }],
+      shouldUseBrands: false,
+      showProductTypeField: false,
+      supportsCategoryDetails: false,
+    });
+
+    expect(fieldNames(fields)).toEqual(["hasDiscount"]);
+  });
+
+  it("can hide the discount field", () => {
+    const fields = buildProductEditorCustomFields({
+      brandOptions: [],
+      canUseDiscounts: false,
+      canUseProductTypes: false,
+      categoryOptions: [],
+      disableProductTypeField: false,
+      includeCategories: false,
+      productTypeOptions: [],
+      shouldUseBrands: false,
+      supportsCategoryDetails: false,
+    });
+
+    expect(fieldNames(fields)).toEqual([]);
+  });
 });

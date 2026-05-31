@@ -39,6 +39,7 @@ function catalog(): CatalogCurrentDto {
       canUseInternalInventory: false,
       canUseMoySkladIntegration: false,
       canUseIikoIntegration: false,
+      canUseOneCIntegration: false,
       raw: {},
       effective: {},
       definitions: [],

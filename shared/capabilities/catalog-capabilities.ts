@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AuthUserDtoRole,
   type CatalogCurrentFeaturesDto,
   type CatalogCurrentFeaturesDtoInventoryMode,
   useCatalogAdvancedSettingsControllerGetIikoStatus,
@@ -240,7 +239,7 @@ export function shouldHideProductStructureControlsForCatalogManager(params: {
       params.iikoConfigured !== false);
 
   return (
-    params.userRole === AuthUserDtoRole.CATALOG &&
+    isCatalogManagerRole(params.userRole) &&
     hasConfiguredExternalMenu
   );
 }
@@ -262,13 +261,14 @@ export function useCatalogProductStructureVisibility(
   capabilities: ProductStructureCapabilityFlags,
 ): CatalogProductStructureVisibility {
   const { isAuthenticated, user } = useSession();
+  const canManageCatalog = isCatalogManagerRole(user?.role);
   const shouldCheckMoySkladStatus =
     isAuthenticated &&
-    user?.role === AuthUserDtoRole.CATALOG &&
+    canManageCatalog &&
     capabilities.canUseMoySkladIntegration;
   const shouldCheckIikoStatus =
     isAuthenticated &&
-    user?.role === AuthUserDtoRole.CATALOG &&
+    canManageCatalog &&
     capabilities.canUseIikoIntegration;
   const moySkladStatusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
     query: {

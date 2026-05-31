@@ -34,6 +34,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
   const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const features = useCatalogCapabilities();
   const productStructure = useCatalogProductStructureVisibility(features);
+  const canUseProductDiscounts = !productStructure.hideProductStructureControls;
+  const canEditProductPrice = !productStructure.hideProductStructureControls;
   const queryClient = useQueryClient();
   const createProduct = useProductControllerCreate();
   const form = useProductEditorForm();
@@ -65,6 +67,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     sourceAttributes: type.attributes,
     canUseProductTypes: productStructure.canUseProductTypes,
     canUseProductVariants: productStructure.canUseProductVariants,
+    canUseDiscounts: canUseProductDiscounts,
+    canEditPrice: canEditProductPrice,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     isActive: open,
     supportsBrands,
@@ -87,6 +91,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     canUseProductTypes: productStructure.canUseProductTypes,
     canUseProductVariants: productStructure.canUseProductVariants,
+    canUseDiscounts: canUseProductDiscounts,
+    canEditPrice: canEditProductPrice,
     createProduct,
     files: imageEditor.files,
     form,
@@ -122,6 +128,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
       ...features,
       canUseProductTypes: productStructure.canUseProductTypes,
       canUseProductVariants: productStructure.canUseProductVariants,
+      canUseProductDiscounts,
+      canEditProductPrice,
     },
     productAttributes,
     variantAttributes,

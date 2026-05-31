@@ -25,6 +25,7 @@ interface UseCartDrawerHeaderActionParams {
   deleteCurrentCart: () => Promise<void>;
   detachPublicCart: () => void;
   hasItems: boolean;
+  isGuestPublicCart?: boolean;
   isManagedPublicCart: boolean;
   isPublicMode: boolean;
   setSnapPoint: (snapPoint: string | number | null) => void;
@@ -42,6 +43,7 @@ export function useCartDrawerHeaderAction({
   deleteCurrentCart,
   detachPublicCart,
   hasItems,
+  isGuestPublicCart = false,
   isManagedPublicCart,
   isPublicMode,
   setSnapPoint,
@@ -50,6 +52,7 @@ export function useCartDrawerHeaderAction({
     const action = resolveCartDrawerHeaderAction({
       canDeleteCurrentCart,
       hasItems,
+      isGuestPublicCart,
       isManagedPublicCart,
       isPublicMode,
     });
@@ -76,7 +79,9 @@ export function useCartDrawerHeaderAction({
       return;
     }
 
-    const isConfirmed = await confirm(getDeleteCartConfirmationCopy(cart));
+    const isConfirmed = await confirm(
+      getDeleteCartConfirmationCopy(cart, { isGuestPublicCart }),
+    );
 
     if (!isConfirmed) {
       return;
@@ -85,7 +90,7 @@ export function useCartDrawerHeaderAction({
     try {
       await deleteCurrentCart();
       setSnapPoint(CART_DRAWER_SNAP_POINTS[0]);
-      toast.success(getDeleteCartSuccessMessage(cart));
+      toast.success(getDeleteCartSuccessMessage(cart, { isGuestPublicCart }));
     } catch (error) {
       toast.error(getHeaderActionErrorMessage(error));
     }
@@ -95,6 +100,7 @@ export function useCartDrawerHeaderAction({
     deleteCurrentCart,
     detachPublicCart,
     hasItems,
+    isGuestPublicCart,
     isManagedPublicCart,
     isPublicMode,
     setSnapPoint,

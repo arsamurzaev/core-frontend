@@ -55,4 +55,13 @@ describe("buildCreateProductFormFields", () => {
       step: "0.01",
     });
   });
+
+  it("can disable price editing", () => {
+    const fields = buildCreateProductFormFields([], [], "integer", {
+      canEditPrice: false,
+    });
+    const priceField = fields.find((field) => field.name === "price");
+
+    expect(priceField?.disabled).toBe(true);
+  });
 });

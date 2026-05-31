@@ -25,6 +25,12 @@ const SHARED_CART_DELETE_DESCRIPTION =
   "Корзина и публичная ссылка будут удалены. Восстановить товары не получится.";
 const DEFAULT_CART_DELETE_DESCRIPTION =
   "Корзина будет удалена полностью. Восстановить товары не получится.";
+const GUEST_CART_DELETE_DESCRIPTION =
+  "Ваши позиции будут удалены из корзины стола. Восстановить их не получится.";
+
+interface CartDeleteCopyOptions {
+  isGuestPublicCart?: boolean;
+}
 
 export const DETACH_PUBLIC_CART_CONFIRMATION: CartDeleteConfirmationCopy = {
   title: "Открепить публичную корзину?",
@@ -43,6 +49,7 @@ export const DELETE_CART_SUCCESS_MESSAGE = "Корзина удалена.";
 export function resolveCartDrawerHeaderAction(params: {
   canDeleteCurrentCart: boolean;
   hasItems: boolean;
+  isGuestPublicCart?: boolean;
   isManagedPublicCart: boolean;
   isPublicMode: boolean;
 }): CartDrawerHeaderActionKind {
@@ -51,6 +58,10 @@ export function resolveCartDrawerHeaderAction(params: {
   }
 
   if (params.isPublicMode) {
+    if (params.isGuestPublicCart) {
+      return params.hasItems ? "delete-current-cart" : "none";
+    }
+
     return "detach-public-cart";
   }
 
@@ -69,17 +80,20 @@ export function isCartAssignedToManager(
 
 export function getDeleteCartConfirmationCopy(
   cart: CartHeaderActionSnapshot | null | undefined,
+  options: CartDeleteCopyOptions = {},
 ): CartDeleteConfirmationCopy {
   const isAssignedToManager = isCartAssignedToManager(cart);
   const isSharedCurrentCart = Boolean(cart?.publicKey);
 
   return {
-    title: DELETE_CART_TITLE,
-    description: isAssignedToManager
-      ? ASSIGNED_MANAGER_DELETE_DESCRIPTION
-      : isSharedCurrentCart
-        ? SHARED_CART_DELETE_DESCRIPTION
-        : DEFAULT_CART_DELETE_DESCRIPTION,
+    title: options.isGuestPublicCart ? "Удалить корзину гостя?" : DELETE_CART_TITLE,
+    description: options.isGuestPublicCart
+      ? GUEST_CART_DELETE_DESCRIPTION
+      : isAssignedToManager
+        ? ASSIGNED_MANAGER_DELETE_DESCRIPTION
+        : isSharedCurrentCart
+          ? SHARED_CART_DELETE_DESCRIPTION
+          : DEFAULT_CART_DELETE_DESCRIPTION,
     confirmText: DELETE_CART_CONFIRM_TEXT,
     cancelText: CANCEL_TEXT,
   };
@@ -87,7 +101,12 @@ export function getDeleteCartConfirmationCopy(
 
 export function getDeleteCartSuccessMessage(
   cart: CartHeaderActionSnapshot | null | undefined,
+  options: CartDeleteCopyOptions = {},
 ): string {
+  if (options.isGuestPublicCart) {
+    return "Корзина гостя удалена.";
+  }
+
   return isCartAssignedToManager(cart)
     ? DELETE_ASSIGNED_CART_SUCCESS_MESSAGE
     : DELETE_CART_SUCCESS_MESSAGE;

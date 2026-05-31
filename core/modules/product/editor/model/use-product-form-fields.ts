@@ -26,6 +26,7 @@ import {
 import {
   filterVisibleDiscountAttributes,
   getDiscountAttributeIds,
+  isDiscountAttribute,
   isSaleUnitPricingDraftTouched,
 } from "@/core/modules/product/editor/model/product-discount";
 import { buildAttributesFromProductTypeMatrixSchema } from "@/core/modules/product/editor/model/product-types";
@@ -51,12 +52,15 @@ export interface UseProductFormFieldsParams {
   disableProductTypeField?: boolean;
   canUseProductTypes?: boolean;
   canUseProductVariants?: boolean;
+  canUseDiscounts?: boolean;
+  canEditPrice?: boolean;
   canUseCatalogSaleUnits?: boolean;
   isActive?: boolean;
   includeCategories?: boolean;
   supportsBrands?: boolean;
   supportsCategoryDetails?: boolean;
   schemaProductTypeId?: string | null;
+  showProductTypeField?: boolean;
   productTypeLockIntegrationName?: string | null;
   onProductTypeChange?: (productTypeId: string | null) => void;
   useSelectedProductTypeSchema?: boolean;
@@ -68,12 +72,15 @@ export function useProductFormFields({
   disableProductTypeField = false,
   canUseProductTypes = false,
   canUseProductVariants = false,
+  canUseDiscounts = true,
+  canEditPrice = true,
   canUseCatalogSaleUnits = false,
   isActive = false,
   includeCategories = true,
   supportsBrands = true,
   supportsCategoryDetails = true,
   schemaProductTypeId,
+  showProductTypeField = true,
   productTypeLockIntegrationName,
   onProductTypeChange,
   useSelectedProductTypeSchema = true,
@@ -195,8 +202,9 @@ export function useProductFormFields({
     [watchedSaleUnits],
   );
   const shouldUsePercentDiscountOnly =
-    (canUseProductVariants && variantAttributes.length > 0) ||
-    (canUseCatalogSaleUnits && hasSaleUnitPricing);
+    canUseDiscounts &&
+    ((canUseProductVariants && variantAttributes.length > 0) ||
+      (canUseCatalogSaleUnits && hasSaleUnitPricing));
 
   const brandOptions = React.useMemo(
     () => buildBrandOptions(brandsQuery.data, shouldUseBrands),
@@ -224,12 +232,24 @@ export function useProductFormFields({
   );
 
   const visibleAttributes = React.useMemo(
-    () =>
-      filterVisibleDiscountAttributes(productAttributes, {
+    () => {
+      if (!canUseDiscounts) {
+        return productAttributes.filter(
+          (attribute) => !isDiscountAttribute(attribute),
+        );
+      }
+
+      return filterVisibleDiscountAttributes(productAttributes, {
         hasDiscount,
         shouldUsePercentDiscountOnly,
-      }),
-    [hasDiscount, productAttributes, shouldUsePercentDiscountOnly],
+      });
+    },
+    [
+      canUseDiscounts,
+      hasDiscount,
+      productAttributes,
+      shouldUsePercentDiscountOnly,
+    ],
   );
 
   const baseFormFields = React.useMemo(() => {
@@ -237,12 +257,14 @@ export function useProductFormFields({
       brandOptions,
       canUseProductTypes,
       categoryOptions,
+      canUseDiscounts,
       disableProductTypeField,
       includeCategories,
       onProductTypeChange,
       productTypeLockIntegrationName,
       productTypeOptions,
       shouldUseBrands,
+      showProductTypeField,
       supportsCategoryDetails,
     });
 
@@ -250,9 +272,12 @@ export function useProductFormFields({
       visibleAttributes,
       customFields,
       priceFormatMode,
+      { canEditPrice },
     );
   }, [
     brandOptions,
+    canEditPrice,
+    canUseDiscounts,
     canUseProductTypes,
     categoryOptions,
     disableProductTypeField,
@@ -261,6 +286,7 @@ export function useProductFormFields({
     productTypeLockIntegrationName,
     productTypeOptions,
     shouldUseBrands,
+    showProductTypeField,
     supportsCategoryDetails,
     visibleAttributes,
     priceFormatMode,
@@ -271,6 +297,35 @@ export function useProductFormFields({
       form.setValue("brandId", undefined);
     }
   }, [form, shouldUseBrands]);
+
+  React.useEffect(() => {
+    if (!isActive || canUseDiscounts) {
+      return;
+    }
+
+    if (form.getValues("hasDiscount")) {
+      form.setValue("hasDiscount", false, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    }
+
+    if (discountAttributeIds.length === 0) {
+      return;
+    }
+
+    const currentValues = form.getValues("attributes");
+    const result = clearAttributeValues(discountAttributeIds, currentValues);
+
+    if (result.changed) {
+      form.setValue("attributes", result.values, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    }
+  }, [canUseDiscounts, discountAttributeIds, form, isActive]);
 
   const formFields = React.useMemo(() => {
     return patchProductDiscountFields({

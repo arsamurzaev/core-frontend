@@ -2,6 +2,7 @@ import {
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
 import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
+import { isDiscountAttribute } from "@/core/modules/product/editor/model/product-discount";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
@@ -22,9 +23,11 @@ export function parseCreateProductPayload(params: {
   normalizedPrice: number | null;
   productAttributes: AttributeDto[];
   variantAttributes: AttributeDto[];
+  canEditPrice?: boolean;
   canUseProductTypes: boolean;
   canUseProductVariants: boolean;
   canUseCatalogSaleUnits: boolean;
+  canUseDiscounts?: boolean;
 }): CreateProductWithBaseSaleUnitsDtoReq {
   const {
     formValues,
@@ -32,30 +35,39 @@ export function parseCreateProductPayload(params: {
     normalizedPrice,
     productAttributes,
     variantAttributes,
+    canEditPrice = true,
     canUseProductTypes,
     canUseProductVariants,
     canUseCatalogSaleUnits,
+    canUseDiscounts = true,
   } = params;
+  const editableProductAttributes = canUseDiscounts
+    ? productAttributes
+    : productAttributes.filter((attribute) => !isDiscountAttribute(attribute));
   const basePayload = buildProductEditorBasePayloadFields({
     formValues,
-    productAttributes,
+    productAttributes: editableProductAttributes,
   });
-  const resolvedVariantsPayload = resolveCreateProductVariantsPayload({
-    formValues,
-    variantAttributes,
-    canUseProductVariants,
-    canUseCatalogSaleUnits,
-  });
-  const baseSaleUnitsPayload = resolveCreateProductBaseSaleUnitsPayload({
-    formValues,
-    variantAttributes,
-    canUseProductVariants,
-    canUseCatalogSaleUnits,
-  });
+  const resolvedVariantsPayload = canEditPrice
+    ? resolveCreateProductVariantsPayload({
+        formValues,
+        variantAttributes,
+        canUseProductVariants,
+        canUseCatalogSaleUnits,
+      })
+    : [];
+  const baseSaleUnitsPayload = canEditPrice
+    ? resolveCreateProductBaseSaleUnitsPayload({
+        formValues,
+        variantAttributes,
+        canUseProductVariants,
+        canUseCatalogSaleUnits,
+      })
+    : undefined;
 
   return {
     name: basePayload.name,
-    price: normalizedPrice,
+    ...(canEditPrice ? { price: normalizedPrice } : {}),
     ...(basePayload.brandId ? { brandId: basePayload.brandId } : {}),
     ...(canUseProductTypes && basePayload.productTypeId
       ? { productTypeId: basePayload.productTypeId }

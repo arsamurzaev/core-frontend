@@ -1,6 +1,10 @@
 "use client";
 
-import { createCartPublicAccess, useCart } from "@/core/modules/cart";
+import {
+  createCartPublicAccess,
+  type CartPublicAccess,
+  useCart,
+} from "@/core/modules/cart";
 import type { CartDto } from "@/shared/api/generated/react-query";
 import { apiClient } from "@/shared/api/client";
 import { useCatalogCapabilities } from "@/shared/capabilities";
@@ -34,6 +38,11 @@ type HallTableOverview = {
 type HallTablesResponse = {
   ok: true;
   tables: HallTableOverview[];
+};
+
+type PendingHallTableCart = {
+  access: CartPublicAccess;
+  cart: CartDto | null;
 };
 
 function formatMoney(value: number, currency: string): string {
@@ -71,6 +80,7 @@ export const HallTableOrdersDrawer: React.FC = () => {
   const { openPublicCart } = useCart();
   const { isAuthenticated, user } = useSession();
   const [open, setOpen] = React.useState(false);
+  const pendingCartRef = React.useRef<PendingHallTableCart | null>(null);
   const currency = getCatalogCurrency(catalog, "RUB");
   const queryKey = React.useMemo(
     () => ["cart", "hall-tables", catalog.id] as const,
@@ -97,14 +107,27 @@ export const HallTableOrdersDrawer: React.FC = () => {
         return;
       }
 
-      openPublicCart(
-        createCartPublicAccess(table.publicKey, {
+      pendingCartRef.current = {
+        access: createCartPublicAccess(table.publicKey, {
           kind: "hallTable",
           tableCode: table.code,
         }),
-        table.cart,
-      );
+        cart: table.cart,
+      };
       setOpen(false);
+    },
+    [],
+  );
+
+  const handleDrawerAnimationEnd = React.useCallback(
+    (isOpen: boolean) => {
+      if (isOpen || !pendingCartRef.current) {
+        return;
+      }
+
+      const pendingCart = pendingCartRef.current;
+      pendingCartRef.current = null;
+      openPublicCart(pendingCart.access, pendingCart.cart);
     },
     [openPublicCart],
   );
@@ -117,6 +140,8 @@ export const HallTableOrdersDrawer: React.FC = () => {
     <AppDrawer
       open={open}
       onOpenChange={setOpen}
+      noBodyStyles
+      onAnimationEnd={handleDrawerAnimationEnd}
       trigger={
         <Button
           className="fixed right-4 bottom-4 z-20 h-12 rounded-full px-4 shadow-lg"

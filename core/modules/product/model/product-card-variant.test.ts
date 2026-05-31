@@ -21,6 +21,7 @@ function product(
     availabilityState: "AVAILABLE",
     stock: 10,
     defaultVariantId: null,
+    saleUnits: [],
     requiresVariantSelection: false,
     media: [],
     brand: null,

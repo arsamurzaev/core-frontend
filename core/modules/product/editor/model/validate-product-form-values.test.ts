@@ -55,6 +55,7 @@ function attribute(overrides: Partial<AttributeDto> = {}): AttributeDto {
 }
 
 function validate(overrides: {
+  canEditPrice?: boolean;
   canUseCatalogSaleUnits?: boolean;
   canUseProductVariants?: boolean;
   priceFormatMode?: "integer" | "decimal";
@@ -64,6 +65,7 @@ function validate(overrides: {
   return validateProductFormValues({
     invalidFormMessage: "invalid form",
     invalidPriceMessage: "invalid price",
+    canEditPrice: overrides.canEditPrice,
     canUseCatalogSaleUnits: overrides.canUseCatalogSaleUnits,
     canUseProductVariants: overrides.canUseProductVariants,
     priceFormatMode: overrides.priceFormatMode,
@@ -182,6 +184,22 @@ describe("validateProductFormValues", () => {
     expect(result).toMatchObject({
       success: false,
       errorMessage: "invalid price",
+    });
+  });
+
+  it("ignores invalid price values when price editing is disabled", () => {
+    const result = validate({
+      canEditPrice: false,
+      values: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Box",
+        price: "1000.50",
+      },
+    });
+
+    expect(result).toMatchObject({
+      success: true,
+      normalizedPrice: null,
     });
   });
 

@@ -1,4 +1,7 @@
 "use client";
+
+/* eslint-disable @next/next/no-img-element */
+
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { AspectRatio } from "@/shared/ui/aspect-ratio";

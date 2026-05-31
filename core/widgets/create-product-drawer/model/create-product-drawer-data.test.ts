@@ -71,6 +71,68 @@ describe("create product drawer data", () => {
     expect(payload).not.toHaveProperty("brandId");
   });
 
+  it("omits discount attributes when discounts are disabled", () => {
+    const payload = parseCreateProductPayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Box",
+        price: "1000",
+        hasDiscount: true,
+        attributes: {
+          discount: "10",
+        },
+      },
+      mediaIds: [],
+      normalizedPrice: 1000,
+      productAttributes: [
+        attribute({
+          id: "discount",
+          key: "discount",
+          dataType: AttributeDtoDataType.DECIMAL,
+          isVariantAttribute: false,
+        }),
+      ],
+      variantAttributes: [],
+      canUseDiscounts: false,
+      canUseProductTypes: true,
+      canUseProductVariants: true,
+      canUseCatalogSaleUnits: false,
+    });
+
+    expect(payload).not.toHaveProperty("attributes");
+  });
+
+  it("omits price and sale units when price editing is disabled", () => {
+    const payload = parseCreateProductPayload({
+      formValues: {
+        ...CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+        name: "Box",
+        price: "1000",
+        saleUnits: [
+          {
+            catalogSaleUnitId: "box",
+            catalogSaleUnitName: "Box",
+            label: "",
+            baseQuantity: "12",
+            price: "950",
+            isDefault: true,
+          },
+        ],
+      },
+      mediaIds: [],
+      normalizedPrice: 1000,
+      productAttributes: [],
+      variantAttributes: [],
+      canEditPrice: false,
+      canUseProductTypes: true,
+      canUseProductVariants: false,
+      canUseCatalogSaleUnits: true,
+    });
+
+    expect(payload).not.toHaveProperty("price");
+    expect(payload).not.toHaveProperty("saleUnits");
+  });
+
   it("keeps base sale units when variants feature is disabled", () => {
     const payload = parseCreateProductPayload({
       formValues: {

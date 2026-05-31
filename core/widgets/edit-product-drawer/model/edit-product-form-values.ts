@@ -36,10 +36,12 @@ export function buildEditProductFormValues(
   productAttributes: AttributeDto[],
   variantAttributes: AttributeDto[] = [],
   priceFormatMode: CatalogPriceFormatMode = "integer",
+  canUseDiscounts = true,
 ): CreateProductFormValues {
   const { attributes, hasDiscount } = buildEditProductAttributeFormState(
     product,
     productAttributes,
+    { canUseDiscounts },
   );
   const variants = buildVariantsFormValueFromExisting(
     product.variants ?? [],

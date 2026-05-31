@@ -99,6 +99,7 @@ describe("getCatalogCheckoutConfig", () => {
             ] as unknown as CatalogSettingsDto["checkout"]["enabledMethods"],
             methodContacts: {},
             methodFields: {},
+            preorder: DEFAULT_PREORDER_SETTINGS,
           },
         }),
       ),

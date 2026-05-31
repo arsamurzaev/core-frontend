@@ -30,7 +30,9 @@ interface CreateProductMutation {
 
 interface UseCreateProductSubmitParams {
   closeDrawer: () => void;
+  canEditPrice: boolean;
   canUseCatalogSaleUnits: boolean;
+  canUseDiscounts: boolean;
   canUseProductTypes: boolean;
   canUseProductVariants: boolean;
   createProduct: CreateProductMutation;
@@ -77,7 +79,9 @@ function renderUploadProgressToast(state: UploadState) {
 
 export function useCreateProductSubmit({
   closeDrawer,
+  canEditPrice,
   canUseCatalogSaleUnits,
+  canUseDiscounts,
   canUseProductTypes,
   canUseProductVariants,
   createProduct,
@@ -106,6 +110,7 @@ export function useCreateProductSubmit({
     const validationResult = validateProductFormValues({
       invalidFormMessage: "Заполните форму товара.",
       invalidPriceMessage: "Укажите корректную цену.",
+      canEditPrice,
       canUseCatalogSaleUnits,
       canUseProductVariants,
       priceFormatMode,
@@ -166,7 +171,9 @@ export function useCreateProductSubmit({
           normalizedPrice,
           productAttributes,
           variantAttributes,
+          canEditPrice,
           canUseCatalogSaleUnits,
+          canUseDiscounts,
           canUseProductTypes,
           canUseProductVariants,
         });
@@ -213,7 +220,9 @@ export function useCreateProductSubmit({
     })();
   }, [
     closeDrawer,
+    canEditPrice,
     canUseCatalogSaleUnits,
+    canUseDiscounts,
     canUseProductTypes,
     canUseProductVariants,
     createProduct,

@@ -1,8 +1,9 @@
 export const PRODUCT_CARD_GRID_BASE_HEIGHT_PX = 360;
 export const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
+export const PRODUCT_CARD_GRID_MAX_COLUMNS = 4;
 export const PRODUCT_CARD_GRID_COLUMN_GAP_PX = 12;
 export const PRODUCT_CARD_GRID_ROW_GAP_PX = 12;
-export const PRODUCT_CARD_DETAILED_ROW_ESTIMATE_PX = 220;
+export const PRODUCT_CARD_DETAILED_ROW_ESTIMATE_PX = 210;
 
 interface ProductCardCartMeasurementKeyInput {
   quantityByProductId: Readonly<Record<string, number>>;
@@ -61,11 +62,14 @@ export function getProductCardGridColumns({
     return 1;
   }
 
-  return Math.max(
-    1,
-    Math.floor(
-      (listWidth + PRODUCT_CARD_GRID_COLUMN_GAP_PX) /
-        (PRODUCT_CARD_GRID_MIN_WIDTH_PX + PRODUCT_CARD_GRID_COLUMN_GAP_PX),
+  return Math.min(
+    PRODUCT_CARD_GRID_MAX_COLUMNS,
+    Math.max(
+      1,
+      Math.floor(
+        (listWidth + PRODUCT_CARD_GRID_COLUMN_GAP_PX) /
+          (PRODUCT_CARD_GRID_MIN_WIDTH_PX + PRODUCT_CARD_GRID_COLUMN_GAP_PX),
+      ),
     ),
   );
 }

@@ -68,6 +68,15 @@ function product(
     name: "Product",
     slug: "product",
     price: "1000",
+    priceState: "KNOWN",
+    displayPrice: "1000",
+    minPrice: "1000",
+    maxPrice: "1000",
+    availabilityState: "AVAILABLE",
+    stock: 10,
+    defaultVariantId: null,
+    saleUnits: [],
+    requiresVariantSelection: false,
     media: [],
     brand: null,
     productType: null,
@@ -229,6 +238,7 @@ describe("buildProductDrawerViewModel", () => {
             id: "variant-disabled",
             sku: "SKU-DISABLED",
             variantKey: "size=disabled",
+            kind: "MATRIX",
             stock: 0,
             price: null,
             status: ProductVariantDtoStatus.DISABLED,
@@ -252,6 +262,11 @@ describe("buildProductDrawerViewModel", () => {
       isLoading: false,
       product: product({
         price: "12000",
+        priceState: "RANGE",
+        displayPrice: "5500",
+        minPrice: "5500",
+        maxPrice: "5500",
+        requiresVariantSelection: true,
         productType: {
           id: "product-type-1",
           code: "shoes",
@@ -277,6 +292,10 @@ describe("buildProductDrawerViewModel", () => {
       isLoading: false,
       product: product({
         price: null,
+        priceState: "UNKNOWN",
+        displayPrice: null,
+        minPrice: null,
+        maxPrice: null,
       }),
     });
     const zeroPriceView = buildProductDrawerViewModel({
@@ -285,6 +304,10 @@ describe("buildProductDrawerViewModel", () => {
       isLoading: false,
       product: product({
         price: "0",
+        priceState: "KNOWN",
+        displayPrice: "0",
+        minPrice: "0",
+        maxPrice: "0",
       }),
     });
 

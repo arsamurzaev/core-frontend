@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import React from "react";
 
 const CART_CARD_FALLBACK_IMAGE_URL = "/not-found-photo.png";

@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import { LazyCreateProductDrawerTrigger } from "@/core/widgets/header/ui/lazy-create-product-drawer-trigger";
 import { LazyEditCatalogDrawerTrigger } from "@/core/widgets/header/ui/lazy-edit-catalog-drawer-trigger";
 import { LazyGlobalAdminDrawerTrigger } from "@/core/widgets/header/ui/lazy-global-admin-drawer-trigger";

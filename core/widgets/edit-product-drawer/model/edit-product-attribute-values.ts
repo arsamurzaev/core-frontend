@@ -58,14 +58,23 @@ export function toProductFormAttributeValue(
 export function buildEditProductAttributeFormState(
   product: ProductWithDetailsDto,
   productAttributes: AttributeDto[],
+  options: { canUseDiscounts?: boolean } = {},
 ): {
   attributes: Record<string, AttributeFormValue>;
   hasDiscount: boolean;
 } {
   const attributes = buildInitialAttributeValues(productAttributes);
+  const canUseDiscounts = options.canUseDiscounts ?? true;
   let hasDiscount = false;
 
   for (const attribute of product.productAttributes ?? []) {
+    if (
+      !canUseDiscounts &&
+      isDiscountAttributeKey(attribute.attribute.key)
+    ) {
+      continue;
+    }
+
     const nextValue = toProductFormAttributeValue(attribute);
     attributes[attribute.attributeId] = nextValue ?? null;
 

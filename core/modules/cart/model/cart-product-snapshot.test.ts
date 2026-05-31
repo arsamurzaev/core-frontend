@@ -13,6 +13,15 @@ function product(
     name: "Sneakers",
     slug: "sneakers",
     price: null,
+    priceState: "RANGE",
+    displayPrice: "12000",
+    minPrice: "12000",
+    maxPrice: "12000",
+    availabilityState: "AVAILABLE",
+    stock: 3,
+    defaultVariantId: "variant-1",
+    saleUnits: [],
+    requiresVariantSelection: true,
     media: [],
     brand: null,
     productType: {
@@ -55,6 +64,10 @@ describe("buildCartProductCardSnapshot", () => {
     const snapshot = buildCartProductCardSnapshot(
       product({
         price: "5000",
+        priceState: "KNOWN",
+        displayPrice: "5000",
+        minPrice: "5000",
+        maxPrice: "5000",
         productType: null,
         variantSummary: {
           minPrice: null,

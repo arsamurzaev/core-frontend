@@ -128,6 +128,15 @@ function preview(
       variants: 4,
       ...overrides,
     },
+    diff: {
+      newItems: 0,
+      matchedItems: 0,
+      changedItems: 0,
+      priceChanges: 0,
+      nameChanges: 0,
+      unchangedItems: 0,
+      missingLinkedItems: 0,
+    },
     categories: [],
     items: [],
   };
@@ -149,6 +158,7 @@ function orderExport(
     startedAt: "2026-05-21T06:10:00.000Z",
     exportedAt: "2026-05-21T06:11:00.000Z",
     createdAt: "2026-05-21T06:10:00.000Z",
+    updatedAt: "2026-05-21T06:11:00.000Z",
     ...overrides,
   };
 }

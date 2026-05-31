@@ -214,6 +214,10 @@ export function useCartMutations({
       saleUnitId?: string;
       variantId?: string;
     }) => {
+      const guestSessionId =
+        params.guestSessionId ?? params.access.guestSessionId ?? undefined;
+      const guestName =
+        params.guestName ?? params.access.guestName ?? undefined;
       const payload: PublicUpsertCartItemDtoReq & {
         guestName?: string;
         guestSessionId?: string;
@@ -223,15 +227,8 @@ export function useCartMutations({
         quantity: params.quantity,
         ...(params.variantId ? { variantId: params.variantId } : {}),
         ...(params.saleUnitId ? { saleUnitId: params.saleUnitId } : {}),
-        ...(params.guestSessionId ?? params.access.guestSessionId
-          ? {
-              guestSessionId:
-                params.guestSessionId ?? params.access.guestSessionId,
-            }
-          : {}),
-        ...(params.guestName ?? params.access.guestName
-          ? { guestName: params.guestName ?? params.access.guestName }
-          : {}),
+        ...(guestSessionId ? { guestSessionId } : {}),
+        ...(guestName ? { guestName } : {}),
       };
       const response = await cartControllerUpsertPublicItem(
         params.access.publicKey,

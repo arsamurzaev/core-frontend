@@ -47,7 +47,9 @@ export interface ProductEditorDrawerContentProps {
   productTypeChangeSection?: React.ReactNode;
   productAttributes?: AttributeDto[];
   variantAttributes?: AttributeDto[];
+  canEditPrice?: boolean;
   canUseCatalogSaleUnits?: boolean;
+  canUseDiscounts?: boolean;
   canUseProductVariants?: boolean;
   onCropApply: (files: File[]) => void;
   onCropperOpenChange: (open: boolean) => void;
@@ -93,7 +95,9 @@ export const ProductEditorDrawerContent: React.FC<
   productTypeChangeSection,
   productAttributes,
   variantAttributes,
+  canEditPrice = true,
   canUseCatalogSaleUnits = false,
+  canUseDiscounts = true,
   canUseProductVariants = false,
   onCropApply,
   onCropperOpenChange,
@@ -114,6 +118,7 @@ export const ProductEditorDrawerContent: React.FC<
     priceFallback,
     saleUnits,
   } = useProductEditorFormState({
+    canUseDiscounts,
     canUseProductVariants,
     form,
     productAttributes,
@@ -144,6 +149,7 @@ export const ProductEditorDrawerContent: React.FC<
             <div className="space-y-6">
               <ProductEditorMainSection
                 canUseCatalogSaleUnits={canUseCatalogSaleUnits}
+                canEditPrice={canEditPrice}
                 disabled={resolvedIsBusy}
                 discountPercent={discountPercent}
                 form={form}

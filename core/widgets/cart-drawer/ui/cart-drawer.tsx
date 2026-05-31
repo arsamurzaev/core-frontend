@@ -62,6 +62,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     completeManagedOrder,
     deleteCurrentCart,
     detachPublicCart,
+    hallTableSession,
     isBusy,
     isLoading,
     isManagerOrderCart,
@@ -114,6 +115,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     publicAccess?.kind === "hallTable" || cart?.tableSession,
   );
   const isManagedHallTableCart = isManagedPublicCart && isHallTablePublicCart;
+  const currentGuestSessionId =
+    hallTableSession.guestSessionId ?? publicAccess?.guestSessionId ?? null;
   const shouldShowCheckoutInCart = isCheckoutEnabled && !isManagedHallTableCart;
   const {
     buildOrderInput,
@@ -167,15 +170,31 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   );
   const shouldSuspendManagerCartDrawer =
     hasBlockingDrawer && isManagerOrderCart;
+  const isGuestPublicCart = Boolean(
+    isPublicMode && isHallTablePublicCart && !isManagedPublicCart,
+  );
+  const hasCurrentGuestItems = currentGuestSessionId
+    ? items.some((item) => item.guestSessionId === currentGuestSessionId)
+    : false;
+  const hasHeaderActionItems = isGuestPublicCart
+    ? hasCurrentGuestItems
+    : hasItems;
   const headerActionKind = React.useMemo(
     () =>
       resolveCartDrawerHeaderAction({
         canDeleteCurrentCart,
-        hasItems,
+        hasItems: hasHeaderActionItems,
+        isGuestPublicCart,
         isManagedPublicCart,
         isPublicMode,
       }),
-    [canDeleteCurrentCart, hasItems, isManagedPublicCart, isPublicMode],
+    [
+      canDeleteCurrentCart,
+      hasHeaderActionItems,
+      isGuestPublicCart,
+      isManagedPublicCart,
+      isPublicMode,
+    ],
   );
   const canExitEmptyPublicCart = Boolean(
     !hasItems &&
@@ -194,7 +213,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     cart,
     deleteCurrentCart,
     detachPublicCart,
-    hasItems,
+    hasItems: hasHeaderActionItems,
+    isGuestPublicCart,
     isManagedPublicCart,
     isPublicMode,
     setSnapPoint,
@@ -241,10 +261,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       {!shouldHideCartWhileProductRouteOpen ? (
         <AppDrawer
           open
+          dismissible={false}
           handleOnly
           modal={false}
           noBodyStyles
-          onClose={() => setSnapPoint(1)}
+          onClose={() => setSnapPoint(CART_DRAWER_SNAP_POINTS[0])}
           snapPoints={CART_DRAWER_SNAP_POINTS as unknown as (string | number)[]}
           activeSnapPoint={snapPoint}
           setActiveSnapPoint={setSnapPoint}
@@ -262,6 +283,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           >
             <CartDrawerHeader
               currency={currency}
+              collapsedSnapPoint={CART_DRAWER_SNAP_POINTS[0]}
               actionKind={headerActionKind}
               hasAction={headerActionKind !== "none"}
               hasDiscount={totals.hasDiscount}

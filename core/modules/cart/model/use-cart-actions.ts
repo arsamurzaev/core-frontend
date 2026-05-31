@@ -17,6 +17,7 @@ import {
   buildCartLineUpsertPayload,
   findCartItemForLineSelection,
 } from "./cart-line-upsert-payload";
+import { getPublicCartDeleteItemIds } from "./cart-public-delete";
 import type { useCartMutations } from "./use-cart-mutations";
 
 interface UseCartActionsParams {
@@ -287,7 +288,38 @@ export function useCartActions({
 
   const deleteCurrentCart = React.useCallback(async () => {
     if (mode === "public") {
-      clearStoredPublicAccess();
+      if (storedPublicAccess) {
+        const publicGuestSessionId =
+          storedPublicAccess.guestSessionId ?? guestSessionId;
+
+        if (storedPublicAccess.kind === "hallTable" && !publicGuestSessionId) {
+          clearStoredPublicAccess();
+          return;
+        }
+
+        const cart = getActiveCartSnapshot();
+        const itemIds = getPublicCartDeleteItemIds({
+          cart,
+          guestSessionId: publicGuestSessionId,
+        });
+
+        for (const itemId of itemIds) {
+          await mutations.removePublicItemMutation.mutateAsync({
+            access: storedPublicAccess,
+            itemId,
+          });
+        }
+
+        if (storedPublicAccess.kind !== "hallTable") {
+          clearStoredPublicAccess();
+          queryClient.removeQueries({
+            queryKey: cartQueryKeys.public(storedPublicAccess.publicKey),
+          });
+        }
+      } else {
+        clearStoredPublicAccess();
+      }
+
       return;
     }
 
@@ -304,9 +336,13 @@ export function useCartActions({
     clearActiveManagerOrder,
     clearStoredCurrentCart,
     clearStoredPublicAccess,
+    getActiveCartSnapshot,
+    guestSessionId,
     mode,
     mutations.deleteCurrentCartMutation,
+    mutations.removePublicItemMutation,
     queryClient,
+    storedPublicAccess,
   ]);
 
   return {

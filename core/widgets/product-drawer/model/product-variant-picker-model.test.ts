@@ -50,6 +50,7 @@ function variant(overrides: Partial<ProductVariantDto> = {}): ProductVariantDto 
     id: "variant-1",
     sku: "SKU-1",
     variantKey: "base",
+    kind: "DEFAULT",
     stock: 10,
     price: "100",
     status: "ACTIVE",

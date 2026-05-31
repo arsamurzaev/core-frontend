@@ -198,7 +198,7 @@ describe("product purchase selection model", () => {
       resolveProductPurchaseMaxQuantity({
         product: {
           variants: [variant({ attributes: [], stock: 7 })],
-        } as ProductWithDetailsDto,
+        } as unknown as ProductWithDetailsDto,
         selectedSaleUnit: saleUnit({ baseQuantity: 3 }),
         selectedVariant: null,
       }),
@@ -211,7 +211,7 @@ describe("product purchase selection model", () => {
         product: {
           stock: 5,
           variants: [],
-        } as ProductWithDetailsDto,
+        } as unknown as ProductWithDetailsDto,
         selectedSaleUnit: saleUnit({ baseQuantity: 2 }),
         selectedVariant: null,
       }),
@@ -231,7 +231,7 @@ describe("product purchase selection model", () => {
               stock: 6,
             }),
           ],
-        } as ProductWithDetailsDto,
+        } as unknown as ProductWithDetailsDto,
         selectedSaleUnit: saleUnit({ baseQuantity: 4 }),
         selectedVariant: null,
       }),
@@ -243,7 +243,7 @@ describe("product purchase selection model", () => {
       resolveProductPurchaseMaxQuantity({
         product: {
           variants: [variant({ attributes: [], stock: 0 })],
-        } as ProductWithDetailsDto,
+        } as unknown as ProductWithDetailsDto,
         selectedSaleUnit: saleUnit({ baseQuantity: 3 }),
         selectedVariant: null,
         shouldEnforceStock: false,
@@ -315,7 +315,7 @@ describe("product purchase selection model", () => {
           name: "Gift",
           price: "100",
           slug: "gift",
-        } as ProductWithDetailsDto,
+        } as unknown as ProductWithDetailsDto,
       }),
     ).toMatchObject({
       price: "0",

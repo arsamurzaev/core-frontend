@@ -70,7 +70,7 @@ describe("buildProductCardPluginModel", () => {
             maxQuantity: 0,
           },
         ],
-      } as ProductWithAttributesDto,
+      } as unknown as ProductWithAttributesDto,
       catalog(),
       plugin,
     );
@@ -101,7 +101,7 @@ describe("buildProductCardPluginModel", () => {
             maxQuantity: null,
           },
         ],
-      } as ProductWithAttributesDto,
+      } as unknown as ProductWithAttributesDto,
       catalog(),
       plugin,
     );
@@ -132,7 +132,7 @@ describe("buildProductCardPluginModel", () => {
             maxQuantity: null,
           },
         ],
-      } as ProductWithAttributesDto,
+      } as unknown as ProductWithAttributesDto,
       catalog(),
       {
         ...plugin,
