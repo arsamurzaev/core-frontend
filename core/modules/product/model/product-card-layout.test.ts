@@ -40,6 +40,24 @@ describe("product card layout", () => {
     ).toBe(1);
   });
 
+  it("keeps wide mobile screens at two grid columns", () => {
+    expect(
+      getProductCardGridColumns({
+        isDetailed: false,
+        listWidth: 475,
+      }),
+    ).toBe(2);
+  });
+
+  it("allows more than two grid columns after wide mobile widths", () => {
+    expect(
+      getProductCardGridColumns({
+        isDetailed: false,
+        listWidth: 476,
+      }),
+    ).toBe(3);
+  });
+
   it("caps grid view at four columns on wide screens", () => {
     expect(
       getProductCardGridColumns({

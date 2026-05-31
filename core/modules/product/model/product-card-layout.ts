@@ -1,5 +1,7 @@
 export const PRODUCT_CARD_GRID_BASE_HEIGHT_PX = 360;
 export const PRODUCT_CARD_GRID_MIN_WIDTH_PX = 127;
+export const PRODUCT_CARD_GRID_MOBILE_MAX_COLUMNS = 2;
+export const PRODUCT_CARD_GRID_MOBILE_MAX_WIDTH_PX = 475;
 export const PRODUCT_CARD_GRID_MAX_COLUMNS = 4;
 export const PRODUCT_CARD_GRID_COLUMN_GAP_PX = 12;
 export const PRODUCT_CARD_GRID_ROW_GAP_PX = 12;
@@ -68,8 +70,13 @@ export function getProductCardGridColumns({
     return 1;
   }
 
+  const maxColumns =
+    listWidth <= PRODUCT_CARD_GRID_MOBILE_MAX_WIDTH_PX
+      ? PRODUCT_CARD_GRID_MOBILE_MAX_COLUMNS
+      : PRODUCT_CARD_GRID_MAX_COLUMNS;
+
   return Math.min(
-    PRODUCT_CARD_GRID_MAX_COLUMNS,
+    maxColumns,
     Math.max(
       1,
       Math.floor(
