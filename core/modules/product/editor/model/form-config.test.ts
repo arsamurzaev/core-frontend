@@ -46,6 +46,13 @@ describe("buildCreateProductFormFields", () => {
     });
   });
 
+  it("allows product names up to 100 characters", () => {
+    const fields = buildCreateProductFormFields([]);
+    const nameField = fields.find((field) => field.name === "name");
+
+    expect(nameField?.maxLength).toBe(100);
+  });
+
   it("uses decimal price inputs for wholesale catalogs", () => {
     const fields = buildCreateProductFormFields([], [], "decimal");
     const priceField = fields.find((field) => field.name === "price");

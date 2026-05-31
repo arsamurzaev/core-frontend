@@ -20,9 +20,7 @@ export const EditCatalogContactIconsPreview: React.FC<
   );
 
   if (activeFields.length === 0) {
-    return (
-      <span className="text-sm text-muted-foreground">Добавить контакты</span>
-    );
+    return null;
   }
 
   return (

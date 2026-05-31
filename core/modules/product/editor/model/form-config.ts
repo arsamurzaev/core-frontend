@@ -211,7 +211,7 @@ const BASE_FIELDS: DynamicFieldConfig<CreateProductFormValues>[] = [
     placeholder: "Например: ковер",
     required: true,
     hideError: true,
-    maxLength: 70,
+    maxLength: 100,
     orientation: "horizontal",
     labelClassName: CREATE_PRODUCT_FORM_LABEL_CLASS,
     className: CREATE_PRODUCT_FORM_FIELD_CLASS,

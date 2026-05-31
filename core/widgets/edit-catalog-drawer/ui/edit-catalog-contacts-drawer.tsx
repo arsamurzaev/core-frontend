@@ -8,6 +8,7 @@ import {
 import { useEditCatalogContactValues } from "@/core/widgets/edit-catalog-drawer/model/use-edit-catalog-contact-values";
 import { EditCatalogContactFieldRow } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contact-field-row";
 import { EditCatalogContactIconsPreview } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contact-icons-preview";
+import { cn } from "@/shared/lib/utils";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
@@ -46,8 +47,15 @@ export const EditCatalogContactsDrawer: React.FC<
           className="text-muted-foreground h-auto w-full min-w-0 items-start justify-between px-0 py-0 text-left whitespace-normal hover:bg-transparent"
           disabled={disabled}
         >
-          <EditCatalogContactIconsPreview values={contactValues} />
-          <span className="ml-3 inline-flex min-w-0 flex-1 items-start gap-2 text-left text-sm whitespace-normal">
+          {hasContacts ? (
+            <EditCatalogContactIconsPreview values={contactValues} />
+          ) : null}
+          <span
+            className={cn(
+              "inline-flex min-w-0 flex-1 items-start gap-2 text-left text-sm whitespace-normal",
+              hasContacts && "ml-3",
+            )}
+          >
             <span className="min-w-0 break-words whitespace-normal">
               {hasContacts ? "Изменить контакты" : "Добавить контакты"}
             </span>

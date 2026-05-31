@@ -37,10 +37,12 @@ export const Header: React.FC<Props> = ({
   supportsBrands = true,
   supportsCategoryDetails = true,
 }) => {
-  const { name, config } = useCatalog();
+  const { name, config, settings } = useCatalog();
   const about = config?.about;
   const logoMedia = config?.logoMedia;
   const description = config?.description;
+  const address =
+    typeof settings?.address === "string" ? settings.address.trim() : "";
   const { isAuthenticated, isLoading, user } = useSession();
   const isGlobalAdmin = isGlobalAdminRole(user?.role);
 
@@ -130,6 +132,11 @@ export const Header: React.FC<Props> = ({
                 </span>
               )}
             </p>
+            {address ? (
+              <p className="text-muted-foreground mt-1 text-[10px] leading-tight whitespace-pre-line sm:text-sm">
+                {address}
+              </p>
+            ) : null}
           </div>
         </div>
 
