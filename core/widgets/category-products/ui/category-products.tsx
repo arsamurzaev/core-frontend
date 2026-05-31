@@ -71,6 +71,7 @@ const CATEGORY_HEADING_TALL_ROW_ESTIMATE_PX = 60;
 const CATEGORY_SECTION_TOP_GAP_PX = 8;
 const EMPTY_CATEGORY_ROW_HEIGHT_PX = 160;
 const VIRTUAL_CATEGORY_PRODUCTS_OVERSCAN = 2;
+const CATEGORY_SCROLL_ALIGNMENT_FRAME_COUNT = 8;
 const UNCATEGORIZED_QUERY_PARAMS = {
   limit: String(CATEGORY_PRODUCTS_PAGE_SIZE),
 };
@@ -439,6 +440,7 @@ export const VirtualizedCategoryProducts: React.FC<
   const rowVirtualizerRef = React.useRef<Virtualizer<Window, Element> | null>(
     null,
   );
+  const categoryAlignmentFrameRef = React.useRef<number | null>(null);
   const categoryStartIndexByIdRef = React.useRef(new Map<string, number>());
   const requestedNextPageSectionKeysRef = React.useRef(new Set<string>());
   const {
@@ -694,6 +696,13 @@ export const VirtualizedCategoryProducts: React.FC<
     );
   }, []);
 
+  const cancelPendingCategoryAlignment = React.useCallback(() => {
+    if (categoryAlignmentFrameRef.current !== null) {
+      window.cancelAnimationFrame(categoryAlignmentFrameRef.current);
+      categoryAlignmentFrameRef.current = null;
+    }
+  }, []);
+
   React.useLayoutEffect(() => {
     measureList();
   }, [isDetailed, measureList, rows.length]);
@@ -829,18 +838,36 @@ export const VirtualizedCategoryProducts: React.FC<
         return;
       }
 
-      window.requestAnimationFrame(() => {
-        if (alignMountedCategoryHeading(categoryId, behavior)) {
+      cancelPendingCategoryAlignment();
+
+      let frameCount = 0;
+      const alignOnNextFrame = () => {
+        categoryAlignmentFrameRef.current = null;
+        frameCount += 1;
+        alignMountedCategoryHeading(
+          categoryId,
+          frameCount === 1 ? behavior : "instant",
+        );
+
+        if (frameCount >= CATEGORY_SCROLL_ALIGNMENT_FRAME_COUNT) {
           return;
         }
 
-        window.requestAnimationFrame(() => {
-          alignMountedCategoryHeading(categoryId, behavior);
-        });
-      });
+        categoryAlignmentFrameRef.current =
+          window.requestAnimationFrame(alignOnNextFrame);
+      };
+
+      categoryAlignmentFrameRef.current =
+        window.requestAnimationFrame(alignOnNextFrame);
     },
-    [alignMountedCategoryHeading],
+    [alignMountedCategoryHeading, cancelPendingCategoryAlignment],
   );
+
+  React.useEffect(() => {
+    return () => {
+      cancelPendingCategoryAlignment();
+    };
+  }, [cancelPendingCategoryAlignment]);
 
   React.useEffect(() => {
     return registerCategorySectionScroller((categoryId, options) => {

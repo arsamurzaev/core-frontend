@@ -33,12 +33,15 @@ export function useProductCardVirtualGridLayout({
       return PRODUCT_CARD_DETAILED_ROW_ESTIMATE_PX;
     }
 
-    return getProductCardGridRowEstimate();
-  }, [isDetailed]);
-  const productRowMinHeight = React.useMemo(
-    () => getProductCardGridRowMinHeight(isDetailed),
-    [isDetailed],
-  );
+    return getProductCardGridRowEstimate({ columns, listWidth });
+  }, [columns, isDetailed, listWidth]);
+  const productRowMinHeight = React.useMemo(() => {
+    if (isDetailed) {
+      return getProductCardGridRowMinHeight(true);
+    }
+
+    return productRowEstimateSize;
+  }, [isDetailed, productRowEstimateSize]);
   const gridStyle = React.useMemo(
     () => getProductCardGridStyle(columns),
     [columns],

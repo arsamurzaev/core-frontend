@@ -4,6 +4,7 @@ export const PRODUCT_CARD_GRID_MAX_COLUMNS = 4;
 export const PRODUCT_CARD_GRID_COLUMN_GAP_PX = 12;
 export const PRODUCT_CARD_GRID_ROW_GAP_PX = 12;
 export const PRODUCT_CARD_DETAILED_ROW_ESTIMATE_PX = 210;
+const PRODUCT_CARD_GRID_NON_IMAGE_ESTIMATE_PX = 150;
 
 interface ProductCardCartMeasurementKeyInput {
   quantityByProductId: Readonly<Record<string, number>>;
@@ -13,6 +14,11 @@ interface ProductCardCartMeasurementKeyInput {
 interface ProductCardGridColumnsInput {
   isDetailed: boolean;
   listWidth: number;
+}
+
+interface ProductCardGridRowEstimateInput {
+  columns?: number;
+  listWidth?: number;
 }
 
 export interface ProductCardGridStyle {
@@ -74,8 +80,22 @@ export function getProductCardGridColumns({
   );
 }
 
-export function getProductCardGridRowEstimate(): number {
-  return PRODUCT_CARD_GRID_BASE_HEIGHT_PX;
+export function getProductCardGridRowEstimate({
+  columns = 0,
+  listWidth = 0,
+}: ProductCardGridRowEstimateInput = {}): number {
+  if (columns <= 0 || listWidth <= 0) {
+    return PRODUCT_CARD_GRID_BASE_HEIGHT_PX;
+  }
+
+  const totalGap = PRODUCT_CARD_GRID_COLUMN_GAP_PX * Math.max(0, columns - 1);
+  const columnWidth = Math.max(0, (listWidth - totalGap) / columns);
+  const imageHeight = columnWidth * (4 / 3);
+
+  return Math.max(
+    PRODUCT_CARD_GRID_BASE_HEIGHT_PX,
+    Math.ceil(imageHeight + PRODUCT_CARD_GRID_NON_IMAGE_ESTIMATE_PX),
+  );
 }
 
 export function getProductCardGridRowMinHeight(isDetailed: boolean): number {

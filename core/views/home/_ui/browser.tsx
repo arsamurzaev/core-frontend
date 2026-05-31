@@ -282,7 +282,6 @@ export const Browser: React.FC<BrowserProps> = ({
               categories={catalogCategories}
               isCategoriesLoading={categoriesQuery.isLoading}
               isFilterActive={effectiveIsFilterActive}
-              ignoreKnownProductCount={canManageCategories}
               queryState={effectiveQueryState}
               activationBlockedCategoryId={
                 categoryClickActivation.activationBlockedCategoryId

@@ -14,8 +14,8 @@ interface UseCategoryClickActivationDelayResult {
   handleCategoryClick: (category: { id: string }) => void;
 }
 
-const CATEGORY_CLICK_ACTIVATION_SETTLE_FRAMES = 1;
-const FORCED_ACTIVATION_SCROLL_GRACE_MS = 250;
+const CATEGORY_CLICK_ACTIVATION_SETTLE_FRAMES = 3;
+const FORCED_ACTIVATION_SCROLL_GRACE_MS = 650;
 
 export function useCategoryClickActivationDelay({
   enabled = true,
@@ -128,17 +128,9 @@ export function useCategoryClickActivationDelay({
     window.addEventListener("scroll", releaseForcedActivation, {
       passive: true,
     });
-    window.addEventListener("wheel", releaseForcedActivation, {
-      passive: true,
-    });
-    window.addEventListener("touchmove", releaseForcedActivation, {
-      passive: true,
-    });
 
     return () => {
       window.removeEventListener("scroll", releaseForcedActivation);
-      window.removeEventListener("wheel", releaseForcedActivation);
-      window.removeEventListener("touchmove", releaseForcedActivation);
     };
   }, [enabled, forceActivatedCategoryId]);
 

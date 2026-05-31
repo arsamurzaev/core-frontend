@@ -16,16 +16,19 @@ import {
 } from "./product-card-layout";
 
 describe("product card layout", () => {
-  it("uses 360px as the minimum grid row estimate", () => {
+  it("uses 360px as the fallback grid row estimate", () => {
     expect(getProductCardGridRowEstimate()).toBe(
       PRODUCT_CARD_GRID_BASE_HEIGHT_PX,
     );
   });
 
-  it("keeps grid row estimate stable for wide rows", () => {
-    expect(getProductCardGridRowEstimate()).toBe(
-      PRODUCT_CARD_GRID_BASE_HEIGHT_PX,
-    );
+  it("estimates grid rows from measured column width", () => {
+    expect(
+      getProductCardGridRowEstimate({
+        columns: 2,
+        listWidth: 390,
+      }),
+    ).toBe(402);
   });
 
   it("keeps detailed view as one column", () => {

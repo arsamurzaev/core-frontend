@@ -33,8 +33,11 @@ export const CategoryBarList: React.FC<Props> = ({
   });
   const itemRefsRef = React.useRef(new Map<string, HTMLButtonElement>());
   const scrollFrameRef = React.useRef<number | null>(null);
+  const scrollTimeoutRef = React.useRef<number | null>(null);
   const pointerStartRef = React.useRef<{ x: number; y: number } | null>(null);
+  const hasPointerDraggedRef = React.useRef(false);
   const suppressNextClickRef = React.useRef(false);
+  const userInteractionUntilRef = React.useRef(0);
   const skeletonWidths = React.useMemo(
     () => ["w-16", "w-24", "w-20", "w-28", "w-[4.5rem]", "w-[5.5rem]"],
     [],
@@ -45,6 +48,18 @@ export const CategoryBarList: React.FC<Props> = ({
     [items, activeCategoryId],
   );
 
+  const cancelScheduledActiveScroll = React.useCallback(() => {
+    if (scrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(scrollFrameRef.current);
+      scrollFrameRef.current = null;
+    }
+
+    if (scrollTimeoutRef.current !== null) {
+      window.clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = null;
+    }
+  }, []);
+
   React.useEffect(() => {
     if (!emblaApi || items.length === 0) {
       return;
@@ -53,38 +68,74 @@ export const CategoryBarList: React.FC<Props> = ({
     emblaApi.reInit();
   }, [emblaApi, items.length]);
 
-  React.useEffect(() => {
-    if (!emblaApi || !activeCategoryId || activeIndex < 0) {
+  const scheduleActiveCategoryScroll = React.useCallback(() => {
+    if (!emblaApi || activeIndex < 0) {
       return;
     }
 
-    if (scrollFrameRef.current !== null) {
-      window.cancelAnimationFrame(scrollFrameRef.current);
+    cancelScheduledActiveScroll();
+
+    const runWhenInteractionSettles = () => {
+      scrollTimeoutRef.current = null;
+      const remainingInteractionMs =
+        userInteractionUntilRef.current - Date.now();
+
+      if (remainingInteractionMs > 0) {
+        scrollTimeoutRef.current = window.setTimeout(
+          runWhenInteractionSettles,
+          remainingInteractionMs,
+        );
+        return;
+      }
+
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        scrollFrameRef.current = null;
+        emblaApi.scrollTo(Math.max(activeIndex - 1, 0));
+      });
+    };
+
+    runWhenInteractionSettles();
+  }, [activeIndex, cancelScheduledActiveScroll, emblaApi]);
+
+  React.useEffect(() => {
+    if (!emblaApi || !activeCategoryId || activeIndex < 0) {
+      cancelScheduledActiveScroll();
+      return;
     }
 
-    scrollFrameRef.current = window.requestAnimationFrame(() => {
-      scrollFrameRef.current = null;
+    scheduleActiveCategoryScroll();
 
-      emblaApi.scrollTo(Math.max(activeIndex - 1, 0));
-    });
+    return cancelScheduledActiveScroll;
+  }, [
+    activeCategoryId,
+    activeIndex,
+    cancelScheduledActiveScroll,
+    emblaApi,
+    scheduleActiveCategoryScroll,
+  ]);
 
+  const blockActiveScrollAfterDrag = React.useCallback((durationMs: number) => {
+    userInteractionUntilRef.current = Date.now() + durationMs;
+  }, []);
+
+  React.useEffect(() => {
     return () => {
-      if (scrollFrameRef.current !== null) {
-        window.cancelAnimationFrame(scrollFrameRef.current);
-        scrollFrameRef.current = null;
-      }
+      cancelScheduledActiveScroll();
     };
-  }, [activeCategoryId, activeIndex, emblaApi]);
+  }, [cancelScheduledActiveScroll]);
 
   const handlePointerDown = React.useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
+      cancelScheduledActiveScroll();
+
       pointerStartRef.current = {
         x: event.clientX,
         y: event.clientY,
       };
+      hasPointerDraggedRef.current = false;
       suppressNextClickRef.current = false;
     },
-    [],
+    [cancelScheduledActiveScroll],
   );
 
   const handlePointerMove = React.useCallback(
@@ -99,15 +150,22 @@ export const CategoryBarList: React.FC<Props> = ({
       const deltaY = Math.abs(event.clientY - start.y);
 
       if (deltaX > 6 || deltaY > 6) {
+        blockActiveScrollAfterDrag(700);
+        hasPointerDraggedRef.current = true;
         suppressNextClickRef.current = true;
       }
     },
-    [],
+    [blockActiveScrollAfterDrag],
   );
 
   const handlePointerEnd = React.useCallback(() => {
+    if (hasPointerDraggedRef.current) {
+      blockActiveScrollAfterDrag(350);
+    }
+
     pointerStartRef.current = null;
-  }, []);
+    hasPointerDraggedRef.current = false;
+  }, [blockActiveScrollAfterDrag]);
 
   if (isLoading && items.length === 0) {
     return (

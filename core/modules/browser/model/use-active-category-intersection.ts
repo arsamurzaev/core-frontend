@@ -59,6 +59,11 @@ export function useActiveCategoryIntersection({
   const [activeCategoryId, setActiveCategoryId] = React.useState<string | null>(
     () => categories[0]?.id ?? null,
   );
+  const activeCategoryIdRef = React.useRef(activeCategoryId);
+
+  React.useEffect(() => {
+    activeCategoryIdRef.current = activeCategoryId;
+  }, [activeCategoryId]);
 
   React.useEffect(() => {
     if (!enabled || categories.length === 0) {
@@ -80,6 +85,14 @@ export function useActiveCategoryIntersection({
 
     let rebuildFrame: number | null = null;
 
+    const getCurrentActiveCategoryFallback = (): string | null => {
+      const currentCategoryId = activeCategoryIdRef.current;
+
+      return currentCategoryId && categoryIndexById.has(currentCategoryId)
+        ? currentCategoryId
+        : (categories[0]?.id ?? null);
+    };
+
     const resolveActiveCategoryIdFromVirtualRows = (
       activationLineY: number,
     ): string | null => {
@@ -91,7 +104,8 @@ export function useActiveCategoryIntersection({
         return null;
       }
 
-      let nextActiveCategoryId = categories[0]?.id ?? null;
+      let hasRenderedCategoryRow = false;
+      let nextActiveCategoryId: string | null = null;
 
       for (const row of renderedRows) {
         const categoryId = row.dataset.catalogCategoryId;
@@ -100,6 +114,7 @@ export function useActiveCategoryIntersection({
           continue;
         }
 
+        hasRenderedCategoryRow = true;
         const rect = row.getBoundingClientRect();
 
         if (rect.top <= activationLineY && rect.bottom > activationLineY) {
@@ -114,7 +129,11 @@ export function useActiveCategoryIntersection({
         break;
       }
 
-      return nextActiveCategoryId;
+      if (!hasRenderedCategoryRow) {
+        return null;
+      }
+
+      return nextActiveCategoryId ?? getCurrentActiveCategoryFallback();
     };
 
     const resolveActiveCategoryId = () => {
@@ -129,7 +148,7 @@ export function useActiveCategoryIntersection({
         return virtualRowCategoryId;
       }
 
-      let nextActiveCategoryId = categories[0]?.id ?? null;
+      let nextActiveCategoryId = getCurrentActiveCategoryFallback();
 
       for (const category of categories) {
         const section = document.getElementById(
