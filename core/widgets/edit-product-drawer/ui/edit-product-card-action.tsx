@@ -52,6 +52,9 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
   const isIntegrationLinked = isMoySkladLinked || isIikoLinked;
   const canToggleStatus =
     !isIntegrationLinked && (isStatusActive || isStatusHidden);
+  const hiddenStatusLabel = isIntegrationLinked
+    ? "Скрыто интеграцией"
+    : "Скрыто";
   const isActionPending =
     duplicateProduct.isPending ||
     toggleProductStatus.isPending ||
@@ -127,20 +130,31 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
 
   return (
     <>
-      {canToggleStatus && isStatusHidden ? (
-        <Button
-          type="button"
-          variant="ghost"
-          disabled={isActionPending}
-          onClick={handleToggleStatusClick}
-          className="absolute inset-0 z-10 flex h-full rounded-lg bg-black/50 text-center text-white hover:bg-black/60"
-        >
-          <span className="text-sm leading-tight underline underline-offset-2">
-            Показать
-            <br />
-            карточку снова
-          </span>
-        </Button>
+      {isStatusHidden ? (
+        canToggleStatus ? (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={isActionPending}
+            onClick={handleToggleStatusClick}
+            className="absolute inset-0 z-10 flex h-full rounded-lg bg-black/50 text-center text-white hover:bg-black/60"
+          >
+            <span className="text-sm leading-tight underline underline-offset-2">
+              Показать
+              <br />
+              карточку снова
+            </span>
+          </Button>
+        ) : (
+          <div
+            className="pointer-events-none absolute inset-0 z-10 flex h-full items-center justify-center rounded-lg bg-black/50 px-3 text-center text-white"
+            aria-label={hiddenStatusLabel}
+          >
+            <span className="rounded-md bg-black/20 px-3 py-2 text-sm font-semibold leading-tight shadow-sm">
+              {hiddenStatusLabel}
+            </span>
+          </div>
+        )
       ) : null}
 
       {isMoySkladLinked ? (
