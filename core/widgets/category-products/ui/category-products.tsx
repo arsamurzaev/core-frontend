@@ -123,6 +123,7 @@ const ProductSectionCard = React.memo(
             className={cn("h-full", isDetailed && "min-h-[160px]")}
             pluginContainerClassName="h-full"
             hidePriceWhenFooterAction={shouldUseCartUi}
+            reserveHeaderActionSpace={shouldUseCartUi}
             footerAction={
               shouldUseCartUi ? (
                 <CartProductCardFooterAction

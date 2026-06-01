@@ -7,9 +7,14 @@ import { buildShareBaseUrl } from "@/core/modules/cart/model/cart-share";
 import { buildLegacyCartShareText } from "@/core/modules/cart/model/cart-share-text";
 import {
   type CartDto,
+  type CatalogContactDto,
   type CatalogContactDtoType,
 } from "@/shared/api/generated/react-query";
-import { buildCheckoutSummary } from "@/shared/lib/checkout-methods";
+import {
+  buildCheckoutSummary,
+  resolveCheckoutContacts,
+  type CheckoutConfig,
+} from "@/shared/lib/checkout-methods";
 import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import React from "react";
 import type {
@@ -22,6 +27,8 @@ import type { useCartMutations } from "./use-cart-mutations";
 interface UseCartShareOrderParams {
   activeCart: CartDto | null;
   items: CartItemView[];
+  catalogContacts: CatalogContactDto[];
+  checkoutConfig: CheckoutConfig;
   mutations: ReturnType<typeof useCartMutations>;
   setStoredPublicAccess: React.Dispatch<
     React.SetStateAction<CartPublicAccess | null>
@@ -38,6 +45,8 @@ interface UseCartShareOrderParams {
 
 export function useCartShareOrder({
   activeCart,
+  catalogContacts,
+  checkoutConfig,
   items,
   mutations,
   priceFormatMode,
@@ -67,7 +76,7 @@ export function useCartShareOrder({
               method: shareInput.checkoutMethod,
             })
           : []);
-      let contactsOverride = getCartCheckoutContacts(activeCart);
+      let cartForContacts = activeCart;
 
       if (!access) {
         const shared = await mutations.shareCurrentCartMutation.mutateAsync({
@@ -79,7 +88,7 @@ export function useCartShareOrder({
           throw new Error("Не удалось подготовить публичную корзину.");
         }
 
-        contactsOverride = getCartCheckoutContacts(shared.cart);
+        cartForContacts = shared.cart;
         access = {
           publicKey,
           rawLink: `/?c=${encodeURIComponent(publicKey)}`,
@@ -88,6 +97,12 @@ export function useCartShareOrder({
 
       setStoredPublicAccess(access);
       const shareUrl = buildCartShareUrl(access, buildShareBaseUrl());
+      const contactsOverride = resolveCartShareContactsOverride({
+        cart: cartForContacts,
+        catalogContacts,
+        checkoutConfig,
+        input: shareInput,
+      });
 
       return {
         contactsOverride,
@@ -109,6 +124,8 @@ export function useCartShareOrder({
     },
     [
       activeCart,
+      catalogContacts,
+      checkoutConfig,
       items,
       mutations.shareCurrentCartMutation,
       priceFormatMode,
@@ -122,11 +139,37 @@ export function useCartShareOrder({
   );
 }
 
-function getCartCheckoutContacts(
-  cart: CartDto | null | undefined,
-): Partial<Record<CatalogContactDtoType, string>> | undefined {
-  return (
-    (cart as CartDtoWithCheckout | null | undefined)?.checkoutContacts ??
-    undefined
-  );
+export function resolveCartShareContactsOverride({
+  cart,
+  catalogContacts,
+  checkoutConfig,
+  input,
+}: {
+  cart: CartDto | null | undefined;
+  catalogContacts: CatalogContactDto[];
+  checkoutConfig: CheckoutConfig;
+  input: PrepareShareOrderInput;
+}): Partial<Record<CatalogContactDtoType, string>> | undefined {
+  const checkoutMethod =
+    input.checkoutMethod ??
+    (cart as CartDtoWithCheckout | null | undefined)?.checkoutMethod ??
+    null;
+
+  if (!checkoutMethod) {
+    return undefined;
+  }
+
+  const contacts = resolveCheckoutContacts({
+    catalogContacts,
+    config: checkoutConfig,
+    method: checkoutMethod,
+  });
+
+  return hasCartShareContacts(contacts) ? contacts : undefined;
+}
+
+function hasCartShareContacts(
+  contacts: Partial<Record<CatalogContactDtoType, string>>,
+): boolean {
+  return Object.values(contacts).some((value) => Boolean(value?.trim()));
 }

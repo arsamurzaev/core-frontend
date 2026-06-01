@@ -21,6 +21,7 @@ interface CartDrawerCommentSectionProps {
   commentPlaceholder: string;
   disabled: boolean;
   hasCheckoutMethods: boolean;
+  integrationCheckoutElement?: React.ReactNode;
   onCheckoutChange: (method: CheckoutMethod, data: CheckoutData) => void;
   onCommentChange: (comment: string) => void;
 }
@@ -38,6 +39,7 @@ export const CartDrawerCommentSection: React.FC<
   commentPlaceholder,
   disabled,
   hasCheckoutMethods,
+  integrationCheckoutElement,
   onCheckoutChange,
   onCommentChange,
 }) => {
@@ -52,9 +54,12 @@ export const CartDrawerCommentSection: React.FC<
           location={checkoutLocation}
           locked={checkoutLocked}
           method={checkoutMethod}
+          extraContent={integrationCheckoutElement}
           onChange={onCheckoutChange}
         />
-      ) : null}
+      ) : (
+        integrationCheckoutElement
+      )}
 
       <p className="text-sm">
         Пожалуйста, впишите в поле ваши пожелания или комментарий к заказу.

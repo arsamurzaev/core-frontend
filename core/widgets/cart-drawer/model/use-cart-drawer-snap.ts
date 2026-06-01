@@ -92,6 +92,12 @@ export function useCartDrawerSnap({
     };
   }, [isFullyExpanded, shouldHideCartWhileProductRouteOpen, shouldHideDrawer]);
 
+  React.useEffect(() => {
+    if (shouldHideDrawer) {
+      setSnapPoint(CART_DRAWER_SNAP_POINTS[0]);
+    }
+  }, [shouldHideDrawer]);
+
   return {
     isFullyExpanded,
     publicCartAccessKey,

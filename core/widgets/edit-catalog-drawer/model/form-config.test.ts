@@ -1,4 +1,7 @@
-import type { CatalogCurrentDto } from "@/shared/api/generated/react-query";
+import {
+  CatalogContactDtoType,
+  type CatalogCurrentDto,
+} from "@/shared/api/generated/react-query";
 import {
   DEFAULT_PREORDER_SETTINGS,
   METHOD_FIELDS,
@@ -109,5 +112,43 @@ describe("buildCatalogEditFormDefaultValues", () => {
         maxAdvanceDays: 21,
       },
     });
+  });
+
+  it("does not persist method contacts duplicated from catalog contacts", () => {
+    const values = buildCatalogEditFormDefaultValues(catalog(), {
+      checkoutConfig: {
+        availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
+        enabledMethods: ["PICKUP"],
+        methodContacts: {},
+        methodFields: METHOD_FIELDS,
+        preorder: DEFAULT_PREORDER_SETTINGS,
+      },
+    });
+
+    const payload = buildCatalogEditUpdatePayload({
+      ...values,
+      phone: "+7 (999) 111-22-33",
+      whatsapp: "+7 (999) 111-22-33",
+      checkoutContacts: {
+        PICKUP: {
+          [CatalogContactDtoType.TELEGRAM]: "@pickup",
+          [CatalogContactDtoType.WHATSAPP]: "+7 (999) 111-22-33",
+        },
+      },
+    });
+
+    expect(payload.checkout).toMatchObject({
+      methodContacts: {
+        PICKUP: {
+          [CatalogContactDtoType.TELEGRAM]: "@pickup",
+        },
+      },
+    });
+    const methodContacts = payload.checkout?.methodContacts as
+      | Partial<Record<"PICKUP", Record<string, string>>>
+      | undefined;
+    expect(
+      methodContacts?.PICKUP?.[CatalogContactDtoType.WHATSAPP],
+    ).toBeUndefined();
   });
 });

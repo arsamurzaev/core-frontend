@@ -39,6 +39,7 @@ interface Props {
   isIikoLinked?: boolean;
   isMoySkladLinked?: boolean;
   isDetailed?: boolean;
+  reserveHeaderActionSpace?: boolean;
 }
 
 interface ProductCardLayoutProps {
@@ -180,6 +181,7 @@ interface ProductCardHeaderProps {
   headerMeta?: React.ReactNode;
   isDetailed?: boolean;
   name: string;
+  reserveActionSpace?: boolean;
   saleUnitsSummary?: string | null;
   subtitle: string;
 }
@@ -189,12 +191,19 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
   headerMeta,
   isDetailed,
   name,
+  reserveActionSpace,
   saleUnitsSummary,
   subtitle,
 }) => {
   return (
     <CardHeader className="space-y-2 text-left">
-      <CardTitle className={cn("line-clamp-2", isDetailed && "sm:text-lg")}>
+      <CardTitle
+        className={cn(
+          "line-clamp-2",
+          reserveActionSpace && "pr-12",
+          isDetailed && "sm:text-lg",
+        )}
+      >
         {name}
       </CardTitle>
       {headerMeta ? (
@@ -203,7 +212,11 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
         </div>
       ) : null}
       <CardSubTitle
-        className={cn("line-clamp-1", isDetailed && "sm:text-base")}
+        className={cn(
+          "line-clamp-1",
+          reserveActionSpace && "pr-12",
+          isDetailed && "sm:text-base",
+        )}
       >
         {subtitle}
       </CardSubTitle>
@@ -311,6 +324,7 @@ const ProductCardBase: React.FC<Props> = ({
   isIikoLinked,
   isMoySkladLinked,
   isDetailed,
+  reserveHeaderActionSpace,
   className,
   actions,
   data,
@@ -359,6 +373,7 @@ const ProductCardBase: React.FC<Props> = ({
           headerMeta={headerMeta}
           isDetailed={isDetailed}
           name={data.name}
+          reserveActionSpace={reserveHeaderActionSpace}
           saleUnitsSummary={saleUnitsSummary}
           subtitle={subtitle}
         />

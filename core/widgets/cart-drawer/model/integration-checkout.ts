@@ -14,8 +14,17 @@ export type IntegrationCheckoutField =
   | "hallTable"
   | "personsCount"
   | "phone";
+export type IntegrationCheckoutFieldErrors = Partial<
+  Record<IntegrationCheckoutField, string>
+>;
 
 export const DEFAULT_INTEGRATION_CHECKOUT_METHOD: CheckoutMethod = "DELIVERY";
+export const INTEGRATION_PRIVACY_POLICY_URL =
+  "https://kreati.ru/%D0%BF%D0%BE%D0%BB%D0%B8%D1%82%D0%B8%D0%BA%D0%B0%20%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B4%D0%B5%D0%BD%D1%86%D0%B8%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D0%B8%20%D0%BA%D1%80%D0%B5%D0%B0%D1%82%D0%B8.pdf";
+export const INTEGRATION_PERSONAL_DATA_POLICY_URL =
+  "https://kreati.ru/%D0%BF%D0%BE%D0%BB%D0%B8%D1%82%D0%B8%D0%BA%D0%B0%20%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%BA%D0%B8%20%D0%BF%D0%B5%D1%80%D1%81%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D1%85%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20%D0%BA%D1%80%D0%B5%D0%B0%D1%82%D0%B8.pdf";
+export const INTEGRATION_POLICY_CONSENT_ERROR =
+  "Подтвердите согласие с политикой конфиденциальности и обработкой персональных данных.";
 
 export function hasIikoCartItems(items: CartItemView[]): boolean {
   return items.some((item) => {
@@ -26,6 +35,43 @@ export function hasIikoCartItems(items: CartItemView[]): boolean {
 
     return productProvider === "IIKO" || variantProvider === "IIKO";
   });
+}
+
+export function getSelectableIntegrationCheckoutMethods(
+  methods: CheckoutMethod[],
+): CheckoutMethod[] {
+  return methods.length > 0 ? methods : [DEFAULT_INTEGRATION_CHECKOUT_METHOD];
+}
+
+export function getInitialIntegrationCheckoutMethod(params: {
+  availableMethods: CheckoutMethod[];
+  orderInput: PrepareShareOrderInput;
+}): CheckoutMethod {
+  return (
+    params.orderInput.checkoutMethod ??
+    params.availableMethods[0] ??
+    DEFAULT_INTEGRATION_CHECKOUT_METHOD
+  );
+}
+
+export function resolveEffectiveIntegrationCheckoutFields(params: {
+  fields: IntegrationCheckoutField[];
+  method: CheckoutMethod | null;
+}): IntegrationCheckoutField[] {
+  if (
+    params.method !== "PREORDER" ||
+    !params.fields.includes("checkoutMethod")
+  ) {
+    return params.fields;
+  }
+
+  const fields = [...params.fields];
+  for (const field of ["hallTable", "personsCount"] as const) {
+    if (!fields.includes(field)) {
+      fields.push(field);
+    }
+  }
+  return fields;
 }
 
 export function resolveIntegrationCheckoutFields(params: {
@@ -90,6 +136,10 @@ export function resolveIntegrationCheckoutFields(params: {
   return fields;
 }
 
+export function validateIntegrationPolicyConsent(accepted: boolean): string | null {
+  return accepted ? null : INTEGRATION_POLICY_CONSENT_ERROR;
+}
+
 export function buildIntegrationCheckoutOrderInput(params: {
   baseInput: PrepareShareOrderInput;
   data: CheckoutData;
@@ -121,12 +171,31 @@ export function validateIntegrationCheckout(params: {
   fields: IntegrationCheckoutField[];
   method: CheckoutMethod | null;
 }): string | null {
+  const errors = getIntegrationCheckoutFieldErrors(params);
+  return (
+    errors.hallTable ??
+    errors.personsCount ??
+    errors.customerName ??
+    errors.phone ??
+    errors.checkoutMethod ??
+    errors.address ??
+    null
+  );
+}
+
+export function getIntegrationCheckoutFieldErrors(params: {
+  data: CheckoutData;
+  fields: IntegrationCheckoutField[];
+  method: CheckoutMethod | null;
+}): IntegrationCheckoutFieldErrors {
+  const errors: IntegrationCheckoutFieldErrors = {};
+
   if (
     params.fields.includes("hallTable") &&
     params.method === "PREORDER" &&
     !hasPreorderTableRef(params.data)
   ) {
-    return "Выберите стол iiko.";
+    errors.hallTable = "Выберите стол iiko.";
   }
 
   if (
@@ -134,33 +203,37 @@ export function validateIntegrationCheckout(params: {
     params.method !== "PREORDER" &&
     !hasHallTableIdentity(params.data)
   ) {
-    return "Откройте заказ по QR-коду конкретного стола.";
+    errors.hallTable = "Откройте заказ по QR-коду конкретного стола.";
   }
 
   if (
     params.fields.includes("personsCount") &&
     !hasPositiveInt(params.data.personsCount ?? params.data.guestsCount)
   ) {
-    return "Укажите количество гостей.";
+    errors.personsCount = "Укажите количество гостей.";
   }
 
   if (params.fields.includes("customerName") && !hasText(params.data.customerName)) {
-    return "Укажите имя.";
+    errors.customerName = "Укажите имя.";
   }
 
   if (params.fields.includes("phone") && !hasText(params.data.phone)) {
-    return "Укажите телефон.";
+    errors.phone = "Укажите телефон.";
   }
 
   if (params.fields.includes("checkoutMethod") && !params.method) {
-    return "Выберите способ получения.";
+    errors.checkoutMethod = "Выберите способ получения.";
   }
 
-  if (params.method === "DELIVERY" && !hasText(params.data.address)) {
-    return "Укажите адрес доставки.";
+  if (
+    params.fields.includes("address") &&
+    params.method === "DELIVERY" &&
+    !hasText(params.data.address)
+  ) {
+    errors.address = "Укажите адрес доставки.";
   }
 
-  return null;
+  return errors;
 }
 
 function normalizeIntegrationCheckoutData(params: {

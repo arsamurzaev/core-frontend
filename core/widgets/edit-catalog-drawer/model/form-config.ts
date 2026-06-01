@@ -12,6 +12,7 @@ import {
   type CatalogExperienceMode,
 } from "@/core/widgets/edit-catalog-drawer/model/catalog-experience";
 import {
+  CHECKOUT_CONTACT_TYPES,
   CHECKOUT_METHODS,
   DEFAULT_PREORDER_SETTINGS,
   type CheckoutConfig,
@@ -445,6 +446,62 @@ function normalizeUrlContact(value: string): string | undefined {
   return cleaned.length > 0 ? cleaned : undefined;
 }
 
+function normalizeCheckoutContactValue(
+  type: CatalogContactDtoType,
+  value: string | undefined,
+): string | undefined {
+  const rawValue = value ?? "";
+
+  if (
+    type === CatalogContactDtoType.PHONE ||
+    type === CatalogContactDtoType.SMS ||
+    type === CatalogContactDtoType.WHATSAPP
+  ) {
+    return normalizePhoneContact(rawValue);
+  }
+
+  if (type === CatalogContactDtoType.BIP || type === CatalogContactDtoType.MAX) {
+    return normalizeUrlContact(rawValue);
+  }
+
+  return normalizePlainContact(rawValue);
+}
+
+function normalizeCheckoutMethodContacts(
+  values: CatalogEditFormValues,
+  generalContacts: Partial<Record<CatalogContactDtoType, string>>,
+): Partial<Record<CheckoutMethod, CheckoutContactValues>> {
+  return CHECKOUT_METHODS.reduce<
+    Partial<Record<CheckoutMethod, CheckoutContactValues>>
+  >((acc, method) => {
+    const methodContacts = values.checkoutContacts?.[method] ?? {};
+    const nextContacts = CHECKOUT_CONTACT_TYPES.reduce<CheckoutContactValues>(
+      (contactAcc, type) => {
+        const normalizedValue = normalizeCheckoutContactValue(
+          type,
+          methodContacts[type],
+        );
+
+        if (
+          normalizedValue &&
+          normalizedValue !== generalContacts[type]
+        ) {
+          contactAcc[type] = normalizedValue;
+        }
+
+        return contactAcc;
+      },
+      {},
+    );
+
+    if (Object.keys(nextContacts).length > 0) {
+      acc[method] = nextContacts;
+    }
+
+    return acc;
+  }, {});
+}
+
 export function buildCatalogEditFormDefaultValues(
   catalog: CatalogCurrentDto,
   options: {
@@ -521,6 +578,16 @@ export function buildCatalogEditUpdatePayload(
       },
     ];
   });
+  const generalContacts = contacts.reduce<
+    Partial<Record<CatalogContactDtoType, string>>
+  >((acc, contact) => {
+    acc[contact.type] = contact.value;
+    return acc;
+  }, {});
+  const methodContacts = normalizeCheckoutMethodContacts(
+    values,
+    generalContacts,
+  );
 
   return {
     name: normalizeText(values.name),
@@ -531,7 +598,7 @@ export function buildCatalogEditUpdatePayload(
     allowedModes: values.allowedModes,
     checkout: {
       enabledMethods: values.checkoutEnabledMethods,
-      methodContacts: values.checkoutContacts,
+      methodContacts,
       preorder: {
         minLeadTimeMinutes: values.preorderMinLeadTimeMinutes,
         maxAdvanceDays: values.preorderMaxAdvanceDays,

@@ -9,12 +9,13 @@ import React from "react";
 interface CartCheckoutDeliveryFormProps {
   data: CheckoutData;
   disabled: boolean;
+  error?: string | null;
   onChange: (data: CheckoutData) => void;
 }
 
 export const CartCheckoutDeliveryForm: React.FC<
   CartCheckoutDeliveryFormProps
-> = ({ data, disabled, onChange }) => {
+> = ({ data, disabled, error, onChange }) => {
   return (
     <div className="space-y-2">
       <Label htmlFor="cart-checkout-delivery-address">
@@ -29,7 +30,9 @@ export const CartCheckoutDeliveryForm: React.FC<
         disabled={disabled}
         placeholder="Москва, Тверская, 1"
         className="border border-black/10"
+        aria-invalid={Boolean(error)}
       />
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 };

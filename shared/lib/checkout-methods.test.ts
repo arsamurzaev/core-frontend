@@ -11,6 +11,7 @@ import {
   getCatalogCheckoutConfig,
   getCatalogCheckoutLocation,
   normalizeCheckoutData,
+  resolveCheckoutContacts,
 } from "./checkout-methods";
 
 function catalogType(code: string): CatalogCurrentDto["type"] {
@@ -160,6 +161,52 @@ describe("getCatalogCheckoutConfig", () => {
     expect(location).toEqual({
       address: "Москва\nул. Ленина, 1\nвход со двора",
       mapUrl: "https://maps.example/location",
+    });
+  });
+
+  it("uses catalog contacts as fallback for method-specific contacts", () => {
+    const contacts: CatalogContactDto[] = [
+      {
+        id: "contact-phone",
+        type: CatalogContactDtoType.PHONE,
+        position: 0,
+        value: "+71111111111",
+      },
+      {
+        id: "contact-whatsapp",
+        type: CatalogContactDtoType.WHATSAPP,
+        position: 1,
+        value: "+72222222222",
+      },
+    ];
+    const config = getCatalogCheckoutConfig(
+      catalog(
+        settings({
+          checkout: {
+            availableMethods: ["DELIVERY", "PICKUP"],
+            enabledMethods: ["PICKUP"],
+            methodContacts: {
+              PICKUP: {
+                [CatalogContactDtoType.PHONE]: "+73333333333",
+              },
+            },
+            methodFields: {},
+            preorder: DEFAULT_PREORDER_SETTINGS,
+          } as CatalogSettingsDto["checkout"],
+        }),
+        contacts,
+      ),
+    );
+
+    expect(
+      resolveCheckoutContacts({
+        catalogContacts: contacts,
+        config,
+        method: "PICKUP",
+      }),
+    ).toMatchObject({
+      [CatalogContactDtoType.PHONE]: "+73333333333",
+      [CatalogContactDtoType.WHATSAPP]: "+72222222222",
     });
   });
 

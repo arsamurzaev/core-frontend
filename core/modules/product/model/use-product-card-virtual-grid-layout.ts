@@ -35,13 +35,10 @@ export function useProductCardVirtualGridLayout({
 
     return getProductCardGridRowEstimate({ columns, listWidth });
   }, [columns, isDetailed, listWidth]);
-  const productRowMinHeight = React.useMemo(() => {
-    if (isDetailed) {
-      return getProductCardGridRowMinHeight(true);
-    }
-
-    return productRowEstimateSize;
-  }, [isDetailed, productRowEstimateSize]);
+  const productRowMinHeight = React.useMemo(
+    () => getProductCardGridRowMinHeight(isDetailed),
+    [isDetailed],
+  );
   const gridStyle = React.useMemo(
     () => getProductCardGridStyle(columns),
     [columns],

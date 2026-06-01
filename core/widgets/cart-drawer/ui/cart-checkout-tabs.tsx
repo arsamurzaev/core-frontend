@@ -22,6 +22,7 @@ type CartCheckoutTabsProps = {
   location: CheckoutLocation;
   locked?: boolean;
   method: CheckoutMethod | null;
+  extraContent?: React.ReactNode;
   onChange: (method: CheckoutMethod, data: CheckoutData) => void;
 };
 
@@ -33,6 +34,7 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
   location,
   locked = false,
   method,
+  extraContent,
   onChange,
 }) => {
   if (!method) {
@@ -79,6 +81,7 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
           <CartCheckoutDeliveryForm
             data={data}
             disabled={disabled}
+            error={error}
             onChange={(nextData) => onChange("DELIVERY", nextData)}
           />
         </TabsContent>
@@ -91,13 +94,14 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
           <CartCheckoutPreorderForm
             data={data}
             disabled={disabled}
+            error={error}
             location={location}
             onChange={(nextData) => onChange("PREORDER", nextData)}
             preorder={config.preorder}
           />
         </TabsContent>
       </Tabs>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {extraContent}
     </section>
   );
 };

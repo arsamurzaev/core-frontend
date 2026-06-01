@@ -32,6 +32,7 @@ interface CartDrawerContentProps {
   isCommentLocked?: boolean;
   isPublicMode: boolean;
   items: CartItemView[];
+  integrationCheckoutElement?: React.ReactNode;
   actionRenderer?: (productId: string, item?: CartItemView) => React.ReactNode;
   onCommentChange: (comment: string) => void;
   onCheckoutChange: (method: CheckoutMethod, data: CheckoutData) => void;
@@ -57,6 +58,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
   isCommentLocked = false,
   isPublicMode,
   items,
+  integrationCheckoutElement,
   actionRenderer,
   onCommentChange,
   onCheckoutChange,
@@ -116,6 +118,7 @@ export const CartDrawerContent: React.FC<CartDrawerContentProps> = ({
           commentPlaceholder={commentPlaceholder}
           disabled={isManagedPublicCart || isPublicMode}
           hasCheckoutMethods={state.hasCheckoutMethods}
+          integrationCheckoutElement={integrationCheckoutElement}
           onCheckoutChange={onCheckoutChange}
           onCommentChange={onCommentChange}
         />

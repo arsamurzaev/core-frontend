@@ -28,7 +28,7 @@ describe("product card layout", () => {
         columns: 2,
         listWidth: 390,
       }),
-    ).toBe(402);
+    ).toBe(PRODUCT_CARD_GRID_BASE_HEIGHT_PX);
   });
 
   it("keeps detailed view as one column", () => {

@@ -12,17 +12,30 @@ import { CartDrawerFooter } from "@/core/widgets/cart-drawer/ui/cart-drawer-foot
 import { CartDrawerHeader } from "@/core/widgets/cart-drawer/ui/cart-drawer-header";
 import { CartDrawerManagerOrderStartBar } from "@/core/widgets/cart-drawer/ui/cart-drawer-manager-order-start-bar";
 import { CartDrawerProductPreview } from "@/core/widgets/cart-drawer/ui/cart-drawer-product-preview";
+import { resolveCartDrawerFooterAction } from "@/core/widgets/cart-drawer/model/cart-drawer-footer-state";
+import {
+  buildIntegrationCheckoutOrderInput,
+  getInitialIntegrationCheckoutMethod,
+  getSelectableIntegrationCheckoutMethods,
+  hasIikoCartItems,
+  resolveEffectiveIntegrationCheckoutFields,
+  resolveIntegrationCheckoutFields,
+  validateIntegrationCheckout,
+  validateIntegrationPolicyConsent,
+} from "@/core/widgets/cart-drawer/model/integration-checkout";
 import { resolveCartDrawerVisibility } from "@/core/widgets/cart-drawer/model/cart-drawer-state";
-import { hasIikoCartItems } from "@/core/widgets/cart-drawer/model/integration-checkout";
 import { resolveCartDrawerHeaderAction } from "@/core/widgets/cart-drawer/model/cart-drawer-header-action";
 import { useCartDrawerCheckout } from "@/core/widgets/cart-drawer/model/use-cart-drawer-checkout";
 import { useCartDrawerCompleteOrder } from "@/core/widgets/cart-drawer/model/use-cart-drawer-complete-order";
 import { useCartDrawerHeaderAction } from "@/core/widgets/cart-drawer/model/use-cart-drawer-header-action";
 import { useCartDrawerProductPreview } from "@/core/widgets/cart-drawer/model/use-cart-drawer-product-preview";
+import { IntegrationCheckoutSection } from "@/core/widgets/cart-drawer/ui/integration-checkout-section";
 import {
   getCatalogCheckoutConfig,
   getCatalogCheckoutLocation,
+  type CheckoutData,
   type CheckoutConfig,
+  type CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
 import {
   buildHallTableCheckoutData,
@@ -243,6 +256,164 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     () => hasIikoCartItems(items),
     [items],
   );
+  const canCollapseDrawer = !canShare && !isManagedPublicCart && isFullyExpanded;
+  const footerAction = React.useMemo(
+    () =>
+      resolveCartDrawerFooterAction({
+        canShare,
+        hasCollapseAction: canCollapseDrawer,
+        isManagerOrderCart,
+      }),
+    [canCollapseDrawer, canShare, isManagerOrderCart],
+  );
+  const selectableIntegrationCheckoutMethods = React.useMemo(
+    () => getSelectableIntegrationCheckoutMethods(checkoutConfig.availableMethods),
+    [checkoutConfig.availableMethods],
+  );
+  const initialIntegrationCheckoutMethod = React.useMemo(
+    () =>
+      getInitialIntegrationCheckoutMethod({
+        availableMethods: selectableIntegrationCheckoutMethods,
+        orderInput,
+      }),
+    [orderInput, selectableIntegrationCheckoutMethods],
+  );
+  const [integrationCheckoutMethod, setIntegrationCheckoutMethod] =
+    React.useState<CheckoutMethod>(initialIntegrationCheckoutMethod);
+  const [integrationCheckoutData, setIntegrationCheckoutData] =
+    React.useState<CheckoutData>({});
+  const [isIntegrationPolicyAccepted, setIsIntegrationPolicyAccepted] =
+    React.useState(false);
+  const cartId = cart?.id ?? null;
+  const previousIntegrationCartId = React.useRef(cartId);
+
+  React.useEffect(() => {
+    if (previousIntegrationCartId.current === cartId) {
+      return;
+    }
+
+    previousIntegrationCartId.current = cartId;
+    setIntegrationCheckoutData({});
+    setIntegrationCheckoutMethod(initialIntegrationCheckoutMethod);
+    setIsIntegrationPolicyAccepted(false);
+  }, [cartId, initialIntegrationCheckoutMethod]);
+
+  React.useEffect(() => {
+    setIntegrationCheckoutMethod((current) =>
+      selectableIntegrationCheckoutMethods.includes(current)
+        ? current
+        : initialIntegrationCheckoutMethod,
+    );
+  }, [initialIntegrationCheckoutMethod, selectableIntegrationCheckoutMethods]);
+
+  const effectiveIntegrationCheckoutMethod =
+    orderInput.checkoutMethod ?? integrationCheckoutMethod;
+  const shouldShowIntegrationCheckout = Boolean(
+    hasItems &&
+      hasIikoIntegrationItems &&
+      !isManagedHallTableCart &&
+      (footerAction === "complete-order" ||
+        (footerAction === "share" && !hasSharedCart)),
+  );
+  const integrationCheckoutFields = React.useMemo(
+    () => {
+      if (!shouldShowIntegrationCheckout) {
+        return [];
+      }
+
+      const fields = resolveIntegrationCheckoutFields({
+        catalogMode,
+        hasIikoItems: true,
+        orderInput,
+        requirePreorderTable: footerAction === "complete-order",
+      });
+
+      if (!shouldShowCheckoutInCart) {
+        return fields;
+      }
+
+      return fields.filter(
+        (field) =>
+          field !== "address" &&
+          field !== "checkoutMethod" &&
+          field !== "personsCount",
+      );
+    },
+    [
+      catalogMode,
+      footerAction,
+      orderInput,
+      shouldShowCheckoutInCart,
+      shouldShowIntegrationCheckout,
+    ],
+  );
+  const mergedIntegrationCheckoutData = React.useMemo(
+    () => ({
+      ...(orderInput.checkoutData ?? {}),
+      ...integrationCheckoutData,
+    }),
+    [integrationCheckoutData, orderInput.checkoutData],
+  );
+  const effectiveIntegrationCheckoutFields = React.useMemo(
+    () =>
+      resolveEffectiveIntegrationCheckoutFields({
+        fields: integrationCheckoutFields,
+        method: effectiveIntegrationCheckoutMethod,
+      }),
+    [effectiveIntegrationCheckoutMethod, integrationCheckoutFields],
+  );
+  const integrationCheckoutValidationError = React.useMemo(
+    () =>
+      shouldShowIntegrationCheckout
+        ? validateIntegrationCheckout({
+            data: mergedIntegrationCheckoutData,
+            fields: effectiveIntegrationCheckoutFields,
+            method: effectiveIntegrationCheckoutMethod,
+          })
+        : null,
+    [
+      effectiveIntegrationCheckoutFields,
+      effectiveIntegrationCheckoutMethod,
+      mergedIntegrationCheckoutData,
+      shouldShowIntegrationCheckout,
+    ],
+  );
+  const integrationPolicyError = shouldShowIntegrationCheckout
+    ? validateIntegrationPolicyConsent(isIntegrationPolicyAccepted)
+    : null;
+  const integrationCheckoutError =
+    integrationCheckoutValidationError ?? integrationPolicyError;
+  const orderInputWithIntegrationCheckout = React.useMemo(
+    () =>
+      shouldShowIntegrationCheckout
+        ? buildIntegrationCheckoutOrderInput({
+            baseInput: orderInput,
+            data: integrationCheckoutData,
+            location: checkoutLocation,
+            method: effectiveIntegrationCheckoutMethod,
+          })
+        : orderInput,
+    [
+      checkoutLocation,
+      effectiveIntegrationCheckoutMethod,
+      integrationCheckoutData,
+      orderInput,
+      shouldShowIntegrationCheckout,
+    ],
+  );
+  const integrationCheckoutElement = shouldShowIntegrationCheckout ? (
+    <IntegrationCheckoutSection
+      availableMethods={selectableIntegrationCheckoutMethods}
+      checkoutData={mergedIntegrationCheckoutData}
+      disabled={isBusy}
+      fields={integrationCheckoutFields}
+      method={effectiveIntegrationCheckoutMethod}
+      onDataChange={setIntegrationCheckoutData}
+      onMethodChange={setIntegrationCheckoutMethod}
+      onPolicyAcceptedChange={setIsIntegrationPolicyAccepted}
+      policyAccepted={isIntegrationPolicyAccepted}
+    />
+  ) : null;
   if (shouldHideDrawer || shouldSuspendManagerCartDrawer) {
     if (shouldShowManagerOrderStartBar) {
       return (
@@ -312,6 +483,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 isCommentLocked={isCommentLocked}
                 isPublicMode={isPublicMode}
                 items={items}
+                integrationCheckoutElement={integrationCheckoutElement}
                 priceFormatMode={priceFormatMode}
                 actionRenderer={actionRenderer}
                 onCommentChange={setComment}
@@ -329,8 +501,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             <CartDrawerFooter
               canShare={canShare}
-              checkoutConfig={checkoutConfig}
-              checkoutLocation={checkoutLocation}
               completeOrderLabel={
                 isManagedHallTableCart ? "Подтвердить" : undefined
               }
@@ -338,22 +508,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               hasDiscount={totals.hasDiscount}
               hasSharedCart={hasSharedCart}
               hasItems={hasItems}
-              hasIikoCartItems={hasIikoIntegrationItems}
+              integrationCheckoutError={integrationCheckoutError}
               isBusy={isBusy}
               isManagerOrderCart={isManagerOrderCart}
-              skipIntegrationCheckout={isManagedHallTableCart}
               isShareDisabled={
                 !isCheckoutLocked && Boolean(checkoutValidation.error)
               }
               onCollapse={
-                !canShare && !isManagedPublicCart && isFullyExpanded
+                canCollapseDrawer
                   ? () => setSnapPoint(CART_DRAWER_SNAP_POINTS[0])
                   : undefined
               }
               onCompleteOrder={handleCompleteOrder}
               onSharePrepared={markSharePrepared}
-              onShareClick={(input) => prepareShareOrder(input ?? orderInput)}
-              orderInput={orderInput}
+              onShareClick={(input) =>
+                prepareShareOrder(input ?? orderInputWithIntegrationCheckout)
+              }
+              orderInput={orderInputWithIntegrationCheckout}
               price={totals.subtotal}
               priceFormatMode={priceFormatMode}
               totalPrice={totals.originalSubtotal}

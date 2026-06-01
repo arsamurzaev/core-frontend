@@ -145,6 +145,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
                       ) : undefined
                     }
                     hidePriceWhenFooterAction={shouldRenderCartUi}
+                    reserveHeaderActionSpace={shouldRenderCartUi}
                     footerAction={
                       shouldRenderCartUi &&
                       (quantityByProductId[product.id] ?? 0) > 0 ? (

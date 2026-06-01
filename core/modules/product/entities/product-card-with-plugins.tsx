@@ -51,6 +51,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
   isIikoLinked,
   isMoySkladLinked,
   isDetailed,
+  reserveHeaderActionSpace,
   plugin = DEFAULT_PRODUCT_CARD_PLUGIN,
   pluginContainerClassName,
 }) => {
@@ -81,6 +82,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
         isIikoLinked={isIikoLinked}
         isMoySkladLinked={isMoySkladLinked}
         isDetailed={isDetailed}
+        reserveHeaderActionSpace={reserveHeaderActionSpace}
       />
       {(model.badges.length > 0 || visibleLines.length > 0) && (
         <div className="px-2 pb-1 space-y-1">

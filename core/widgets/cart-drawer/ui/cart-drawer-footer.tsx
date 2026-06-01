@@ -5,17 +5,11 @@ import type {
   PrepareShareOrderInput,
 } from "@/core/modules/cart/model/cart-context.types";
 import { resolveCartDrawerFooterAction } from "@/core/widgets/cart-drawer/model/cart-drawer-footer-state";
-import { resolveIntegrationCheckoutFields } from "@/core/widgets/cart-drawer/model/integration-checkout";
 import { useCartDrawerShare } from "@/core/widgets/cart-drawer/model/use-cart-drawer-share";
 import { CartDrawerFooterAction } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-action";
 import { CartDrawerFooterSummary } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-summary";
-import { IntegrationCheckoutDrawer } from "@/core/widgets/cart-drawer/ui/integration-checkout-drawer";
 import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
 import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
-import type {
-  CheckoutConfig,
-  CheckoutLocation,
-} from "@/shared/lib/checkout-methods";
 import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { DrawerFooter } from "@/shared/ui/drawer";
@@ -24,18 +18,15 @@ import { toast } from "sonner";
 
 interface CartDrawerFooterProps {
   canShare: boolean;
-  checkoutConfig: CheckoutConfig;
-  checkoutLocation: CheckoutLocation;
   className?: string;
   currency: string;
   completeOrderLabel?: string;
   hasSharedCart?: boolean;
   hasDiscount: boolean;
   hasItems: boolean;
-  hasIikoCartItems: boolean;
+  integrationCheckoutError?: string | null;
   isBusy?: boolean;
   isManagerOrderCart: boolean;
-  skipIntegrationCheckout?: boolean;
   isShareDisabled?: boolean;
   onCollapse?: () => void;
   onCompleteOrder: (input?: PrepareShareOrderInput) => Promise<void>;
@@ -53,18 +44,15 @@ function getCompleteErrorMessage(error: unknown): string {
 
 export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   canShare,
-  checkoutConfig,
-  checkoutLocation,
   className,
   currency,
   completeOrderLabel,
   hasSharedCart = false,
   hasDiscount,
   hasItems,
-  hasIikoCartItems,
+  integrationCheckoutError = null,
   isBusy = false,
   isManagerOrderCart,
-  skipIntegrationCheckout = false,
   isShareDisabled = false,
   onCollapse,
   onCompleteOrder,
@@ -75,7 +63,6 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   priceFormatMode,
   totalPrice,
 }) => {
-  const [isCheckoutDrawerOpen, setIsCheckoutDrawerOpen] = React.useState(false);
   const share = useCartDrawerShare({
     hasSharedCart,
     onShareClick,
@@ -86,22 +73,6 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
     hasCollapseAction: Boolean(onCollapse),
     isManagerOrderCart,
   });
-  const integrationCheckoutFields = React.useMemo(
-    () =>
-      skipIntegrationCheckout
-        ? []
-        : resolveIntegrationCheckoutFields({
-            hasIikoItems: hasIikoCartItems,
-            orderInput,
-            requirePreorderTable: action === "complete-order",
-          }),
-    [action, hasIikoCartItems, orderInput, skipIntegrationCheckout],
-  );
-  const shouldOpenCheckoutDrawer =
-    (action === "share" || action === "complete-order") &&
-    integrationCheckoutFields.length > 0 &&
-    (action === "complete-order" ||
-      (!hasSharedCart && !share.hasOpenedShareDrawer));
 
   const handleComplete = React.useCallback(
     async (input?: PrepareShareOrderInput) => {
@@ -117,40 +88,22 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
   );
 
   const handleCompleteAction = React.useCallback(() => {
-    if (shouldOpenCheckoutDrawer) {
-      setIsCheckoutDrawerOpen(true);
+    if (integrationCheckoutError) {
+      toast.error(integrationCheckoutError);
       return;
     }
 
-    void handleComplete();
-  }, [handleComplete, shouldOpenCheckoutDrawer]);
+    void handleComplete(orderInput);
+  }, [handleComplete, integrationCheckoutError, orderInput]);
 
   const handleShareAction = React.useCallback(() => {
-    if (shouldOpenCheckoutDrawer) {
-      setIsCheckoutDrawerOpen(true);
+    if (integrationCheckoutError) {
+      toast.error(integrationCheckoutError);
       return;
     }
 
     void share.handleShare(orderInput);
-  }, [orderInput, share, shouldOpenCheckoutDrawer]);
-
-  const handleCheckoutSubmit = React.useCallback(
-    async (input?: PrepareShareOrderInput) => {
-      if (action === "complete-order") {
-        const ok = await handleComplete(input);
-        if (ok) {
-          setIsCheckoutDrawerOpen(false);
-        }
-        return;
-      }
-
-      const ok = await share.handleShare(input);
-      if (ok) {
-        setIsCheckoutDrawerOpen(false);
-      }
-    },
-    [action, handleComplete, share],
-  );
+  }, [integrationCheckoutError, orderInput, share]);
 
   return (
     <>
@@ -179,7 +132,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
             hasOpenedShareDrawer={share.hasOpenedShareDrawer}
             hasSharedCart={hasSharedCart}
             isBusy={isBusy}
-            isShareDisabled={shouldOpenCheckoutDrawer ? false : isShareDisabled}
+            isShareDisabled={isShareDisabled}
             completeLabel={completeOrderLabel}
             onCollapse={onCollapse}
             onComplete={handleCompleteAction}
@@ -187,23 +140,6 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
           />
         </div>
       </DrawerFooter>
-
-      <IntegrationCheckoutDrawer
-        availableMethods={checkoutConfig.availableMethods}
-        checkoutLocation={checkoutLocation}
-        currency={currency}
-        disabled={isBusy}
-        fields={integrationCheckoutFields}
-        hasDiscount={hasDiscount}
-        isBusy={isBusy}
-        onOpenChange={setIsCheckoutDrawerOpen}
-        onSubmit={handleCheckoutSubmit}
-        open={isCheckoutDrawerOpen}
-        orderInput={orderInput}
-        price={price}
-        priceFormatMode={priceFormatMode}
-        totalPrice={totalPrice}
-      />
 
       <ShareDrawer
         mode="share"

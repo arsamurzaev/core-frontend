@@ -2,9 +2,12 @@ import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
 import { describe, expect, it } from "vitest";
 import {
   buildIntegrationCheckoutOrderInput,
+  getInitialIntegrationCheckoutMethod,
   hasIikoCartItems,
   resolveIntegrationCheckoutFields,
+  resolveEffectiveIntegrationCheckoutFields,
   validateIntegrationCheckout,
+  validateIntegrationPolicyConsent,
 } from "./integration-checkout";
 
 function item(provider?: "IIKO" | "MOYSKLAD"): CartItemView {
@@ -42,6 +45,29 @@ describe("integration checkout model", () => {
   it("detects iiko cart items", () => {
     expect(hasIikoCartItems([item("MOYSKLAD")])).toBe(false);
     expect(hasIikoCartItems([item("IIKO")])).toBe(true);
+  });
+
+  it("resolves default method and extra preorder fields for inline checkout", () => {
+    expect(
+      getInitialIntegrationCheckoutMethod({
+        availableMethods: ["PICKUP", "DELIVERY"],
+        orderInput: {},
+      }),
+    ).toBe("PICKUP");
+
+    expect(
+      getInitialIntegrationCheckoutMethod({
+        availableMethods: ["PICKUP", "DELIVERY"],
+        orderInput: { checkoutMethod: "DELIVERY" },
+      }),
+    ).toBe("DELIVERY");
+
+    expect(
+      resolveEffectiveIntegrationCheckoutFields({
+        fields: ["checkoutMethod"],
+        method: "PREORDER",
+      }),
+    ).toEqual(["checkoutMethod", "hallTable", "personsCount"]);
   });
 
   it("asks only for missing iiko fields", () => {
@@ -276,5 +302,10 @@ describe("integration checkout model", () => {
         method: "PICKUP",
       }),
     ).toBeNull();
+  });
+
+  it("requires integration policy consent", () => {
+    expect(validateIntegrationPolicyConsent(false)).toBeTruthy();
+    expect(validateIntegrationPolicyConsent(true)).toBeNull();
   });
 });

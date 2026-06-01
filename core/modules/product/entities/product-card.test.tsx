@@ -22,4 +22,17 @@ describe("ProductCard", () => {
 
     expect(markup).toContain('aria-label="Товар из iiko"');
   });
+
+  it("reserves header text space for floating card actions", () => {
+    const markup = renderToStaticMarkup(
+      <ProductCard.Header
+        description=""
+        name="Long product name"
+        reserveActionSpace
+        subtitle="Subtitle"
+      />,
+    );
+
+    expect(markup).toContain("pr-12");
+  });
 });

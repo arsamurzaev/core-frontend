@@ -87,6 +87,8 @@ export function useCartDrawerHeaderAction({
       return;
     }
 
+    setSnapPoint(CART_DRAWER_SNAP_POINTS[0]);
+
     try {
       await deleteCurrentCart();
       setSnapPoint(CART_DRAWER_SNAP_POINTS[0]);

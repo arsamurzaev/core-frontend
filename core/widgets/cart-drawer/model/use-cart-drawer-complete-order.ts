@@ -38,7 +38,7 @@ export function useCartDrawerCompleteOrder({
       return;
     }
 
-    if (!input && !isCheckoutLocked && checkoutValidationError) {
+    if (!isCheckoutLocked && checkoutValidationError) {
       toast.error(checkoutValidationError);
       return;
     }

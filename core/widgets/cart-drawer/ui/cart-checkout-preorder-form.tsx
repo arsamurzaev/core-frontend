@@ -14,6 +14,7 @@ import React from "react";
 interface CartCheckoutPreorderFormProps {
   data: CheckoutData;
   disabled: boolean;
+  error?: string | null;
   location: CheckoutLocation;
   onChange: (data: CheckoutData) => void;
   preorder: CheckoutPreorderSettings;
@@ -21,9 +22,10 @@ interface CartCheckoutPreorderFormProps {
 
 export const CartCheckoutPreorderForm: React.FC<
   CartCheckoutPreorderFormProps
-> = ({ data, disabled, location, onChange, preorder }) => {
+> = ({ data, disabled, error, location, onChange, preorder }) => {
   const today = getTodayDateInput();
   const maxDate = getMaxDateInput(preorder.maxAdvanceDays);
+  const fieldErrors = getPreorderFieldErrors(error);
 
   return (
     <>
@@ -46,7 +48,13 @@ export const CartCheckoutPreorderForm: React.FC<
           disabled={disabled}
           placeholder="4"
           className="border border-black/10"
+          aria-invalid={Boolean(fieldErrors.personsCount)}
         />
+        {fieldErrors.personsCount ? (
+          <p className="text-sm text-destructive">
+            {fieldErrors.personsCount}
+          </p>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -63,7 +71,13 @@ export const CartCheckoutPreorderForm: React.FC<
             }
             disabled={disabled}
             className="border border-black/10"
+            aria-invalid={Boolean(fieldErrors.visitDate)}
           />
+          {fieldErrors.visitDate ? (
+            <p className="text-sm text-destructive">
+              {fieldErrors.visitDate}
+            </p>
+          ) : null}
         </div>
 
         <div className="space-y-2">
@@ -77,7 +91,13 @@ export const CartCheckoutPreorderForm: React.FC<
             }
             disabled={disabled}
             className="border border-black/10"
+            aria-invalid={Boolean(fieldErrors.visitTime)}
           />
+          {fieldErrors.visitTime ? (
+            <p className="text-sm text-destructive">
+              {fieldErrors.visitTime}
+            </p>
+          ) : null}
         </div>
       </div>
     </>
@@ -86,6 +106,30 @@ export const CartCheckoutPreorderForm: React.FC<
 
 function getTodayDateInput(): string {
   return formatDateInput(new Date());
+}
+
+function getPreorderFieldErrors(error?: string | null): {
+  personsCount?: string;
+  visitDate?: string;
+  visitTime?: string;
+} {
+  if (!error) {
+    return {};
+  }
+
+  if (error.startsWith("Укажите количество")) {
+    return { personsCount: error };
+  }
+
+  if (error.startsWith("Выберите дату")) {
+    return { visitDate: error };
+  }
+
+  if (error.startsWith("Выберите время")) {
+    return { visitTime: error };
+  }
+
+  return {};
 }
 
 function getMaxDateInput(maxAdvanceDays: number): string {

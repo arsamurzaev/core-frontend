@@ -1,6 +1,9 @@
 "use client";
 
-import { useCatalogRuntime } from "@/core/catalog-runtime";
+import {
+  getCatalogRuntimeCheckoutConfig,
+  useCatalogRuntime,
+} from "@/core/catalog-runtime";
 import { CART_CONTEXT_FALLBACK_VALUE } from "@/core/modules/cart/model/cart-context-fallback";
 import { getCartPricingForProduct } from "@/core/modules/cart/model/cart-item-view";
 import {
@@ -195,6 +198,10 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
       ? `Заказ из каталога «${normalizedCatalogName}»`
       : "Заказ";
   }, [catalog.name]);
+  const checkoutConfig = React.useMemo(
+    () => getCatalogRuntimeCheckoutConfig(catalog, runtime),
+    [catalog, runtime],
+  );
   const {
     dismissPublicCart,
     handleSseCartStatusChanged,
@@ -272,6 +279,8 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
   });
   const prepareShareOrder = useCartShareOrder({
     activeCart,
+    catalogContacts: catalog.contacts,
+    checkoutConfig,
     items,
     mutations,
     priceFormatMode,

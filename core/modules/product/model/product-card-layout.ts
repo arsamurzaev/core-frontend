@@ -6,7 +6,7 @@ export const PRODUCT_CARD_GRID_MAX_COLUMNS = 4;
 export const PRODUCT_CARD_GRID_COLUMN_GAP_PX = 12;
 export const PRODUCT_CARD_GRID_ROW_GAP_PX = 12;
 export const PRODUCT_CARD_DETAILED_ROW_ESTIMATE_PX = 210;
-const PRODUCT_CARD_GRID_NON_IMAGE_ESTIMATE_PX = 150;
+const PRODUCT_CARD_GRID_NON_IMAGE_ESTIMATE_PX = 105;
 
 interface ProductCardCartMeasurementKeyInput {
   quantityByProductId: Readonly<Record<string, number>>;

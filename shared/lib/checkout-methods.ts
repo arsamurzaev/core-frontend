@@ -206,25 +206,23 @@ export function resolveCheckoutContacts(params: {
   config: CheckoutConfig;
   method: CheckoutMethod;
 }): CheckoutContactValues {
+  const catalogContacts = normalizeCatalogContacts(
+    params.catalogContacts,
+  ).reduce<CheckoutContactValues>((acc, contact) => {
+    if (
+      (CHECKOUT_CONTACT_TYPES as readonly CatalogContactDtoType[]).includes(
+        contact.type,
+      )
+    ) {
+      acc[contact.type] = contact.value;
+    }
+    return acc;
+  }, {});
   const customContacts = params.config.methodContacts[params.method] ?? {};
 
-  if (hasCheckoutContacts(customContacts)) {
-    return customContacts;
-  }
-
-  return normalizeCatalogContacts(params.catalogContacts).reduce<CheckoutContactValues>(
-    (acc, contact) => {
-      if (
-        (CHECKOUT_CONTACT_TYPES as readonly CatalogContactDtoType[]).includes(
-          contact.type,
-        )
-      ) {
-        acc[contact.type] = contact.value;
-      }
-      return acc;
-    },
-    {},
-  );
+  return hasCheckoutContacts(customContacts)
+    ? { ...catalogContacts, ...customContacts }
+    : catalogContacts;
 }
 
 export function normalizeCheckoutMethod(value: unknown): CheckoutMethod | null {
