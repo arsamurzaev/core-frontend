@@ -388,9 +388,21 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
     },
     [productRowEstimateSize, rows],
   );
+  const virtualLayoutKey = React.useMemo(
+    () =>
+      [
+        isDetailed ? "detailed" : "grid",
+        columns,
+        productRowEstimateSize,
+        productRowMinHeight,
+        rowGap,
+      ].join(":"),
+    [columns, isDetailed, productRowEstimateSize, productRowMinHeight, rowGap],
+  );
   const getVirtualRowKey = React.useCallback(
-    (index: number) => rows[index]?.key ?? `filter-row-${index}`,
-    [rows],
+    (index: number) =>
+      `${virtualLayoutKey}:${rows[index]?.key ?? `filter-row-${index}`}`,
+    [rows, virtualLayoutKey],
   );
   const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
@@ -407,9 +419,17 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
   });
   const virtualRows = rowVirtualizer.getVirtualItems();
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     rowVirtualizer.measure();
-  }, [columns, isDetailed, productRowEstimateSize, rowVirtualizer]);
+  }, [
+    columns,
+    isDetailed,
+    productRowEstimateSize,
+    productRowMinHeight,
+    rowGap,
+    rowVirtualizer,
+    virtualLayoutKey,
+  ]);
 
   React.useEffect(() => {
     sections.forEach((section) => {

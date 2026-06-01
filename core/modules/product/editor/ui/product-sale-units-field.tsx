@@ -5,12 +5,15 @@ import {
   clearSaleUnitRelationAtIndex,
   deriveSaleUnitRelationDrafts,
   formatSaleUnitMoney,
+  formatSaleUnitQuantity,
   getSaleUnitDisplayName,
   normalizeSaleUnitRows,
   removeSaleUnitRelationAtIndex,
+  resetSaleUnitRelationQuantity,
   resolveSaleUnitDiscountPreview,
   resolveSaleUnitRelationDraft,
   toPositiveSaleUnitNumber,
+  toSaleUnitRelationMultiplier,
   type SaleUnitRelationDraftsByIndex,
 } from "@/core/modules/product/editor/model/product-sale-units-field-model";
 import {
@@ -36,7 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Link2, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
@@ -68,19 +71,54 @@ function sortCatalogSaleUnits(
   });
 }
 
-function resolveInitialRelationMultiplier(
-  currentBaseQuantity: unknown,
-  parentBaseQuantity: unknown,
-): string {
-  const currentQuantity = toPositiveSaleUnitNumber(currentBaseQuantity);
-  const parentQuantity = toPositiveSaleUnitNumber(parentBaseQuantity);
+function resolveSaleUnitRelationParentOptions(
+  units: SaleUnitsFormValue,
+  index: number,
+) {
+  return units
+    .map((candidate, candidateIndex) => ({
+      baseQuantity: toPositiveSaleUnitNumber(candidate.baseQuantity),
+      index: candidateIndex,
+      name: getSaleUnitDisplayName(candidate),
+    }))
+    .filter(
+      (candidate) =>
+        candidate.index < index &&
+        Boolean(candidate.name) &&
+        candidate.baseQuantity !== null,
+    );
+}
 
-  if (currentQuantity === null || parentQuantity === null) {
-    return "";
+function resolveSelectedCatalogUnitBaseQuantity(params: {
+  currentUnit: SaleUnitFormValue;
+  index: number;
+  selectedUnit: CatalogSaleUnitDto;
+}): string {
+  const { currentUnit, index, selectedUnit } = params;
+  const catalogQuantity = toPositiveSaleUnitNumber(
+    selectedUnit.defaultBaseQuantity,
+  );
+  const currentQuantity = normalizeText(currentUnit.baseQuantity);
+  const currentCatalogSaleUnitId = normalizeText(currentUnit.catalogSaleUnitId);
+  const isFreshSelection = !normalizeText(currentUnit.catalogSaleUnitId);
+  const isCatalogUnitChange = currentCatalogSaleUnitId !== selectedUnit.id;
+  const shouldUseCatalogDefault =
+    catalogQuantity !== null &&
+    (isCatalogUnitChange ||
+      !currentQuantity ||
+      (isFreshSelection && index === 0 && currentQuantity === "1"));
+
+  if (shouldUseCatalogDefault) {
+    return formatSaleUnitQuantity(catalogQuantity);
   }
 
-  const ratio = currentQuantity / parentQuantity;
-  return Number.isFinite(ratio) && ratio > 0 ? String(ratio) : "";
+  if (currentQuantity) {
+    return currentQuantity;
+  }
+
+  return catalogQuantity !== null
+    ? formatSaleUnitQuantity(catalogQuantity)
+    : "1";
 }
 
 function resolveRelationCalculatedPrice(params: {
@@ -89,7 +127,7 @@ function resolveRelationCalculatedPrice(params: {
   units: SaleUnitsFormValue;
 }): string | null {
   const { priceFormatMode, relation, units } = params;
-  const multiplier = toPositiveSaleUnitNumber(relation.multiplier);
+  const multiplier = toSaleUnitRelationMultiplier(relation.multiplier);
   const parentIndex = relation.parentIndex;
 
   if (multiplier === null || parentIndex === null) {
@@ -131,7 +169,10 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
 
   const units = React.useMemo(() => saleUnits ?? [], [saleUnits]);
   const derivedRelationByIndex = React.useMemo(
-    () => deriveSaleUnitRelationDrafts(units),
+    () =>
+      deriveSaleUnitRelationDrafts(units, {
+        onlyChangedFromCatalogDefault: true,
+      }),
     [units],
   );
   const catalogUnits = React.useMemo(
@@ -173,22 +214,33 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
 
   const handleRemove = React.useCallback(
     (index: number) => {
+      const effectiveRelations = {
+        ...derivedRelationByIndex,
+        ...relationByIndex,
+      };
       const nextRelations = removeSaleUnitRelationAtIndex(
-        relationByIndex,
+        effectiveRelations,
         index,
       );
+      const nextUnits = units
+        .filter((_, itemIndex) => itemIndex !== index)
+        .map((unit, nextIndex) => {
+          const originalIndex = nextIndex >= index ? nextIndex + 1 : nextIndex;
+          const originalRelation = effectiveRelations[originalIndex];
+
+          return originalRelation?.parentIndex === index
+            ? resetSaleUnitRelationQuantity(unit)
+            : unit;
+        });
 
       onChange(
         normalizeSaleUnitRows(
-          applySaleUnitRelationQuantities(
-            units.filter((_, itemIndex) => itemIndex !== index),
-            nextRelations,
-          ),
+          applySaleUnitRelationQuantities(nextUnits, nextRelations),
         ),
       );
       setRelationByIndex(nextRelations);
     },
-    [onChange, relationByIndex, units],
+    [derivedRelationByIndex, onChange, relationByIndex, units],
   );
 
   const handleConfirmRemove = React.useCallback(
@@ -264,8 +316,15 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
         {
           catalogSaleUnitId: selectedUnit.id,
           catalogSaleUnitName: selectedUnit.name,
+          catalogDefaultBaseQuantity: formatSaleUnitQuantity(
+            selectedUnit.defaultBaseQuantity,
+          ),
           label: selectedUnit.name,
-          baseQuantity: currentUnit.baseQuantity || (index === 0 ? "1" : ""),
+          baseQuantity: resolveSelectedCatalogUnitBaseQuantity({
+            currentUnit,
+            index,
+            selectedUnit,
+          }),
         },
         { clearRelation: true },
       );
@@ -287,21 +346,11 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
         ...relationByIndex,
         [index]: nextRelation,
       };
-      const shouldClearBaseQuantity =
-        patch.multiplier !== undefined &&
-        toPositiveSaleUnitNumber(nextRelation.multiplier) === null;
-      const nextUnits = shouldClearBaseQuantity
-        ? units.map((unit, itemIndex) =>
-            itemIndex === index
-              ? { ...unit, baseQuantity: itemIndex === 0 ? "1" : "" }
-              : unit,
-          )
-        : units;
 
       setRelationByIndex(nextRelations);
       onChange(
         normalizeSaleUnitRows(
-          applySaleUnitRelationQuantities(nextUnits, nextRelations),
+          applySaleUnitRelationQuantities(units, nextRelations),
         ),
       );
     },
@@ -317,19 +366,32 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
           parentIndex: null,
         },
       };
+      const nextUnits = units.map((unit, itemIndex) =>
+        itemIndex === index ? resetSaleUnitRelationQuantity(unit) : unit,
+      );
 
       setRelationByIndex(nextRelations);
-      onChange(
-        normalizeSaleUnitRows(
-          units.map((unit, itemIndex) =>
-            itemIndex === index
-              ? { ...unit, baseQuantity: itemIndex === 0 ? "1" : "" }
-              : unit,
-          ),
-        ),
-      );
+      onChange(normalizeSaleUnitRows(nextUnits));
     },
     [onChange, relationByIndex, units],
+  );
+
+  const handleRelationEnable = React.useCallback(
+    (index: number) => {
+      const currentUnit = units[index];
+      const parentOptions = resolveSaleUnitRelationParentOptions(units, index);
+      const parent = parentOptions[parentOptions.length - 1];
+
+      if (!currentUnit || !parent) {
+        return;
+      }
+
+      handleRelationChange(index, {
+        parentIndex: parent.index,
+        multiplier: "",
+      });
+    },
+    [handleRelationChange, units],
   );
 
   const bindSaleUnitButton = canBindSaleUnit ? (
@@ -381,18 +443,13 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
               relation,
               units,
             });
-            const parentOptions = units
-              .map((candidate, candidateIndex) => ({
-                baseQuantity: toPositiveSaleUnitNumber(candidate.baseQuantity),
-                index: candidateIndex,
-                name: getSaleUnitDisplayName(candidate),
-              }))
-              .filter(
-                (candidate) =>
-                  candidate.index < index &&
-                  Boolean(candidate.name) &&
-                  candidate.baseQuantity !== null,
-              );
+            const parentOptions = resolveSaleUnitRelationParentOptions(
+              units,
+              index,
+            );
+            const hasRelationDraft =
+              relation.parentIndex !== null ||
+              Boolean(normalizeText(relation.multiplier));
 
             return (
               <div
@@ -449,7 +506,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                                 "min-h-8 rounded-full border px-2.5 text-xs transition-colors disabled:opacity-40",
                                 isSelected
                                   ? "border-primary bg-primary/10 font-medium text-primary"
-                                  : "border-border text-muted-foreground hover:bg-muted",
+                                  : "border-border text-muted-foreground hover:bg-muted/30 hover:text-foreground",
                               ].join(" ")}
                             >
                               {catalogUnit.name}
@@ -502,63 +559,57 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                 </div>
 
                 {parentOptions.length > 0 ? (
-                  <div className="flex min-w-0 flex-col gap-1">
-                    <span className="text-xs text-foreground">
-                      Содержит
-                    </span>
-                    <div className="flex min-w-0 flex-wrap items-center gap-2">
-                      <Input
-                        value={relation.multiplier}
-                        type="number"
-                        min={0.0001}
-                        step="0.001"
-                        inputMode="decimal"
-                        disabled={disabled}
-                        placeholder="4"
-                        className="h-8 min-w-[0] flex-1 px-2.5 text-sm"
-                        onChange={(event) =>
-                          handleRelationChange(index, {
-                            multiplier: event.target.value,
-                          })
-                        }
-                      />
-                      <Select
-                        value={
-                          relation.parentIndex !== null
-                            ? String(relation.parentIndex)
-                            : undefined
-                        }
-                        disabled={disabled}
-                        onValueChange={(value) => {
-                          const parentIndex = Number(value);
-                          const parentUnit = units[parentIndex];
+                  hasRelationDraft ? (
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <span className="text-xs text-foreground">
+                        Содержит
+                      </span>
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <Input
+                          value={relation.multiplier}
+                          type="number"
+                          min={1}
+                          step="any"
+                          inputMode="decimal"
+                          disabled={disabled}
+                          placeholder="4"
+                          className="h-8 min-w-[0] flex-1 px-2.5 text-sm"
+                          onChange={(event) =>
+                            handleRelationChange(index, {
+                              multiplier: event.target.value,
+                            })
+                          }
+                        />
+                        <Select
+                          value={
+                            relation.parentIndex !== null
+                              ? String(relation.parentIndex)
+                              : undefined
+                          }
+                          disabled={disabled}
+                          onValueChange={(value) => {
+                            const parentIndex = Number(value);
 
-                          handleRelationChange(index, {
-                            parentIndex,
-                            multiplier:
-                              relation.multiplier ||
-                              resolveInitialRelationMultiplier(
-                                unit.baseQuantity,
-                                parentUnit?.baseQuantity,
-                              ),
-                          });
-                        }}
-                      >
-                        <SelectTrigger className="h-8 min-w-[82px] max-w-[30%] flex-[0_0_30%]">
-                          <SelectValue placeholder="Выберите" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {parentOptions.map((parent) => (
-                            <SelectItem
-                              key={parent.index}
-                              value={String(parent.index)}
-                            >
-                              {parent.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {relation.parentIndex !== null ? (
+                            handleRelationChange(index, {
+                              parentIndex,
+                              multiplier: relation.multiplier,
+                            });
+                          }}
+                        >
+                          <SelectTrigger className="h-8 min-w-[82px] max-w-[30%] flex-[0_0_30%]">
+                            <SelectValue placeholder="Выберите" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {parentOptions.map((parent) => (
+                              <SelectItem
+                                key={parent.index}
+                                value={String(parent.index)}
+                              >
+                                {parent.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <Button
                           type="button"
                           variant="ghost"
@@ -570,9 +621,23 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                         >
                           <Trash2 className="size-4" />
                         </Button>
-                      ) : null}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex justify-start">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        disabled={disabled}
+                        className="h-8 border border-border bg-background px-2.5 text-xs text-foreground shadow-none hover:border-foreground/30 hover:bg-muted/30 hover:text-foreground"
+                        title="Связать с другой единицей"
+                        onClick={() => handleRelationEnable(index)}
+                      >
+                        <Link2 className="size-4" />
+                        Связать с другой единицей
+                      </Button>
+                    </div>
+                  )
                 ) : null}
               </div>
             );

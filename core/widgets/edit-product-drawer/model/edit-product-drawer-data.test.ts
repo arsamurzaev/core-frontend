@@ -262,6 +262,7 @@ describe("edit product drawer data", () => {
         id: "sale-unit-1",
         catalogSaleUnitId: "box",
         catalogSaleUnitName: "Box",
+        catalogDefaultBaseQuantity: "12",
         label: "Box",
         baseQuantity: "12",
         price: "950",

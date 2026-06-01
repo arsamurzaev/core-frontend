@@ -92,6 +92,12 @@ export const CartProductAction = React.memo(function CartProductAction({
     quantity,
     requiresVariantSelection,
   });
+  const shouldOpenVariantDrawerOnAction =
+    requiresVariantSelection || canUseCatalogSaleUnits;
+  const canOpenExistingLineDrawer =
+    shouldOpenVariantDrawerOnAction && quantity > 0;
+  const isActionDisabled =
+    (isUnavailable || isIncrementDisabled) && !canOpenExistingLineDrawer;
   const shouldRenderVariantDrawer = shouldRenderCartProductVariantDrawer({
     canUseCatalogSaleUnits,
     canUseProductVariants: canOpenVariantDrawer,
@@ -112,7 +118,7 @@ export const CartProductAction = React.memo(function CartProductAction({
   }, [shouldRenderVariantDrawer]);
 
   const ariaLabel = getCartProductActionAriaLabel({
-    isUnavailable,
+    isUnavailable: isUnavailable && !canOpenExistingLineDrawer,
     quantity,
     requiresVariantSelection,
     shouldShowQuantity,
@@ -126,11 +132,11 @@ export const CartProductAction = React.memo(function CartProductAction({
   const handleActionClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     handlePreventCardNavigation(event);
 
-    if (isUnavailable || isIncrementDisabled) {
+    if (isActionDisabled) {
       return;
     }
 
-    if (requiresVariantSelection || canUseCatalogSaleUnits) {
+    if (shouldOpenVariantDrawerOnAction) {
       setIsVariantDrawerOpen(true);
       return;
     }
@@ -147,7 +153,7 @@ export const CartProductAction = React.memo(function CartProductAction({
       <CartProductActionButton
         ariaLabel={ariaLabel}
         className={className}
-        disabled={isUnavailable || isIncrementDisabled}
+        disabled={isActionDisabled}
         isBusy={isBusy}
         onClick={handleActionClick}
         quantity={quantity}

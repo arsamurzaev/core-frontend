@@ -53,4 +53,27 @@ describe("product sale units", () => {
     expect(formatProductSaleUnitQuantity(2.5)).toBe("2.5");
     expect(formatProductSaleUnitQuantity(4)).toBe("4");
   });
+
+  it("does not present independent package sizes as containing each other", () => {
+    const units = getProductSaleUnits({
+      saleUnits: [
+        {
+          id: "pack-4",
+          name: "Pack 4",
+          price: "540",
+          baseQuantity: "4",
+          displayOrder: 0,
+        },
+        {
+          id: "pack-6",
+          name: "Pack 6",
+          price: "750",
+          baseQuantity: "6",
+          displayOrder: 1,
+        },
+      ],
+    });
+
+    expect(units.map(getProductSaleUnitContainsText)).toEqual([null, null]);
+  });
 });

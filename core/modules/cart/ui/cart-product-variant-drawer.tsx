@@ -47,6 +47,7 @@ const LOADING_VARIANTS_LABEL = "Загружаем вариации...";
 const LOADING_UNITS_LABEL = "Загружаем единицы продажи...";
 const RETRY_LABEL = "Повторить";
 const ADD_TO_CART_LABEL = "Добавить в корзину";
+const UPDATE_CART_LABEL = "Обновить корзину";
 const SOLD_OUT_LABEL = "В корзине максимум";
 const UNIT_UNAVAILABLE_MESSAGE =
   "Выбранная единица продажи недоступна.";
@@ -81,6 +82,16 @@ function clampPurchaseQuantity(
   }
 
   return Math.min(normalized, Math.max(0, maxQuantity));
+}
+
+function getInitialPurchaseQuantity(
+  currentCartQuantity: number,
+  maxQuantity: number | undefined,
+): number {
+  return clampPurchaseQuantity(
+    currentCartQuantity > 0 ? currentCartQuantity : 1,
+    maxQuantity,
+  );
 }
 
 function resolveSelectedVariantStock(params: {
@@ -357,7 +368,7 @@ export function CartProductVariantDrawer({
     string | null
   >(null);
   const [isSaleUnitConfirmed, setIsSaleUnitConfirmed] = React.useState(false);
-  const [quantityToAdd, setQuantityToAdd] = React.useState(1);
+  const [purchaseQuantity, setPurchaseQuantity] = React.useState(1);
   const productSlugForApi = React.useMemo(
     () => encodeURIComponent(product.slug),
     [product.slug],
@@ -506,21 +517,34 @@ export function CartProductVariantDrawer({
       shouldEnforceStock,
     ],
   );
-  const remainingQuantity =
+  const purchaseMaxQuantity =
     maxQuantity === undefined
       ? undefined
-      : Math.max(0, maxQuantity - currentCartQuantity);
+      : Math.max(maxQuantity, currentCartQuantity);
   const canSubmit =
     step === "quantity" &&
-    quantityToAdd > 0 &&
-    (remainingQuantity === undefined || remainingQuantity > 0);
+    purchaseQuantity > 0 &&
+    (purchaseMaxQuantity === undefined ||
+      purchaseQuantity <= purchaseMaxQuantity);
   const unitPrice = resolveDisplayUnitPrice({
     product,
     selectedSaleUnit,
     selectedVariantOption,
   });
   const displayTotal =
-    unitPrice === null ? null : unitPrice * Math.max(1, quantityToAdd);
+    unitPrice === null || purchaseQuantity <= 0
+      ? null
+      : unitPrice * purchaseQuantity;
+  const submitLabel =
+    currentCartQuantity > 0 ? UPDATE_CART_LABEL : ADD_TO_CART_LABEL;
+  const quantityHint =
+    currentCartQuantity > 0 && maxQuantity !== undefined
+      ? `В корзине: ${currentCartQuantity} · Максимум: ${maxQuantity}`
+      : currentCartQuantity > 0
+        ? `В корзине: ${currentCartQuantity}`
+        : maxQuantity !== undefined
+          ? `Максимум: ${maxQuantity}`
+          : null;
   const variantLabel = selectedVariantOption?.label ?? null;
 
   React.useEffect(() => {
@@ -528,7 +552,7 @@ export function CartProductVariantDrawer({
       setSelectedVariantOption(null);
       setSelectedSaleUnitId(null);
       setIsSaleUnitConfirmed(false);
-      setQuantityToAdd(1);
+      setPurchaseQuantity(1);
     }
   }, [open, product.id]);
 
@@ -557,10 +581,10 @@ export function CartProductVariantDrawer({
       return;
     }
 
-    setQuantityToAdd((current) =>
-      clampPurchaseQuantity(current, remainingQuantity),
+    setPurchaseQuantity(
+      getInitialPurchaseQuantity(currentCartQuantity, purchaseMaxQuantity),
     );
-  }, [open, remainingQuantity]);
+  }, [cartSelectionKey, currentCartQuantity, open, purchaseMaxQuantity]);
 
   const handleVariantClick = React.useCallback(
     (item: CartProductVariantPickerItem) => {
@@ -571,7 +595,7 @@ export function CartProductVariantDrawer({
       setSelectedVariantOption(item.option);
       setSelectedSaleUnitId(null);
       setIsSaleUnitConfirmed(false);
-      setQuantityToAdd(1);
+      setPurchaseQuantity(1);
     },
     [],
   );
@@ -579,7 +603,7 @@ export function CartProductVariantDrawer({
   const handleSaleUnitClick = React.useCallback((unit: ProductSaleUnit) => {
     setSelectedSaleUnitId(unit.id);
     setIsSaleUnitConfirmed(true);
-    setQuantityToAdd(1);
+    setPurchaseQuantity(1);
   }, []);
 
   const handleSubmit = React.useCallback(async () => {
@@ -591,7 +615,7 @@ export function CartProductVariantDrawer({
     try {
       await setLineQuantity(
         cartSelection,
-        currentCartQuantity + quantityToAdd,
+        purchaseQuantity,
         {
           id: product.id,
           name: product.name,
@@ -610,10 +634,9 @@ export function CartProductVariantDrawer({
   }, [
     canSubmit,
     cartSelection,
-    currentCartQuantity,
     onOpenChange,
     product,
-    quantityToAdd,
+    purchaseQuantity,
     selectedSaleUnit,
     selectedVariantOption,
     setLineQuantity,
@@ -658,7 +681,8 @@ export function CartProductVariantDrawer({
                 const isQuantityLimitReached =
                   shouldEnforceStock &&
                   typeof option.maxQuantity === "number" &&
-                  quantity >= option.maxQuantity;
+                  quantity <= 0 &&
+                  option.maxQuantity <= 0;
                 const disabledReason = !availability.isSelectable
                   ? availability.label
                   : isQuantityLimitReached
@@ -751,7 +775,8 @@ export function CartProductVariantDrawer({
                     ] ?? 0;
                   const isUnitLimitReached =
                     unitMaxQuantity !== undefined &&
-                    unitCartQuantity >= unitMaxQuantity;
+                    unitCartQuantity <= 0 &&
+                    unitMaxQuantity <= 0;
 
                   return (
                     <SaleUnitButton
@@ -790,17 +815,17 @@ export function CartProductVariantDrawer({
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-sm font-medium">Количество</div>
-                  {remainingQuantity !== undefined ? (
+                  {quantityHint ? (
                     <div className="text-xs text-muted-foreground">
-                      Можно добавить: {remainingQuantity}
+                      {quantityHint}
                     </div>
                   ) : null}
                 </div>
                 <PurchaseQuantityControl
-                  disabled={isBusy || remainingQuantity === 0}
-                  maxQuantity={remainingQuantity}
-                  onChange={setQuantityToAdd}
-                  value={quantityToAdd}
+                  disabled={isBusy || purchaseMaxQuantity === 0}
+                  maxQuantity={purchaseMaxQuantity}
+                  onChange={setPurchaseQuantity}
+                  value={purchaseQuantity}
                 />
               </div>
 
@@ -815,8 +840,8 @@ export function CartProductVariantDrawer({
                 }}
               >
                 {displayTotal === null
-                  ? ADD_TO_CART_LABEL
-                  : `${ADD_TO_CART_LABEL} · ${formatCatalogPrice(
+                  ? submitLabel
+                  : `${submitLabel} · ${formatCatalogPrice(
                       displayTotal,
                       priceFormatMode,
                     )} ${currency}`}

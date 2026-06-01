@@ -759,9 +759,21 @@ export const VirtualizedCategoryProducts: React.FC<
     },
     [listWidth, productRowEstimateSize, rows],
   );
+  const virtualLayoutKey = React.useMemo(
+    () =>
+      [
+        isDetailed ? "detailed" : "grid",
+        columns,
+        productRowEstimateSize,
+        productRowMinHeight,
+        rowGap,
+      ].join(":"),
+    [columns, isDetailed, productRowEstimateSize, productRowMinHeight, rowGap],
+  );
   const getVirtualRowKey = React.useCallback(
-    (index: number) => rows[index]?.key ?? `virtual-row-${index}`,
-    [rows],
+    (index: number) =>
+      `${virtualLayoutKey}:${rows[index]?.key ?? `virtual-row-${index}`}`,
+    [rows, virtualLayoutKey],
   );
   const rowVirtualizer = useWindowVirtualizer({
     count: rows.length,
@@ -792,14 +804,17 @@ export const VirtualizedCategoryProducts: React.FC<
     });
   }, [querySnapshots]);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     rowVirtualizer.measure();
   }, [
     columns,
     isDetailed,
     listWidth,
     productRowEstimateSize,
+    productRowMinHeight,
+    rowGap,
     rowVirtualizer,
+    virtualLayoutKey,
   ]);
 
   const alignMountedCategoryHeading = React.useCallback(

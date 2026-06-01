@@ -8,6 +8,7 @@ import {
   normalizeSaleUnitRows,
   removeSaleUnitDraftNameAtIndex,
   removeSaleUnitRelationAtIndex,
+  resetSaleUnitRelationQuantity,
   resolveSaleUnitRelationDraft,
   resolveSaleUnitRelationBaseQuantity,
   resolveSaleUnitDiscountPreview,
@@ -61,6 +62,7 @@ describe("product sale units field model", () => {
 
   it("calculates local relations between sale units", () => {
     expect(resolveSaleUnitRelationBaseQuantity("4", "12")).toBe("48");
+    expect(resolveSaleUnitRelationBaseQuantity("1", "12")).toBeNull();
     expect(resolveSaleUnitRelationBaseQuantity("4", "")).toBeNull();
 
     expect(
@@ -91,6 +93,30 @@ describe("product sale units field model", () => {
         },
       ).map((unit) => unit.baseQuantity),
     ).toEqual(["1", "12", "48"]);
+  });
+
+  it("ignores one-to-one contains relations", () => {
+    expect(
+      applySaleUnitRelationQuantities(
+        [
+          {
+            label: "Pack 4",
+            baseQuantity: "4",
+            price: "540",
+            isDefault: true,
+          },
+          {
+            label: "Pack 6",
+            baseQuantity: "6",
+            price: "750",
+            isDefault: false,
+          },
+        ],
+        {
+          1: { parentIndex: 0, multiplier: "1" },
+        },
+      ).map((unit) => unit.baseQuantity),
+    ).toEqual(["4", "6"]);
   });
 
   it("derives relation drafts from saved absolute quantities", () => {
@@ -125,6 +151,87 @@ describe("product sale units field model", () => {
       1: { multiplier: "12", parentIndex: 0 },
       2: { multiplier: "4", parentIndex: 1 },
       3: { multiplier: "10", parentIndex: 2 },
+    });
+  });
+
+  it("does not derive contains relations for independent non-multiple packages", () => {
+    expect(
+      deriveSaleUnitRelationDrafts([
+        {
+          label: "Pack 4",
+          baseQuantity: "4",
+          price: "540",
+          isDefault: true,
+        },
+        {
+          label: "Pack 6",
+          baseQuantity: "6",
+          price: "750",
+          isDefault: false,
+        },
+      ]),
+    ).toEqual({});
+  });
+
+  it("derives saved relation only when quantity differs from catalog default", () => {
+    expect(
+      deriveSaleUnitRelationDrafts(
+        [
+          {
+            label: "Piece",
+            baseQuantity: "1",
+            catalogDefaultBaseQuantity: "1",
+            price: "6000",
+            isDefault: true,
+          },
+          {
+            label: "Pack",
+            baseQuantity: "4",
+            catalogDefaultBaseQuantity: "4",
+            price: "12000",
+            isDefault: false,
+          },
+        ],
+        { onlyChangedFromCatalogDefault: true },
+      ),
+    ).toEqual({});
+
+    expect(
+      deriveSaleUnitRelationDrafts(
+        [
+          {
+            label: "Piece",
+            baseQuantity: "1",
+            catalogDefaultBaseQuantity: "1",
+            price: "6000",
+            isDefault: true,
+          },
+          {
+            label: "Pack",
+            baseQuantity: "2",
+            catalogDefaultBaseQuantity: "4",
+            price: "12000",
+            isDefault: false,
+          },
+        ],
+        { onlyChangedFromCatalogDefault: true },
+      ),
+    ).toEqual({
+      1: { multiplier: "2", parentIndex: 0 },
+    });
+  });
+
+  it("resets relation quantity back to catalog default when relation is cleared", () => {
+    expect(
+      resetSaleUnitRelationQuantity({
+        label: "Pack",
+        baseQuantity: "2",
+        catalogDefaultBaseQuantity: "4",
+        price: "1400",
+        isDefault: false,
+      }),
+    ).toMatchObject({
+      baseQuantity: "4",
     });
   });
 

@@ -9,6 +9,7 @@ export type SaleUnitFormValue = {
   id?: string;
   catalogSaleUnitId?: string;
   catalogSaleUnitName?: string;
+  catalogDefaultBaseQuantity?: string;
   label: string;
   baseQuantity: string;
   price: string;
@@ -99,6 +100,7 @@ export function createDefaultSaleUnitFormValue(price = ""): SaleUnitFormValue {
   return {
     catalogSaleUnitId: undefined,
     catalogSaleUnitName: undefined,
+    catalogDefaultBaseQuantity: undefined,
     label: "",
     baseQuantity: "1",
     price,
@@ -186,7 +188,7 @@ export function validateSaleUnitListForSubmit(
 
     if (baseQuantity === null || baseQuantity <= 0) {
       return {
-        message: `${label}: укажите, из какой единицы собирается единица продажи.`,
+        message: `${label}: проверьте настройки единицы продажи.`,
       };
     }
 
@@ -235,6 +237,9 @@ export function buildSaleUnitsFormValueFromUnknown(
     const baseQuantity = toOptionalNumber(
       raw.baseQuantity ?? raw.quantity ?? raw.catalogSaleUnit?.defaultBaseQuantity,
     );
+    const catalogDefaultBaseQuantity = toOptionalNumber(
+      raw.catalogSaleUnit?.defaultBaseQuantity,
+    );
     const price = toOptionalNumber(raw.price);
 
     if (!label || baseQuantity === null || price === null) {
@@ -246,6 +251,10 @@ export function buildSaleUnitsFormValueFromUnknown(
         id: normalizeText(raw.id) || undefined,
         catalogSaleUnitId: normalizeText(raw.catalogSaleUnitId) || undefined,
         catalogSaleUnitName: normalizeText(raw.catalogSaleUnit?.name) || undefined,
+        catalogDefaultBaseQuantity:
+          catalogDefaultBaseQuantity === null
+            ? undefined
+            : String(catalogDefaultBaseQuantity),
         label,
         baseQuantity: String(baseQuantity),
         price: formatCatalogPriceInputValue(price, priceFormatMode),

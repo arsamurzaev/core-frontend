@@ -24,6 +24,10 @@ export type SaleUnitRelationDraftsByIndex = Record<
   SaleUnitRelationDraft
 >;
 
+export type DeriveSaleUnitRelationDraftsOptions = {
+  onlyChangedFromCatalogDefault?: boolean;
+};
+
 export function normalizeSaleUnitRows(
   units: SaleUnitsFormValue,
 ): SaleUnitsFormValue {
@@ -64,11 +68,20 @@ export function formatSaleUnitQuantity(value: unknown): string {
   return parsed === null ? "1" : String(parsed);
 }
 
+function isWholeSaleUnitMultiplier(value: number): boolean {
+  return Math.abs(value - Math.round(value)) < 0.0001;
+}
+
+export function toSaleUnitRelationMultiplier(value: unknown): number | null {
+  const parsed = toPositiveSaleUnitNumber(value);
+  return parsed !== null && parsed > 1 ? parsed : null;
+}
+
 export function resolveSaleUnitRelationBaseQuantity(
   multiplier: unknown,
   parentBaseQuantity: unknown,
 ): string | null {
-  const parsedMultiplier = toPositiveSaleUnitNumber(multiplier);
+  const parsedMultiplier = toSaleUnitRelationMultiplier(multiplier);
   const parsedParentBaseQuantity = toPositiveSaleUnitNumber(parentBaseQuantity);
 
   if (parsedMultiplier === null || parsedParentBaseQuantity === null) {
@@ -122,11 +135,22 @@ export function applySaleUnitRelationQuantities(
 
 export function deriveSaleUnitRelationDrafts(
   units: SaleUnitsFormValue,
+  options: DeriveSaleUnitRelationDraftsOptions = {},
 ): SaleUnitRelationDraftsByIndex {
   return units.reduce<SaleUnitRelationDraftsByIndex>((relations, unit, index) => {
     const baseQuantity = toPositiveSaleUnitNumber(unit.baseQuantity);
+    const catalogDefaultBaseQuantity = toPositiveSaleUnitNumber(
+      unit.catalogDefaultBaseQuantity,
+    );
 
     if (index === 0 || baseQuantity === null) {
+      return relations;
+    }
+    if (
+      options.onlyChangedFromCatalogDefault &&
+      (catalogDefaultBaseQuantity === null ||
+        Math.abs(baseQuantity - catalogDefaultBaseQuantity) < 0.0001)
+    ) {
       return relations;
     }
 
@@ -140,7 +164,8 @@ export function deriveSaleUnitRelationDrafts(
       .find(
         (candidate) =>
           candidate.baseQuantity !== null &&
-          candidate.baseQuantity < baseQuantity,
+          candidate.baseQuantity < baseQuantity &&
+          isWholeSaleUnitMultiplier(baseQuantity / candidate.baseQuantity),
       );
 
     if (!parentEntry?.baseQuantity) {
@@ -190,6 +215,22 @@ export function resolveSaleUnitRelationDraft(
 
 export function getSaleUnitDisplayName(unit: SaleUnitFormValue): string {
   return normalizeText(unit.catalogSaleUnitName) || normalizeText(unit.label);
+}
+
+export function resetSaleUnitRelationQuantity(
+  unit: SaleUnitFormValue,
+): SaleUnitFormValue {
+  const catalogDefaultBaseQuantity = toPositiveSaleUnitNumber(
+    unit.catalogDefaultBaseQuantity,
+  );
+
+  return {
+    ...unit,
+    baseQuantity:
+      catalogDefaultBaseQuantity === null
+        ? "1"
+        : formatSaleUnitQuantity(catalogDefaultBaseQuantity),
+  };
 }
 
 export function formatSaleUnitMoney(

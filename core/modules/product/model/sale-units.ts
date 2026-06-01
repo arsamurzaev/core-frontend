@@ -72,6 +72,10 @@ function roundSaleUnitQuantity(value: number): number {
   return Math.round(value * 10_000) / 10_000;
 }
 
+function isWholeSaleUnitMultiplier(value: number): boolean {
+  return Math.abs(value - Math.round(value)) < 0.0001;
+}
+
 function resolveContainsSaleUnit(
   unit: ProductSaleUnit,
   previousUnits: ProductSaleUnit[],
@@ -85,8 +89,18 @@ function resolveContainsSaleUnit(
     .slice()
     .reverse()
     .find(
-      (candidate) =>
-        candidate.baseQuantity > 0 && candidate.baseQuantity < unit.baseQuantity,
+      (candidate) => {
+        if (
+          candidate.baseQuantity <= 0 ||
+          candidate.baseQuantity >= unit.baseQuantity
+        ) {
+          return false;
+        }
+
+        return isWholeSaleUnitMultiplier(
+          unit.baseQuantity / candidate.baseQuantity,
+        );
+      },
     );
 
   if (!parentUnit) {

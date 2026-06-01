@@ -11,6 +11,7 @@ describe("product sale unit helpers", () => {
     expect(createDefaultSaleUnitFormValue("120")).toEqual({
       catalogSaleUnitId: undefined,
       catalogSaleUnitName: undefined,
+      catalogDefaultBaseQuantity: undefined,
       label: "",
       baseQuantity: "1",
       price: "120",
@@ -131,6 +132,7 @@ describe("product sale unit helpers", () => {
         id: "variant-sale-unit-1",
         catalogSaleUnitId: "catalog-unit-1",
         catalogSaleUnitName: "Box",
+        catalogDefaultBaseQuantity: "12",
         label: "Box",
         baseQuantity: "12",
         price: "1500",
