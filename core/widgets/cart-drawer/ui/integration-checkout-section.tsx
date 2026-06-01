@@ -41,6 +41,7 @@ interface IntegrationCheckoutSectionProps {
   onMethodChange: (method: CheckoutMethod) => void;
   onPolicyAcceptedChange: (accepted: boolean) => void;
   policyAccepted: boolean;
+  requirePolicyConsent?: boolean;
 }
 
 type IikoRestaurantTableOption = {
@@ -179,6 +180,7 @@ export const IntegrationCheckoutSection: React.FC<
   onMethodChange,
   onPolicyAcceptedChange,
   policyAccepted,
+  requirePolicyConsent = true,
 }) => {
   const policyCheckboxId = React.useId();
   const effectiveFields = React.useMemo(
@@ -481,42 +483,44 @@ export const IntegrationCheckoutSection: React.FC<
         </section>
       ) : null}
 
-      <div className="flex items-start gap-3 text-sm leading-snug">
-        <Checkbox
-          id={policyCheckboxId}
-          checked={policyAccepted}
-          disabled={disabled}
-          onCheckedChange={(checked) =>
-            onPolicyAcceptedChange(checked === true)
-          }
-          className="mt-0.5"
-        />
-        <p>
-          <label htmlFor={policyCheckboxId} className="cursor-pointer">
-            Я принимаю{" "}
-          </label>
-          <a
-            href={INTEGRATION_PRIVACY_POLICY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary underline underline-offset-2"
-          >
-            политику конфиденциальности
-          </a>{" "}
-          <label htmlFor={policyCheckboxId} className="cursor-pointer">
-            и{" "}
-          </label>
-          <a
-            href={INTEGRATION_PERSONAL_DATA_POLICY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary underline underline-offset-2"
-          >
-            политику обработки персональных данных
-          </a>
-          .
-        </p>
-      </div>
+      {requirePolicyConsent ? (
+        <div className="flex items-start gap-3 text-sm leading-snug">
+          <Checkbox
+            id={policyCheckboxId}
+            checked={policyAccepted}
+            disabled={disabled}
+            onCheckedChange={(checked) =>
+              onPolicyAcceptedChange(checked === true)
+            }
+            className="mt-0.5"
+          />
+          <p>
+            <label htmlFor={policyCheckboxId} className="cursor-pointer">
+              Я принимаю{" "}
+            </label>
+            <a
+              href={INTEGRATION_PRIVACY_POLICY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline underline-offset-2"
+            >
+              политику конфиденциальности
+            </a>{" "}
+            <label htmlFor={policyCheckboxId} className="cursor-pointer">
+              и{" "}
+            </label>
+            <a
+              href={INTEGRATION_PERSONAL_DATA_POLICY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline underline-offset-2"
+            >
+              политику обработки персональных данных
+            </a>
+            .
+          </p>
+        </div>
+      ) : null}
     </section>
   );
 };

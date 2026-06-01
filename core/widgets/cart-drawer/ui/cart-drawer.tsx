@@ -378,7 +378,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       shouldShowIntegrationCheckout,
     ],
   );
-  const integrationPolicyError = shouldShowIntegrationCheckout
+  const shouldRequireIntegrationPolicyConsent =
+    shouldShowIntegrationCheckout && footerAction === "share";
+  const integrationPolicyError = shouldRequireIntegrationPolicyConsent
     ? validateIntegrationPolicyConsent(isIntegrationPolicyAccepted)
     : null;
   const integrationCheckoutError =
@@ -412,6 +414,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       onMethodChange={setIntegrationCheckoutMethod}
       onPolicyAcceptedChange={setIsIntegrationPolicyAccepted}
       policyAccepted={isIntegrationPolicyAccepted}
+      requirePolicyConsent={shouldRequireIntegrationPolicyConsent}
     />
   ) : null;
   if (shouldHideDrawer || shouldSuspendManagerCartDrawer) {
