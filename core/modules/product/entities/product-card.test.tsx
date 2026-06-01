@@ -23,10 +23,24 @@ describe("ProductCard", () => {
     expect(markup).toContain('aria-label="Товар из iiko"');
   });
 
-  it("reserves header text space for floating card actions", () => {
+  it("does not reserve header text space in regular grid cards", () => {
     const markup = renderToStaticMarkup(
       <ProductCard.Header
         description=""
+        name="Long product name"
+        reserveActionSpace
+        subtitle="Subtitle"
+      />,
+    );
+
+    expect(markup).not.toContain("pr-12");
+  });
+
+  it("reserves header text space for floating actions in detailed cards", () => {
+    const markup = renderToStaticMarkup(
+      <ProductCard.Header
+        description=""
+        isDetailed
         name="Long product name"
         reserveActionSpace
         subtitle="Subtitle"

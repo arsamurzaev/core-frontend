@@ -195,12 +195,14 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
   saleUnitsSummary,
   subtitle,
 }) => {
+  const shouldReserveActionSpace = Boolean(reserveActionSpace && isDetailed);
+
   return (
     <CardHeader className="space-y-2 text-left">
       <CardTitle
         className={cn(
           "line-clamp-2",
-          reserveActionSpace && "pr-12",
+          shouldReserveActionSpace && "pr-12",
           isDetailed && "sm:text-lg",
         )}
       >
@@ -214,7 +216,7 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
       <CardSubTitle
         className={cn(
           "line-clamp-1",
-          reserveActionSpace && "pr-12",
+          shouldReserveActionSpace && "pr-12",
           isDetailed && "sm:text-base",
         )}
       >
