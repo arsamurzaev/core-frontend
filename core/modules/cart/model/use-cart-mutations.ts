@@ -8,10 +8,8 @@ import { apiClient } from "@/shared/api/client";
 import {
   cartControllerCreateOrGetCurrent,
   cartControllerRemoveCurrentItem,
-  cartControllerRemovePublicItem,
   cartControllerShareCurrent,
   cartControllerUpsertCurrentItem,
-  cartControllerUpsertPublicItem,
   type CartDto,
   type CompletedOrderDto,
   type PublicUpsertCartItemDtoReq,
@@ -38,6 +36,18 @@ type HallTableOverviewCache = {
     updatedAt: string | null;
   }>;
 };
+
+const CART_GUEST_TOKEN_HEADER = "x-cart-guest-token";
+
+function buildGuestTokenOptions(access: CartPublicAccess) {
+  if (access.kind !== "hallTable" || !access.guestToken) {
+    return undefined;
+  }
+
+  return {
+    headers: { [CART_GUEST_TOKEN_HEADER]: access.guestToken },
+  };
+}
 
 interface UseCartMutationsParams {
   activeCart: CartDto | null;
@@ -230,9 +240,13 @@ export function useCartMutations({
         ...(guestSessionId ? { guestSessionId } : {}),
         ...(guestName ? { guestName } : {}),
       };
-      const response = await cartControllerUpsertPublicItem(
-        params.access.publicKey,
+      const response = await apiClient.put<{
+        ok: true;
+        cart: CartDto;
+      }>(
+        `/cart/public/${encodeURIComponent(params.access.publicKey)}/items`,
         payload,
+        buildGuestTokenOptions(params.access),
       );
 
       return {
@@ -323,9 +337,12 @@ export function useCartMutations({
       access: CartPublicAccess;
       itemId: string;
     }) => {
-      const response = await cartControllerRemovePublicItem(
-        params.access.publicKey,
-        params.itemId,
+      const response = await apiClient.delete<{
+        ok: true;
+        cart: CartDto;
+      }>(
+        `/cart/public/${encodeURIComponent(params.access.publicKey)}/items/${encodeURIComponent(params.itemId)}`,
+        buildGuestTokenOptions(params.access),
       );
 
       return {
@@ -458,6 +475,7 @@ export function useCartMutations({
             ? { checkoutData: normalizedInput.checkoutData }
             : {}),
         },
+        buildGuestTokenOptions(params.access),
       );
 
       return {

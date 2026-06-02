@@ -45,6 +45,10 @@ type PendingHallTableCart = {
   cart: CartDto | null;
 };
 
+type DrawerCloseEvent =
+  | React.AnimationEvent<HTMLDivElement>
+  | React.TransitionEvent<HTMLDivElement>;
+
 function formatMoney(value: number, currency: string): string {
   try {
     return new Intl.NumberFormat("ru-RU", {
@@ -119,18 +123,43 @@ export const HallTableOrdersDrawer: React.FC = () => {
     [],
   );
 
-  const handleDrawerAnimationEnd = React.useCallback(
-    (isOpen: boolean) => {
-      if (isOpen || !pendingCartRef.current) {
+  const openPendingCart = React.useCallback(() => {
+    if (!pendingCartRef.current) {
+      return;
+    }
+
+    const pendingCart = pendingCartRef.current;
+    pendingCartRef.current = null;
+    openPublicCart(pendingCart.access, pendingCart.cart);
+  }, [openPublicCart]);
+
+  const handleDrawerCloseEnd = React.useCallback(
+    (event: DrawerCloseEvent) => {
+      if (event.target !== event.currentTarget || open) {
         return;
       }
 
-      const pendingCart = pendingCartRef.current;
-      pendingCartRef.current = null;
-      openPublicCart(pendingCart.access, pendingCart.cart);
+      if (event.currentTarget.getAttribute("data-state") !== "closed") {
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(openPendingCart);
+      });
     },
-    [openPublicCart],
+    [open, openPendingCart],
   );
+
+  React.useEffect(() => {
+    if (open || !pendingCartRef.current) {
+      return;
+    }
+
+    const fallbackTimer = window.setTimeout(openPendingCart, 700);
+    return () => {
+      window.clearTimeout(fallbackTimer);
+    };
+  }, [open, openPendingCart]);
 
   if (!enabled) {
     return null;
@@ -141,7 +170,6 @@ export const HallTableOrdersDrawer: React.FC = () => {
       open={open}
       onOpenChange={setOpen}
       noBodyStyles
-      onAnimationEnd={handleDrawerAnimationEnd}
       trigger={
         <Button
           className="fixed right-4 bottom-4 z-20 h-12 rounded-full px-4 shadow-lg"
@@ -157,7 +185,11 @@ export const HallTableOrdersDrawer: React.FC = () => {
         </Button>
       }
     >
-      <AppDrawer.Content className="max-h-[88vh] max-w-125">
+      <AppDrawer.Content
+        className="max-h-[88vh] max-w-125"
+        onAnimationEnd={handleDrawerCloseEnd}
+        onTransitionEnd={handleDrawerCloseEnd}
+      >
         <AppDrawer.Header title="Столы iiko" description={null} />
 
         <div className="min-h-0 overflow-hidden px-4 pb-4">

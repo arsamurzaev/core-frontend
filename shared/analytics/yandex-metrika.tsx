@@ -1,9 +1,37 @@
+"use client";
+
+import { Button } from "@/shared/ui/button";
 import Script from "next/script";
 import React from "react";
 import { YandexMetrikaPageview } from "./yandex-metrika-pageview";
 
+const YANDEX_METRIKA_CONSENT_STORAGE_KEY =
+  "catalog:yandex-metrika-consent:v1";
+
+type YandexMetrikaConsent = "accepted" | "rejected";
+
 interface YandexMetrikaProps {
   counterIds?: Array<string | null | undefined> | null;
+}
+
+function readYandexMetrikaConsent(): YandexMetrikaConsent | null {
+  try {
+    const value = window.localStorage.getItem(
+      YANDEX_METRIKA_CONSENT_STORAGE_KEY,
+    );
+
+    return value === "accepted" || value === "rejected" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeYandexMetrikaConsent(value: YandexMetrikaConsent) {
+  try {
+    window.localStorage.setItem(YANDEX_METRIKA_CONSENT_STORAGE_KEY, value);
+  } catch {
+    // Keep the current page choice even if persistent storage is unavailable.
+  }
 }
 
 function normalizeCounterId(counterId: string | null | undefined) {
@@ -70,10 +98,53 @@ function buildYandexMetrikaSnippet(counterId: number) {
   `;
 }
 
+function YandexMetrikaConsentBanner({
+  onChange,
+}: {
+  onChange: (value: YandexMetrikaConsent) => void;
+}) {
+  return (
+    <div
+      className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-lg rounded-lg border bg-background/95 p-3 shadow-custom backdrop-blur"
+      role="status"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <p className="text-foreground flex-1 text-xs leading-5">
+          Используем cookie для стабильной работы сайта и аналитики.
+        </p>
+        <Button
+          className="h-9 shrink-0 px-4 text-xs"
+          type="button"
+          onClick={() => onChange("accepted")}
+        >
+          Ок
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export const YandexMetrika: React.FC<YandexMetrikaProps> = ({
   counterIds,
 }) => {
   const normalizedCounterIds = normalizeCounterIds(counterIds);
+  const [consent, setConsent] = React.useState<YandexMetrikaConsent | null>(
+    null,
+  );
+  const [isHydrated, setIsHydrated] = React.useState(false);
+
+  React.useEffect(() => {
+    setConsent(readYandexMetrikaConsent());
+    setIsHydrated(true);
+  }, []);
+
+  const handleConsentChange = React.useCallback(
+    (value: YandexMetrikaConsent) => {
+      writeYandexMetrikaConsent(value);
+      setConsent(value);
+    },
+    [],
+  );
 
   if (normalizedCounterIds.length === 0) {
     return null;
@@ -81,31 +152,38 @@ export const YandexMetrika: React.FC<YandexMetrikaProps> = ({
 
   return (
     <>
-      {normalizedCounterIds.map((counterId) => (
-        <Script
-          key={counterId}
-          id={`yandex-metrika-${counterId}`}
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: buildYandexMetrikaSnippet(counterId),
-          }}
-        />
-      ))}
-      <noscript>
-        {normalizedCounterIds.map((counterId) => (
-          <div key={counterId}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`https://mc.yandex.ru/watch/${counterId}`}
-              style={{ position: "absolute", left: "-9999px" }}
-              alt=""
+      {consent === "accepted" ? (
+        <>
+          {normalizedCounterIds.map((counterId) => (
+            <Script
+              key={counterId}
+              id={`yandex-metrika-${counterId}`}
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: buildYandexMetrikaSnippet(counterId),
+              }}
             />
-          </div>
-        ))}
-      </noscript>
-      <React.Suspense fallback={null}>
-        <YandexMetrikaPageview counterIds={normalizedCounterIds} />
-      </React.Suspense>
+          ))}
+          <noscript>
+            {normalizedCounterIds.map((counterId) => (
+              <div key={counterId}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://mc.yandex.ru/watch/${counterId}`}
+                  style={{ position: "absolute", left: "-9999px" }}
+                  alt=""
+                />
+              </div>
+            ))}
+          </noscript>
+          <React.Suspense fallback={null}>
+            <YandexMetrikaPageview counterIds={normalizedCounterIds} />
+          </React.Suspense>
+        </>
+      ) : null}
+      {isHydrated && consent === null ? (
+        <YandexMetrikaConsentBanner onChange={handleConsentChange} />
+      ) : null}
     </>
   );
 };

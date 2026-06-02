@@ -26,6 +26,7 @@ export const CART_CONTEXT_FALLBACK_VALUE: CartContextValue = {
     error: null,
     guestName: null,
     guestSessionId: null,
+    guestToken: null,
     isJoining: false,
     needsGuestName: false,
     publicKey: null,

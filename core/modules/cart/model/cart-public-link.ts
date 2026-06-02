@@ -5,6 +5,7 @@ export type CartPublicAccessKind = "hallTable" | "shared";
 export interface CartPublicAccess {
   guestName?: string | null;
   guestSessionId?: string | null;
+  guestToken?: string | null;
   kind?: CartPublicAccessKind;
   publicKey: string;
   rawLink: string;
@@ -53,6 +54,7 @@ export function createCartPublicAccess(
     ...(options.guestSessionId
       ? { guestSessionId: options.guestSessionId }
       : {}),
+    ...(options.guestToken ? { guestToken: options.guestToken } : {}),
     ...(options.guestName ? { guestName: options.guestName } : {}),
     publicKey,
     rawLink: options.rawLink ?? buildRawLink(publicKey),
@@ -176,6 +178,8 @@ export function deserializeCartPublicAccess(
         typeof parsed.guestSessionId === "string"
           ? parsed.guestSessionId
           : undefined,
+      guestToken:
+        typeof parsed.guestToken === "string" ? parsed.guestToken : undefined,
       kind:
         parsed.kind === "hallTable" || parsed.kind === "shared"
           ? parsed.kind

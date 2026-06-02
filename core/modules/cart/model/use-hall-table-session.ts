@@ -14,6 +14,7 @@ type JoinHallTableSessionResponse = {
   tableSession: {
     cart: CartDto;
     guestSessionId: string;
+    guestToken: string;
     publicKey: string;
   };
 };
@@ -22,6 +23,7 @@ export type HallTableSessionClientState = {
   error: unknown;
   guestName: string | null;
   guestSessionId: string | null;
+  guestToken: string | null;
   isJoining: boolean;
   needsGuestName: boolean;
   publicKey: string | null;
@@ -66,6 +68,13 @@ function buildHallTableGuestNameStorageKey(
   return `catalog-hall-table-guest-name:${catalogId}:${tableCode}`;
 }
 
+function buildHallTableGuestTokenStorageKey(
+  catalogId: string,
+  tableCode: string,
+): string {
+  return `catalog-hall-table-guest-token:${catalogId}:${tableCode}`;
+}
+
 function readStoredGuestSessionId(
   catalogId: string,
   tableCode: string,
@@ -92,6 +101,21 @@ function readStoredGuestName(
   return normalizeText(
     window.sessionStorage.getItem(
       buildHallTableGuestNameStorageKey(catalogId, tableCode),
+    ),
+  );
+}
+
+function readStoredGuestToken(
+  catalogId: string,
+  tableCode: string,
+): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return normalizeText(
+    window.sessionStorage.getItem(
+      buildHallTableGuestTokenStorageKey(catalogId, tableCode),
     ),
   );
 }
@@ -126,11 +150,27 @@ function storeGuestName(
   );
 }
 
+function storeGuestToken(
+  catalogId: string,
+  tableCode: string,
+  guestToken: string,
+) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    buildHallTableGuestTokenStorageKey(catalogId, tableCode),
+    guestToken,
+  );
+}
+
 function isSameHallTableAccess(
   access: CartPublicAccess | null,
   tableCode: string | null,
 ): access is CartPublicAccess & {
   guestSessionId: string;
+  guestToken: string;
   kind: "hallTable";
   tableCode: string;
 } {
@@ -139,7 +179,8 @@ function isSameHallTableAccess(
     tableCode &&
     access.tableCode === tableCode &&
     access.publicKey &&
-    access.guestSessionId,
+    access.guestSessionId &&
+    access.guestToken,
   );
 }
 
@@ -157,6 +198,7 @@ export function useHallTableSession({
     error: null,
     guestName: null,
     guestSessionId: null,
+    guestToken: null,
     isJoining: false,
     needsGuestName: false,
     publicKey: null,
@@ -184,6 +226,7 @@ export function useHallTableSession({
               error: null,
               guestName: null,
               guestSessionId: null,
+              guestToken: null,
               isJoining: false,
               needsGuestName: false,
               publicKey: null,
@@ -195,6 +238,7 @@ export function useHallTableSession({
     }
 
     const storedGuestSessionId = readStoredGuestSessionId(catalogId, tableCode);
+    const storedGuestToken = readStoredGuestToken(catalogId, tableCode);
     const storedGuestName = readStoredGuestName(catalogId, tableCode);
     const sameAccess = isSameHallTableAccess(storedPublicAccess, tableCode);
     const guestName =
@@ -207,6 +251,9 @@ export function useHallTableSession({
         guestSessionId: sameAccess
           ? storedPublicAccess.guestSessionId
           : storedGuestSessionId,
+        guestToken: sameAccess
+          ? storedPublicAccess.guestToken
+          : storedGuestToken,
         isJoining: false,
         needsGuestName: true,
         publicKey: sameAccess ? storedPublicAccess.publicKey : null,
@@ -221,6 +268,7 @@ export function useHallTableSession({
           createCartPublicAccess(storedPublicAccess.publicKey, {
             guestName,
             guestSessionId: storedPublicAccess.guestSessionId,
+            guestToken: storedPublicAccess.guestToken,
             kind: "hallTable",
             tableCode,
           }),
@@ -230,6 +278,7 @@ export function useHallTableSession({
         error: null,
         guestName,
         guestSessionId: storedPublicAccess.guestSessionId,
+        guestToken: storedPublicAccess.guestToken,
         isJoining: false,
         needsGuestName: false,
         publicKey: storedPublicAccess.publicKey,
@@ -244,6 +293,7 @@ export function useHallTableSession({
       error: null,
       guestName,
       guestSessionId: storedGuestSessionId,
+      guestToken: storedGuestToken,
       isJoining: true,
       needsGuestName: false,
       publicKey: null,
@@ -257,6 +307,7 @@ export function useHallTableSession({
           ...(storedGuestSessionId
             ? { guestSessionId: storedGuestSessionId }
             : {}),
+          ...(storedGuestToken ? { guestToken: storedGuestToken } : {}),
           guestName,
         },
       )
@@ -268,17 +319,20 @@ export function useHallTableSession({
         const guestSessionId = normalizeText(
           response.tableSession.guestSessionId,
         );
+        const guestToken = normalizeText(response.tableSession.guestToken);
         const publicKey = normalizeText(response.tableSession.publicKey);
 
-        if (!guestSessionId || !publicKey) {
+        if (!guestSessionId || !guestToken || !publicKey) {
           throw new Error("Hall table session response is invalid.");
         }
 
         storeGuestSessionId(catalogId, tableCode, guestSessionId);
+        storeGuestToken(catalogId, tableCode, guestToken);
 
         const access = createCartPublicAccess(publicKey, {
           guestName,
           guestSessionId,
+          guestToken,
           kind: "hallTable",
           tableCode,
         });
@@ -291,6 +345,7 @@ export function useHallTableSession({
           error: null,
           guestName,
           guestSessionId,
+          guestToken,
           isJoining: false,
           needsGuestName: false,
           publicKey,
@@ -306,6 +361,7 @@ export function useHallTableSession({
           error,
           guestName,
           guestSessionId: storedGuestSessionId,
+          guestToken: storedGuestToken,
           isJoining: false,
           needsGuestName: false,
           publicKey: null,

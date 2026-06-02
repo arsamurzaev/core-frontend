@@ -9,9 +9,7 @@ import {
   withCsrf,
   withJsonContentType,
 } from "@/shared/api/client-request";
-import {
-  toApiClientError,
-} from "@/shared/api/client-errors";
+import { toApiClientError } from "@/shared/api/client-errors";
 
 export {
   API_BASE_URL,
@@ -39,12 +37,17 @@ async function request<T>(config: AxiosRequestConfig): Promise<T> {
   }
 }
 
+type ApiClientRequestOptions = {
+  headers?: ApiHeaders;
+};
+
 function requestWithBody<T>(
   method: "POST" | "PUT" | "PATCH",
   endpoint: string,
   data: unknown,
+  options: ApiClientRequestOptions = {},
 ): Promise<T> {
-  const headers = withJsonContentType(withCsrf(), data);
+  const headers = withJsonContentType(withCsrf(options.headers ?? {}), data);
 
   return request<T>({
     url: endpoint,
@@ -62,23 +65,38 @@ export const apiClient = {
     });
   },
 
-  async post<T>(endpoint: string, data: unknown): Promise<T> {
-    return requestWithBody("POST", endpoint, data);
+  async post<T>(
+    endpoint: string,
+    data: unknown,
+    options?: ApiClientRequestOptions,
+  ): Promise<T> {
+    return requestWithBody("POST", endpoint, data, options);
   },
 
-  async put<T>(endpoint: string, data: unknown): Promise<T> {
-    return requestWithBody("PUT", endpoint, data);
+  async put<T>(
+    endpoint: string,
+    data: unknown,
+    options?: ApiClientRequestOptions,
+  ): Promise<T> {
+    return requestWithBody("PUT", endpoint, data, options);
   },
 
-  async patch<T>(endpoint: string, data: unknown): Promise<T> {
-    return requestWithBody("PATCH", endpoint, data);
+  async patch<T>(
+    endpoint: string,
+    data: unknown,
+    options?: ApiClientRequestOptions,
+  ): Promise<T> {
+    return requestWithBody("PATCH", endpoint, data, options);
   },
 
-  async delete<T>(endpoint: string): Promise<T> {
+  async delete<T>(
+    endpoint: string,
+    options: ApiClientRequestOptions = {},
+  ): Promise<T> {
     return request<T>({
       url: endpoint,
       method: "DELETE",
-      headers: withCsrf(),
+      headers: withCsrf(options.headers ?? {}),
     });
   },
 };
