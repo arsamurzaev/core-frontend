@@ -47,23 +47,9 @@ interface UseCreateProductSubmitParams {
   queryClient: QueryClient;
   setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
   setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>;
-  setUploadState: React.Dispatch<React.SetStateAction<UploadState>>;
-  setUploadedMediaIds: React.Dispatch<React.SetStateAction<string[]>>;
   uploadedMediaIds: string[];
   variantAttributes: AttributeDto[];
   visibleAttributes: AttributeDto[];
-}
-
-function toUploadErrorState(current: UploadState, message: string): UploadState {
-  if (current.phase === "idle") {
-    return current;
-  }
-
-  return {
-    ...current,
-    phase: "error",
-    message,
-  };
 }
 
 function renderProgressToast(label: string, progress: number) {
@@ -96,16 +82,18 @@ export function useCreateProductSubmit({
   queryClient,
   setErrorMessage,
   setIsSubmitting,
-  setUploadState,
-  setUploadedMediaIds,
   uploadedMediaIds,
   variantAttributes,
   visibleAttributes,
 }: UseCreateProductSubmitParams) {
-  return React.useCallback(async () => {
-    if (isSubmitting) {
+  const isSubmitLaunchingRef = React.useRef(false);
+
+  return React.useCallback(() => {
+    if (isSubmitting || isSubmitLaunchingRef.current) {
       return;
     }
+
+    isSubmitLaunchingRef.current = true;
 
     const validationResult = validateProductFormValues({
       invalidFormMessage: "Заполните форму товара.",
@@ -119,12 +107,14 @@ export function useCreateProductSubmit({
       visibleAttributes,
     });
     if (!validationResult.success) {
+      isSubmitLaunchingRef.current = false;
       setErrorMessage(validationResult.errorMessage);
       toast.error(validationResult.errorMessage);
       return;
     }
 
     if (isInitialCropRequired && pendingAddedFilesCount > 0) {
+      isSubmitLaunchingRef.current = false;
       setErrorMessage(REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE);
       toast.error(REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE);
       openRequiredCropper();
@@ -143,7 +133,12 @@ export function useCreateProductSubmit({
     );
 
     closeDrawer();
+    setIsSubmitting(false);
+    window.setTimeout(() => {
+      isSubmitLaunchingRef.current = false;
+    }, 0);
 
+    // The drawer can be reused immediately; this task must only touch snapshots.
     void (async () => {
       try {
         const queued =
@@ -152,14 +147,12 @@ export function useCreateProductSubmit({
             : await enqueueProductImages({
                 files: filesSnapshot,
                 onStateChange: (state) => {
-                  setUploadState(state);
                   toast.loading(renderUploadProgressToast(state), {
                     id: backgroundToastId,
                   });
                 },
               });
         const mediaIds = queued.mediaIds;
-        setUploadedMediaIds(mediaIds);
 
         toast.loading(renderProgressToast("Создаём товар...", 100), {
           id: backgroundToastId,
@@ -211,11 +204,7 @@ export function useCreateProductSubmit({
         });
       } catch (error) {
         const message = extractApiErrorMessage(error);
-        setErrorMessage(message);
-        setUploadState((current) => toUploadErrorState(current, message));
         toast.error(message, { id: backgroundToastId });
-      } finally {
-        setIsSubmitting(false);
       }
     })();
   }, [
@@ -237,8 +226,6 @@ export function useCreateProductSubmit({
     queryClient,
     setErrorMessage,
     setIsSubmitting,
-    setUploadState,
-    setUploadedMediaIds,
     uploadedMediaIds,
     variantAttributes,
     visibleAttributes,

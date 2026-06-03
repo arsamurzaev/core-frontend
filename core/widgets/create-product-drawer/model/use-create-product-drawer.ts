@@ -105,8 +105,6 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     queryClient,
     setErrorMessage: drawerState.setErrorMessage,
     setIsSubmitting,
-    setUploadState: imageEditor.setUploadState,
-    setUploadedMediaIds: imageEditor.setUploadedMediaIds,
     uploadedMediaIds: imageEditor.uploadedMediaIds,
     variantAttributes,
     visibleAttributes,
