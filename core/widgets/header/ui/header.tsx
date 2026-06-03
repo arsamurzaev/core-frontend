@@ -14,6 +14,16 @@ import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shared/ui/dialog";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { ArrowRight } from "lucide-react";
 
@@ -151,9 +161,31 @@ export const Header: React.FC<Props> = ({
             <Button onClick={handleCopyCatalogLink} variant="outline" size="sm">
               {shareButtonLabel}
             </Button>
-            <Button size="sm" variant="outline">
-              Статистика аккаунта
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline">
+                  Статистика аккаунта
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Статистика аккаунта</DialogTitle>
+                  <DialogDescription>
+                    Данная функция находится в разработке.
+                  </DialogDescription>
+                </DialogHeader>
+                <p className="text-center text-xl font-bold leading-tight uppercase text-foreground">
+                  СКОРО ТУТ БУДЕТ МНОГО ИНТЕРЕСНОГО
+                </p>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">
+                      Понятно
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             {isGlobalAdmin ? <LazyGlobalAdminDrawerTrigger /> : null}
           </div>
         ) : (
