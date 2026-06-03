@@ -91,7 +91,7 @@ describe("capability display helpers", () => {
     expect(canShowBetaField(capabilities, "iikoIntegration")).toBe(true);
   });
 
-  it("hides product structure controls for catalog managers with MoySklad", () => {
+  it("hides product structure controls for catalog owners with MoySklad", () => {
     expect(
       shouldHideProductStructureControlsForCatalogManager({
         capabilities: {
@@ -111,7 +111,7 @@ describe("capability display helpers", () => {
         moySkladConfigured: true,
         userRole: "ADMIN",
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       shouldHideProductStructureControlsForCatalogManager({
         capabilities: {

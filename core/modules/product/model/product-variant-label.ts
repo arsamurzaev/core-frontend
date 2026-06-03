@@ -1,4 +1,5 @@
 import { toOptionalTrimmedString } from "@/shared/lib/text";
+import { sortProductVariantAttributes } from "./product-variant-ordering";
 
 type VariantAttributeLabelLike = {
   attribute?: {
@@ -70,7 +71,7 @@ export function formatProductVariantLabel(
   }
 
   const separator = options.separator ?? " / ";
-  const attributeLabel = (variant?.attributes ?? [])
+  const attributeLabel = sortProductVariantAttributes(variant?.attributes)
     .map((attribute) =>
       formatProductVariantAttributeLabel(attribute, {
         includeAttributeNames: options.includeAttributeNames,

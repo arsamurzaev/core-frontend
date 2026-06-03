@@ -17,7 +17,9 @@ const NOW = "2026-05-13T00:00:00.000Z";
 function variantAttribute(params: {
   attributeId: string;
   attributeLabel: string;
+  attributeOrder?: number;
   enumValueId: string;
+  valueOrder?: number;
   valueLabel: string;
 }): VariantAttributeDto {
   return {
@@ -32,14 +34,14 @@ function variantAttribute(params: {
       isRequired: false,
       isVariantAttribute: true,
       isFilterable: true,
-      displayOrder: 0,
+      displayOrder: params.attributeOrder ?? 0,
       isHidden: false,
     },
     enumValue: {
       id: params.enumValueId,
       value: params.enumValueId,
       displayName: params.valueLabel,
-      displayOrder: 0,
+      displayOrder: params.valueOrder ?? 0,
       businessId: null,
     },
   };
@@ -128,6 +130,54 @@ describe("product variant picker model", () => {
         values: [{ id: "s", label: "S" }],
       },
     ]);
+  });
+
+  it("orders picker groups and values by product type metadata", () => {
+    const small = variant({
+      id: "small",
+      attributes: [
+        variantAttribute({
+          attributeId: "size",
+          attributeLabel: "Размер",
+          attributeOrder: 2,
+          enumValueId: "small",
+          valueLabel: "Маленькая",
+          valueOrder: 2,
+        }),
+      ],
+    });
+    const medium = variant({
+      id: "medium",
+      attributes: [
+        variantAttribute({
+          attributeId: "size",
+          attributeLabel: "Размер",
+          attributeOrder: 2,
+          enumValueId: "medium",
+          valueLabel: "Средняя",
+          valueOrder: 1,
+        }),
+      ],
+    });
+    const large = variant({
+      id: "large",
+      attributes: [
+        variantAttribute({
+          attributeId: "size",
+          attributeLabel: "Размер",
+          attributeOrder: 2,
+          enumValueId: "large",
+          valueLabel: "Большая",
+          valueOrder: 0,
+        }),
+      ],
+    });
+
+    expect(
+      buildProductVariantGroups([small, medium, large])[0]?.values.map(
+        (value) => value.label,
+      ),
+    ).toEqual(["Большая", "Средняя", "Маленькая"]);
   });
 
   it("finds the best purchasable variant for a partial selection", () => {

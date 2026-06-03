@@ -3,6 +3,8 @@ import {
   findKnownProductVariantOption,
   isProductVariantOptionSelectable,
   resolveInitialProductVariantId,
+  sortProductVariantAttributes,
+  sortProductVariants,
 } from "@/core/modules/product";
 
 export interface VariantPickerValue {
@@ -85,8 +87,8 @@ export function buildProductVariantGroups(
 ): VariantPickerGroup[] {
   const groups = new Map<string, VariantPickerGroup>();
 
-  for (const variant of variants) {
-    for (const attribute of variant.attributes) {
+  for (const variant of sortProductVariants(variants)) {
+    for (const attribute of sortProductVariantAttributes(variant.attributes)) {
       const group = groups.get(attribute.attributeId) ?? {
         id: attribute.attributeId,
         label:

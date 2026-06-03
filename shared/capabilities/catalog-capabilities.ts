@@ -7,7 +7,10 @@ import {
   useCatalogAdvancedSettingsControllerGetMoySkladStatus,
   useCatalogControllerGetCurrentFeatures,
 } from "@/shared/api/generated/react-query";
-import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
+import {
+  isCatalogManagerRole,
+  isGlobalAdminRole,
+} from "@/shared/lib/catalog-role";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 
@@ -232,6 +235,10 @@ export function shouldHideProductStructureControlsForCatalogManager(params: {
   moySkladConfigured?: boolean;
   userRole?: string | null;
 }): boolean {
+  if (isGlobalAdminRole(params.userRole)) {
+    return false;
+  }
+
   const hasConfiguredExternalMenu =
     (params.capabilities.canUseMoySkladIntegration &&
       params.moySkladConfigured !== false) ||

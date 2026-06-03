@@ -13,6 +13,7 @@ export * from "./model/product-variant-label";
 export * from "./model/product-drawer-preview";
 export * from "./model/product-variant-availability";
 export * from "./model/product-variant-selection-model";
+export * from "./model/product-variant-ordering";
 export * from "./model/sale-units";
 export * from "./model/use-product-card-virtual-grid-layout";
 export * from "./model/use-product-card-view-mode";

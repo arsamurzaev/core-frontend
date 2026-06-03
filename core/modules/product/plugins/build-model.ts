@@ -12,6 +12,10 @@ import type {
   ResolvedProductCardPlugin,
 } from "./contracts";
 import { formatProductVariantLabel } from "../model/product-variant-label";
+import {
+  sortProductVariantAttributes,
+  sortProductVariants,
+} from "../model/product-variant-ordering";
 
 type ProductCardEntity = ProductWithAttributesDto | ProductWithDetailsDto;
 
@@ -65,8 +69,8 @@ function getVariantValuesByKey(product: ProductCardEntity, key: string): string[
 
   const values = new Set<string>();
 
-  for (const variant of product.variants ?? []) {
-    for (const attribute of variant.attributes ?? []) {
+  for (const variant of sortProductVariants(product.variants)) {
+    for (const attribute of sortProductVariantAttributes(variant.attributes)) {
       if (attribute.attribute?.key !== key) {
         continue;
       }
@@ -100,7 +104,7 @@ function getAllVariantsSummary(product: ProductCardEntity): string | null {
   const variants = new Set<string>();
 
   if (canShowProductVariants(product)) {
-    for (const variant of product.variants ?? []) {
+    for (const variant of sortProductVariants(product.variants)) {
       const value = formatProductVariantLabel(variant);
 
       if (value) {

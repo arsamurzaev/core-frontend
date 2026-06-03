@@ -9,6 +9,7 @@ import type {
 import {
   buildProductCardView,
   formatProductVariantLabel,
+  sortProductVariants,
 } from "@/core/modules/product";
 import {
   parseAttributes,
@@ -206,7 +207,7 @@ function getFullVariantsSummary(
 
   const variants = new Set<string>();
 
-  for (const variant of product.variants ?? []) {
+  for (const variant of sortProductVariants(product.variants)) {
     const value = formatProductVariantLabel(variant);
 
     if (value) {

@@ -5,6 +5,7 @@ import {
   type ProductSaleUnit,
 } from "@/core/modules/product/model/sale-units";
 import { isProductVariantPurchasable } from "@/core/widgets/product-drawer/model/product-variant-picker-model";
+import { sortProductVariants } from "@/core/modules/product";
 import type {
   ProductVariantDto,
   ProductWithDetailsDto,
@@ -29,7 +30,7 @@ export function getSelectableProductVariants(params: {
     return [];
   }
 
-  return params.product.variants ?? [];
+  return sortProductVariants(params.product.variants);
 }
 
 export function getBaseProductVariant(
