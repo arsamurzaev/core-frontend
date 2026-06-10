@@ -5,32 +5,35 @@ import Script from "next/script";
 import React from "react";
 import { YandexMetrikaPageview } from "./yandex-metrika-pageview";
 
-const YANDEX_METRIKA_CONSENT_STORAGE_KEY =
-  "catalog:yandex-metrika-consent:v1";
-
-type YandexMetrikaConsent = "accepted" | "rejected";
+const YANDEX_METRIKA_NOTICE_COOKIE_NAME =
+  "catalog_yandex_metrika_notice_dismissed";
+const YANDEX_METRIKA_NOTICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 interface YandexMetrikaProps {
   counterIds?: Array<string | null | undefined> | null;
 }
 
-function readYandexMetrikaConsent(): YandexMetrikaConsent | null {
+function readYandexMetrikaNoticeDismissed() {
   try {
-    const value = window.localStorage.getItem(
-      YANDEX_METRIKA_CONSENT_STORAGE_KEY,
-    );
-
-    return value === "accepted" || value === "rejected" ? value : null;
+    return document.cookie
+      .split(";")
+      .map((part) => part.trim())
+      .some((part) => part === `${YANDEX_METRIKA_NOTICE_COOKIE_NAME}=1`);
   } catch {
-    return null;
+    return false;
   }
 }
 
-function writeYandexMetrikaConsent(value: YandexMetrikaConsent) {
+function writeYandexMetrikaNoticeDismissed() {
   try {
-    window.localStorage.setItem(YANDEX_METRIKA_CONSENT_STORAGE_KEY, value);
+    document.cookie = [
+      `${YANDEX_METRIKA_NOTICE_COOKIE_NAME}=1`,
+      `max-age=${YANDEX_METRIKA_NOTICE_COOKIE_MAX_AGE}`,
+      "path=/",
+      "samesite=lax",
+    ].join("; ");
   } catch {
-    // Keep the current page choice even if persistent storage is unavailable.
+    // The banner will reappear if cookies are unavailable.
   }
 }
 
@@ -98,10 +101,10 @@ function buildYandexMetrikaSnippet(counterId: number) {
   `;
 }
 
-function YandexMetrikaConsentBanner({
-  onChange,
+function YandexMetrikaNoticeBanner({
+  onDismiss,
 }: {
-  onChange: (value: YandexMetrikaConsent) => void;
+  onDismiss: () => void;
 }) {
   return (
     <div
@@ -115,7 +118,7 @@ function YandexMetrikaConsentBanner({
         <Button
           className="h-9 shrink-0 px-4 text-xs"
           type="button"
-          onClick={() => onChange("accepted")}
+          onClick={onDismiss}
         >
           Ок
         </Button>
@@ -128,23 +131,18 @@ export const YandexMetrika: React.FC<YandexMetrikaProps> = ({
   counterIds,
 }) => {
   const normalizedCounterIds = normalizeCounterIds(counterIds);
-  const [consent, setConsent] = React.useState<YandexMetrikaConsent | null>(
-    null,
-  );
+  const [isNoticeDismissed, setIsNoticeDismissed] = React.useState(false);
   const [isHydrated, setIsHydrated] = React.useState(false);
 
   React.useEffect(() => {
-    setConsent(readYandexMetrikaConsent());
+    setIsNoticeDismissed(readYandexMetrikaNoticeDismissed());
     setIsHydrated(true);
   }, []);
 
-  const handleConsentChange = React.useCallback(
-    (value: YandexMetrikaConsent) => {
-      writeYandexMetrikaConsent(value);
-      setConsent(value);
-    },
-    [],
-  );
+  const handleNoticeDismiss = React.useCallback(() => {
+    writeYandexMetrikaNoticeDismissed();
+    setIsNoticeDismissed(true);
+  }, []);
 
   if (normalizedCounterIds.length === 0) {
     return null;
@@ -152,37 +150,35 @@ export const YandexMetrika: React.FC<YandexMetrikaProps> = ({
 
   return (
     <>
-      {consent === "accepted" ? (
-        <>
-          {normalizedCounterIds.map((counterId) => (
-            <Script
-              key={counterId}
-              id={`yandex-metrika-${counterId}`}
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: buildYandexMetrikaSnippet(counterId),
-              }}
+      {normalizedCounterIds.map((counterId) => (
+        <Script
+          key={counterId}
+          id={`yandex-metrika-${counterId}`}
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: buildYandexMetrikaSnippet(counterId),
+          }}
+        />
+      ))}
+      <noscript>
+        {normalizedCounterIds.map((counterId) => (
+          <div key={counterId}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`https://mc.yandex.ru/watch/${counterId}`}
+              style={{ position: "absolute", left: "-9999px" }}
+              alt=""
             />
-          ))}
-          <noscript>
-            {normalizedCounterIds.map((counterId) => (
-              <div key={counterId}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`https://mc.yandex.ru/watch/${counterId}`}
-                  style={{ position: "absolute", left: "-9999px" }}
-                  alt=""
-                />
-              </div>
-            ))}
-          </noscript>
-          <React.Suspense fallback={null}>
-            <YandexMetrikaPageview counterIds={normalizedCounterIds} />
-          </React.Suspense>
-        </>
-      ) : null}
-      {isHydrated && consent === null ? (
-        <YandexMetrikaConsentBanner onChange={handleConsentChange} />
+          </div>
+        ))}
+      </noscript>
+      <React.Suspense fallback={null}>
+        <YandexMetrikaPageview counterIds={normalizedCounterIds} />
+      </React.Suspense>
+      {isHydrated && !isNoticeDismissed ? (
+        <YandexMetrikaNoticeBanner
+          onDismiss={handleNoticeDismiss}
+        />
       ) : null}
     </>
   );

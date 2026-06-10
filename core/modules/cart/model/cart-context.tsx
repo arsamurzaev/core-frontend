@@ -58,6 +58,9 @@ export {
   normalizeCartLineSelection,
 } from "./cart-line-selection";
 export type {
+  CartLineModifierSelection,
+} from "./cart-line-key";
+export type {
   CartLineSelection,
   CartQuantityScope,
   NormalizedCartLineSelection,

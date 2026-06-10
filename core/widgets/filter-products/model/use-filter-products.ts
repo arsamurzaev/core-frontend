@@ -87,6 +87,10 @@ export function useFilterProducts({ queryState }: UseFilterProductsParams) {
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
   );
+  const productPages = React.useMemo(
+    () => data?.pages.map((page) => page.items) ?? [],
+    [data],
+  );
 
   return {
     fetchNextPage,
@@ -94,6 +98,7 @@ export function useFilterProducts({ queryState }: UseFilterProductsParams) {
     isEnabled,
     isFetchingNextPage,
     isLoading,
+    productPages,
     products,
   };
 }

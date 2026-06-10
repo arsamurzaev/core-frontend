@@ -2,6 +2,7 @@ import type { CartItemDto } from "@/shared/api/generated/react-query";
 import { isCartItemForGuest } from "./cart-guest";
 import type { CartProductSnapshot } from "./cart-context.types";
 import {
+  getCartItemModifiers,
   getCartItemSaleUnitId,
   normalizeSaleUnitId,
   normalizeVariantId,
@@ -15,6 +16,11 @@ import {
 export interface CartLineUpsertPayload {
   guestName?: string;
   guestSessionId?: string;
+  modifiers?: Array<{
+    productModifierGroupId: string;
+    productModifierOptionId: string;
+    quantity: number;
+  }>;
   product?: CartProductSnapshot;
   productId: string;
   quantity: number;
@@ -36,7 +42,11 @@ function isMatchingCartLine(
   return (
     item.productId === selection.productId &&
     normalizeVariantId(item.variantId) === selection.variantId &&
-    normalizeSaleUnitId(getCartItemSaleUnitId(item)) === selection.saleUnitId
+    normalizeSaleUnitId(getCartItemSaleUnitId(item)) === selection.saleUnitId &&
+    normalizeCartLineSelection({
+      productId: item.productId,
+      modifiers: getCartItemModifiers(item),
+    }).modifierSignature === selection.modifierSignature
   );
 }
 
@@ -47,7 +57,11 @@ function isDefaultProductCartLine(
   return (
     item.productId === productId &&
     !normalizeVariantId(item.variantId) &&
-    !normalizeSaleUnitId(getCartItemSaleUnitId(item))
+    !normalizeSaleUnitId(getCartItemSaleUnitId(item)) &&
+    !normalizeCartLineSelection({
+      productId: item.productId,
+      modifiers: getCartItemModifiers(item),
+    }).modifierSignature
   );
 }
 
@@ -63,7 +77,11 @@ export function findCartItemForLineSelection(
     isCartItemForGuest(item, effectiveGuestSessionId),
   );
 
-  if (normalizedSelection.variantId || normalizedSelection.saleUnitId) {
+  if (
+    normalizedSelection.variantId ||
+    normalizedSelection.saleUnitId ||
+    normalizedSelection.modifierSignature
+  ) {
     return (
       guestItems.find((item) =>
         isMatchingCartLine(item, normalizedSelection),
@@ -101,6 +119,15 @@ export function buildCartLineUpsertPayload({
       : {}),
     ...(normalizedSelection.guestSessionId
       ? { guestSessionId: normalizedSelection.guestSessionId }
+      : {}),
+    ...(normalizedSelection.modifiers.length
+      ? {
+          modifiers: normalizedSelection.modifiers.map((modifier) => ({
+            productModifierGroupId: modifier.productModifierGroupId,
+            productModifierOptionId: modifier.productModifierOptionId,
+            quantity: modifier.quantity,
+          })),
+        }
       : {}),
     product,
     productId: normalizedSelection.productId,

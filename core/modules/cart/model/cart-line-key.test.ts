@@ -10,13 +10,13 @@ describe("cart line key helpers", () => {
     expect(normalizeVariantId("  ")).toBeUndefined();
     expect(normalizeSaleUnitId(null)).toBeUndefined();
     expect(buildCartLineKey("product-1")).toBe(
-      "product-1:default:default",
+      "product-1:default:default:default",
     );
   });
 
   it("builds stable keys for variant and sale unit lines", () => {
     expect(buildCartLineKey("product-1", " variant-1 ", " kg ")).toBe(
-      "product-1:variant-1:kg",
+      "product-1:variant-1:kg:default",
     );
   });
 });

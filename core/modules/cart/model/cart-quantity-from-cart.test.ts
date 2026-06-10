@@ -88,6 +88,18 @@ describe("getCartLineSelectionQuantityFromCart", () => {
     expect(value).toBe(3);
   });
 
+  it("returns sale unit quantity when variants are hidden from cart items", () => {
+    const value = getCartLineSelectionQuantityFromCart({
+      cart: cart([
+        cartItem({ id: "item-1", quantity: 2, saleUnitId: "piece" }),
+        cartItem({ id: "item-2", quantity: 7, saleUnitId: "box" }),
+      ]),
+      selection: { productId: "product-1", saleUnitId: "box" },
+    });
+
+    expect(value).toBe(7);
+  });
+
   it("returns quantity in the selected guest scope", () => {
     const value = getCartLineSelectionQuantityFromCart({
       cart: cart([

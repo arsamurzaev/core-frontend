@@ -61,9 +61,7 @@ const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
         className,
       )}
       style={
-        isDetailed
-          ? undefined
-          : { minHeight: `max(100%, ${PRODUCT_CARD_GRID_BASE_HEIGHT_PX}px)` }
+        isDetailed ? undefined : { minHeight: PRODUCT_CARD_GRID_BASE_HEIGHT_PX }
       }
     >
       {children}
@@ -114,9 +112,7 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
     imageSources[imageSourceIndex] ?? "/not-found-photo.png";
   const handleImageError = React.useCallback(() => {
     setImageSourceIndex((currentIndex) =>
-      currentIndex < imageSources.length - 1
-        ? currentIndex + 1
-        : currentIndex,
+      currentIndex < imageSources.length - 1 ? currentIndex + 1 : currentIndex,
     );
   }, [imageSources.length]);
 

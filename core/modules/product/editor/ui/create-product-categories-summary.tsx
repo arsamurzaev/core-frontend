@@ -23,10 +23,10 @@ export function CreateProductCategoriesSummary({
       {selectedCategories.length > 0 ? (
         selectedCategories.map((category, index) => (
           <div key={category.id} className="w-full text-black">
-            <div className="flex items-center justify-between gap-2 pb-4">
+            <div className="flex min-h-11 items-center justify-between gap-3 py-2">
               <button
                 type="button"
-                className="flex min-w-0 items-center gap-1"
+                className="flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-2 text-left transition-colors hover:text-foreground disabled:opacity-50"
                 onClick={onOpen}
                 disabled={disabled}
               >
@@ -36,7 +36,7 @@ export function CreateProductCategoriesSummary({
 
               <button
                 type="button"
-                className="text-muted transition-colors hover:text-foreground disabled:opacity-50"
+                className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-muted/30 hover:text-foreground disabled:opacity-50"
                 onClick={(event) => {
                   event.stopPropagation();
                   onRemove(category.id);
@@ -54,7 +54,7 @@ export function CreateProductCategoriesSummary({
       ) : (
         <button
           type="button"
-          className="flex w-full items-center gap-1 pb-4 text-left"
+          className="flex min-h-11 w-full items-center gap-1.5 py-2 text-left"
           onClick={onOpen}
           disabled={disabled}
         >
@@ -65,4 +65,3 @@ export function CreateProductCategoriesSummary({
     </div>
   );
 }
-

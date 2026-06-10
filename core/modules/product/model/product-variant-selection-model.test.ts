@@ -20,6 +20,12 @@ const variants = [
     stock: 0,
   },
   {
+    id: "zero-stock",
+    isAvailable: true,
+    status: "ACTIVE",
+    stock: 0,
+  },
+  {
     id: "disabled",
     isAvailable: true,
     status: "DISABLED",
@@ -41,13 +47,13 @@ describe("product variant selection model", () => {
     expect(findKnownProductVariantOption(variants, "missing")).toBeNull();
   });
 
-  it("keeps an explicit initial variant even if it is currently unavailable", () => {
+  it("ignores an explicit initial variant when it is currently unavailable", () => {
     expect(
       resolveInitialProductVariantId({
         initialVariantId: "empty",
         variants,
       }),
-    ).toBe("empty");
+    ).toBe("available");
   });
 
   it("uses query/single/first only when selectable", () => {
@@ -73,11 +79,11 @@ describe("product variant selection model", () => {
   it("allows zero stock selection when stock is not enforced", () => {
     expect(
       resolveInitialProductVariantId({
-        queryVariantId: "empty",
+        queryVariantId: "zero-stock",
         shouldEnforceStock: false,
         variants,
       }),
-    ).toBe("empty");
+    ).toBe("zero-stock");
   });
 
   it("returns selected variant availability with the selected variant", () => {

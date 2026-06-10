@@ -14,6 +14,7 @@ import {
 } from "@/core/modules/product/editor/model/product-variants-field-model";
 import { ProductVariantAttributeCard } from "@/core/modules/product/editor/ui/product-variant-attribute-card";
 import { ProductVariantAttributeSelector } from "@/core/modules/product/editor/ui/product-variant-attribute-selector";
+import { ProductVariantCombinationCard } from "@/core/modules/product/editor/ui/product-variant-combination-card";
 import { ProductVariantCombinationsPanel } from "@/core/modules/product/editor/ui/product-variant-combinations-panel";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
@@ -26,7 +27,14 @@ interface ProductVariantsFieldProps {
   disabled?: boolean;
   discountPercent?: number;
   form: UseFormReturn<CreateProductFormValues>;
+  hideBasePrices?: boolean;
   priceFormatMode?: CatalogPriceFormatMode;
+  renderSaleUnitPriceListFields?: React.ComponentProps<
+    typeof ProductVariantCombinationCard
+  >["renderSaleUnitPriceListFields"];
+  renderVariantPriceListFields?: React.ComponentProps<
+    typeof ProductVariantCombinationCard
+  >["renderVariantPriceListFields"];
   variantAttributes: AttributeDto[];
 }
 
@@ -36,7 +44,10 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
   disabled,
   discountPercent = 0,
   form,
+  hideBasePrices = false,
   priceFormatMode = "integer",
+  renderSaleUnitPriceListFields,
+  renderVariantPriceListFields,
   variantAttributes,
 }) => {
   const [attributeToAddId, setAttributeToAddId] = React.useState("");
@@ -89,7 +100,9 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
 
     if (
       !attributeToAddId ||
-      !availableAttributes.some((attribute) => attribute.id === attributeToAddId)
+      !availableAttributes.some(
+        (attribute) => attribute.id === attributeToAddId,
+      )
     ) {
       setAttributeToAddId(availableAttributes[0].id);
     }
@@ -243,8 +256,11 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
             discountPercent={discountPercent}
             matrixRows={matrixRows}
             missingValueAttributes={missingValueAttributes}
+            hideBasePrices={hideBasePrices}
             priceFormatMode={priceFormatMode}
             priceFallback={priceFallback}
+            renderSaleUnitPriceListFields={renderSaleUnitPriceListFields}
+            renderVariantPriceListFields={renderVariantPriceListFields}
             variantAttributes={variantAttributes}
             onCombinationChange={setCombinationItem}
           />

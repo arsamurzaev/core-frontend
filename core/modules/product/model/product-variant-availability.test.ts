@@ -37,6 +37,22 @@ describe("product variant availability", () => {
     ).toBe(true);
   });
 
+  it("always blocks explicit out-of-stock variants", () => {
+    expect(
+      resolveProductVariantAvailability(
+        {
+          isAvailable: false,
+          status: "OUT_OF_STOCK",
+          stock: null,
+        },
+        { shouldEnforceStock: false },
+      ),
+    ).toMatchObject({
+      isSelectable: false,
+      reason: "out_of_stock",
+    });
+  });
+
   it("always blocks disabled variants", () => {
     expect(
       isProductVariantSelectable(

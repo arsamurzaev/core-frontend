@@ -96,14 +96,26 @@ export function useProductPurchaseSelection({
         : null,
       variants: selectableVariants,
     });
+  const effectiveSelectedVariant = React.useMemo(
+    () =>
+      selectedVariant ??
+      (singlePurchasableVariantId
+        ? (selectableVariants.find(
+            (variant) => variant.id === singlePurchasableVariantId,
+          ) ?? null)
+        : null),
+    [selectableVariants, selectedVariant, singlePurchasableVariantId],
+  );
+  const effectiveSelectedVariantId =
+    selectedVariantId ?? effectiveSelectedVariant?.id ?? null;
   const saleUnitSource = React.useMemo(
     () =>
       resolveProductSaleUnitSource({
         canUseProductVariants,
         product,
-        selectedVariant,
+        selectedVariant: effectiveSelectedVariant,
       }),
-    [canUseProductVariants, product, selectedVariant],
+    [canUseProductVariants, effectiveSelectedVariant, product],
   );
   const saleUnits = React.useMemo(
     () =>
@@ -148,27 +160,28 @@ export function useProductPurchaseSelection({
     () => findProductSaleUnit(saleUnits, selectedSaleUnitId),
     [saleUnits, selectedSaleUnitId],
   );
-  const { displayPrice, hasSelectedDiscount, selectedBasePrice } = React.useMemo(
-    () =>
-      resolveProductPurchasePricing({
-        discount: viewModel.discount,
-        displayPrice: viewModel.displayPrice,
-        hasDiscount: viewModel.hasDiscount,
-        price: viewModel.price,
-        selectedSaleUnit,
-        selectedVariant,
-      }),
-    [selectedSaleUnit, selectedVariant, viewModel],
-  );
+  const { displayPrice, hasSelectedDiscount, selectedBasePrice } =
+    React.useMemo(
+      () =>
+        resolveProductPurchasePricing({
+          discount: viewModel.discount,
+          displayPrice: viewModel.displayPrice,
+          hasDiscount: viewModel.hasDiscount,
+          price: viewModel.price,
+          selectedSaleUnit,
+          selectedVariant: effectiveSelectedVariant,
+        }),
+      [effectiveSelectedVariant, selectedSaleUnit, viewModel],
+    );
   const maxQuantity = React.useMemo(
     () =>
       resolveProductPurchaseMaxQuantity({
         product,
         selectedSaleUnit,
-        selectedVariant,
+        selectedVariant: effectiveSelectedVariant,
         shouldEnforceStock,
       }),
-    [product, selectedSaleUnit, selectedVariant, shouldEnforceStock],
+    [effectiveSelectedVariant, product, selectedSaleUnit, shouldEnforceStock],
   );
   const cartProductSnapshot = React.useMemo(
     () =>
@@ -179,8 +192,9 @@ export function useProductPurchaseSelection({
     [displayPrice, product],
   );
   const isVariantSelectionRequired = isProductVariantSelectionRequired({
+    requiresVariantSelection: product?.requiresVariantSelection,
     selectableVariants,
-    selectedVariant,
+    selectedVariant: effectiveSelectedVariant,
     shouldEnforceStock,
   });
   const isSaleUnitSelectionRequired = isProductSaleUnitSelectionRequired({
@@ -199,8 +213,8 @@ export function useProductPurchaseSelection({
     selectedBasePrice,
     selectedSaleUnit,
     selectedSaleUnitId,
-    selectedVariant,
-    selectedVariantId,
+    selectedVariant: effectiveSelectedVariant,
+    selectedVariantId: effectiveSelectedVariantId,
     selectableVariants,
     setSelectedSaleUnitId,
     setSelectedVariantId,

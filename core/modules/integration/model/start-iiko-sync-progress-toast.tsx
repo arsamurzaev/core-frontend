@@ -180,10 +180,13 @@ export function startIikoSyncProgressToast({
       }
 
       if (progress.status === "ERROR" || progress.status === "SKIPPED") {
-        toast.error(progress.message || "Sync iiko завершился с ошибкой", {
-          id: toastId,
-          duration: 8_000,
-        });
+        toast.error(
+          progress.message || "Синхронизация iiko завершилась с ошибкой",
+          {
+            id: toastId,
+            duration: 8_000,
+          },
+        );
         activeSyncProgressToastRunIds.delete(runId);
         await notifySettled();
         return;

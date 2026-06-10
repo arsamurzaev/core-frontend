@@ -1,5 +1,6 @@
 "use client";
 
+import type { CartLineModifierSelection } from "@/core/modules/cart/model/cart-line-key";
 import { CartQuantityControl } from "@/core/modules/cart/ui/cart-quantity-control";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
 import { cn } from "@/shared/lib/utils";
@@ -10,6 +11,7 @@ interface CartCardActionProps {
   guestName?: string | null;
   guestSessionId?: string | null;
   maxQuantity?: number;
+  modifiers?: CartLineModifierSelection[] | null;
   productId: string;
   quantity?: number;
   saleUnitId?: string | null;
@@ -21,6 +23,7 @@ export const CartCardAction = React.memo(function CartCardAction({
   guestName,
   guestSessionId,
   maxQuantity,
+  modifiers,
   productId,
   quantity: quantityOverride,
   saleUnitId,
@@ -37,6 +40,7 @@ export const CartCardAction = React.memo(function CartCardAction({
       {
         guestName,
         guestSessionId,
+        modifiers,
         productId,
         saleUnitId,
         variantId,

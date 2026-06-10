@@ -4,6 +4,7 @@ import {
   getSaleUnitMaxQuantity,
   type ProductSaleUnit,
 } from "@/core/modules/product/model/sale-units";
+import { filterActivePriceListVisibleItems } from "@/core/modules/product/model/product-price-list-visibility";
 import { isProductVariantPurchasable } from "@/core/widgets/product-drawer/model/product-variant-picker-model";
 import { sortProductVariants } from "@/core/modules/product";
 import type {
@@ -30,7 +31,10 @@ export function getSelectableProductVariants(params: {
     return [];
   }
 
-  return sortProductVariants(params.product.variants);
+  return filterActivePriceListVisibleItems(
+    params.product,
+    sortProductVariants(params.product.variants),
+  );
 }
 
 export function getBaseProductVariant(
@@ -112,14 +116,14 @@ export function resolveNextProductSaleUnitId(params: {
     return initialSaleUnit.id;
   }
 
-  return saleUnits.length === 1 ? saleUnits[0].id : null;
+  return null;
 }
 
 export function isProductSaleUnitSelectionRequired(params: {
   saleUnits: ProductSaleUnit[];
   selectedSaleUnit: ProductSaleUnit | null;
 }): boolean {
-  return params.saleUnits.length > 1 && !params.selectedSaleUnit;
+  return params.saleUnits.length > 0 && !params.selectedSaleUnit;
 }
 
 export function resolveProductPurchasePricing({
@@ -207,10 +211,15 @@ export function resolveProductPurchaseEffectiveMaxQuantity(params: {
 }
 
 export function isProductVariantSelectionRequired(params: {
+  requiresVariantSelection?: boolean | null;
   selectableVariants: ProductVariantDto[];
   selectedVariant: ProductVariantDto | null;
   shouldEnforceStock?: boolean;
 }): boolean {
+  if (!params.requiresVariantSelection) {
+    return false;
+  }
+
   return (
     params.selectableVariants.length > 0 &&
     !isProductVariantPurchasable(params.selectedVariant, {

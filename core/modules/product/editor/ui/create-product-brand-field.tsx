@@ -8,7 +8,7 @@ import { ConfirmationDrawer } from "@/shared/ui/confirmation-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";
 import { Input } from "@/shared/ui/input";
-import { ChevronRight, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ChevronRight, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { type FieldValues } from "react-hook-form";
 
 export function CreateProductBrandField<TValues extends FieldValues>(
@@ -69,7 +69,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
               disabled={isControlDisabled}
               aria-label="Убрать бренд"
             >
-              <X className="size-4" />
+              <Trash2 className="size-4" />
             </button>
           </div>
         ) : (

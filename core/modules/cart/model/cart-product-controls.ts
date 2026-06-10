@@ -64,20 +64,7 @@ export function shouldRequireCartProductVariantSelection(params: {
     return Boolean(params.product?.requiresVariantSelection);
   }
 
-  const activeVariantCount = Math.max(
-    params.product.variantSummary?.activeCount ?? 0,
-    params.product.variantPickerOptions?.filter(
-      (option) => option.status !== "DISABLED",
-    ).length ?? 0,
-  );
-  if (activeVariantCount <= 0) {
-    return false;
-  }
-
-  const singleVariantId =
-    params.product.variantSummary?.singleVariantId?.trim() || undefined;
-
-  return !(activeVariantCount === 1 && Boolean(singleVariantId));
+  return Boolean(params.product.requiresVariantSelection);
 }
 
 export function isVariantSelectionRequiredMessage(message: string): boolean {

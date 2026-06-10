@@ -100,6 +100,82 @@ describe("cart line upsert payload", () => {
     ).toBe("kg-item");
   });
 
+  it("finds a sale unit line when variants are hidden from the cart", () => {
+    const item = cartItem({
+      id: "box-item",
+      saleUnitId: "box",
+      variantId: null,
+    });
+
+    expect(
+      findCartItemForLineSelection([item], {
+        productId: "product-1",
+        saleUnitId: "box",
+      })?.id,
+    ).toBe("box-item");
+    expect(
+      buildCartLineUpsertPayload({
+        cartItem: item,
+        quantity: 5,
+        selection: {
+          productId: "product-1",
+          saleUnitId: "box",
+        },
+      }),
+    ).toEqual({
+      productId: "product-1",
+      quantity: 5,
+      saleUnitId: "box",
+    });
+  });
+
+  it("keeps modifiers when building a payload for a modifier line", () => {
+    const modifiers = [
+      {
+        productModifierGroupId: "group-1",
+        productModifierOptionId: "option-1",
+        quantity: 2,
+      },
+    ];
+    const item = {
+      ...cartItem({
+        id: "cheese-item",
+      }),
+      modifiers: [
+        {
+          id: "cart-modifier-1",
+          productModifierGroupId: "group-1",
+          productModifierOptionId: "option-1",
+          groupName: "Добавки",
+          optionName: "Сыр",
+          quantity: 2,
+          unitPrice: 50,
+        },
+      ],
+    } as CartItemDto;
+
+    expect(
+      findCartItemForLineSelection([item], {
+        modifiers,
+        productId: "product-1",
+      })?.id,
+    ).toBe("cheese-item");
+    expect(
+      buildCartLineUpsertPayload({
+        cartItem: item,
+        quantity: 3,
+        selection: {
+          modifiers,
+          productId: "product-1",
+        },
+      }),
+    ).toEqual({
+      modifiers,
+      productId: "product-1",
+      quantity: 3,
+    });
+  });
+
   it("finds a line in the selected guest scope", () => {
     const items = [
       cartItem({

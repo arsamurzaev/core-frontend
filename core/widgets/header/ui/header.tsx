@@ -7,6 +7,7 @@ import { LazyEditCatalogDrawerTrigger } from "@/core/widgets/header/ui/lazy-edit
 import { LazyGlobalAdminDrawerTrigger } from "@/core/widgets/header/ui/lazy-global-admin-drawer-trigger";
 import { LazyShareDrawerTrigger } from "@/core/widgets/share-drawer/ui/lazy-share-drawer-trigger";
 import { useAuthControllerLogout } from "@/shared/api/generated/react-query";
+import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
 import { isGlobalAdminRole } from "@/shared/lib/catalog-role";
 import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { cn } from "@/shared/lib/utils";
@@ -47,7 +48,8 @@ export const Header: React.FC<Props> = ({
   supportsBrands = true,
   supportsCategoryDetails = true,
 }) => {
-  const { name, config, settings } = useCatalog();
+  const catalog = useCatalog();
+  const { name, config, settings } = catalog;
   const about = config?.about;
   const logoMedia = config?.logoMedia;
   const description = config?.description;
@@ -55,6 +57,7 @@ export const Header: React.FC<Props> = ({
     typeof settings?.address === "string" ? settings.address.trim() : "";
   const { isAuthenticated, isLoading, user } = useSession();
   const isGlobalAdmin = isGlobalAdminRole(user?.role);
+  const canManageContent = canManageCatalogContent(catalog);
 
   const logoutMutation = useAuthControllerLogout();
 
@@ -154,10 +157,12 @@ export const Header: React.FC<Props> = ({
           <Skeleton className="h-10 w-full" />
         ) : isAuthenticated ? (
           <div className="grid grid-cols-2 gap-y-4 gap-x-2.5">
-            <LazyCreateProductDrawerTrigger
-              supportsBrands={supportsBrands}
-              supportsCategoryDetails={supportsCategoryDetails}
-            />
+            {canManageContent ? (
+              <LazyCreateProductDrawerTrigger
+                supportsBrands={supportsBrands}
+                supportsCategoryDetails={supportsCategoryDetails}
+              />
+            ) : null}
             <Button onClick={handleCopyCatalogLink} variant="outline" size="sm">
               {shareButtonLabel}
             </Button>

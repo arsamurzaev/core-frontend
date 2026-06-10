@@ -9,12 +9,22 @@ import {
 } from "@/core/modules/cart/model/cart-product-variant-options";
 import {
   findProductSaleUnit,
-  getDefaultProductSaleUnit,
   getProductSaleUnitContainsText,
   getProductSaleUnits,
   getSaleUnitMaxQuantity,
   type ProductSaleUnit,
 } from "@/core/modules/product/model/sale-units";
+import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
+import {
+  buildCartModifierSelectionPayload,
+  buildDefaultProductModifierSelection,
+  getApplicableProductModifierGroups,
+  getProductModifierSelectionError,
+  getProductModifierUnitTotal,
+  ProductModifierPicker,
+  useProductModifiers,
+  type ProductModifierSelection,
+} from "@/core/modules/product-modifier";
 import {
   type ProductVariantDto,
   type ProductVariantPickerOptionDto,
@@ -39,21 +49,29 @@ import { toast } from "sonner";
 
 const VARIANT_TITLE = "Выберите вариацию";
 const SALE_UNIT_TITLE = "Выберите единицу";
+const MODIFIER_TITLE = "Выберите добавки";
 const QUANTITY_TITLE = "Укажите количество";
 const LOADING_TITLE = "Загружаем товар";
 const ERROR_TITLE = "Не удалось загрузить выбор";
 const EMPTY_VARIANTS_LABEL = "Нет доступных вариаций";
 const LOADING_VARIANTS_LABEL = "Загружаем вариации...";
 const LOADING_UNITS_LABEL = "Загружаем единицы продажи...";
+const LOADING_MODIFIERS_LABEL = "Загружаем добавки...";
 const RETRY_LABEL = "Повторить";
 const ADD_TO_CART_LABEL = "Добавить в корзину";
 const UPDATE_CART_LABEL = "Обновить корзину";
+const CONTINUE_LABEL = "Далее";
 const SOLD_OUT_LABEL = "В корзине максимум";
-const UNIT_UNAVAILABLE_MESSAGE =
-  "Выбранная единица продажи недоступна.";
+const UNIT_UNAVAILABLE_MESSAGE = "Выбранная единица продажи недоступна.";
 const VARIANT_LIMIT_MESSAGE = "Выбранная вариация недоступна.";
 
-type DrawerStep = "variant" | "saleUnit" | "quantity" | "loading" | "error";
+type DrawerStep =
+  | "variant"
+  | "saleUnit"
+  | "modifier"
+  | "quantity"
+  | "loading"
+  | "error";
 
 function getDrawerTitle(step: DrawerStep): string {
   switch (step) {
@@ -61,6 +79,8 @@ function getDrawerTitle(step: DrawerStep): string {
       return VARIANT_TITLE;
     case "saleUnit":
       return SALE_UNIT_TITLE;
+    case "modifier":
+      return MODIFIER_TITLE;
     case "quantity":
       return QUANTITY_TITLE;
     case "error":
@@ -171,19 +191,6 @@ function resolveSelectionMaxQuantity(params: {
   }
 
   return getSaleUnitMaxQuantity(stock, null);
-}
-
-function resolveSnapshotPrice(params: {
-  product: ProductWithAttributesDto;
-  selectedSaleUnit: ProductSaleUnit | null;
-  selectedVariantOption: ProductVariantPickerOptionDto | null;
-}): number | string | null {
-  return (
-    params.selectedSaleUnit?.price ??
-    params.selectedVariantOption?.saleUnitPrice ??
-    params.selectedVariantOption?.price ??
-    params.product.price
-  );
 }
 
 function resolveDisplayUnitPrice(params: {
@@ -343,6 +350,7 @@ function PurchaseSummaryCard({
 }
 
 interface CartProductVariantDrawerProps {
+  canUseCatalogModifiers: boolean;
   canUseCatalogSaleUnits: boolean;
   canUseProductVariants: boolean;
   onOpenChange: (open: boolean) => void;
@@ -351,6 +359,7 @@ interface CartProductVariantDrawerProps {
 }
 
 export function CartProductVariantDrawer({
+  canUseCatalogModifiers,
   canUseCatalogSaleUnits,
   canUseProductVariants,
   onOpenChange,
@@ -362,12 +371,23 @@ export function CartProductVariantDrawer({
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
   const currency = getCatalogCurrency(catalog, "RUB");
   const priceFormatMode = getCatalogPriceFormatMode(catalog);
+  const variantState = React.useMemo(
+    () =>
+      resolveProductCardVariantState(product, {
+        canUseVariants: canUseProductVariants,
+        shouldEnforceStock,
+      }),
+    [canUseProductVariants, product, shouldEnforceStock],
+  );
   const [selectedVariantOption, setSelectedVariantOption] =
     React.useState<ProductVariantPickerOptionDto | null>(null);
   const [selectedSaleUnitId, setSelectedSaleUnitId] = React.useState<
     string | null
   >(null);
   const [isSaleUnitConfirmed, setIsSaleUnitConfirmed] = React.useState(false);
+  const [isModifierConfirmed, setIsModifierConfirmed] = React.useState(false);
+  const [modifierSelection, setModifierSelection] =
+    React.useState<ProductModifierSelection>({});
   const [purchaseQuantity, setPurchaseQuantity] = React.useState(1);
   const productSlugForApi = React.useMemo(
     () => encodeURIComponent(product.slug),
@@ -388,8 +408,7 @@ export function CartProductVariantDrawer({
     (canUseCatalogSaleUnits ||
       (canUseProductVariants &&
         cardVariantItems.length === 0 &&
-        (product.requiresVariantSelection ||
-          (product.variantSummary?.activeCount ?? 0) > 1)));
+        variantState.requiresVariantSelection));
   const {
     data: detailedProduct,
     isError: isDetailedProductError,
@@ -400,6 +419,9 @@ export function CartProductVariantDrawer({
       enabled: shouldLoadDetailedOptions,
       staleTime: 30_000,
     },
+  });
+  const modifiersQuery = useProductModifiers(product.id, {
+    enabled: open && canUseCatalogModifiers,
   });
   const variantItems = React.useMemo(() => {
     if (cardVariantItems.length > 0) {
@@ -421,18 +443,17 @@ export function CartProductVariantDrawer({
     shouldEnforceStock,
   ]);
   const hasVariantStep =
-    canUseProductVariants &&
-    (product.requiresVariantSelection ||
-      (product.variantSummary?.activeCount ?? 0) > 1 ||
-      variantItems.length > 0);
+    canUseProductVariants && variantState.requiresVariantSelection;
   const selectedVariant = React.useMemo(
     () =>
-      selectedVariantOption && detailedProduct
+      detailedProduct
         ? (detailedProduct.variants.find(
-            (variant) => variant.id === selectedVariantOption.id,
+            (variant) =>
+              variant.id ===
+              (selectedVariantOption?.id ?? variantState.singleVariantId),
           ) ?? null)
         : null,
-    [detailedProduct, selectedVariantOption],
+    [detailedProduct, selectedVariantOption, variantState.singleVariantId],
   );
   const saleUnitSource = React.useMemo(
     () =>
@@ -444,22 +465,78 @@ export function CartProductVariantDrawer({
     [detailedProduct, product, selectedVariant],
   );
   const saleUnits = React.useMemo(
-    () =>
-      canUseCatalogSaleUnits
-        ? getProductSaleUnits(saleUnitSource)
-        : [],
+    () => (canUseCatalogSaleUnits ? getProductSaleUnits(saleUnitSource) : []),
     [canUseCatalogSaleUnits, saleUnitSource],
   );
-  const selectedSaleUnit = React.useMemo(
-    () => {
-      const selectedUnit = findProductSaleUnit(saleUnits, selectedSaleUnitId);
-      if (selectedUnit) {
-        return selectedUnit;
-      }
+  const selectedSaleUnit = React.useMemo(() => {
+    return findProductSaleUnit(saleUnits, selectedSaleUnitId);
+  }, [saleUnits, selectedSaleUnitId]);
+  const effectiveVariantId =
+    selectedVariantOption?.id ??
+    (!canUseProductVariants ? selectedSaleUnit?.variantId : null) ??
+    variantState.singleVariantId ??
+    product.variantSummary?.singleVariantId ??
+    product.defaultVariantId ??
+    null;
+  const cartLineVariantId = canUseProductVariants ? effectiveVariantId : null;
+  const modifierGroups = React.useMemo(
+    () =>
+      getApplicableProductModifierGroups({
+        groups: modifiersQuery.data,
+        variantId: effectiveVariantId,
+      }),
+    [effectiveVariantId, modifiersQuery.data],
+  );
+  const modifierSelectionResetKey = React.useMemo(
+    () =>
+      [
+        product.id,
+        effectiveVariantId ?? "default",
+        modifierGroups
+          .map(
+            (group) =>
+              `${group.id}:${group.options
+                .map((option) => option.id)
+                .join(",")}`,
+          )
+          .join("|"),
+      ].join(":"),
+    [effectiveVariantId, modifierGroups, product.id],
+  );
 
-      return saleUnits.length <= 1 ? getDefaultProductSaleUnit(saleUnits) : null;
-    },
-    [saleUnits, selectedSaleUnitId],
+  React.useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const defaultSelection =
+      buildDefaultProductModifierSelection(modifierGroups);
+
+    setModifierSelection(defaultSelection);
+    setIsModifierConfirmed(
+      !getProductModifierSelectionError(modifierGroups, defaultSelection),
+    );
+  }, [modifierGroups, modifierSelectionResetKey, open]);
+
+  const selectedModifiers = React.useMemo(
+    () =>
+      buildCartModifierSelectionPayload({
+        groups: modifierGroups,
+        selection: modifierSelection,
+      }),
+    [modifierGroups, modifierSelection],
+  );
+  const modifierSelectionError = React.useMemo(
+    () => getProductModifierSelectionError(modifierGroups, modifierSelection),
+    [modifierGroups, modifierSelection],
+  );
+  const modifierUnitTotal = React.useMemo(
+    () =>
+      getProductModifierUnitTotal({
+        groups: modifierGroups,
+        selection: modifierSelection,
+      }),
+    [modifierGroups, modifierSelection],
   );
   const shouldShowVariantStep = hasVariantStep && !selectedVariantOption;
   const shouldWaitForSaleUnits =
@@ -470,9 +547,24 @@ export function CartProductVariantDrawer({
     isFetchingDetailedProduct;
   const shouldShowSaleUnitStep =
     canUseCatalogSaleUnits &&
-    saleUnits.length > 1 &&
+    saleUnits.length > 0 &&
     !isSaleUnitConfirmed &&
     !shouldWaitForSaleUnits;
+  const shouldWaitForModifiers =
+    canUseCatalogModifiers &&
+    !shouldShowVariantStep &&
+    !shouldShowSaleUnitStep &&
+    !shouldWaitForSaleUnits &&
+    modifiersQuery.isFetching &&
+    modifiersQuery.data === undefined;
+  const shouldShowModifierStep =
+    canUseCatalogModifiers &&
+    Boolean(modifierSelectionError) &&
+    !isModifierConfirmed &&
+    !shouldShowVariantStep &&
+    !shouldShowSaleUnitStep &&
+    !shouldWaitForSaleUnits &&
+    !shouldWaitForModifiers;
   const step: DrawerStep = shouldShowVariantStep
     ? "variant"
     : isDetailedProductError &&
@@ -482,18 +574,32 @@ export function CartProductVariantDrawer({
       ? "error"
       : shouldWaitForSaleUnits
         ? "loading"
-        : shouldShowSaleUnitStep
-          ? "saleUnit"
-          : "quantity";
+        : shouldWaitForModifiers
+          ? "loading"
+          : shouldShowSaleUnitStep
+            ? "saleUnit"
+            : shouldShowModifierStep
+              ? "modifier"
+              : "quantity";
+  const loadingLabel = shouldWaitForModifiers
+    ? LOADING_MODIFIERS_LABEL
+    : LOADING_UNITS_LABEL;
   const cartSelection = React.useMemo(
     () =>
       buildCartProductSelection({
+        modifiers: selectedModifiers,
         productId: product.id,
         saleUnitId:
           selectedSaleUnit?.id ?? selectedVariantOption?.saleUnitId ?? null,
-        variantId: selectedVariantOption?.id ?? null,
+        variantId: cartLineVariantId,
       }),
-    [product.id, selectedSaleUnit, selectedVariantOption],
+    [
+      cartLineVariantId,
+      product.id,
+      selectedModifiers,
+      selectedSaleUnit,
+      selectedVariantOption,
+    ],
   );
   const cartSelectionKey = React.useMemo(
     () => buildCartLineSelectionKey(cartSelection),
@@ -523,6 +629,7 @@ export function CartProductVariantDrawer({
       : Math.max(maxQuantity, currentCartQuantity);
   const canSubmit =
     step === "quantity" &&
+    !modifierSelectionError &&
     purchaseQuantity > 0 &&
     (purchaseMaxQuantity === undefined ||
       purchaseQuantity <= purchaseMaxQuantity);
@@ -531,10 +638,14 @@ export function CartProductVariantDrawer({
     selectedSaleUnit,
     selectedVariantOption,
   });
-  const displayTotal =
-    unitPrice === null || purchaseQuantity <= 0
+  const unitPriceWithModifiers =
+    unitPrice === null && modifierUnitTotal <= 0
       ? null
-      : unitPrice * purchaseQuantity;
+      : (unitPrice ?? 0) + modifierUnitTotal;
+  const displayTotal =
+    unitPriceWithModifiers === null || purchaseQuantity <= 0
+      ? null
+      : unitPriceWithModifiers * purchaseQuantity;
   const submitLabel =
     currentCartQuantity > 0 ? UPDATE_CART_LABEL : ADD_TO_CART_LABEL;
   const quantityHint =
@@ -552,6 +663,8 @@ export function CartProductVariantDrawer({
       setSelectedVariantOption(null);
       setSelectedSaleUnitId(null);
       setIsSaleUnitConfirmed(false);
+      setIsModifierConfirmed(false);
+      setModifierSelection({});
       setPurchaseQuantity(1);
     }
   }, [open, product.id]);
@@ -561,20 +674,11 @@ export function CartProductVariantDrawer({
       return;
     }
 
-    setSelectedSaleUnitId((current) => {
-      if (saleUnits.length <= 1) {
-        return getDefaultProductSaleUnit(saleUnits)?.id ?? saleUnits[0]?.id ?? null;
-      }
-
-      const currentUnit = findProductSaleUnit(saleUnits, current);
-      if (currentUnit) {
-        return currentUnit.id;
-      }
-
-      return null;
-    });
-    setIsSaleUnitConfirmed(saleUnits.length <= 1);
-  }, [open, saleUnits]);
+    if (!findProductSaleUnit(saleUnits, selectedSaleUnitId)) {
+      setSelectedSaleUnitId(null);
+      setIsSaleUnitConfirmed(false);
+    }
+  }, [open, saleUnits, selectedSaleUnitId]);
 
   React.useEffect(() => {
     if (!open) {
@@ -595,6 +699,7 @@ export function CartProductVariantDrawer({
       setSelectedVariantOption(item.option);
       setSelectedSaleUnitId(null);
       setIsSaleUnitConfirmed(false);
+      setIsModifierConfirmed(false);
       setPurchaseQuantity(1);
     },
     [],
@@ -603,30 +708,28 @@ export function CartProductVariantDrawer({
   const handleSaleUnitClick = React.useCallback((unit: ProductSaleUnit) => {
     setSelectedSaleUnitId(unit.id);
     setIsSaleUnitConfirmed(true);
+    setIsModifierConfirmed(false);
     setPurchaseQuantity(1);
   }, []);
 
   const handleSubmit = React.useCallback(async () => {
+    if (modifierSelectionError) {
+      toast.error(modifierSelectionError);
+      return;
+    }
+
     if (!canSubmit) {
       toast.error(UNIT_UNAVAILABLE_MESSAGE);
       return;
     }
 
     try {
-      await setLineQuantity(
-        cartSelection,
-        purchaseQuantity,
-        {
-          id: product.id,
-          name: product.name,
-          price: resolveSnapshotPrice({
-            product,
-            selectedSaleUnit,
-            selectedVariantOption,
-          }),
-          slug: product.slug,
-        },
-      );
+      await setLineQuantity(cartSelection, purchaseQuantity, {
+        id: product.id,
+        name: product.name,
+        price: unitPriceWithModifiers,
+        slug: product.slug,
+      });
       onOpenChange(false);
     } catch (error) {
       toast.error(extractApiErrorMessage(error));
@@ -634,12 +737,12 @@ export function CartProductVariantDrawer({
   }, [
     canSubmit,
     cartSelection,
+    modifierSelectionError,
     onOpenChange,
     product,
     purchaseQuantity,
-    selectedSaleUnit,
-    selectedVariantOption,
     setLineQuantity,
+    unitPriceWithModifiers,
   ]);
 
   return (
@@ -726,7 +829,7 @@ export function CartProductVariantDrawer({
 
           {step === "loading" ? (
             <div className="flex justify-center py-6 text-sm text-muted-foreground">
-              {LOADING_UNITS_LABEL}
+              {loadingLabel}
             </div>
           ) : null}
 
@@ -757,7 +860,9 @@ export function CartProductVariantDrawer({
                   const unitSelection = buildCartProductSelection({
                     productId: product.id,
                     saleUnitId: unit.id,
-                    variantId: selectedVariantOption?.id,
+                    variantId: canUseProductVariants
+                      ? effectiveVariantId
+                      : null,
                   });
                   const unitMaxQuantity = shouldEnforceStock
                     ? getSaleUnitMaxQuantity(
@@ -801,6 +906,43 @@ export function CartProductVariantDrawer({
             </div>
           ) : null}
 
+          {step === "modifier" ? (
+            <div className="space-y-4">
+              <p className="text-center text-sm text-muted-foreground">
+                Можно выбрать несколько штук у одной опции.
+              </p>
+
+              <ProductModifierPicker
+                className="px-0 pb-0"
+                currency={currency}
+                disabled={isBusy}
+                groups={modifierGroups}
+                onChange={setModifierSelection}
+                priceFormatMode={priceFormatMode}
+                selection={modifierSelection}
+              />
+
+              <Button
+                type="button"
+                className="h-11 w-full rounded-full"
+                disabled={isBusy}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+
+                  if (modifierSelectionError) {
+                    toast.error(modifierSelectionError);
+                    return;
+                  }
+
+                  setIsModifierConfirmed(true);
+                }}
+              >
+                {CONTINUE_LABEL}
+              </Button>
+            </div>
+          ) : null}
+
           {step === "quantity" ? (
             <div className="space-y-4">
               <PurchaseSummaryCard
@@ -808,7 +950,7 @@ export function CartProductVariantDrawer({
                 priceFormatMode={priceFormatMode}
                 productName={product.name}
                 saleUnit={selectedSaleUnit}
-                unitPrice={unitPrice}
+                unitPrice={unitPriceWithModifiers}
                 variantLabel={variantLabel}
               />
 

@@ -50,6 +50,8 @@ describe("cart product selection", () => {
         variantId: " variant-1 ",
       }),
     ).toEqual({
+      modifierSignature: "",
+      modifiers: [],
       productId: "product-1",
       saleUnitId: "box",
       variantId: "variant-1",
@@ -66,6 +68,8 @@ describe("cart product selection", () => {
         }),
       }),
     ).toEqual({
+      modifierSignature: "",
+      modifiers: [],
       productId: "product-1",
       saleUnitId: "box",
       variantId: "variant-1",
@@ -86,6 +90,8 @@ describe("cart product selection", () => {
         variantId: "variant-1",
       }),
     ).toEqual({
+      modifierSignature: "",
+      modifiers: [],
       productId: "product-1",
       saleUnitId: "box",
       variantId: "variant-1",

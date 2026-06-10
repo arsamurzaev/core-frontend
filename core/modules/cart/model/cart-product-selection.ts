@@ -3,6 +3,7 @@ import {
   normalizeCartLineSelection,
   type NormalizedCartLineSelection,
 } from "@/core/modules/cart/model/cart-line-selection";
+import type { CartLineModifierSelection } from "@/core/modules/cart/model/cart-line-key";
 import type {
   ProductVariantPickerOptionDto,
   ProductWithAttributesDto,
@@ -14,6 +15,7 @@ type ProductWithVariantPickerOptions = Pick<
 >;
 
 export function buildCartProductSelection(params: {
+  modifiers?: CartLineModifierSelection[] | null;
   productId: string;
   saleUnitId?: string | null;
   variantId?: string | null;

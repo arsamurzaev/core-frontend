@@ -11,6 +11,16 @@ import {
   buildVariantsFormValueFromExisting,
   normalizeVariantsFormValue,
 } from "@/core/modules/product/editor/model/product-variants";
+import {
+  buildProductModifierBindingsPayload,
+  type ProductModifierGroupBindingDraft,
+} from "@/core/modules/product-modifier";
+import {
+  buildProductPriceListBulkPricesPayload,
+  buildProductPriceListProductSourceFromForm,
+  type ProductPriceListPriceDraft,
+  useCatalogPriceLists,
+} from "@/core/modules/catalog-price-list";
 import { buildPersistedEditableAttributeValues } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import { useEditProductDrawerState } from "@/core/widgets/edit-product-drawer/model/use-edit-product-drawer-state";
 import { useEditProductImageEditor } from "@/core/widgets/edit-product-drawer/model/use-edit-product-image-editor";
@@ -60,7 +70,23 @@ export function useEditProductDrawer(
   const removeProduct = useProductControllerRemove();
   const form = useProductEditorForm();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [modifierDrafts, setModifierDrafts] = React.useState<
+    ProductModifierGroupBindingDraft[]
+  >([]);
+  const [areModifierDraftsReady, setAreModifierDraftsReady] =
+    React.useState(false);
+  const [priceListPriceDrafts, setPriceListPriceDrafts] = React.useState<
+    ProductPriceListPriceDraft[]
+  >([]);
+  const [hasPriceListPriceDraftsEdited, setHasPriceListPriceDraftsEdited] =
+    React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const priceListsQuery = useCatalogPriceLists(
+    {},
+    { enabled: features.canUseCatalogPriceLists && open },
+  );
+  const hideBasePrices =
+    features.canUseCatalogPriceLists && (priceListsQuery.data?.length ?? 0) > 0;
 
   const productQuery = useProductControllerGetById(productId, {
     query: {
@@ -78,6 +104,8 @@ export function useEditProductDrawer(
     canEditProductStructure && !productStructure.hideProductStructureControls;
   const canEditProductPrice =
     canEditProductStructure && !productStructure.hideProductStructureControls;
+  const canEditProductModifiers =
+    features.canUseCatalogModifiers && canEditProductStructure;
   const productTypeLockIntegrationName =
     getProductIntegrationProviderLabel(product);
   const restoredVariantMatrixKeyRef = React.useRef<string | null>(null);
@@ -132,6 +160,7 @@ export function useEditProductDrawer(
     canUseDiscounts: canUseProductDiscounts,
     canEditPrice: canEditProductPrice,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    hideBasePrices,
     isActive: open,
     supportsBrands,
     supportsCategoryDetails,
@@ -169,6 +198,14 @@ export function useEditProductDrawer(
     setOpen,
     shouldSkipSchemaDrivenReset,
   });
+  const {
+    closeDrawer: closeBaseDrawer,
+    errorMessage,
+    handleOpenChange: handleBaseOpenChange,
+    handleReset: handleBaseReset,
+    open: drawerOpen,
+    setErrorMessage,
+  } = drawerState;
   const variantMatrixRestoreKey = React.useMemo(() => {
     if (!product || variantAttributes.length === 0) {
       return null;
@@ -200,18 +237,55 @@ export function useEditProductDrawer(
     return `${product.id}:${product.updatedAt ?? ""}:${schemaKey}:${variantsKey}`;
   }, [product, variantAttributes]);
 
+  const resetModifierDrafts = React.useCallback(() => {
+    setModifierDrafts((current) => (current.length > 0 ? [] : current));
+    setAreModifierDraftsReady((current) => (current ? false : current));
+  }, []);
+  const resetPriceListPriceDrafts = React.useCallback(() => {
+    setPriceListPriceDrafts((current) => (current.length > 0 ? [] : current));
+    setHasPriceListPriceDraftsEdited((current) => (current ? false : current));
+  }, []);
+  const markPriceListPriceDraftsEdited = React.useCallback(() => {
+    setHasPriceListPriceDraftsEdited(true);
+  }, []);
+
   const handleCloseDrawer = React.useCallback(() => {
     hasManualProductTypeChangeRef.current = false;
-    drawerState.closeDrawer();
+    resetModifierDrafts();
+    resetPriceListPriceDrafts();
+    closeBaseDrawer();
     onExternalOpenChange?.(false);
-  }, [drawerState, onExternalOpenChange]);
+  }, [
+    closeBaseDrawer,
+    onExternalOpenChange,
+    resetModifierDrafts,
+    resetPriceListPriceDrafts,
+  ]);
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      handleBaseOpenChange(nextOpen);
+      if (!nextOpen) {
+        resetModifierDrafts();
+        resetPriceListPriceDrafts();
+      }
+    },
+    [handleBaseOpenChange, resetModifierDrafts, resetPriceListPriceDrafts],
+  );
 
   React.useEffect(() => {
     if (!open) {
       restoredVariantMatrixKeyRef.current = null;
       hasManualProductTypeChangeRef.current = false;
+      resetModifierDrafts();
+      resetPriceListPriceDrafts();
     }
-  }, [open]);
+  }, [open, resetModifierDrafts, resetPriceListPriceDrafts]);
+
+  React.useEffect(() => {
+    resetModifierDrafts();
+    resetPriceListPriceDrafts();
+  }, [productId, resetModifierDrafts, resetPriceListPriceDrafts]);
 
   React.useEffect(() => {
     if (!open || !product || !variantMatrixRestoreKey) {
@@ -274,7 +348,7 @@ export function useEditProductDrawer(
         error: productQuery.error,
         isError: productQuery.isError,
       });
-      drawerState.setErrorMessage(message);
+      setErrorMessage(message);
       toast.error(message);
       return;
     }
@@ -293,13 +367,12 @@ export function useEditProductDrawer(
       },
       onError: (error) => {
         const message = extractApiErrorMessage(error);
-        drawerState.setErrorMessage(message);
+        setErrorMessage(message);
         toast.error(message);
       },
     });
   }, [
     canDeleteProduct,
-    drawerState,
     handleCloseDrawer,
     isBusy,
     product,
@@ -307,7 +380,47 @@ export function useEditProductDrawer(
     productQuery.isError,
     queryClient,
     removeProduct,
+    setErrorMessage,
   ]);
+
+  const getModifierBindings = React.useCallback(() => {
+    if (!areModifierDraftsReady) {
+      throw new Error("Дождитесь загрузки модификаторов товара.");
+    }
+
+    return buildProductModifierBindingsPayload(modifierDrafts);
+  }, [areModifierDraftsReady, modifierDrafts]);
+  const getPriceListPrices = React.useCallback(
+    (nextProduct?: typeof product) => {
+      const formProduct = buildProductPriceListProductSourceFromForm({
+        canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+        canUseProductVariants:
+          productStructure.canUseProductVariants && canEditProductStructure,
+        formValues: form.getValues(),
+        product,
+        variantAttributes,
+      });
+
+      return buildProductPriceListBulkPricesPayload(
+        priceListPriceDrafts,
+        priceFormatMode,
+        {
+          product: nextProduct ?? formProduct,
+          previousProduct: formProduct,
+        },
+      );
+    },
+    [
+      canEditProductStructure,
+      features.canUseCatalogSaleUnits,
+      form,
+      priceFormatMode,
+      priceListPriceDrafts,
+      product,
+      productStructure.canUseProductVariants,
+      variantAttributes,
+    ],
+  );
 
   const handleBaseSubmit = useEditProductSubmit({
     closeDrawer: handleCloseDrawer,
@@ -318,6 +431,12 @@ export function useEditProductDrawer(
     canUseDiscounts: canUseProductDiscounts,
     canEditPrice: canEditProductPrice,
     form,
+    getModifierBindings: canEditProductModifiers
+      ? getModifierBindings
+      : undefined,
+    getPriceListPrices: features.canUseCatalogPriceLists
+      ? getPriceListPrices
+      : undefined,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isSubmitting,
     openRequiredCropper: imageEditor.openRequiredCropper,
@@ -330,7 +449,7 @@ export function useEditProductDrawer(
     productQueryIsError: productQuery.isError,
     queryClient,
     resolveMediaIdsForSubmit: imageEditor.resolveMediaIdsForSubmit,
-    setErrorMessage: drawerState.setErrorMessage,
+    setErrorMessage,
     setIsSubmitting,
     updateProduct,
     variantAttributes,
@@ -343,8 +462,10 @@ export function useEditProductDrawer(
 
   const handleReset = React.useCallback(() => {
     hasManualProductTypeChangeRef.current = false;
-    drawerState.handleReset();
-  }, [drawerState]);
+    handleBaseReset();
+    resetModifierDrafts();
+    resetPriceListPriceDrafts();
+  }, [handleBaseReset, resetModifierDrafts, resetPriceListPriceDrafts]);
 
   return {
     cropperApplyLabel: imageEditor.cropperApplyLabel,
@@ -354,7 +475,7 @@ export function useEditProductDrawer(
     cropperMode: imageEditor.cropperMode,
     cropperTitle: imageEditor.cropperTitle,
     canDeleteProduct,
-    errorMessage: drawerState.errorMessage,
+    errorMessage,
     features: {
       ...features,
       canUseProductTypes: productStructure.canUseProductTypes,
@@ -362,6 +483,8 @@ export function useEditProductDrawer(
         productStructure.canUseProductVariants && canEditProductStructure,
       canUseProductDiscounts,
       canEditProductPrice,
+      canEditProductModifiers,
+      hideBasePrices,
     },
     form,
     formFields,
@@ -372,7 +495,7 @@ export function useEditProductDrawer(
     handleEditItem: imageEditor.handleEditItem,
     handleFilesChange: imageEditor.handleFilesChange,
     handleDelete,
-    handleOpenChange: drawerState.handleOpenChange,
+    handleOpenChange,
     handleReset,
     handleSelectItemForSwap: imageEditor.handleSelectItemForSwap,
     handleSubmit,
@@ -385,11 +508,18 @@ export function useEditProductDrawer(
     isLoadingProduct: open && productQuery.isLoading && !product,
     isReorderMode: imageEditor.isReorderMode,
     isSubmitting,
-    open: drawerState.open,
+    modifierDrafts,
+    open: drawerOpen,
     pendingSwapIndex: imageEditor.pendingSwapIndex,
+    priceListPriceDrafts,
+    hasPriceListPriceDraftsEdited,
+    markPriceListPriceDraftsEdited,
     product,
     removeItem: imageEditor.removeItem,
     uploadState: imageEditor.uploadState,
     uploadedMediaIds: imageEditor.uploadedMediaIds,
+    setAreModifierDraftsReady,
+    setModifierDrafts,
+    setPriceListPriceDrafts,
   };
 }

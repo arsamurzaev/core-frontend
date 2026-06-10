@@ -50,8 +50,8 @@ export function buildVariantsFormValueFromExisting(
 
   for (const variant of existingVariants) {
     const attributes = orderVariantCombinationAttributes(
-      (variant.attributes ?? [])
-        .flatMap((attribute): VariantCombinationAttributeValue[] => {
+      (variant.attributes ?? []).flatMap(
+        (attribute): VariantCombinationAttributeValue[] => {
           if (
             !variantAttributeIds.has(attribute.attributeId) ||
             !attribute.enumValueId
@@ -65,7 +65,8 @@ export function buildVariantsFormValueFromExisting(
               enumValueId: attribute.enumValueId,
             },
           ];
-        }),
+        },
+      ),
       variantAttributes,
     );
 
@@ -82,7 +83,10 @@ export function buildVariantsFormValueFromExisting(
       );
       if (!selectedValueIds) {
         selectedValueIds = new Set<string>();
-        selectedValueIdsByAttributeId.set(attribute.attributeId, selectedValueIds);
+        selectedValueIdsByAttributeId.set(
+          attribute.attributeId,
+          selectedValueIds,
+        );
       }
       selectedValueIds.add(attribute.enumValueId);
     }
@@ -91,10 +95,7 @@ export function buildVariantsFormValueFromExisting(
     result.combinations[key] = {
       ...(variantPrice !== null
         ? {
-            price: formatCatalogPriceInputValue(
-              variantPrice,
-              priceFormatMode,
-            ),
+            price: formatCatalogPriceInputValue(variantPrice, priceFormatMode),
           }
         : {}),
       saleUnits: buildSaleUnitsFormValueFromUnknown(
@@ -152,7 +153,7 @@ export function buildCreateVariantsPayload(
           attributeId: attribute.attributeId,
           enumValueId: attribute.enumValueId,
         })),
-        ...(saleUnits.length > 0 ? { saleUnits } : {}),
+        ...(canUseCatalogSaleUnits ? { saleUnits } : {}),
       };
     });
 }

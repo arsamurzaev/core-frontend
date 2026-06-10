@@ -19,8 +19,10 @@ import {
   getCatalogActiveFiltersCount,
   type CatalogFilterQueryState,
 } from "@/shared/lib/catalog-filter-query";
+import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { cn } from "@/shared/lib/utils";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
 import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
@@ -100,7 +102,9 @@ export const Browser: React.FC<BrowserProps> = ({
   supportsCategoryDetails = true,
 }) => {
   const { user } = useSession();
-  const canManageCategories = isCatalogManagerRole(user?.role);
+  const { catalog } = useCatalogState();
+  const canManageCategories =
+    isCatalogManagerRole(user?.role) && canManageCatalogContent(catalog);
   const {
     activePanelIndex,
     queryState,
@@ -118,6 +122,9 @@ export const Browser: React.FC<BrowserProps> = ({
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const isCategoriesInitialLoading =
+    categories.length === 0 &&
+    (categoriesQuery.isLoading || categoriesQuery.isFetching);
   const refetchCategories = categoriesQuery.refetch;
   const storefrontCategories = React.useMemo(
     () => buildCategoryDisplayList(categories, { hideEmpty: true }),
@@ -207,7 +214,7 @@ export const Browser: React.FC<BrowserProps> = ({
       !effectiveIsFilterActive ? (
         <CategoryBarList
           items={catalogCategories}
-          isLoading={categoriesQuery.isLoading}
+          isLoading={isCategoriesInitialLoading}
           activeCategoryId={visibleActiveCategoryId}
           onCategoryClick={categoryClickActivation.handleCategoryClick}
         />
@@ -280,7 +287,7 @@ export const Browser: React.FC<BrowserProps> = ({
               contentClassName="m-1"
               collapsed={!isCatalogPanelActive}
               categories={catalogCategories}
-              isCategoriesLoading={categoriesQuery.isLoading}
+              isCategoriesLoading={isCategoriesInitialLoading}
               isFilterActive={effectiveIsFilterActive}
               queryState={effectiveQueryState}
               activationBlockedCategoryId={

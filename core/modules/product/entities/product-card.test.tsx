@@ -13,7 +13,7 @@ describe("ProductCard", () => {
     );
 
     expect(markup).toContain(
-      `style="min-height:max(100%, ${PRODUCT_CARD_GRID_BASE_HEIGHT_PX}px)"`,
+      `style="min-height:${PRODUCT_CARD_GRID_BASE_HEIGHT_PX}px"`,
     );
   });
 

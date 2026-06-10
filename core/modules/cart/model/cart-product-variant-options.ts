@@ -3,6 +3,7 @@ import type {
   ProductWithAttributesDto,
 } from "@/shared/api/generated/react-query";
 import {
+  filterActivePriceListVisibleItems,
   resolveProductVariantAvailability,
   type ProductVariantAvailabilityState,
 } from "@/core/modules/product";
@@ -10,7 +11,9 @@ import {
 type VariantOptionsProduct = Pick<
   ProductWithAttributesDto,
   "variantPickerOptions"
->;
+> & {
+  usesPriceList?: boolean | null;
+};
 
 export interface CartProductVariantPickerItem {
   availability: ProductVariantAvailabilityState;
@@ -30,13 +33,15 @@ export function getCartProductVariantPickerItems(params: {
   product: VariantOptionsProduct;
   shouldEnforceStock: boolean;
 }): CartProductVariantPickerItem[] {
-  return (params.product.variantPickerOptions ?? [])
-    .map((option) => ({
-      availability: resolveProductVariantAvailability(option, {
-        shouldEnforceStock: params.shouldEnforceStock,
-      }),
-      option,
-    }));
+  return filterActivePriceListVisibleItems(
+    params.product,
+    params.product.variantPickerOptions ?? [],
+  ).map((option) => ({
+    availability: resolveProductVariantAvailability(option, {
+      shouldEnforceStock: params.shouldEnforceStock,
+    }),
+    option,
+  }));
 }
 
 export function getCartProductVariantPickerOptions(params: {

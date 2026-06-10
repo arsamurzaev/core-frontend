@@ -18,9 +18,12 @@ export const CATALOG_CAPABILITIES = [
   "product.types",
   "product.variants",
   "catalog.sale_units",
+  "catalog.modifiers",
+  "catalog.price_lists",
   "inventory.internal",
   "integration.moysklad",
   "integration.iiko",
+  "integration.one_c",
 ] as const;
 
 export type CatalogCapability = (typeof CATALOG_CAPABILITIES)[number];
@@ -45,9 +48,12 @@ export type CatalogCapabilityFlags = {
   canUseProductTypes: boolean;
   canUseProductVariants: boolean;
   canUseCatalogSaleUnits: boolean;
+  canUseCatalogModifiers: boolean;
+  canUseCatalogPriceLists: boolean;
   canUseInternalInventory: boolean;
   canUseMoySkladIntegration: boolean;
   canUseIikoIntegration: boolean;
+  canUseOneCIntegration: boolean;
 };
 
 export type CatalogCapabilities = CatalogCapabilityFlags & {
@@ -72,6 +78,9 @@ export type CatalogBetaField =
   | "internalInventory"
   | "iikoIntegration"
   | "moyskladIntegration"
+  | "oneCIntegration"
+  | "modifiers"
+  | "priceLists"
   | "productTypes"
   | "productVariants"
   | "saleUnits";
@@ -80,6 +89,8 @@ type CatalogFeaturesTransport = Omit<
   Partial<CatalogCurrentFeaturesDto>,
   "raw" | "effective" | "definitions" | "items"
 > & {
+  canUseCatalogModifiers?: boolean;
+  canUseCatalogPriceLists?: boolean;
   raw?: Record<string, boolean> | null;
   effective?: Record<string, boolean> | null;
   definitions?: Array<Record<string, unknown>> | null;
@@ -90,9 +101,12 @@ export const DEFAULT_CAPABILITY_MAP: CatalogCapabilityMap = {
   "product.types": false,
   "product.variants": false,
   "catalog.sale_units": false,
+  "catalog.modifiers": false,
+  "catalog.price_lists": false,
   "inventory.internal": false,
   "integration.moysklad": false,
   "integration.iiko": false,
+  "integration.one_c": false,
 };
 
 export const DEFAULT_CATALOG_CAPABILITIES: CatalogCapabilities = {
@@ -100,9 +114,12 @@ export const DEFAULT_CATALOG_CAPABILITIES: CatalogCapabilities = {
   canUseProductTypes: false,
   canUseProductVariants: false,
   canUseCatalogSaleUnits: false,
+  canUseCatalogModifiers: false,
+  canUseCatalogPriceLists: false,
   canUseInternalInventory: false,
   canUseMoySkladIntegration: false,
   canUseIikoIntegration: false,
+  canUseOneCIntegration: false,
   raw: DEFAULT_CAPABILITY_MAP,
   effective: DEFAULT_CAPABILITY_MAP,
   definitions: [],
@@ -156,12 +173,18 @@ export function resolveCatalogCapabilities(
       features?.canUseProductVariants ?? effective["product.variants"],
     canUseCatalogSaleUnits:
       features?.canUseCatalogSaleUnits ?? effective["catalog.sale_units"],
+    canUseCatalogModifiers:
+      features?.canUseCatalogModifiers ?? effective["catalog.modifiers"],
+    canUseCatalogPriceLists:
+      features?.canUseCatalogPriceLists ?? effective["catalog.price_lists"],
     canUseInternalInventory:
       features?.canUseInternalInventory ?? effective["inventory.internal"],
     canUseMoySkladIntegration:
       features?.canUseMoySkladIntegration ?? effective["integration.moysklad"],
     canUseIikoIntegration:
       features?.canUseIikoIntegration ?? effective["integration.iiko"],
+    canUseOneCIntegration:
+      features?.canUseOneCIntegration ?? effective["integration.one_c"],
     raw,
     effective,
     definitions:
@@ -245,10 +268,7 @@ export function shouldHideProductStructureControlsForCatalogManager(params: {
     (params.capabilities.canUseIikoIntegration &&
       params.iikoConfigured !== false);
 
-  return (
-    isCatalogManagerRole(params.userRole) &&
-    hasConfiguredExternalMenu
-  );
+  return isCatalogManagerRole(params.userRole) && hasConfiguredExternalMenu;
 }
 
 export function resolveCatalogProductStructureVisibility(
@@ -274,16 +294,15 @@ export function useCatalogProductStructureVisibility(
     canManageCatalog &&
     capabilities.canUseMoySkladIntegration;
   const shouldCheckIikoStatus =
-    isAuthenticated &&
-    canManageCatalog &&
-    capabilities.canUseIikoIntegration;
-  const moySkladStatusQuery = useCatalogAdvancedSettingsControllerGetMoySkladStatus({
-    query: {
-      enabled: shouldCheckMoySkladStatus,
-      staleTime: 60_000,
-      refetchOnWindowFocus: false,
-    },
-  });
+    isAuthenticated && canManageCatalog && capabilities.canUseIikoIntegration;
+  const moySkladStatusQuery =
+    useCatalogAdvancedSettingsControllerGetMoySkladStatus({
+      query: {
+        enabled: shouldCheckMoySkladStatus,
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
+      },
+    });
   const iikoStatusQuery = useCatalogAdvancedSettingsControllerGetIikoStatus({
     query: {
       enabled: shouldCheckIikoStatus,
@@ -327,6 +346,12 @@ export function canShowSaleUnits(
   return capabilities.canUseCatalogSaleUnits;
 }
 
+export function canShowModifiers(
+  capabilities: Pick<CatalogCapabilities, "canUseCatalogModifiers">,
+): boolean {
+  return capabilities.canUseCatalogModifiers;
+}
+
 export function canUseInternalInventory(
   capabilities: Pick<CatalogCapabilities, "canUseInternalInventory">,
 ): boolean {
@@ -345,13 +370,22 @@ export function canShowIiko(
   return capabilities.canUseIikoIntegration;
 }
 
+export function canShowOneC(
+  capabilities: Pick<CatalogCapabilities, "canUseOneCIntegration">,
+): boolean {
+  return capabilities.canUseOneCIntegration;
+}
+
 export function canShowBetaField(
   capabilities: Pick<
     CatalogCapabilities,
     | "canUseCatalogSaleUnits"
     | "canUseIikoIntegration"
+    | "canUseCatalogModifiers"
+    | "canUseCatalogPriceLists"
     | "canUseInternalInventory"
     | "canUseMoySkladIntegration"
+    | "canUseOneCIntegration"
     | "canUseProductTypes"
     | "canUseProductVariants"
   >,
@@ -364,6 +398,12 @@ export function canShowBetaField(
       return capabilities.canUseIikoIntegration;
     case "moyskladIntegration":
       return capabilities.canUseMoySkladIntegration;
+    case "oneCIntegration":
+      return capabilities.canUseOneCIntegration;
+    case "modifiers":
+      return capabilities.canUseCatalogModifiers;
+    case "priceLists":
+      return capabilities.canUseCatalogPriceLists;
     case "productTypes":
       return capabilities.canUseProductTypes;
     case "productVariants":

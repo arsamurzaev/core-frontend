@@ -6,15 +6,18 @@ import {
   CREATE_PRODUCT_FORM_LAYOUT,
   type CreateProductFormValues,
 } from "@/core/modules/product/editor/model/form-config";
-import { type SaleUnitsFormValue } from "@/core/modules/product/editor/model/product-variants";
+import {
+  buildVariantMatrixRows,
+  type SaleUnitFormValue,
+  type SaleUnitsFormValue,
+  type VariantCombinationFormValue,
+  type VariantMatrixRow,
+} from "@/core/modules/product/editor/model/product-variants";
 import { ProductSaleUnitsField } from "@/core/modules/product/editor/ui/product-sale-units-field";
 import { ProductVariantsField } from "@/core/modules/product/editor/ui/product-variants-field";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
-import {
-  DynamicForm,
-  type DynamicFieldConfig,
-} from "@/shared/ui/dynamic-form";
+import { DynamicForm, type DynamicFieldConfig } from "@/shared/ui/dynamic-form";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
@@ -26,8 +29,20 @@ interface ProductEditorMainSectionProps {
   form: UseFormReturn<CreateProductFormValues>;
   formFields: DynamicFieldConfig<CreateProductFormValues>[];
   hasVariantAttributes: boolean;
+  hideBasePrices?: boolean;
   priceFormatMode?: CatalogPriceFormatMode;
+  priceListSettingsAction?: React.ReactNode;
+  productPriceListFields?: React.ReactNode;
   priceFallback?: string;
+  renderSaleUnitPriceListFields?: (params: {
+    index: number;
+    unit: SaleUnitFormValue;
+    variantRow?: VariantMatrixRow;
+  }) => React.ReactNode;
+  renderVariantPriceListFields?: (params: {
+    item: VariantCombinationFormValue;
+    row: VariantMatrixRow;
+  }) => React.ReactNode;
   saleUnitsSettingsAction?: React.ReactNode;
   productTypeChangeSection?: React.ReactNode;
   saleUnits: SaleUnitsFormValue | undefined;
@@ -44,14 +59,46 @@ export const ProductEditorMainSection: React.FC<
   form,
   formFields,
   hasVariantAttributes,
+  hideBasePrices = false,
   priceFormatMode = "integer",
+  priceListSettingsAction,
+  productPriceListFields,
   priceFallback,
+  renderSaleUnitPriceListFields,
+  renderVariantPriceListFields,
   saleUnitsSettingsAction,
   productTypeChangeSection,
   saleUnits,
   variantAttributes,
 }) => {
   const showBaseSaleUnits = canUseCatalogSaleUnits && !hasVariantAttributes;
+  const watchedVariants = form.watch("variants");
+  const hasSaleUnitRows = React.useMemo(
+    () =>
+      (saleUnits ?? []).some(
+        (unit) =>
+          Boolean(unit.id?.trim()) ||
+          Boolean(unit.catalogSaleUnitId?.trim()) ||
+          Boolean(unit.label?.trim()),
+      ),
+    [saleUnits],
+  );
+  const hasActiveVariantRows = React.useMemo(
+    () =>
+      hasVariantAttributes && variantAttributes
+        ? buildVariantMatrixRows(watchedVariants, variantAttributes).some(
+            (row) => row.item.status !== "DISABLED",
+          )
+        : false,
+    [hasVariantAttributes, variantAttributes, watchedVariants],
+  );
+  const shouldRenderProductPriceListFields =
+    hideBasePrices &&
+    Boolean(productPriceListFields) &&
+    !hasSaleUnitRows &&
+    !hasActiveVariantRows;
+  const shouldSplitCommercialFields =
+    showBaseSaleUnits || shouldRenderProductPriceListFields;
   const saleUnitsInsertOrder = React.useMemo(() => {
     const discountToggleOrder = formFields.find(
       (field) => field.name === "hasDiscount",
@@ -103,9 +150,19 @@ export const ProductEditorMainSection: React.FC<
 
   return (
     <section className="space-y-3">
-      {showBaseSaleUnits
+      {shouldSplitCommercialFields
         ? renderDynamicForm(formFieldsBeforeSaleUnits)
         : renderDynamicForm(formFields)}
+
+      {priceListSettingsAction ? (
+        <div className="flex min-w-0 justify-start">
+          {priceListSettingsAction}
+        </div>
+      ) : null}
+
+      {shouldRenderProductPriceListFields ? (
+        <div className="min-w-0">{productPriceListFields}</div>
+      ) : null}
 
       {showBaseSaleUnits ? (
         <div className="min-w-0 px-0">
@@ -115,15 +172,24 @@ export const ProductEditorMainSection: React.FC<
             discountPercent={discountPercent}
             priceFormatMode={priceFormatMode}
             priceFallback={priceFallback}
+            renderPriceListFields={
+              renderSaleUnitPriceListFields
+                ? ({ index, unit }) =>
+                    renderSaleUnitPriceListFields({ index, unit })
+                : undefined
+            }
             saleUnits={saleUnits}
             settingsAction={saleUnitsSettingsAction}
+            hidePrices={hideBasePrices}
             title="Единицы продажи"
             onChange={handleSaleUnitsChange}
           />
         </div>
       ) : null}
 
-      {showBaseSaleUnits ? renderDynamicForm(formFieldsAfterSaleUnits) : null}
+      {shouldSplitCommercialFields
+        ? renderDynamicForm(formFieldsAfterSaleUnits)
+        : null}
 
       {productTypeChangeSection}
 
@@ -136,6 +202,18 @@ export const ProductEditorMainSection: React.FC<
           discountPercent={discountPercent}
           disabled={disabled}
           priceFormatMode={priceFormatMode}
+          hideBasePrices={hideBasePrices}
+          renderSaleUnitPriceListFields={
+            renderSaleUnitPriceListFields
+              ? ({ index, row, unit }) =>
+                  renderSaleUnitPriceListFields({
+                    index,
+                    unit,
+                    variantRow: row,
+                  })
+              : undefined
+          }
+          renderVariantPriceListFields={renderVariantPriceListFields}
         />
       ) : null}
     </section>

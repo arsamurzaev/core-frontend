@@ -12,6 +12,7 @@ import type {
   ResolvedProductCardPlugin,
 } from "./contracts";
 import { formatProductVariantLabel } from "../model/product-variant-label";
+import { isVisibleForActivePriceList } from "../model/product-price-list-visibility";
 import {
   sortProductVariantAttributes,
   sortProductVariants,
@@ -57,12 +58,16 @@ function getCatalogAttributeLabel(
   key: string,
   fallback: string,
 ): string {
-  const label = catalog?.type.attributes.find((attribute) => attribute.key === key)
-    ?.displayName;
+  const label = catalog?.type.attributes.find(
+    (attribute) => attribute.key === key,
+  )?.displayName;
   return label ?? fallback;
 }
 
-function getVariantValuesByKey(product: ProductCardEntity, key: string): string[] {
+function getVariantValuesByKey(
+  product: ProductCardEntity,
+  key: string,
+): string[] {
   if (!canShowProductVariants(product)) {
     return [];
   }
@@ -75,7 +80,8 @@ function getVariantValuesByKey(product: ProductCardEntity, key: string): string[
         continue;
       }
 
-      const value = attribute.enumValue?.displayName ?? attribute.enumValue?.value;
+      const value =
+        attribute.enumValue?.displayName ?? attribute.enumValue?.value;
       if (value) {
         values.add(value);
       }
@@ -85,14 +91,20 @@ function getVariantValuesByKey(product: ProductCardEntity, key: string): string[
   return Array.from(values);
 }
 
-function getPickerOptionVariantsSummary(product: ProductCardEntity): string | null {
+function getPickerOptionVariantsSummary(
+  product: ProductCardEntity,
+): string | null {
   if (!hasVariantPickerOptions(product)) {
     return null;
   }
 
   const variants = new Set(
     (product.variantPickerOptions ?? [])
-      .filter((option) => option.status !== "DISABLED")
+      .filter(
+        (option) =>
+          isVisibleForActivePriceList(product, option) &&
+          option.status !== "DISABLED",
+      )
       .map((option) => option.label?.trim())
       .filter((label): label is string => Boolean(label)),
   );
@@ -105,6 +117,10 @@ function getAllVariantsSummary(product: ProductCardEntity): string | null {
 
   if (canShowProductVariants(product)) {
     for (const variant of sortProductVariants(product.variants)) {
+      if (!isVisibleForActivePriceList(product, variant)) {
+        continue;
+      }
+
       const value = formatProductVariantLabel(variant);
 
       if (value) {

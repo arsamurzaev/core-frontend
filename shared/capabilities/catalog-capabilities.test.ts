@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   canShowBetaField,
   canShowIiko,
+  canShowModifiers,
   canShowMoySklad,
+  canShowOneC,
   canShowProductTypes,
   canShowSaleUnits,
   canShowVariants,
@@ -66,9 +68,12 @@ describe("capability display helpers", () => {
   const capabilities = {
     ...DEFAULT_CATALOG_CAPABILITIES,
     canUseCatalogSaleUnits: true,
+    canUseCatalogModifiers: true,
+    canUseCatalogPriceLists: true,
     canUseInternalInventory: false,
     canUseIikoIntegration: true,
     canUseMoySkladIntegration: true,
+    canUseOneCIntegration: true,
     canUseProductTypes: true,
     canUseProductVariants: false,
   };
@@ -77,18 +82,23 @@ describe("capability display helpers", () => {
     expect(canShowProductTypes(capabilities)).toBe(true);
     expect(canShowVariants(capabilities)).toBe(false);
     expect(canShowSaleUnits(capabilities)).toBe(true);
+    expect(canShowModifiers(capabilities)).toBe(true);
     expect(canUseInternalInventory(capabilities)).toBe(false);
     expect(canShowMoySklad(capabilities)).toBe(true);
     expect(canShowIiko(capabilities)).toBe(true);
+    expect(canShowOneC(capabilities)).toBe(true);
   });
 
   it("maps beta field names to effective gates", () => {
     expect(canShowBetaField(capabilities, "productTypes")).toBe(true);
     expect(canShowBetaField(capabilities, "productVariants")).toBe(false);
     expect(canShowBetaField(capabilities, "saleUnits")).toBe(true);
+    expect(canShowBetaField(capabilities, "modifiers")).toBe(true);
+    expect(canShowBetaField(capabilities, "priceLists")).toBe(true);
     expect(canShowBetaField(capabilities, "internalInventory")).toBe(false);
     expect(canShowBetaField(capabilities, "moyskladIntegration")).toBe(true);
     expect(canShowBetaField(capabilities, "iikoIntegration")).toBe(true);
+    expect(canShowBetaField(capabilities, "oneCIntegration")).toBe(true);
   });
 
   it("hides product structure controls for catalog owners with MoySklad", () => {
@@ -138,7 +148,9 @@ describe("capability display helpers", () => {
   });
 
   it("disables product type and variant gates when product structure is hidden", () => {
-    expect(resolveCatalogProductStructureVisibility(capabilities, true)).toEqual({
+    expect(
+      resolveCatalogProductStructureVisibility(capabilities, true),
+    ).toEqual({
       canUseProductTypes: false,
       canUseProductVariants: false,
       hideProductStructureControls: true,

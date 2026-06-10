@@ -8,7 +8,14 @@ import { buildCartItemView } from "./cart-item-view";
 
 const NOW = "2026-05-13T00:00:00.000Z";
 
-function cartItem(overrides: Partial<CartItemDto> = {}): CartItemDto {
+function cartItem(
+  overrides: Partial<
+    CartItemDto & {
+      priceListId?: string | null;
+      unitPriceSnapshot?: number | string | null;
+    }
+  > = {},
+): CartItemDto {
   return {
     id: "item-1",
     productId: "product-1",
@@ -35,7 +42,9 @@ function cartItem(overrides: Partial<CartItemDto> = {}): CartItemDto {
   };
 }
 
-function variant(overrides: Partial<ProductVariantDto> = {}): ProductVariantDto {
+function variant(
+  overrides: Partial<ProductVariantDto> = {},
+): ProductVariantDto {
   return {
     id: "variant-1",
     sku: "SKU-1",
@@ -202,6 +211,40 @@ describe("buildCartItemView", () => {
 
     expect(view.displayLineTotal).toBe(240);
     expect(view.originalLineTotal).toBe(240);
+  });
+
+  it("uses price-list unit snapshot when legacy sale unit price is zero", () => {
+    const view = buildCartItemView({
+      fallbackCurrency: "RUB",
+      item: cartItem({
+        lineTotal: 0,
+        product: {
+          id: "product-1",
+          name: "Coffee",
+          slug: "coffee",
+          price: null,
+        },
+        saleUnitId: "piece",
+        saleUnit: {
+          id: "piece",
+          variantId: "variant-1",
+          catalogSaleUnitId: null,
+          code: "piece",
+          name: "Piece",
+          baseQuantity: 1,
+          price: 0,
+          barcode: null,
+          isDefault: true,
+          isActive: true,
+          displayOrder: 0,
+        },
+        unitPrice: 0,
+        unitPriceSnapshot: 100,
+      }),
+    });
+
+    expect(view.displayLineTotal).toBe(200);
+    expect(view.originalLineTotal).toBe(200);
   });
 
   it("resolves sale unit label from product variant sale units", () => {

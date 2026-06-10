@@ -55,6 +55,7 @@ export interface UseProductFormFieldsParams {
   canUseDiscounts?: boolean;
   canEditPrice?: boolean;
   canUseCatalogSaleUnits?: boolean;
+  hideBasePrices?: boolean;
   isActive?: boolean;
   includeCategories?: boolean;
   supportsBrands?: boolean;
@@ -75,6 +76,7 @@ export function useProductFormFields({
   canUseDiscounts = true,
   canEditPrice = true,
   canUseCatalogSaleUnits = false,
+  hideBasePrices = false,
   isActive = false,
   includeCategories = true,
   supportsBrands = true,
@@ -230,34 +232,32 @@ export function useProductFormFields({
     () => getDiscountAttributeIds(productAttributes),
     [productAttributes],
   );
+  const canRenderDiscountFields = canUseDiscounts && !hideBasePrices;
 
-  const visibleAttributes = React.useMemo(
-    () => {
-      if (!canUseDiscounts) {
-        return productAttributes.filter(
-          (attribute) => !isDiscountAttribute(attribute),
-        );
-      }
+  const visibleAttributes = React.useMemo(() => {
+    if (!canRenderDiscountFields) {
+      return productAttributes.filter(
+        (attribute) => !isDiscountAttribute(attribute),
+      );
+    }
 
-      return filterVisibleDiscountAttributes(productAttributes, {
-        hasDiscount,
-        shouldUsePercentDiscountOnly,
-      });
-    },
-    [
-      canUseDiscounts,
+    return filterVisibleDiscountAttributes(productAttributes, {
       hasDiscount,
-      productAttributes,
       shouldUsePercentDiscountOnly,
-    ],
-  );
+    });
+  }, [
+    canRenderDiscountFields,
+    hasDiscount,
+    productAttributes,
+    shouldUsePercentDiscountOnly,
+  ]);
 
   const baseFormFields = React.useMemo(() => {
     const customFields = buildProductEditorCustomFields({
       brandOptions,
       canUseProductTypes,
       categoryOptions,
-      canUseDiscounts,
+      canUseDiscounts: canRenderDiscountFields,
       disableProductTypeField,
       includeCategories,
       onProductTypeChange,
@@ -272,16 +272,17 @@ export function useProductFormFields({
       visibleAttributes,
       customFields,
       priceFormatMode,
-      { canEditPrice },
+      { canEditPrice, hideBasePrices },
     );
   }, [
     brandOptions,
     canEditPrice,
-    canUseDiscounts,
+    canRenderDiscountFields,
     canUseProductTypes,
     categoryOptions,
     disableProductTypeField,
     includeCategories,
+    hideBasePrices,
     onProductTypeChange,
     productTypeLockIntegrationName,
     productTypeOptions,
@@ -299,7 +300,7 @@ export function useProductFormFields({
   }, [form, shouldUseBrands]);
 
   React.useEffect(() => {
-    if (!isActive || canUseDiscounts) {
+    if (!isActive || canRenderDiscountFields) {
       return;
     }
 
@@ -325,7 +326,7 @@ export function useProductFormFields({
         shouldValidate: false,
       });
     }
-  }, [canUseDiscounts, discountAttributeIds, form, isActive]);
+  }, [canRenderDiscountFields, discountAttributeIds, form, isActive]);
 
   const formFields = React.useMemo(() => {
     return patchProductDiscountFields({

@@ -42,18 +42,19 @@ describe("canOpenCartProductVariantDrawer", () => {
     ).toBe(false);
   });
 
-  it("opens variant UI only for enabled catalogs with variant choices", () => {
+  it("opens variant UI only for enabled catalogs with required selection", () => {
     expect(
       canOpenCartProductVariantDrawer({
         activeVariantCount: 2,
         canUseProductVariants: true,
+        requiresVariantSelection: true,
       }),
     ).toBe(true);
     expect(
       canOpenCartProductVariantDrawer({
-        activeVariantCount: 1,
+        activeVariantCount: 2,
         canUseProductVariants: true,
-        hasVariantPickerOptions: false,
+        hasVariantPickerOptions: true,
         requiresVariantSelection: false,
       }),
     ).toBe(false);

@@ -82,6 +82,53 @@ describe("buildProductCardPluginModel", () => {
     });
   });
 
+  it("omits picker variants without active price-list prices", () => {
+    const model = buildProductCardPluginModel(
+      {
+        id: "product-1",
+        productAttributes: [],
+        productType: {
+          id: "product-type-1",
+          code: "shoes",
+          name: "Shoes",
+        },
+        usesPriceList: true,
+        variantPickerOptions: [
+          {
+            id: "variant-xs",
+            label: "XS",
+            price: "350.00",
+            stock: null,
+            status: "ACTIVE",
+            isAvailable: true,
+            saleUnitId: null,
+            saleUnitPrice: null,
+            maxQuantity: null,
+          },
+          {
+            id: "variant-s",
+            label: "S",
+            price: null,
+            stock: null,
+            status: "ACTIVE",
+            isAvailable: true,
+            saleUnitId: null,
+            saleUnitPrice: null,
+            maxQuantity: null,
+          },
+        ],
+      } as unknown as ProductWithAttributesDto,
+      catalog(),
+      plugin,
+    );
+
+    expect(model.lines).toContainEqual({
+      id: "variants",
+      label: "Вариации",
+      value: "XS",
+    });
+  });
+
   it("builds variant summary from picker options without a product type", () => {
     const model = buildProductCardPluginModel(
       {

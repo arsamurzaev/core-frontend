@@ -60,7 +60,9 @@ function productAttribute(
 }
 
 function product(
-  overrides: Partial<ProductWithDetailsDto> = {},
+  overrides: Partial<ProductWithDetailsDto> & {
+    usesPriceList?: boolean | null;
+  } = {},
 ): ProductWithDetailsDto {
   return {
     id: "product-1",
@@ -93,7 +95,7 @@ function product(
     variants: [],
     seo: null,
     ...overrides,
-  };
+  } as ProductWithDetailsDto;
 }
 
 describe("buildProductDrawerViewModel", () => {
@@ -253,6 +255,122 @@ describe("buildProductDrawerViewModel", () => {
     });
 
     expect(view.variantsSummary).toBe("36, 37");
+  });
+
+  it("hides price-list variant labels without an active price", () => {
+    const productType = {
+      id: "product-type-1",
+      code: "shoes",
+      name: "Shoes",
+    };
+
+    const view = buildProductDrawerViewModel({
+      catalog: null,
+      isError: false,
+      isLoading: false,
+      previewProduct: product({
+        productType,
+        usesPriceList: true,
+        variantPickerOptions: [
+          {
+            id: "variant-xs",
+            label: "XS",
+            price: "350.00",
+            stock: 1,
+            status: ProductVariantPickerOptionDtoStatus.ACTIVE,
+            isAvailable: true,
+            saleUnitId: null,
+            saleUnitPrice: null,
+            maxQuantity: 1,
+          },
+          {
+            id: "variant-s",
+            label: "S",
+            price: null,
+            stock: 1,
+            status: ProductVariantPickerOptionDtoStatus.ACTIVE,
+            isAvailable: true,
+            saleUnitId: null,
+            saleUnitPrice: null,
+            maxQuantity: 1,
+          },
+        ],
+      }),
+      product: product({
+        productType,
+        usesPriceList: true,
+        variantPickerOptions: [],
+        variants: [],
+      }),
+    });
+
+    expect(view.variantsSummary).toBe("XS");
+  });
+
+  it("shows only selectable variant labels in the drawer summary", () => {
+    const productType = {
+      id: "product-type-1",
+      code: "apparel",
+      name: "Apparel",
+    };
+    const variantAttribute = {
+      id: "size",
+      key: "size",
+      displayName: "Размер",
+      dataType: ProductAttributeRefDtoDataType.ENUM,
+      isRequired: false,
+      isVariantAttribute: true,
+      isFilterable: false,
+      displayOrder: 1,
+      isHidden: false,
+    };
+    const makeVariant = (
+      id: string,
+      value: string,
+      status: ProductVariantDtoStatus,
+    ) => ({
+      id: `variant-${id}`,
+      sku: `SKU-${id}`,
+      variantKey: `size=${id}`,
+      kind: "MATRIX" as const,
+      stock: status === ProductVariantDtoStatus.ACTIVE ? 3 : 0,
+      price: status === ProductVariantDtoStatus.ACTIVE ? "350" : null,
+      status,
+      isAvailable: status === ProductVariantDtoStatus.ACTIVE,
+      createdAt: NOW,
+      updatedAt: NOW,
+      attributes: [
+        {
+          id: `variant-attribute-${id}`,
+          attributeId: "size",
+          enumValueId: id,
+          attribute: variantAttribute,
+          enumValue: {
+            id,
+            value: id,
+            displayName: value,
+            displayOrder: 1,
+            businessId: null,
+          },
+        },
+      ],
+      saleUnits: [],
+    });
+
+    const view = buildProductDrawerViewModel({
+      catalog: null,
+      isError: false,
+      isLoading: false,
+      product: product({
+        productType,
+        variants: [
+          makeVariant("xs", "XS", ProductVariantDtoStatus.ACTIVE),
+          makeVariant("s", "S", ProductVariantDtoStatus.OUT_OF_STOCK),
+        ],
+      }),
+    });
+
+    expect(view.variantsSummary).toBe("XS");
   });
 
   it("uses variant summary price instead of legacy product price", () => {

@@ -90,6 +90,10 @@ export function useFilterRecommendations({
     () => data?.pages.flatMap((page) => page.items) ?? [],
     [data],
   );
+  const productPages = React.useMemo(
+    () => data?.pages.map((page) => page.items) ?? [],
+    [data],
+  );
 
   return {
     fetchNextPage,
@@ -97,6 +101,7 @@ export function useFilterRecommendations({
     isEnabled,
     isFetchingNextPage,
     isLoading,
+    productPages,
     products,
   };
 }

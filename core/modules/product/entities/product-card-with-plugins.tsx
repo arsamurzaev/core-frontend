@@ -70,10 +70,10 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
   );
 
   return (
-    <div className={cn("space-y-2", pluginContainerClassName)}>
+    <div className={cn("flex flex-col gap-2", pluginContainerClassName)}>
       <ProductCard
         data={baseCardData}
-        className={className}
+        className={cn("flex-1", className)}
         actions={actions}
         footerAction={footerAction}
         headerMeta={variantsLine?.value}
@@ -85,7 +85,7 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
         reserveHeaderActionSpace={reserveHeaderActionSpace}
       />
       {(model.badges.length > 0 || visibleLines.length > 0) && (
-        <div className="px-2 pb-1 space-y-1">
+        <div className="shrink-0 px-2 pb-1 space-y-1">
           {model.badges.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {model.badges.map((badge) => (

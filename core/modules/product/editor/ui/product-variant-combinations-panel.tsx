@@ -14,15 +14,19 @@ interface ProductVariantCombinationsPanelProps {
   canUseCatalogSaleUnits?: boolean;
   disabled?: boolean;
   discountPercent: number;
+  hideBasePrices?: boolean;
   matrixRows: VariantMatrixRow[];
   missingValueAttributes: AttributeDto[];
   priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
+  renderSaleUnitPriceListFields?: React.ComponentProps<
+    typeof ProductVariantCombinationCard
+  >["renderSaleUnitPriceListFields"];
+  renderVariantPriceListFields?: React.ComponentProps<
+    typeof ProductVariantCombinationCard
+  >["renderVariantPriceListFields"];
   variantAttributes: AttributeDto[];
-  onCombinationChange: (
-    key: string,
-    next: VariantCombinationFormValue,
-  ) => void;
+  onCombinationChange: (key: string, next: VariantCombinationFormValue) => void;
 }
 
 export const ProductVariantCombinationsPanel: React.FC<
@@ -32,10 +36,13 @@ export const ProductVariantCombinationsPanel: React.FC<
   canUseCatalogSaleUnits = false,
   disabled,
   discountPercent,
+  hideBasePrices = false,
   matrixRows,
   missingValueAttributes,
   priceFormatMode = "integer",
   priceFallback,
+  renderSaleUnitPriceListFields,
+  renderVariantPriceListFields,
   variantAttributes,
   onCombinationChange,
 }) => {
@@ -73,8 +80,11 @@ export const ProductVariantCombinationsPanel: React.FC<
               canUseCatalogSaleUnits={canUseCatalogSaleUnits}
               disabled={disabled}
               discountPercent={discountPercent}
+              hideBasePrices={hideBasePrices}
               priceFormatMode={priceFormatMode}
               priceFallback={priceFallback}
+              renderSaleUnitPriceListFields={renderSaleUnitPriceListFields}
+              renderVariantPriceListFields={renderVariantPriceListFields}
               row={row}
               variantAttributes={variantAttributes}
               onChange={onCombinationChange}

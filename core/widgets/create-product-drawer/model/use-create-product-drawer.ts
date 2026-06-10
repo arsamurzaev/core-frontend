@@ -3,6 +3,15 @@
 import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
 import { useProductEditorForm } from "@/core/modules/product/editor/model/use-product-editor-form";
 import { useProductImageEditor } from "@/core/modules/product/editor/model/use-product-image-editor";
+import {
+  buildProductModifierBindingsPayload,
+  type ProductModifierGroupBindingDraft,
+} from "@/core/modules/product-modifier";
+import {
+  buildCreateProductPriceListPricesPayload,
+  type CreateProductPriceListPriceDraft,
+  useCatalogPriceLists,
+} from "@/core/modules/catalog-price-list";
 import { useCreateProductDrawerState } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer-state";
 import { useCreateProductSubmit } from "@/core/widgets/create-product-drawer/model/use-create-product-submit";
 import { useProductControllerCreate } from "@/shared/api/generated/react-query";
@@ -22,7 +31,9 @@ interface UseCreateProductDrawerParams {
   supportsCategoryDetails?: boolean;
 }
 
-export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}) {
+export function useCreateProductDrawer(
+  params: UseCreateProductDrawerParams = {},
+) {
   const {
     open: controlledOpen,
     onOpenChange,
@@ -39,9 +50,21 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
   const queryClient = useQueryClient();
   const createProduct = useProductControllerCreate();
   const form = useProductEditorForm();
+  const [modifierDrafts, setModifierDrafts] = React.useState<
+    ProductModifierGroupBindingDraft[]
+  >([]);
+  const [priceListPriceDrafts, setPriceListPriceDrafts] = React.useState<
+    CreateProductPriceListPriceDraft[]
+  >([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
+  const priceListsQuery = useCatalogPriceLists(
+    {},
+    { enabled: features.canUseCatalogPriceLists && open },
+  );
+  const hideBasePrices =
+    features.canUseCatalogPriceLists && (priceListsQuery.data?.length ?? 0) > 0;
   const setOpen = React.useCallback(
     (nextOpen: boolean | ((currentOpen: boolean) => boolean)) => {
       const resolvedOpen =
@@ -70,6 +93,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     canUseDiscounts: canUseProductDiscounts,
     canEditPrice: canEditProductPrice,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
+    hideBasePrices,
     isActive: open,
     supportsBrands,
     supportsCategoryDetails,
@@ -85,9 +109,55 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     resetImageState: imageEditor.resetState,
     setOpen,
   });
+  const {
+    closeDrawer: closeBaseDrawer,
+    errorMessage,
+    handleOpenChange: handleBaseOpenChange,
+    handleReset: handleBaseReset,
+    open: drawerOpen,
+    setErrorMessage,
+  } = drawerState;
+  const resetModifierDrafts = React.useCallback(() => {
+    setModifierDrafts((current) => (current.length > 0 ? [] : current));
+  }, []);
+  const resetPriceListPriceDrafts = React.useCallback(() => {
+    setPriceListPriceDrafts((current) => (current.length > 0 ? [] : current));
+  }, []);
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      handleBaseOpenChange(nextOpen);
+      if (!nextOpen) {
+        resetModifierDrafts();
+        resetPriceListPriceDrafts();
+      }
+    },
+    [handleBaseOpenChange, resetModifierDrafts, resetPriceListPriceDrafts],
+  );
+  const handleReset = React.useCallback(() => {
+    handleBaseReset();
+    resetModifierDrafts();
+    resetPriceListPriceDrafts();
+  }, [handleBaseReset, resetModifierDrafts, resetPriceListPriceDrafts]);
+  const closeDrawer = React.useCallback(() => {
+    closeBaseDrawer();
+    resetModifierDrafts();
+    resetPriceListPriceDrafts();
+  }, [closeBaseDrawer, resetModifierDrafts, resetPriceListPriceDrafts]);
+  const getModifierBindings = React.useCallback(
+    () => buildProductModifierBindingsPayload(modifierDrafts),
+    [modifierDrafts],
+  );
+  const getPriceListPrices = React.useCallback(
+    () =>
+      buildCreateProductPriceListPricesPayload(
+        priceListPriceDrafts,
+        priceFormatMode,
+      ),
+    [priceFormatMode, priceListPriceDrafts],
+  );
 
   const handleSubmit = useCreateProductSubmit({
-    closeDrawer: drawerState.closeDrawer,
+    closeDrawer,
     canUseCatalogSaleUnits: features.canUseCatalogSaleUnits,
     canUseProductTypes: productStructure.canUseProductTypes,
     canUseProductVariants: productStructure.canUseProductVariants,
@@ -96,6 +166,12 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     createProduct,
     files: imageEditor.files,
     form,
+    getModifierBindings: features.canUseCatalogModifiers
+      ? getModifierBindings
+      : undefined,
+    getPriceListPrices: features.canUseCatalogPriceLists
+      ? getPriceListPrices
+      : undefined,
     isInitialCropRequired: imageEditor.isInitialCropRequired,
     isSubmitting,
     openRequiredCropper: imageEditor.openRequiredCropper,
@@ -103,7 +179,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     priceFormatMode,
     productAttributes,
     queryClient,
-    setErrorMessage: drawerState.setErrorMessage,
+    setErrorMessage,
     setIsSubmitting,
     uploadedMediaIds: imageEditor.uploadedMediaIds,
     variantAttributes,
@@ -117,7 +193,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     cropperInitialIndex: imageEditor.cropperInitialIndex,
     cropperMode: imageEditor.cropperMode,
     cropperTitle: imageEditor.cropperTitle,
-    errorMessage: drawerState.errorMessage,
+    errorMessage,
     filePreviewByFile: imageEditor.filePreviewByFile,
     files: imageEditor.files,
     form,
@@ -128,6 +204,7 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
       canUseProductVariants: productStructure.canUseProductVariants,
       canUseProductDiscounts,
       canEditProductPrice,
+      hideBasePrices,
     },
     productAttributes,
     variantAttributes,
@@ -135,8 +212,8 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     handleCropperOpenChange: imageEditor.handleCropperOpenChange,
     handleEditFile: imageEditor.handleEditFile,
     handleFilesChange: imageEditor.handleFilesChange,
-    handleOpenChange: drawerState.handleOpenChange,
-    handleReset: drawerState.handleReset,
+    handleOpenChange,
+    handleReset,
     handleSelectFileForSwap: imageEditor.handleSelectFileForSwap,
     handleSubmit,
     handleToggleReorderMode: imageEditor.handleToggleReorderMode,
@@ -145,10 +222,14 @@ export function useCreateProductDrawer(params: UseCreateProductDrawerParams = {}
     isReorderMode: imageEditor.isReorderMode,
     isSubmitting,
     isProductTypeSchemaResolving,
-    open: drawerState.open,
+    modifierDrafts,
+    open: drawerOpen,
     pendingSwapIndex: imageEditor.pendingSwapIndex,
+    priceListPriceDrafts,
     removeFile: imageEditor.removeFile,
     uploadState: imageEditor.uploadState,
     uploadedMediaIds: imageEditor.uploadedMediaIds,
+    setModifierDrafts,
+    setPriceListPriceDrafts,
   };
 }

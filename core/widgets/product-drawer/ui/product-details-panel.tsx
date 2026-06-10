@@ -29,6 +29,7 @@ interface ProductDetailsPanelProps {
   hasError: boolean;
   imageUrls: string[];
   isLoading: boolean;
+  modifierPicker?: React.ReactNode;
   price: number | null;
   priceFormatMode: CatalogPriceFormatMode;
   resetKey: string;
@@ -60,6 +61,7 @@ export function ProductDetailsPanel({
   hasError,
   imageUrls,
   isLoading,
+  modifierPicker,
   price,
   priceFormatMode,
   resetKey,
@@ -119,6 +121,7 @@ export function ProductDetailsPanel({
 
           {variantPicker}
           {saleUnitPicker}
+          {modifierPicker}
 
           <ProductDrawerOverviewMeta
             attributeRows={attributeRows}

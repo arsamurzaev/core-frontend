@@ -14,8 +14,14 @@ import {
   parseCreateProductPayload,
 } from "@/core/widgets/create-product-drawer/model/create-product-drawer-data";
 import {
+  setProductModifiers,
+  type ProductModifierGroupBindingPayload,
+} from "@/core/modules/product-modifier";
+import { type CreateProductPriceListPricePayload } from "@/core/modules/catalog-price-list";
+import {
   type AttributeDto,
   type CreateProductDtoReq,
+  type ProductCreateResponseDto,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
@@ -25,7 +31,9 @@ import { type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
 interface CreateProductMutation {
-  mutateAsync: (params: { data: CreateProductDtoReq }) => Promise<unknown>;
+  mutateAsync: (params: {
+    data: CreateProductDtoReq;
+  }) => Promise<ProductCreateResponseDto>;
 }
 
 interface UseCreateProductSubmitParams {
@@ -38,6 +46,8 @@ interface UseCreateProductSubmitParams {
   createProduct: CreateProductMutation;
   files: File[];
   form: UseFormReturn<CreateProductFormValues>;
+  getModifierBindings?: () => ProductModifierGroupBindingPayload[];
+  getPriceListPrices?: () => CreateProductPriceListPricePayload[];
   isInitialCropRequired: boolean;
   isSubmitting: boolean;
   openRequiredCropper: () => void;
@@ -73,6 +83,8 @@ export function useCreateProductSubmit({
   createProduct,
   files,
   form,
+  getModifierBindings,
+  getPriceListPrices,
   isInitialCropRequired,
   isSubmitting,
   openRequiredCropper,
@@ -118,6 +130,20 @@ export function useCreateProductSubmit({
       setErrorMessage(REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE);
       toast.error(REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE);
       openRequiredCropper();
+      return;
+    }
+
+    let modifierBindingsSnapshot: ProductModifierGroupBindingPayload[] = [];
+    let priceListPricesSnapshot: CreateProductPriceListPricePayload[] = [];
+    try {
+      modifierBindingsSnapshot = getModifierBindings?.() ?? [];
+      priceListPricesSnapshot = getPriceListPrices?.() ?? [];
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : extractApiErrorMessage(error);
+      isSubmitLaunchingRef.current = false;
+      setErrorMessage(message);
+      toast.error(message);
       return;
     }
 
@@ -169,11 +195,22 @@ export function useCreateProductSubmit({
           canUseDiscounts,
           canUseProductTypes,
           canUseProductVariants,
+          priceListPrices: priceListPricesSnapshot,
         });
 
-        await createProduct.mutateAsync({
+        const createdProduct = await createProduct.mutateAsync({
           data: createPayload,
         });
+
+        if (modifierBindingsSnapshot.length > 0) {
+          toast.loading(renderProgressToast("Сохраняем модификаторы...", 100), {
+            id: backgroundToastId,
+          });
+          await setProductModifiers({
+            productId: createdProduct.id,
+            groups: modifierBindingsSnapshot,
+          });
+        }
 
         await invalidateCreateProductQueries(queryClient);
 
@@ -184,9 +221,12 @@ export function useCreateProductSubmit({
           return;
         }
 
-        toast.loading(renderProgressToast("Товар создан. Обрабатываем фото...", 50), {
-          id: backgroundToastId,
-        });
+        toast.loading(
+          renderProgressToast("Товар создан. Обрабатываем фото...", 50),
+          {
+            id: backgroundToastId,
+          },
+        );
 
         await waitForProductImagesProcessing({
           jobId: queued.jobId,
@@ -217,6 +257,8 @@ export function useCreateProductSubmit({
     createProduct,
     files,
     form,
+    getModifierBindings,
+    getPriceListPrices,
     isInitialCropRequired,
     isSubmitting,
     openRequiredCropper,

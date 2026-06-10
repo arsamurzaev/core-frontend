@@ -11,6 +11,7 @@ import { resolveCartProductCardSelection } from "@/core/modules/cart/model/cart-
 import { CartProductActionButton } from "@/core/modules/cart/ui/cart-product-action-button";
 import { CartProductVariantDrawer } from "@/core/modules/cart/ui/cart-product-variant-drawer";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import { filterActivePriceListVisibleItems } from "@/core/modules/product";
 import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
@@ -33,26 +34,22 @@ export const CartProductAction = React.memo(function CartProductAction({
   const features = useCatalogCapabilities();
   const canUseProductVariants = features.canUseProductVariants;
   const canUseCatalogSaleUnits = features.canUseCatalogSaleUnits;
+  const canUseCatalogModifiers = features.canUseCatalogModifiers;
   const fallbackCurrency = getCatalogCurrency(catalog, "RUB");
-  const canOpenVariantDrawer = canOpenCartProductVariantDrawer({
-    activeVariantCount: product.variantSummary?.activeCount,
-    canUseProductVariants,
-    hasVariantPickerOptions: (product.variantPickerOptions?.length ?? 0) > 0,
-    requiresVariantSelection: product.requiresVariantSelection,
-  });
+  const visibleVariantPickerOptions = React.useMemo(
+    () =>
+      filterActivePriceListVisibleItems(
+        product,
+        product.variantPickerOptions ?? [],
+      ),
+    [product],
+  );
   const [isVariantDrawerOpen, setIsVariantDrawerOpen] = React.useState(false);
   const [isVariantDrawerMounted, setIsVariantDrawerMounted] =
     React.useState(false);
   const handleVariantSelectionRequired = React.useCallback(() => {
     setIsVariantDrawerOpen(true);
   }, [setIsVariantDrawerOpen]);
-
-  React.useEffect(() => {
-    if (!canOpenVariantDrawer) {
-      setIsVariantDrawerOpen(false);
-    }
-  }, [canOpenVariantDrawer]);
-
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
   const {
     isUnavailable,
@@ -60,9 +57,20 @@ export const CartProductAction = React.memo(function CartProductAction({
     requiresVariantSelection,
     singleVariantId,
   } = resolveProductCardVariantState(product, {
-    canUseVariants: canOpenVariantDrawer,
+    canUseVariants: canUseProductVariants,
     shouldEnforceStock,
   });
+  const canOpenVariantDrawer = canOpenCartProductVariantDrawer({
+    activeVariantCount: product.variantSummary?.activeCount,
+    canUseProductVariants,
+    hasVariantPickerOptions: visibleVariantPickerOptions.length > 0,
+    requiresVariantSelection,
+  });
+  React.useEffect(() => {
+    if (!canOpenVariantDrawer) {
+      setIsVariantDrawerOpen(false);
+    }
+  }, [canOpenVariantDrawer]);
   const productSnapshot = React.useMemo(
     () =>
       buildCartProductCardSnapshot(product, {
@@ -76,31 +84,30 @@ export const CartProductAction = React.memo(function CartProductAction({
     variantId: singleVariantId,
   });
   const { handleAdd, isBusy, isIncrementDisabled, quantity } =
-    useCartProductControls(
-      selection,
-      productSnapshot,
-      {
-        canUseProductVariants,
-        maxQuantity,
-        onVariantSelectionRequired: canOpenVariantDrawer
-          ? handleVariantSelectionRequired
-          : undefined,
-        requiresVariantSelection,
-      },
-    );
+    useCartProductControls(selection, productSnapshot, {
+      canUseProductVariants,
+      maxQuantity,
+      onVariantSelectionRequired: canOpenVariantDrawer
+        ? handleVariantSelectionRequired
+        : undefined,
+      requiresVariantSelection,
+    });
   const shouldShowQuantity = shouldShowCartProductActionQuantity({
     quantity,
     requiresVariantSelection,
   });
   const shouldOpenVariantDrawerOnAction =
-    requiresVariantSelection || canUseCatalogSaleUnits;
+    requiresVariantSelection ||
+    canUseCatalogSaleUnits ||
+    canUseCatalogModifiers;
   const canOpenExistingLineDrawer =
     shouldOpenVariantDrawerOnAction && quantity > 0;
   const isActionDisabled =
     (isUnavailable || isIncrementDisabled) && !canOpenExistingLineDrawer;
   const shouldRenderVariantDrawer = shouldRenderCartProductVariantDrawer({
+    canUseCatalogModifiers,
     canUseCatalogSaleUnits,
-    canUseProductVariants: canOpenVariantDrawer,
+    canUseProductVariants,
     isVariantDrawerOpen,
     requiresVariantSelection,
   });
@@ -164,7 +171,8 @@ export const CartProductAction = React.memo(function CartProductAction({
         <CartProductVariantDrawer
           open={isVariantDrawerOpen}
           canUseCatalogSaleUnits={canUseCatalogSaleUnits}
-          canUseProductVariants={canOpenVariantDrawer}
+          canUseCatalogModifiers={canUseCatalogModifiers}
+          canUseProductVariants={canUseProductVariants}
           onOpenChange={setIsVariantDrawerOpen}
           product={product}
         />

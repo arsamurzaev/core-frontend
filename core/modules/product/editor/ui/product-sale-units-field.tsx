@@ -49,8 +49,13 @@ interface ProductSaleUnitsFieldProps {
   discountPercent?: number;
   priceFormatMode?: CatalogPriceFormatMode;
   priceFallback?: string;
+  renderPriceListFields?: (params: {
+    index: number;
+    unit: SaleUnitFormValue;
+  }) => React.ReactNode;
   saleUnits: SaleUnitsFormValue | undefined;
   settingsAction?: React.ReactNode;
+  hidePrices?: boolean;
   title?: string;
   onChange: (saleUnits: SaleUnitsFormValue) => void;
 }
@@ -152,8 +157,10 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
   discountPercent = 0,
   priceFormatMode = "integer",
   priceFallback,
+  renderPriceListFields,
   saleUnits,
   settingsAction,
+  hidePrices = false,
   title = "Единицы продажи",
   onChange,
 }) => {
@@ -196,10 +203,36 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
     [catalogUnits, selectedCatalogUnitIds],
   );
 
+  React.useEffect(() => {
+    if (!hidePrices || units.length === 0) {
+      return;
+    }
+
+    let changed = false;
+    const nextUnits = units.map((unit) => {
+      if (normalizeText(unit.price)) {
+        return unit;
+      }
+
+      changed = true;
+      return {
+        ...unit,
+        price: "0",
+      };
+    });
+
+    if (changed) {
+      onChange(normalizeSaleUnitRows(nextUnits));
+    }
+  }, [hidePrices, onChange, units]);
+
   const handleAdd = React.useCallback(() => {
-    const nextUnit = createDefaultSaleUnitFormValue(
-      units.length === 0 ? priceFallback : "",
-    );
+    const nextPriceFallback = hidePrices
+      ? "0"
+      : units.length === 0
+        ? priceFallback
+        : "";
+    const nextUnit = createDefaultSaleUnitFormValue(nextPriceFallback);
 
     onChange(
       normalizeSaleUnitRows([
@@ -210,7 +243,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
         },
       ]),
     );
-  }, [onChange, priceFallback, units]);
+  }, [hidePrices, onChange, priceFallback, units]);
 
   const handleRemove = React.useCallback(
     (index: number) => {
@@ -325,11 +358,12 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
             index,
             selectedUnit,
           }),
+          price: hidePrices && !currentUnit.price ? "0" : currentUnit.price,
         },
         { clearRelation: true },
       );
     },
-    [catalogUnits, handleUnitChange, units],
+    [catalogUnits, handleUnitChange, hidePrices, units],
   );
 
   const handleRelationChange = React.useCallback(
@@ -429,6 +463,12 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
       {units.length > 0 ? (
         <div className="space-y-2">
           {units.map((unit, index) => {
+            const priceListFields =
+              hidePrices && renderPriceListFields
+                ? renderPriceListFields({ index, unit })
+                : null;
+            const hasPriceListFields = Boolean(priceListFields);
+            const showPriceColumn = !hidePrices || hasPriceListFields;
             const selectedName = getSaleUnitDisplayName(unit);
             const preview = resolveSaleUnitDiscountPreview(
               unit.price || priceFallback,
@@ -466,7 +506,15 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                   <Trash2 className="size-4" />
                 </button>
 
-                <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(220px,1.35fr)_minmax(128px,0.65fr)]">
+                <div
+                  className={
+                    !showPriceColumn
+                      ? "grid min-w-0 gap-2"
+                      : hidePrices && hasPriceListFields
+                        ? "grid min-w-0 gap-2"
+                        : "grid min-w-0 gap-2 lg:grid-cols-[minmax(220px,1.35fr)_minmax(128px,0.65fr)]"
+                  }
+                >
                   <div className="min-w-0 space-y-2">
                     <span className="text-xs text-foreground">
                       Единицы продажи
@@ -514,56 +562,57 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                           );
                         })
                       )}
-
                     </div>
                   </div>
 
-                  <label className="min-w-0 space-y-1">
-                    <span className="flex min-w-0 items-center gap-1 text-xs text-foreground">
-                      <span className="shrink-0">Цена</span>
-                      {relationCalculatedPrice ? (
-                        <span className="min-w-0 truncate">
-                          ({relationCalculatedPrice})
-                        </span>
-                      ) : null}
-                    </span>
-                    <Input
-                      value={unit.price}
-                      type="number"
-                      min={0}
-                      step={priceInputProps.step}
-                      inputMode={priceInputProps.inputMode}
-                      disabled={disabled || !canEditPrices}
-                      placeholder="1200"
-                      onChange={(event) =>
-                        handleUnitChange(index, { price: event.target.value })
-                      }
-                      className="h-8 min-w-0 px-2.5 text-sm"
-                    />
-                    {preview ? (
-                      <span className="block text-xs text-muted-foreground">
-                        {formatSaleUnitMoney(
-                          preview.basePrice,
-                          priceFormatMode,
-                        )}
-                        {" -> "}
-                        <span className="font-medium text-foreground">
+                  {!hidePrices ? (
+                    <label className="min-w-0 space-y-1">
+                      <span className="flex min-w-0 items-center gap-1 text-xs text-foreground">
+                        <span className="shrink-0">Цена</span>
+                        {relationCalculatedPrice ? (
+                          <span className="min-w-0 truncate">
+                            ({relationCalculatedPrice})
+                          </span>
+                        ) : null}
+                      </span>
+                      <Input
+                        value={unit.price}
+                        type="number"
+                        min={0}
+                        step={priceInputProps.step}
+                        inputMode={priceInputProps.inputMode}
+                        disabled={disabled || !canEditPrices}
+                        placeholder="1200"
+                        onChange={(event) =>
+                          handleUnitChange(index, { price: event.target.value })
+                        }
+                        className="h-8 min-w-0 px-2.5 text-sm"
+                      />
+                      {preview ? (
+                        <span className="block text-xs text-muted-foreground">
                           {formatSaleUnitMoney(
-                            preview.finalPrice,
+                            preview.basePrice,
                             priceFormatMode,
                           )}
+                          {" -> "}
+                          <span className="font-medium text-foreground">
+                            {formatSaleUnitMoney(
+                              preview.finalPrice,
+                              priceFormatMode,
+                            )}
+                          </span>
                         </span>
-                      </span>
-                    ) : null}
-                  </label>
+                      ) : null}
+                    </label>
+                  ) : priceListFields ? (
+                    <div className="min-w-0">{priceListFields}</div>
+                  ) : null}
                 </div>
 
                 {parentOptions.length > 0 ? (
                   hasRelationDraft ? (
                     <div className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs text-foreground">
-                        Содержит
-                      </span>
+                      <span className="text-xs text-foreground">Содержит</span>
                       <div className="flex min-w-0 flex-wrap items-center gap-2">
                         <Input
                           value={relation.multiplier}
@@ -648,7 +697,6 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
       {units.length > 0 && bindSaleUnitButton ? (
         <div className="flex justify-start">{bindSaleUnitButton}</div>
       ) : null}
-
     </div>
   );
 };

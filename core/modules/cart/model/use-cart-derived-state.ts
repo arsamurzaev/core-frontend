@@ -5,7 +5,10 @@ import {
   buildCartTotals,
   type CartItemView,
 } from "@/core/modules/cart/model/cart-item-view";
-import { getCartItemSaleUnitId } from "@/core/modules/cart/model/cart-line-key";
+import {
+  getCartItemModifiers,
+  getCartItemSaleUnitId,
+} from "@/core/modules/cart/model/cart-line-key";
 import { buildCartLineSelectionKey } from "@/core/modules/cart/model/cart-line-selection";
 import {
   getProductControllerGetByIdQueryOptions,
@@ -98,6 +101,7 @@ export function useCartDerivedState({
         .reduce<Record<string, number>>((acc, item) => {
           const lineKey = buildCartLineSelectionKey({
             productId: item.productId,
+            modifiers: getCartItemModifiers(item),
             saleUnitId: getCartItemSaleUnitId(item),
             variantId: item.variantId,
           });

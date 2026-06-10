@@ -40,7 +40,7 @@ export const CATALOG_FEATURE_LABELS: Record<
   { title: string; description: string }
 > = {
   "product.types": {
-    title: "Типы товара",
+    title: "Типы товаров",
     description: "Схемы свойств товара и подготовка вариаций.",
   },
   "product.variants": {
@@ -50,6 +50,15 @@ export const CATALOG_FEATURE_LABELS: Record<
   "catalog.sale_units": {
     title: "Единицы продажи",
     description: "Единицы продажи внутри каталога: упаковка, коробка и другие.",
+  },
+  "catalog.modifiers": {
+    title: "Модификаторы",
+    description:
+      "Группы добавок и опций товара: сыр, соусы и другие платные модификаторы.",
+  },
+  "catalog.price_lists": {
+    title: "Прайс-листы",
+    description: "Гибкие цены для родительских и дочерних торговых каталогов.",
   },
   "inventory.internal": {
     title: "Собственный склад",
@@ -61,7 +70,12 @@ export const CATALOG_FEATURE_LABELS: Record<
   },
   "integration.iiko": {
     title: "iiko",
-    description: "Импорт меню iikoCloud: категории, товары, варианты и изображения.",
+    description:
+      "Импорт меню iikoCloud: категории, товары, вариации и изображения.",
+  },
+  "integration.one_c": {
+    title: "1C",
+    description: "Настраиваемая интеграция 1C: API, объекты и маппинг полей.",
   },
 };
 

@@ -563,7 +563,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
     try {
       await cancelSyncMutation.mutateAsync();
       await refreshIntegrationQueries(queryClient);
-      toast.success("Текущий sync MoySklad отменён.");
+      toast.success("Текущая синхронизация MoySklad отменена.");
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -607,7 +607,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
       const report = await applyMappingMutation.mutateAsync({ data: payload });
       setMappingReport(report);
       await mappingPreviewQuery.refetch();
-      toast.success("Mapping MoySklad применён.");
+      toast.success("Сопоставление MoySklad применено.");
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -935,7 +935,9 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
               {integration?.stockWebhook ? (
                 <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span className="text-sm font-medium">Webhook остатков</span>
+                    <span className="text-sm font-medium">
+                      Webhook остатков
+                    </span>
                     <Badge
                       variant={
                         integration.stockWebhook.enabled &&

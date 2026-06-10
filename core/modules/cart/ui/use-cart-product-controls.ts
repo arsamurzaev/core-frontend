@@ -66,9 +66,14 @@ export function useCartProductControls(
     typeof productIdOrSelection === "string"
       ? undefined
       : productIdOrSelection.guestSessionId;
+  const selectionModifiers =
+    typeof productIdOrSelection === "string"
+      ? undefined
+      : productIdOrSelection.modifiers;
   const selection = normalizeCartLineSelection({
     guestName: selectionGuestName,
     guestSessionId: selectionGuestSessionId,
+    modifiers: selectionModifiers,
     productId: selectionProductId,
     saleUnitId: selectionSaleUnitId,
     variantId: selectionVariantId,

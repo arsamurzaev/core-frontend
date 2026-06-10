@@ -34,10 +34,7 @@ export function normalizeProductVariantId(
 
 export function findKnownProductVariantOption<
   TVariant extends ProductVariantSelectionOption,
->(
-  variants: TVariant[],
-  variantId: string | null | undefined,
-): TVariant | null {
+>(variants: TVariant[], variantId: string | null | undefined): TVariant | null {
   const normalizedVariantId = normalizeProductVariantId(variantId);
 
   return normalizedVariantId
@@ -76,7 +73,11 @@ export function resolveInitialProductVariantId<
     variants,
     initialVariantId,
   );
-  if (initialVariant) {
+  if (
+    isProductVariantOptionSelectable(initialVariant, {
+      shouldEnforceStock,
+    })
+  ) {
     return initialVariant.id;
   }
 
@@ -89,7 +90,10 @@ export function resolveInitialProductVariantId<
     return queryVariant.id;
   }
 
-  const singleVariant = findKnownProductVariantOption(variants, singleVariantId);
+  const singleVariant = findKnownProductVariantOption(
+    variants,
+    singleVariantId,
+  );
   if (
     isProductVariantOptionSelectable(singleVariant, {
       shouldEnforceStock,

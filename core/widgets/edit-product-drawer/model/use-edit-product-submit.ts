@@ -9,6 +9,16 @@ import {
 import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
 import { UploadProgressToast } from "@/core/modules/product/editor/ui/upload-progress-toast";
 import { waitForProductImagesProcessing } from "@/core/modules/product/editor/lib";
+import {
+  bulkUpsertCatalogPriceListPrices,
+  catalogPriceListQueryKeys,
+  type ProductPriceListBulkPricesPayload,
+} from "@/core/modules/catalog-price-list";
+import {
+  productModifierQueryKeys,
+  setProductModifiers,
+  type ProductModifierGroupBindingPayload,
+} from "@/core/modules/product-modifier";
 import { type ResolvedEditProductMediaSubmit } from "@/core/widgets/edit-product-drawer/model/use-edit-product-image-editor";
 import {
   invalidateEditProductQueries,
@@ -31,7 +41,7 @@ interface EditProductUpdateMutation {
   mutateAsync: (params: {
     id: string;
     data: UpdateProductDtoReq;
-  }) => Promise<unknown>;
+  }) => Promise<ProductWithDetailsDto>;
 }
 
 interface UseEditProductSubmitParams {
@@ -42,6 +52,10 @@ interface UseEditProductSubmitParams {
   canUseProductTypes: boolean;
   canUseProductVariants: boolean;
   form: UseFormReturn<CreateProductFormValues>;
+  getModifierBindings?: () => ProductModifierGroupBindingPayload[];
+  getPriceListPrices?: (
+    product?: ProductWithDetailsDto | null,
+  ) => ProductPriceListBulkPricesPayload[];
   isInitialCropRequired: boolean;
   isSubmitting: boolean;
   openRequiredCropper: () => void;
@@ -91,6 +105,8 @@ export function useEditProductSubmit({
   canUseProductTypes,
   canUseProductVariants,
   form,
+  getModifierBindings,
+  getPriceListPrices,
   isInitialCropRequired,
   isSubmitting,
   openRequiredCropper,
@@ -148,6 +164,21 @@ export function useEditProductSubmit({
       return;
     }
 
+    let modifierBindingsSnapshot: ProductModifierGroupBindingPayload[] | null =
+      null;
+    try {
+      modifierBindingsSnapshot = getModifierBindings
+        ? getModifierBindings()
+        : null;
+      getPriceListPrices?.();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : extractApiErrorMessage(error);
+      setErrorMessage(message);
+      toast.error(message);
+      return;
+    }
+
     setErrorMessage(null);
     setIsSubmitting(true);
 
@@ -192,6 +223,41 @@ export function useEditProductSubmit({
           data: updatePayload,
         });
         writeUpdatedProductToEditCache(queryClient, productId, updatedProduct);
+
+        const priceListPricesSnapshot =
+          getPriceListPrices?.(updatedProduct) ?? [];
+        if (priceListPricesSnapshot.length > 0) {
+          toast.loading(renderProgressToast("Сохраняем прайс-листы...", 100), {
+            id: backgroundToastId,
+          });
+          await Promise.all(
+            priceListPricesSnapshot.map((priceListPrices) =>
+              bulkUpsertCatalogPriceListPrices(priceListPrices),
+            ),
+          );
+          await Promise.all(
+            priceListPricesSnapshot.map((priceListPrices) =>
+              queryClient.invalidateQueries({
+                queryKey: catalogPriceListQueryKeys.prices(
+                  priceListPrices.priceListId,
+                ),
+              }),
+            ),
+          );
+        }
+
+        if (modifierBindingsSnapshot) {
+          toast.loading(renderProgressToast("Сохраняем модификаторы...", 100), {
+            id: backgroundToastId,
+          });
+          await setProductModifiers({
+            productId,
+            groups: modifierBindingsSnapshot,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: productModifierQueryKeys.product(productId),
+          });
+        }
 
         await invalidateEditProductQueries(queryClient);
 
@@ -241,6 +307,8 @@ export function useEditProductSubmit({
     canUseProductTypes,
     canUseProductVariants,
     form,
+    getModifierBindings,
+    getPriceListPrices,
     isInitialCropRequired,
     isSubmitting,
     openRequiredCropper,

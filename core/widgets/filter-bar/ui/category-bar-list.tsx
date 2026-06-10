@@ -37,6 +37,8 @@ export const CategoryBarList: React.FC<Props> = ({
   const pointerStartRef = React.useRef<{ x: number; y: number } | null>(null);
   const hasPointerDraggedRef = React.useRef(false);
   const suppressNextClickRef = React.useRef(false);
+  const clickedCategoryIdRef = React.useRef<string | null>(null);
+  const suppressClickedCategoryScrollUntilRef = React.useRef(0);
   const userInteractionUntilRef = React.useRef(0);
   const skeletonWidths = React.useMemo(
     () => ["w-16", "w-24", "w-20", "w-28", "w-[4.5rem]", "w-[5.5rem]"],
@@ -60,6 +62,24 @@ export const CategoryBarList: React.FC<Props> = ({
     }
   }, []);
 
+  const shouldJumpCategoryBarScroll = React.useCallback(() => {
+    return (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }, []);
+
+  const scrollCategoryBarToIndex = React.useCallback(
+    (index: number) => {
+      if (!emblaApi || index < 0) {
+        return;
+      }
+
+      emblaApi.scrollTo(Math.max(index - 1, 0), shouldJumpCategoryBarScroll());
+    },
+    [emblaApi, shouldJumpCategoryBarScroll],
+  );
+
   React.useEffect(() => {
     if (!emblaApi || items.length === 0) {
       return;
@@ -74,6 +94,14 @@ export const CategoryBarList: React.FC<Props> = ({
     }
 
     cancelScheduledActiveScroll();
+
+    if (
+      activeCategoryId &&
+      clickedCategoryIdRef.current === activeCategoryId &&
+      Date.now() < suppressClickedCategoryScrollUntilRef.current
+    ) {
+      return;
+    }
 
     const runWhenInteractionSettles = () => {
       scrollTimeoutRef.current = null;
@@ -90,12 +118,18 @@ export const CategoryBarList: React.FC<Props> = ({
 
       scrollFrameRef.current = window.requestAnimationFrame(() => {
         scrollFrameRef.current = null;
-        emblaApi.scrollTo(Math.max(activeIndex - 1, 0));
+        scrollCategoryBarToIndex(activeIndex);
       });
     };
 
     runWhenInteractionSettles();
-  }, [activeIndex, cancelScheduledActiveScroll, emblaApi]);
+  }, [
+    activeCategoryId,
+    activeIndex,
+    cancelScheduledActiveScroll,
+    emblaApi,
+    scrollCategoryBarToIndex,
+  ]);
 
   React.useEffect(() => {
     if (!emblaApi || !activeCategoryId || activeIndex < 0) {
@@ -222,10 +256,15 @@ export const CategoryBarList: React.FC<Props> = ({
                   return;
                 }
 
+                clickedCategoryIdRef.current = item.id;
+                suppressClickedCategoryScrollUntilRef.current =
+                  Date.now() + 700;
+                cancelScheduledActiveScroll();
+                scrollCategoryBarToIndex(index);
                 onCategoryClick?.(item, index);
               }}
               className={cn(
-                "h-9 min-w-0 shrink-0 grow-0 basis-auto rounded-full px-4 py-2 text-sm",
+                "h-9 min-w-0 shrink-0 grow-0 basis-auto rounded-full px-4 py-2 text-sm duration-200 ease-out",
                 !isActive && "shadow-none",
               )}
             >

@@ -56,6 +56,21 @@ describe("cart product variant options", () => {
     ).toEqual(["available"]);
   });
 
+  it("filters options without active price-list prices", () => {
+    expect(
+      getCartProductVariantPickerOptions({
+        product: {
+          usesPriceList: true,
+          variantPickerOptions: [
+            option({ id: "priced", price: "350.00" }),
+            option({ id: "missing-price", price: null }),
+          ],
+        },
+        shouldEnforceStock: true,
+      }).map((item) => item.id),
+    ).toEqual(["priced"]);
+  });
+
   it("keeps unavailable options in drawer items with a disabled reason", () => {
     const items = getCartProductVariantPickerItems({
       product: {

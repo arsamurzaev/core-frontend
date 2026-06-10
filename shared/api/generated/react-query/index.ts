@@ -888,6 +888,8 @@ export interface AdminPaymentDto {
 export interface PresignUploadDtoReq {
   /** MIME-тип файла */
   contentType: string;
+  /** Размер файла в байтах */
+  contentLength: number;
   /** Путь внутри каталога */
   path?: string;
   folder?: string;
@@ -6917,7 +6919,7 @@ includeEmpty?: boolean;
 
 export type CategoryControllerRemoveParams = {
 /**
- * Если true, soft-delete всех активных товаров категории
+ * Если true, мягко удаляет все активные товары категории
  */
 deleteProducts?: boolean;
 };
@@ -8616,7 +8618,7 @@ export const useAdminControllerUpdateCatalog = <TError = unknown,
     }
     
 /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 export const adminControllerDeleteCatalog = (
     id: string,
@@ -8664,7 +8666,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerDeleteCatalogMutationError = unknown
 
     /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 export const useAdminControllerDeleteCatalog = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDeleteCatalog>>, TError,{id: string}, TContext>, }
@@ -9213,7 +9215,7 @@ export const useAdminControllerDeleteCatalogContent = <TError = unknown,
     }
     
 /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 export const adminControllerRestoreCatalog = (
     id: string,
@@ -9261,7 +9263,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerRestoreCatalogMutationError = unknown
 
     /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 export const useAdminControllerRestoreCatalog = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRestoreCatalog>>, TError,{id: string}, TContext>, }

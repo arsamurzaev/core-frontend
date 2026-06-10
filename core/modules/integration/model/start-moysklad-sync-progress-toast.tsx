@@ -183,10 +183,13 @@ export function startMoySkladSyncProgressToast({
       }
 
       if (progress.status === "ERROR" || progress.status === "SKIPPED") {
-        toast.error(progress.message || "Sync MoySklad завершился с ошибкой", {
-          id: toastId,
-          duration: 8_000,
-        });
+        toast.error(
+          progress.message || "Синхронизация MoySklad завершилась с ошибкой",
+          {
+            id: toastId,
+            duration: 8_000,
+          },
+        );
         activeSyncProgressToastRunIds.delete(runId);
         await notifySettled();
         return;

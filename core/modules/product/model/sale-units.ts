@@ -4,6 +4,7 @@ export type ProductSaleUnitKind = "piece" | "package" | "pallet";
 
 export interface ProductSaleUnit {
   id: string;
+  variantId: string | null;
   catalogSaleUnitId: string | null;
   label: string;
   kind: ProductSaleUnitKind;
@@ -39,6 +40,7 @@ type SaleUnitLike = {
   type?: unknown;
   unit?: unknown;
   unitCode?: unknown;
+  variantId?: unknown;
 };
 
 type EntityWithSaleUnits = {
@@ -79,29 +81,25 @@ function isWholeSaleUnitMultiplier(value: number): boolean {
 function resolveContainsSaleUnit(
   unit: ProductSaleUnit,
   previousUnits: ProductSaleUnit[],
-):
-  | {
-      quantity: number;
-      saleUnit: ProductSaleUnit;
-    }
-  | null {
+): {
+  quantity: number;
+  saleUnit: ProductSaleUnit;
+} | null {
   const parentUnit = previousUnits
     .slice()
     .reverse()
-    .find(
-      (candidate) => {
-        if (
-          candidate.baseQuantity <= 0 ||
-          candidate.baseQuantity >= unit.baseQuantity
-        ) {
-          return false;
-        }
+    .find((candidate) => {
+      if (
+        candidate.baseQuantity <= 0 ||
+        candidate.baseQuantity >= unit.baseQuantity
+      ) {
+        return false;
+      }
 
-        return isWholeSaleUnitMultiplier(
-          unit.baseQuantity / candidate.baseQuantity,
-        );
-      },
-    );
+      return isWholeSaleUnitMultiplier(
+        unit.baseQuantity / candidate.baseQuantity,
+      );
+    });
 
   if (!parentUnit) {
     return null;
@@ -209,6 +207,7 @@ export function getProductSaleUnits(entity: unknown): ProductSaleUnit[] {
 
       return {
         id,
+        variantId: normalizeText(unit.variantId) || null,
         catalogSaleUnitId: normalizeText(unit.catalogSaleUnitId) || null,
         label,
         kind,
@@ -238,7 +237,9 @@ export function formatProductSaleUnitQuantity(value: number): string {
   const rounded = roundSaleUnitQuantity(value);
   return Number.isInteger(rounded)
     ? String(rounded)
-    : String(rounded).replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+    : String(rounded)
+        .replace(/(\.\d*?)0+$/, "$1")
+        .replace(/\.$/, "");
 }
 
 export function getProductSaleUnitContainsText(

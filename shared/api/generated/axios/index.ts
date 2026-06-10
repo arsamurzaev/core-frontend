@@ -869,6 +869,8 @@ export interface AdminPaymentDto {
 export interface PresignUploadDtoReq {
   /** MIME-тип файла */
   contentType: string;
+  /** Размер файла в байтах */
+  contentLength: number;
   /** Путь внутри каталога */
   path?: string;
   folder?: string;
@@ -6898,7 +6900,7 @@ includeEmpty?: boolean;
 
 export type CategoryControllerRemoveParams = {
 /**
- * Если true, soft-delete всех активных товаров категории
+ * Если true, мягко удаляет все активные товары категории
  */
 deleteProducts?: boolean;
 };
@@ -7245,7 +7247,7 @@ const adminControllerUpdateCatalog = (
     }
   
 /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 const adminControllerDeleteCatalog = (
     id: string,
@@ -7349,7 +7351,7 @@ const adminControllerDeleteCatalogContent = (
     }
   
 /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 const adminControllerRestoreCatalog = (
     id: string,

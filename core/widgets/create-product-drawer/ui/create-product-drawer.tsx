@@ -1,6 +1,12 @@
 "use client";
 
 import { ProductEditorDrawerContent } from "@/core/modules/product/editor/ui";
+import {
+  ProductPriceListCreateInlineFields,
+  ProductPriceListCreatePricesField,
+  ProductPriceListSettingsDrawer,
+} from "@/core/modules/catalog-price-list";
+import { ProductModifierCreateBindingsField } from "@/core/modules/product-modifier";
 import { useCreateProductDrawer } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer";
 import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
 import { cn } from "@/shared/lib/utils";
@@ -16,6 +22,10 @@ interface CreateProductDrawerProps {
   supportsBrands?: boolean;
   supportsCategoryDetails?: boolean;
   trigger?: React.ReactNode;
+}
+
+function normalizeText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
@@ -55,11 +65,15 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     isProductTypeSchemaResolving,
     isReorderMode,
     isSubmitting,
+    modifierDrafts,
     open: drawerOpen,
     pendingSwapIndex,
+    priceListPriceDrafts,
     removeFile,
     uploadState,
     uploadedMediaIds,
+    setModifierDrafts,
+    setPriceListPriceDrafts,
   } = useCreateProductDrawer({
     open,
     onOpenChange,
@@ -72,7 +86,9 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
       <Button className={cn("col-span-2", className)}>
         + Добавить позицию
       </Button>
-    ) : trigger;
+    ) : (
+      trigger
+    );
 
   return (
     <AppDrawer
@@ -108,6 +124,102 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
         canUseDiscounts={features.canUseProductDiscounts}
         canUseProductVariants={features.canUseProductVariants}
+        hideBasePrices={features.hideBasePrices}
+        priceListController={
+          features.canUseCatalogPriceLists ? (
+            <ProductPriceListCreatePricesField
+              disabled={isSubmitting || isProductTypeSchemaResolving}
+              drafts={priceListPriceDrafts}
+              form={form}
+              onChange={setPriceListPriceDrafts}
+              renderMode="controller"
+              canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
+              canUseProductVariants={features.canUseProductVariants}
+              variantAttributes={variantAttributes}
+            />
+          ) : undefined
+        }
+        priceListSettingsAction={
+          features.canUseCatalogPriceLists ? (
+            <ProductPriceListSettingsDrawer
+              disabled={isSubmitting || isProductTypeSchemaResolving}
+              trigger={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
+                  disabled={isSubmitting || isProductTypeSchemaResolving}
+                  title="Настроить прайс-листы"
+                >
+                  <Settings className="size-4" />
+                  Прайс-листы
+                </Button>
+              }
+            />
+          ) : undefined
+        }
+        productPriceListFields={
+          features.canUseCatalogPriceLists ? (
+            <ProductPriceListCreateInlineFields
+              disabled={isSubmitting || isProductTypeSchemaResolving}
+              drafts={priceListPriceDrafts}
+              onChange={setPriceListPriceDrafts}
+              rowKey="PRODUCT"
+              target="PRODUCT"
+            />
+          ) : undefined
+        }
+        renderSaleUnitPriceListFields={
+          features.canUseCatalogPriceLists
+            ? ({ unit, variantRow }) => {
+                const catalogSaleUnitId = normalizeText(unit.catalogSaleUnitId);
+
+                if (!catalogSaleUnitId) {
+                  return null;
+                }
+
+                return (
+                  <ProductPriceListCreateInlineFields
+                    catalogSaleUnitId={catalogSaleUnitId}
+                    disabled={isSubmitting || isProductTypeSchemaResolving}
+                    drafts={priceListPriceDrafts}
+                    onChange={setPriceListPriceDrafts}
+                    rowKey={
+                      variantRow
+                        ? `SALE_UNIT:${variantRow.key}:${catalogSaleUnitId}`
+                        : `SALE_UNIT:default:${catalogSaleUnitId}`
+                    }
+                    target="SALE_UNIT"
+                    variantAttributes={variantRow?.attributes}
+                  />
+                );
+              }
+            : undefined
+        }
+        renderVariantPriceListFields={
+          features.canUseCatalogPriceLists
+            ? ({ row }) => (
+                <ProductPriceListCreateInlineFields
+                  disabled={isSubmitting || isProductTypeSchemaResolving}
+                  drafts={priceListPriceDrafts}
+                  onChange={setPriceListPriceDrafts}
+                  rowKey={`VARIANT:${row.key}`}
+                  target="VARIANT"
+                  variantAttributes={row.attributes}
+                />
+              )
+            : undefined
+        }
+        modifiersSection={
+          features.canUseCatalogModifiers ? (
+            <ProductModifierCreateBindingsField
+              disabled={isSubmitting || isProductTypeSchemaResolving}
+              drafts={modifierDrafts}
+              onChange={setModifierDrafts}
+            />
+          ) : undefined
+        }
         saleUnitsSettingsAction={
           features.canUseCatalogSaleUnits ? (
             <EditCatalogSaleUnitsDrawer

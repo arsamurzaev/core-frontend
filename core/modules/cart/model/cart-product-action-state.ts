@@ -17,6 +17,7 @@ export function shouldShowCartProductActionQuantity(params: {
 }
 
 export function shouldRenderCartProductVariantDrawer(params: {
+  canUseCatalogModifiers?: boolean;
   canUseCatalogSaleUnits?: boolean;
   canUseProductVariants: boolean;
   isVariantDrawerOpen: boolean;
@@ -25,7 +26,8 @@ export function shouldRenderCartProductVariantDrawer(params: {
   return (
     (params.canUseProductVariants &&
       (params.requiresVariantSelection || params.isVariantDrawerOpen)) ||
-    Boolean(params.canUseCatalogSaleUnits && params.isVariantDrawerOpen)
+    Boolean(params.canUseCatalogSaleUnits && params.isVariantDrawerOpen) ||
+    Boolean(params.canUseCatalogModifiers && params.isVariantDrawerOpen)
   );
 }
 
@@ -39,11 +41,7 @@ export function canOpenCartProductVariantDrawer(params: {
     return false;
   }
 
-  return Boolean(
-    params.requiresVariantSelection ||
-      (params.activeVariantCount ?? 0) > 1 ||
-      params.hasVariantPickerOptions,
-  );
+  return Boolean(params.requiresVariantSelection);
 }
 
 export function getCartProductActionAriaLabel(params: {

@@ -22,6 +22,7 @@ import {
 function saleUnit(overrides: Partial<ProductSaleUnit>): ProductSaleUnit {
   return {
     id: "unit-1",
+    variantId: null,
     catalogSaleUnitId: null,
     label: "Unit",
     kind: "piece",
@@ -86,6 +87,24 @@ describe("product purchase selection model", () => {
     ).toEqual([]);
   });
 
+  it("hides product variants without active price-list prices", () => {
+    const product = {
+      productType: { id: "type-1" },
+      usesPriceList: true,
+      variants: [
+        variant({ id: "variant-xs", price: "350.00" }),
+        variant({ id: "variant-s", price: null }),
+      ],
+    } as unknown as ProductWithDetailsDto;
+
+    expect(
+      getSelectableProductVariants({
+        canUseProductVariants: true,
+        product,
+      }).map((item) => item.id),
+    ).toEqual(["variant-xs"]);
+  });
+
   it("selects initial sale unit, then preserves current valid selection", () => {
     const units = [
       saleUnit({ id: "piece", isDefault: true }),
@@ -124,17 +143,17 @@ describe("product purchase selection model", () => {
     ).toBeNull();
   });
 
-  it("auto-selects the only available sale unit", () => {
+  it("does not auto-select the only available sale unit", () => {
     expect(
       resolveNextProductSaleUnitId({
         currentSaleUnitId: null,
         saleUnits: [saleUnit({ id: "piece", isDefault: true })],
         shouldApplyInitialSaleUnit: false,
       }),
-    ).toBe("piece");
+    ).toBeNull();
   });
 
-  it("requires sale unit selection only when multiple units are available", () => {
+  it("requires sale unit selection when units are available", () => {
     expect(
       isProductSaleUnitSelectionRequired({
         saleUnits: [saleUnit({ id: "piece" }), saleUnit({ id: "box" })],
@@ -147,7 +166,7 @@ describe("product purchase selection model", () => {
         saleUnits: [saleUnit({ id: "piece" })],
         selectedSaleUnit: null,
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("prices selected sale unit before selected variant and applies discount", () => {
@@ -272,6 +291,7 @@ describe("product purchase selection model", () => {
   it("requires a variant only when the selected variant is not purchasable", () => {
     expect(
       isProductVariantSelectionRequired({
+        requiresVariantSelection: true,
         selectableVariants: [variant({ stock: 0 })],
         selectedVariant: variant({ stock: 0 }),
       }),
@@ -279,9 +299,18 @@ describe("product purchase selection model", () => {
 
     expect(
       isProductVariantSelectionRequired({
+        requiresVariantSelection: true,
         selectableVariants: [variant({ stock: 0 })],
         selectedVariant: variant({ stock: 0 }),
         shouldEnforceStock: false,
+      }),
+    ).toBe(false);
+
+    expect(
+      isProductVariantSelectionRequired({
+        requiresVariantSelection: false,
+        selectableVariants: [variant({ stock: 0 })],
+        selectedVariant: null,
       }),
     ).toBe(false);
   });
@@ -298,10 +327,7 @@ describe("product purchase selection model", () => {
 
     expect(
       resolveSinglePurchasableProductVariantId({
-        variants: [
-          variant({ id: "first" }),
-          variant({ id: "second" }),
-        ],
+        variants: [variant({ id: "first" }), variant({ id: "second" })],
       }),
     ).toBeNull();
   });

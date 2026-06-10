@@ -41,6 +41,7 @@ describe("shouldConfirmCartLineRemoval", () => {
 describe("shouldRequireCartProductVariantSelection", () => {
   const variantProduct = {
     productType: { code: "size", id: "type-1", name: "Size" },
+    requiresVariantSelection: false,
     variantSummary: {
       activeCount: 3,
       maxPrice: "3000",
@@ -50,13 +51,13 @@ describe("shouldRequireCartProductVariantSelection", () => {
     },
   };
 
-  it("requires a variant before cart mutation for a multi-variant product", () => {
+  it("does not require a variant for optional multi-variant products", () => {
     expect(
       shouldRequireCartProductVariantSelection({
         canUseProductVariants: true,
         product: variantProduct,
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("does not require selection when a concrete variant is already selected", () => {

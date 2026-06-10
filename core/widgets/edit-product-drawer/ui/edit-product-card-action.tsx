@@ -7,6 +7,7 @@ import {
 } from "@/core/modules/product/actions/ui";
 import { useEditProductDrawerHost } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
 import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   ProductWithAttributesDtoStatus,
@@ -14,6 +15,7 @@ import {
   useProductControllerToggleStatus,
 } from "@/shared/api/generated/react-query";
 import { useSession } from "@/shared/providers/session-provider";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -39,6 +41,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
   status,
 }) => {
   const { isAuthenticated } = useSession();
+  const { catalog } = useCatalogState();
   const { openDrawer } = useEditProductDrawerHost();
   const queryClient = useQueryClient();
   const duplicateProduct = useProductControllerDuplicate();
@@ -100,7 +103,8 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
       event.preventDefault();
       event.stopPropagation();
 
-      const isCurrentlyActive = status === ProductWithAttributesDtoStatus.ACTIVE;
+      const isCurrentlyActive =
+        status === ProductWithAttributesDtoStatus.ACTIVE;
 
       void confirm({
         title: isCurrentlyActive ? "Скрыть товар?" : "Показать товар?",
@@ -124,7 +128,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
     [productId, queryClient, status, toggleProductStatus],
   );
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !canManageCatalogContent(catalog)) {
     return null;
   }
 
@@ -178,7 +182,8 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
       ) : null}
 
       <div className="absolute top-[5px] right-[5px] z-20 flex flex-col gap-2 opacity-60">
-        {typeof categoryId === "string" && typeof categoryPosition === "number" ? (
+        {typeof categoryId === "string" &&
+        typeof categoryPosition === "number" ? (
           <ChangeProductCategoryPositionAction
             productId={productId}
             categoryId={categoryId}

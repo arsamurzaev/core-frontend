@@ -30,6 +30,9 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const isCategoriesInitialLoading =
+    categories.length === 0 &&
+    (categoriesQuery.isLoading || categoriesQuery.isFetching);
   const storefrontCategories = React.useMemo(
     () => buildCategoryDisplayList(categories, { hideEmpty: true }),
     [categories],
@@ -48,7 +51,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
   const bottomRow = !isFilterActive ? (
     <CategoryBarList
       items={storefrontCategories}
-      isLoading={categoriesQuery.isLoading}
+      isLoading={isCategoriesInitialLoading}
       activeCategoryId={visibleActiveCategoryId}
       onCategoryClick={categoryClickActivation.handleCategoryClick}
     />
@@ -68,7 +71,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
       <CatalogProductsPanel
         className="m-1 space-y-7.5"
         categories={storefrontCategories}
-        isCategoriesLoading={categoriesQuery.isLoading}
+        isCategoriesLoading={isCategoriesInitialLoading}
         isFilterActive={isFilterActive}
         queryState={queryState}
         activationBlockedCategoryId={

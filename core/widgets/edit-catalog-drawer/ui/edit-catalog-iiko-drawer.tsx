@@ -268,8 +268,9 @@ function resolvePriceCategoryName(
   fallback?: string | null,
 ) {
   return (
-    priceCategories.find((priceCategory) => priceCategory.id === priceCategoryId)
-      ?.name ??
+    priceCategories.find(
+      (priceCategory) => priceCategory.id === priceCategoryId,
+    )?.name ??
     fallback ??
     null
   );
@@ -351,9 +352,10 @@ async function refreshIikoQueries(queryClient: QueryClient) {
       queryKey: getCatalogAdvancedSettingsControllerGetIikoRunsQueryKey(),
     }),
     queryClient.invalidateQueries({
-      queryKey: getCatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryKey({
-        limit: IIKO_WEBHOOK_EVENTS_LIMIT,
-      }),
+      queryKey:
+        getCatalogAdvancedSettingsControllerGetIikoWebhookEventsQueryKey({
+          limit: IIKO_WEBHOOK_EVENTS_LIMIT,
+        }),
     }),
     queryClient.invalidateQueries({
       queryKey: getIntegrationControllerGetIikoOrderExportsQueryKey({
@@ -388,7 +390,8 @@ export const EditCatalogIikoDrawer: React.FC<{
     useCatalogAdvancedSettingsControllerDisableIikoWebhooks();
   const retryWebhookEventMutation =
     useCatalogAdvancedSettingsControllerRetryIikoWebhookEvent();
-  const retryOrderExportMutation = useIntegrationControllerRetryIikoOrderExport();
+  const retryOrderExportMutation =
+    useIntegrationControllerRetryIikoOrderExport();
 
   const [open, setOpen] = React.useState(false);
   const orderExportsQuery = useIntegrationControllerGetIikoOrderExports(
@@ -419,19 +422,21 @@ export const EditCatalogIikoDrawer: React.FC<{
         },
       },
     );
-  const [organizations, setOrganizations] = React.useState<IikoOrganizationDto[]>(
-    [],
-  );
-  const [externalMenus, setExternalMenus] = React.useState<IikoExternalMenuDto[]>(
-    [],
-  );
+  const [organizations, setOrganizations] = React.useState<
+    IikoOrganizationDto[]
+  >([]);
+  const [externalMenus, setExternalMenus] = React.useState<
+    IikoExternalMenuDto[]
+  >([]);
   const [priceCategories, setPriceCategories] = React.useState<
     IikoPriceCategoryDto[]
   >([]);
   const [terminalGroups, setTerminalGroups] = React.useState<
     IikoTerminalGroupDto[]
   >([]);
-  const [preview, setPreview] = React.useState<IikoImportPreviewDto | null>(null);
+  const [preview, setPreview] = React.useState<IikoImportPreviewDto | null>(
+    null,
+  );
   const [formState, setFormState] = React.useState<IikoFormState>({
     apiLogin: "",
     organizationId: "",
@@ -502,7 +507,8 @@ export const EditCatalogIikoDrawer: React.FC<{
         id: `order-export:${orderExport.id}`,
         type: "order",
         title: `Заказ ${orderExport.orderId}`,
-        detail: orderExport.lastError ?? orderExport.externalId ?? "экспорт iiko",
+        detail:
+          orderExport.lastError ?? orderExport.externalId ?? "экспорт iiko",
         status: orderExport.status,
         occurredAt:
           orderExport.exportedAt ??
@@ -616,7 +622,8 @@ export const EditCatalogIikoDrawer: React.FC<{
         ? [
             {
               id: integration.priceCategoryId,
-              name: integration.priceCategoryName ?? integration.priceCategoryId,
+              name:
+                integration.priceCategoryName ?? integration.priceCategoryId,
             },
           ]
         : [],
@@ -626,7 +633,8 @@ export const EditCatalogIikoDrawer: React.FC<{
         ? [
             {
               id: integration.terminalGroupId,
-              name: integration.terminalGroupName ?? integration.terminalGroupId,
+              name:
+                integration.terminalGroupName ?? integration.terminalGroupId,
               organizationId: integration.organizationId,
               isActive: null,
               isAlive: null,
@@ -655,7 +663,10 @@ export const EditCatalogIikoDrawer: React.FC<{
   );
 
   const updateField = React.useCallback(
-    <TKey extends keyof IikoFormState>(key: TKey, value: IikoFormState[TKey]) => {
+    <TKey extends keyof IikoFormState>(
+      key: TKey,
+      value: IikoFormState[TKey],
+    ) => {
       setFormState((prev) => ({ ...prev, [key]: value }));
       setErrorMessage(null);
       setValidationErrors((prev) => ({ ...prev, [key]: undefined }));
@@ -671,84 +682,90 @@ export const EditCatalogIikoDrawer: React.FC<{
     [],
   );
 
-  const handleTestConnection = React.useCallback(async (options?: { silent?: boolean }) => {
-    const apiLogin = formState.apiLogin.trim();
-    if (!apiLogin && !isConfigured) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        apiLogin: "Введите apiLogin iiko.",
-      }));
-      return;
-    }
-
-    try {
-      setErrorMessage(null);
-      const result = await testConnectionMutation.mutateAsync({
-        data: apiLogin ? { apiLogin } : {},
-      });
-      const nextOrganizations = result.organizations ?? [];
-      const nextExternalMenus = result.externalMenus ?? [];
-      const nextPriceCategories = result.priceCategories ?? [];
-      const nextTerminalGroups = result.terminalGroups ?? [];
-      setOrganizations(nextOrganizations);
-      setExternalMenus(nextExternalMenus);
-      setPriceCategories(nextPriceCategories);
-      setTerminalGroups(nextTerminalGroups);
-
-      const preferredOrganization =
-        nextOrganizations.find((organization) => organization.isActive !== false) ??
-        nextOrganizations[0];
-      const preferredExternalMenu =
-        nextExternalMenus.find(
-          (externalMenu) => externalMenu.id === formState.externalMenuId,
-        ) ?? nextExternalMenus[0];
-      const preferredPriceCategory =
-        nextPriceCategories.find(
-          (priceCategory) => priceCategory.id === formState.priceCategoryId,
-        ) ?? nextPriceCategories[0];
-      const preferredTerminalGroup =
-        nextTerminalGroups.find(
-          (terminalGroup) => terminalGroup.id === formState.terminalGroupId,
-        ) ??
-        nextTerminalGroups.find(
-          (terminalGroup) =>
-            terminalGroup.organizationId === preferredOrganization?.id,
-        ) ??
-        nextTerminalGroups[0];
-
-      setFormState((prev) => ({
-        ...prev,
-        organizationId: preferredOrganization?.id ?? prev.organizationId,
-        organizationName: preferredOrganization?.name ?? prev.organizationName,
-        externalMenuId: preferredExternalMenu?.id ?? prev.externalMenuId,
-        externalMenuName: preferredExternalMenu?.name ?? prev.externalMenuName,
-        priceCategoryId: preferredPriceCategory?.id ?? prev.priceCategoryId,
-        priceCategoryName:
-          preferredPriceCategory?.name ?? prev.priceCategoryName,
-        terminalGroupId: preferredTerminalGroup?.id ?? prev.terminalGroupId,
-        terminalGroupName:
-          preferredTerminalGroup?.name ?? prev.terminalGroupName,
-      }));
-      setPreview(null);
-
-      if (!options?.silent) {
-        toast.success("Подключение к iiko успешно.");
+  const handleTestConnection = React.useCallback(
+    async (options?: { silent?: boolean }) => {
+      const apiLogin = formState.apiLogin.trim();
+      if (!apiLogin && !isConfigured) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          apiLogin: "Введите apiLogin iiko.",
+        }));
+        return;
       }
-    } catch (error) {
-      const message = extractApiErrorMessage(error);
-      setErrorMessage(message);
-      if (!options?.silent) {
-        toast.error(message);
+
+      try {
+        setErrorMessage(null);
+        const result = await testConnectionMutation.mutateAsync({
+          data: apiLogin ? { apiLogin } : {},
+        });
+        const nextOrganizations = result.organizations ?? [];
+        const nextExternalMenus = result.externalMenus ?? [];
+        const nextPriceCategories = result.priceCategories ?? [];
+        const nextTerminalGroups = result.terminalGroups ?? [];
+        setOrganizations(nextOrganizations);
+        setExternalMenus(nextExternalMenus);
+        setPriceCategories(nextPriceCategories);
+        setTerminalGroups(nextTerminalGroups);
+
+        const preferredOrganization =
+          nextOrganizations.find(
+            (organization) => organization.isActive !== false,
+          ) ?? nextOrganizations[0];
+        const preferredExternalMenu =
+          nextExternalMenus.find(
+            (externalMenu) => externalMenu.id === formState.externalMenuId,
+          ) ?? nextExternalMenus[0];
+        const preferredPriceCategory =
+          nextPriceCategories.find(
+            (priceCategory) => priceCategory.id === formState.priceCategoryId,
+          ) ?? nextPriceCategories[0];
+        const preferredTerminalGroup =
+          nextTerminalGroups.find(
+            (terminalGroup) => terminalGroup.id === formState.terminalGroupId,
+          ) ??
+          nextTerminalGroups.find(
+            (terminalGroup) =>
+              terminalGroup.organizationId === preferredOrganization?.id,
+          ) ??
+          nextTerminalGroups[0];
+
+        setFormState((prev) => ({
+          ...prev,
+          organizationId: preferredOrganization?.id ?? prev.organizationId,
+          organizationName:
+            preferredOrganization?.name ?? prev.organizationName,
+          externalMenuId: preferredExternalMenu?.id ?? prev.externalMenuId,
+          externalMenuName:
+            preferredExternalMenu?.name ?? prev.externalMenuName,
+          priceCategoryId: preferredPriceCategory?.id ?? prev.priceCategoryId,
+          priceCategoryName:
+            preferredPriceCategory?.name ?? prev.priceCategoryName,
+          terminalGroupId: preferredTerminalGroup?.id ?? prev.terminalGroupId,
+          terminalGroupName:
+            preferredTerminalGroup?.name ?? prev.terminalGroupName,
+        }));
+        setPreview(null);
+
+        if (!options?.silent) {
+          toast.success("Подключение к iiko успешно.");
+        }
+      } catch (error) {
+        const message = extractApiErrorMessage(error);
+        setErrorMessage(message);
+        if (!options?.silent) {
+          toast.error(message);
+        }
       }
-    }
-  }, [
-    formState.apiLogin,
-    formState.externalMenuId,
-    formState.priceCategoryId,
-    formState.terminalGroupId,
-    isConfigured,
-    testConnectionMutation,
-  ]);
+    },
+    [
+      formState.apiLogin,
+      formState.externalMenuId,
+      formState.priceCategoryId,
+      formState.terminalGroupId,
+      isConfigured,
+      testConnectionMutation,
+    ],
+  );
 
   React.useEffect(() => {
     if (!open || !isConfigured || autoRefreshConnectionRef.current) return;
@@ -800,10 +817,7 @@ export const EditCatalogIikoDrawer: React.FC<{
     if (formState.exportOrders && !terminalGroupId) {
       nextErrors.terminalGroupId = "Выберите точку iiko для экспорта заказов.";
     }
-    if (
-      formState.exportOrders &&
-      selectedTerminalGroup?.isActive === false
-    ) {
+    if (formState.exportOrders && selectedTerminalGroup?.isActive === false) {
       nextErrors.terminalGroupId =
         "Для экспорта заказов выберите активную точку iiko. Эта точка неактивна или не зарегистрирована.";
     }
@@ -890,7 +904,9 @@ export const EditCatalogIikoDrawer: React.FC<{
 
       await refreshIikoQueries(queryClient);
       toast.success(
-        isConfigured ? "Настройки iiko сохранены." : "Интеграция iiko подключена.",
+        isConfigured
+          ? "Настройки iiko сохранены."
+          : "Интеграция iiko подключена.",
       );
       setOpen(false);
     } catch (error) {
@@ -972,7 +988,7 @@ export const EditCatalogIikoDrawer: React.FC<{
       setErrorMessage(null);
       const result = await previewMutation.mutateAsync({ data: payload });
       setPreview(result);
-      toast.success("Preview меню iiko получен.");
+      toast.success("Предпросмотр меню iiko получен.");
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -1014,7 +1030,13 @@ export const EditCatalogIikoDrawer: React.FC<{
       setErrorMessage(message);
       toast.error(message);
     }
-  }, [integration?.externalMenuId, isBusy, isConfigured, queryClient, syncMutation]);
+  }, [
+    integration?.externalMenuId,
+    isBusy,
+    isConfigured,
+    queryClient,
+    syncMutation,
+  ]);
 
   const handleStockSync = React.useCallback(async () => {
     if (isBusy || !isConfigured || integration?.isActive === false) return;
@@ -1053,7 +1075,7 @@ export const EditCatalogIikoDrawer: React.FC<{
       setErrorMessage(null);
       await setupWebhooksMutation.mutateAsync();
       await refreshIikoQueries(queryClient);
-      toast.success("Webhooks iiko зарегистрированы.");
+      toast.success("Вебхуки iiko зарегистрированы.");
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -1074,7 +1096,7 @@ export const EditCatalogIikoDrawer: React.FC<{
       setErrorMessage(null);
       await disableWebhooksMutation.mutateAsync();
       await refreshIikoQueries(queryClient);
-      toast.success("Webhooks iiko отключены.");
+      toast.success("Вебхуки iiko отключены.");
     } catch (error) {
       const message = extractApiErrorMessage(error);
       setErrorMessage(message);
@@ -1093,7 +1115,7 @@ export const EditCatalogIikoDrawer: React.FC<{
           webhookEventsQuery.refetch(),
           refreshIikoQueries(queryClient),
         ]);
-        toast.success("Webhook событие iiko обработано повторно.");
+        toast.success("Событие вебхука iiko обработано повторно.");
       } catch (error) {
         const message = extractApiErrorMessage(error);
         setErrorMessage(message);
@@ -1237,8 +1259,9 @@ export const EditCatalogIikoDrawer: React.FC<{
                     </div>
                     <div>
                       <span className="block truncate text-foreground">
-                        {formatSyncTimestamp(integration.lastStopListSyncedAt) ??
-                          "—"}
+                        {formatSyncTimestamp(
+                          integration.lastStopListSyncedAt,
+                        ) ?? "—"}
                       </span>
                       остатки
                     </div>
@@ -1298,10 +1321,10 @@ export const EditCatalogIikoDrawer: React.FC<{
               <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-sm font-medium">Webhooks iiko</div>
+                    <div className="text-sm font-medium">Вебхуки iiko</div>
                     <p className="mt-1 break-words text-sm text-muted-foreground">
-                      iiko будет сам присылать изменения stop-list, меню и статусы
-                      заказов.
+                      iiko будет сам присылать изменения stop-list, меню и
+                      статусы заказов.
                     </p>
                   </div>
                   <Badge
@@ -1312,7 +1335,8 @@ export const EditCatalogIikoDrawer: React.FC<{
                         : "secondary"
                     }
                   >
-                    {integration?.webhook.enabled && integration.webhook.hasSecret
+                    {integration?.webhook.enabled &&
+                    integration.webhook.hasSecret
                       ? "Включены"
                       : "Не настроены"}
                   </Badge>
@@ -1327,8 +1351,9 @@ export const EditCatalogIikoDrawer: React.FC<{
                   </div>
                   <div className="rounded-lg border border-black/10 bg-muted/10 p-2">
                     <span className="block truncate text-sm font-medium text-foreground">
-                      {formatSyncTimestamp(integration?.webhook.lastReceivedAt) ??
-                        "—"}
+                      {formatSyncTimestamp(
+                        integration?.webhook.lastReceivedAt,
+                      ) ?? "—"}
                     </span>
                     получено
                   </div>
@@ -1421,12 +1446,14 @@ export const EditCatalogIikoDrawer: React.FC<{
                       const badge = getWebhookEventStatusBadge(event.status);
                       const receivedAt =
                         formatSyncTimestamp(event.receivedAt) ?? "нет даты";
-                      const processedAt = formatSyncTimestamp(event.processedAt);
+                      const processedAt = formatSyncTimestamp(
+                        event.processedAt,
+                      );
                       const detailEntries = Object.entries(event.details ?? {})
-                        .map(([key, value]) => [
-                          key,
-                          formatWebhookDetailValue(value),
-                        ] as const)
+                        .map(
+                          ([key, value]) =>
+                            [key, formatWebhookDetailValue(value)] as const,
+                        )
                         .filter(([, value]) => Boolean(value));
 
                       return (
@@ -1441,7 +1468,9 @@ export const EditCatalogIikoDrawer: React.FC<{
                               </div>
                               <p className="mt-1 break-words text-xs text-muted-foreground">
                                 Получено {receivedAt}
-                                {processedAt ? ` · обработано ${processedAt}` : ""}
+                                {processedAt
+                                  ? ` · обработано ${processedAt}`
+                                  : ""}
                               </p>
                             </div>
                             <Badge
@@ -1512,10 +1541,13 @@ export const EditCatalogIikoDrawer: React.FC<{
                       Лента интеграции iiko
                     </div>
                     <p className="mt-1 break-words text-sm text-muted-foreground">
-                      Sync, webhook и экспорт заказов в одном порядке по времени.
+                      Sync, webhook и экспорт заказов в одном порядке по
+                      времени.
                     </p>
                   </div>
-                  <Badge variant="secondary">{integrationTimeline.length}</Badge>
+                  <Badge variant="secondary">
+                    {integrationTimeline.length}
+                  </Badge>
                 </div>
                 <div className="mt-3 space-y-2">
                   {integrationTimeline.length ? (
@@ -1589,9 +1621,7 @@ export const EditCatalogIikoDrawer: React.FC<{
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="iiko-organization">
-                  Организация
-                </FieldLabel>
+                <FieldLabel htmlFor="iiko-organization">Организация</FieldLabel>
                 <FieldContent>
                   <Select
                     value={formState.organizationId}
@@ -1623,7 +1653,10 @@ export const EditCatalogIikoDrawer: React.FC<{
                     </SelectTrigger>
                     <SelectContent>
                       {organizations.map((organization) => (
-                        <SelectItem key={organization.id} value={organization.id}>
+                        <SelectItem
+                          key={organization.id}
+                          value={organization.id}
+                        >
                           {organization.name}
                         </SelectItem>
                       ))}
@@ -1670,15 +1703,19 @@ export const EditCatalogIikoDrawer: React.FC<{
                     </SelectTrigger>
                     <SelectContent>
                       {externalMenus.map((externalMenu) => (
-                        <SelectItem key={externalMenu.id} value={externalMenu.id}>
+                        <SelectItem
+                          key={externalMenu.id}
+                          value={externalMenu.id}
+                        >
                           {externalMenu.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   <FieldDescription className="break-words">
-                    Импорт идет из External Menu iiko, поэтому здесь нужно выбрать меню вроде
-                    «Мой каталог», а не общий справочник номенклатуры.
+                    Импорт идет из External Menu iiko, поэтому здесь нужно
+                    выбрать меню вроде «Мой каталог», а не общий справочник
+                    номенклатуры.
                   </FieldDescription>
                   <FieldError>{validationErrors.externalMenuId}</FieldError>
                 </FieldContent>
@@ -1735,8 +1772,8 @@ export const EditCatalogIikoDrawer: React.FC<{
                     </SelectContent>
                   </Select>
                   <FieldDescription className="break-words">
-                    Если iiko вернул ценовые категории, выберите ту же категорию, которую
-                    привязали в настройках API-логина.
+                    Если iiko вернул ценовые категории, выберите ту же
+                    категорию, которую привязали в настройках API-логина.
                   </FieldDescription>
                   <FieldError>{validationErrors.priceCategoryId}</FieldError>
                 </FieldContent>
@@ -1778,8 +1815,12 @@ export const EditCatalogIikoDrawer: React.FC<{
                           value={terminalGroup.id}
                         >
                           {terminalGroup.name}
-                          {terminalGroup.isActive === false ? " (неактивна)" : ""}
-                          {terminalGroup.isAlive === false ? " (недоступна)" : ""}
+                          {terminalGroup.isActive === false
+                            ? " (неактивна)"
+                            : ""}
+                          {terminalGroup.isAlive === false
+                            ? " (недоступна)"
+                            : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1885,8 +1926,8 @@ export const EditCatalogIikoDrawer: React.FC<{
                   <FieldContent>
                     <FieldTitle>Экспорт заказов</FieldTitle>
                     <FieldDescription className="break-words">
-                      После завершения заказа администратором backend отправит его
-                      в iiko через выбранную точку.
+                      После завершения заказа администратором backend отправит
+                      его в iiko через выбранную точку.
                     </FieldDescription>
                   </FieldContent>
                   <Switch
@@ -1926,7 +1967,9 @@ export const EditCatalogIikoDrawer: React.FC<{
                             <SelectValue placeholder="Авто" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={ORDER_EXPORT_SERVICE_TYPE_AUTO_VALUE}>
+                            <SelectItem
+                              value={ORDER_EXPORT_SERVICE_TYPE_AUTO_VALUE}
+                            >
                               Авто
                             </SelectItem>
                             <SelectItem value="DeliveryByCourier">
@@ -1968,7 +2011,8 @@ export const EditCatalogIikoDrawer: React.FC<{
                   <div>
                     <div className="text-sm font-medium">Preview импорта</div>
                     <p className="mt-1 break-words text-sm text-muted-foreground">
-                      Быстрая проверка меню до сохранения и запуска синхронизации.
+                      Быстрая проверка меню до сохранения и запуска
+                      синхронизации.
                     </p>
                   </div>
                   <Button
@@ -2056,7 +2100,9 @@ export const EditCatalogIikoDrawer: React.FC<{
                           </div>
                           <div className="flex shrink-0 flex-wrap justify-end gap-1">
                             <Badge
-                              variant={item.willImport ? "default" : "secondary"}
+                              variant={
+                                item.willImport ? "default" : "secondary"
+                              }
                             >
                               {item.willImport ? "import" : "skip"}
                             </Badge>
@@ -2080,15 +2126,15 @@ export const EditCatalogIikoDrawer: React.FC<{
                     {previewSkippedItems.length > 0 ? (
                       <p className="mt-2 break-words text-xs text-muted-foreground">
                         Пропущено позиций:{" "}
-                        {formatCounter(previewSkippedItems.length)}. Основные причины
-                        показаны в строках preview.
+                        {formatCounter(previewSkippedItems.length)}. Основные
+                        причины показаны в строках preview.
                       </p>
                     ) : null}
                   </>
                 ) : (
                   <p className="mt-3 break-words text-sm text-muted-foreground">
-                    Preview покажет категории, видимые товары, скрытые позиции, товары без
-                    цены, варианты, combo и наличие модификаторов.
+                    Preview покажет категории, видимые товары, скрытые позиции,
+                    товары без цены, варианты, combo и наличие модификаторов.
                   </p>
                 )}
               </div>
@@ -2118,7 +2164,9 @@ export const EditCatalogIikoDrawer: React.FC<{
 
               <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-sm font-medium">Экспорт заказов iiko</span>
+                  <span className="text-sm font-medium">
+                    Экспорт заказов iiko
+                  </span>
                   {orderExportsQuery.isFetching ? (
                     <span className="text-xs text-muted-foreground">
                       Обновляем...
@@ -2223,9 +2271,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                 type="button"
                 variant="secondary"
                 disabled={
-                  isBusy ||
-                  hasActiveRun ||
-                  integration?.isActive === false
+                  isBusy || hasActiveRun || integration?.isActive === false
                 }
                 onClick={() => void handleStockSync()}
               >

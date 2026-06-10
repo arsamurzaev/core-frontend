@@ -1,12 +1,11 @@
-import {
-  type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
+import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
 import { isDiscountAttribute } from "@/core/modules/product/editor/model/product-discount";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
 } from "@/shared/api/generated/react-query";
+import { type CreateProductPriceListPricePayload } from "@/core/modules/catalog-price-list";
 import { type SaleUnitPayload } from "@/core/modules/product/editor/model/product-sale-units";
 import {
   resolveCreateProductBaseSaleUnitsPayload,
@@ -15,6 +14,7 @@ import {
 
 type CreateProductWithBaseSaleUnitsDtoReq = CreateProductDtoReq & {
   saleUnits?: SaleUnitPayload[];
+  priceListPrices?: CreateProductPriceListPricePayload[];
 };
 
 export function parseCreateProductPayload(params: {
@@ -28,6 +28,7 @@ export function parseCreateProductPayload(params: {
   canUseProductVariants: boolean;
   canUseCatalogSaleUnits: boolean;
   canUseDiscounts?: boolean;
+  priceListPrices?: CreateProductPriceListPricePayload[];
 }): CreateProductWithBaseSaleUnitsDtoReq {
   const {
     formValues,
@@ -40,6 +41,7 @@ export function parseCreateProductPayload(params: {
     canUseProductVariants,
     canUseCatalogSaleUnits,
     canUseDiscounts = true,
+    priceListPrices,
   } = params;
   const editableProductAttributes = canUseDiscounts
     ? productAttributes
@@ -85,5 +87,6 @@ export function parseCreateProductPayload(params: {
     ...(resolvedVariantsPayload.length > 0
       ? { variants: resolvedVariantsPayload }
       : {}),
+    ...(priceListPrices?.length ? { priceListPrices } : {}),
   };
 }

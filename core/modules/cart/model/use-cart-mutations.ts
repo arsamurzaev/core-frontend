@@ -22,6 +22,7 @@ import type {
   CartProductSnapshot,
   PrepareShareOrderInput,
 } from "./cart-context.types";
+import type { CartLineModifierSelection } from "./cart-line-key";
 
 type HallTableOverviewCache = {
   tables: Array<{
@@ -149,10 +150,18 @@ export function useCartMutations({
       product?: CartProductSnapshot;
       productId: string;
       quantity: number;
+      modifiers?: CartLineModifierSelection[];
       saleUnitId?: string;
       variantId?: string;
     }) => {
-      const payload: UpsertCartItemDtoReq & { saleUnitId?: string } = {
+      const payload: UpsertCartItemDtoReq & {
+        modifiers?: Array<{
+          productModifierGroupId: string;
+          productModifierOptionId: string;
+          quantity: number;
+        }>;
+        saleUnitId?: string;
+      } = {
         productId: params.productId,
         quantity: params.quantity,
         ...(params.variantId ? { variantId: params.variantId } : {}),
@@ -161,6 +170,15 @@ export function useCartMutations({
           ? { guestSessionId: params.guestSessionId }
           : {}),
         ...(params.guestName ? { guestName: params.guestName } : {}),
+        ...(params.modifiers?.length
+          ? {
+              modifiers: params.modifiers.map((modifier) => ({
+                productModifierGroupId: modifier.productModifierGroupId,
+                productModifierOptionId: modifier.productModifierOptionId,
+                quantity: Math.max(1, Math.trunc(modifier.quantity ?? 1)),
+              })),
+            }
+          : {}),
       };
       const response = await cartControllerUpsertCurrentItem(payload);
 
@@ -178,6 +196,7 @@ export function useCartMutations({
         product: params.product,
         guestName: params.guestName,
         guestSessionId: params.guestSessionId,
+        modifiers: params.modifiers,
         productId: params.productId,
         quantity: params.quantity,
         saleUnitId: params.saleUnitId,
@@ -221,6 +240,7 @@ export function useCartMutations({
       product?: CartProductSnapshot;
       productId: string;
       quantity: number;
+      modifiers?: CartLineModifierSelection[];
       saleUnitId?: string;
       variantId?: string;
     }) => {
@@ -231,6 +251,11 @@ export function useCartMutations({
       const payload: PublicUpsertCartItemDtoReq & {
         guestName?: string;
         guestSessionId?: string;
+        modifiers?: Array<{
+          productModifierGroupId: string;
+          productModifierOptionId: string;
+          quantity: number;
+        }>;
         saleUnitId?: string;
       } = {
         productId: params.productId,
@@ -239,6 +264,15 @@ export function useCartMutations({
         ...(params.saleUnitId ? { saleUnitId: params.saleUnitId } : {}),
         ...(guestSessionId ? { guestSessionId } : {}),
         ...(guestName ? { guestName } : {}),
+        ...(params.modifiers?.length
+          ? {
+              modifiers: params.modifiers.map((modifier) => ({
+                productModifierGroupId: modifier.productModifierGroupId,
+                productModifierOptionId: modifier.productModifierOptionId,
+                quantity: Math.max(1, Math.trunc(modifier.quantity ?? 1)),
+              })),
+            }
+          : {}),
       };
       const response = await apiClient.put<{
         ok: true;
@@ -265,6 +299,7 @@ export function useCartMutations({
         product: params.product,
         guestName: params.guestName ?? params.access.guestName,
         guestSessionId: params.guestSessionId ?? params.access.guestSessionId,
+        modifiers: params.modifiers,
         productId: params.productId,
         quantity: params.quantity,
         saleUnitId: params.saleUnitId,

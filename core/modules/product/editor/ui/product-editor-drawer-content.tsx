@@ -3,6 +3,11 @@
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { type UploadState } from "@/core/modules/product/editor/model/types";
 import { useProductEditorFormState } from "@/core/modules/product/editor/model/use-product-editor-form-state";
+import {
+  type SaleUnitFormValue,
+  type VariantCombinationFormValue,
+  type VariantMatrixRow,
+} from "@/core/modules/product/editor/model/product-variants";
 import { ProductEditorCropper } from "@/core/modules/product/editor/ui/product-editor-cropper";
 import { ProductEditorImagesPanel } from "@/core/modules/product/editor/ui/product-editor-images-panel";
 import { ProductEditorMainSection } from "@/core/modules/product/editor/ui/product-editor-main-section";
@@ -36,7 +41,20 @@ export interface ProductEditorDrawerContentProps {
   isReorderMode: boolean;
   isSubmitting: boolean;
   isSubmitDisabled?: boolean;
+  modifiersSection?: React.ReactNode;
+  priceListController?: React.ReactNode;
+  priceListSettingsAction?: React.ReactNode;
+  productPriceListFields?: React.ReactNode;
   pendingSwapIndex: number | null;
+  renderSaleUnitPriceListFields?: (params: {
+    index: number;
+    unit: SaleUnitFormValue;
+    variantRow?: VariantMatrixRow;
+  }) => React.ReactNode;
+  renderVariantPriceListFields?: (params: {
+    item: VariantCombinationFormValue;
+    row: VariantMatrixRow;
+  }) => React.ReactNode;
   showImagesSection?: boolean;
   submitLabel: string;
   title: string;
@@ -51,6 +69,7 @@ export interface ProductEditorDrawerContentProps {
   canUseCatalogSaleUnits?: boolean;
   canUseDiscounts?: boolean;
   canUseProductVariants?: boolean;
+  hideBasePrices?: boolean;
   onCropApply: (files: File[]) => void;
   onCropperOpenChange: (open: boolean) => void;
   onEditFile: (index: number) => void;
@@ -84,7 +103,13 @@ export const ProductEditorDrawerContent: React.FC<
   isReorderMode,
   isSubmitting,
   isSubmitDisabled,
+  modifiersSection,
+  priceListController,
+  priceListSettingsAction,
+  productPriceListFields,
   pendingSwapIndex,
+  renderSaleUnitPriceListFields,
+  renderVariantPriceListFields,
   showImagesSection = true,
   submitLabel,
   title,
@@ -99,6 +124,7 @@ export const ProductEditorDrawerContent: React.FC<
   canUseCatalogSaleUnits = false,
   canUseDiscounts = true,
   canUseProductVariants = false,
+  hideBasePrices = false,
   onCropApply,
   onCropperOpenChange,
   onEditFile,
@@ -112,18 +138,14 @@ export const ProductEditorDrawerContent: React.FC<
   const { catalog } = useCatalogState();
   const priceFormatMode = getCatalogPriceFormatMode(catalog);
   const resolvedIsBusy = isBusy ?? isSubmitting;
-  const {
-    discountPercent,
-    hasVariantAttributes,
-    priceFallback,
-    saleUnits,
-  } = useProductEditorFormState({
-    canUseDiscounts,
-    canUseProductVariants,
-    form,
-    productAttributes,
-    variantAttributes,
-  });
+  const { discountPercent, hasVariantAttributes, priceFallback, saleUnits } =
+    useProductEditorFormState({
+      canUseDiscounts,
+      canUseProductVariants,
+      form,
+      productAttributes,
+      variantAttributes,
+    });
 
   const resolvedTrailingTitleNode =
     trailingTitleNode ??
@@ -147,6 +169,8 @@ export const ProductEditorDrawerContent: React.FC<
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-6">
+              {priceListController}
+
               <ProductEditorMainSection
                 canUseCatalogSaleUnits={canUseCatalogSaleUnits}
                 canEditPrice={canEditPrice}
@@ -155,13 +179,25 @@ export const ProductEditorDrawerContent: React.FC<
                 form={form}
                 formFields={formFields}
                 hasVariantAttributes={hasVariantAttributes}
+                hideBasePrices={hideBasePrices}
                 priceFormatMode={priceFormatMode}
+                priceListSettingsAction={priceListSettingsAction}
+                productPriceListFields={productPriceListFields}
                 priceFallback={priceFallback}
                 productTypeChangeSection={productTypeChangeSection}
+                renderSaleUnitPriceListFields={renderSaleUnitPriceListFields}
+                renderVariantPriceListFields={renderVariantPriceListFields}
                 saleUnitsSettingsAction={saleUnitsSettingsAction}
                 saleUnits={saleUnits}
                 variantAttributes={variantAttributes}
               />
+
+              {modifiersSection ? (
+                <>
+                  <hr className="-mx-5" />
+                  {modifiersSection}
+                </>
+              ) : null}
 
               {showImagesSection ? (
                 <>

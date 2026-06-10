@@ -11,6 +11,7 @@ import { getHomePageDataServer } from "@/shared/api/server/get-home-page-data";
 import { cn } from "@/shared/lib/utils";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
 import React, { Suspense } from "react";
+import { HomeCatalogFallback } from "./home-catalog-fallback";
 
 interface Props {
   className?: string;
@@ -26,7 +27,7 @@ export const HomeContent = async ({ className }: Props) => {
         <EditProductDrawerHostProviderSlot>
           <div rel="content" className="space-y-8 px-2.5">
             <CatalogHeaderSlot />
-            <Suspense>
+            <Suspense fallback={<HomeCatalogFallback />}>
               <PopularProductCarousel initialProducts={popularProducts} />
               <CatalogBrowserSlot initialCategories={categories} />
             </Suspense>

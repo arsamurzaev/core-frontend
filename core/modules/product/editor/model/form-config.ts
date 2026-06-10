@@ -1,4 +1,7 @@
-import { type AttributeDto, AttributeDtoDataType } from "@/shared/api/generated/react-query";
+import {
+  type AttributeDto,
+  AttributeDtoDataType,
+} from "@/shared/api/generated/react-query";
 import {
   getCatalogPriceInputProps,
   type CatalogPriceFormatMode,
@@ -41,7 +44,11 @@ function normalizeCategoryIds(value: unknown): string[] {
 function normalizeAttributeValue(
   value: unknown,
 ): ProductAttributeFormValue | undefined {
-  if (value === null || typeof value === "string" || typeof value === "boolean") {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "boolean"
+  ) {
     return value;
   }
 
@@ -60,7 +67,9 @@ function normalizeAttributesRecord(
       const normalizedValue = normalizeAttributeValue(entryValue);
       return normalizedValue === undefined ? null : [key, normalizedValue];
     })
-    .filter((entry): entry is [string, ProductAttributeFormValue] => entry !== null);
+    .filter(
+      (entry): entry is [string, ProductAttributeFormValue] => entry !== null,
+    );
 
   return Object.fromEntries(entries);
 }
@@ -127,6 +136,7 @@ export const CREATE_PRODUCT_FIELD_GROUP_PROPS = {
 
 export interface BuildCreateProductFormFieldsOptions {
   canEditPrice?: boolean;
+  hideBasePrices?: boolean;
 }
 
 type AttributeFieldOverride = Omit<
@@ -396,15 +406,22 @@ export function buildCreateProductFormFields(
   options: BuildCreateProductFormFieldsOptions = {},
 ): DynamicFieldConfig<CreateProductFormValues>[] {
   const canEditPrice = options.canEditPrice ?? true;
-  const baseFields = BASE_FIELDS.map((field) =>
-    field.name === "price"
-      ? {
-          ...field,
-          disabled: field.disabled || !canEditPrice,
-          inputProps: getPriceFieldInputProps(priceFormatMode),
-        }
-      : field,
-  );
+  const hideBasePrices = options.hideBasePrices ?? false;
+  const baseFields = BASE_FIELDS.flatMap((field) => {
+    if (field.name === "price") {
+      return hideBasePrices
+        ? []
+        : [
+            {
+              ...field,
+              disabled: field.disabled || !canEditPrice,
+              inputProps: getPriceFieldInputProps(priceFormatMode),
+            },
+          ];
+    }
+
+    return [field];
+  });
 
   return [
     ...baseFields,

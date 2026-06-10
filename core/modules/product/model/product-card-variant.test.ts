@@ -6,7 +6,9 @@ import { describe, expect, it } from "vitest";
 import { resolveProductCardVariantState } from "./product-card-variant";
 
 function product(
-  overrides: Partial<ProductWithAttributesDto> = {},
+  overrides: Partial<ProductWithAttributesDto> & {
+    usesPriceList?: boolean | null;
+  } = {},
 ): ProductWithAttributesDto {
   return {
     id: "product-1",
@@ -43,7 +45,7 @@ function product(
     },
     variantPickerOptions: [],
     ...overrides,
-  };
+  } as ProductWithAttributesDto;
 }
 
 describe("resolveProductCardVariantState", () => {
@@ -138,6 +140,53 @@ describe("resolveProductCardVariantState", () => {
     );
   });
 
+  it("does not require selection for optional multiple variants", () => {
+    expect(
+      resolveProductCardVariantState(
+        product({
+          requiresVariantSelection: false,
+          variantSummary: {
+            activeCount: 2,
+            maxPrice: "1200",
+            minPrice: "1000",
+            singleVariantId: null,
+            totalStock: 5,
+          },
+          variantPickerOptions: [
+            {
+              id: "variant-1",
+              isAvailable: true,
+              label: "S",
+              maxQuantity: 3,
+              price: "1000",
+              saleUnitId: null,
+              saleUnitPrice: null,
+              status: ProductVariantPickerOptionDtoStatus.ACTIVE,
+              stock: 3,
+            },
+            {
+              id: "variant-2",
+              isAvailable: true,
+              label: "M",
+              maxQuantity: 2,
+              price: "1200",
+              saleUnitId: null,
+              saleUnitPrice: null,
+              status: ProductVariantPickerOptionDtoStatus.ACTIVE,
+              stock: 2,
+            },
+          ],
+        }),
+        { canUseVariants: true },
+      ),
+    ).toEqual(
+      expect.objectContaining({
+        requiresVariantSelection: false,
+        shouldOpenPicker: false,
+      }),
+    );
+  });
+
   it("can infer a single variant from picker options", () => {
     expect(
       resolveProductCardVariantState(
@@ -162,6 +211,54 @@ describe("resolveProductCardVariantState", () => {
       expect.objectContaining({
         requiresVariantSelection: false,
         singleVariantId: "variant-1",
+      }),
+    );
+  });
+
+  it("ignores picker options without active price-list prices", () => {
+    expect(
+      resolveProductCardVariantState(
+        product({
+          requiresVariantSelection: true,
+          usesPriceList: true,
+          variantSummary: {
+            activeCount: 2,
+            maxPrice: "350.00",
+            minPrice: "350.00",
+            singleVariantId: null,
+            totalStock: 6,
+          },
+          variantPickerOptions: [
+            {
+              id: "variant-xs",
+              isAvailable: true,
+              label: "XS",
+              maxQuantity: 3,
+              price: "350.00",
+              saleUnitId: null,
+              saleUnitPrice: null,
+              status: ProductVariantPickerOptionDtoStatus.ACTIVE,
+              stock: 3,
+            },
+            {
+              id: "variant-s",
+              isAvailable: true,
+              label: "S",
+              maxQuantity: 3,
+              price: null,
+              saleUnitId: null,
+              saleUnitPrice: null,
+              status: ProductVariantPickerOptionDtoStatus.ACTIVE,
+              stock: 3,
+            },
+          ],
+        }),
+        { canUseVariants: true },
+      ),
+    ).toEqual(
+      expect.objectContaining({
+        requiresVariantSelection: false,
+        singleVariantId: "variant-xs",
       }),
     );
   });

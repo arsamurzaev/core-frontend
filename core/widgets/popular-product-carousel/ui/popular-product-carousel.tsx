@@ -17,6 +17,7 @@ import {
   type ProductWithAttributesDto,
   useProductControllerGetPopularCards,
 } from "@/shared/api/generated/react-query";
+import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
 import { cn } from "@/shared/lib/utils";
 import {
   Carousel,
@@ -25,6 +26,7 @@ import {
   CarouselItem,
 } from "@/shared/ui/carousel";
 import { useSession } from "@/shared/providers/session-provider";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";
 import { PopularProductCarouselSkeleton } from "./skeleton/popular-product-carousel-skeleton";
 
@@ -42,7 +44,10 @@ export const PopularProductCarousel: React.FC<Props> = ({
   const [isMounted, setIsMounted] = React.useState(false);
   const { quantityByProductId, shouldUseCartUi } = useCart();
   const { isAuthenticated } = useSession();
+  const { catalog } = useCatalogState();
   const shouldRenderCartUi = isMounted && shouldUseCartUi;
+  const shouldShowAdminActions =
+    !shouldRenderCartUi && isAuthenticated && canManageCatalogContent(catalog);
 
   const { isLoading, data } = useProductControllerGetPopularCards({
     query: {
@@ -125,17 +130,13 @@ export const PopularProductCarousel: React.FC<Props> = ({
                     data={product}
                     isDetailed
                     isIikoLinked={
-                      !shouldRenderCartUi &&
-                      isAuthenticated &&
-                      isIikoProduct(product)
+                      shouldShowAdminActions && isIikoProduct(product)
                     }
                     isMoySkladLinked={
-                      !shouldRenderCartUi &&
-                      isAuthenticated &&
-                      isMoySkladProduct(product)
+                      shouldShowAdminActions && isMoySkladProduct(product)
                     }
                     actions={
-                      !shouldRenderCartUi ? (
+                      shouldShowAdminActions ? (
                         <EditProductCardAction
                           isIikoLinked={isIikoProduct(product)}
                           isMoySkladLinked={isMoySkladProduct(product)}
@@ -153,7 +154,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
                           product={product}
                           isDetailed
                         />
-                      ) : !shouldRenderCartUi && isAuthenticated ? (
+                      ) : shouldShowAdminActions ? (
                         <ToggleProductPopularAction
                           productId={product.id}
                           isPopular={Boolean(product.isPopular)}

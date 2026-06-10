@@ -875,20 +875,24 @@ export const EditCatalogProductTypesDrawer: React.FC<{
   const handleUpdateValue = React.useCallback(
     async (value: AttributeEnumValueDto, displayName: string) => {
       if (displayName === (value.displayName ?? value.value)) return;
-      if (isImportedEnumValue(value)) return;
 
       try {
         setErrorMessage(null);
         await updateValue.mutateAsync({
           attributeId: value.attributeId,
           id: value.id,
-          data: {
-            value: value.value,
-            displayName: normalizeText(displayName),
-            displayOrder: value.displayOrder,
-            businessId: value.businessId ?? undefined,
-            source: value.source,
-          },
+          data: isImportedEnumValue(value)
+            ? {
+                displayName: normalizeText(displayName),
+                displayOrder: value.displayOrder,
+              }
+            : {
+                value: value.value,
+                displayName: normalizeText(displayName),
+                displayOrder: value.displayOrder,
+                businessId: value.businessId ?? undefined,
+                source: value.source,
+              },
         });
         await refreshTypeQueries(
           queryClient,
@@ -1790,7 +1794,6 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                     disabled={
                                       isBusy ||
                                       selectedType.isArchived ||
-                                      isImportedEnumValue(value) ||
                                       Boolean(value.mergedIntoId)
                                     }
                                     onBlur={(event) =>

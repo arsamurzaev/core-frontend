@@ -8,7 +8,9 @@ import type {
 } from "@/shared/api/generated/react-query";
 import {
   buildProductCardView,
+  isVisibleForActivePriceList,
   formatProductVariantLabel,
+  isProductVariantOptionSelectable,
   sortProductVariants,
 } from "@/core/modules/product";
 import {
@@ -200,6 +202,7 @@ function getProductImageUrls(
 
 function getFullVariantsSummary(
   product: ProductDrawerEntity | null | undefined,
+  options: { shouldEnforceStock?: boolean } = {},
 ): string | null {
   if (!product?.productType?.id || !("variants" in product)) {
     return null;
@@ -207,7 +210,11 @@ function getFullVariantsSummary(
 
   const variants = new Set<string>();
 
-  for (const variant of sortProductVariants(product.variants)) {
+  for (const variant of sortProductVariants(product.variants).filter(
+    (variant) =>
+      isVisibleForActivePriceList(product, variant) &&
+      isProductVariantOptionSelectable(variant, options),
+  )) {
     const value = formatProductVariantLabel(variant);
 
     if (value) {
@@ -220,6 +227,7 @@ function getFullVariantsSummary(
 
 function getVariantPickerOptionsSummary(
   product: ProductDrawerEntity | null | undefined,
+  options: { shouldEnforceStock?: boolean } = {},
 ): string | null {
   if (!product?.productType?.id) {
     return null;
@@ -227,6 +235,11 @@ function getVariantPickerOptionsSummary(
 
   const labels = new Set(
     (product.variantPickerOptions ?? [])
+      .filter(
+        (option) =>
+          isVisibleForActivePriceList(product, option) &&
+          isProductVariantOptionSelectable(option, options),
+      )
       .map((option) => toOptionalTrimmedString(option.label))
       .filter((label): label is string => Boolean(label)),
   );
@@ -237,11 +250,12 @@ function getVariantPickerOptionsSummary(
 function getVariantsSummary(
   product: ProductDrawerEntity | null | undefined,
   previewProduct: ProductDrawerEntity | null | undefined,
+  options: { shouldEnforceStock?: boolean } = {},
 ): string | null {
   return (
-    getFullVariantsSummary(product) ??
-    getVariantPickerOptionsSummary(product) ??
-    getVariantPickerOptionsSummary(previewProduct)
+    getFullVariantsSummary(product, options) ??
+    getVariantPickerOptionsSummary(product, options) ??
+    getVariantPickerOptionsSummary(previewProduct, options)
   );
 }
 
@@ -278,6 +292,7 @@ export function buildProductDrawerViewModel(params: {
   const currency =
     toOptionalTrimmedString(attrs.currency) ??
     getCatalogCurrency(catalog, "RUB");
+  const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
 
   const productCardView = displayProduct
     ? buildProductCardView(displayProduct as ProductWithAttributesDto, {
@@ -303,6 +318,8 @@ export function buildProductDrawerViewModel(params: {
     priceFormatMode: getCatalogPriceFormatMode(catalog),
     shareText: displayProduct?.name,
     subtitle,
-    variantsSummary: getVariantsSummary(product, previewProduct),
+    variantsSummary: getVariantsSummary(product, previewProduct, {
+      shouldEnforceStock,
+    }),
   };
 }

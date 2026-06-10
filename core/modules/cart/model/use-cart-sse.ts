@@ -61,6 +61,8 @@ function getCartItemsFingerprint(
         item.variantId ?? "",
         getCartItemSaleUnitId(item) ?? "",
         item.quantity,
+        item.unitPrice,
+        item.lineTotal,
       ].join(":"),
     )
     .join("|")}`;
@@ -368,11 +370,5 @@ export function useCartSse({
         window.clearTimeout(reconnectTimeoutId);
       }
     };
-  }, [
-    activeCartId,
-    isHydrated,
-    isActiveCartInactive,
-    mode,
-    publicAccessKey,
-  ]);
+  }, [activeCartId, isHydrated, isActiveCartInactive, mode, publicAccessKey]);
 }

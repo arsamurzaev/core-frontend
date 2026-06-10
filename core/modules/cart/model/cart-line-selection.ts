@@ -1,13 +1,18 @@
 import {
+  buildCartLineModifierSignature,
   buildCartLineKey,
+  normalizeCartLineModifiers,
   normalizeSaleUnitId,
   normalizeVariantId,
+  type CartLineModifierSelection,
+  type NormalizedCartLineModifierSelection,
 } from "@/core/modules/cart/model/cart-line-key";
 import { normalizeCartGuestSessionId } from "./cart-guest";
 
 export interface CartLineSelection {
   guestName?: string | null;
   guestSessionId?: string | null;
+  modifiers?: CartLineModifierSelection[] | null;
   productId: string;
   saleUnitId?: string | null;
   variantId?: string | null;
@@ -16,6 +21,8 @@ export interface CartLineSelection {
 export interface NormalizedCartLineSelection {
   guestName?: string;
   guestSessionId?: string;
+  modifiers: NormalizedCartLineModifierSelection[];
+  modifierSignature: string;
   productId: string;
   saleUnitId?: string;
   variantId?: string;
@@ -30,9 +37,13 @@ export function normalizeCartLineSelection(
   const saleUnitId = normalizeSaleUnitId(selection.saleUnitId);
   const guestSessionId = normalizeCartGuestSessionId(selection.guestSessionId);
   const guestName = selection.guestName?.trim();
+  const modifiers = normalizeCartLineModifiers(selection.modifiers);
+  const modifierSignature = buildCartLineModifierSignature(modifiers);
 
   return {
     productId: selection.productId.trim(),
+    modifiers,
+    modifierSignature,
     ...(guestName ? { guestName } : {}),
     ...(guestSessionId ? { guestSessionId } : {}),
     ...(variantId ? { variantId } : {}),
@@ -48,6 +59,7 @@ export function buildCartLineSelectionKey(
     normalized.productId,
     normalized.variantId,
     normalized.saleUnitId,
+    normalized.modifiers,
   );
 
   return normalized.guestSessionId
@@ -63,7 +75,11 @@ export function shouldUseLineQuantity(
 
   return (
     quantityScope === "line" ||
-    Boolean(normalized.variantId || normalized.saleUnitId)
+    Boolean(
+      normalized.variantId ||
+        normalized.saleUnitId ||
+        normalized.modifierSignature,
+    )
   );
 }
 

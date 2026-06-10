@@ -10,8 +10,12 @@ const apiBaseUrl = (
 ).replace(/\/$/, "");
 const configDir = dirname(fileURLToPath(import.meta.url));
 const localOpenApiPath = resolve(configDir, "runtime/openapi.json");
-const backendOpenApiPath = resolve(configDir, "../backend/runtime/openapi.json");
-const remoteOpenApiUrl = process.env.ORVAL_OPENAPI_URL ?? `${apiBaseUrl}/openapi.yaml`;
+const backendOpenApiPath = resolve(
+  configDir,
+  "../backend/runtime/openapi.json",
+);
+const remoteOpenApiUrl =
+  process.env.ORVAL_OPENAPI_URL ?? `${apiBaseUrl}/openapi.yaml`;
 
 const input = {
   target: existsSync(localOpenApiPath)
@@ -30,7 +34,6 @@ export default defineConfig({
       client: "react-query",
       httpClient: "axios",
       clean: true,
-      prettier: true,
 
       // Все запросы идут через наш axios instance.
       override: {
@@ -51,7 +54,6 @@ export default defineConfig({
       target: "./shared/api/generated/zod/index.ts",
       client: "zod",
       clean: true,
-      prettier: true,
     },
   },
   apiAxios: {
@@ -62,7 +64,6 @@ export default defineConfig({
       client: "axios",
       httpClient: "axios",
       clean: true,
-      prettier: true,
       override: {
         mutator: {
           path: "./shared/api/client.ts",

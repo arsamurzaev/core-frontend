@@ -9,6 +9,16 @@ import {
 import { CART_PRODUCT_CONTROL_MESSAGES } from "@/core/modules/cart/model/cart-product-controls";
 import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import {
+  buildCartModifierSelectionPayload,
+  buildDefaultProductModifierSelection,
+  getApplicableProductModifierGroups,
+  getProductModifierSelectionError,
+  getProductModifierUnitTotal,
+  ProductModifierPicker,
+  useProductModifiers,
+  type ProductModifierSelection,
+} from "@/core/modules/product-modifier";
 import type { ProductUnavailableState } from "@/core/widgets/product-drawer/model/product-availability";
 import {
   resolveProductPurchaseEffectiveMaxQuantity,
@@ -130,15 +140,22 @@ export function ProductPurchaseDetailsPanel({
   const { items, shouldUseCartUi } = useCart();
   const canUseProductVariants = features.canUseProductVariants;
   const canUseCatalogSaleUnits = features.canUseCatalogSaleUnits;
+  const canUseCatalogModifiers = features.canUseCatalogModifiers;
   const shouldEnforceStock = catalog?.settings?.inventoryMode !== "NONE";
   const variantPickerRef = React.useRef<HTMLDivElement | null>(null);
   const saleUnitPickerRef = React.useRef<HTMLDivElement | null>(null);
+  const modifierPickerRef = React.useRef<HTMLDivElement | null>(null);
   const variantHighlightTimerRef = React.useRef<number | null>(null);
   const saleUnitHighlightTimerRef = React.useRef<number | null>(null);
+  const modifierHighlightTimerRef = React.useRef<number | null>(null);
   const [isVariantPickerHighlighted, setIsVariantPickerHighlighted] =
     React.useState(false);
   const [isSaleUnitPickerHighlighted, setIsSaleUnitPickerHighlighted] =
     React.useState(false);
+  const [isModifierPickerHighlighted, setIsModifierPickerHighlighted] =
+    React.useState(false);
+  const [modifierSelection, setModifierSelection] =
+    React.useState<ProductModifierSelection>({});
   const purchaseSelection = useProductPurchaseSelection({
     canUseCatalogSaleUnits,
     canUseProductVariants,
@@ -149,6 +166,99 @@ export function ProductPurchaseDetailsPanel({
     shouldEnforceStock,
     viewModel,
   });
+  const modifiersQuery = useProductModifiers(product?.id, {
+    enabled:
+      canUseCatalogModifiers &&
+      Boolean(product?.id) &&
+      !Boolean(unavailableState),
+  });
+  const modifierGroups = React.useMemo(
+    () =>
+      getApplicableProductModifierGroups({
+        groups: modifiersQuery.data,
+        variantId:
+          purchaseSelection.selectedVariant?.id ??
+          (!canUseProductVariants
+            ? (purchaseSelection.selectedSaleUnit?.variantId ??
+              product?.defaultVariantId ??
+              null)
+            : null),
+      }),
+    [
+      canUseProductVariants,
+      modifiersQuery.data,
+      product?.defaultVariantId,
+      purchaseSelection.selectedSaleUnit?.variantId,
+      purchaseSelection.selectedVariant?.id,
+    ],
+  );
+  const modifierSelectionResetKey = React.useMemo(
+    () =>
+      [
+        product?.id ?? productKey,
+        purchaseSelection.selectedVariant?.id ??
+          (!canUseProductVariants
+            ? (purchaseSelection.selectedSaleUnit?.variantId ??
+              product?.defaultVariantId)
+            : null) ??
+          "default",
+        modifierGroups
+          .map(
+            (group) =>
+              `${group.id}:${group.options
+                .map((option) => option.id)
+                .join(",")}`,
+          )
+          .join("|"),
+      ].join(":"),
+    [
+      canUseProductVariants,
+      modifierGroups,
+      product?.defaultVariantId,
+      product?.id,
+      productKey,
+      purchaseSelection.selectedSaleUnit?.variantId,
+      purchaseSelection.selectedVariant?.id,
+    ],
+  );
+
+  React.useEffect(() => {
+    const defaultSelection =
+      buildDefaultProductModifierSelection(modifierGroups);
+
+    setModifierSelection(defaultSelection);
+  }, [modifierGroups, modifierSelectionResetKey]);
+
+  const selectedModifiers = React.useMemo(
+    () =>
+      buildCartModifierSelectionPayload({
+        groups: modifierGroups,
+        selection: modifierSelection,
+      }),
+    [modifierGroups, modifierSelection],
+  );
+  const modifierUnitTotal = React.useMemo(
+    () =>
+      getProductModifierUnitTotal({
+        groups: modifierGroups,
+        selection: modifierSelection,
+      }),
+    [modifierGroups, modifierSelection],
+  );
+  const modifierSelectionError = React.useMemo(
+    () => getProductModifierSelectionError(modifierGroups, modifierSelection),
+    [modifierGroups, modifierSelection],
+  );
+  const isModifierSelectionLoading =
+    canUseCatalogModifiers &&
+    modifiersQuery.isFetching &&
+    modifiersQuery.data === undefined;
+  const handleModifierSelectionChange = React.useCallback(
+    (selection: ProductModifierSelection) => {
+      setModifierSelection(selection);
+    },
+    [],
+  );
   const handleVariantSelectionRequired = React.useCallback(() => {
     toast.error(CART_PRODUCT_CONTROL_MESSAGES.variantSelectionRequired);
     setIsVariantPickerHighlighted(true);
@@ -177,6 +287,20 @@ export function ProductPurchaseDetailsPanel({
       saleUnitHighlightTimerRef.current = null;
     }, 1600);
   }, []);
+  const handleModifierSelectionRequired = React.useCallback(() => {
+    toast.error(modifierSelectionError ?? "Выберите добавки");
+    setIsModifierPickerHighlighted(true);
+    scrollVariantPickerIntoView(modifierPickerRef.current);
+
+    if (modifierHighlightTimerRef.current !== null) {
+      window.clearTimeout(modifierHighlightTimerRef.current);
+    }
+
+    modifierHighlightTimerRef.current = window.setTimeout(() => {
+      setIsModifierPickerHighlighted(false);
+      modifierHighlightTimerRef.current = null;
+    }, 1600);
+  }, [modifierSelectionError]);
   React.useEffect(
     () => () => {
       if (variantHighlightTimerRef.current !== null) {
@@ -184,6 +308,9 @@ export function ProductPurchaseDetailsPanel({
       }
       if (saleUnitHighlightTimerRef.current !== null) {
         window.clearTimeout(saleUnitHighlightTimerRef.current);
+      }
+      if (modifierHighlightTimerRef.current !== null) {
+        window.clearTimeout(modifierHighlightTimerRef.current);
       }
     },
     [],
@@ -198,6 +325,11 @@ export function ProductPurchaseDetailsPanel({
       setIsSaleUnitPickerHighlighted(false);
     }
   }, [purchaseSelection.isSaleUnitSelectionRequired]);
+  React.useEffect(() => {
+    if (!modifierSelectionError) {
+      setIsModifierPickerHighlighted(false);
+    }
+  }, [modifierSelectionError]);
   const selectedSaleUnitId = canUseCatalogSaleUnits
     ? purchaseSelection.selectedSaleUnit?.id
     : undefined;
@@ -208,11 +340,12 @@ export function ProductPurchaseDetailsPanel({
   const cartSelection = React.useMemo(
     () =>
       buildCartProductSelection({
+        modifiers: selectedModifiers,
         productId: product?.id ?? "",
         saleUnitId: selectedSaleUnitId,
         variantId: selectedVariantId,
       }),
-    [product?.id, selectedSaleUnitId, selectedVariantId],
+    [product?.id, selectedModifiers, selectedSaleUnitId, selectedVariantId],
   );
   const cartSelectionKey = React.useMemo(
     () => buildCartLineSelectionKey(cartSelection),
@@ -230,6 +363,7 @@ export function ProductPurchaseDetailsPanel({
       (item) =>
         buildCartLineSelectionKey({
           productId: item.productId,
+          modifiers: item.modifiers ?? [],
           saleUnitId: item.saleUnitId,
           variantId: item.variantId,
         }) === cartSelectionKey,
@@ -250,9 +384,30 @@ export function ProductPurchaseDetailsPanel({
       }),
     [cartLineMaxQuantity, purchaseSelection.maxQuantity],
   );
+  const selectedDisplayUnitPrice =
+    purchaseSelection.displayPrice === null
+      ? null
+      : purchaseSelection.displayPrice + modifierUnitTotal;
+  const selectedBaseUnitPrice =
+    purchaseSelection.selectedBasePrice === null
+      ? null
+      : purchaseSelection.selectedBasePrice + modifierUnitTotal;
+  const cartProductSnapshot = React.useMemo(
+    () =>
+      purchaseSelection.cartProductSnapshot
+        ? {
+            ...purchaseSelection.cartProductSnapshot,
+            price:
+              selectedDisplayUnitPrice === null
+                ? purchaseSelection.cartProductSnapshot.price
+                : selectedDisplayUnitPrice,
+          }
+        : undefined,
+    [purchaseSelection.cartProductSnapshot, selectedDisplayUnitPrice],
+  );
   const cartControls = useCartProductControls(
     cartSelection,
-    purchaseSelection.cartProductSnapshot,
+    cartProductSnapshot,
     {
       maxQuantity: effectiveMaxQuantity,
       onVariantSelectionRequired: handleVariantSelectionRequired,
@@ -261,7 +416,8 @@ export function ProductPurchaseDetailsPanel({
   );
   const isProductSelectionRequired =
     purchaseSelection.isVariantSelectionRequired ||
-    purchaseSelection.isSaleUnitSelectionRequired;
+    purchaseSelection.isSaleUnitSelectionRequired ||
+    Boolean(modifierSelectionError);
   const displayedCartQuantity = isProductSelectionRequired
     ? 0
     : cartControls.quantity;
@@ -279,6 +435,16 @@ export function ProductPurchaseDetailsPanel({
           return;
         }
 
+        if (isModifierSelectionLoading) {
+          toast.info("Загружаем добавки...");
+          return;
+        }
+
+        if (modifierSelectionError) {
+          handleModifierSelectionRequired();
+          return;
+        }
+
         await cartControls.handleAdd();
       },
       handleIncrement: async () => {
@@ -292,6 +458,16 @@ export function ProductPurchaseDetailsPanel({
           return;
         }
 
+        if (isModifierSelectionLoading) {
+          toast.info("Загружаем добавки...");
+          return;
+        }
+
+        if (modifierSelectionError) {
+          handleModifierSelectionRequired();
+          return;
+        }
+
         await cartControls.handleIncrement();
       },
       quantity: displayedCartQuantity,
@@ -299,8 +475,11 @@ export function ProductPurchaseDetailsPanel({
     [
       cartControls,
       displayedCartQuantity,
+      handleModifierSelectionRequired,
       handleSaleUnitSelectionRequired,
       handleVariantSelectionRequired,
+      isModifierSelectionLoading,
+      modifierSelectionError,
       purchaseSelection.isSaleUnitSelectionRequired,
       purchaseSelection.isVariantSelectionRequired,
     ],
@@ -308,15 +487,11 @@ export function ProductPurchaseDetailsPanel({
   const totalPricing = React.useMemo(
     () =>
       resolveProductPurchaseTotalPricing({
-        displayPrice: purchaseSelection.displayPrice,
+        displayPrice: selectedDisplayUnitPrice,
         quantity: displayedCartQuantity,
-        selectedBasePrice: purchaseSelection.selectedBasePrice,
+        selectedBasePrice: selectedBaseUnitPrice,
       }),
-    [
-      displayedCartQuantity,
-      purchaseSelection.displayPrice,
-      purchaseSelection.selectedBasePrice,
-    ],
+    [displayedCartQuantity, selectedBaseUnitPrice, selectedDisplayUnitPrice],
   );
 
   return (
@@ -387,7 +562,45 @@ export function ProductPurchaseDetailsPanel({
               onChange={purchaseSelection.setSelectedSaleUnitId}
               priceFormatMode={viewModel.priceFormatMode}
               saleUnits={purchaseSelection.saleUnits}
-              selectedSaleUnitId={purchaseSelection.selectedSaleUnit?.id ?? null}
+              selectedSaleUnitId={
+                purchaseSelection.selectedSaleUnit?.id ?? null
+              }
+            />
+          </div>
+        ) : null
+      }
+      modifierPicker={
+        !unavailableState &&
+        canUseCatalogModifiers &&
+        product &&
+        modifiersQuery.isLoading ? (
+          <div className="px-4 pb-4 text-sm text-muted-foreground">
+            Загружаем добавки...
+          </div>
+        ) : !unavailableState &&
+          canUseCatalogModifiers &&
+          product &&
+          modifierGroups.length ? (
+          <div
+            ref={modifierPickerRef}
+            className={cn(
+              "scroll-mt-8 rounded-2xl transition-shadow",
+              isModifierPickerHighlighted &&
+                "ring-primary/45 ring-2 ring-offset-2 ring-offset-background",
+            )}
+          >
+            <div className="px-4 pb-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-medium">Добавки</div>
+              </div>
+            </div>
+            <ProductModifierPicker
+              currency={viewModel.currency}
+              groups={modifierGroups}
+              onChange={handleModifierSelectionChange}
+              priceFormatMode={viewModel.priceFormatMode}
+              selection={modifierSelection}
+              variant="chips"
             />
           </div>
         ) : null

@@ -1,4 +1,5 @@
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
+import { filterActivePriceListVisibleItems } from "./product-price-list-visibility";
 import { resolveInitialProductVariantId } from "./product-variant-selection-model";
 
 export interface ProductCardVariantState {
@@ -44,7 +45,10 @@ export function resolveProductCardVariantState(
 ): ProductCardVariantState {
   const shouldEnforceStock = options.shouldEnforceStock !== false;
   const canUseVariants = options.canUseVariants !== false;
-  const pickerOptions = product.variantPickerOptions ?? [];
+  const pickerOptions = filterActivePriceListVisibleItems(
+    product,
+    product.variantPickerOptions ?? [],
+  );
   const activePickerOptionCount = pickerOptions.filter(
     (option) => option.status !== "DISABLED",
   ).length;
@@ -54,20 +58,23 @@ export function resolveProductCardVariantState(
   );
   const hasVariantSignal = Boolean(
     product.productType?.id ||
-      product.requiresVariantSelection ||
-      product.defaultVariantId ||
-      summaryActiveCount > 0 ||
-      activePickerOptionCount > 0,
+    product.requiresVariantSelection ||
+    product.defaultVariantId ||
+    summaryActiveCount > 0 ||
+    activePickerOptionCount > 0,
   );
 
   if (!canUseVariants || !hasVariantSignal) {
     return resolveSimpleProductAvailabilityState(product, shouldEnforceStock);
   }
 
-  const activeVariantCount = Math.max(summaryActiveCount, activePickerOptionCount);
   const activePickerOptions = pickerOptions.filter(
     (option) => option.status !== "DISABLED",
   );
+  const activeVariantCount =
+    activePickerOptions.length > 0
+      ? activePickerOptionCount
+      : summaryActiveCount;
   const pickerTotalStock = activePickerOptions.some(
     (option) => option.stock === null,
   )
@@ -76,7 +83,10 @@ export function resolveProductCardVariantState(
         (acc, option) => acc + Math.max(0, option.stock ?? 0),
         0,
       );
-  const rawTotalStock = product.variantSummary?.totalStock ?? pickerTotalStock;
+  const rawTotalStock =
+    activePickerOptions.length > 0
+      ? pickerTotalStock
+      : (product.variantSummary?.totalStock ?? pickerTotalStock);
   const totalStock =
     typeof rawTotalStock === "number" && Number.isFinite(rawTotalStock)
       ? Math.max(0, rawTotalStock)
@@ -93,24 +103,20 @@ export function resolveProductCardVariantState(
     product.defaultVariantId?.trim() ??
     undefined;
   const hasSingleConcreteVariant =
-    !product.requiresVariantSelection &&
-    activeVariantCount === 1 &&
-    Boolean(singleVariantId);
-  const requiresVariantSelection =
-    product.requiresVariantSelection ||
-    (activeVariantCount > 0 && !hasSingleConcreteVariant);
+    activeVariantCount === 1 && Boolean(singleVariantId);
+  const requiresVariantSelection = Boolean(
+    product.requiresVariantSelection && !hasSingleConcreteVariant,
+  );
 
   return {
     isUnavailable:
       product.availabilityState === "UNAVAILABLE" ||
-      shouldEnforceStock &&
+      (shouldEnforceStock &&
         activeVariantCount > 0 &&
         totalStock !== null &&
-        totalStock <= 0,
+        totalStock <= 0),
     maxQuantity:
-      shouldEnforceStock &&
-      hasSingleConcreteVariant &&
-      totalStock !== null
+      shouldEnforceStock && hasSingleConcreteVariant && totalStock !== null
         ? totalStock
         : undefined,
     requiresVariantSelection,

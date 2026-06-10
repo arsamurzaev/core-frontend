@@ -965,7 +965,7 @@
             "csrf": []
           }
         ],
-        "summary": "Удалить каталог через soft-delete",
+        "summary": "Удалить каталог мягким удалением",
         "tags": [
           "Admin"
         ]
@@ -1282,7 +1282,7 @@
             "csrf": []
           }
         ],
-        "summary": "Восстановить soft-deleted каталог",
+        "summary": "Восстановить мягко удаленный каталог",
         "tags": [
           "Admin"
         ]
@@ -9038,7 +9038,7 @@
             "name": "deleteProducts",
             "required": false,
             "in": "query",
-            "description": "Если true, soft-delete всех активных товаров категории",
+            "description": "Если true, мягко удаляет все активные товары категории",
             "schema": {
               "type": "boolean"
             }

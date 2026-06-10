@@ -75,7 +75,9 @@ function findLatestRun(
 function describeRunError(run: IikoSyncRunDto | null): string | null {
   if (!run || run.status !== "ERROR") return null;
 
-  return run.error ? `Ошибка: ${run.error}` : "Последний запуск завершился ошибкой.";
+  return run.error
+    ? `Ошибка: ${run.error}`
+    : "Последний запуск завершился ошибкой.";
 }
 
 export function buildIikoDiagnostics({
@@ -105,16 +107,19 @@ export function buildIikoDiagnostics({
     externalMenuId,
   );
   const priceCategoryId =
-    nonEmpty(formState.priceCategoryId) ?? nonEmpty(integration?.priceCategoryId);
+    nonEmpty(formState.priceCategoryId) ??
+    nonEmpty(integration?.priceCategoryId);
   const priceCategoryName = formatEntity(
     formState.priceCategoryName ?? integration?.priceCategoryName,
     priceCategoryId,
   );
   const terminalGroupId =
-    nonEmpty(formState.terminalGroupId) ?? nonEmpty(integration?.terminalGroupId);
+    nonEmpty(formState.terminalGroupId) ??
+    nonEmpty(integration?.terminalGroupId);
   const selectedTerminalGroup =
-    terminalGroups.find((terminalGroup) => terminalGroup.id === terminalGroupId) ??
-    null;
+    terminalGroups.find(
+      (terminalGroup) => terminalGroup.id === terminalGroupId,
+    ) ?? null;
   const terminalGroupName = formatEntity(
     selectedTerminalGroup?.name ??
       formState.terminalGroupName ??
@@ -206,10 +211,14 @@ export function buildIikoDiagnostics({
     items.push({
       key: "terminal-group",
       label: "Точка / терминал",
-      detail: formState.exportOrders || integration?.exportOrders
-        ? "Выберите terminal group для stop-list и экспорта заказов."
-        : "Не выбрана, stop-list и экспорт заказов будут недоступны.",
-      tone: formState.exportOrders || integration?.exportOrders ? "error" : "warning",
+      detail:
+        formState.exportOrders || integration?.exportOrders
+          ? "Выберите terminal group для stop-list и экспорта заказов."
+          : "Не выбрана, stop-list и экспорт заказов будут недоступны.",
+      tone:
+        formState.exportOrders || integration?.exportOrders
+          ? "error"
+          : "warning",
     });
   } else if (!selectedTerminalGroup) {
     items.push({
@@ -257,7 +266,8 @@ export function buildIikoDiagnostics({
   const menuRunError =
     describeRunError(lastMenuRun) ??
     (integration?.lastSyncStatus === "ERROR"
-      ? integration.lastSyncError ?? "Последний импорт меню завершился ошибкой."
+      ? (integration.lastSyncError ??
+        "Последний импорт меню завершился ошибкой.")
       : null);
   const lastMenuAt =
     formatDate(integration?.lastMenuSyncedAt) ??
@@ -315,7 +325,8 @@ export function buildIikoDiagnostics({
     items.push({
       key: "stock-sync",
       label: "Stop-list",
-      detail: "Выберите terminal group, чтобы скрывать закончившиеся товары для клиента.",
+      detail:
+        "Выберите terminal group, чтобы скрывать закончившиеся товары для клиента.",
       tone: "warning",
     });
   } else if (stockRunError) {
@@ -355,12 +366,14 @@ export function buildIikoDiagnostics({
     items.push({
       key: "preview",
       label: "Preview",
-      detail: "Запустите preview перед первым импортом или после смены меню/цен.",
+      detail:
+        "Запустите preview перед первым импортом или после смены меню/цен.",
       tone: "pending",
     });
   }
 
-  const exportOrdersEnabled = formState.exportOrders || Boolean(integration?.exportOrders);
+  const exportOrdersEnabled =
+    formState.exportOrders || Boolean(integration?.exportOrders);
   const lastOrderExport = orderExports[0] ?? null;
 
   if (!exportOrdersEnabled) {
@@ -388,10 +401,14 @@ export function buildIikoDiagnostics({
     items.push({
       key: "order-export",
       label: "Экспорт заказов",
-      detail: lastOrderExport.lastError ?? "Последний экспорт завершился ошибкой.",
+      detail:
+        lastOrderExport.lastError ?? "Последний экспорт завершился ошибкой.",
       tone: "error",
     });
-  } else if (lastOrderExport.status === "PENDING" || lastOrderExport.status === "RUNNING") {
+  } else if (
+    lastOrderExport.status === "PENDING" ||
+    lastOrderExport.status === "RUNNING"
+  ) {
     items.push({
       key: "order-export",
       label: "Экспорт заказов",
@@ -417,14 +434,14 @@ export function buildIikoDiagnostics({
   if (!integration) {
     items.push({
       key: "webhook",
-      label: "Webhooks",
+      label: "Вебхуки",
       detail: "Сначала сохраните интеграцию iiko.",
       tone: "pending",
     });
   } else if (integration.webhook.lastError) {
     items.push({
       key: "webhook",
-      label: "Webhooks",
+      label: "Вебхуки",
       detail: integration.webhook.lastError,
       tone: "error",
     });
@@ -433,7 +450,7 @@ export function buildIikoDiagnostics({
     const lastConfiguredAt = formatDate(integration.webhook.lastConfiguredAt);
     items.push({
       key: "webhook",
-      label: "Webhooks",
+      label: "Вебхуки",
       detail: lastReceivedAt
         ? `Последнее событие: ${integration.webhook.lastEventType ?? "iiko"} (${lastReceivedAt}).`
         : lastConfiguredAt
@@ -444,7 +461,7 @@ export function buildIikoDiagnostics({
   } else {
     items.push({
       key: "webhook",
-      label: "Webhooks",
+      label: "Вебхуки",
       detail:
         "Не зарегистрированы: stop-list и обновления меню работают только вручную.",
       tone: "warning",

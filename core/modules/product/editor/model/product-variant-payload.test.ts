@@ -203,6 +203,7 @@ describe("product variant payload model", () => {
             enumValueId: "m",
           },
         ],
+        saleUnits: [],
       },
     ]);
   });
@@ -310,6 +311,7 @@ describe("product variant payload model", () => {
             enumValueId: "m",
           },
         ],
+        saleUnits: [],
       },
     ]);
   });

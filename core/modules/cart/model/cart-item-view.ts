@@ -8,7 +8,11 @@ import {
   buildProductCardView,
   type ProductSaleUnit,
 } from "@/core/modules/product";
-import { getCartItemSaleUnitId } from "@/core/modules/cart/model/cart-line-key";
+import {
+  getCartItemModifiers,
+  getCartItemSaleUnitId,
+  type CartLineModifierSelection,
+} from "@/core/modules/cart/model/cart-line-key";
 import type {
   CartItemDto,
   ProductWithAttributesDto,
@@ -52,8 +56,17 @@ type CartItemWithSaleUnit = CartItemDto & {
   baseUnitPrice?: number;
   discountPercent?: number;
   hasDiscount?: boolean;
+  modifiers?: CartItemModifierLike[] | null;
+  priceListId?: string | null;
   saleUnit?: unknown;
   saleUnitId?: string | null;
+  unitPriceSnapshot?: number | string | null;
+};
+
+type CartItemModifierLike = {
+  optionCode?: string | null;
+  optionName?: string | null;
+  quantity?: number | null;
 };
 
 type SaleUnitLabelLike = {
@@ -143,6 +156,27 @@ function getSaleUnitLabel(params: {
   );
 }
 
+function getModifierLabels(item: CartItemDto): string[] {
+  const modifiers = (item as CartItemWithSaleUnit).modifiers ?? [];
+
+  return modifiers
+    .map((modifier) => {
+      const label = (modifier.optionName ?? modifier.optionCode ?? "").trim();
+      const quantity =
+        typeof modifier.quantity === "number" &&
+        Number.isFinite(modifier.quantity)
+          ? Math.max(1, Math.trunc(modifier.quantity))
+          : 1;
+
+      if (!label) {
+        return null;
+      }
+
+      return quantity > 1 ? `${label} x${quantity}` : label;
+    })
+    .filter((label): label is string => Boolean(label));
+}
+
 function getBackendPricing(item: CartItemDto) {
   const pricing = item as CartItemWithSaleUnit;
   const baseUnitPrice =
@@ -185,8 +219,25 @@ function hasKnownBackendLineTotal(item: CartItemDto): boolean {
   return hasKnownDiscountedZero;
 }
 
+function getSnapshotLineTotal(item: CartItemDto): number | null {
+  const pricing = item as CartItemWithSaleUnit;
+  const snapshotUnitPrice = toNumberValue(pricing.unitPriceSnapshot ?? null);
+
+  if (snapshotUnitPrice === null) {
+    return null;
+  }
+
+  const quantity =
+    typeof item.quantity === "number" && Number.isFinite(item.quantity)
+      ? Math.max(0, item.quantity)
+      : 0;
+
+  return snapshotUnitPrice * quantity;
+}
+
 function isCartItemPriceKnown(item: CartItemDto): boolean {
   return (
+    getSnapshotLineTotal(item) !== null ||
     toNumberValue(item.saleUnit?.price ?? null) !== null ||
     toNumberValue(item.variant?.price ?? null) !== null ||
     toNumberValue(item.product.price) !== null ||
@@ -195,6 +246,11 @@ function isCartItemPriceKnown(item: CartItemDto): boolean {
 }
 
 function getKnownCartLineTotal(item: CartItemDto): number | null {
+  const snapshotLineTotal = getSnapshotLineTotal(item);
+  if (snapshotLineTotal !== null) {
+    return snapshotLineTotal;
+  }
+
   return isCartItemPriceKnown(item) && Number.isFinite(item.lineTotal)
     ? item.lineTotal
     : null;
@@ -216,6 +272,7 @@ export interface CartItemView {
   id: string;
   imageUrl: string;
   name: string;
+  modifiers?: CartLineModifierSelection[];
   originalLineTotal: number | null;
   product?: ProductWithDetailsDto;
   productId: string;
@@ -293,6 +350,7 @@ export function buildCartItemView(params: {
   if (!product) {
     const variantLabel = getVariantLabel(item);
     const saleUnitLabel = getSaleUnitLabel({ item });
+    const modifierLabel = getModifierLabels(item).join(" · ");
     const guestName = getCartItemGuestName(item);
     const backendPricing = getBackendPricing(item);
     return {
@@ -303,6 +361,7 @@ export function buildCartItemView(params: {
       id: item.id,
       imageUrl: resolveCartItemImageUrl(),
       name: item.product.name,
+      modifiers: getCartItemModifiers(item),
       originalLineTotal:
         backendPricing?.originalLineTotal ?? getKnownCartLineTotal(item),
       product: undefined,
@@ -313,7 +372,9 @@ export function buildCartItemView(params: {
       guestSessionId: getCartItemGuestSessionId(item),
       saleUnitId: getCartItemSaleUnitId(item),
       saleUnitLabel,
-      subtitle: [variantLabel, saleUnitLabel].filter(Boolean).join(" · "),
+      subtitle: [variantLabel, saleUnitLabel, modifierLabel]
+        .filter(Boolean)
+        .join(" · "),
       variantId: item.variantId,
       variantLabel: variantLabel || null,
     };
@@ -324,6 +385,7 @@ export function buildCartItemView(params: {
   );
   const variantLabel = getVariantLabel(item);
   const saleUnitLabel = getSaleUnitLabel({ item, product });
+  const modifierLabel = getModifierLabels(item).join(" · ");
   const guestName = getCartItemGuestName(item);
   const itemLineTotal = getKnownCartLineTotal(item);
   const backendPricing = getBackendPricing(item);
@@ -340,6 +402,7 @@ export function buildCartItemView(params: {
     id: item.id,
     imageUrl: productCardView.imageUrl || FALLBACK_IMAGE_URL,
     name: product.name,
+    modifiers: getCartItemModifiers(item),
     originalLineTotal: backendPricing?.originalLineTotal ?? itemLineTotal,
     product,
     productId: item.productId,
@@ -350,8 +413,9 @@ export function buildCartItemView(params: {
     saleUnitId: getCartItemSaleUnitId(item),
     saleUnitLabel,
     subtitle:
-      [variantLabel, saleUnitLabel].filter(Boolean).join(" · ") ||
-      productCardView.subtitle,
+      [variantLabel, saleUnitLabel, modifierLabel]
+        .filter(Boolean)
+        .join(" · ") || productCardView.subtitle,
     variantId: item.variantId,
     variantLabel: variantLabel || null,
   };

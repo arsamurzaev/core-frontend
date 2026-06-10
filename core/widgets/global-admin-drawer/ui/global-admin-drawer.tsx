@@ -166,7 +166,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
     const result = await deleteContent.mutateAsync({ id: catalog.id });
     setLastResult(result);
     await invalidateCatalogContentQueries(queryClient);
-    toast.success("Контент каталога отправлен в soft delete");
+    toast.success("Контент каталога отправлен в архив.");
   }, [catalog.id, deleteContent, queryClient]);
 
   const resolvedTrigger =
@@ -200,9 +200,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                 <section className="space-y-3 rounded-lg border border-black/10 p-4">
                   <div className="flex items-center gap-2">
                     <DatabaseZap className="size-5 text-primary" />
-                    <h3 className="text-base font-semibold">
-                      Текущий каталог
-                    </h3>
+                    <h3 className="text-base font-semibold">Текущий каталог</h3>
                   </div>
 
                   <dl className="grid grid-cols-[88px_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
@@ -226,12 +224,12 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                     <SlidersHorizontal className="mt-0.5 size-5 shrink-0 text-primary" />
                     <div className="min-w-0 space-y-1">
                       <h3 className="text-base font-semibold">
-                        Beta-функции каталога
+                        Бета-функции каталога
                       </h3>
                       <p className="text-sm leading-5 text-muted-foreground">
-                        Включайте новые возможности точечно. Если флаг
-                        выключен, данные не удаляются, но интерфейс и backend
-                        не дают использовать эту функцию.
+                        Включайте новые возможности точечно. Если флаг выключен,
+                        данные не удаляются, но интерфейс и backend не дают
+                        использовать эту функцию.
                       </p>
                     </div>
                   </div>
@@ -251,10 +249,12 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                       {CATALOG_FEATURES.map((feature) => {
                         const entitlement = featuresByKey.get(feature);
                         const state = capabilityItemsByKey.get(feature);
-                        const definition = capabilityDefinitionsByKey.get(feature);
+                        const definition =
+                          capabilityDefinitionsByKey.get(feature);
                         const copy = {
                           title:
-                            definition?.title ?? CATALOG_FEATURE_LABELS[feature].title,
+                            definition?.title ??
+                            CATALOG_FEATURE_LABELS[feature].title,
                           description:
                             definition?.description ??
                             CATALOG_FEATURE_LABELS[feature].description,
@@ -274,12 +274,17 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                               </div>
                               {entitlement?.expiresAt ? (
                                 <div className="text-xs text-muted-foreground">
-                                  До {new Date(entitlement.expiresAt).toLocaleDateString("ru-RU")}
+                                  До{" "}
+                                  {new Date(
+                                    entitlement.expiresAt,
+                                  ).toLocaleDateString("ru-RU")}
                                 </div>
                               ) : null}
                               {state?.raw && !state.effective ? (
                                 <div className="text-xs text-destructive">
-                                  Недоступно: {state.disabledReason ?? "проверьте зависимости"}
+                                  Недоступно:{" "}
+                                  {state.disabledReason ??
+                                    "проверьте зависимости"}
                                 </div>
                               ) : null}
                             </div>
@@ -287,17 +292,17 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                               <span className="text-xs text-muted-foreground">
                                 {state?.effective ? "доступно" : "выкл"}
                               </span>
-                            <Switch
-                              checked={Boolean(entitlement?.enabled)}
-                              disabled={updateFeature.isPending}
-                              aria-label={copy.title}
-                              onCheckedChange={(checked) =>
-                                handleFeatureToggle(feature, checked)
-                              }
-                            />
-                            {isPending ? (
-                              <span className="sr-only">Сохраняем</span>
-                            ) : null}
+                              <Switch
+                                checked={Boolean(entitlement?.enabled)}
+                                disabled={updateFeature.isPending}
+                                aria-label={copy.title}
+                                onCheckedChange={(checked) =>
+                                  handleFeatureToggle(feature, checked)
+                                }
+                              />
+                              {isPending ? (
+                                <span className="sr-only">Сохраняем</span>
+                              ) : null}
                             </div>
                           </div>
                         );
@@ -371,7 +376,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
         open={isConfirmOpen}
         onOpenChange={setIsConfirmOpen}
         title="Удалить контент каталога?"
-        description={`Каталог "${catalog.name}" останется, но его товары, категории и бренды будут отправлены в soft delete.`}
+        description={`Каталог "${catalog.name}" останется, но его товары, категории и бренды будут отправлены в архив.`}
         confirmText="Удалить контент"
         cancelText="Отмена"
         pendingText="Удаление..."

@@ -97,6 +97,7 @@ export const CartProductCardFooterAction = React.memo(
       {
         guestName: singleCartLine?.guestName,
         guestSessionId: singleCartLine?.guestSessionId,
+        modifiers: singleCartLine?.modifiers,
         productId: product.id,
         saleUnitId: singleCartLine?.saleUnitId,
         variantId: singleCartLine?.variantId,

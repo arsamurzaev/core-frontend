@@ -1,6 +1,6 @@
 import type { CartDto } from "@/shared/api/generated/react-query";
 import { isCartItemForGuest } from "./cart-guest";
-import { getCartItemSaleUnitId } from "./cart-line-key";
+import { getCartItemModifiers, getCartItemSaleUnitId } from "./cart-line-key";
 import {
   buildCartLineSelectionKey,
   normalizeCartLineSelection,
@@ -26,6 +26,7 @@ export function getCartLineSelectionQuantityFromCart(params: {
   if (shouldUseLineQuantity(selection, quantityScope)) {
     const lineKey = buildCartLineSelectionKey({
       productId: selection.productId,
+      modifiers: selection.modifiers,
       saleUnitId: selection.saleUnitId,
       variantId: selection.variantId,
     });
@@ -37,6 +38,7 @@ export function getCartLineSelectionQuantityFromCart(params: {
 
       const itemLineKey = buildCartLineSelectionKey({
         productId: item.productId,
+        modifiers: getCartItemModifiers(item),
         saleUnitId: getCartItemSaleUnitId(item),
         variantId: item.variantId,
       });

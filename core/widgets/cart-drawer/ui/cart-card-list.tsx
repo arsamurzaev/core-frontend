@@ -119,6 +119,7 @@ export const CartCardList: React.FC<CartCardListProps> = ({
                   guestName={item.guestName}
                   guestSessionId={item.guestSessionId}
                   maxQuantity={getCartItemMaxQuantity(item)}
+                  modifiers={item.modifiers}
                   quantity={item.quantity}
                   saleUnitId={item.saleUnitId}
                   variantId={item.variantId}

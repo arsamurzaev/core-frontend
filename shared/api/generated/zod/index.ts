@@ -624,7 +624,7 @@ export const AdminControllerUpdateCatalogResponse = zod.object({
 
 
 /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 export const AdminControllerDeleteCatalogParams = zod.object({
   "id": zod.string()
@@ -992,7 +992,7 @@ export const AdminControllerDeleteCatalogContentResponse = zod.object({
 
 
 /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 export const AdminControllerRestoreCatalogParams = zod.object({
   "id": zod.string()
@@ -1315,6 +1315,7 @@ export const AdminSsoControllerEnterQueryParams = zod.object({
  */
 export const S3ControllerPresignUploadBody = zod.object({
   "contentType": zod.string().describe('MIME-тип файла'),
+  "contentLength": zod.number().describe('Размер файла в байтах'),
   "path": zod.string().optional().describe('Путь внутри каталога'),
   "folder": zod.string().optional(),
   "entityId": zod.string().optional()
@@ -13067,7 +13068,7 @@ export const CategoryControllerRemoveParams = zod.object({
 })
 
 export const CategoryControllerRemoveQueryParams = zod.object({
-  "deleteProducts": zod.boolean().optional().describe('Если true, soft-delete всех активных товаров категории')
+  "deleteProducts": zod.boolean().optional().describe('Если true, мягко удаляет все активные товары категории')
 })
 
 export const CategoryControllerRemoveResponse = zod.object({

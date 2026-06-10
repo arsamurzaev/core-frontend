@@ -54,6 +54,22 @@ describe("product sale units", () => {
     expect(formatProductSaleUnitQuantity(4)).toBe("4");
   });
 
+  it("keeps source variant id for hidden-variant sale unit flows", () => {
+    const units = getProductSaleUnits({
+      saleUnits: [
+        {
+          id: "piece",
+          variantId: "default-variant",
+          name: "шт.",
+          price: "100",
+          baseQuantity: "1",
+        },
+      ],
+    });
+
+    expect(units[0]?.variantId).toBe("default-variant");
+  });
+
   it("does not present independent package sizes as containing each other", () => {
     const units = getProductSaleUnits({
       saleUnits: [

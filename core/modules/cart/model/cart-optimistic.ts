@@ -6,9 +6,13 @@ import {
   normalizeCartGuestSessionId,
 } from "./cart-guest";
 import {
+  buildCartLineModifierSignature,
+  getCartItemModifiers,
   getCartItemSaleUnitId,
+  normalizeCartLineModifiers,
   normalizeSaleUnitId,
   normalizeVariantId,
+  type CartLineModifierSelection,
 } from "./cart-line-key";
 
 function getNumber(value: unknown): number | null {
@@ -69,6 +73,7 @@ export function createOptimisticCart(params: {
   product?: CartProductSnapshot;
   guestName?: string | null;
   guestSessionId?: string | null;
+  modifiers?: CartLineModifierSelection[] | null;
   productId: string;
   quantity: number;
   saleUnitId?: string;
@@ -79,6 +84,7 @@ export function createOptimisticCart(params: {
     guestName,
     guestSessionId,
     catalogId,
+    modifiers,
     product,
     productId,
     quantity,
@@ -88,6 +94,8 @@ export function createOptimisticCart(params: {
   const normalizedVariantId = normalizeVariantId(variantId);
   const normalizedSaleUnitId = normalizeSaleUnitId(saleUnitId);
   const normalizedGuestSessionId = normalizeCartGuestSessionId(guestSessionId);
+  const normalizedModifiers = normalizeCartLineModifiers(modifiers);
+  const modifierSignature = buildCartLineModifierSignature(normalizedModifiers);
   const matchesGuest = (entry: CartItemDto) =>
     !normalizedGuestSessionId ||
     getCartItemGuestSessionId(entry) === normalizedGuestSessionId;
@@ -98,11 +106,16 @@ export function createOptimisticCart(params: {
         entry.productId === productId &&
         normalizeVariantId(entry.variantId) === normalizedVariantId &&
         normalizeSaleUnitId(getCartItemSaleUnitId(entry)) ===
-          normalizedSaleUnitId,
+          normalizedSaleUnitId &&
+        buildCartLineModifierSignature(getCartItemModifiers(entry)) ===
+          modifierSignature,
     ) ??
-    (!normalizedVariantId && !normalizedSaleUnitId
+    (!normalizedVariantId && !normalizedSaleUnitId && !modifierSignature
       ? cart?.items.find(
-          (entry) => matchesGuest(entry) && entry.productId === productId,
+          (entry) =>
+            matchesGuest(entry) &&
+            entry.productId === productId &&
+            !buildCartLineModifierSignature(getCartItemModifiers(entry)),
         )
       : null) ??
     null;
@@ -175,7 +188,13 @@ export function createOptimisticCart(params: {
         : [
             ...baseCart.items,
             {
-              id: `optimistic-${productId}-${variantId ?? "default"}-${saleUnitId ?? "default"}`,
+              id: [
+                "optimistic",
+                productId,
+                variantId ?? "default",
+                saleUnitId ?? "default",
+                modifierSignature || "default",
+              ].join("-"),
               productId,
               saleUnitId: saleUnitId ?? null,
               variantId: variantId ?? null,
@@ -188,6 +207,19 @@ export function createOptimisticCart(params: {
               product: productShort,
               variant: null,
               saleUnit: null,
+              modifiers: normalizedModifiers.map((modifier, index) => ({
+                id: `optimistic-modifier-${index}`,
+                productModifierGroupId: modifier.productModifierGroupId,
+                productModifierOptionId: modifier.productModifierOptionId,
+                catalogModifierGroupId: null,
+                catalogModifierOptionId: null,
+                groupCode: "",
+                groupName: modifier.groupName ?? "",
+                optionCode: "",
+                optionName: modifier.optionName ?? "",
+                quantity: modifier.quantity,
+                unitPrice: getNumber(modifier.unitPrice) ?? 0,
+              })),
               unitPrice: numericProductPrice,
               baseUnitPrice: numericProductPrice,
               discountPercent: 0,
@@ -198,6 +230,7 @@ export function createOptimisticCart(params: {
             } satisfies CartItemDto & {
               guestName?: string;
               guestSessionId?: string;
+              modifiers?: unknown[];
             },
           ];
   const subtotal = nextItems.reduce((sum, entry) => sum + entry.lineTotal, 0);

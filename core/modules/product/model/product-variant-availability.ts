@@ -43,16 +43,17 @@ export function resolveProductVariantAvailability(
     return getUnavailableVariantState("disabled");
   }
 
-  const isOutOfStock =
-    variant.status === "OUT_OF_STOCK" ||
-    variant.stock === 0 ||
-    variant.maxQuantity === 0;
-
-  if (shouldEnforceStock && isOutOfStock) {
+  if (variant.status === "OUT_OF_STOCK") {
     return getUnavailableVariantState("out_of_stock");
   }
 
-  if (variant.isAvailable === false && !isOutOfStock) {
+  const isOutOfStockByStock = variant.stock === 0 || variant.maxQuantity === 0;
+
+  if (shouldEnforceStock && isOutOfStockByStock) {
+    return getUnavailableVariantState("out_of_stock");
+  }
+
+  if (variant.isAvailable === false) {
     return getUnavailableVariantState("unavailable");
   }
 

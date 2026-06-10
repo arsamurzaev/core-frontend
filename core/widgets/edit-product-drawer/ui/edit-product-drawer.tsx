@@ -5,6 +5,12 @@ import {
   ProductEditorDrawerContent,
   ProductImagesSection,
 } from "@/core/modules/product/editor/ui";
+import {
+  ProductPriceListInlineFields,
+  ProductPriceListPricesField,
+  ProductPriceListSettingsDrawer,
+} from "@/core/modules/catalog-price-list";
+import { ProductModifierBindingsField } from "@/core/modules/product-modifier";
 import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
@@ -18,6 +24,33 @@ interface EditProductDrawerProps {
   onOpenChange: (open: boolean) => void;
   supportsBrands?: boolean;
   supportsCategoryDetails?: boolean;
+}
+
+function normalizeText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function resolveSaleUnitTargetId(params: {
+  unit: { catalogSaleUnitId?: string; id?: string };
+  variantKey?: string;
+}): string | null {
+  const id = normalizeText(params.unit.id);
+
+  if (id) {
+    return id;
+  }
+
+  const catalogSaleUnitId = normalizeText(params.unit.catalogSaleUnitId);
+
+  if (!catalogSaleUnitId) {
+    return null;
+  }
+
+  const draftId = `draft:${catalogSaleUnitId}`;
+
+  return params.variantKey
+    ? `${draftId}:variant:${params.variantKey}`
+    : draftId;
 }
 
 export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
@@ -47,6 +80,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
     handleEditItem,
     handleFilesChange,
     handleOpenChange,
+    hasPriceListPriceDraftsEdited,
     handleSelectItemForSwap,
     handleSubmit,
     handleToggleReorderMode,
@@ -57,12 +91,18 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
     isLoadingProduct,
     isReorderMode,
     isSubmitting,
+    modifierDrafts,
     open: drawerOpen,
     pendingSwapIndex,
+    priceListPriceDrafts,
+    markPriceListPriceDraftsEdited,
     product,
     removeItem,
     uploadState,
     uploadedMediaIds,
+    setAreModifierDraftsReady,
+    setModifierDrafts,
+    setPriceListPriceDrafts,
   } = useEditProductDrawer(productId, onOpenChange, {
     supportsBrands,
     supportsCategoryDetails,
@@ -175,6 +215,112 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
           canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
           canUseDiscounts={features.canUseProductDiscounts}
           canUseProductVariants={features.canUseProductVariants}
+          hideBasePrices={features.hideBasePrices}
+          priceListController={
+            features.canUseCatalogPriceLists ? (
+              <ProductPriceListPricesField
+                disabled={isBusy || isCropperOpen}
+                drafts={priceListPriceDrafts}
+                form={form}
+                hasExternalEdits={hasPriceListPriceDraftsEdited}
+                onChange={setPriceListPriceDrafts}
+                product={product}
+                renderMode="controller"
+                canUseCatalogSaleUnits={features.canUseCatalogSaleUnits}
+                canUseProductVariants={features.canUseProductVariants}
+                variantAttributes={variantAttributes}
+              />
+            ) : undefined
+          }
+          priceListSettingsAction={
+            features.canUseCatalogPriceLists ? (
+              <ProductPriceListSettingsDrawer
+                disabled={isBusy || isCropperOpen}
+                trigger={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
+                    disabled={isBusy || isCropperOpen}
+                    title="Настроить прайс-листы"
+                  >
+                    <Settings className="size-4" />
+                    Прайс-листы
+                  </Button>
+                }
+              />
+            ) : undefined
+          }
+          productPriceListFields={
+            features.canUseCatalogPriceLists ? (
+              <ProductPriceListInlineFields
+                disabled={isBusy || isCropperOpen}
+                drafts={priceListPriceDrafts}
+                onEdited={markPriceListPriceDraftsEdited}
+                onChange={setPriceListPriceDrafts}
+                rowKey={`PRODUCT:${product.id}`}
+                target="PRODUCT"
+                targetId={product.id}
+              />
+            ) : undefined
+          }
+          renderSaleUnitPriceListFields={
+            features.canUseCatalogPriceLists
+              ? ({ unit, variantRow }) => {
+                  const targetId = resolveSaleUnitTargetId({
+                    unit,
+                    variantKey: variantRow?.key,
+                  });
+
+                  if (!targetId) {
+                    return null;
+                  }
+
+                  return (
+                    <ProductPriceListInlineFields
+                      disabled={isBusy || isCropperOpen}
+                      drafts={priceListPriceDrafts}
+                      onEdited={markPriceListPriceDraftsEdited}
+                      onChange={setPriceListPriceDrafts}
+                      rowKey={`SALE_UNIT:${targetId}`}
+                      target="SALE_UNIT"
+                      targetId={targetId}
+                    />
+                  );
+                }
+              : undefined
+          }
+          renderVariantPriceListFields={
+            features.canUseCatalogPriceLists
+              ? ({ row }) => {
+                  const targetId = `draft-variant:${row.key}`;
+
+                  return (
+                    <ProductPriceListInlineFields
+                      disabled={isBusy || isCropperOpen}
+                      drafts={priceListPriceDrafts}
+                      onEdited={markPriceListPriceDraftsEdited}
+                      onChange={setPriceListPriceDrafts}
+                      rowKey={`VARIANT:${targetId}`}
+                      target="VARIANT"
+                      targetId={targetId}
+                    />
+                  );
+                }
+              : undefined
+          }
+          modifiersSection={
+            features.canEditProductModifiers ? (
+              <ProductModifierBindingsField
+                disabled={isBusy || isCropperOpen}
+                drafts={modifierDrafts}
+                onChange={setModifierDrafts}
+                onReadyChange={setAreModifierDraftsReady}
+                product={product}
+              />
+            ) : undefined
+          }
           saleUnitsSettingsAction={
             features.canUseCatalogSaleUnits ? (
               <EditCatalogSaleUnitsDrawer

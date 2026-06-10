@@ -39,6 +39,41 @@ const getCatalogViewModeKey = (
   return "default";
 };
 
+const isProductCardViewMode = (
+  value: unknown,
+): value is ProductCardViewMode => {
+  return PRODUCT_CARD_VIEW_MODES.includes(value as ProductCardViewMode);
+};
+
+const readPersistedProductCardViewMode = (
+  catalogKey: string,
+): ProductCardViewMode | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const rawValue = window.localStorage.getItem(
+      PRODUCT_CARD_VIEW_MODE_STORAGE_KEY,
+    );
+
+    if (!rawValue) {
+      return null;
+    }
+
+    const parsedValue = JSON.parse(rawValue) as {
+      state?: {
+        byCatalog?: Record<string, unknown>;
+      };
+    };
+    const persistedMode = parsedValue.state?.byCatalog?.[catalogKey];
+
+    return isProductCardViewMode(persistedMode) ? persistedMode : null;
+  } catch {
+    return null;
+  }
+};
+
 const useProductCardViewModeStore = create<ProductCardViewModeStoreState>()(
   persist(
     (set) => ({
@@ -87,6 +122,24 @@ export function useProductCardViewMode() {
   );
   const hasHydrated = useProductCardViewModeStore((state) => state.hasHydrated);
   const setStoreMode = useProductCardViewModeStore((state) => state.setMode);
+  const preHydratedMode = React.useMemo(
+    () => (hasHydrated ? null : readPersistedProductCardViewMode(catalogKey)),
+    [catalogKey, hasHydrated],
+  );
+
+  React.useLayoutEffect(() => {
+    if (hasHydrated) {
+      return;
+    }
+
+    const persistedMode = preHydratedMode;
+
+    if (persistedMode && persistedMode !== mode) {
+      setStoreMode(catalogKey, persistedMode);
+    }
+  }, [catalogKey, hasHydrated, mode, preHydratedMode, setStoreMode]);
+
+  const resolvedMode = preHydratedMode ?? mode;
 
   const setMode = React.useCallback(
     (nextMode: ProductCardViewMode) => {
@@ -96,17 +149,17 @@ export function useProductCardViewMode() {
   );
 
   const toggleMode = React.useCallback(() => {
-    setStoreMode(catalogKey, mode === "detailed" ? "grid" : "detailed");
-  }, [catalogKey, mode, setStoreMode]);
+    setStoreMode(catalogKey, resolvedMode === "detailed" ? "grid" : "detailed");
+  }, [catalogKey, resolvedMode, setStoreMode]);
 
   return React.useMemo(
     () => ({
-      mode,
+      mode: resolvedMode,
       hasHydrated,
-      isDetailed: mode === "detailed",
+      isDetailed: resolvedMode === "detailed",
       setMode,
       toggleMode,
     }),
-    [hasHydrated, mode, setMode, toggleMode],
+    [hasHydrated, resolvedMode, setMode, toggleMode],
   );
 }

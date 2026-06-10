@@ -15,6 +15,8 @@ describe("cart line selection", () => {
         variantId: " variant-1 ",
       }),
     ).toEqual({
+      modifierSignature: "",
+      modifiers: [],
       productId: "product-1",
       saleUnitId: "kg",
       variantId: "variant-1",
@@ -28,7 +30,7 @@ describe("cart line selection", () => {
         saleUnitId: "kg",
         variantId: "variant-1",
       }),
-    ).toBe("product-1:variant-1:kg");
+    ).toBe("product-1:variant-1:kg:default");
   });
 
   it("scopes line keys by guest session when provided", () => {
@@ -37,12 +39,12 @@ describe("cart line selection", () => {
         guestSessionId: "guest-1",
         productId: "product-1",
       }),
-    ).toBe("product-1:default:default:guest:guest-1");
+    ).toBe("product-1:default:default:default:guest:guest-1");
   });
 
   it("reads product or line quantity depending on selection scope", () => {
     const quantityByProductId = { "product-1": 5 };
-    const quantityByLineKey = { "product-1:variant-1:kg": 2 };
+    const quantityByLineKey = { "product-1:variant-1:kg:default": 2 };
 
     expect(
       getCartLineSelectionQuantity({
