@@ -21,8 +21,6 @@ interface EditCatalogPriceListsDrawerProps {
   form: UseFormReturn<CatalogEditFormValues>;
 }
 
-const LEGACY_PRICE_VALUE = "__legacy__";
-const LEGACY_PRICE_LABEL = "Старая цена";
 const EMPTY_PRICE_LISTS_LABEL = "Активных прайс-листов пока нет.";
 
 function sortPriceLists(priceLists: CatalogPriceList[]): CatalogPriceList[] {
@@ -36,11 +34,11 @@ function sortPriceLists(priceLists: CatalogPriceList[]): CatalogPriceList[] {
 }
 
 function getSelectedLabel(
-  selectedValue: string,
+  selectedValue: string | null | undefined,
   priceLists: CatalogPriceList[],
 ): string {
-  if (selectedValue === LEGACY_PRICE_VALUE) {
-    return LEGACY_PRICE_LABEL;
+  if (!selectedValue) {
+    return "Прайс-лист не выбран";
   }
 
   return (
@@ -59,7 +57,7 @@ export const EditCatalogPriceListsDrawer: React.FC<
     control: form.control,
     name: "activePriceListId",
   });
-  const selectedValue = activePriceListId ?? LEGACY_PRICE_VALUE;
+  const selectedValue = activePriceListId ?? "";
   const priceListsQuery = useCatalogPriceLists(
     { includeInactive: !isChildCatalog },
     { enabled: !disabled },
@@ -86,7 +84,7 @@ export const EditCatalogPriceListsDrawer: React.FC<
     (value: string) => {
       form.setValue(
         "activePriceListId",
-        value === LEGACY_PRICE_VALUE ? null : value,
+        value,
         {
           shouldDirty: true,
           shouldTouch: true,
@@ -143,28 +141,6 @@ export const EditCatalogPriceListsDrawer: React.FC<
                 disabled={disabled}
                 className="gap-2"
               >
-                <label
-                  htmlFor="catalog-active-price-list-legacy"
-                  className={cn(
-                    "flex cursor-pointer items-start gap-3 rounded-xl border border-black/10 p-3 transition-colors",
-                    selectedValue === LEGACY_PRICE_VALUE && "bg-muted/50",
-                  )}
-                >
-                  <RadioGroupItem
-                    id="catalog-active-price-list-legacy"
-                    value={LEGACY_PRICE_VALUE}
-                    className="mt-0.5"
-                  />
-                  <span className="grid min-w-0 gap-1">
-                    <span className="text-sm font-medium">
-                      {LEGACY_PRICE_LABEL}
-                    </span>
-                    <span className="text-xs leading-4 text-muted-foreground">
-                      Каталог будет использовать базовые цены товаров.
-                    </span>
-                  </span>
-                </label>
-
                 {selectablePriceLists.map((priceList) => (
                   <label
                     key={priceList.id}
