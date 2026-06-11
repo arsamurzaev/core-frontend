@@ -6,7 +6,6 @@ import { EditCatalogIntegrationsDrawer } from "@/core/widgets/edit-catalog-drawe
 import { EditCatalogMetrikaDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-metrika-drawer";
 import { EditCatalogModifiersDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-modifiers-drawer";
 import { EditCatalogPasswordDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-password-drawer";
-import { EditCatalogPriceListsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-price-lists-drawer";
 import { EditCatalogProductTypesDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-product-types-drawer";
 import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
 import { EditCatalogSessionsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer";
@@ -98,9 +97,6 @@ export const EditCatalogAdvancedSettingsDrawer: React.FC<
               ) : null}
               {canManageContent && features.canUseCatalogModifiers ? (
                 <EditCatalogModifiersDrawer disabled={disabled} />
-              ) : null}
-              {features.canUseCatalogPriceLists ? (
-                <EditCatalogPriceListsDrawer disabled={disabled} />
               ) : null}
               {canManageContent &&
               (features.canUseMoySkladIntegration ||

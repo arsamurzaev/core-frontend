@@ -1,5 +1,7 @@
 "use client";
 
+import { setActiveCatalogPriceList } from "@/core/modules/catalog-price-list";
+import { invalidateProductQueries } from "@/core/modules/product";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { type MediaUploadState } from "@/core/widgets/edit-catalog-drawer/lib/upload-media";
 import {
@@ -54,69 +56,87 @@ export function useEditCatalogSubmit({
   setUploadState,
   updateCatalog,
 }: UseEditCatalogSubmitParams) {
-  return React.useCallback(async (options: EditCatalogSubmitOptions = {}) => {
-    const { closeAfterSave = true } = options;
+  return React.useCallback(
+    async (options: EditCatalogSubmitOptions = {}) => {
+      const { closeAfterSave = true } = options;
 
-    if (isSubmitting) {
-      return false;
-    }
-
-    const isValid = await form.trigger();
-    if (!isValid) {
-      setErrorMessage("Форма содержит некорректные данные профиля.");
-      return false;
-    }
-
-    setIsSubmitting(true);
-    setErrorMessage(null);
-
-    try {
-      const parsedForm = normalizeCatalogEditFormValues(form.getValues());
-      const mediaIds = await uploadCatalogEditMediaIds({
-        catalogId,
-        onStateChange: setUploadState,
-        values: parsedForm,
-      });
-      const parsedPayload = buildCatalogEditUpdatePayload(parsedForm, mediaIds);
-
-      await updateCatalog.mutateAsync({
-        data: parsedPayload,
-      });
-
-      form.reset(buildCatalogEditSubmittedValues(parsedForm));
-      await invalidateCatalogEditQueries(queryClient);
-
-      resetFeedback();
-      if (closeAfterSave) {
-        closeDrawer();
+      if (isSubmitting) {
+        return false;
       }
-      router.refresh();
-      toast.success("Профиль каталога успешно обновлен.");
-      return true;
-    } catch (error) {
-      const message = extractApiErrorMessage(error);
-      setErrorMessage(message);
-      setUploadState((prev) => ({
-        phase: "error",
-        progress: prev.progress,
-        message,
-      }));
-      toast.error(message);
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [
-    catalogId,
-    closeDrawer,
-    form,
-    isSubmitting,
-    queryClient,
-    resetFeedback,
-    router,
-    setErrorMessage,
-    setIsSubmitting,
-    setUploadState,
-    updateCatalog,
-  ]);
+
+      const isValid = await form.trigger();
+      if (!isValid) {
+        setErrorMessage("Форма содержит некорректные данные профиля.");
+        return false;
+      }
+
+      setIsSubmitting(true);
+      setErrorMessage(null);
+
+      try {
+        const parsedForm = normalizeCatalogEditFormValues(form.getValues());
+        const mediaIds = await uploadCatalogEditMediaIds({
+          catalogId,
+          onStateChange: setUploadState,
+          values: parsedForm,
+        });
+        const parsedPayload = buildCatalogEditUpdatePayload(
+          parsedForm,
+          mediaIds,
+        );
+
+        await updateCatalog.mutateAsync({
+          data: parsedPayload,
+        });
+
+        const initialActivePriceListId =
+          form.formState.defaultValues?.activePriceListId ?? null;
+        const shouldUpdateActivePriceList =
+          parsedForm.activePriceListId !== initialActivePriceListId;
+
+        if (shouldUpdateActivePriceList) {
+          await setActiveCatalogPriceList(parsedForm.activePriceListId);
+        }
+
+        form.reset(buildCatalogEditSubmittedValues(parsedForm));
+        await invalidateCatalogEditQueries(queryClient);
+        if (shouldUpdateActivePriceList) {
+          await invalidateProductQueries(queryClient);
+        }
+
+        resetFeedback();
+        if (closeAfterSave) {
+          closeDrawer();
+        }
+        router.refresh();
+        toast.success("Профиль каталога успешно обновлен.");
+        return true;
+      } catch (error) {
+        const message = extractApiErrorMessage(error);
+        setErrorMessage(message);
+        setUploadState((prev) => ({
+          phase: "error",
+          progress: prev.progress,
+          message,
+        }));
+        toast.error(message);
+        return false;
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [
+      catalogId,
+      closeDrawer,
+      form,
+      isSubmitting,
+      queryClient,
+      resetFeedback,
+      router,
+      setErrorMessage,
+      setIsSubmitting,
+      setUploadState,
+      updateCatalog,
+    ],
+  );
 }

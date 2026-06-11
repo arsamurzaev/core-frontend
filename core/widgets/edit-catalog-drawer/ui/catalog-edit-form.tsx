@@ -13,6 +13,8 @@ import { EditCatalogAdvancedSettingsDrawer } from "@/core/widgets/edit-catalog-d
 import { EditCatalogCheckoutDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-checkout-drawer";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
 import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
+import { EditCatalogPriceListsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-price-lists-drawer";
+import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { FieldError } from "@/shared/ui/field";
 import React from "react";
@@ -143,6 +145,7 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
   bgUrl,
   onSave,
 }) => {
+  const features = useCatalogCapabilities();
   const mediaFields = React.useMemo(
     () => buildCatalogEditMediaFields({ bgUrl, logoUrl }),
     [bgUrl, logoUrl],
@@ -187,9 +190,17 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
             form={form}
             disabled={disabled}
             isSaving={isSaving}
-            onSave={onSave}
           />
         </CatalogEditTextRow>
+
+        {features.canUseCatalogPriceLists ? (
+          <CatalogEditTextRow label="Прайс-лист">
+            <EditCatalogPriceListsDrawer
+              form={form}
+              disabled={disabled || isSaving}
+            />
+          </CatalogEditTextRow>
+        ) : null}
 
         <CatalogEditTextRow
           label="Способ заказа"

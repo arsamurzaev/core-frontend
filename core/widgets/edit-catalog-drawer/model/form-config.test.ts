@@ -114,6 +114,30 @@ describe("buildCatalogEditFormDefaultValues", () => {
     });
   });
 
+  it("keeps active price list in form values outside catalog update payload", () => {
+    const values = buildCatalogEditFormDefaultValues(
+      {
+        ...catalog(),
+        settings: {
+          activePriceListId: "price-list-1",
+        } as CatalogCurrentDto["settings"] & { activePriceListId: string },
+      },
+      {
+        checkoutConfig: {
+          availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
+          enabledMethods: ["PREORDER"],
+          methodContacts: {},
+          methodFields: METHOD_FIELDS,
+          preorder: DEFAULT_PREORDER_SETTINGS,
+        },
+      },
+    );
+    const payload = buildCatalogEditUpdatePayload(values);
+
+    expect(values.activePriceListId).toBe("price-list-1");
+    expect(payload).not.toHaveProperty("activePriceListId");
+  });
+
   it("does not persist method contacts duplicated from catalog contacts", () => {
     const values = buildCatalogEditFormDefaultValues(catalog(), {
       checkoutConfig: {

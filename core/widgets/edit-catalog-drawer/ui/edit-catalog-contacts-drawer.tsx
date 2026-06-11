@@ -20,20 +20,13 @@ type EditCatalogContactsDrawerProps = {
   form: UseFormReturn<CatalogEditFormValues>;
   disabled?: boolean;
   isSaving?: boolean;
-  onSave?: () => Promise<boolean>;
 };
 
 export const EditCatalogContactsDrawer: React.FC<
   EditCatalogContactsDrawerProps
-> = ({ form, disabled = false, isSaving = false, onSave }) => {
+> = ({ form, disabled = false, isSaving = false }) => {
   const [open, setOpen] = React.useState(false);
   const { contactValues, hasContacts } = useEditCatalogContactValues(form);
-  const handleSave = React.useCallback(async () => {
-    const isSaved = await onSave?.();
-    if (isSaved) {
-      setOpen(false);
-    }
-  }, [onSave]);
 
   return (
     <AppDrawer
@@ -95,10 +88,8 @@ export const EditCatalogContactsDrawer: React.FC<
 
           <AppDrawer.Footer
             className="border-t"
-            btnText="Сохранить"
-            isAutoClose={false}
-            loading={isSaving}
-            handleClick={() => void handleSave()}
+            btnText="Готово"
+            isFooterBtnDisabled={disabled || isSaving}
             buttonType="button"
           />
         </div>

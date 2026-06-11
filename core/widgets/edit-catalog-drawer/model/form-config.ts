@@ -20,10 +20,7 @@ import {
   type CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
 import { normalizePhoneValue } from "@/shared/lib/phone";
-import {
-  type FieldErrors,
-  type Resolver,
-} from "react-hook-form";
+import { type FieldErrors, type Resolver } from "react-hook-form";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CONTACT_PHONE_FIELD_NAMES = ["phone", "message", "whatsapp"] as const;
@@ -36,6 +33,7 @@ const PREORDER_MIN_LEAD_MINUTES_MAX = 24 * 60;
 const PREORDER_MAX_ADVANCE_DAYS_MAX = 365;
 
 export type CatalogEditFormValues = {
+  activePriceListId: string | null;
   name: string;
   about: string;
   description: string;
@@ -61,7 +59,14 @@ export type CatalogEditFormValues = {
 type CatalogEditTextFieldName = "name" | "about" | "description" | "address";
 type CatalogEditContactFieldName = keyof Pick<
   CatalogEditFormValues,
-  "phone" | "message" | "email" | "whatsapp" | "telegram" | "max" | "bip" | "map"
+  | "phone"
+  | "message"
+  | "email"
+  | "whatsapp"
+  | "telegram"
+  | "max"
+  | "bip"
+  | "map"
 >;
 
 function createFieldError(message: string) {
@@ -89,6 +94,15 @@ function normalizeNumber(value: unknown): number {
 
 function normalizeOptionalFile(value: unknown): File | undefined {
   return value instanceof File ? value : undefined;
+}
+
+function normalizeNullableId(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
 }
 
 function hasAtLeastOneContact(values: Record<string, string>): boolean {
@@ -301,6 +315,7 @@ export function normalizeCatalogEditFormValues(
   );
 
   return {
+    activePriceListId: normalizeNullableId(values.activePriceListId),
     name: normalizeText(values.name),
     about: normalizeText(values.about),
     description: normalizeText(values.description),
@@ -329,7 +344,9 @@ export function normalizeCatalogEditFormValues(
 export const catalogEditFormResolver: Resolver<CatalogEditFormValues> = async (
   rawValues,
 ) => {
-  const values = normalizeCatalogEditFormValues(rawValues as CatalogEditFormValues);
+  const values = normalizeCatalogEditFormValues(
+    rawValues as CatalogEditFormValues,
+  );
   const errors = buildCatalogEditFormErrors(values);
 
   return {
@@ -460,7 +477,10 @@ function normalizeCheckoutContactValue(
     return normalizePhoneContact(rawValue);
   }
 
-  if (type === CatalogContactDtoType.BIP || type === CatalogContactDtoType.MAX) {
+  if (
+    type === CatalogContactDtoType.BIP ||
+    type === CatalogContactDtoType.MAX
+  ) {
     return normalizeUrlContact(rawValue);
   }
 
@@ -482,10 +502,7 @@ function normalizeCheckoutMethodContacts(
           methodContacts[type],
         );
 
-        if (
-          normalizedValue &&
-          normalizedValue !== generalContacts[type]
-        ) {
+        if (normalizedValue && normalizedValue !== generalContacts[type]) {
           contactAcc[type] = normalizedValue;
         }
 
@@ -510,9 +527,13 @@ export function buildCatalogEditFormDefaultValues(
 ): CatalogEditFormValues {
   const experience = getCatalogExperienceDefaultValues(catalog);
   const checkout = options.checkoutConfig;
-  const settings = catalog.settings as { address?: string | null } | null;
+  const settings = catalog.settings as {
+    activePriceListId?: string | null;
+    address?: string | null;
+  } | null;
 
   return {
+    activePriceListId: settings?.activePriceListId ?? null,
     name: catalog.name ?? "",
     about: catalog.config?.about ?? "",
     description:
