@@ -302,7 +302,7 @@ function ModeLinkRow({
             <ExternalLink className="size-4" />
           </Button>
 
-          <Popover>
+          <Popover modal>
             <PopoverTrigger asChild>
               <Button
                 type="button"
@@ -314,7 +314,7 @@ function ModeLinkRow({
                 <QrCode className="size-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-auto p-4">
+            <PopoverContent align="end" className="pointer-events-auto w-auto p-4">
               <p className="mb-3 text-sm font-medium">{option.title}</p>
               {qrDataUrl ? (
                 <>
@@ -436,7 +436,7 @@ function SiteLinkRow({
             <ExternalLink className="size-4" />
           </Button>
 
-          <Popover>
+          <Popover modal>
             <PopoverTrigger asChild>
               <Button
                 type="button"
@@ -448,7 +448,7 @@ function SiteLinkRow({
                 <QrCode className="size-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-auto p-4">
+            <PopoverContent align="end" className="pointer-events-auto w-auto p-4">
               <p className="mb-3 text-sm font-medium">Сайт</p>
               {qrDataUrl ? (
                 <>
@@ -550,7 +550,7 @@ function HallTableCard({
             <ExternalLink className="size-4" />
           </Button>
 
-          <Popover open={qrOpen} onOpenChange={setQrOpen}>
+          <Popover modal open={qrOpen} onOpenChange={setQrOpen}>
             <PopoverTrigger asChild>
               <Button
                 type="button"
@@ -563,7 +563,7 @@ function HallTableCard({
                 <Download className="size-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-auto p-4">
+            <PopoverContent align="end" className="pointer-events-auto w-auto p-4">
               <p className="mb-3 text-sm font-medium">{label}</p>
               {qrDataUrl ? (
                 <>
