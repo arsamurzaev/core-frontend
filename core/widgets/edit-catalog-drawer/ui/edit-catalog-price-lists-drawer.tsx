@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ProductPriceListSettingsDrawer,
   useCatalogPriceLists,
   type CatalogPriceList,
 } from "@/core/modules/catalog-price-list";
@@ -12,7 +11,7 @@ import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
-import { ChevronRight, Loader2, Settings2 } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import React from "react";
 import { type UseFormReturn, useWatch } from "react-hook-form";
 
@@ -160,11 +159,6 @@ export const EditCatalogPriceListsDrawer: React.FC<
                       <span className="truncate text-sm font-medium">
                         {priceList.name}
                       </span>
-                      {priceList.description ? (
-                        <span className="line-clamp-2 text-xs leading-4 text-muted-foreground">
-                          {priceList.description}
-                        </span>
-                      ) : null}
                     </span>
                   </label>
                 ))}
@@ -185,25 +179,6 @@ export const EditCatalogPriceListsDrawer: React.FC<
   return (
     <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
       {selector}
-
-      {!isChildCatalog ? (
-        <ProductPriceListSettingsDrawer
-          nested
-          disabled={disabled}
-          trigger={
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 shrink-0 rounded-2xl px-4"
-              disabled={disabled}
-              onClick={() => setOpen(false)}
-            >
-              <Settings2 className="size-4" />
-              Настроить прайс-листы
-            </Button>
-          }
-        />
-      ) : null}
     </div>
   );
 };

@@ -105,6 +105,73 @@ function buildQrFileName(label: string): string {
   return `qr-${normalized}.png`;
 }
 
+function createBlobFromDataUrl(dataUrl: string): Blob {
+  const separatorIndex = dataUrl.indexOf(",");
+  if (separatorIndex === -1) {
+    throw new Error("Invalid data URL");
+  }
+
+  const header = dataUrl.slice(0, separatorIndex);
+  const data = dataUrl.slice(separatorIndex + 1);
+  const mimeType = header.match(/^data:([^;]+)/)?.[1] ?? "application/octet-stream";
+  const isBase64 = header.includes(";base64");
+  const binary = isBase64 ? window.atob(data) : decodeURIComponent(data);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new Blob([bytes], { type: mimeType });
+}
+
+function downloadDataUrl(dataUrl: string, fileName: string): void {
+  const blobUrl = window.URL.createObjectURL(createBlobFromDataUrl(dataUrl));
+  const link = document.createElement("a");
+
+  link.href = blobUrl;
+  link.download = fileName;
+  link.rel = "noopener";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+}
+
+function QrPngDownloadButton({
+  dataUrl,
+  fileName,
+}: {
+  dataUrl: string;
+  fileName: string;
+}) {
+  const handleDownload = React.useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      try {
+        downloadDataUrl(dataUrl, fileName);
+      } catch {
+        toast.error("Не удалось скачать PNG.");
+      }
+    },
+    [dataUrl, fileName],
+  );
+
+  return (
+    <button
+      type="button"
+      className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={handleDownload}
+    >
+      <Download className="size-4" />
+      Скачать PNG
+    </button>
+  );
+}
+
 function useQrDataUrl(url: string): string | null {
   const [dataUrl, setDataUrl] = React.useState<string | null>(null);
 
@@ -259,14 +326,10 @@ function ModeLinkRow({
                     height={192}
                     unoptimized
                   />
-                  <a
-                    href={qrDataUrl}
-                    download={`qr-${option.value.toLowerCase()}.png`}
-                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-                  >
-                    <Download className="size-4" />
-                    Скачать PNG
-                  </a>
+                  <QrPngDownloadButton
+                    dataUrl={qrDataUrl}
+                    fileName={`qr-${option.value.toLowerCase()}.png`}
+                  />
                 </>
               ) : (
                 <div className="flex size-48 items-center justify-center text-muted-foreground">
@@ -397,14 +460,7 @@ function SiteLinkRow({
                     height={192}
                     unoptimized
                   />
-                  <a
-                    href={qrDataUrl}
-                    download="qr-site.png"
-                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-                  >
-                    <Download className="size-4" />
-                    Скачать PNG
-                  </a>
+                  <QrPngDownloadButton dataUrl={qrDataUrl} fileName="qr-site.png" />
                 </>
               ) : (
                 <div className="flex size-48 items-center justify-center text-muted-foreground">
@@ -519,14 +575,10 @@ function HallTableCard({
                     height={208}
                     unoptimized
                   />
-                  <a
-                    href={qrDataUrl}
-                    download={buildQrFileName(label)}
-                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
-                  >
-                    <Download className="size-4" />
-                    Скачать PNG
-                  </a>
+                  <QrPngDownloadButton
+                    dataUrl={qrDataUrl}
+                    fileName={buildQrFileName(label)}
+                  />
                 </>
               ) : (
                 <div className="flex size-52 items-center justify-center rounded-lg border text-muted-foreground">

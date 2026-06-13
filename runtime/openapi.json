@@ -523,7 +523,7 @@
             "csrf": []
           }
         ],
-        "summary": "List domain event outbox rows",
+        "summary": "Получить записи outbox доменных событий",
         "tags": [
           "Admin"
         ]
@@ -550,7 +550,7 @@
             "csrf": []
           }
         ],
-        "summary": "Get domain event outbox status counters",
+        "summary": "Получить счетчики статусов outbox доменных событий",
         "tags": [
           "Admin"
         ]
@@ -586,7 +586,7 @@
             "csrf": []
           }
         ],
-        "summary": "Retry one pending or failed domain event",
+        "summary": "Повторить одно ожидающее или ошибочное доменное событие",
         "tags": [
           "Admin"
         ]
@@ -623,7 +623,7 @@
             "csrf": []
           }
         ],
-        "summary": "Retry failed domain events by optional filters",
+        "summary": "Повторить ошибочные доменные события по фильтрам",
         "tags": [
           "Admin"
         ]
@@ -660,7 +660,7 @@
             "csrf": []
           }
         ],
-        "summary": "Manually drain pending/failed domain events",
+        "summary": "Вручную обработать ожидающие и ошибочные доменные события",
         "tags": [
           "Admin"
         ]
@@ -697,7 +697,7 @@
             "csrf": []
           }
         ],
-        "summary": "Delete old processed domain events",
+        "summary": "Удалить старые обработанные доменные события",
         "tags": [
           "Admin"
         ]
@@ -839,7 +839,7 @@
             "csrf": []
           }
         ],
-        "summary": "Create catalog with generated owner credentials",
+        "summary": "Создать каталог с учетными данными владельца",
         "tags": [
           "Admin"
         ]
@@ -885,7 +885,43 @@
             "csrf": []
           }
         ],
-        "summary": "Duplicate catalog with generated owner credentials",
+        "summary": "Дублировать каталог с учетными данными владельца",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/catalogs/{id}/owner-password/reset": {
+      "post": {
+        "operationId": "AdminController_resetCatalogOwnerPassword",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCreateCatalogResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Сбросить пароль владельца каталога и вернуть учетные данные",
         "tags": [
           "Admin"
         ]
@@ -1001,7 +1037,7 @@
             "csrf": []
           }
         ],
-        "summary": "Get catalog feature entitlements",
+        "summary": "Получить доступные функции каталога",
         "tags": [
           "Admin"
         ]
@@ -1045,7 +1081,7 @@
             "csrf": []
           }
         ],
-        "summary": "Enable or disable a catalog feature entitlement",
+        "summary": "Включить или отключить функцию каталога",
         "tags": [
           "Admin"
         ]
@@ -1092,7 +1128,7 @@
             "csrf": []
           }
         ],
-        "summary": "Diagnose legacy default variant consistency for catalog",
+        "summary": "Проверить технические вариации каталога",
         "tags": [
           "Admin"
         ]
@@ -1128,7 +1164,7 @@
             "csrf": []
           }
         ],
-        "summary": "Repair missing technical default variants for catalog",
+        "summary": "Восстановить недостающие технические вариации каталога",
         "tags": [
           "Admin"
         ]
@@ -1174,7 +1210,7 @@
             "csrf": []
           }
         ],
-        "summary": "Dry-run or repair legacy product price mirror mismatches",
+        "summary": "Проверить или исправить расхождения legacy-цен товара",
         "tags": [
           "Admin"
         ]
@@ -1210,7 +1246,7 @@
             "csrf": []
           }
         ],
-        "summary": "Get MoySklad stock sync diagnostics for catalog",
+        "summary": "Получить диагностику синхронизации остатков MoySklad",
         "tags": [
           "Admin"
         ]
@@ -1246,7 +1282,7 @@
             "csrf": []
           }
         ],
-        "summary": "Soft-delete контент каталога, не удаляя каталог",
+        "summary": "Архивировать контент каталога, не удаляя каталог",
         "tags": [
           "Admin"
         ]
@@ -1313,6 +1349,201 @@
           }
         ],
         "summary": "Получить список типов каталогов для админки",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/geo-admins": {
+      "get": {
+        "operationId": "AdminController_getGeoAdmins",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminGeoAdminListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Получить гео-админов с назначенными странами и регионами",
+        "tags": [
+          "Admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminController_createGeoAdmin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateGeoAdminDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCreateGeoAdminResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Создать гео-админа с назначенными странами и регионами",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/regionalities": {
+      "get": {
+        "operationId": "AdminController_getRegionalities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminRegionalityListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Получить справочник стран и регионов для привязки каталога",
+        "tags": [
+          "Admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminController_createRegionality",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateRegionalityDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRegionalityListItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Создать страну и регион для привязки каталога",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/admin/countries": {
+      "get": {
+        "operationId": "AdminController_getCountries",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminCountryListItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Получить справочник стран для привязки каталога",
+        "tags": [
+          "Admin"
+        ]
+      },
+      "post": {
+        "operationId": "AdminController_createCountry",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCreateCountryDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCountryListItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Создать страну для привязки каталога",
         "tags": [
           "Admin"
         ]
@@ -1578,7 +1809,7 @@
                   "proof": {
                     "type": "string",
                     "format": "binary",
-                    "description": "PDF, JPEG, PNG or WebP payment confirmation"
+                    "description": "Подтверждение оплаты в формате PDF, JPEG, PNG или WebP"
                   }
                 }
               }
@@ -1646,7 +1877,7 @@
                   "proof": {
                     "type": "string",
                     "format": "binary",
-                    "description": "PDF, JPEG, PNG or WebP payment confirmation"
+                    "description": "Подтверждение оплаты в формате PDF, JPEG, PNG или WebP"
                   }
                 }
               }
@@ -3357,6 +3588,336 @@
         "summary": "Создать/заменить матрицу вариаций товара",
         "tags": [
           "Товар"
+        ]
+      }
+    },
+    "/catalog-price-lists": {
+      "get": {
+        "operationId": "CatalogPriceListController_getAll",
+        "parameters": [
+          {
+            "name": "includeArchived",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogPriceListDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          }
+        },
+        "summary": "Список прайс-листов текущего каталога",
+        "tags": [
+          "CatalogPriceList"
+        ]
+      },
+      "post": {
+        "operationId": "CatalogPriceListController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCatalogPriceListDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogPriceListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Создать прайс-лист в родительском каталоге",
+        "tags": [
+          "CatalogPriceList"
+        ]
+      }
+    },
+    "/catalog-price-lists/{id}": {
+      "patch": {
+        "operationId": "CatalogPriceListController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCatalogPriceListDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogPriceListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Прайс-лист не найден"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Обновить прайс-лист родительского каталога",
+        "tags": [
+          "CatalogPriceList"
+        ]
+      },
+      "delete": {
+        "operationId": "CatalogPriceListController_archive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Прайс-лист не найден"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Архивировать прайс-лист родительского каталога",
+        "tags": [
+          "CatalogPriceList"
+        ]
+      }
+    },
+    "/catalog-price-lists/{id}/prices": {
+      "get": {
+        "operationId": "CatalogPriceListController_getPrices",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeArchived",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogPriceListPriceDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Прайс-лист не найден"
+          }
+        },
+        "summary": "Список цен прайс-листа",
+        "tags": [
+          "CatalogPriceList"
+        ]
+      }
+    },
+    "/catalog-price-lists/{id}/prices/bulk": {
+      "put": {
+        "operationId": "CatalogPriceListController_bulkUpsertPrices",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkUpsertCatalogPriceListPricesDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogPriceListPriceDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Прайс-лист не найден"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Массово сохранить цены прайс-листа",
+        "tags": [
+          "CatalogPriceList"
+        ]
+      }
+    },
+    "/catalog/settings/active-price-list": {
+      "patch": {
+        "operationId": "CatalogPriceListController_setActivePriceList",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetActivePriceListDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveCatalogPriceListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Выбрать активный прайс-лист текущего каталога",
+        "tags": [
+          "CatalogPriceList"
         ]
       }
     },
@@ -7637,6 +8198,60 @@
         ]
       }
     },
+    "/integration/1c/stock-mapping-default": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneCRecommendedStockMapping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCRecommendedStockMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get recommended ONE_C STOCK mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
+    "/integration/1c/price-mapping-default": {
+      "get": {
+        "operationId": "OneCIntegrationController_getOneCRecommendedPriceMapping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneCRecommendedPriceMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Get recommended ONE_C PRICE mapping",
+        "tags": [
+          "Integration"
+        ]
+      }
+    },
     "/integration/1c/test-connection": {
       "post": {
         "operationId": "OneCIntegrationController_testOneCConnection",
@@ -8681,7 +9296,7 @@
             }
           }
         },
-        "summary": "List current catalog sale units",
+        "summary": "Получить единицы продажи текущего каталога",
         "tags": [
           "CatalogSaleUnit"
         ]
@@ -8711,10 +9326,10 @@
             }
           },
           "400": {
-            "description": "Validation error"
+            "description": "Ошибка валидации"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Доступ запрещен"
           }
         },
         "security": [
@@ -8722,7 +9337,7 @@
             "csrf": []
           }
         ],
-        "summary": "Create current catalog sale unit",
+        "summary": "Создать единицу продажи текущего каталога",
         "tags": [
           "CatalogSaleUnit"
         ]
@@ -8736,7 +9351,7 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "Catalog sale unit ID",
+            "description": "ID единицы продажи",
             "schema": {
               "type": "string"
             }
@@ -8754,10 +9369,10 @@
             }
           },
           "404": {
-            "description": "Sale unit not found"
+            "description": "Единица продажи не найдена"
           }
         },
-        "summary": "Get current catalog sale unit",
+        "summary": "Получить единицу продажи текущего каталога",
         "tags": [
           "CatalogSaleUnit"
         ]
@@ -8769,7 +9384,7 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "Catalog sale unit ID",
+            "description": "ID единицы продажи",
             "schema": {
               "type": "string"
             }
@@ -8797,13 +9412,13 @@
             }
           },
           "400": {
-            "description": "Validation error"
+            "description": "Ошибка валидации"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Доступ запрещен"
           },
           "404": {
-            "description": "Sale unit not found"
+            "description": "Единица продажи не найдена"
           }
         },
         "security": [
@@ -8811,7 +9426,7 @@
             "csrf": []
           }
         ],
-        "summary": "Update current catalog sale unit",
+        "summary": "Обновить единицу продажи текущего каталога",
         "tags": [
           "CatalogSaleUnit"
         ]
@@ -8823,7 +9438,7 @@
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "Catalog sale unit ID",
+            "description": "ID единицы продажи",
             "schema": {
               "type": "string"
             }
@@ -8841,10 +9456,10 @@
             }
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Доступ запрещен"
           },
           "404": {
-            "description": "Sale unit not found"
+            "description": "Единица продажи не найдена"
           }
         },
         "security": [
@@ -8852,9 +9467,494 @@
             "csrf": []
           }
         ],
-        "summary": "Archive current catalog sale unit",
+        "summary": "Архивировать единицу продажи текущего каталога",
         "tags": [
           "CatalogSaleUnit"
+        ]
+      }
+    },
+    "/catalog-modifier": {
+      "get": {
+        "operationId": "CatalogModifierController_getState",
+        "parameters": [
+          {
+            "name": "includeArchived",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogModifierStateDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Состояние модификаторов текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      }
+    },
+    "/catalog-modifier/groups": {
+      "get": {
+        "operationId": "CatalogModifierController_getGroups",
+        "parameters": [
+          {
+            "name": "includeArchived",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogModifierGroupDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Список групп модификаторов текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      },
+      "post": {
+        "operationId": "CatalogModifierController_createGroup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCatalogModifierGroupDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogModifierGroupDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Создать группу модификаторов текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      }
+    },
+    "/catalog-modifier/groups/{id}": {
+      "patch": {
+        "operationId": "CatalogModifierController_updateGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCatalogModifierGroupDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogModifierGroupDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Группа модификаторов не найдена"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Обновить группу модификаторов текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      },
+      "delete": {
+        "operationId": "CatalogModifierController_archiveGroup",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Группа модификаторов не найдена"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Архивировать группу модификаторов текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      }
+    },
+    "/catalog-modifier/options": {
+      "get": {
+        "operationId": "CatalogModifierController_getOptions",
+        "parameters": [
+          {
+            "name": "includeArchived",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeInactive",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogModifierOptionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Список опций модификаторов текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      },
+      "post": {
+        "operationId": "CatalogModifierController_createOption",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCatalogModifierOptionDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogModifierOptionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Создать опцию модификатора текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      }
+    },
+    "/catalog-modifier/options/{id}": {
+      "patch": {
+        "operationId": "CatalogModifierController_updateOption",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCatalogModifierOptionDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogModifierOptionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Опция модификатора не найдена"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Обновить опцию модификатора текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      },
+      "delete": {
+        "operationId": "CatalogModifierController_archiveOption",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Опция модификатора не найдена"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Архивировать опцию модификатора текущего каталога",
+        "tags": [
+          "CatalogModifier"
+        ]
+      }
+    },
+    "/catalog-modifier/products/{productId}": {
+      "get": {
+        "operationId": "CatalogModifierController_getProductModifiers",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductModifierGroupDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Список модификаторов товара",
+        "tags": [
+          "CatalogModifier"
+        ]
+      },
+      "put": {
+        "operationId": "CatalogModifierController_setProductModifiers",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetProductModifiersDtoReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductModifierGroupDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Товар не найден"
+          }
+        },
+        "security": [
+          {
+            "csrf": []
+          }
+        ],
+        "summary": "Заменить модификаторы товара",
+        "tags": [
+          "CatalogModifier"
         ]
       }
     },
@@ -8866,7 +9966,7 @@
             "name": "includeEmpty",
             "required": false,
             "in": "query",
-            "description": "Если false, вернет только категории с активными товарами. По умолчанию true.",
+            "description": "Для владельца каталога может вернуть пустые категории. Для клиента пустые категории скрываются.",
             "schema": {
               "type": "boolean"
             }
@@ -9704,7 +10804,7 @@
             }
           }
         },
-        "summary": "Create or return the current cart by cookie token",
+        "summary": "Создать или вернуть текущую корзину по cookie-токену",
         "tags": [
           "Cart"
         ]
@@ -9724,7 +10824,7 @@
             }
           }
         },
-        "summary": "Get the current cart by cookie token",
+        "summary": "Получить текущую корзину по cookie-токену",
         "tags": [
           "Cart"
         ]
@@ -9734,10 +10834,10 @@
         "parameters": [],
         "responses": {
           "204": {
-            "description": "Current cart was deleted, or detached when it is already assigned to a manager"
+            "description": "Текущая корзина удалена или отвязана, если она уже закреплена за менеджером"
           }
         },
-        "summary": "Delete or detach the current cart by cookie token",
+        "summary": "Удалить или отвязать текущую корзину по cookie-токену",
         "tags": [
           "Cart"
         ]
@@ -9769,7 +10869,7 @@
             }
           }
         },
-        "summary": "Issue a public key for the current cart",
+        "summary": "Выдать публичный ключ для текущей корзины",
         "tags": [
           "Cart"
         ]
@@ -9801,7 +10901,7 @@
             }
           }
         },
-        "summary": "Submit the current cart as a hall table order",
+        "summary": "Отправить текущую корзину как заказ за столом",
         "tags": [
           "Cart"
         ]
@@ -9815,7 +10915,7 @@
             "name": "code",
             "required": true,
             "in": "path",
-            "description": "Short backend-stored hall table code",
+            "description": "Короткий код стола, сохраненный на backend",
             "schema": {
               "example": "Ab7Kp92x",
               "type": "string"
@@ -9834,7 +10934,7 @@
             }
           }
         },
-        "summary": "Resolve a short hall table code for display",
+        "summary": "Получить данные стола по короткому коду",
         "tags": [
           "Cart"
         ]
@@ -9856,7 +10956,7 @@
             }
           }
         },
-        "summary": "List iiko hall tables with active cart sessions",
+        "summary": "Список столов iiko с активными корзинами",
         "tags": [
           "Cart"
         ]
@@ -9870,7 +10970,7 @@
             "name": "code",
             "required": true,
             "in": "path",
-            "description": "Short backend-stored hall table code",
+            "description": "Короткий код стола, сохраненный на backend",
             "schema": {
               "example": "Ab7Kp92x",
               "type": "string"
@@ -9899,7 +10999,7 @@
             }
           }
         },
-        "summary": "Create or return a shared cart session for a hall table",
+        "summary": "Создать или вернуть общую сессию корзины для стола",
         "tags": [
           "Cart"
         ]
@@ -9918,7 +11018,7 @@
               },
               "examples": {
                 "base": {
-                  "summary": "Add two units of a product",
+                  "summary": "Добавить две единицы товара",
                   "value": {
                     "productId": "d084ec3f-55cb-4ba4-9f50-c18fd01ea124",
                     "variantId": "9f3f4ec2-9f74-4e03-b8cf-95ce5449cb8e",
@@ -9941,7 +11041,7 @@
             }
           }
         },
-        "summary": "Upsert an item in the current cart",
+        "summary": "Добавить или обновить позицию в текущей корзине",
         "tags": [
           "Cart"
         ]
@@ -9955,7 +11055,7 @@
             "name": "itemId",
             "required": true,
             "in": "path",
-            "description": "Cart item id",
+            "description": "ID позиции корзины",
             "schema": {
               "example": "fc31fd15-6f7e-4fb1-a594-34fa14f6ef0c",
               "type": "string"
@@ -9974,7 +11074,7 @@
             }
           }
         },
-        "summary": "Remove an item from the current cart",
+        "summary": "Удалить позицию из текущей корзины",
         "tags": [
           "Cart"
         ]
@@ -9995,7 +11095,7 @@
           {
             "name": "Last-Event-ID",
             "in": "header",
-            "description": "Last received Redis Stream event id for SSE replay",
+            "description": "ID последнего полученного события Redis Stream для SSE-replay",
             "required": false,
             "schema": {
               "type": "string"
@@ -10004,7 +11104,7 @@
         ],
         "responses": {
           "200": {
-            "description": "SSE events: connected, ping, cart.updated, cart.status_changed",
+            "description": "SSE-события: connected, ping, cart.updated, cart.status_changed",
             "content": {
               "text/event-stream": {
                 "schema": {
@@ -10015,7 +11115,7 @@
             }
           }
         },
-        "summary": "SSE stream for the current cart",
+        "summary": "SSE-поток текущей корзины",
         "tags": [
           "Cart"
         ]
@@ -10029,7 +11129,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10048,7 +11148,7 @@
             }
           }
         },
-        "summary": "Get a public cart by public key",
+        "summary": "Получить публичную корзину по ключу",
         "tags": [
           "Cart"
         ]
@@ -10062,7 +11162,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10081,7 +11181,7 @@
             }
           }
         },
-        "summary": "Mark a cart as being processed by a manager",
+        "summary": "Закрепить корзину за менеджером",
         "tags": [
           "Cart"
         ]
@@ -10095,7 +11195,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10114,7 +11214,7 @@
             }
           }
         },
-        "summary": "Refresh manager presence for a cart",
+        "summary": "Обновить присутствие менеджера в корзине",
         "tags": [
           "Cart"
         ]
@@ -10128,7 +11228,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10147,7 +11247,7 @@
             }
           }
         },
-        "summary": "Move a cart to PAUSED after manager processing",
+        "summary": "Перевести корзину в PAUSED после работы менеджера",
         "tags": [
           "Cart"
         ]
@@ -10161,7 +11261,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10190,7 +11290,7 @@
             }
           }
         },
-        "summary": "Convert a shared cart to a completed order",
+        "summary": "Преобразовать общую корзину в завершенный заказ",
         "tags": [
           "Cart"
         ]
@@ -10204,7 +11304,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10223,7 +11323,7 @@
             }
           }
         },
-        "summary": "Close an open shared hall table cart",
+        "summary": "Закрыть открытую общую корзину стола",
         "tags": [
           "Cart"
         ]
@@ -10237,7 +11337,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10256,7 +11356,7 @@
             }
           }
         },
-        "summary": "Reset an open shared hall table cart",
+        "summary": "Сбросить открытую общую корзину стола",
         "tags": [
           "Cart"
         ]
@@ -10270,7 +11370,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10299,7 +11399,7 @@
             }
           }
         },
-        "summary": "Confirm a shared hall table cart and send it to iiko",
+        "summary": "Подтвердить общую корзину стола и отправить заказ в iiko",
         "tags": [
           "Cart"
         ]
@@ -10313,9 +11413,18 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-cart-guest-token",
+            "required": false,
+            "in": "header",
+            "description": "Нужен для действий гостя за столом",
+            "schema": {
               "type": "string"
             }
           }
@@ -10342,7 +11451,7 @@
             }
           }
         },
-        "summary": "Send a public shared hall table cart to waiter confirmation",
+        "summary": "Отправить публичную корзину стола на подтверждение официанту",
         "tags": [
           "Cart"
         ]
@@ -10356,9 +11465,18 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-cart-guest-token",
+            "required": false,
+            "in": "header",
+            "description": "Нужен для действий гостя за столом",
+            "schema": {
               "type": "string"
             }
           }
@@ -10372,7 +11490,7 @@
               },
               "examples": {
                 "base": {
-                  "summary": "Add a product to the public cart",
+                  "summary": "Добавить товар в публичную корзину",
                   "value": {
                     "productId": "d084ec3f-55cb-4ba4-9f50-c18fd01ea124",
                     "variantId": "9f3f4ec2-9f74-4e03-b8cf-95ce5449cb8e",
@@ -10395,7 +11513,7 @@
             }
           }
         },
-        "summary": "Upsert an item in a public cart",
+        "summary": "Добавить или обновить позицию в публичной корзине",
         "tags": [
           "Cart"
         ]
@@ -10409,9 +11527,18 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-cart-guest-token",
+            "required": false,
+            "in": "header",
+            "description": "Нужен для действий гостя за столом",
+            "schema": {
               "type": "string"
             }
           },
@@ -10419,7 +11546,7 @@
             "name": "itemId",
             "required": true,
             "in": "path",
-            "description": "Cart item id",
+            "description": "ID позиции корзины",
             "schema": {
               "example": "fc31fd15-6f7e-4fb1-a594-34fa14f6ef0c",
               "type": "string"
@@ -10438,7 +11565,7 @@
             }
           }
         },
-        "summary": "Remove an item from a public cart",
+        "summary": "Удалить позицию из публичной корзины",
         "tags": [
           "Cart"
         ]
@@ -10452,7 +11579,7 @@
             "name": "publicKey",
             "required": true,
             "in": "path",
-            "description": "Public cart key",
+            "description": "Публичный ключ корзины",
             "schema": {
               "example": "5f7ec4ac9cc6c392419eec11850d45f1",
               "type": "string"
@@ -10469,7 +11596,7 @@
           {
             "name": "Last-Event-ID",
             "in": "header",
-            "description": "Last received Redis Stream event id for SSE replay",
+            "description": "ID последнего полученного события Redis Stream для SSE-replay",
             "required": false,
             "schema": {
               "type": "string"
@@ -10478,7 +11605,7 @@
         ],
         "responses": {
           "200": {
-            "description": "SSE events: connected, ping, cart.updated, cart.status_changed",
+            "description": "SSE-события: connected, ping, cart.updated, cart.status_changed",
             "content": {
               "text/event-stream": {
                 "schema": {
@@ -10489,7 +11616,7 @@
             }
           }
         },
-        "summary": "SSE stream for a public cart",
+        "summary": "SSE-поток публичной корзины",
         "tags": [
           "Cart"
         ]
@@ -11327,6 +12454,7 @@
             "enum": [
               "CATALOG",
               "USER",
+              "GEO_ADMIN",
               "ADMIN"
             ]
           }
@@ -11460,6 +12588,7 @@
           },
           "browser": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AuthSessionBrowserDto"
@@ -11468,6 +12597,7 @@
           },
           "os": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AuthSessionOsDto"
@@ -11476,6 +12606,7 @@
           },
           "device": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AuthSessionDeviceDto"
@@ -11484,6 +12615,7 @@
           },
           "geo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AuthSessionGeoDto"
@@ -11875,6 +13007,14 @@
             "type": "boolean",
             "description": "Whether the catalog can use catalog sale units."
           },
+          "canUseCatalogModifiers": {
+            "type": "boolean",
+            "description": "Whether the catalog can use product modifiers."
+          },
+          "canUseCatalogPriceLists": {
+            "type": "boolean",
+            "description": "Whether the catalog can use catalog price lists."
+          },
           "canUseInternalInventory": {
             "type": "boolean",
             "description": "Whether the catalog can use the paid internal inventory feature."
@@ -11886,6 +13026,10 @@
           "canUseIikoIntegration": {
             "type": "boolean",
             "description": "Whether the catalog can use iiko integration."
+          },
+          "canUseOneCIntegration": {
+            "type": "boolean",
+            "description": "Whether the catalog can use 1C integration."
           }
         },
         "required": [
@@ -11894,9 +13038,12 @@
           "canUseProductTypes",
           "canUseProductVariants",
           "canUseCatalogSaleUnits",
+          "canUseCatalogModifiers",
+          "canUseCatalogPriceLists",
           "canUseInternalInventory",
           "canUseMoySkladIntegration",
-          "canUseIikoIntegration"
+          "canUseIikoIntegration",
+          "canUseOneCIntegration"
         ]
       },
       "AdminDeleteInfoDto": {
@@ -12050,6 +13197,7 @@
           },
           "deleteInfo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminDeleteInfoDto"
@@ -12102,6 +13250,7 @@
           },
           "deleteInfo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminDeleteInfoDto"
@@ -12160,6 +13309,81 @@
           "name"
         ]
       },
+      "AdminCountryListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name"
+        ]
+      },
+      "AdminRegionalityListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "countryName": {
+            "type": "string"
+          },
+          "country": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminCountryListItemDto"
+              }
+            ]
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "countryCode",
+          "countryName"
+        ]
+      },
       "AdminCatalogChildListItemDto": {
         "type": "object",
         "properties": {
@@ -12180,13 +13404,20 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "regionalities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminRegionalityListItemDto"
+            }
           }
         },
         "required": [
           "id",
           "slug",
           "domain",
-          "name"
+          "name",
+          "regionalities"
         ]
       },
       "AdminCatalogListItemDto": {
@@ -12230,6 +13461,7 @@
           },
           "config": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminCatalogConfigListItemDto"
@@ -12252,6 +13484,7 @@
           },
           "deleteInfo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminDeleteInfoDto"
@@ -12268,6 +13501,7 @@
           },
           "logoMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -12279,6 +13513,7 @@
           },
           "promoCode": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminPromoCodeListItemDto"
@@ -12289,6 +13524,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AdminCatalogActivityListItemDto"
+            }
+          },
+          "regionalities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminRegionalityListItemDto"
             }
           },
           "children": {
@@ -12313,6 +13554,7 @@
           "type",
           "promoCode",
           "activities",
+          "regionalities",
           "children"
         ]
       },
@@ -12331,6 +13573,16 @@
             "example": [
               "activity uuid"
             ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regionalityIds": {
+            "example": [
+              "regionality uuid"
+            ],
+            "description": "Country/region bindings through the regionality directory.",
             "type": "array",
             "items": {
               "type": "string"
@@ -12474,6 +13726,16 @@
               "type": "string"
             }
           },
+          "regionalityIds": {
+            "example": [
+              "regionality uuid"
+            ],
+            "description": "Full country/region bindings through the regionality directory. Pass an empty array to clear.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "metricId": {
             "type": "string",
             "example": "108517746",
@@ -12523,6 +13785,8 @@
               "product.types",
               "product.variants",
               "catalog.sale_units",
+              "catalog.modifiers",
+              "catalog.price_lists",
               "inventory.internal",
               "integration.moysklad",
               "integration.iiko",
@@ -13027,6 +14291,7 @@
           },
           "diagnostics": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminMoySkladStockDiagnosticsDto"
@@ -13105,6 +14370,7 @@
           },
           "latestRun": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminMoySkladStockLatestRunDto"
@@ -13135,6 +14401,8 @@
               "product.types",
               "product.variants",
               "catalog.sale_units",
+              "catalog.modifiers",
+              "catalog.price_lists",
               "inventory.internal",
               "integration.moysklad",
               "integration.iiko",
@@ -13236,6 +14504,197 @@
           "counts"
         ]
       },
+      "Role": {
+        "type": "string",
+        "enum": [
+          "CATALOG",
+          "USER",
+          "GEO_ADMIN",
+          "ADMIN"
+        ]
+      },
+      "AdminGeoAdminListItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "login": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "example": "GEO_ADMIN",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Role"
+              }
+            ]
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCountryListItemDto"
+            }
+          },
+          "regionalities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminRegionalityListItemDto"
+            }
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "login",
+          "name",
+          "role",
+          "countries",
+          "regionalities"
+        ]
+      },
+      "AdminCreateGeoAdminDtoReq": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "example": "geo-chechnya",
+            "description": "If omitted, login is generated automatically."
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "If omitted, password is generated automatically."
+          },
+          "name": {
+            "type": "string",
+            "example": "Админ Чеченской республики"
+          },
+          "countryIds": {
+            "example": [
+              "00000000-0000-0000-0000-000000000000"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "regionalityIds": {
+            "example": [
+              "00000000-0000-0000-0000-000000000000"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "AdminCreatedGeoAdminCredentialsDto": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "login",
+          "password"
+        ]
+      },
+      "AdminCreateGeoAdminResponseDto": {
+        "type": "object",
+        "properties": {
+          "admin": {
+            "$ref": "#/components/schemas/AdminGeoAdminListItemDto"
+          },
+          "credentials": {
+            "$ref": "#/components/schemas/AdminCreatedGeoAdminCredentialsDto"
+          }
+        },
+        "required": [
+          "admin",
+          "credentials"
+        ]
+      },
+      "AdminCreateCountryDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Россия"
+          },
+          "code": {
+            "type": "string",
+            "example": "RU",
+            "description": "If omitted, generated from name."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "AdminCreateRegionalityDtoReq": {
+        "type": "object",
+        "properties": {
+          "countryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Existing country id. If provided, countryName/countryCode are ignored."
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Parent region id for nested regional directories."
+          },
+          "countryName": {
+            "type": "string",
+            "example": "Россия",
+            "description": "Required when countryId is not provided."
+          },
+          "countryCode": {
+            "type": "string",
+            "example": "RU",
+            "description": "If omitted, generated from countryName."
+          },
+          "regionName": {
+            "type": "string",
+            "example": "Чеченская республика"
+          },
+          "regionCode": {
+            "type": "string",
+            "example": "RU-CE",
+            "description": "If omitted, generated from countryCode and regionName."
+          }
+        },
+        "required": [
+          "regionName"
+        ]
+      },
       "AdminActivityListItemDto": {
         "type": "object",
         "properties": {
@@ -13252,6 +14711,7 @@
           },
           "deleteInfo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminDeleteInfoDto"
@@ -13376,6 +14836,7 @@
           },
           "deleteInfo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/AdminDeleteInfoDto"
@@ -13406,6 +14867,11 @@
             "example": "image/jpeg",
             "description": "MIME-тип файла"
           },
+          "contentLength": {
+            "type": "number",
+            "example": 1048576,
+            "description": "Размер файла в байтах"
+          },
           "path": {
             "type": "string",
             "example": "products/seo",
@@ -13421,7 +14887,8 @@
           }
         },
         "required": [
-          "contentType"
+          "contentType",
+          "contentLength"
         ]
       },
       "PresignUploadResponseDto": {
@@ -13942,6 +15409,9 @@
           "id": {
             "type": "string"
           },
+          "variantId": {
+            "type": "string"
+          },
           "catalogSaleUnitId": {
             "type": "string",
             "nullable": true
@@ -13983,6 +15453,7 @@
           },
           "catalogSaleUnit": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductVariantCatalogSaleUnitDto"
@@ -13992,6 +15463,7 @@
         },
         "required": [
           "id",
+          "variantId",
           "catalogSaleUnitId",
           "code",
           "name",
@@ -14233,6 +15705,7 @@
           },
           "enumValue": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductAttributeEnumValueDto"
@@ -14417,6 +15890,7 @@
           },
           "brand": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductBrandDto"
@@ -14425,6 +15899,7 @@
           },
           "productType": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductTypeRefDto"
@@ -14439,6 +15914,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductIntegrationDto"
@@ -14691,6 +16167,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductIntegrationDto"
@@ -14785,6 +16262,7 @@
           },
           "ogMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -14821,6 +16299,7 @@
           },
           "twitterMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -14829,6 +16308,7 @@
           },
           "faviconMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -14995,6 +16475,7 @@
           },
           "brand": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductBrandDto"
@@ -15003,6 +16484,7 @@
           },
           "productType": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductTypeRefDto"
@@ -15017,6 +16499,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductIntegrationDto"
@@ -15070,6 +16553,7 @@
           },
           "seo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/SeoDto"
@@ -15259,6 +16743,62 @@
           }
         }
       },
+      "CreateProductPriceListVariantAttributeDtoReq": {
+        "type": "object",
+        "properties": {
+          "attributeId": {
+            "type": "string",
+            "example": "attribute-uuid"
+          },
+          "enumValueId": {
+            "type": "string",
+            "example": "enum-value-uuid"
+          }
+        },
+        "required": [
+          "attributeId",
+          "enumValueId"
+        ]
+      },
+      "CreateProductPriceListPriceDtoReq": {
+        "type": "object",
+        "properties": {
+          "priceListId": {
+            "type": "string",
+            "example": "price-list-uuid"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "VARIANT",
+              "SALE_UNIT"
+            ],
+            "example": "PRODUCT"
+          },
+          "price": {
+            "type": "number",
+            "example": 999
+          },
+          "variantAttributes": {
+            "description": "Variant identity for VARIANT and variant-scoped SALE_UNIT prices during product creation.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateProductPriceListVariantAttributeDtoReq"
+            }
+          },
+          "catalogSaleUnitId": {
+            "type": "string",
+            "example": "catalog-sale-unit-uuid",
+            "description": "Required for SALE_UNIT prices."
+          }
+        },
+        "required": [
+          "priceListId",
+          "target",
+          "price"
+        ]
+      },
       "CreateProductDtoReq": {
         "type": "object",
         "properties": {
@@ -15330,6 +16870,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductVariantDtoReq"
+            }
+          },
+          "priceListPrices": {
+            "description": "Initial price-list prices. Backend resolves product, variant and sale-unit ids after creation.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateProductPriceListPriceDtoReq"
             }
           }
         },
@@ -15413,6 +16960,7 @@
           },
           "brand": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductBrandDto"
@@ -15421,6 +16969,7 @@
           },
           "productType": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductTypeRefDto"
@@ -15435,6 +16984,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductIntegrationDto"
@@ -15488,6 +17038,7 @@
           },
           "seo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/SeoDto"
@@ -15774,6 +17325,7 @@
           },
           "brand": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductBrandDto"
@@ -15782,6 +17334,7 @@
           },
           "productType": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductTypeRefDto"
@@ -15796,6 +17349,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductIntegrationDto"
@@ -15849,6 +17403,7 @@
           },
           "seo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/SeoDto"
@@ -16194,6 +17749,7 @@
           },
           "brand": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductBrandDto"
@@ -16202,6 +17758,7 @@
           },
           "productType": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductTypeRefDto"
@@ -16216,6 +17773,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ProductIntegrationDto"
@@ -16269,6 +17827,7 @@
           },
           "seo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/SeoDto"
@@ -16325,6 +17884,199 @@
         },
         "required": [
           "items"
+        ]
+      },
+      "CatalogPriceListDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "catalogId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "catalogId",
+          "code",
+          "name",
+          "isActive",
+          "displayOrder",
+          "deleteAt"
+        ]
+      },
+      "CreateCatalogPriceListDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Retail"
+          },
+          "code": {
+            "type": "string",
+            "example": "retail"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCatalogPriceListDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Retail"
+          },
+          "code": {
+            "type": "string",
+            "example": "retail"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "CatalogPriceListPriceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "priceListId": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "VARIANT",
+              "SALE_UNIT"
+            ]
+          },
+          "targetId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "saleUnitId": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "string",
+            "example": "1200.00"
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "priceListId",
+          "target",
+          "targetId",
+          "productId",
+          "variantId",
+          "saleUnitId",
+          "price",
+          "deleteAt"
+        ]
+      },
+      "CatalogPriceListPriceInputDtoReq": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "VARIANT",
+              "SALE_UNIT"
+            ]
+          },
+          "targetId": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "nullable": true,
+            "description": "Null удаляет цену из этого прайс-листа."
+          }
+        },
+        "required": [
+          "target",
+          "targetId"
+        ]
+      },
+      "BulkUpsertCatalogPriceListPricesDtoReq": {
+        "type": "object",
+        "properties": {
+          "prices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogPriceListPriceInputDtoReq"
+            }
+          }
+        },
+        "required": [
+          "prices"
+        ]
+      },
+      "SetActivePriceListDtoReq": {
+        "type": "object",
+        "properties": {
+          "activePriceListId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ActiveCatalogPriceListDto": {
+        "type": "object",
+        "properties": {
+          "activePriceListId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "activePriceListId"
         ]
       },
       "AttributeEnumValueAliasDto": {
@@ -16790,14 +18542,6 @@
           }
         }
       },
-      "Role": {
-        "type": "string",
-        "enum": [
-          "CATALOG",
-          "USER",
-          "ADMIN"
-        ]
-      },
       "CreateUserDtoReq": {
         "type": "object",
         "properties": {
@@ -16830,13 +18574,22 @@
             "items": {
               "type": "string"
             }
+          },
+          "countryIds": {
+            "example": [
+              "countryId1",
+              "countryId2"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
           "login",
           "password",
-          "name",
-          "role"
+          "name"
         ]
       },
       "CatalogDomainDnsRecordDto": {
@@ -16882,6 +18635,7 @@
           },
           "wwwRecord": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CatalogDomainDnsRecordDto"
@@ -17574,6 +19328,7 @@
           },
           "diagnostics": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MoySkladSyncStockDiagnosticsDto"
@@ -17779,6 +19534,7 @@
           },
           "progress": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MoySkladSyncProgressDto"
@@ -17850,6 +19606,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MoySkladIntegrationDto"
@@ -17858,6 +19615,7 @@
           },
           "activeRun": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MoySkladSyncRunDto"
@@ -17866,6 +19624,7 @@
           },
           "lastRun": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MoySkladSyncRunDto"
@@ -18265,6 +20024,13 @@
             "type": "string",
             "nullable": true
           },
+          "appId": {
+            "type": "string",
+            "nullable": true
+          },
+          "hasClientSecret": {
+            "type": "boolean"
+          },
           "organizationId": {
             "type": "string"
           },
@@ -18387,6 +20153,8 @@
           "isActive",
           "hasApiLogin",
           "apiLoginPreview",
+          "appId",
+          "hasClientSecret",
           "organizationId",
           "organizationName",
           "externalMenuId",
@@ -18522,6 +20290,7 @@
           },
           "progress": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MoySkladSyncProgressDto"
@@ -18593,6 +20362,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/IikoIntegrationDto"
@@ -18601,6 +20371,7 @@
           },
           "activeRun": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/IikoSyncRunDto"
@@ -18609,6 +20380,7 @@
           },
           "lastRun": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/IikoSyncRunDto"
@@ -18765,6 +20537,14 @@
             "type": "string",
             "example": "demo-api-login"
           },
+          "appId": {
+            "type": "string",
+            "example": "15"
+          },
+          "clientSecret": {
+            "type": "string",
+            "example": "sk_live_abc123def456"
+          },
           "organizationId": {
             "type": "string",
             "example": "9d97b2a1-0000-0000-0000-000000000001"
@@ -18847,6 +20627,16 @@
             "type": "string",
             "example": "demo-api-login"
           },
+          "appId": {
+            "type": "string",
+            "nullable": true,
+            "example": "15"
+          },
+          "clientSecret": {
+            "type": "string",
+            "nullable": true,
+            "example": "sk_live_abc123def456"
+          },
           "organizationId": {
             "type": "string",
             "example": "9d97b2a1-0000-0000-0000-000000000001"
@@ -18924,6 +20714,14 @@
           "apiLogin": {
             "type": "string",
             "example": "demo-api-login"
+          },
+          "appId": {
+            "type": "string",
+            "example": "15"
+          },
+          "clientSecret": {
+            "type": "string",
+            "example": "sk_live_abc123def456"
           }
         }
       },
@@ -19052,6 +20850,14 @@
           "apiLogin": {
             "type": "string",
             "description": "Optional apiLogin override. If omitted, saved iiko credentials are used."
+          },
+          "appId": {
+            "type": "string",
+            "example": "15"
+          },
+          "clientSecret": {
+            "type": "string",
+            "example": "sk_live_abc123def456"
           },
           "organizationId": {
             "type": "string",
@@ -19401,6 +21207,7 @@
           },
           "logoMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -19409,6 +21216,7 @@
           },
           "bgMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -19537,6 +21345,10 @@
           "yandexVerification": {
             "type": "string",
             "nullable": true
+          },
+          "activePriceListId": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -19547,7 +21359,8 @@
           "address",
           "checkout",
           "googleVerification",
-          "yandexVerification"
+          "yandexVerification",
+          "activePriceListId"
         ]
       },
       "CatalogMetricDto": {
@@ -19600,6 +21413,14 @@
             "type": "boolean",
             "description": "Whether the current catalog can use catalog sale units."
           },
+          "canUseCatalogModifiers": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use product modifiers."
+          },
+          "canUseCatalogPriceLists": {
+            "type": "boolean",
+            "description": "Whether the current catalog can use catalog price lists."
+          },
           "canUseInternalInventory": {
             "type": "boolean",
             "description": "Whether the current catalog can use the paid internal inventory feature."
@@ -19650,6 +21471,8 @@
           "canUseProductTypes",
           "canUseProductVariants",
           "canUseCatalogSaleUnits",
+          "canUseCatalogModifiers",
+          "canUseCatalogPriceLists",
           "canUseInternalInventory",
           "canUseMoySkladIntegration",
           "canUseIikoIntegration",
@@ -19766,6 +21589,7 @@
           },
           "config": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CatalogConfigDto"
@@ -19774,6 +21598,7 @@
           },
           "settings": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CatalogSettingsDto"
@@ -19797,6 +21622,7 @@
           },
           "seo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/SeoDto"
@@ -19871,6 +21697,7 @@
           },
           "config": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CatalogConfigDto"
@@ -19879,6 +21706,7 @@
           },
           "settings": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CatalogSettingsDto"
@@ -19902,6 +21730,7 @@
           },
           "seo": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/SeoDto"
@@ -20123,6 +21952,7 @@
           },
           "config": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CatalogConfigDto"
@@ -20131,6 +21961,7 @@
           },
           "settings": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CatalogSettingsDto"
@@ -21461,6 +23292,7 @@
           },
           "progress": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/OneCSyncProgressDto"
@@ -21529,6 +23361,7 @@
           },
           "integration": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/OneCIntegrationDto"
@@ -21537,6 +23370,7 @@
           },
           "activeRun": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/OneCSyncRunDto"
@@ -21545,6 +23379,7 @@
           },
           "lastRun": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/OneCSyncRunDto"
@@ -21761,6 +23596,7 @@
           },
           "externalObject": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/OneCExternalObjectDto"
@@ -21814,6 +23650,7 @@
           },
           "mapping": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/OneCEntityMappingDto"
@@ -21848,6 +23685,77 @@
           },
           "mapping": {
             "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCEntityMappingDto"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ok",
+          "ready",
+          "mappingId",
+          "mapping",
+          "reason"
+        ]
+      },
+      "OneCRecommendedStockMappingDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "mappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapping": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OneCEntityMappingDto"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "ok",
+          "ready",
+          "mappingId",
+          "mapping",
+          "reason"
+        ]
+      },
+      "OneCRecommendedPriceMappingDto": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "mappingId": {
+            "type": "string",
+            "nullable": true
+          },
+          "mapping": {
+            "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/OneCEntityMappingDto"
@@ -24071,6 +25979,571 @@
           }
         }
       },
+      "CatalogModifierOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "catalogId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultPrice": {
+            "type": "string",
+            "example": "100.00"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "catalogId",
+          "code",
+          "name",
+          "description",
+          "defaultPrice",
+          "isActive",
+          "displayOrder",
+          "deleteAt"
+        ]
+      },
+      "CatalogModifierGroupOptionDto": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string"
+          },
+          "optionId": {
+            "type": "string"
+          },
+          "defaultPrice": {
+            "type": "string",
+            "nullable": true,
+            "example": "100.00"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "option": {
+            "$ref": "#/components/schemas/CatalogModifierOptionDto"
+          }
+        },
+        "required": [
+          "groupId",
+          "optionId",
+          "defaultPrice",
+          "isDefault",
+          "isActive",
+          "displayOrder",
+          "option"
+        ]
+      },
+      "CatalogModifierGroupDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "catalogId": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "minSelected": {
+            "type": "number"
+          },
+          "maxSelected": {
+            "type": "number",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "deleteAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogModifierGroupOptionDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "catalogId",
+          "code",
+          "name",
+          "description",
+          "isRequired",
+          "minSelected",
+          "maxSelected",
+          "isActive",
+          "displayOrder",
+          "deleteAt",
+          "options"
+        ]
+      },
+      "CatalogModifierStateDto": {
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogModifierGroupDto"
+            }
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogModifierOptionDto"
+            }
+          }
+        },
+        "required": [
+          "groups",
+          "options"
+        ]
+      },
+      "CatalogModifierGroupOptionDtoReq": {
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "defaultPrice": {
+            "type": "number",
+            "nullable": true,
+            "example": 100
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "optionId"
+        ]
+      },
+      "CreateCatalogModifierGroupDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Add-ons"
+          },
+          "code": {
+            "type": "string",
+            "example": "add-ons"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "minSelected": {
+            "type": "number",
+            "example": 0
+          },
+          "maxSelected": {
+            "type": "number",
+            "nullable": true,
+            "example": 3
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogModifierGroupOptionDtoReq"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCatalogModifierGroupDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Add-ons"
+          },
+          "code": {
+            "type": "string",
+            "example": "add-ons"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "minSelected": {
+            "type": "number",
+            "example": 0
+          },
+          "maxSelected": {
+            "type": "number",
+            "nullable": true,
+            "example": 3
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogModifierGroupOptionDtoReq"
+            }
+          }
+        }
+      },
+      "CreateCatalogModifierOptionDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Extra cheese"
+          },
+          "code": {
+            "type": "string",
+            "example": "extra-cheese"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultPrice": {
+            "type": "number",
+            "example": 100
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCatalogModifierOptionDtoReq": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Extra cheese"
+          },
+          "code": {
+            "type": "string",
+            "example": "extra-cheese"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultPrice": {
+            "type": "number",
+            "example": 100
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "ProductModifierOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productModifierGroupId": {
+            "type": "string"
+          },
+          "catalogModifierOptionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "string",
+            "example": "100.00"
+          },
+          "maxQuantity": {
+            "type": "number",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "productModifierGroupId",
+          "catalogModifierOptionId",
+          "code",
+          "name",
+          "price",
+          "maxQuantity",
+          "isDefault",
+          "isAvailable",
+          "displayOrder"
+        ]
+      },
+      "ProductModifierGroupDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "variantId": {
+            "type": "string",
+            "nullable": true
+          },
+          "catalogModifierGroupId": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "PRODUCT",
+              "VARIANT"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "minSelected": {
+            "type": "number"
+          },
+          "maxSelected": {
+            "type": "number",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductModifierOptionDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "variantId",
+          "catalogModifierGroupId",
+          "scope",
+          "code",
+          "name",
+          "description",
+          "isRequired",
+          "minSelected",
+          "maxSelected",
+          "isActive",
+          "displayOrder",
+          "options"
+        ]
+      },
+      "ProductModifierOptionBindingDtoReq": {
+        "type": "object",
+        "properties": {
+          "catalogModifierOptionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "extra-cheese"
+          },
+          "name": {
+            "type": "string",
+            "example": "Extra cheese"
+          },
+          "price": {
+            "type": "number",
+            "example": 100
+          },
+          "maxQuantity": {
+            "type": "number",
+            "nullable": true,
+            "example": 2
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          }
+        }
+      },
+      "ProductModifierGroupBindingDtoReq": {
+        "type": "object",
+        "properties": {
+          "variantId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "catalogModifierGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "example": "add-ons"
+          },
+          "name": {
+            "type": "string",
+            "example": "Add-ons"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "minSelected": {
+            "type": "number",
+            "example": 0
+          },
+          "maxSelected": {
+            "type": "number",
+            "nullable": true,
+            "example": 3
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "number",
+            "example": 0
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductModifierOptionBindingDtoReq"
+            }
+          }
+        }
+      },
+      "SetProductModifiersDtoReq": {
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductModifierGroupBindingDtoReq"
+            }
+          }
+        },
+        "required": [
+          "groups"
+        ]
+      },
       "CategoryDto": {
         "type": "object",
         "properties": {
@@ -24095,6 +26568,7 @@
           },
           "imageMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -24165,6 +26639,7 @@
           },
           "imageMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -24204,6 +26679,7 @@
           },
           "imageMedia": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/MediaDto"
@@ -24228,6 +26704,7 @@
           },
           "parent": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CategoryParentDto"
@@ -25061,6 +27538,68 @@
           "displayOrder"
         ]
       },
+      "CartItemModifierDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productModifierGroupId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "productModifierOptionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "catalogModifierGroupId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "catalogModifierOptionId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "groupCode": {
+            "type": "string"
+          },
+          "groupName": {
+            "type": "string"
+          },
+          "optionCode": {
+            "type": "string"
+          },
+          "optionName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1
+          },
+          "unitPrice": {
+            "type": "number",
+            "example": 100
+          }
+        },
+        "required": [
+          "id",
+          "productModifierGroupId",
+          "productModifierOptionId",
+          "catalogModifierGroupId",
+          "catalogModifierOptionId",
+          "groupCode",
+          "groupName",
+          "optionCode",
+          "optionName",
+          "quantity",
+          "unitPrice"
+        ]
+      },
       "CartItemDto": {
         "type": "object",
         "properties": {
@@ -25082,6 +27621,19 @@
             "format": "uuid",
             "nullable": true
           },
+          "priceListId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "priceListCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceListName": {
+            "type": "string",
+            "nullable": true
+          },
           "guestSessionId": {
             "type": "string",
             "nullable": true
@@ -25098,11 +27650,18 @@
             "type": "number",
             "example": 12
           },
+          "unitPriceSnapshot": {
+            "type": "number",
+            "nullable": true,
+            "example": 1999,
+            "description": "Снимок цены единицы на момент добавления в корзину"
+          },
           "product": {
             "$ref": "#/components/schemas/CartProductShortDto"
           },
           "variant": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CartVariantDto"
@@ -25111,11 +27670,18 @@
           },
           "saleUnit": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CartSaleUnitDto"
               }
             ]
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartItemModifierDto"
+            }
           },
           "unitPrice": {
             "type": "number",
@@ -25157,6 +27723,7 @@
           "product",
           "variant",
           "saleUnit",
+          "modifiers",
           "unitPrice",
           "baseUnitPrice",
           "discountPercent",
@@ -25391,6 +27958,7 @@
           },
           "tableSession": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CartTableSessionDto"
@@ -25524,6 +28092,19 @@
             "format": "uuid",
             "nullable": true
           },
+          "priceListId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "priceListCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceListName": {
+            "type": "string",
+            "nullable": true
+          },
           "guestSessionId": {
             "type": "string",
             "nullable": true
@@ -25557,6 +28138,7 @@
           },
           "variant": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CartVariantDto"
@@ -25565,6 +28147,7 @@
           },
           "saleUnit": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CartSaleUnitDto"
@@ -25577,6 +28160,9 @@
           "productId",
           "variantId",
           "saleUnitId",
+          "priceListId",
+          "priceListCode",
+          "priceListName",
           "guestSessionId",
           "guestName",
           "quantity",
@@ -25746,6 +28332,7 @@
           },
           "session": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CartTableSessionDto"
@@ -25754,6 +28341,7 @@
           },
           "cart": {
             "nullable": true,
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CartDto"
@@ -25822,6 +28410,10 @@
             "maxLength": 64,
             "example": "guest-f2b8b2"
           },
+          "guestToken": {
+            "type": "string",
+            "description": "Private token proving ownership of guestSessionId"
+          },
           "guestName": {
             "type": "string",
             "maxLength": 120,
@@ -25849,13 +28441,18 @@
           "guestSessionId": {
             "type": "string",
             "nullable": true
+          },
+          "guestToken": {
+            "type": "string",
+            "description": "Private token required to mutate this guest lines"
           }
         },
         "required": [
           "session",
           "cart",
           "publicKey",
-          "guestSessionId"
+          "guestSessionId",
+          "guestToken"
         ]
       },
       "HallTableSessionResponseDto": {
@@ -25872,6 +28469,29 @@
         "required": [
           "ok",
           "tableSession"
+        ]
+      },
+      "UpsertCartItemModifierDtoReq": {
+        "type": "object",
+        "properties": {
+          "productModifierGroupId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "98bb7b9d-56d5-4fbf-996e-2b8060be5dd3"
+          },
+          "productModifierOptionId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "0f4e8b71-3d7f-477d-89f4-b510bbfef9e2"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "productModifierGroupId",
+          "productModifierOptionId"
         ]
       },
       "UpsertCartItemDtoReq": {
@@ -25907,6 +28527,12 @@
             "type": "string",
             "maxLength": 120,
             "example": "Гость 1"
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertCartItemModifierDtoReq"
+            }
           }
         },
         "required": [
@@ -25947,6 +28573,12 @@
             "type": "string",
             "maxLength": 120,
             "example": "Гость 1"
+          },
+          "modifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertCartItemModifierDtoReq"
+            }
           }
         },
         "required": [

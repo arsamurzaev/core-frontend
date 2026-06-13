@@ -225,6 +225,7 @@ export function useCreateProductDrawer(
     modifierDrafts,
     open: drawerOpen,
     pendingSwapIndex: imageEditor.pendingSwapIndex,
+    priceFormatMode,
     priceListPriceDrafts,
     removeFile: imageEditor.removeFile,
     uploadState: imageEditor.uploadState,

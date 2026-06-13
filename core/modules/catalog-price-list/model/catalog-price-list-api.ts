@@ -18,7 +18,6 @@ export type CatalogPriceList = {
   catalogId: string;
   code: string;
   name: string;
-  description: string | null;
   isActive: boolean;
   displayOrder: number;
   deleteAt: string | null;
@@ -45,7 +44,6 @@ export type CatalogPriceListListFilters = {
 
 export type CatalogPriceListPayload = {
   code?: string;
-  description?: string | null;
   displayOrder?: number;
   isActive?: boolean;
   name?: string;

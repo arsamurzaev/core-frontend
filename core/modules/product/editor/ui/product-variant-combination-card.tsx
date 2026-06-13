@@ -14,7 +14,10 @@ import {
   VARIANT_STATUS_LABEL,
   VARIANT_STATUS_OPTIONS,
 } from "@/core/modules/product/editor/model/product-variants-field-model";
-import { ProductSaleUnitsField } from "@/core/modules/product/editor/ui/product-sale-units-field";
+import {
+  ProductSaleUnitsField,
+  type SaleUnitPriceListRelationHint,
+} from "@/core/modules/product/editor/ui/product-sale-units-field";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import {
   getCatalogPriceInputProps,
@@ -35,6 +38,7 @@ interface ProductVariantCombinationCardProps {
   priceFallback?: string;
   renderSaleUnitPriceListFields?: (params: {
     index: number;
+    relation?: SaleUnitPriceListRelationHint;
     row: VariantMatrixRow;
     unit: NonNullable<VariantCombinationFormValue["saleUnits"]>[number];
   }) => React.ReactNode;
@@ -228,8 +232,13 @@ export const ProductVariantCombinationCard: React.FC<
               priceFallback={item.price ?? priceFallback}
               renderPriceListFields={
                 renderSaleUnitPriceListFields
-                  ? ({ index, unit }) =>
-                      renderSaleUnitPriceListFields({ index, row, unit })
+                  ? ({ index, relation, unit }) =>
+                      renderSaleUnitPriceListFields({
+                        index,
+                        relation,
+                        row,
+                        unit,
+                      })
                   : undefined
               }
               saleUnits={item.saleUnits}

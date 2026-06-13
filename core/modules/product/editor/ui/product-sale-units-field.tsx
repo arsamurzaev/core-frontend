@@ -43,6 +43,12 @@ import { Link2, Plus, Trash2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
+export type SaleUnitPriceListRelationHint = {
+  multiplier: string;
+  parentIndex: number;
+  parentUnit: SaleUnitFormValue;
+};
+
 interface ProductSaleUnitsFieldProps {
   canEditPrices?: boolean;
   disabled?: boolean;
@@ -51,6 +57,7 @@ interface ProductSaleUnitsFieldProps {
   priceFallback?: string;
   renderPriceListFields?: (params: {
     index: number;
+    relation?: SaleUnitPriceListRelationHint;
     unit: SaleUnitFormValue;
   }) => React.ReactNode;
   saleUnits: SaleUnitsFormValue | undefined;
@@ -463,12 +470,6 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
       {units.length > 0 ? (
         <div className="space-y-2">
           {units.map((unit, index) => {
-            const priceListFields =
-              hidePrices && renderPriceListFields
-                ? renderPriceListFields({ index, unit })
-                : null;
-            const hasPriceListFields = Boolean(priceListFields);
-            const showPriceColumn = !hidePrices || hasPriceListFields;
             const selectedName = getSaleUnitDisplayName(unit);
             const preview = resolveSaleUnitDiscountPreview(
               unit.price || priceFallback,
@@ -490,6 +491,27 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
             const hasRelationDraft =
               relation.parentIndex !== null ||
               Boolean(normalizeText(relation.multiplier));
+            const priceListRelation =
+              relation.parentIndex !== null &&
+              relation.parentIndex >= 0 &&
+              relation.parentIndex < index &&
+              normalizeText(relation.multiplier)
+                ? {
+                    multiplier: relation.multiplier,
+                    parentIndex: relation.parentIndex,
+                    parentUnit: units[relation.parentIndex],
+                  }
+                : undefined;
+            const priceListFields =
+              hidePrices && renderPriceListFields
+                ? renderPriceListFields({
+                    index,
+                    relation: priceListRelation,
+                    unit,
+                  })
+                : null;
+            const hasPriceListFields = Boolean(priceListFields);
+            const showPriceColumn = !hidePrices || hasPriceListFields;
 
             return (
               <div

@@ -94,6 +94,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
     modifierDrafts,
     open: drawerOpen,
     pendingSwapIndex,
+    priceFormatMode,
     priceListPriceDrafts,
     markPriceListPriceDraftsEdited,
     product,
@@ -259,6 +260,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
                 drafts={priceListPriceDrafts}
                 onEdited={markPriceListPriceDraftsEdited}
                 onChange={setPriceListPriceDrafts}
+                priceFormatMode={priceFormatMode}
                 rowKey={`PRODUCT:${product.id}`}
                 target="PRODUCT"
                 targetId={product.id}
@@ -267,11 +269,17 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
           }
           renderSaleUnitPriceListFields={
             features.canUseCatalogPriceLists
-              ? ({ unit, variantRow }) => {
+              ? ({ relation, unit, variantRow }) => {
                   const targetId = resolveSaleUnitTargetId({
                     unit,
                     variantKey: variantRow?.key,
                   });
+                  const parentTargetId = relation
+                    ? resolveSaleUnitTargetId({
+                        unit: relation.parentUnit,
+                        variantKey: variantRow?.key,
+                      })
+                    : null;
 
                   if (!targetId) {
                     return null;
@@ -283,6 +291,15 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
                       drafts={priceListPriceDrafts}
                       onEdited={markPriceListPriceDraftsEdited}
                       onChange={setPriceListPriceDrafts}
+                      priceFormatMode={priceFormatMode}
+                      priceHintSource={
+                        parentTargetId
+                          ? {
+                              multiplier: relation?.multiplier,
+                              parentRowKey: `SALE_UNIT:${parentTargetId}`,
+                            }
+                          : undefined
+                      }
                       rowKey={`SALE_UNIT:${targetId}`}
                       target="SALE_UNIT"
                       targetId={targetId}
@@ -302,6 +319,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
                       drafts={priceListPriceDrafts}
                       onEdited={markPriceListPriceDraftsEdited}
                       onChange={setPriceListPriceDrafts}
+                      priceFormatMode={priceFormatMode}
                       rowKey={`VARIANT:${targetId}`}
                       target="VARIANT"
                       targetId={targetId}

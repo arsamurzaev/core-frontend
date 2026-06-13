@@ -13,7 +13,10 @@ import {
   type VariantCombinationFormValue,
   type VariantMatrixRow,
 } from "@/core/modules/product/editor/model/product-variants";
-import { ProductSaleUnitsField } from "@/core/modules/product/editor/ui/product-sale-units-field";
+import {
+  ProductSaleUnitsField,
+  type SaleUnitPriceListRelationHint,
+} from "@/core/modules/product/editor/ui/product-sale-units-field";
 import { ProductVariantsField } from "@/core/modules/product/editor/ui/product-variants-field";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
@@ -36,6 +39,7 @@ interface ProductEditorMainSectionProps {
   priceFallback?: string;
   renderSaleUnitPriceListFields?: (params: {
     index: number;
+    relation?: SaleUnitPriceListRelationHint;
     unit: SaleUnitFormValue;
     variantRow?: VariantMatrixRow;
   }) => React.ReactNode;
@@ -174,8 +178,8 @@ export const ProductEditorMainSection: React.FC<
             priceFallback={priceFallback}
             renderPriceListFields={
               renderSaleUnitPriceListFields
-                ? ({ index, unit }) =>
-                    renderSaleUnitPriceListFields({ index, unit })
+                ? ({ index, relation, unit }) =>
+                    renderSaleUnitPriceListFields({ index, relation, unit })
                 : undefined
             }
             saleUnits={saleUnits}
@@ -205,9 +209,10 @@ export const ProductEditorMainSection: React.FC<
           hideBasePrices={hideBasePrices}
           renderSaleUnitPriceListFields={
             renderSaleUnitPriceListFields
-              ? ({ index, row, unit }) =>
+              ? ({ index, relation, row, unit }) =>
                   renderSaleUnitPriceListFields({
                     index,
+                    relation,
                     unit,
                     variantRow: row,
                   })

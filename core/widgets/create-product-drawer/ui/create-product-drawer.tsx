@@ -28,6 +28,18 @@ function normalizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function resolveCreateSaleUnitPriceListRowKey(params: {
+  catalogSaleUnitId?: unknown;
+  variantKey?: string;
+}): string | null {
+  const catalogSaleUnitId = normalizeText(params.catalogSaleUnitId);
+  if (!catalogSaleUnitId) return null;
+
+  return params.variantKey
+    ? `SALE_UNIT:${params.variantKey}:${catalogSaleUnitId}`
+    : `SALE_UNIT:default:${catalogSaleUnitId}`;
+}
+
 export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
   className,
   open,
@@ -68,6 +80,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
     modifierDrafts,
     open: drawerOpen,
     pendingSwapIndex,
+    priceFormatMode,
     priceListPriceDrafts,
     removeFile,
     uploadState,
@@ -165,6 +178,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
               disabled={isSubmitting || isProductTypeSchemaResolving}
               drafts={priceListPriceDrafts}
               onChange={setPriceListPriceDrafts}
+              priceFormatMode={priceFormatMode}
               rowKey="PRODUCT"
               target="PRODUCT"
             />
@@ -172,24 +186,38 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
         }
         renderSaleUnitPriceListFields={
           features.canUseCatalogPriceLists
-            ? ({ unit, variantRow }) => {
-                const catalogSaleUnitId = normalizeText(unit.catalogSaleUnitId);
+            ? ({ relation, unit, variantRow }) => {
+                const rowKey = resolveCreateSaleUnitPriceListRowKey({
+                  catalogSaleUnitId: unit.catalogSaleUnitId,
+                  variantKey: variantRow?.key,
+                });
+                const parentRowKey = relation
+                  ? resolveCreateSaleUnitPriceListRowKey({
+                      catalogSaleUnitId: relation.parentUnit.catalogSaleUnitId,
+                      variantKey: variantRow?.key,
+                    })
+                  : null;
 
-                if (!catalogSaleUnitId) {
+                if (!rowKey) {
                   return null;
                 }
 
                 return (
                   <ProductPriceListCreateInlineFields
-                    catalogSaleUnitId={catalogSaleUnitId}
+                    catalogSaleUnitId={normalizeText(unit.catalogSaleUnitId)}
                     disabled={isSubmitting || isProductTypeSchemaResolving}
                     drafts={priceListPriceDrafts}
                     onChange={setPriceListPriceDrafts}
-                    rowKey={
-                      variantRow
-                        ? `SALE_UNIT:${variantRow.key}:${catalogSaleUnitId}`
-                        : `SALE_UNIT:default:${catalogSaleUnitId}`
+                    priceFormatMode={priceFormatMode}
+                    priceHintSource={
+                      parentRowKey
+                        ? {
+                            multiplier: relation?.multiplier,
+                            parentRowKey,
+                          }
+                        : undefined
                     }
+                    rowKey={rowKey}
                     target="SALE_UNIT"
                     variantAttributes={variantRow?.attributes}
                   />
@@ -204,6 +232,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
                   disabled={isSubmitting || isProductTypeSchemaResolving}
                   drafts={priceListPriceDrafts}
                   onChange={setPriceListPriceDrafts}
+                  priceFormatMode={priceFormatMode}
                   rowKey={`VARIANT:${row.key}`}
                   target="VARIANT"
                   variantAttributes={row.attributes}

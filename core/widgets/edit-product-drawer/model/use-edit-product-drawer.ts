@@ -511,6 +511,7 @@ export function useEditProductDrawer(
     modifierDrafts,
     open: drawerOpen,
     pendingSwapIndex: imageEditor.pendingSwapIndex,
+    priceFormatMode,
     priceListPriceDrafts,
     hasPriceListPriceDraftsEdited,
     markPriceListPriceDraftsEdited,

@@ -12,6 +12,7 @@ import { ProductEditorCropper } from "@/core/modules/product/editor/ui/product-e
 import { ProductEditorImagesPanel } from "@/core/modules/product/editor/ui/product-editor-images-panel";
 import { ProductEditorMainSection } from "@/core/modules/product/editor/ui/product-editor-main-section";
 import { ProductEditorResetAction } from "@/core/modules/product/editor/ui/product-editor-reset-action";
+import { type SaleUnitPriceListRelationHint } from "@/core/modules/product/editor/ui/product-sale-units-field";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
@@ -48,6 +49,7 @@ export interface ProductEditorDrawerContentProps {
   pendingSwapIndex: number | null;
   renderSaleUnitPriceListFields?: (params: {
     index: number;
+    relation?: SaleUnitPriceListRelationHint;
     unit: SaleUnitFormValue;
     variantRow?: VariantMatrixRow;
   }) => React.ReactNode;

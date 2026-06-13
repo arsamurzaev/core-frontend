@@ -62,13 +62,11 @@ import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
 type PriceListDraft = {
-  description: string;
   isActive: boolean;
   name: string;
 };
 
 const emptyCreateDraft: PriceListDraft = {
-  description: "",
   isActive: true,
   name: "",
 };
@@ -117,7 +115,6 @@ function sortPriceLists(priceLists: CatalogPriceList[]): CatalogPriceList[] {
 
 function toDraft(priceList: CatalogPriceList): PriceListDraft {
   return {
-    description: priceList.description ?? "",
     isActive: priceList.isActive,
     name: priceList.name,
   };
@@ -125,7 +122,6 @@ function toDraft(priceList: CatalogPriceList): PriceListDraft {
 
 function buildCreatePayload(draft: PriceListDraft, displayOrder: number) {
   return {
-    description: normalizeOptionalText(draft.description) ?? null,
     displayOrder,
     isActive: draft.isActive,
     name: requireText(draft.name, "Введите название прайс-листа."),
@@ -134,7 +130,6 @@ function buildCreatePayload(draft: PriceListDraft, displayOrder: number) {
 
 function buildUpdatePayload(draft: PriceListDraft) {
   return {
-    description: normalizeOptionalText(draft.description) ?? null,
     isActive: draft.isActive,
     name: requireText(draft.name, "Введите название прайс-листа."),
   };
@@ -180,7 +175,6 @@ interface PriceListItemProps {
   onCancelEdit?: () => void;
   onDelete?: () => void;
   onDraftActiveChange?: (value: boolean) => void;
-  onDraftDescriptionChange?: (value: string) => void;
   onDraftNameChange?: (value: string) => void;
   onEdit?: () => void;
   onSave?: () => void;
@@ -201,7 +195,6 @@ const PriceListItem: React.FC<PriceListItemProps> = ({
   onCancelEdit,
   onDelete,
   onDraftActiveChange,
-  onDraftDescriptionChange,
   onDraftNameChange,
   onEdit,
   onSave,
@@ -262,15 +255,6 @@ const PriceListItem: React.FC<PriceListItemProps> = ({
                   }
                 }}
               />
-              <Input
-                value={draft.description}
-                disabled={disabled}
-                className="h-8 min-w-0 px-2.5 text-sm"
-                placeholder="Описание"
-                onChange={(event) =>
-                  onDraftDescriptionChange?.(event.target.value)
-                }
-              />
               <label className="flex w-fit items-center gap-2 text-xs text-muted-foreground">
                 <Switch
                   checked={draft.isActive}
@@ -292,11 +276,6 @@ const PriceListItem: React.FC<PriceListItemProps> = ({
                   </Badge>
                 ) : null}
               </div>
-              {priceList.description ? (
-                <p className="line-clamp-2 text-xs leading-4 text-muted-foreground">
-                  {priceList.description}
-                </p>
-              ) : null}
             </div>
           )}
         </div>
@@ -371,7 +350,6 @@ interface SortablePriceListItemProps {
   onCancelEdit: () => void;
   onDelete: () => void;
   onDraftActiveChange: (value: boolean) => void;
-  onDraftDescriptionChange: (value: string) => void;
   onDraftNameChange: (value: string) => void;
   onEdit: () => void;
   onSave: () => void;
@@ -387,7 +365,6 @@ const SortablePriceListItem: React.FC<SortablePriceListItemProps> = ({
   onCancelEdit,
   onDelete,
   onDraftActiveChange,
-  onDraftDescriptionChange,
   onDraftNameChange,
   onEdit,
   onSave,
@@ -433,7 +410,6 @@ const SortablePriceListItem: React.FC<SortablePriceListItemProps> = ({
         onCancelEdit={onCancelEdit}
         onDelete={onDelete}
         onDraftActiveChange={onDraftActiveChange}
-        onDraftDescriptionChange={onDraftDescriptionChange}
         onDraftNameChange={onDraftNameChange}
         onEdit={onEdit}
         onSave={onSave}
@@ -451,10 +427,6 @@ interface PriceListSortableListProps {
   onCancelEdit: (priceList: CatalogPriceList) => void;
   onDelete: (priceList: CatalogPriceList) => void;
   onDraftActiveChange: (priceList: CatalogPriceList, value: boolean) => void;
-  onDraftDescriptionChange: (
-    priceList: CatalogPriceList,
-    value: string,
-  ) => void;
   onDraftNameChange: (priceList: CatalogPriceList, value: string) => void;
   onEdit: (priceList: CatalogPriceList) => void;
   onReorder: (params: { activeId: string; overId: string }) => void;
@@ -470,7 +442,6 @@ const PriceListSortableList: React.FC<PriceListSortableListProps> = ({
   onCancelEdit,
   onDelete,
   onDraftActiveChange,
-  onDraftDescriptionChange,
   onDraftNameChange,
   onEdit,
   onReorder,
@@ -579,9 +550,6 @@ const PriceListSortableList: React.FC<PriceListSortableListProps> = ({
               onDelete={() => onDelete(priceList)}
               onDraftActiveChange={(value) =>
                 onDraftActiveChange(priceList, value)
-              }
-              onDraftDescriptionChange={(value) =>
-                onDraftDescriptionChange(priceList, value)
               }
               onDraftNameChange={(value) => onDraftNameChange(priceList, value)}
               onEdit={() => onEdit(priceList)}
@@ -737,19 +705,6 @@ export const ProductPriceListSettingsDrawer: React.FC<
     [],
   );
 
-  const handleDraftDescriptionChange = React.useCallback(
-    (priceList: CatalogPriceList, value: string) => {
-      setDraftsById((current) => ({
-        ...current,
-        [priceList.id]: {
-          ...(current[priceList.id] ?? toDraft(priceList)),
-          description: value,
-        },
-      }));
-    },
-    [],
-  );
-
   const handleDraftActiveChange = React.useCallback(
     (priceList: CatalogPriceList, value: boolean) => {
       setDraftsById((current) => ({
@@ -889,53 +844,39 @@ export const ProductPriceListSettingsDrawer: React.FC<
           <DrawerScrollArea className="px-4 py-4">
             <div className="space-y-3">
               <section className="min-w-0">
-                <div className="grid gap-2">
-                  <div className="flex min-w-0 gap-2">
-                    <Input
-                      className="h-9 min-w-0 px-3 py-2 text-sm"
-                      value={createDraft.name}
-                      disabled={isBusy}
-                      placeholder="Новый прайс-лист"
-                      onChange={(event) =>
-                        setCreateDraft((current) => ({
-                          ...current,
-                          name: event.target.value,
-                        }))
-                      }
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          void handleCreate();
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      className="size-9 shrink-0"
-                      disabled={isBusy || !createDraft.name.trim()}
-                      title="Создать прайс-лист"
-                      onClick={() => void handleCreate()}
-                    >
-                      {createMutation.isPending ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : (
-                        <Plus className="size-4" />
-                      )}
-                    </Button>
-                  </div>
+                <div className="flex min-w-0 gap-2">
                   <Input
                     className="h-9 min-w-0 px-3 py-2 text-sm"
-                    value={createDraft.description}
+                    value={createDraft.name}
                     disabled={isBusy}
-                    placeholder="Описание"
+                    placeholder="Новый прайс-лист"
                     onChange={(event) =>
                       setCreateDraft((current) => ({
                         ...current,
-                        description: event.target.value,
+                        name: event.target.value,
                       }))
                     }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        void handleCreate();
+                      }
+                    }}
                   />
+                  <Button
+                    type="button"
+                    size="icon"
+                    className="size-9 shrink-0"
+                    disabled={isBusy || !createDraft.name.trim()}
+                    title="Создать прайс-лист"
+                    onClick={() => void handleCreate()}
+                  >
+                    {createMutation.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Plus className="size-4" />
+                    )}
+                  </Button>
                 </div>
               </section>
 
@@ -994,7 +935,6 @@ export const ProductPriceListSettingsDrawer: React.FC<
                     onCancelEdit={handleCancelEdit}
                     onDelete={(priceList) => void handleDelete(priceList)}
                     onDraftActiveChange={handleDraftActiveChange}
-                    onDraftDescriptionChange={handleDraftDescriptionChange}
                     onDraftNameChange={handleDraftNameChange}
                     onEdit={handleEdit}
                     onReorder={(params) => void handleReorder(params)}

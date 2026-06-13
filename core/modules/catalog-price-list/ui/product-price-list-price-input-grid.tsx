@@ -1,6 +1,10 @@
 "use client";
 
 import { type CatalogPriceList } from "@/core/modules/catalog-price-list/model/catalog-price-list-api";
+import {
+  formatCatalogPrice,
+  type CatalogPriceFormatMode,
+} from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { Input } from "@/shared/ui/input";
 import React from "react";
@@ -15,6 +19,7 @@ interface ProductPriceListPriceInputGridProps {
   layout?: "form-row" | "compact";
   priceLists: CatalogPriceList[];
   rowLabel?: string;
+  getHint?: (priceList: CatalogPriceList) => string | null;
   getValue: (priceList: CatalogPriceList) => string;
   onChange: (priceList: CatalogPriceList, value: string) => void;
 }
@@ -36,6 +41,37 @@ function normalizePriceInputValue(value: string): string {
   return `${integerPart}${separator}${decimalPart}`;
 }
 
+function toPositivePriceListNumber(value: unknown): number | null {
+  if (typeof value === "number") {
+    return Number.isFinite(value) && value > 0 ? value : null;
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value.trim().replace(",", "."));
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  return null;
+}
+
+export function formatPriceListRelationHint(
+  parentPrice: unknown,
+  multiplier: unknown,
+  priceFormatMode: CatalogPriceFormatMode = "integer",
+): string | null {
+  const parsedParentPrice = toPositivePriceListNumber(parentPrice);
+  const parsedMultiplier = toPositivePriceListNumber(multiplier);
+
+  if (parsedParentPrice === null || parsedMultiplier === null) {
+    return null;
+  }
+
+  return `${formatCatalogPrice(
+    parsedParentPrice * parsedMultiplier,
+    priceFormatMode,
+  )} ₽`;
+}
+
 export const ProductPriceListPriceInputGrid: React.FC<
   ProductPriceListPriceInputGridProps
 > = ({
@@ -48,6 +84,7 @@ export const ProductPriceListPriceInputGrid: React.FC<
   layout = "form-row",
   priceLists,
   rowLabel,
+  getHint,
   getValue,
   onChange,
 }) => {
@@ -66,6 +103,7 @@ export const ProductPriceListPriceInputGrid: React.FC<
     >
       {priceLists.map((priceList) => {
         const value = getValue(priceList);
+        const hint = getHint?.(priceList) ?? null;
         const ariaLabel = rowLabel
           ? `${labelPrefix}(${priceList.name}): ${rowLabel}`
           : `${labelPrefix}(${priceList.name})`;
@@ -82,13 +120,18 @@ export const ProductPriceListPriceInputGrid: React.FC<
           >
             <span
               className={cn(
-                "min-w-0 truncate",
+                "flex min-w-0 items-center gap-1",
                 isCompact
-                  ? "block text-xs text-muted-foreground"
+                  ? "text-xs text-muted-foreground"
                   : "text-sm text-foreground",
               )}
             >
-              {labelPrefix}({priceList.name})
+              <span className="min-w-0 truncate">
+                {labelPrefix}({priceList.name})
+              </span>
+              {hint ? (
+                <span className="shrink-0 text-muted-foreground">({hint})</span>
+              ) : null}
             </span>
 
             <Input

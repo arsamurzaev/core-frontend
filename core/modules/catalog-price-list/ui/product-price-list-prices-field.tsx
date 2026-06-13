@@ -9,9 +9,13 @@ import {
   type ProductPriceListPriceDraft,
   type ProductPriceListProductSource,
 } from "@/core/modules/catalog-price-list";
-import { ProductPriceListPriceInputGrid } from "@/core/modules/catalog-price-list/ui/product-price-list-price-input-grid";
+import {
+  formatPriceListRelationHint,
+  ProductPriceListPriceInputGrid,
+} from "@/core/modules/catalog-price-list/ui/product-price-list-price-input-grid";
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { useQueries } from "@tanstack/react-query";
@@ -40,6 +44,11 @@ interface ProductPriceListInlineFieldsProps {
   layout?: "form-row" | "compact";
   onEdited?: () => void;
   onChange: React.Dispatch<React.SetStateAction<ProductPriceListPriceDraft[]>>;
+  priceFormatMode?: CatalogPriceFormatMode;
+  priceHintSource?: {
+    multiplier: unknown;
+    parentRowKey: string;
+  };
   rowKey: string;
   target: ProductPriceListPriceDraft["target"];
   targetId: string;
@@ -274,6 +283,8 @@ export const ProductPriceListInlineFields: React.FC<
   layout,
   onEdited,
   onChange,
+  priceFormatMode = "integer",
+  priceHintSource,
   rowKey,
   target,
   targetId,
@@ -338,6 +349,18 @@ export const ProductPriceListInlineFields: React.FC<
       inputClassName={effectiveInputClassName}
       layout={effectiveLayout}
       priceLists={priceLists}
+      getHint={
+        priceHintSource
+          ? (priceList) =>
+              formatPriceListRelationHint(
+                draftByKey.get(
+                  `${priceList.id}:${priceHintSource.parentRowKey}`,
+                )?.price,
+                priceHintSource.multiplier,
+                priceFormatMode,
+              )
+          : undefined
+      }
       getValue={(priceList) =>
         draftByKey.get(`${priceList.id}:${rowKey}`)?.price ?? ""
       }

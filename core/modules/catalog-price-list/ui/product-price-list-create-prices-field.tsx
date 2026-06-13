@@ -6,10 +6,14 @@ import {
   type CreateProductPriceListPriceDraft,
   type CreateProductPriceListVariantAttributePayload,
 } from "@/core/modules/catalog-price-list";
-import { ProductPriceListPriceInputGrid } from "@/core/modules/catalog-price-list/ui/product-price-list-price-input-grid";
+import {
+  formatPriceListRelationHint,
+  ProductPriceListPriceInputGrid,
+} from "@/core/modules/catalog-price-list/ui/product-price-list-price-input-grid";
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { buildVariantMatrixRows } from "@/core/modules/product/editor/model/product-variants";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
+import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { Skeleton } from "@/shared/ui/skeleton";
 import React from "react";
@@ -47,6 +51,11 @@ interface ProductPriceListCreateInlineFieldsProps {
   onChange: React.Dispatch<
     React.SetStateAction<CreateProductPriceListPriceDraft[]>
   >;
+  priceFormatMode?: CatalogPriceFormatMode;
+  priceHintSource?: {
+    multiplier: unknown;
+    parentRowKey: string;
+  };
   rowKey: string;
   target: CatalogPriceListPriceTarget;
   variantAttributes?: CreateProductPriceListVariantAttributePayload[];
@@ -315,6 +324,8 @@ export const ProductPriceListCreateInlineFields: React.FC<
   inputClassName,
   layout,
   onChange,
+  priceFormatMode = "integer",
+  priceHintSource,
   rowKey,
   target,
   variantAttributes,
@@ -386,6 +397,18 @@ export const ProductPriceListCreateInlineFields: React.FC<
       inputClassName={effectiveInputClassName}
       layout={effectiveLayout}
       priceLists={priceLists}
+      getHint={
+        priceHintSource
+          ? (priceList) =>
+              formatPriceListRelationHint(
+                draftByKey.get(
+                  draftKey(priceList.id, priceHintSource.parentRowKey),
+                )?.price,
+                priceHintSource.multiplier,
+                priceFormatMode,
+              )
+          : undefined
+      }
       getValue={(priceList) =>
         draftByKey.get(draftKey(priceList.id, rowKey))?.price ?? ""
       }
