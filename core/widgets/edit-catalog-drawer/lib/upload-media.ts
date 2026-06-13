@@ -50,7 +50,6 @@ export async function uploadCatalogImage({
 
   const presign = await s3ControllerPresignUpload({
     contentType,
-    contentLength: file.size,
     folder: "catalogs",
     entityId: catalogId,
     path: kind,

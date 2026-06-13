@@ -41,7 +41,6 @@ export async function uploadCategoryImage({
 
   const presign = await s3ControllerPresignUpload({
     contentType,
-    contentLength: file.size,
     folder: "categories",
   });
 

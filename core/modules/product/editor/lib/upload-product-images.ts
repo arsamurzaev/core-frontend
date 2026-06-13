@@ -64,7 +64,6 @@ export async function enqueueProductImages({
     const contentType = file.type || "application/octet-stream";
     const presign = await s3ControllerPresignUpload({
       contentType,
-      contentLength: file.size,
       folder: "products",
     });
 
