@@ -20,6 +20,10 @@ function isCurrentCatalogNotFoundError(error: unknown): boolean {
   return error instanceof ApiClientError && error.status === 404;
 }
 
+function isCurrentCatalogUnavailableError(error: unknown): boolean {
+  return error instanceof ApiClientError && error.status === 0;
+}
+
 export async function resolveServerForwardedHost(): Promise<string> {
   try {
     const requestHeaders = await headers();
@@ -57,7 +61,10 @@ export async function getCurrentCatalogServer(): Promise<CurrentCatalogServerRes
           },
         });
       } catch (error) {
-        if (isCurrentCatalogNotFoundError(error)) {
+        if (
+          isCurrentCatalogNotFoundError(error) ||
+          isCurrentCatalogUnavailableError(error)
+        ) {
           return null;
         }
 
