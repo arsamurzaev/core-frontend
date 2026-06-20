@@ -111,12 +111,9 @@ function tableMatchesRef(
   const expected = normalizeTableRef(ref);
   if (!expected) return false;
 
-  const refs = [
-    table.id,
-    table.name,
-    table.displayNumber,
-    table.number,
-  ].map(normalizeTableRef);
+  const refs = [table.id, table.name, table.displayNumber, table.number].map(
+    normalizeTableRef,
+  );
   return refs.some((value) => value === expected);
 }
 
@@ -195,6 +192,7 @@ export const IntegrationCheckoutSection: React.FC<
   const shouldShowHallTable = hasField(effectiveFields, "hallTable");
   const shouldShowPreorderTableInput =
     shouldShowHallTable && method === "PREORDER";
+  const shouldShowAddress = hasField(effectiveFields, "address");
   const shouldShowPersonsCount = hasField(effectiveFields, "personsCount");
   const fieldErrors = React.useMemo(
     () =>
@@ -210,13 +208,13 @@ export const IntegrationCheckoutSection: React.FC<
   const hallTableLabel = getHallTableLabel(checkoutData);
   const isHallOrder = Boolean(
     method !== "PREORDER" &&
-      (checkoutData.orderMode === "HALL" ||
-        checkoutData.iikoTableId ||
-        checkoutData.hallTableId ||
-        checkoutData.integrationExternalItemCode ||
-        checkoutData.hallTableCode ||
-        checkoutData.tableCode ||
-        checkoutData.t),
+    (checkoutData.orderMode === "HALL" ||
+      checkoutData.iikoTableId ||
+      checkoutData.hallTableId ||
+      checkoutData.integrationExternalItemCode ||
+      checkoutData.hallTableCode ||
+      checkoutData.tableCode ||
+      checkoutData.t),
   );
   const selectedIikoTableId =
     checkoutData.iikoTableId ??
@@ -354,6 +352,25 @@ export const IntegrationCheckoutSection: React.FC<
         </section>
       ) : null}
 
+      {shouldShowAddress ? (
+        <section className="space-y-2">
+          <Label htmlFor="integration-checkout-address">Адрес доставки</Label>
+          <Input
+            id="integration-checkout-address"
+            value={checkoutData.address ?? ""}
+            onChange={(event) => updateDraftData("address", event.target.value)}
+            disabled={disabled}
+            placeholder="Москва, Тверская, 1"
+            autoComplete="street-address"
+            className="border border-black/10"
+            aria-invalid={Boolean(fieldErrors.address)}
+          />
+          {fieldErrors.address ? (
+            <p className="text-sm text-red-600">{fieldErrors.address}</p>
+          ) : null}
+        </section>
+      ) : null}
+
       {shouldShowPreorderTableInput ? (
         <section className="space-y-2">
           <div className="flex items-center justify-between gap-3">
@@ -376,7 +393,9 @@ export const IntegrationCheckoutSection: React.FC<
           <Select
             value={selectedIikoTableId}
             onValueChange={handleIikoTableChange}
-            disabled={disabled || isIikoTablesLoading || iikoTables.length === 0}
+            disabled={
+              disabled || isIikoTablesLoading || iikoTables.length === 0
+            }
           >
             <SelectTrigger
               id="integration-checkout-table-id"
@@ -476,9 +495,7 @@ export const IntegrationCheckoutSection: React.FC<
             </TabsList>
           </Tabs>
           {fieldErrors.checkoutMethod ? (
-            <p className="text-sm text-red-600">
-              {fieldErrors.checkoutMethod}
-            </p>
+            <p className="text-sm text-red-600">{fieldErrors.checkoutMethod}</p>
           ) : null}
         </section>
       ) : null}

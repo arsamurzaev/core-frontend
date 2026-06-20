@@ -138,6 +138,30 @@ describe("buildCatalogEditFormDefaultValues", () => {
     expect(payload).not.toHaveProperty("activePriceListId");
   });
 
+  it("does not include catalog presentation mode in owner update payload", () => {
+    const values = buildCatalogEditFormDefaultValues(
+      {
+        ...catalog(),
+        settings: {
+          presentationMode: "BUSINESS_CARD",
+        } as CatalogCurrentDto["settings"],
+      },
+      {
+        checkoutConfig: {
+          availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
+          enabledMethods: ["PREORDER"],
+          methodContacts: {},
+          methodFields: METHOD_FIELDS,
+          preorder: DEFAULT_PREORDER_SETTINGS,
+        },
+      },
+    );
+    const payload = buildCatalogEditUpdatePayload(values);
+
+    expect(values).not.toHaveProperty("presentationMode");
+    expect(payload).not.toHaveProperty("presentationMode");
+  });
+
   it("does not persist method contacts duplicated from catalog contacts", () => {
     const values = buildCatalogEditFormDefaultValues(catalog(), {
       checkoutConfig: {

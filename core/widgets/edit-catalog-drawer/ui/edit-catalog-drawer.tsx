@@ -24,11 +24,9 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
 }) => {
   const {
     bgUrl,
-    checkoutConfig: resolvedCheckoutConfig,
     errorMessage,
     form,
     handleOpenChange,
-    handleSaveInPlace,
     handleSubmit,
     isSubmitting,
     logoUrl,
@@ -68,12 +66,10 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
             <div className="space-y-5">
               <CatalogEditForm
                 form={form}
-                checkoutConfig={resolvedCheckoutConfig}
                 disabled={isSubmitting}
                 isSaving={isSubmitting}
                 logoUrl={logoUrl}
                 bgUrl={bgUrl}
-                onSave={handleSaveInPlace}
               />
 
               {uploadState.phase !== "idle" ? (

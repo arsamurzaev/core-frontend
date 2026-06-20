@@ -2,6 +2,7 @@ import type { CartItemView, PrepareShareOrderInput } from "@/core/modules/cart";
 import type { CatalogExperienceMode } from "@/shared/lib/catalog-mode";
 import {
   buildCheckoutSummary,
+  getDeliveryAddressError,
   type CheckoutData,
   type CheckoutLocation,
   type CheckoutMethod,
@@ -117,7 +118,7 @@ export function resolveIntegrationCheckoutFields(params: {
   }
 
   const effectiveMethod = method ?? DEFAULT_INTEGRATION_CHECKOUT_METHOD;
-  if (effectiveMethod === "DELIVERY" && !hasText(data.address)) {
+  if (effectiveMethod === "DELIVERY" && getDeliveryAddressError(data.address)) {
     fields.push("address");
   }
 
@@ -136,7 +137,9 @@ export function resolveIntegrationCheckoutFields(params: {
   return fields;
 }
 
-export function validateIntegrationPolicyConsent(accepted: boolean): string | null {
+export function validateIntegrationPolicyConsent(
+  accepted: boolean,
+): string | null {
   return accepted ? null : INTEGRATION_POLICY_CONSENT_ERROR;
 }
 
@@ -213,7 +216,10 @@ export function getIntegrationCheckoutFieldErrors(params: {
     errors.personsCount = "Укажите количество гостей.";
   }
 
-  if (params.fields.includes("customerName") && !hasText(params.data.customerName)) {
+  if (
+    params.fields.includes("customerName") &&
+    !hasText(params.data.customerName)
+  ) {
     errors.customerName = "Укажите имя.";
   }
 
@@ -225,12 +231,8 @@ export function getIntegrationCheckoutFieldErrors(params: {
     errors.checkoutMethod = "Выберите способ получения.";
   }
 
-  if (
-    params.fields.includes("address") &&
-    params.method === "DELIVERY" &&
-    !hasText(params.data.address)
-  ) {
-    errors.address = "Укажите адрес доставки.";
+  if (params.fields.includes("address") && params.method === "DELIVERY") {
+    errors.address = getDeliveryAddressError(params.data.address) ?? undefined;
   }
 
   return errors;

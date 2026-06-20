@@ -10,7 +10,9 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import {
   PRODUCT_UNAVAILABLE_STATE,
+  getProductUnavailableState,
   isProductPubliclyAvailable,
+  type ProductUnavailableState,
 } from "../model/product-availability";
 import { getProductBySlugServer } from "./get-product-by-slug.server";
 import { getProductSeoByIdServer } from "./get-product-seo-by-id.server";
@@ -67,15 +69,16 @@ function buildUnavailableProductMetadata(
   productSlug: string,
   forwardedHost: string,
   domain: string | null | undefined,
+  unavailableState: ProductUnavailableState = PRODUCT_UNAVAILABLE_STATE,
 ): Metadata {
   const metadataBase = resolveMetadataBaseUrl(forwardedHost, domain);
 
   return {
     metadataBase,
     title: {
-      absolute: PRODUCT_UNAVAILABLE_STATE.title,
+      absolute: unavailableState.title,
     },
-    description: PRODUCT_UNAVAILABLE_STATE.description,
+    description: unavailableState.description,
     robots: {
       follow: false,
       index: false,
@@ -116,6 +119,10 @@ export async function generateProductPageMetadata(
       productSlug,
       forwardedHost,
       catalog?.domain,
+      getProductUnavailableState({
+        catalog,
+        product,
+      }) ?? PRODUCT_UNAVAILABLE_STATE,
     );
   }
 

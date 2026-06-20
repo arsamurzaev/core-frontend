@@ -98,6 +98,20 @@ describe("integration checkout model", () => {
         },
       }),
     ).toEqual([]);
+
+    expect(
+      resolveIntegrationCheckoutFields({
+        hasIikoItems: true,
+        orderInput: {
+          checkoutData: {
+            address: "Client street",
+            customerName: "Ivan",
+            phone: "+79990000000",
+          },
+          checkoutMethod: "DELIVERY",
+        },
+      }),
+    ).toEqual([]);
   });
 
   it("keeps normal cart data and adds integration-only fields", () => {
@@ -138,7 +152,7 @@ describe("integration checkout model", () => {
     );
   });
 
-  it("validates delivery address and fills pickup location snapshot", () => {
+  it("validates delivery address presence and fills pickup location snapshot", () => {
     expect(
       validateIntegrationCheckout({
         data: { customerName: "Ivan", phone: "+79990000000" },
@@ -146,6 +160,18 @@ describe("integration checkout model", () => {
         method: "DELIVERY",
       }),
     ).toBeTruthy();
+
+    expect(
+      validateIntegrationCheckout({
+        data: {
+          address: "Client street",
+          customerName: "Ivan",
+          phone: "+79990000000",
+        },
+        fields: ["customerName", "phone", "checkoutMethod", "address"],
+        method: "DELIVERY",
+      }),
+    ).toBeNull();
 
     expect(
       buildIntegrationCheckoutOrderInput({

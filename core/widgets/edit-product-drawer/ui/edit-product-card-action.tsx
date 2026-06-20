@@ -7,15 +7,20 @@ import {
 } from "@/core/modules/product/actions/ui";
 import { useEditProductDrawerHost } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import {
+  canManageCatalogContent,
+  isChildCatalog,
+} from "@/shared/lib/catalog-content-access";
 import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   ProductWithAttributesDtoStatus,
   useProductControllerDuplicate,
   useProductControllerToggleStatus,
 } from "@/shared/api/generated/react-query";
+import { PRODUCT_HIDDEN_BY_PARENT_CATALOG_STATE } from "@/core/widgets/product-drawer/model/product-availability";
 import { useSession } from "@/shared/providers/session-provider";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
+import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { confirm } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -53,11 +58,18 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
   const isStatusActive = status === ProductWithAttributesDtoStatus.ACTIVE;
   const isStatusHidden = status === ProductWithAttributesDtoStatus.HIDDEN;
   const isIntegrationLinked = isMoySkladLinked || isIikoLinked;
+  const canManageContent = canManageCatalogContent(catalog);
+  const isHiddenByParentCatalog = isStatusHidden && isChildCatalog(catalog);
   const canToggleStatus =
-    !isIntegrationLinked && (isStatusActive || isStatusHidden);
-  const hiddenStatusLabel = isIntegrationLinked
-    ? "Скрыто интеграцией"
-    : "Скрыто";
+    canManageContent &&
+    !isHiddenByParentCatalog &&
+    !isIntegrationLinked &&
+    (isStatusActive || isStatusHidden);
+  const hiddenStatusLabel = isHiddenByParentCatalog
+    ? PRODUCT_HIDDEN_BY_PARENT_CATALOG_STATE.title
+    : isIntegrationLinked
+      ? "Скрыто интеграцией"
+      : "Скрыто";
   const isActionPending =
     duplicateProduct.isPending ||
     toggleProductStatus.isPending ||
@@ -72,6 +84,18 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
       openDrawer(productId);
     },
     [openDrawer, productId],
+  );
+
+  const handleReadOnlyHiddenInteraction = React.useCallback(
+    (event: React.SyntheticEvent<HTMLElement>) => {
+      if (!isHiddenByParentCatalog) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    [isHiddenByParentCatalog],
   );
 
   const handleDuplicateClick = React.useCallback(
@@ -128,7 +152,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
     [productId, queryClient, status, toggleProductStatus],
   );
 
-  if (!isAuthenticated || !canManageCatalogContent(catalog)) {
+  if (!isAuthenticated || (!canManageContent && !isHiddenByParentCatalog)) {
     return null;
   }
 
@@ -151,8 +175,15 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
           </Button>
         ) : (
           <div
-            className="pointer-events-none absolute inset-0 z-10 flex h-full items-center justify-center rounded-lg bg-black/50 px-3 text-center text-white"
+            className={cn(
+              "absolute inset-0 z-10 flex h-full items-center justify-center rounded-lg bg-black/50 px-3 text-center text-white",
+              isHiddenByParentCatalog
+                ? "pointer-events-auto cursor-not-allowed"
+                : "pointer-events-none",
+            )}
             aria-label={hiddenStatusLabel}
+            onClick={handleReadOnlyHiddenInteraction}
+            onPointerDown={handleReadOnlyHiddenInteraction}
           >
             <span className="rounded-md bg-black/20 px-3 py-2 text-sm font-semibold leading-tight shadow-sm">
               {hiddenStatusLabel}
@@ -161,7 +192,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
         )
       ) : null}
 
-      {isMoySkladLinked ? (
+      {canManageContent && isMoySkladLinked ? (
         <div className="absolute top-11 left-2 z-20 opacity-60">
           <SyncMoySkladProductAction
             productId={productId}
@@ -171,7 +202,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
         </div>
       ) : null}
 
-      {!isMoySkladLinked && isIikoLinked ? (
+      {canManageContent && !isMoySkladLinked && isIikoLinked ? (
         <div className="absolute top-11 left-2 z-20 opacity-60">
           <SyncIikoProductAction
             productId={productId}
@@ -181,56 +212,58 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
         </div>
       ) : null}
 
-      <div className="absolute top-[5px] right-[5px] z-20 flex flex-col gap-2 opacity-60">
-        {typeof categoryId === "string" &&
-        typeof categoryPosition === "number" ? (
-          <ChangeProductCategoryPositionAction
-            productId={productId}
-            categoryId={categoryId}
-            currentPosition={categoryPosition}
-            disabled={isActionPending}
-            onPendingChange={setIsUpdatingCategoryPosition}
-          />
-        ) : null}
-        {canToggleStatus ? (
+      {canManageContent ? (
+        <div className="absolute top-[5px] right-[5px] z-20 flex flex-col gap-2 opacity-60">
+          {typeof categoryId === "string" &&
+          typeof categoryPosition === "number" ? (
+            <ChangeProductCategoryPositionAction
+              productId={productId}
+              categoryId={categoryId}
+              currentPosition={categoryPosition}
+              disabled={isActionPending}
+              onPendingChange={setIsUpdatingCategoryPosition}
+            />
+          ) : null}
+          {canToggleStatus ? (
+            <Button
+              type="button"
+              size="icon"
+              disabled={isActionPending}
+              onClick={handleToggleStatusClick}
+              className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+              aria-label={isStatusActive ? "Скрыть товар" : "Показать товар"}
+            >
+              {isStatusActive ? (
+                <EyeOff className="text-muted-foreground size-4" />
+              ) : (
+                <Eye className="text-muted-foreground size-4" />
+              )}
+            </Button>
+          ) : null}
+          {!isIntegrationLinked ? (
+            <Button
+              type="button"
+              size="icon"
+              disabled={isActionPending}
+              onClick={handleDuplicateClick}
+              className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+              aria-label="Дублировать товар"
+            >
+              <Copy className="text-muted-foreground size-4" />
+            </Button>
+          ) : null}
           <Button
             type="button"
             size="icon"
             disabled={isActionPending}
-            onClick={handleToggleStatusClick}
+            onClick={handleTriggerClick}
             className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
-            aria-label={isStatusActive ? "Скрыть товар" : "Показать товар"}
+            aria-label="Редактировать товар"
           >
-            {isStatusActive ? (
-              <EyeOff className="text-muted-foreground size-4" />
-            ) : (
-              <Eye className="text-muted-foreground size-4" />
-            )}
+            <Pencil className="text-muted-foreground size-4" />
           </Button>
-        ) : null}
-        {!isIntegrationLinked ? (
-          <Button
-            type="button"
-            size="icon"
-            disabled={isActionPending}
-            onClick={handleDuplicateClick}
-            className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
-            aria-label="Дублировать товар"
-          >
-            <Copy className="text-muted-foreground size-4" />
-          </Button>
-        ) : null}
-        <Button
-          type="button"
-          size="icon"
-          disabled={isActionPending}
-          onClick={handleTriggerClick}
-          className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
-          aria-label="Редактировать товар"
-        >
-          <Pencil className="text-muted-foreground size-4" />
-        </Button>
-      </div>
+        </div>
+      ) : null}
     </>
   );
 };

@@ -159,7 +159,7 @@ export const ProductEditorMainSection: React.FC<
         : renderDynamicForm(formFields)}
 
       {priceListSettingsAction ? (
-        <div className="flex min-w-0 justify-start">
+        <div className="flex min-w-0 justify-end">
           {priceListSettingsAction}
         </div>
       ) : null}

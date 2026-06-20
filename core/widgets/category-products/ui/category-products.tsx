@@ -17,6 +17,7 @@ import {
   isMoySkladProduct,
   ProductCardSkeleton,
   ProductDomBudgetContent,
+  PRODUCT_CARD_GRID_BASE_HEIGHT_PX,
   PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME,
   PRODUCT_CARD_GRID_LAYOUT_CLASS_NAME,
   ProductLink,
@@ -26,12 +27,16 @@ import {
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import {
   CategoryDto,
+  ProductWithAttributesDtoStatus,
   ProductWithAttributesDto,
   categoryControllerGetProductCardsByCategory,
   getProductControllerGetUncategorizedInfiniteCardsQueryKey,
   productControllerGetUncategorizedInfiniteCards,
 } from "@/shared/api/generated/react-query";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import {
+  canManageCatalogContent,
+  isChildCatalog,
+} from "@/shared/lib/catalog-content-access";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
@@ -78,6 +83,7 @@ interface ProductSectionCardProps {
   shouldUseCartUi: boolean;
   isAuthenticated: boolean;
   canManageContent: boolean;
+  showParentCatalogHiddenStatus: boolean;
 }
 
 interface ProductSectionProps {
@@ -91,6 +97,7 @@ interface ProductSectionProps {
   isDetailed: boolean;
   section: ProductSectionDefinition;
   shouldUseCartUi: boolean;
+  showParentCatalogHiddenStatus: boolean;
 }
 
 export const CATEGORY_PRODUCTS_PAGE_SIZE = 32;
@@ -102,6 +109,10 @@ const DETAILED_INITIAL_SKELETON_ITEMS_COUNT = 2;
 const GRID_NEXT_PAGE_SKELETON_ITEMS_COUNT = 4;
 const DETAILED_NEXT_PAGE_SKELETON_ITEMS_COUNT = 1;
 const MAX_CATEGORY_SKELETON_ITEMS_COUNT = 16;
+const PRODUCT_CARD_GRID_GAP_PX = 12;
+const PRODUCT_CARD_DETAILED_GAP_PX = 16;
+const PRODUCT_CARD_DETAILED_SKELETON_HEIGHT_PX = 160;
+const ESTIMATED_GRID_SKELETON_COLUMNS = 3;
 const SECTION_INTERSECTION_BOTTOM_MARGIN_PX = 900;
 const NEXT_PAGE_INTERSECTION_BOTTOM_MARGIN_PX = 360;
 const CATEGORY_INTERSECTION_TOP_GUARD_PX = 32;
@@ -131,6 +142,26 @@ function clampCategorySkeletonCount(count: number): number {
   return Math.min(
     MAX_CATEGORY_SKELETON_ITEMS_COUNT,
     Math.max(0, Math.floor(count)),
+  );
+}
+
+function getSkeletonListEstimatedHeight(
+  count: number,
+  isDetailed: boolean,
+): number {
+  if (count <= 0) return 0;
+
+  if (isDetailed) {
+    return (
+      count * PRODUCT_CARD_DETAILED_SKELETON_HEIGHT_PX +
+      Math.max(0, count - 1) * PRODUCT_CARD_DETAILED_GAP_PX
+    );
+  }
+
+  const rows = Math.ceil(count / ESTIMATED_GRID_SKELETON_COLUMNS);
+  return (
+    rows * PRODUCT_CARD_GRID_BASE_HEIGHT_PX +
+    Math.max(0, rows - 1) * PRODUCT_CARD_GRID_GAP_PX
   );
 }
 
@@ -245,59 +276,71 @@ const ProductSectionCard = React.memo(
     shouldUseCartUi,
     isAuthenticated,
     canManageContent,
+    showParentCatalogHiddenStatus,
   }: ProductSectionCardProps) => {
     const { product, categoryId, categoryPosition } = item;
+    const shouldShowParentHiddenStatus =
+      showParentCatalogHiddenStatus &&
+      product.status === ProductWithAttributesDtoStatus.HIDDEN;
+    const shouldRenderCartUi =
+      shouldUseCartUi && !shouldShowParentHiddenStatus;
     const shouldShowAdminActions =
-      !shouldUseCartUi && isAuthenticated && canManageContent;
+      !shouldRenderCartUi && isAuthenticated && canManageContent;
+    const card = (
+      <ProductCardRuntime
+        data={product}
+        imageLoading={imageLoading}
+        isDetailed={isDetailed}
+        isIikoLinked={shouldShowAdminActions && isIikoProduct(product)}
+        isMoySkladLinked={shouldShowAdminActions && isMoySkladProduct(product)}
+        actions={
+          shouldShowAdminActions && isDetailed ? (
+            <EditProductCardAction
+              categoryId={categoryId}
+              categoryPosition={categoryPosition}
+              isIikoLinked={isIikoProduct(product)}
+              isMoySkladLinked={isMoySkladProduct(product)}
+              productId={product.id}
+              status={product.status}
+            />
+          ) : undefined
+        }
+        className={cn("flex-1", isDetailed && "min-h-[160px]")}
+        pluginContainerClassName="flex-1"
+        hidePriceWhenFooterAction={shouldRenderCartUi}
+        reserveHeaderActionSpace={shouldRenderCartUi}
+        footerAction={
+          shouldRenderCartUi ? (
+            <CartProductCardFooterAction
+              product={product}
+              isDetailed={isDetailed}
+            />
+          ) : shouldShowAdminActions ? (
+            <ToggleProductPopularAction
+              productId={product.id}
+              isPopular={Boolean(product.isPopular)}
+            />
+          ) : undefined
+        }
+      />
+    );
 
     return (
       <article className="relative flex flex-col">
-        <ProductLink
-          slug={product.slug}
-          product={product}
-          className="flex flex-1 flex-col"
-        >
-          <ProductCardRuntime
-            data={product}
-            imageLoading={imageLoading}
-            isDetailed={isDetailed}
-            isIikoLinked={shouldShowAdminActions && isIikoProduct(product)}
-            isMoySkladLinked={
-              shouldShowAdminActions && isMoySkladProduct(product)
-            }
-            actions={
-              shouldShowAdminActions && isDetailed ? (
-                <EditProductCardAction
-                  categoryId={categoryId}
-                  categoryPosition={categoryPosition}
-                  isIikoLinked={isIikoProduct(product)}
-                  isMoySkladLinked={isMoySkladProduct(product)}
-                  productId={product.id}
-                  status={product.status}
-                />
-              ) : undefined
-            }
-            className={cn("flex-1", isDetailed && "min-h-[160px]")}
-            pluginContainerClassName="flex-1"
-            hidePriceWhenFooterAction={shouldUseCartUi}
-            reserveHeaderActionSpace={shouldUseCartUi}
-            footerAction={
-              shouldUseCartUi ? (
-                <CartProductCardFooterAction
-                  product={product}
-                  isDetailed={isDetailed}
-                />
-              ) : shouldShowAdminActions ? (
-                <ToggleProductPopularAction
-                  productId={product.id}
-                  isPopular={Boolean(product.isPopular)}
-                />
-              ) : undefined
-            }
-          />
-        </ProductLink>
-        {shouldUseCartUi ? <CartProductAction product={product} /> : null}
-        {shouldShowAdminActions && !isDetailed ? (
+        {shouldShowParentHiddenStatus ? (
+          <div className="flex flex-1 flex-col">{card}</div>
+        ) : (
+          <ProductLink
+            slug={product.slug}
+            product={product}
+            className="flex flex-1 flex-col"
+          >
+            {card}
+          </ProductLink>
+        )}
+        {shouldRenderCartUi ? <CartProductAction product={product} /> : null}
+        {shouldShowParentHiddenStatus ||
+        (shouldShowAdminActions && !isDetailed) ? (
           <EditProductCardAction
             categoryId={categoryId}
             categoryPosition={categoryPosition}
@@ -343,6 +386,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   isDetailed,
   section,
   shouldUseCartUi,
+  showParentCatalogHiddenStatus,
 }) => {
   const hasKnownProductCount = typeof section.productCount === "number";
   const knownProductCount = Math.max(0, section.productCount ?? 0);
@@ -398,6 +442,10 @@ const ProductSection: React.FC<ProductSectionProps> = ({
   const initialSkeletonCount = hasKnownProductCount
     ? clampCategorySkeletonCount(knownProductCount)
     : fallbackInitialSkeletonCount;
+  const initialSkeletonEstimatedHeight = getSkeletonListEstimatedHeight(
+    initialSkeletonCount,
+    isDetailed,
+  );
   const nextPageSkeletonCount = hasKnownProductCount
     ? clampCategorySkeletonCount(knownProductCount - loadedProductCount)
     : fallbackNextPageSkeletonCount;
@@ -498,6 +546,9 @@ const ProductSection: React.FC<ProductSectionProps> = ({
                   shouldUseCartUi={shouldUseCartUi}
                   isAuthenticated={isAuthenticated}
                   canManageContent={canManageContent}
+                  showParentCatalogHiddenStatus={
+                    showParentCatalogHiddenStatus
+                  }
                 />
               ))}
             </ProductDomBudgetContent>
@@ -506,6 +557,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
           <ProductDomBudgetContent
             className={listClassName}
             enabled={enableDomBudget && index > 0}
+            estimatedHeight={initialSkeletonEstimatedHeight}
             forceRender={forceLoad}
           >
             <ProductSectionSkeletons
@@ -547,6 +599,8 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
   const { catalog } = useCatalogState();
   const { shouldUseCartUi } = useCart();
   const canManageContent = canManageCatalogContent(catalog);
+  const showParentCatalogHiddenStatus =
+    isAuthenticated && isChildCatalog(catalog);
   const forceLoadedCategoryId =
     forceActivatedCategoryId ?? activationBlockedCategoryId;
   const knownProductCount = React.useMemo(
@@ -652,6 +706,7 @@ export const CategoryProducts: React.FC<CategoryProductsProps> = ({
           activeJumpCategoryId={forceLoadedCategoryId}
           blockViewportAutoLoad={blockViewportAutoLoad}
           canManageContent={canManageContent}
+          showParentCatalogHiddenStatus={showParentCatalogHiddenStatus}
           enableDomBudget={enableDomBudget}
           forceLoad={
             Boolean(section.categoryId) &&

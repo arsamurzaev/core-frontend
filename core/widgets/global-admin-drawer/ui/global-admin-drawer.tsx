@@ -15,9 +15,16 @@ import {
   getCategoryControllerGetAllQueryKey,
   getProductControllerGetAllQueryKey,
   type AdminDeleteCatalogContentResultDto,
+  type CatalogControllerGetCurrentQueryResult,
   useAdminControllerDeleteCatalogContent,
+  useAdminControllerUpdateCatalog,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import {
+  getCatalogPresentationMode,
+  type CatalogPresentationMode,
+} from "@/shared/lib/catalog-presentation-mode";
+import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
@@ -28,7 +35,9 @@ import { Switch } from "@/shared/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
+  Contact,
   DatabaseZap,
+  LayoutGrid,
   ShieldAlert,
   SlidersHorizontal,
   Trash2,
@@ -59,6 +68,11 @@ const COUNT_LABELS: Array<{
   { key: "integrationCategoryLinks", label: "Связи категорий интеграций" },
 ];
 
+const CATALOG_PRESENTATION_MODE_OPTIONS = [
+  { value: "CATALOG" as const, label: "Каталог", Icon: LayoutGrid },
+  { value: "BUSINESS_CARD" as const, label: "Визитка", Icon: Contact },
+];
+
 function getDeletedTotal(result: AdminDeleteCatalogContentResultDto): number {
   return Object.values(result.counts).reduce((sum, value) => sum + value, 0);
 }
@@ -83,6 +97,28 @@ async function invalidateCatalogContentQueries(
   ]);
 }
 
+function setCurrentCatalogPresentationMode(
+  queryClient: ReturnType<typeof useQueryClient>,
+  presentationMode: CatalogPresentationMode,
+) {
+  queryClient.setQueryData<CatalogControllerGetCurrentQueryResult | undefined>(
+    getCatalogControllerGetCurrentQueryKey(),
+    (currentCatalog) => {
+      if (!currentCatalog?.settings) {
+        return currentCatalog;
+      }
+
+      return {
+        ...currentCatalog,
+        settings: {
+          ...currentCatalog.settings,
+          presentationMode,
+        },
+      };
+    },
+  );
+}
+
 function getAdminCatalogFeaturesQueryKey(catalogId: string) {
   return ["admin", "catalog-features", catalogId] as const;
 }
@@ -95,6 +131,27 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
   const catalog = useCatalog();
   const queryClient = useQueryClient();
   const deleteContent = useAdminControllerDeleteCatalogContent();
+  const updateCatalogMode = useAdminControllerUpdateCatalog({
+    mutation: {
+      onSuccess: (_data, variables) => {
+        const presentationMode = variables.data.presentationMode;
+
+        if (presentationMode) {
+          setCurrentCatalogPresentationMode(queryClient, presentationMode);
+        }
+
+        void Promise.allSettled([
+          invalidateCatalogContentQueries(queryClient),
+          queryClient.invalidateQueries({
+            queryKey: getCatalogControllerGetCurrentFeaturesQueryKey(),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ["/admin/catalogs"],
+          }),
+        ]);
+      },
+    },
+  });
   const featureQuery = useQuery({
     queryKey: getAdminCatalogFeaturesQueryKey(catalog.id),
     queryFn: () => getCatalogFeatureEntitlements(catalog.id),
@@ -128,6 +185,15 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
     React.useState<AdminDeleteCatalogContentResultDto | null>(null);
 
   const isDeleting = deleteContent.isPending;
+  const currentPresentationMode = getCatalogPresentationMode(catalog);
+  const [selectedPresentationMode, setSelectedPresentationMode] =
+    React.useState<CatalogPresentationMode>(currentPresentationMode);
+  const isUpdatingPresentationMode = updateCatalogMode.isPending;
+
+  React.useEffect(() => {
+    setSelectedPresentationMode(currentPresentationMode);
+  }, [currentPresentationMode]);
+
   const featuresByKey = React.useMemo(() => {
     return new Map(
       (featureQuery.data?.features ?? []).map((feature) => [
@@ -160,6 +226,37 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
       });
     },
     [updateFeature],
+  );
+
+  const handlePresentationModeChange = React.useCallback(
+    (mode: CatalogPresentationMode) => {
+      if (mode === selectedPresentationMode || updateCatalogMode.isPending) {
+        return;
+      }
+
+      const previousMode = selectedPresentationMode;
+      setSelectedPresentationMode(mode);
+      setCurrentCatalogPresentationMode(queryClient, mode);
+
+      toast.promise(
+        updateCatalogMode
+          .mutateAsync({
+            id: catalog.id,
+            data: { presentationMode: mode },
+          })
+          .catch((error) => {
+            setSelectedPresentationMode(previousMode);
+            setCurrentCatalogPresentationMode(queryClient, previousMode);
+            throw error;
+          }),
+        {
+          loading: "Сохраняем режим каталога...",
+          success: "Режим каталога обновлён",
+          error: (error) => extractApiErrorMessage(error),
+        },
+      );
+    },
+    [catalog.id, queryClient, selectedPresentationMode, updateCatalogMode],
   );
 
   const handleDeleteContent = React.useCallback(async () => {
@@ -217,6 +314,41 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                       {catalog.id}
                     </dd>
                   </dl>
+
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium">Режим каталога</div>
+                    <div className="grid grid-cols-2 gap-1 rounded-md border border-black/10 bg-muted/40 p-1">
+                      {CATALOG_PRESENTATION_MODE_OPTIONS.map(
+                        ({ Icon, label, value }) => {
+                          const isActive = selectedPresentationMode === value;
+
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              aria-pressed={isActive}
+                              disabled={isUpdatingPresentationMode}
+                              className={cn(
+                                "flex min-h-10 items-center justify-center gap-2 rounded-[5px] px-2 text-sm font-medium transition disabled:cursor-wait disabled:opacity-70",
+                                isActive
+                                  ? "bg-background text-foreground shadow-sm"
+                                  : "text-muted-foreground hover:text-foreground",
+                              )}
+                              onClick={() =>
+                                handlePresentationModeChange(value)
+                              }
+                            >
+                              <Icon className="size-4 shrink-0" />
+                              <span className="min-w-0 truncate">{label}</span>
+                            </button>
+                          );
+                        },
+                      )}
+                    </div>
+                    {isUpdatingPresentationMode ? (
+                      <span className="sr-only">Сохраняем режим каталога</span>
+                    ) : null}
+                  </div>
                 </section>
 
                 <section className="space-y-4 rounded-lg border border-black/10 p-4">

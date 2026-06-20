@@ -14,10 +14,14 @@ import {
 } from "@/core/modules/product";
 import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
 import {
+  ProductWithAttributesDtoStatus,
   type ProductWithAttributesDto,
   useProductControllerGetPopularCards,
 } from "@/shared/api/generated/react-query";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import {
+  canManageCatalogContent,
+  isChildCatalog,
+} from "@/shared/lib/catalog-content-access";
 import { cn } from "@/shared/lib/utils";
 import {
   Carousel,
@@ -45,9 +49,10 @@ export const PopularProductCarousel: React.FC<Props> = ({
   const { quantityByProductId, shouldUseCartUi } = useCart();
   const { isAuthenticated } = useSession();
   const { catalog } = useCatalogState();
+  const canManageContent = canManageCatalogContent(catalog);
   const shouldRenderCartUi = isMounted && shouldUseCartUi;
-  const shouldShowAdminActions =
-    !shouldRenderCartUi && isAuthenticated && canManageCatalogContent(catalog);
+  const showParentCatalogHiddenStatus =
+    isAuthenticated && isChildCatalog(catalog);
 
   const { isLoading, data } = useProductControllerGetPopularCards({
     query: {
@@ -118,57 +123,79 @@ export const PopularProductCarousel: React.FC<Props> = ({
       <h2 className="text-2xl font-bold">Популярное</h2>
       <Carousel setApi={setApi} className={cn("space-y-3", className)}>
         <CarouselContent>
-          {data?.map((product) => (
-            <CarouselItem key={product.id}>
-              <article className="relative">
-                <ProductLink
-                  slug={product.slug}
-                  product={product}
-                  className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
-                >
-                  <ProductCardRuntime
-                    data={product}
-                    isDetailed
-                    isIikoLinked={
-                      shouldShowAdminActions && isIikoProduct(product)
-                    }
-                    isMoySkladLinked={
-                      shouldShowAdminActions && isMoySkladProduct(product)
-                    }
-                    actions={
-                      shouldShowAdminActions ? (
-                        <EditProductCardAction
-                          isIikoLinked={isIikoProduct(product)}
-                          isMoySkladLinked={isMoySkladProduct(product)}
-                          productId={product.id}
-                          status={product.status}
-                        />
-                      ) : undefined
-                    }
-                    hidePriceWhenFooterAction={shouldRenderCartUi}
-                    reserveHeaderActionSpace={shouldRenderCartUi}
-                    footerAction={
-                      shouldRenderCartUi &&
-                      (quantityByProductId[product.id] ?? 0) > 0 ? (
-                        <CartProductCardFooterAction
-                          product={product}
-                          isDetailed
-                        />
-                      ) : shouldShowAdminActions ? (
-                        <ToggleProductPopularAction
-                          productId={product.id}
-                          isPopular={Boolean(product.isPopular)}
-                        />
-                      ) : undefined
-                    }
-                  />
-                </ProductLink>
-                {shouldRenderCartUi ? (
-                  <CartProductAction product={product} />
-                ) : null}
-              </article>
-            </CarouselItem>
-          ))}
+          {data?.map((product) => {
+            const shouldShowParentHiddenStatus =
+              showParentCatalogHiddenStatus &&
+              product.status === ProductWithAttributesDtoStatus.HIDDEN;
+            const shouldRenderProductCartUi =
+              shouldRenderCartUi && !shouldShowParentHiddenStatus;
+            const shouldShowProductAdminActions =
+              !shouldRenderProductCartUi && isAuthenticated && canManageContent;
+            const card = (
+              <ProductCardRuntime
+                data={product}
+                isDetailed
+                isIikoLinked={
+                  shouldShowProductAdminActions && isIikoProduct(product)
+                }
+                isMoySkladLinked={
+                  shouldShowProductAdminActions && isMoySkladProduct(product)
+                }
+                actions={
+                  shouldShowProductAdminActions ? (
+                    <EditProductCardAction
+                      isIikoLinked={isIikoProduct(product)}
+                      isMoySkladLinked={isMoySkladProduct(product)}
+                      productId={product.id}
+                      status={product.status}
+                    />
+                  ) : undefined
+                }
+                hidePriceWhenFooterAction={shouldRenderProductCartUi}
+                reserveHeaderActionSpace={shouldRenderProductCartUi}
+                footerAction={
+                  shouldRenderProductCartUi &&
+                  (quantityByProductId[product.id] ?? 0) > 0 ? (
+                    <CartProductCardFooterAction product={product} isDetailed />
+                  ) : shouldShowProductAdminActions ? (
+                    <ToggleProductPopularAction
+                      productId={product.id}
+                      isPopular={Boolean(product.isPopular)}
+                    />
+                  ) : undefined
+                }
+              />
+            );
+
+            return (
+              <CarouselItem key={product.id}>
+                <article className="relative">
+                  {shouldShowParentHiddenStatus ? (
+                    <div className="m-1 block rounded-lg">{card}</div>
+                  ) : (
+                    <ProductLink
+                      slug={product.slug}
+                      product={product}
+                      className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
+                    >
+                      {card}
+                    </ProductLink>
+                  )}
+                  {shouldRenderProductCartUi ? (
+                    <CartProductAction product={product} />
+                  ) : null}
+                  {shouldShowParentHiddenStatus ? (
+                    <EditProductCardAction
+                      isIikoLinked={isIikoProduct(product)}
+                      isMoySkladLinked={isMoySkladProduct(product)}
+                      productId={product.id}
+                      status={product.status}
+                    />
+                  ) : null}
+                </article>
+              </CarouselItem>
+            );
+          })}
         </CarouselContent>
 
         <ul className="flex min-h-1 justify-center gap-1">

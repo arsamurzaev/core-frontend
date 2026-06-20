@@ -5,6 +5,9 @@ import {
 } from "@/shared/api/generated/react-query";
 import { describe, expect, it } from "vitest";
 import {
+  PRODUCT_HIDDEN_BY_PARENT_CATALOG_STATE,
+  PRODUCT_UNAVAILABLE_STATE,
+  getProductUnavailableState,
   isProductPubliclyAvailable,
   shouldHideProductFromCustomer,
 } from "./product-availability";
@@ -72,5 +75,35 @@ describe("product availability", () => {
         userRole: AuthUserDtoRole.CATALOG,
       }),
     ).toBe(false);
+  });
+
+  it("explains hidden child-catalog products as hidden by the parent catalog", () => {
+    expect(
+      getProductUnavailableState({
+        catalog: { parentId: "parent-catalog" },
+        product: product(ProductWithDetailsDtoStatus.HIDDEN),
+        userRole: null,
+      }),
+    ).toBe(PRODUCT_HIDDEN_BY_PARENT_CATALOG_STATE);
+  });
+
+  it("keeps parent-catalog hidden state for child catalog managers", () => {
+    expect(
+      getProductUnavailableState({
+        catalog: { parentId: "parent-catalog" },
+        product: product(ProductWithDetailsDtoStatus.HIDDEN),
+        userRole: AuthUserDtoRole.CATALOG,
+      }),
+    ).toBe(PRODUCT_HIDDEN_BY_PARENT_CATALOG_STATE);
+  });
+
+  it("keeps the default unavailable state outside child catalogs", () => {
+    expect(
+      getProductUnavailableState({
+        catalog: { parentId: null },
+        product: product(ProductWithDetailsDtoStatus.HIDDEN),
+        userRole: null,
+      }),
+    ).toBe(PRODUCT_UNAVAILABLE_STATE);
   });
 });

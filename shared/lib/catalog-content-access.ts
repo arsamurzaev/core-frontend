@@ -1,5 +1,10 @@
+import { isBusinessCardCatalog } from "@/shared/lib/catalog-presentation-mode";
+
 type CatalogContentAccessRef = {
   parentId?: string | null;
+  settings?: {
+    presentationMode?: unknown;
+  } | null;
 };
 
 export function isChildCatalog(
@@ -11,5 +16,5 @@ export function isChildCatalog(
 export function canManageCatalogContent(
   catalog?: CatalogContentAccessRef | null,
 ): boolean {
-  return !isChildCatalog(catalog);
+  return !isChildCatalog(catalog) && !isBusinessCardCatalog(catalog);
 }

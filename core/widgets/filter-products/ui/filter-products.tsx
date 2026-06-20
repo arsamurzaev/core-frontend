@@ -30,8 +30,12 @@ import {
 } from "@/core/widgets/filter-products/model/filter-products";
 import { useFilterProducts } from "@/core/widgets/filter-products/model/use-filter-products";
 import { useFilterRecommendations } from "@/core/widgets/filter-products/model/use-filter-recommendations";
+import { ProductWithAttributesDtoStatus } from "@/shared/api/generated/react-query";
 import type { CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import {
+  canManageCatalogContent,
+  isChildCatalog,
+} from "@/shared/lib/catalog-content-access";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";
@@ -54,6 +58,7 @@ interface FilterProductCardProps {
   shouldUseCartUi: boolean;
   isAuthenticated: boolean;
   canManageContent: boolean;
+  showParentCatalogHiddenStatus: boolean;
   quantity: number;
 }
 
@@ -72,6 +77,7 @@ interface FilterProductSectionProps {
   sectionId?: string;
   shouldUseCartUi: boolean;
   canManageContent: boolean;
+  showParentCatalogHiddenStatus: boolean;
   quantityByProductId: Readonly<Record<string, number>>;
 }
 
@@ -127,57 +133,69 @@ const FilterProductCard = React.memo(
     shouldUseCartUi,
     isAuthenticated,
     canManageContent,
+    showParentCatalogHiddenStatus,
     quantity,
   }: FilterProductCardProps) => {
+    const shouldShowParentHiddenStatus =
+      showParentCatalogHiddenStatus &&
+      product.status === ProductWithAttributesDtoStatus.HIDDEN;
+    const shouldRenderCartUi =
+      shouldUseCartUi && !shouldShowParentHiddenStatus;
     const shouldShowAdminActions =
-      !shouldUseCartUi && isAuthenticated && canManageContent;
+      !shouldRenderCartUi && isAuthenticated && canManageContent;
+    const card = (
+      <ProductCardRuntime
+        data={product}
+        imageLoading={imageLoading}
+        isDetailed={isDetailed}
+        isIikoLinked={shouldShowAdminActions && isIikoProduct(product)}
+        isMoySkladLinked={shouldShowAdminActions && isMoySkladProduct(product)}
+        actions={
+          shouldShowAdminActions && isDetailed ? (
+            <EditProductCardAction
+              isIikoLinked={isIikoProduct(product)}
+              isMoySkladLinked={isMoySkladProduct(product)}
+              productId={product.id}
+              status={product.status}
+            />
+          ) : undefined
+        }
+        className={cn("flex-1", isDetailed && "min-h-[160px]")}
+        pluginContainerClassName="flex-1"
+        hidePriceWhenFooterAction={shouldRenderCartUi}
+        reserveHeaderActionSpace={shouldRenderCartUi}
+        footerAction={
+          shouldRenderCartUi && quantity > 0 ? (
+            <CartProductCardFooterAction
+              product={product}
+              isDetailed={isDetailed}
+            />
+          ) : shouldShowAdminActions ? (
+            <ToggleProductPopularAction
+              productId={product.id}
+              isPopular={Boolean(product.isPopular)}
+            />
+          ) : undefined
+        }
+      />
+    );
 
     return (
       <article className="relative flex flex-col">
-        <ProductLink
-          slug={product.slug}
-          product={product}
-          className="flex flex-1 flex-col"
-        >
-          <ProductCardRuntime
-            data={product}
-            imageLoading={imageLoading}
-            isDetailed={isDetailed}
-            isIikoLinked={shouldShowAdminActions && isIikoProduct(product)}
-            isMoySkladLinked={
-              shouldShowAdminActions && isMoySkladProduct(product)
-            }
-            actions={
-              shouldShowAdminActions && isDetailed ? (
-                <EditProductCardAction
-                  isIikoLinked={isIikoProduct(product)}
-                  isMoySkladLinked={isMoySkladProduct(product)}
-                  productId={product.id}
-                  status={product.status}
-                />
-              ) : undefined
-            }
-            className={cn("flex-1", isDetailed && "min-h-[160px]")}
-            pluginContainerClassName="flex-1"
-            hidePriceWhenFooterAction={shouldUseCartUi}
-            reserveHeaderActionSpace={shouldUseCartUi}
-            footerAction={
-              shouldUseCartUi && quantity > 0 ? (
-                <CartProductCardFooterAction
-                  product={product}
-                  isDetailed={isDetailed}
-                />
-              ) : shouldShowAdminActions ? (
-                <ToggleProductPopularAction
-                  productId={product.id}
-                  isPopular={Boolean(product.isPopular)}
-                />
-              ) : undefined
-            }
-          />
-        </ProductLink>
-        {shouldUseCartUi ? <CartProductAction product={product} /> : null}
-        {shouldShowAdminActions && !isDetailed ? (
+        {shouldShowParentHiddenStatus ? (
+          <div className="flex flex-1 flex-col">{card}</div>
+        ) : (
+          <ProductLink
+            slug={product.slug}
+            product={product}
+            className="flex flex-1 flex-col"
+          >
+            {card}
+          </ProductLink>
+        )}
+        {shouldRenderCartUi ? <CartProductAction product={product} /> : null}
+        {shouldShowParentHiddenStatus ||
+        (shouldShowAdminActions && !isDetailed) ? (
           <EditProductCardAction
             isIikoLinked={isIikoProduct(product)}
             isMoySkladLinked={isMoySkladProduct(product)}
@@ -226,6 +244,7 @@ const FilterProductSection: React.FC<FilterProductSectionProps> = ({
   quantityByProductId,
   sectionId,
   shouldUseCartUi,
+  showParentCatalogHiddenStatus,
 }) => {
   const listClassName = isDetailed
     ? PRODUCT_CARD_DETAILED_LAYOUT_CLASS_NAME
@@ -304,6 +323,9 @@ const FilterProductSection: React.FC<FilterProductSectionProps> = ({
                     shouldUseCartUi={shouldUseCartUi}
                     isAuthenticated={isAuthenticated}
                     canManageContent={canManageContent}
+                    showParentCatalogHiddenStatus={
+                      showParentCatalogHiddenStatus
+                    }
                     quantity={quantityByProductId[product.id] ?? 0}
                   />
                 ))}
@@ -357,6 +379,8 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
   const { catalog } = useCatalogState();
   const { quantityByProductId, shouldUseCartUi } = useCart();
   const canManageContent = canManageCatalogContent(catalog);
+  const showParentCatalogHiddenStatus =
+    isAuthenticated && isChildCatalog(catalog);
 
   return (
     <div
@@ -378,6 +402,7 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
         productPages={productPages}
         products={products}
         quantityByProductId={quantityByProductId}
+        showParentCatalogHiddenStatus={showParentCatalogHiddenStatus}
         shouldUseCartUi={shouldUseCartUi}
       />
 
@@ -394,6 +419,7 @@ export const FilterProducts: React.FC<FilterProductsProps> = ({
         productPages={recommendedProductPages}
         products={recommendedProducts}
         quantityByProductId={quantityByProductId}
+        showParentCatalogHiddenStatus={showParentCatalogHiddenStatus}
         shouldUseCartUi={shouldUseCartUi}
       />
     </div>

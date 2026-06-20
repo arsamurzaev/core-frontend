@@ -101,9 +101,13 @@ export interface AuthSessionGeoDto {
 export interface AuthSessionClientDto {
   /** @nullable */
   ip?: string | null;
+  /** @nullable */
   browser?: AuthSessionBrowserDto | null;
+  /** @nullable */
   os?: AuthSessionOsDto | null;
+  /** @nullable */
   device?: AuthSessionDeviceDto | null;
+  /** @nullable */
   geo?: AuthSessionGeoDto | null;
 }
 
@@ -242,6 +246,14 @@ export const AdminCatalogConfigListItemDtoStatus = {
   PROMOTION: 'PROMOTION',
 } as const;
 
+export type AdminCatalogConfigListItemDtoPresentationMode = typeof AdminCatalogConfigListItemDtoPresentationMode[keyof typeof AdminCatalogConfigListItemDtoPresentationMode];
+
+
+export const AdminCatalogConfigListItemDtoPresentationMode = {
+  CATALOG: 'CATALOG',
+  BUSINESS_CARD: 'BUSINESS_CARD',
+} as const;
+
 export type AdminCatalogConfigListItemDtoInventoryMode = typeof AdminCatalogConfigListItemDtoInventoryMode[keyof typeof AdminCatalogConfigListItemDtoInventoryMode];
 
 
@@ -253,6 +265,7 @@ export const AdminCatalogConfigListItemDtoInventoryMode = {
 
 export interface AdminCatalogConfigListItemDto {
   status: AdminCatalogConfigListItemDtoStatus;
+  presentationMode: AdminCatalogConfigListItemDtoPresentationMode;
   inventoryMode: AdminCatalogConfigListItemDtoInventoryMode;
   /** Whether the catalog can use product type schemas. */
   canUseProductTypes: boolean;
@@ -260,12 +273,18 @@ export interface AdminCatalogConfigListItemDto {
   canUseProductVariants: boolean;
   /** Whether the catalog can use catalog sale units. */
   canUseCatalogSaleUnits: boolean;
+  /** Whether the catalog can use product modifiers. */
+  canUseCatalogModifiers: boolean;
+  /** Whether the catalog can use catalog price lists. */
+  canUseCatalogPriceLists: boolean;
   /** Whether the catalog can use the paid internal inventory feature. */
   canUseInternalInventory: boolean;
   /** Whether the catalog can use MoySklad integration. */
   canUseMoySkladIntegration: boolean;
   /** Whether the catalog can use iiko integration. */
   canUseIikoIntegration: boolean;
+  /** Whether the catalog can use 1C integration. */
+  canUseOneCIntegration: boolean;
 }
 
 export interface AdminDeleteInfoDto {
@@ -326,6 +345,7 @@ export interface AdminTypeListItemDto {
   name: string;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -341,6 +361,7 @@ export interface AdminPromoCodeListItemDto {
   bet: string;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -375,6 +396,7 @@ export interface AdminRegionalityListItemDto {
   parentId?: string | null;
   countryCode: string;
   countryName: string;
+  /** @nullable */
   country?: AdminCountryListItemDto | null;
   /** @nullable */
   deleteAt?: string | null;
@@ -410,6 +432,7 @@ export interface AdminCatalogListItemDto {
      * @nullable
      */
   metricId?: string | null;
+  /** @nullable */
   config: AdminCatalogConfigListItemDto | null;
   /** @nullable */
   subscriptionEndsAt?: string | null;
@@ -417,11 +440,14 @@ export interface AdminCatalogListItemDto {
   subscriptionDaysLeft?: number | null;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
+  /** @nullable */
   logoMedia: MediaDto | null;
   type: AdminTypeListItemDto;
+  /** @nullable */
   promoCode: AdminPromoCodeListItemDto | null;
   activities: AdminCatalogActivityListItemDto[];
   regionalities: AdminRegionalityListItemDto[];
@@ -505,6 +531,17 @@ export const AdminUpdateCatalogDtoReqStatus = {
   PROMOTION: 'PROMOTION',
 } as const;
 
+/**
+ * Controls storefront presentation: full catalog or contact-only business card.
+ */
+export type AdminUpdateCatalogDtoReqPresentationMode = typeof AdminUpdateCatalogDtoReqPresentationMode[keyof typeof AdminUpdateCatalogDtoReqPresentationMode];
+
+
+export const AdminUpdateCatalogDtoReqPresentationMode = {
+  CATALOG: 'CATALOG',
+  BUSINESS_CARD: 'BUSINESS_CARD',
+} as const;
+
 export interface AdminUpdateCatalogDtoReq {
   name?: string;
   typeId?: string;
@@ -517,6 +554,8 @@ export interface AdminUpdateCatalogDtoReq {
      */
   metricId?: string | null;
   status?: AdminUpdateCatalogDtoReqStatus;
+  /** Controls storefront presentation: full catalog or contact-only business card. */
+  presentationMode?: AdminUpdateCatalogDtoReqPresentationMode;
   /** Catalog domain/subdomain stored as slug. */
   slug?: string;
   /** @nullable */
@@ -534,6 +573,8 @@ export const AdminCatalogFeatureEntitlementItemDtoFeature = {
   producttypes: 'product.types',
   productvariants: 'product.variants',
   catalogsale_units: 'catalog.sale_units',
+  catalogmodifiers: 'catalog.modifiers',
+  catalogprice_lists: 'catalog.price_lists',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
@@ -761,6 +802,7 @@ export interface AdminMoySkladStockLatestRunDto {
   totalRows: number;
   appliedRows: number;
   skippedRows: number;
+  /** @nullable */
   diagnostics: AdminMoySkladStockDiagnosticsDto | null;
   /** @nullable */
   error: string | null;
@@ -784,6 +826,7 @@ export interface AdminMoySkladStockDiagnosticsReportDto {
   /** @nullable */
   lastStockSyncedAt: string | null;
   links: AdminMoySkladStockLinkCountersDto;
+  /** @nullable */
   latestRun: AdminMoySkladStockLatestRunDto | null;
 }
 
@@ -794,6 +837,8 @@ export const AdminUpdateCatalogFeatureEntitlementDtoReqFeature = {
   producttypes: 'product.types',
   productvariants: 'product.variants',
   catalogsale_units: 'catalog.sale_units',
+  catalogmodifiers: 'catalog.modifiers',
+  catalogprice_lists: 'catalog.price_lists',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
@@ -913,6 +958,7 @@ export interface AdminActivityListItemDto {
   name: string;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -957,6 +1003,7 @@ export interface AdminPaymentDto {
   proofUrl?: string | null;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -965,6 +1012,8 @@ export interface AdminPaymentDto {
 export interface PresignUploadDtoReq {
   /** MIME-тип файла */
   contentType: string;
+  /** Размер файла в байтах */
+  contentLength?: number;
   /** Путь внутри каталога */
   path?: string;
   folder?: string;
@@ -1114,6 +1163,7 @@ export interface ProductVariantCatalogSaleUnitDto {
 
 export interface ProductVariantSaleUnitDto {
   id: string;
+  variantId: string;
   /** @nullable */
   catalogSaleUnitId: string | null;
   code: string;
@@ -1127,6 +1177,7 @@ export interface ProductVariantSaleUnitDto {
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
+  /** @nullable */
   catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
 }
 
@@ -1223,6 +1274,7 @@ export interface ProductAttributeDto {
   /** @nullable */
   valueDateTime: string | null;
   attribute: ProductAttributeRefDto;
+  /** @nullable */
   enumValue: ProductAttributeEnumValueDto | null;
 }
 
@@ -1315,9 +1367,12 @@ export interface ProductWithAttributesDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductWithAttributesDtoStatus;
@@ -1403,6 +1458,7 @@ export interface ProductVariantDto {
   updatedAt: string;
   attributes: VariantAttributeDto[];
   saleUnits: ProductVariantSaleUnitDto[];
+  /** @nullable */
   integration?: ProductIntegrationDto | null;
 }
 
@@ -1462,6 +1518,7 @@ export interface SeoDto {
   ogTitle: string | null;
   /** @nullable */
   ogDescription: string | null;
+  /** @nullable */
   ogMedia: MediaDto | null;
   /** @nullable */
   ogType: string | null;
@@ -1477,7 +1534,9 @@ export interface SeoDto {
   twitterTitle: string | null;
   /** @nullable */
   twitterDescription: string | null;
+  /** @nullable */
   twitterMedia: MediaDto | null;
+  /** @nullable */
   faviconMedia: MediaDto | null;
   /** @nullable */
   twitterSite: string | null;
@@ -1548,9 +1607,12 @@ export interface ProductWithDetailsDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductWithDetailsDtoStatus;
@@ -1561,6 +1623,7 @@ export interface ProductWithDetailsDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
 }
 
@@ -1622,6 +1685,30 @@ export interface ProductVariantDtoReq {
   saleUnits?: ProductVariantSaleUnitDtoReq[];
 }
 
+export interface CreateProductPriceListVariantAttributeDtoReq {
+  attributeId: string;
+  enumValueId: string;
+}
+
+export type CreateProductPriceListPriceDtoReqTarget = typeof CreateProductPriceListPriceDtoReqTarget[keyof typeof CreateProductPriceListPriceDtoReqTarget];
+
+
+export const CreateProductPriceListPriceDtoReqTarget = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  SALE_UNIT: 'SALE_UNIT',
+} as const;
+
+export interface CreateProductPriceListPriceDtoReq {
+  priceListId: string;
+  target: CreateProductPriceListPriceDtoReqTarget;
+  price: number;
+  /** Variant identity for VARIANT and variant-scoped SALE_UNIT prices during product creation. */
+  variantAttributes?: CreateProductPriceListVariantAttributeDtoReq[];
+  /** Required for SALE_UNIT prices. */
+  catalogSaleUnitId?: string;
+}
+
 export interface CreateProductDtoReq {
   name: string;
   /** @nullable */
@@ -1639,6 +1726,8 @@ export interface CreateProductDtoReq {
   /** Единицы продажи простого товара. Сохраняются на технический default-вариант. */
   saleUnits?: ProductVariantSaleUnitDtoReq[];
   variants?: ProductVariantDtoReq[];
+  /** Initial price-list prices. Backend resolves product, variant and sale-unit ids after creation. */
+  priceListPrices?: CreateProductPriceListPriceDtoReq[];
 }
 
 export type ProductCreateResponseDtoPriceState = typeof ProductCreateResponseDtoPriceState[keyof typeof ProductCreateResponseDtoPriceState];
@@ -1692,9 +1781,12 @@ export interface ProductCreateResponseDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductCreateResponseDtoStatus;
@@ -1705,6 +1797,7 @@ export interface ProductCreateResponseDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
   ok: boolean;
 }
@@ -1827,9 +1920,12 @@ export interface ProductUpdateResponseDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductUpdateResponseDtoStatus;
@@ -1840,6 +1936,7 @@ export interface ProductUpdateResponseDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
   ok: boolean;
 }
@@ -1993,9 +2090,12 @@ export interface ProductVariantsResponseDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductVariantsResponseDtoStatus;
@@ -2006,12 +2106,95 @@ export interface ProductVariantsResponseDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
   ok: boolean;
 }
 
 export interface SetProductVariantMatrixDtoReq {
   items: ProductVariantDtoReq[];
+}
+
+export interface CatalogPriceListDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+}
+
+export interface CreateCatalogPriceListDtoReq {
+  name: string;
+  code?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface UpdateCatalogPriceListDtoReq {
+  name?: string;
+  code?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type CatalogPriceListPriceDtoTarget = typeof CatalogPriceListPriceDtoTarget[keyof typeof CatalogPriceListPriceDtoTarget];
+
+
+export const CatalogPriceListPriceDtoTarget = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  SALE_UNIT: 'SALE_UNIT',
+} as const;
+
+export interface CatalogPriceListPriceDto {
+  id: string;
+  priceListId: string;
+  target: CatalogPriceListPriceDtoTarget;
+  targetId: string;
+  productId: string;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  saleUnitId: string | null;
+  price: string;
+  /** @nullable */
+  deleteAt: string | null;
+}
+
+export type CatalogPriceListPriceInputDtoReqTarget = typeof CatalogPriceListPriceInputDtoReqTarget[keyof typeof CatalogPriceListPriceInputDtoReqTarget];
+
+
+export const CatalogPriceListPriceInputDtoReqTarget = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  SALE_UNIT: 'SALE_UNIT',
+} as const;
+
+export interface CatalogPriceListPriceInputDtoReq {
+  target: CatalogPriceListPriceInputDtoReqTarget;
+  targetId: string;
+  /**
+     * Null удаляет цену из этого прайс-листа.
+     * @nullable
+     */
+  price?: number | null;
+}
+
+export interface BulkUpsertCatalogPriceListPricesDtoReq {
+  prices: CatalogPriceListPriceInputDtoReq[];
+}
+
+export interface SetActivePriceListDtoReq {
+  /** @nullable */
+  activePriceListId?: string | null;
+}
+
+export interface ActiveCatalogPriceListDto {
+  /** @nullable */
+  activePriceListId: string | null;
 }
 
 export interface AttributeEnumValueAliasDto {
@@ -2215,7 +2398,7 @@ export interface CreateUserDtoReq {
   login: string;
   password: string;
   name: string;
-  role: Role;
+  role?: Role;
   regionalityIds?: string[];
   countryIds?: string[];
 }
@@ -2231,6 +2414,7 @@ export interface CatalogDomainDnsRecordDto {
 export interface CatalogDomainVerificationDto {
   txtRecord: CatalogDomainDnsRecordDto;
   routingRecords: CatalogDomainDnsRecordDto[];
+  /** @nullable */
   wwwRecord?: CatalogDomainDnsRecordDto | null;
   expectedHosts: string[];
   instructions: string[];
@@ -2499,6 +2683,7 @@ export interface MoySkladSyncStockStatsDto {
   total: number;
   applied: number;
   skipped: number;
+  /** @nullable */
   diagnostics: MoySkladSyncStockDiagnosticsDto | null;
 }
 
@@ -2614,6 +2799,7 @@ export interface MoySkladSyncRunDto {
   stockRows: MoySkladSyncStockStatsDto;
   warnings: MoySkladSyncIssueDto[];
   errors: MoySkladSyncIssueDto[];
+  /** @nullable */
   progress: MoySkladSyncProgressDto | null;
   /** @nullable */
   durationMs: number | null;
@@ -2628,8 +2814,11 @@ export interface MoySkladSyncRunDto {
 
 export interface MoySkladIntegrationStatusDto {
   configured: boolean;
+  /** @nullable */
   integration: MoySkladIntegrationDto | null;
+  /** @nullable */
   activeRun: MoySkladSyncRunDto | null;
+  /** @nullable */
   lastRun: MoySkladSyncRunDto | null;
 }
 
@@ -2860,6 +3049,9 @@ export interface IikoIntegrationDto {
   hasApiLogin: boolean;
   /** @nullable */
   apiLoginPreview: string | null;
+  /** @nullable */
+  appId: string | null;
+  hasClientSecret: boolean;
   organizationId: string;
   /** @nullable */
   organizationName: string | null;
@@ -2980,6 +3172,7 @@ export interface IikoSyncRunDto {
   stockRows: MoySkladSyncStockStatsDto;
   warnings: MoySkladSyncIssueDto[];
   errors: MoySkladSyncIssueDto[];
+  /** @nullable */
   progress: MoySkladSyncProgressDto | null;
   /** @nullable */
   durationMs: number | null;
@@ -2994,8 +3187,11 @@ export interface IikoSyncRunDto {
 
 export interface IikoIntegrationStatusDto {
   configured: boolean;
+  /** @nullable */
   integration: IikoIntegrationDto | null;
+  /** @nullable */
   activeRun: IikoSyncRunDto | null;
+  /** @nullable */
   lastRun: IikoSyncRunDto | null;
 }
 
@@ -3080,6 +3276,8 @@ export const UpsertIikoIntegrationDtoReqOrderExportServiceType = {
 
 export interface UpsertIikoIntegrationDtoReq {
   apiLogin: string;
+  appId?: string;
+  clientSecret?: string;
   organizationId: string;
   /** @nullable */
   organizationName?: string | null;
@@ -3118,6 +3316,10 @@ export const UpdateIikoIntegrationDtoReqOrderExportServiceType = {
 
 export interface UpdateIikoIntegrationDtoReq {
   apiLogin?: string;
+  /** @nullable */
+  appId?: string | null;
+  /** @nullable */
+  clientSecret?: string | null;
   organizationId?: string;
   /** @nullable */
   organizationName?: string | null;
@@ -3145,6 +3347,8 @@ export interface UpdateIikoIntegrationDtoReq {
 
 export interface TestIikoConnectionDtoReq {
   apiLogin?: string;
+  appId?: string;
+  clientSecret?: string;
 }
 
 export interface IikoOrganizationDto {
@@ -3186,6 +3390,8 @@ export interface IikoTestConnectionDto {
 export interface PreviewIikoImportDtoReq {
   /** Optional apiLogin override. If omitted, saved iiko credentials are used. */
   apiLogin?: string;
+  appId?: string;
+  clientSecret?: string;
   organizationId?: string;
   externalMenuId?: string;
   /** @nullable */
@@ -3320,7 +3526,9 @@ export interface CatalogConfigDto {
   /** @nullable */
   description: string | null;
   currency: string;
+  /** @nullable */
   logoMedia: MediaDto | null;
+  /** @nullable */
   bgMedia: MediaDto | null;
   /** @nullable */
   note: string | null;
@@ -3361,6 +3569,14 @@ export interface CatalogCheckoutConfigDto {
   preorder: CatalogCheckoutPreorderSettingsDto;
 }
 
+export type CatalogSettingsDtoPresentationMode = typeof CatalogSettingsDtoPresentationMode[keyof typeof CatalogSettingsDtoPresentationMode];
+
+
+export const CatalogSettingsDtoPresentationMode = {
+  CATALOG: 'CATALOG',
+  BUSINESS_CARD: 'BUSINESS_CARD',
+} as const;
+
 export type CatalogSettingsDtoDefaultMode = typeof CatalogSettingsDtoDefaultMode[keyof typeof CatalogSettingsDtoDefaultMode];
 
 
@@ -3390,6 +3606,7 @@ export const CatalogSettingsDtoInventoryMode = {
 
 export interface CatalogSettingsDto {
   isActive: boolean;
+  presentationMode: CatalogSettingsDtoPresentationMode;
   defaultMode: CatalogSettingsDtoDefaultMode;
   allowedModes: CatalogSettingsDtoAllowedModesItem[];
   inventoryMode: CatalogSettingsDtoInventoryMode;
@@ -3400,6 +3617,8 @@ export interface CatalogSettingsDto {
   googleVerification: string | null;
   /** @nullable */
   yandexVerification: string | null;
+  /** @nullable */
+  activePriceListId: string | null;
 }
 
 export type CatalogMetricDtoProvider = typeof CatalogMetricDtoProvider[keyof typeof CatalogMetricDtoProvider];
@@ -3455,6 +3674,10 @@ export interface CatalogCurrentFeaturesDto {
   canUseProductVariants: boolean;
   /** Whether the current catalog can use catalog sale units. */
   canUseCatalogSaleUnits: boolean;
+  /** Whether the current catalog can use product modifiers. */
+  canUseCatalogModifiers: boolean;
+  /** Whether the current catalog can use catalog price lists. */
+  canUseCatalogPriceLists: boolean;
   /** Whether the current catalog can use the paid internal inventory feature. */
   canUseInternalInventory: boolean;
   /** Whether the current catalog can use MoySklad integration. */
@@ -3518,11 +3741,14 @@ export interface CatalogCurrentDto {
   updatedAt?: string;
   /** @nullable */
   subscriptionEndsAt?: string | null;
+  /** @nullable */
   config: CatalogConfigDto | null;
+  /** @nullable */
   settings: CatalogSettingsDto | null;
   metrics: CatalogMetricDto[];
   features: CatalogCurrentFeaturesDto;
   contacts: CatalogContactDto[];
+  /** @nullable */
   seo: SeoDto | null;
   type: CatalogTypeDto;
 }
@@ -3544,11 +3770,14 @@ export interface CatalogCurrentShellDto {
   updatedAt?: string;
   /** @nullable */
   subscriptionEndsAt?: string | null;
+  /** @nullable */
   config: CatalogConfigDto | null;
+  /** @nullable */
   settings: CatalogSettingsDto | null;
   metrics: CatalogMetricDto[];
   features: CatalogCurrentFeaturesDto;
   contacts: CatalogContactDto[];
+  /** @nullable */
   seo: SeoDto | null;
 }
 
@@ -3658,7 +3887,9 @@ export interface CatalogDto {
   updatedAt?: string;
   /** @nullable */
   subscriptionEndsAt?: string | null;
+  /** @nullable */
   config: CatalogConfigDto | null;
+  /** @nullable */
   settings: CatalogSettingsDto | null;
   metrics: CatalogMetricDto[];
 }
@@ -4224,6 +4455,7 @@ export interface OneCSyncRunDto {
   imagesImported: number;
   skippedProducts: number;
   failedProducts: number;
+  /** @nullable */
   progress: OneCSyncProgressDto | null;
   /** @nullable */
   durationMs: number | null;
@@ -4238,8 +4470,11 @@ export interface OneCSyncRunDto {
 
 export interface OneCIntegrationStatusDto {
   configured: boolean;
+  /** @nullable */
   integration: OneCIntegrationDto | null;
+  /** @nullable */
   activeRun: OneCSyncRunDto | null;
+  /** @nullable */
   lastRun: OneCSyncRunDto | null;
 }
 
@@ -4383,6 +4618,7 @@ export interface OneCEntityMappingDto {
   /** @nullable */
   options: OneCEntityMappingDtoOptions;
   isActive: boolean;
+  /** @nullable */
   externalObject: OneCExternalObjectDto | null;
   fieldMappings: OneCFieldMappingDto[];
   createdAt: string;
@@ -4394,6 +4630,7 @@ export interface OneCRecommendedProductMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -4404,6 +4641,7 @@ export interface OneCRecommendedVariantMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -4414,6 +4652,7 @@ export interface OneCRecommendedStockMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -4424,6 +4663,7 @@ export interface OneCRecommendedPriceMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -5603,6 +5843,188 @@ export interface RunOneCPriceSyncDtoReq {
   failOnRowError?: boolean;
 }
 
+export interface CatalogModifierOptionDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  /** @nullable */
+  description: string | null;
+  defaultPrice: string;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+}
+
+export interface CatalogModifierGroupOptionDto {
+  groupId: string;
+  optionId: string;
+  /** @nullable */
+  defaultPrice: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  option: CatalogModifierOptionDto;
+}
+
+export interface CatalogModifierGroupDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  /** @nullable */
+  description: string | null;
+  isRequired: boolean;
+  minSelected: number;
+  /** @nullable */
+  maxSelected: number | null;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+  options: CatalogModifierGroupOptionDto[];
+}
+
+export interface CatalogModifierStateDto {
+  groups: CatalogModifierGroupDto[];
+  options: CatalogModifierOptionDto[];
+}
+
+export interface CatalogModifierGroupOptionDtoReq {
+  optionId: string;
+  /** @nullable */
+  defaultPrice?: number | null;
+  isDefault?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface CreateCatalogModifierGroupDtoReq {
+  name: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  isRequired?: boolean;
+  minSelected?: number;
+  /** @nullable */
+  maxSelected?: number | null;
+  isActive?: boolean;
+  displayOrder?: number;
+  options?: CatalogModifierGroupOptionDtoReq[];
+}
+
+export interface UpdateCatalogModifierGroupDtoReq {
+  name?: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  isRequired?: boolean;
+  minSelected?: number;
+  /** @nullable */
+  maxSelected?: number | null;
+  isActive?: boolean;
+  displayOrder?: number;
+  options?: CatalogModifierGroupOptionDtoReq[];
+}
+
+export interface CreateCatalogModifierOptionDtoReq {
+  name: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  defaultPrice?: number;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface UpdateCatalogModifierOptionDtoReq {
+  name?: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  defaultPrice?: number;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface ProductModifierOptionDto {
+  id: string;
+  productModifierGroupId: string;
+  /** @nullable */
+  catalogModifierOptionId: string | null;
+  code: string;
+  name: string;
+  price: string;
+  /** @nullable */
+  maxQuantity: number | null;
+  isDefault: boolean;
+  isAvailable: boolean;
+  displayOrder: number;
+}
+
+export type ProductModifierGroupDtoScope = typeof ProductModifierGroupDtoScope[keyof typeof ProductModifierGroupDtoScope];
+
+
+export const ProductModifierGroupDtoScope = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+} as const;
+
+export interface ProductModifierGroupDto {
+  id: string;
+  productId: string;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  catalogModifierGroupId: string | null;
+  scope: ProductModifierGroupDtoScope;
+  code: string;
+  name: string;
+  /** @nullable */
+  description: string | null;
+  isRequired: boolean;
+  minSelected: number;
+  /** @nullable */
+  maxSelected: number | null;
+  isActive: boolean;
+  displayOrder: number;
+  options: ProductModifierOptionDto[];
+}
+
+export interface ProductModifierOptionBindingDtoReq {
+  catalogModifierOptionId?: string;
+  code?: string;
+  name?: string;
+  price?: number;
+  /** @nullable */
+  maxQuantity?: number | null;
+  isDefault?: boolean;
+  isAvailable?: boolean;
+  displayOrder?: number;
+}
+
+export interface ProductModifierGroupBindingDtoReq {
+  /** @nullable */
+  variantId?: string | null;
+  catalogModifierGroupId?: string;
+  code?: string;
+  name?: string;
+  /** @nullable */
+  description?: string | null;
+  isRequired?: boolean;
+  minSelected?: number;
+  /** @nullable */
+  maxSelected?: number | null;
+  isActive?: boolean;
+  displayOrder?: number;
+  options?: ProductModifierOptionBindingDtoReq[];
+}
+
+export interface SetProductModifiersDtoReq {
+  groups: ProductModifierGroupBindingDtoReq[];
+}
+
 export interface CategoryDto {
   id: string;
   catalogId: string;
@@ -5611,6 +6033,7 @@ export interface CategoryDto {
   position: number;
   productCount: number;
   name: string;
+  /** @nullable */
   imageMedia: MediaDto | null;
   /** @nullable */
   descriptor: string | null;
@@ -5631,6 +6054,7 @@ export interface CategoryChildDto {
   parentId: string | null;
   position: number;
   name: string;
+  /** @nullable */
   imageMedia: MediaDto | null;
 }
 
@@ -5642,6 +6066,7 @@ export interface CategoryWithRelationsDto {
   position: number;
   productCount: number;
   name: string;
+  /** @nullable */
   imageMedia: MediaDto | null;
   /** @nullable */
   descriptor: string | null;
@@ -5649,6 +6074,7 @@ export interface CategoryWithRelationsDto {
   discount: number | null;
   createdAt: string;
   updatedAt: string;
+  /** @nullable */
   parent: CategoryParentDto | null;
   children: CategoryChildDto[];
 }
@@ -5939,6 +6365,24 @@ export interface CartSaleUnitDto {
   displayOrder: number;
 }
 
+export interface CartItemModifierDto {
+  id: string;
+  /** @nullable */
+  productModifierGroupId: string | null;
+  /** @nullable */
+  productModifierOptionId: string | null;
+  /** @nullable */
+  catalogModifierGroupId: string | null;
+  /** @nullable */
+  catalogModifierOptionId: string | null;
+  groupCode: string;
+  groupName: string;
+  optionCode: string;
+  optionName: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface CartItemDto {
   id: string;
   productId: string;
@@ -5947,14 +6391,28 @@ export interface CartItemDto {
   /** @nullable */
   saleUnitId?: string | null;
   /** @nullable */
+  priceListId?: string | null;
+  /** @nullable */
+  priceListCode?: string | null;
+  /** @nullable */
+  priceListName?: string | null;
+  /** @nullable */
   guestSessionId?: string | null;
   /** @nullable */
   guestName?: string | null;
   quantity: number;
   baseQuantity: number;
+  /**
+     * Снимок цены единицы на момент добавления в корзину
+     * @nullable
+     */
+  unitPriceSnapshot?: number | null;
   product: CartProductShortDto;
+  /** @nullable */
   variant: CartVariantDto | null;
+  /** @nullable */
   saleUnit: CartSaleUnitDto | null;
+  modifiers: CartItemModifierDto[];
   unitPrice: number;
   /** Базовая цена единицы до применения скидки */
   baseUnitPrice: number;
@@ -6070,6 +6528,7 @@ export interface CartDto {
   /** @nullable */
   closedAt: string | null;
   items: CartItemDto[];
+  /** @nullable */
   tableSession: CartTableSessionDto | null;
   totals: CartTotalsDto;
   createdAt: string;
@@ -6121,6 +6580,12 @@ export interface CompletedOrderItemDto {
   /** @nullable */
   saleUnitId: string | null;
   /** @nullable */
+  priceListId: string | null;
+  /** @nullable */
+  priceListCode: string | null;
+  /** @nullable */
+  priceListName: string | null;
+  /** @nullable */
   guestSessionId: string | null;
   /** @nullable */
   guestName: string | null;
@@ -6130,7 +6595,9 @@ export interface CompletedOrderItemDto {
   baseUnitPrice: number;
   discountPercent: number;
   hasDiscount: boolean;
+  /** @nullable */
   variant: CartVariantDto | null;
+  /** @nullable */
   saleUnit: CartSaleUnitDto | null;
 }
 
@@ -6206,7 +6673,9 @@ export interface HallTableOverviewDto {
   tableExternalId: string;
   /** @nullable */
   publicKey: string | null;
+  /** @nullable */
   session: CartTableSessionDto | null;
+  /** @nullable */
   cart: CartDto | null;
   hasItems: boolean;
   needsConfirmation: boolean;
@@ -6246,6 +6715,12 @@ export interface HallTableSessionResponseDto {
   tableSession: HallTableSessionDto;
 }
 
+export interface UpsertCartItemModifierDtoReq {
+  productModifierGroupId: string;
+  productModifierOptionId: string;
+  quantity?: number;
+}
+
 export interface UpsertCartItemDtoReq {
   productId: string;
   variantId?: string;
@@ -6257,6 +6732,7 @@ export interface UpsertCartItemDtoReq {
   guestSessionId?: string;
   /** @maxLength 120 */
   guestName?: string;
+  modifiers?: UpsertCartItemModifierDtoReq[];
 }
 
 export interface PublicUpsertCartItemDtoReq {
@@ -6270,6 +6746,7 @@ export interface PublicUpsertCartItemDtoReq {
   guestSessionId?: string;
   /** @maxLength 120 */
   guestName?: string;
+  modifiers?: UpsertCartItemModifierDtoReq[];
 }
 
 export type ProductTypeAttributeAttributeDtoDataType = typeof ProductTypeAttributeAttributeDtoDataType[keyof typeof ProductTypeAttributeAttributeDtoDataType];
@@ -6652,7 +7129,7 @@ export type AdminControllerCreateCatalogPromoPaymentBody = {
   amount?: number;
   paidAt?: string;
   licenseEndsAt?: string;
-  /** PDF, JPEG, PNG or WebP payment confirmation */
+  /** Подтверждение оплаты в формате PDF, JPEG, PNG или WebP */
   proof: Blob;
 };
 
@@ -6660,7 +7137,7 @@ export type AdminControllerCreateCatalogSubscriptionPaymentBody = {
   amount?: number;
   paidAt?: string;
   licenseEndsAt?: string;
-  /** PDF, JPEG, PNG or WebP payment confirmation */
+  /** Подтверждение оплаты в формате PDF, JPEG, PNG или WebP */
   proof: Blob;
 };
 
@@ -6910,6 +7387,15 @@ export type ProductControllerDiagnoseDefaultVariantsParams = {
 sampleLimit?: number;
 };
 
+export type CatalogPriceListControllerGetAllParams = {
+includeArchived?: string;
+includeInactive?: string;
+};
+
+export type CatalogPriceListControllerGetPricesParams = {
+includeArchived?: string;
+};
+
 export type CatalogAdvancedSettingsControllerListSaleUnitsParams = {
 /**
  * Include disabled, non-archived units.
@@ -7001,16 +7487,31 @@ includeArchived?: boolean;
 includeInactive?: boolean;
 };
 
+export type CatalogModifierControllerGetStateParams = {
+includeArchived?: string;
+includeInactive?: string;
+};
+
+export type CatalogModifierControllerGetGroupsParams = {
+includeArchived: string;
+includeInactive: string;
+};
+
+export type CatalogModifierControllerGetOptionsParams = {
+includeArchived: string;
+includeInactive: string;
+};
+
 export type CategoryControllerGetAllParams = {
 /**
- * Если false, вернет только категории с активными товарами. По умолчанию true.
+ * Для владельца каталога может вернуть пустые категории. Для клиента пустые категории скрываются.
  */
 includeEmpty?: boolean;
 };
 
 export type CategoryControllerRemoveParams = {
 /**
- * Если true, soft-delete всех активных товаров категории
+ * Если true, мягко удаляет все активные товары категории
  */
 deleteProducts?: boolean;
 };
@@ -7221,7 +7722,7 @@ const handoffControllerExchange = (
     }
 
 /**
- * @summary List domain event outbox rows
+ * @summary Получить записи outbox доменных событий
  */
 const adminControllerGetDomainEventOutbox = (
     params?: AdminControllerGetDomainEventOutboxParams,
@@ -7234,7 +7735,7 @@ const adminControllerGetDomainEventOutbox = (
     }
 
 /**
- * @summary Get domain event outbox status counters
+ * @summary Получить счетчики статусов outbox доменных событий
  */
 const adminControllerGetDomainEventOutboxStats = (
 
@@ -7246,7 +7747,7 @@ const adminControllerGetDomainEventOutboxStats = (
     }
 
 /**
- * @summary Retry one pending or failed domain event
+ * @summary Повторить одно ожидающее или ошибочное доменное событие
  */
 const adminControllerRetryDomainEventOutboxItem = (
     id: string,
@@ -7258,7 +7759,7 @@ const adminControllerRetryDomainEventOutboxItem = (
     }
 
 /**
- * @summary Retry failed domain events by optional filters
+ * @summary Повторить ошибочные доменные события по фильтрам
  */
 const adminControllerRetryFailedDomainEvents = (
     adminRetryFailedDomainEventsDtoReq: AdminRetryFailedDomainEventsDtoReq,
@@ -7272,7 +7773,7 @@ const adminControllerRetryFailedDomainEvents = (
     }
 
 /**
- * @summary Manually drain pending/failed domain events
+ * @summary Вручную обработать ожидающие и ошибочные доменные события
  */
 const adminControllerDrainDomainEventOutbox = (
     adminDrainDomainEventOutboxDtoReq: AdminDrainDomainEventOutboxDtoReq,
@@ -7286,7 +7787,7 @@ const adminControllerDrainDomainEventOutbox = (
     }
 
 /**
- * @summary Delete old processed domain events
+ * @summary Удалить старые обработанные доменные события
  */
 const adminControllerCleanupDomainEventOutbox = (
     adminCleanupDomainEventOutboxDtoReq: AdminCleanupDomainEventOutboxDtoReq,
@@ -7313,7 +7814,7 @@ const adminControllerGetCatalogs = (
     }
 
 /**
- * @summary Create catalog with generated owner credentials
+ * @summary Создать каталог с учетными данными владельца
  */
 const adminControllerCreateCatalog = (
     adminCreateCatalogDtoReq: AdminCreateCatalogDtoReq,
@@ -7327,7 +7828,7 @@ const adminControllerCreateCatalog = (
     }
 
 /**
- * @summary Duplicate catalog with generated owner credentials
+ * @summary Дублировать каталог с учетными данными владельца
  */
 const adminControllerDuplicateCatalog = (
     id: string,
@@ -7342,7 +7843,7 @@ const adminControllerDuplicateCatalog = (
     }
 
 /**
- * @summary Reset catalog owner password to default and return credentials
+ * @summary Сбросить пароль владельца каталога и вернуть учетные данные
  */
 const adminControllerResetCatalogOwnerPassword = (
     id: string,
@@ -7369,7 +7870,7 @@ const adminControllerUpdateCatalog = (
     }
 
 /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 const adminControllerDeleteCatalog = (
     id: string,
@@ -7381,7 +7882,7 @@ const adminControllerDeleteCatalog = (
     }
 
 /**
- * @summary Get catalog feature entitlements
+ * @summary Получить доступные функции каталога
  */
 const adminControllerGetCatalogFeatureEntitlements = (
     id: string,
@@ -7393,7 +7894,7 @@ const adminControllerGetCatalogFeatureEntitlements = (
     }
 
 /**
- * @summary Enable or disable a catalog feature entitlement
+ * @summary Включить или отключить функцию каталога
  */
 const adminControllerUpdateCatalogFeatureEntitlement = (
     id: string,
@@ -7408,7 +7909,7 @@ const adminControllerUpdateCatalogFeatureEntitlement = (
     }
 
 /**
- * @summary Diagnose legacy default variant consistency for catalog
+ * @summary Проверить технические вариации каталога
  */
 const adminControllerDiagnoseCatalogDefaultVariants = (
     id: string,
@@ -7422,7 +7923,7 @@ const adminControllerDiagnoseCatalogDefaultVariants = (
     }
 
 /**
- * @summary Repair missing technical default variants for catalog
+ * @summary Восстановить недостающие технические вариации каталога
  */
 const adminControllerRepairCatalogMissingDefaultVariants = (
     id: string,
@@ -7434,7 +7935,7 @@ const adminControllerRepairCatalogMissingDefaultVariants = (
     }
 
 /**
- * @summary Dry-run or repair legacy product price mirror mismatches
+ * @summary Проверить или исправить расхождения legacy-цен товара
  */
 const adminControllerRepairCatalogDefaultVariantPriceMismatches = (
     id: string,
@@ -7449,7 +7950,7 @@ const adminControllerRepairCatalogDefaultVariantPriceMismatches = (
     }
 
 /**
- * @summary Get MoySklad stock sync diagnostics for catalog
+ * @summary Получить диагностику синхронизации остатков MoySklad
  */
 const adminControllerGetCatalogMoySkladStockDiagnostics = (
     id: string,
@@ -7461,7 +7962,7 @@ const adminControllerGetCatalogMoySkladStockDiagnostics = (
     }
 
 /**
- * @summary Soft-delete контент каталога, не удаляя каталог
+ * @summary Архивировать контент каталога, не удаляя каталог
  */
 const adminControllerDeleteCatalogContent = (
     id: string,
@@ -7473,7 +7974,7 @@ const adminControllerDeleteCatalogContent = (
     }
 
 /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 const adminControllerRestoreCatalog = (
     id: string,
@@ -7497,7 +7998,7 @@ const adminControllerGetTypes = (
     }
 
 /**
- * @summary List geo admins with assigned countries and regions
+ * @summary Получить гео-админов с назначенными странами и регионами
  */
 const adminControllerGetGeoAdmins = (
 
@@ -7509,7 +8010,7 @@ const adminControllerGetGeoAdmins = (
     }
 
 /**
- * @summary Create geo admin with assigned countries and regions
+ * @summary Создать гео-админа с назначенными странами и регионами
  */
 const adminControllerCreateGeoAdmin = (
     adminCreateGeoAdminDtoReq: AdminCreateGeoAdminDtoReq,
@@ -7523,7 +8024,7 @@ const adminControllerCreateGeoAdmin = (
     }
 
 /**
- * @summary Get country and region directory for admin catalog binding
+ * @summary Получить справочник стран и регионов для привязки каталога
  */
 const adminControllerGetRegionalities = (
 
@@ -7535,7 +8036,7 @@ const adminControllerGetRegionalities = (
     }
 
 /**
- * @summary Create country and region for admin catalog binding
+ * @summary Создать страну и регион для привязки каталога
  */
 const adminControllerCreateRegionality = (
     adminCreateRegionalityDtoReq: AdminCreateRegionalityDtoReq,
@@ -7549,7 +8050,7 @@ const adminControllerCreateRegionality = (
     }
 
 /**
- * @summary Get country directory for admin catalog binding
+ * @summary Получить справочник стран для привязки каталога
  */
 const adminControllerGetCountries = (
 
@@ -7561,7 +8062,7 @@ const adminControllerGetCountries = (
     }
 
 /**
- * @summary Create country for admin catalog binding
+ * @summary Создать страну для привязки каталога
  */
 const adminControllerCreateCountry = (
     adminCreateCountryDtoReq: AdminCreateCountryDtoReq,
@@ -8189,6 +8690,103 @@ const productControllerSetVariantMatrix = (
       {url: `/product/${id}/variant-matrix`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: setProductVariantMatrixDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Список прайс-листов текущего каталога
+ */
+const catalogPriceListControllerGetAll = (
+    params?: CatalogPriceListControllerGetAllParams,
+ ) => {
+      return mutator<CatalogPriceListDto[]>(
+      {url: `/catalog-price-lists`, method: 'GET',
+        params
+    },
+      );
+    }
+
+/**
+ * @summary Создать прайс-лист в родительском каталоге
+ */
+const catalogPriceListControllerCreate = (
+    createCatalogPriceListDtoReq: CreateCatalogPriceListDtoReq,
+ ) => {
+      return mutator<CatalogPriceListDto>(
+      {url: `/catalog-price-lists`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogPriceListDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Обновить прайс-лист родительского каталога
+ */
+const catalogPriceListControllerUpdate = (
+    id: string,
+    updateCatalogPriceListDtoReq: UpdateCatalogPriceListDtoReq,
+ ) => {
+      return mutator<CatalogPriceListDto>(
+      {url: `/catalog-price-lists/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogPriceListDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Архивировать прайс-лист родительского каталога
+ */
+const catalogPriceListControllerArchive = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog-price-lists/${id}`, method: 'DELETE'
+    },
+      );
+    }
+
+/**
+ * @summary Список цен прайс-листа
+ */
+const catalogPriceListControllerGetPrices = (
+    id: string,
+    params?: CatalogPriceListControllerGetPricesParams,
+ ) => {
+      return mutator<CatalogPriceListPriceDto[]>(
+      {url: `/catalog-price-lists/${id}/prices`, method: 'GET',
+        params
+    },
+      );
+    }
+
+/**
+ * @summary Массово сохранить цены прайс-листа
+ */
+const catalogPriceListControllerBulkUpsertPrices = (
+    id: string,
+    bulkUpsertCatalogPriceListPricesDtoReq: BulkUpsertCatalogPriceListPricesDtoReq,
+ ) => {
+      return mutator<CatalogPriceListPriceDto[]>(
+      {url: `/catalog-price-lists/${id}/prices/bulk`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkUpsertCatalogPriceListPricesDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Выбрать активный прайс-лист текущего каталога
+ */
+const catalogPriceListControllerSetActivePriceList = (
+    setActivePriceListDtoReq: SetActivePriceListDtoReq,
+ ) => {
+      return mutator<ActiveCatalogPriceListDto>(
+      {url: `/catalog/settings/active-price-list`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: setActivePriceListDtoReq
     },
       );
     }
@@ -10204,7 +10802,7 @@ const oneCIntegrationControllerSyncOneCPrices = (
     }
 
 /**
- * @summary List current catalog sale units
+ * @summary Получить единицы продажи текущего каталога
  */
 const catalogSaleUnitControllerGetAll = (
     params?: CatalogSaleUnitControllerGetAllParams,
@@ -10217,7 +10815,7 @@ const catalogSaleUnitControllerGetAll = (
     }
 
 /**
- * @summary Create current catalog sale unit
+ * @summary Создать единицу продажи текущего каталога
  */
 const catalogSaleUnitControllerCreate = (
     createCatalogSaleUnitDtoReq: CreateCatalogSaleUnitDtoReq,
@@ -10231,7 +10829,7 @@ const catalogSaleUnitControllerCreate = (
     }
 
 /**
- * @summary Get current catalog sale unit
+ * @summary Получить единицу продажи текущего каталога
  */
 const catalogSaleUnitControllerGetById = (
     id: string,
@@ -10243,7 +10841,7 @@ const catalogSaleUnitControllerGetById = (
     }
 
 /**
- * @summary Update current catalog sale unit
+ * @summary Обновить единицу продажи текущего каталога
  */
 const catalogSaleUnitControllerUpdate = (
     id: string,
@@ -10258,13 +10856,161 @@ const catalogSaleUnitControllerUpdate = (
     }
 
 /**
- * @summary Archive current catalog sale unit
+ * @summary Архивировать единицу продажи текущего каталога
  */
 const catalogSaleUnitControllerArchive = (
     id: string,
  ) => {
       return mutator<OkResponseDto>(
       {url: `/catalog-sale-unit/${id}`, method: 'DELETE'
+    },
+      );
+    }
+
+/**
+ * @summary Состояние модификаторов текущего каталога
+ */
+const catalogModifierControllerGetState = (
+    params?: CatalogModifierControllerGetStateParams,
+ ) => {
+      return mutator<CatalogModifierStateDto>(
+      {url: `/catalog-modifier`, method: 'GET',
+        params
+    },
+      );
+    }
+
+/**
+ * @summary Список групп модификаторов текущего каталога
+ */
+const catalogModifierControllerGetGroups = (
+    params: CatalogModifierControllerGetGroupsParams,
+ ) => {
+      return mutator<CatalogModifierGroupDto[]>(
+      {url: `/catalog-modifier/groups`, method: 'GET',
+        params
+    },
+      );
+    }
+
+/**
+ * @summary Создать группу модификаторов текущего каталога
+ */
+const catalogModifierControllerCreateGroup = (
+    createCatalogModifierGroupDtoReq: CreateCatalogModifierGroupDtoReq,
+ ) => {
+      return mutator<CatalogModifierGroupDto>(
+      {url: `/catalog-modifier/groups`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogModifierGroupDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Обновить группу модификаторов текущего каталога
+ */
+const catalogModifierControllerUpdateGroup = (
+    id: string,
+    updateCatalogModifierGroupDtoReq: UpdateCatalogModifierGroupDtoReq,
+ ) => {
+      return mutator<CatalogModifierGroupDto>(
+      {url: `/catalog-modifier/groups/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogModifierGroupDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Архивировать группу модификаторов текущего каталога
+ */
+const catalogModifierControllerArchiveGroup = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog-modifier/groups/${id}`, method: 'DELETE'
+    },
+      );
+    }
+
+/**
+ * @summary Список опций модификаторов текущего каталога
+ */
+const catalogModifierControllerGetOptions = (
+    params: CatalogModifierControllerGetOptionsParams,
+ ) => {
+      return mutator<CatalogModifierOptionDto[]>(
+      {url: `/catalog-modifier/options`, method: 'GET',
+        params
+    },
+      );
+    }
+
+/**
+ * @summary Создать опцию модификатора текущего каталога
+ */
+const catalogModifierControllerCreateOption = (
+    createCatalogModifierOptionDtoReq: CreateCatalogModifierOptionDtoReq,
+ ) => {
+      return mutator<CatalogModifierOptionDto>(
+      {url: `/catalog-modifier/options`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogModifierOptionDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Обновить опцию модификатора текущего каталога
+ */
+const catalogModifierControllerUpdateOption = (
+    id: string,
+    updateCatalogModifierOptionDtoReq: UpdateCatalogModifierOptionDtoReq,
+ ) => {
+      return mutator<CatalogModifierOptionDto>(
+      {url: `/catalog-modifier/options/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogModifierOptionDtoReq
+    },
+      );
+    }
+
+/**
+ * @summary Архивировать опцию модификатора текущего каталога
+ */
+const catalogModifierControllerArchiveOption = (
+    id: string,
+ ) => {
+      return mutator<OkResponseDto>(
+      {url: `/catalog-modifier/options/${id}`, method: 'DELETE'
+    },
+      );
+    }
+
+/**
+ * @summary Список модификаторов товара
+ */
+const catalogModifierControllerGetProductModifiers = (
+    productId: string,
+ ) => {
+      return mutator<ProductModifierGroupDto[]>(
+      {url: `/catalog-modifier/products/${productId}`, method: 'GET'
+    },
+      );
+    }
+
+/**
+ * @summary Заменить модификаторы товара
+ */
+const catalogModifierControllerSetProductModifiers = (
+    productId: string,
+    setProductModifiersDtoReq: SetProductModifiersDtoReq,
+ ) => {
+      return mutator<ProductModifierGroupDto[]>(
+      {url: `/catalog-modifier/products/${productId}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: setProductModifiersDtoReq
     },
       );
     }
@@ -10515,7 +11261,7 @@ const inventoryControllerAdjustWarehouseStock = (
     }
 
 /**
- * @summary Create or return the current cart by cookie token
+ * @summary Создать или вернуть текущую корзину по cookie-токену
  */
 const cartControllerCreateOrGetCurrent = (
 
@@ -10527,7 +11273,7 @@ const cartControllerCreateOrGetCurrent = (
     }
 
 /**
- * @summary Get the current cart by cookie token
+ * @summary Получить текущую корзину по cookie-токену
  */
 const cartControllerGetCurrent = (
 
@@ -10539,7 +11285,7 @@ const cartControllerGetCurrent = (
     }
 
 /**
- * @summary Delete or detach the current cart by cookie token
+ * @summary Удалить или отвязать текущую корзину по cookie-токену
  */
 const cartControllerDeleteCurrent = (
 
@@ -10551,7 +11297,7 @@ const cartControllerDeleteCurrent = (
     }
 
 /**
- * @summary Issue a public key for the current cart
+ * @summary Выдать публичный ключ для текущей корзины
  */
 const cartControllerShareCurrent = (
     shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
@@ -10565,7 +11311,7 @@ const cartControllerShareCurrent = (
     }
 
 /**
- * @summary Submit the current cart as a hall table order
+ * @summary Отправить текущую корзину как заказ за столом
  */
 const cartControllerSubmitCurrentHallOrder = (
     shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
@@ -10579,7 +11325,7 @@ const cartControllerSubmitCurrentHallOrder = (
     }
 
 /**
- * @summary Resolve a short hall table code for display
+ * @summary Получить данные стола по короткому коду
  */
 const cartControllerGetHallTableLink = (
     code: string,
@@ -10591,7 +11337,7 @@ const cartControllerGetHallTableLink = (
     }
 
 /**
- * @summary List iiko hall tables with active cart sessions
+ * @summary Список столов iiko с активными корзинами
  */
 const cartControllerListHallTables = (
 
@@ -10603,7 +11349,7 @@ const cartControllerListHallTables = (
     }
 
 /**
- * @summary Create or return a shared cart session for a hall table
+ * @summary Создать или вернуть общую сессию корзины для стола
  */
 const cartControllerJoinHallTableSession = (
     code: string,
@@ -10618,7 +11364,7 @@ const cartControllerJoinHallTableSession = (
     }
 
 /**
- * @summary Upsert an item in the current cart
+ * @summary Добавить или обновить позицию в текущей корзине
  */
 const cartControllerUpsertCurrentItem = (
     upsertCartItemDtoReq: UpsertCartItemDtoReq,
@@ -10632,7 +11378,7 @@ const cartControllerUpsertCurrentItem = (
     }
 
 /**
- * @summary Remove an item from the current cart
+ * @summary Удалить позицию из текущей корзины
  */
 const cartControllerRemoveCurrentItem = (
     itemId: string,
@@ -10644,7 +11390,7 @@ const cartControllerRemoveCurrentItem = (
     }
 
 /**
- * @summary SSE stream for the current cart
+ * @summary SSE-поток текущей корзины
  */
 const cartControllerSseCurrent = (
 
@@ -10656,7 +11402,7 @@ const cartControllerSseCurrent = (
     }
 
 /**
- * @summary Get a public cart by public key
+ * @summary Получить публичную корзину по ключу
  */
 const cartControllerGetPublicCart = (
     publicKey: string,
@@ -10668,7 +11414,7 @@ const cartControllerGetPublicCart = (
     }
 
 /**
- * @summary Mark a cart as being processed by a manager
+ * @summary Закрепить корзину за менеджером
  */
 const cartControllerStartManagerSession = (
     publicKey: string,
@@ -10680,7 +11426,7 @@ const cartControllerStartManagerSession = (
     }
 
 /**
- * @summary Refresh manager presence for a cart
+ * @summary Обновить присутствие менеджера в корзине
  */
 const cartControllerHeartbeatManagerSession = (
     publicKey: string,
@@ -10692,7 +11438,7 @@ const cartControllerHeartbeatManagerSession = (
     }
 
 /**
- * @summary Move a cart to PAUSED after manager processing
+ * @summary Перевести корзину в PAUSED после работы менеджера
  */
 const cartControllerReleaseManagerSession = (
     publicKey: string,
@@ -10704,7 +11450,7 @@ const cartControllerReleaseManagerSession = (
     }
 
 /**
- * @summary Convert a shared cart to a completed order
+ * @summary Преобразовать общую корзину в завершенный заказ
  */
 const cartControllerCompleteManagerOrder = (
     publicKey: string,
@@ -10719,7 +11465,7 @@ const cartControllerCompleteManagerOrder = (
     }
 
 /**
- * @summary Close an open shared hall table cart
+ * @summary Закрыть открытую общую корзину стола
  */
 const cartControllerCloseHallTableSession = (
     publicKey: string,
@@ -10731,7 +11477,7 @@ const cartControllerCloseHallTableSession = (
     }
 
 /**
- * @summary Reset an open shared hall table cart
+ * @summary Сбросить открытую общую корзину стола
  */
 const cartControllerResetHallTableSession = (
     publicKey: string,
@@ -10743,7 +11489,7 @@ const cartControllerResetHallTableSession = (
     }
 
 /**
- * @summary Confirm a shared hall table cart and send it to iiko
+ * @summary Подтвердить общую корзину стола и отправить заказ в iiko
  */
 const cartControllerConfirmHallTableOrder = (
     publicKey: string,
@@ -10758,7 +11504,7 @@ const cartControllerConfirmHallTableOrder = (
     }
 
 /**
- * @summary Send a public shared hall table cart to waiter confirmation
+ * @summary Отправить публичную корзину стола на подтверждение официанту
  */
 const cartControllerSubmitPublicHallOrder = (
     publicKey: string,
@@ -10773,7 +11519,7 @@ const cartControllerSubmitPublicHallOrder = (
     }
 
 /**
- * @summary Upsert an item in a public cart
+ * @summary Добавить или обновить позицию в публичной корзине
  */
 const cartControllerUpsertPublicItem = (
     publicKey: string,
@@ -10788,7 +11534,7 @@ const cartControllerUpsertPublicItem = (
     }
 
 /**
- * @summary Remove an item from a public cart
+ * @summary Удалить позицию из публичной корзины
  */
 const cartControllerRemovePublicItem = (
     publicKey: string,
@@ -10801,7 +11547,7 @@ const cartControllerRemovePublicItem = (
     }
 
 /**
- * @summary SSE stream for a public cart
+ * @summary SSE-поток публичной корзины
  */
 const cartControllerSsePublic = (
     publicKey: string,
@@ -11049,7 +11795,7 @@ const seoControllerRemove = (
       );
     }
 
-return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetDomainEventOutbox,adminControllerGetDomainEventOutboxStats,adminControllerRetryDomainEventOutboxItem,adminControllerRetryFailedDomainEvents,adminControllerDrainDomainEventOutbox,adminControllerCleanupDomainEventOutbox,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerResetCatalogOwnerPassword,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDiagnoseCatalogDefaultVariants,adminControllerRepairCatalogMissingDefaultVariants,adminControllerRepairCatalogDefaultVariantPriceMismatches,adminControllerGetCatalogMoySkladStockDiagnostics,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetGeoAdmins,adminControllerCreateGeoAdmin,adminControllerGetRegionalities,adminControllerCreateRegionality,adminControllerGetCountries,adminControllerCreateCountry,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerDiagnoseDefaultVariants,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerRepairDefaultVariantPriceMismatches,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerListSaleUnits,catalogAdvancedSettingsControllerCreateSaleUnit,catalogAdvancedSettingsControllerGetSaleUnit,catalogAdvancedSettingsControllerUpdateSaleUnit,catalogAdvancedSettingsControllerArchiveSaleUnit,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogAdvancedSettingsControllerGetIiko,catalogAdvancedSettingsControllerUpsertIiko,catalogAdvancedSettingsControllerUpdateIiko,catalogAdvancedSettingsControllerRemoveIiko,catalogAdvancedSettingsControllerGetIikoStatus,catalogAdvancedSettingsControllerGetIikoRuns,catalogAdvancedSettingsControllerGetIikoWebhookEvents,catalogAdvancedSettingsControllerRetryIikoWebhookEvent,catalogAdvancedSettingsControllerGetIikoRunProgress,catalogAdvancedSettingsControllerTestIikoConnection,catalogAdvancedSettingsControllerPreviewIikoImport,catalogAdvancedSettingsControllerSyncIikoCatalog,catalogAdvancedSettingsControllerSyncIikoStock,catalogAdvancedSettingsControllerSyncIikoProduct,catalogAdvancedSettingsControllerSetupIikoWebhooks,catalogAdvancedSettingsControllerDisableIikoWebhooks,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetIiko,integrationControllerUpsertIiko,integrationControllerUpdateIiko,integrationControllerRemoveIiko,integrationControllerGetIikoStatus,integrationControllerTestIikoConnection,integrationControllerGetIikoTables,integrationControllerPreviewIikoImport,integrationControllerSyncIikoCatalog,integrationControllerSyncIikoStock,integrationControllerSyncIikoProduct,integrationControllerSetupIikoWebhooks,integrationControllerDisableIikoWebhooks,integrationControllerGetIikoRuns,integrationControllerGetIikoRunProgress,integrationControllerGetIikoOrderExports,integrationControllerGetIikoWebhookEvents,integrationControllerRetryIikoWebhookEvent,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerReceiveMoySkladProductDeleteWebhook,integrationControllerReceiveMoySkladProductChangeWebhook,integrationControllerReceiveMoySkladProductFolderWebhook,integrationControllerReceiveIikoWebhook,integrationControllerRetryMoySkladOrderExport,integrationControllerRetryIikoOrderExport,integrationControllerGetIikoOrderExportTimeline,oneCIntegrationControllerGetOneC,oneCIntegrationControllerUpsertOneC,oneCIntegrationControllerUpdateOneC,oneCIntegrationControllerRemoveOneC,oneCIntegrationControllerGetOneCStatus,oneCIntegrationControllerGetOneCRuns,oneCIntegrationControllerGetOneCRunProgress,oneCIntegrationControllerGetOneCRecommendedProductMapping,oneCIntegrationControllerGetOneCRecommendedVariantMapping,oneCIntegrationControllerGetOneCRecommendedStockMapping,oneCIntegrationControllerGetOneCRecommendedPriceMapping,oneCIntegrationControllerTestOneCConnection,oneCIntegrationControllerDiscoverOneCObjects,oneCIntegrationControllerListOneCObjects,oneCIntegrationControllerCreateOneCObject,oneCIntegrationControllerUpdateOneCObject,oneCIntegrationControllerDeleteOneCObject,oneCIntegrationControllerListOneCEntityMappings,oneCIntegrationControllerCreateOneCEntityMapping,oneCIntegrationControllerUpdateOneCEntityMapping,oneCIntegrationControllerDeleteOneCEntityMapping,oneCIntegrationControllerCreateOneCFieldMapping,oneCIntegrationControllerUpdateOneCFieldMapping,oneCIntegrationControllerDeleteOneCFieldMapping,oneCIntegrationControllerPreviewOneCMapping,oneCIntegrationControllerPreviewOneCRemoteMapping,oneCIntegrationControllerPreviewOneCProductImport,oneCIntegrationControllerImportOneCProducts,oneCIntegrationControllerPreviewOneCVariantImport,oneCIntegrationControllerImportOneCVariants,oneCIntegrationControllerPreviewOneCStockSync,oneCIntegrationControllerApplyOneCStockSync,oneCIntegrationControllerPreviewOneCPriceSync,oneCIntegrationControllerApplyOneCPriceSync,oneCIntegrationControllerSyncOneCProducts,oneCIntegrationControllerSyncOneCVariants,oneCIntegrationControllerSyncOneCStock,oneCIntegrationControllerSyncOneCPrices,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerSubmitCurrentHallOrder,cartControllerGetHallTableLink,cartControllerListHallTables,cartControllerJoinHallTableSession,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerCloseHallTableSession,cartControllerResetHallTableSession,cartControllerConfirmHallTableOrder,cartControllerSubmitPublicHallOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
+return {typeControllerGetAll,typeControllerCreate,typeControllerDelete,authControllerLogin,authControllerMe,authControllerChangePassword,authControllerLogout,catalogAuthControllerLogin,catalogAuthControllerChangePassword,catalogAuthControllerSessionsList,catalogAuthControllerRevokeOtherSessions,catalogAuthControllerRevokeSession,handoffControllerExchange,adminControllerGetDomainEventOutbox,adminControllerGetDomainEventOutboxStats,adminControllerRetryDomainEventOutboxItem,adminControllerRetryFailedDomainEvents,adminControllerDrainDomainEventOutbox,adminControllerCleanupDomainEventOutbox,adminControllerGetCatalogs,adminControllerCreateCatalog,adminControllerDuplicateCatalog,adminControllerResetCatalogOwnerPassword,adminControllerUpdateCatalog,adminControllerDeleteCatalog,adminControllerGetCatalogFeatureEntitlements,adminControllerUpdateCatalogFeatureEntitlement,adminControllerDiagnoseCatalogDefaultVariants,adminControllerRepairCatalogMissingDefaultVariants,adminControllerRepairCatalogDefaultVariantPriceMismatches,adminControllerGetCatalogMoySkladStockDiagnostics,adminControllerDeleteCatalogContent,adminControllerRestoreCatalog,adminControllerGetTypes,adminControllerGetGeoAdmins,adminControllerCreateGeoAdmin,adminControllerGetRegionalities,adminControllerCreateRegionality,adminControllerGetCountries,adminControllerCreateCountry,adminControllerGetActivities,adminControllerCreateActivity,adminControllerGetPromoCodes,adminControllerCreatePromoCode,adminControllerGetCatalogPayments,adminControllerGetPromoCodePayments,adminControllerCreateCatalogPromoPayment,adminControllerCreateCatalogSubscriptionPayment,adminSsoControllerEnter,s3ControllerPresignUpload,s3ControllerPresignPostUpload,s3ControllerStartMultipart,s3ControllerPresignMultipartPart,s3ControllerCompleteMultipart,s3ControllerAbortMultipart,s3ControllerEnqueueFromS3,s3ControllerGetQueueStatus,s3ControllerStreamQueue,productControllerGetAll,productControllerCreate,productControllerGetInfiniteCards,productControllerGetInfinite,productControllerGetRecommendationsInfiniteCards,productControllerGetRecommendationsInfinite,productControllerGetPopularCards,productControllerGetUncategorizedInfiniteCards,productControllerGetUncategorizedInfinite,productControllerGetPopular,productControllerDiagnoseDefaultVariants,productControllerGetBySlug,productControllerGetById,productControllerUpdate,productControllerRemove,productControllerDuplicate,productControllerRepairMissingDefaultVariants,productControllerRepairDefaultVariantPriceMismatches,productControllerPreviewProductTypeCompatibility,productControllerApplyProductTypeChange,productControllerUpdateCategoryPosition,productControllerToggleStatus,productControllerTogglePopular,productControllerSetVariants,productControllerSetVariantMatrix,catalogPriceListControllerGetAll,catalogPriceListControllerCreate,catalogPriceListControllerUpdate,catalogPriceListControllerArchive,catalogPriceListControllerGetPrices,catalogPriceListControllerBulkUpsertPrices,catalogPriceListControllerSetActivePriceList,attributeControllerGetByType,attributeControllerGetById,attributeControllerUpdate,attributeControllerRemove,attributeControllerCreate,attributeControllerGetEnumValues,attributeControllerCreateEnumValue,attributeControllerUpdateEnumValue,attributeControllerRemoveEnumValue,attributeControllerGetEnumValueAliases,attributeControllerCreateEnumValueAlias,attributeControllerRemoveEnumValueAlias,attributeControllerMergeEnumValues,brandControllerGetAll,brandControllerCreate,brandControllerGetById,brandControllerUpdate,brandControllerRemove,userControllerRegister,catalogAdvancedSettingsControllerChangePassword,catalogAdvancedSettingsControllerListSessions,catalogAdvancedSettingsControllerRevokeOtherSessions,catalogAdvancedSettingsControllerRevokeSession,catalogAdvancedSettingsControllerListDomains,catalogAdvancedSettingsControllerCreateDomain,catalogAdvancedSettingsControllerCheckDomain,catalogAdvancedSettingsControllerDisableDomain,catalogAdvancedSettingsControllerListSaleUnits,catalogAdvancedSettingsControllerCreateSaleUnit,catalogAdvancedSettingsControllerGetSaleUnit,catalogAdvancedSettingsControllerUpdateSaleUnit,catalogAdvancedSettingsControllerArchiveSaleUnit,catalogAdvancedSettingsControllerGetYandexMetrika,catalogAdvancedSettingsControllerUpdateYandexMetrika,catalogAdvancedSettingsControllerDeleteYandexMetrika,catalogAdvancedSettingsControllerGetMoySklad,catalogAdvancedSettingsControllerUpsertMoySklad,catalogAdvancedSettingsControllerUpdateMoySklad,catalogAdvancedSettingsControllerRemoveMoySklad,catalogAdvancedSettingsControllerGetMoySkladStatus,catalogAdvancedSettingsControllerGetMoySkladRuns,catalogAdvancedSettingsControllerGetMoySkladRunProgress,catalogAdvancedSettingsControllerGetMoySkladOrderExportRefs,catalogAdvancedSettingsControllerTestMoySkladConnection,catalogAdvancedSettingsControllerSyncMoySkladCatalog,catalogAdvancedSettingsControllerCancelMoySkladSync,catalogAdvancedSettingsControllerGetIiko,catalogAdvancedSettingsControllerUpsertIiko,catalogAdvancedSettingsControllerUpdateIiko,catalogAdvancedSettingsControllerRemoveIiko,catalogAdvancedSettingsControllerGetIikoStatus,catalogAdvancedSettingsControllerGetIikoRuns,catalogAdvancedSettingsControllerGetIikoWebhookEvents,catalogAdvancedSettingsControllerRetryIikoWebhookEvent,catalogAdvancedSettingsControllerGetIikoRunProgress,catalogAdvancedSettingsControllerTestIikoConnection,catalogAdvancedSettingsControllerPreviewIikoImport,catalogAdvancedSettingsControllerSyncIikoCatalog,catalogAdvancedSettingsControllerSyncIikoStock,catalogAdvancedSettingsControllerSyncIikoProduct,catalogAdvancedSettingsControllerSetupIikoWebhooks,catalogAdvancedSettingsControllerDisableIikoWebhooks,catalogControllerGetCurrent,catalogControllerUpdateCurrent,catalogControllerGetCurrentShell,catalogControllerGetCurrentTypeSchema,catalogControllerGetCurrentFeatures,catalogControllerGetAll,catalogControllerCreate,catalogControllerGetById,catalogControllerUpdateById,catalogDomainControllerList,catalogDomainControllerCreate,catalogDomainControllerCheck,catalogDomainControllerDisable,integrationControllerGetMoySklad,integrationControllerUpsertMoySklad,integrationControllerUpdateMoySklad,integrationControllerRemoveMoySklad,integrationControllerGetMoySkladStatus,integrationControllerGetIiko,integrationControllerUpsertIiko,integrationControllerUpdateIiko,integrationControllerRemoveIiko,integrationControllerGetIikoStatus,integrationControllerTestIikoConnection,integrationControllerGetIikoTables,integrationControllerPreviewIikoImport,integrationControllerSyncIikoCatalog,integrationControllerSyncIikoStock,integrationControllerSyncIikoProduct,integrationControllerSetupIikoWebhooks,integrationControllerDisableIikoWebhooks,integrationControllerGetIikoRuns,integrationControllerGetIikoRunProgress,integrationControllerGetIikoOrderExports,integrationControllerGetIikoWebhookEvents,integrationControllerRetryIikoWebhookEvent,integrationControllerGetMoySkladRuns,integrationControllerGetMoySkladRunProgress,integrationControllerGetMoySkladOrderExports,integrationControllerGetMoySkladOrderExportRefs,integrationControllerPreviewMoySkladMapping,integrationControllerApplyMoySkladMapping,integrationControllerTestMoySkladConnection,integrationControllerSyncMoySkladCatalog,integrationControllerCancelMoySkladSync,integrationControllerSyncMoySkladProduct,integrationControllerSyncMoySkladStock,integrationControllerReceiveMoySkladStockWebhook,integrationControllerReceiveMoySkladProductDeleteWebhook,integrationControllerReceiveMoySkladProductChangeWebhook,integrationControllerReceiveMoySkladProductFolderWebhook,integrationControllerReceiveIikoWebhook,integrationControllerRetryMoySkladOrderExport,integrationControllerRetryIikoOrderExport,integrationControllerGetIikoOrderExportTimeline,oneCIntegrationControllerGetOneC,oneCIntegrationControllerUpsertOneC,oneCIntegrationControllerUpdateOneC,oneCIntegrationControllerRemoveOneC,oneCIntegrationControllerGetOneCStatus,oneCIntegrationControllerGetOneCRuns,oneCIntegrationControllerGetOneCRunProgress,oneCIntegrationControllerGetOneCRecommendedProductMapping,oneCIntegrationControllerGetOneCRecommendedVariantMapping,oneCIntegrationControllerGetOneCRecommendedStockMapping,oneCIntegrationControllerGetOneCRecommendedPriceMapping,oneCIntegrationControllerTestOneCConnection,oneCIntegrationControllerDiscoverOneCObjects,oneCIntegrationControllerListOneCObjects,oneCIntegrationControllerCreateOneCObject,oneCIntegrationControllerUpdateOneCObject,oneCIntegrationControllerDeleteOneCObject,oneCIntegrationControllerListOneCEntityMappings,oneCIntegrationControllerCreateOneCEntityMapping,oneCIntegrationControllerUpdateOneCEntityMapping,oneCIntegrationControllerDeleteOneCEntityMapping,oneCIntegrationControllerCreateOneCFieldMapping,oneCIntegrationControllerUpdateOneCFieldMapping,oneCIntegrationControllerDeleteOneCFieldMapping,oneCIntegrationControllerPreviewOneCMapping,oneCIntegrationControllerPreviewOneCRemoteMapping,oneCIntegrationControllerPreviewOneCProductImport,oneCIntegrationControllerImportOneCProducts,oneCIntegrationControllerPreviewOneCVariantImport,oneCIntegrationControllerImportOneCVariants,oneCIntegrationControllerPreviewOneCStockSync,oneCIntegrationControllerApplyOneCStockSync,oneCIntegrationControllerPreviewOneCPriceSync,oneCIntegrationControllerApplyOneCPriceSync,oneCIntegrationControllerSyncOneCProducts,oneCIntegrationControllerSyncOneCVariants,oneCIntegrationControllerSyncOneCStock,oneCIntegrationControllerSyncOneCPrices,catalogSaleUnitControllerGetAll,catalogSaleUnitControllerCreate,catalogSaleUnitControllerGetById,catalogSaleUnitControllerUpdate,catalogSaleUnitControllerArchive,catalogModifierControllerGetState,catalogModifierControllerGetGroups,catalogModifierControllerCreateGroup,catalogModifierControllerUpdateGroup,catalogModifierControllerArchiveGroup,catalogModifierControllerGetOptions,catalogModifierControllerCreateOption,catalogModifierControllerUpdateOption,catalogModifierControllerArchiveOption,catalogModifierControllerGetProductModifiers,catalogModifierControllerSetProductModifiers,categoryControllerGetAll,categoryControllerCreate,categoryControllerGetById,categoryControllerUpdate,categoryControllerRemove,categoryControllerGetProductsByCategory,categoryControllerGetProductCardsByCategory,categoryControllerUpdatePositions,categoryControllerUpdatePosition,inventoryControllerGetWarehouses,inventoryControllerCreateWarehouse,inventoryControllerGetWarehouseById,inventoryControllerUpdateWarehouse,inventoryControllerRemoveWarehouse,inventoryControllerGetWarehouseBalances,inventoryControllerGetWarehouseMovements,inventoryControllerGetWarehouseReservations,inventoryControllerAdjustWarehouseStock,cartControllerCreateOrGetCurrent,cartControllerGetCurrent,cartControllerDeleteCurrent,cartControllerShareCurrent,cartControllerSubmitCurrentHallOrder,cartControllerGetHallTableLink,cartControllerListHallTables,cartControllerJoinHallTableSession,cartControllerUpsertCurrentItem,cartControllerRemoveCurrentItem,cartControllerSseCurrent,cartControllerGetPublicCart,cartControllerStartManagerSession,cartControllerHeartbeatManagerSession,cartControllerReleaseManagerSession,cartControllerCompleteManagerOrder,cartControllerCloseHallTableSession,cartControllerResetHallTableSession,cartControllerConfirmHallTableOrder,cartControllerSubmitPublicHallOrder,cartControllerUpsertPublicItem,cartControllerRemovePublicItem,cartControllerSsePublic,productTypeControllerGetAll,productTypeControllerCreate,productTypeControllerGetSystemTemplates,productTypeControllerCreateSystemTemplate,productTypeControllerGetSystemTemplateById,productTypeControllerUpdateSystemTemplate,productTypeControllerArchiveSystemTemplate,productTypeControllerGetMatrixEditorSchema,productTypeControllerGetById,productTypeControllerUpdate,productTypeControllerArchive,productTypeControllerCreateFromTemplate,seoControllerGetAll,seoControllerCreate,seoControllerGetByEntity,seoControllerGetById,seoControllerUpdate,seoControllerRemove}};
 export type TypeControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerGetAll']>>>
 export type TypeControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerCreate']>>>
 export type TypeControllerDeleteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['typeControllerDelete']>>>
@@ -11133,6 +11879,13 @@ export type ProductControllerToggleStatusResult = NonNullable<Awaited<ReturnType
 export type ProductControllerTogglePopularResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerTogglePopular']>>>
 export type ProductControllerSetVariantsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariants']>>>
 export type ProductControllerSetVariantMatrixResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['productControllerSetVariantMatrix']>>>
+export type CatalogPriceListControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogPriceListControllerGetAll']>>>
+export type CatalogPriceListControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogPriceListControllerCreate']>>>
+export type CatalogPriceListControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogPriceListControllerUpdate']>>>
+export type CatalogPriceListControllerArchiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogPriceListControllerArchive']>>>
+export type CatalogPriceListControllerGetPricesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogPriceListControllerGetPrices']>>>
+export type CatalogPriceListControllerBulkUpsertPricesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogPriceListControllerBulkUpsertPrices']>>>
+export type CatalogPriceListControllerSetActivePriceListResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogPriceListControllerSetActivePriceList']>>>
 export type AttributeControllerGetByTypeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['attributeControllerGetByType']>>>
 export type AttributeControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['attributeControllerGetById']>>>
 export type AttributeControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['attributeControllerUpdate']>>>
@@ -11293,6 +12046,17 @@ export type CatalogSaleUnitControllerCreateResult = NonNullable<Awaited<ReturnTy
 export type CatalogSaleUnitControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerGetById']>>>
 export type CatalogSaleUnitControllerUpdateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerUpdate']>>>
 export type CatalogSaleUnitControllerArchiveResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogSaleUnitControllerArchive']>>>
+export type CatalogModifierControllerGetStateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerGetState']>>>
+export type CatalogModifierControllerGetGroupsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerGetGroups']>>>
+export type CatalogModifierControllerCreateGroupResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerCreateGroup']>>>
+export type CatalogModifierControllerUpdateGroupResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerUpdateGroup']>>>
+export type CatalogModifierControllerArchiveGroupResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerArchiveGroup']>>>
+export type CatalogModifierControllerGetOptionsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerGetOptions']>>>
+export type CatalogModifierControllerCreateOptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerCreateOption']>>>
+export type CatalogModifierControllerUpdateOptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerUpdateOption']>>>
+export type CatalogModifierControllerArchiveOptionResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerArchiveOption']>>>
+export type CatalogModifierControllerGetProductModifiersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerGetProductModifiers']>>>
+export type CatalogModifierControllerSetProductModifiersResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['catalogModifierControllerSetProductModifiers']>>>
 export type CategoryControllerGetAllResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetAll']>>>
 export type CategoryControllerCreateResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerCreate']>>>
 export type CategoryControllerGetByIdResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getGatewayService>['categoryControllerGetById']>>>

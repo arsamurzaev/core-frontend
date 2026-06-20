@@ -120,9 +120,13 @@ export interface AuthSessionGeoDto {
 export interface AuthSessionClientDto {
   /** @nullable */
   ip?: string | null;
+  /** @nullable */
   browser?: AuthSessionBrowserDto | null;
+  /** @nullable */
   os?: AuthSessionOsDto | null;
+  /** @nullable */
   device?: AuthSessionDeviceDto | null;
+  /** @nullable */
   geo?: AuthSessionGeoDto | null;
 }
 
@@ -261,6 +265,14 @@ export const AdminCatalogConfigListItemDtoStatus = {
   PROMOTION: 'PROMOTION',
 } as const;
 
+export type AdminCatalogConfigListItemDtoPresentationMode = typeof AdminCatalogConfigListItemDtoPresentationMode[keyof typeof AdminCatalogConfigListItemDtoPresentationMode];
+
+
+export const AdminCatalogConfigListItemDtoPresentationMode = {
+  CATALOG: 'CATALOG',
+  BUSINESS_CARD: 'BUSINESS_CARD',
+} as const;
+
 export type AdminCatalogConfigListItemDtoInventoryMode = typeof AdminCatalogConfigListItemDtoInventoryMode[keyof typeof AdminCatalogConfigListItemDtoInventoryMode];
 
 
@@ -272,6 +284,7 @@ export const AdminCatalogConfigListItemDtoInventoryMode = {
 
 export interface AdminCatalogConfigListItemDto {
   status: AdminCatalogConfigListItemDtoStatus;
+  presentationMode: AdminCatalogConfigListItemDtoPresentationMode;
   inventoryMode: AdminCatalogConfigListItemDtoInventoryMode;
   /** Whether the catalog can use product type schemas. */
   canUseProductTypes: boolean;
@@ -279,12 +292,18 @@ export interface AdminCatalogConfigListItemDto {
   canUseProductVariants: boolean;
   /** Whether the catalog can use catalog sale units. */
   canUseCatalogSaleUnits: boolean;
+  /** Whether the catalog can use product modifiers. */
+  canUseCatalogModifiers: boolean;
+  /** Whether the catalog can use catalog price lists. */
+  canUseCatalogPriceLists: boolean;
   /** Whether the catalog can use the paid internal inventory feature. */
   canUseInternalInventory: boolean;
   /** Whether the catalog can use MoySklad integration. */
   canUseMoySkladIntegration: boolean;
   /** Whether the catalog can use iiko integration. */
   canUseIikoIntegration: boolean;
+  /** Whether the catalog can use 1C integration. */
+  canUseOneCIntegration: boolean;
 }
 
 export interface AdminDeleteInfoDto {
@@ -345,6 +364,7 @@ export interface AdminTypeListItemDto {
   name: string;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -360,6 +380,7 @@ export interface AdminPromoCodeListItemDto {
   bet: string;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -394,6 +415,7 @@ export interface AdminRegionalityListItemDto {
   parentId?: string | null;
   countryCode: string;
   countryName: string;
+  /** @nullable */
   country?: AdminCountryListItemDto | null;
   /** @nullable */
   deleteAt?: string | null;
@@ -429,6 +451,7 @@ export interface AdminCatalogListItemDto {
      * @nullable
      */
   metricId?: string | null;
+  /** @nullable */
   config: AdminCatalogConfigListItemDto | null;
   /** @nullable */
   subscriptionEndsAt?: string | null;
@@ -436,11 +459,14 @@ export interface AdminCatalogListItemDto {
   subscriptionDaysLeft?: number | null;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
+  /** @nullable */
   logoMedia: MediaDto | null;
   type: AdminTypeListItemDto;
+  /** @nullable */
   promoCode: AdminPromoCodeListItemDto | null;
   activities: AdminCatalogActivityListItemDto[];
   regionalities: AdminRegionalityListItemDto[];
@@ -524,6 +550,17 @@ export const AdminUpdateCatalogDtoReqStatus = {
   PROMOTION: 'PROMOTION',
 } as const;
 
+/**
+ * Controls storefront presentation: full catalog or contact-only business card.
+ */
+export type AdminUpdateCatalogDtoReqPresentationMode = typeof AdminUpdateCatalogDtoReqPresentationMode[keyof typeof AdminUpdateCatalogDtoReqPresentationMode];
+
+
+export const AdminUpdateCatalogDtoReqPresentationMode = {
+  CATALOG: 'CATALOG',
+  BUSINESS_CARD: 'BUSINESS_CARD',
+} as const;
+
 export interface AdminUpdateCatalogDtoReq {
   name?: string;
   typeId?: string;
@@ -536,6 +573,8 @@ export interface AdminUpdateCatalogDtoReq {
      */
   metricId?: string | null;
   status?: AdminUpdateCatalogDtoReqStatus;
+  /** Controls storefront presentation: full catalog or contact-only business card. */
+  presentationMode?: AdminUpdateCatalogDtoReqPresentationMode;
   /** Catalog domain/subdomain stored as slug. */
   slug?: string;
   /** @nullable */
@@ -553,6 +592,8 @@ export const AdminCatalogFeatureEntitlementItemDtoFeature = {
   producttypes: 'product.types',
   productvariants: 'product.variants',
   catalogsale_units: 'catalog.sale_units',
+  catalogmodifiers: 'catalog.modifiers',
+  catalogprice_lists: 'catalog.price_lists',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
@@ -780,6 +821,7 @@ export interface AdminMoySkladStockLatestRunDto {
   totalRows: number;
   appliedRows: number;
   skippedRows: number;
+  /** @nullable */
   diagnostics: AdminMoySkladStockDiagnosticsDto | null;
   /** @nullable */
   error: string | null;
@@ -803,6 +845,7 @@ export interface AdminMoySkladStockDiagnosticsReportDto {
   /** @nullable */
   lastStockSyncedAt: string | null;
   links: AdminMoySkladStockLinkCountersDto;
+  /** @nullable */
   latestRun: AdminMoySkladStockLatestRunDto | null;
 }
 
@@ -813,6 +856,8 @@ export const AdminUpdateCatalogFeatureEntitlementDtoReqFeature = {
   producttypes: 'product.types',
   productvariants: 'product.variants',
   catalogsale_units: 'catalog.sale_units',
+  catalogmodifiers: 'catalog.modifiers',
+  catalogprice_lists: 'catalog.price_lists',
   inventoryinternal: 'inventory.internal',
   integrationmoysklad: 'integration.moysklad',
   integrationiiko: 'integration.iiko',
@@ -932,6 +977,7 @@ export interface AdminActivityListItemDto {
   name: string;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -976,6 +1022,7 @@ export interface AdminPaymentDto {
   proofUrl?: string | null;
   /** @nullable */
   deleteAt?: string | null;
+  /** @nullable */
   deleteInfo?: AdminDeleteInfoDto | null;
   createdAt?: string;
   updatedAt?: string;
@@ -984,6 +1031,8 @@ export interface AdminPaymentDto {
 export interface PresignUploadDtoReq {
   /** MIME-тип файла */
   contentType: string;
+  /** Размер файла в байтах */
+  contentLength?: number;
   /** Путь внутри каталога */
   path?: string;
   folder?: string;
@@ -1133,6 +1182,7 @@ export interface ProductVariantCatalogSaleUnitDto {
 
 export interface ProductVariantSaleUnitDto {
   id: string;
+  variantId: string;
   /** @nullable */
   catalogSaleUnitId: string | null;
   code: string;
@@ -1146,6 +1196,7 @@ export interface ProductVariantSaleUnitDto {
   displayOrder: number;
   createdAt: string;
   updatedAt: string;
+  /** @nullable */
   catalogSaleUnit: ProductVariantCatalogSaleUnitDto | null;
 }
 
@@ -1242,6 +1293,7 @@ export interface ProductAttributeDto {
   /** @nullable */
   valueDateTime: string | null;
   attribute: ProductAttributeRefDto;
+  /** @nullable */
   enumValue: ProductAttributeEnumValueDto | null;
 }
 
@@ -1334,9 +1386,12 @@ export interface ProductWithAttributesDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductWithAttributesDtoStatus;
@@ -1422,6 +1477,7 @@ export interface ProductVariantDto {
   updatedAt: string;
   attributes: VariantAttributeDto[];
   saleUnits: ProductVariantSaleUnitDto[];
+  /** @nullable */
   integration?: ProductIntegrationDto | null;
 }
 
@@ -1481,6 +1537,7 @@ export interface SeoDto {
   ogTitle: string | null;
   /** @nullable */
   ogDescription: string | null;
+  /** @nullable */
   ogMedia: MediaDto | null;
   /** @nullable */
   ogType: string | null;
@@ -1496,7 +1553,9 @@ export interface SeoDto {
   twitterTitle: string | null;
   /** @nullable */
   twitterDescription: string | null;
+  /** @nullable */
   twitterMedia: MediaDto | null;
+  /** @nullable */
   faviconMedia: MediaDto | null;
   /** @nullable */
   twitterSite: string | null;
@@ -1567,9 +1626,12 @@ export interface ProductWithDetailsDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductWithDetailsDtoStatus;
@@ -1580,6 +1642,7 @@ export interface ProductWithDetailsDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
 }
 
@@ -1641,6 +1704,30 @@ export interface ProductVariantDtoReq {
   saleUnits?: ProductVariantSaleUnitDtoReq[];
 }
 
+export interface CreateProductPriceListVariantAttributeDtoReq {
+  attributeId: string;
+  enumValueId: string;
+}
+
+export type CreateProductPriceListPriceDtoReqTarget = typeof CreateProductPriceListPriceDtoReqTarget[keyof typeof CreateProductPriceListPriceDtoReqTarget];
+
+
+export const CreateProductPriceListPriceDtoReqTarget = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  SALE_UNIT: 'SALE_UNIT',
+} as const;
+
+export interface CreateProductPriceListPriceDtoReq {
+  priceListId: string;
+  target: CreateProductPriceListPriceDtoReqTarget;
+  price: number;
+  /** Variant identity for VARIANT and variant-scoped SALE_UNIT prices during product creation. */
+  variantAttributes?: CreateProductPriceListVariantAttributeDtoReq[];
+  /** Required for SALE_UNIT prices. */
+  catalogSaleUnitId?: string;
+}
+
 export interface CreateProductDtoReq {
   name: string;
   /** @nullable */
@@ -1658,6 +1745,8 @@ export interface CreateProductDtoReq {
   /** Единицы продажи простого товара. Сохраняются на технический default-вариант. */
   saleUnits?: ProductVariantSaleUnitDtoReq[];
   variants?: ProductVariantDtoReq[];
+  /** Initial price-list prices. Backend resolves product, variant and sale-unit ids after creation. */
+  priceListPrices?: CreateProductPriceListPriceDtoReq[];
 }
 
 export type ProductCreateResponseDtoPriceState = typeof ProductCreateResponseDtoPriceState[keyof typeof ProductCreateResponseDtoPriceState];
@@ -1711,9 +1800,12 @@ export interface ProductCreateResponseDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductCreateResponseDtoStatus;
@@ -1724,6 +1816,7 @@ export interface ProductCreateResponseDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
   ok: boolean;
 }
@@ -1846,9 +1939,12 @@ export interface ProductUpdateResponseDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductUpdateResponseDtoStatus;
@@ -1859,6 +1955,7 @@ export interface ProductUpdateResponseDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
   ok: boolean;
 }
@@ -2012,9 +2109,12 @@ export interface ProductVariantsResponseDto {
   saleUnits: ProductVariantSaleUnitDto[];
   requiresVariantSelection: boolean;
   media: ProductMediaDto[];
+  /** @nullable */
   brand: ProductBrandDto | null;
+  /** @nullable */
   productType: ProductTypeRefDto | null;
   categories: ProductCategoryDto[];
+  /** @nullable */
   integration: ProductIntegrationDto | null;
   isPopular: boolean;
   status: ProductVariantsResponseDtoStatus;
@@ -2025,12 +2125,95 @@ export interface ProductVariantsResponseDto {
   variantSummary: ProductVariantSummaryDto;
   variantPickerOptions: ProductVariantPickerOptionDto[];
   variants: ProductVariantDto[];
+  /** @nullable */
   seo: SeoDto | null;
   ok: boolean;
 }
 
 export interface SetProductVariantMatrixDtoReq {
   items: ProductVariantDtoReq[];
+}
+
+export interface CatalogPriceListDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+}
+
+export interface CreateCatalogPriceListDtoReq {
+  name: string;
+  code?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface UpdateCatalogPriceListDtoReq {
+  name?: string;
+  code?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export type CatalogPriceListPriceDtoTarget = typeof CatalogPriceListPriceDtoTarget[keyof typeof CatalogPriceListPriceDtoTarget];
+
+
+export const CatalogPriceListPriceDtoTarget = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  SALE_UNIT: 'SALE_UNIT',
+} as const;
+
+export interface CatalogPriceListPriceDto {
+  id: string;
+  priceListId: string;
+  target: CatalogPriceListPriceDtoTarget;
+  targetId: string;
+  productId: string;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  saleUnitId: string | null;
+  price: string;
+  /** @nullable */
+  deleteAt: string | null;
+}
+
+export type CatalogPriceListPriceInputDtoReqTarget = typeof CatalogPriceListPriceInputDtoReqTarget[keyof typeof CatalogPriceListPriceInputDtoReqTarget];
+
+
+export const CatalogPriceListPriceInputDtoReqTarget = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+  SALE_UNIT: 'SALE_UNIT',
+} as const;
+
+export interface CatalogPriceListPriceInputDtoReq {
+  target: CatalogPriceListPriceInputDtoReqTarget;
+  targetId: string;
+  /**
+     * Null удаляет цену из этого прайс-листа.
+     * @nullable
+     */
+  price?: number | null;
+}
+
+export interface BulkUpsertCatalogPriceListPricesDtoReq {
+  prices: CatalogPriceListPriceInputDtoReq[];
+}
+
+export interface SetActivePriceListDtoReq {
+  /** @nullable */
+  activePriceListId?: string | null;
+}
+
+export interface ActiveCatalogPriceListDto {
+  /** @nullable */
+  activePriceListId: string | null;
 }
 
 export interface AttributeEnumValueAliasDto {
@@ -2234,7 +2417,7 @@ export interface CreateUserDtoReq {
   login: string;
   password: string;
   name: string;
-  role: Role;
+  role?: Role;
   regionalityIds?: string[];
   countryIds?: string[];
 }
@@ -2250,6 +2433,7 @@ export interface CatalogDomainDnsRecordDto {
 export interface CatalogDomainVerificationDto {
   txtRecord: CatalogDomainDnsRecordDto;
   routingRecords: CatalogDomainDnsRecordDto[];
+  /** @nullable */
   wwwRecord?: CatalogDomainDnsRecordDto | null;
   expectedHosts: string[];
   instructions: string[];
@@ -2518,6 +2702,7 @@ export interface MoySkladSyncStockStatsDto {
   total: number;
   applied: number;
   skipped: number;
+  /** @nullable */
   diagnostics: MoySkladSyncStockDiagnosticsDto | null;
 }
 
@@ -2633,6 +2818,7 @@ export interface MoySkladSyncRunDto {
   stockRows: MoySkladSyncStockStatsDto;
   warnings: MoySkladSyncIssueDto[];
   errors: MoySkladSyncIssueDto[];
+  /** @nullable */
   progress: MoySkladSyncProgressDto | null;
   /** @nullable */
   durationMs: number | null;
@@ -2647,8 +2833,11 @@ export interface MoySkladSyncRunDto {
 
 export interface MoySkladIntegrationStatusDto {
   configured: boolean;
+  /** @nullable */
   integration: MoySkladIntegrationDto | null;
+  /** @nullable */
   activeRun: MoySkladSyncRunDto | null;
+  /** @nullable */
   lastRun: MoySkladSyncRunDto | null;
 }
 
@@ -2879,6 +3068,9 @@ export interface IikoIntegrationDto {
   hasApiLogin: boolean;
   /** @nullable */
   apiLoginPreview: string | null;
+  /** @nullable */
+  appId: string | null;
+  hasClientSecret: boolean;
   organizationId: string;
   /** @nullable */
   organizationName: string | null;
@@ -2999,6 +3191,7 @@ export interface IikoSyncRunDto {
   stockRows: MoySkladSyncStockStatsDto;
   warnings: MoySkladSyncIssueDto[];
   errors: MoySkladSyncIssueDto[];
+  /** @nullable */
   progress: MoySkladSyncProgressDto | null;
   /** @nullable */
   durationMs: number | null;
@@ -3013,8 +3206,11 @@ export interface IikoSyncRunDto {
 
 export interface IikoIntegrationStatusDto {
   configured: boolean;
+  /** @nullable */
   integration: IikoIntegrationDto | null;
+  /** @nullable */
   activeRun: IikoSyncRunDto | null;
+  /** @nullable */
   lastRun: IikoSyncRunDto | null;
 }
 
@@ -3099,6 +3295,8 @@ export const UpsertIikoIntegrationDtoReqOrderExportServiceType = {
 
 export interface UpsertIikoIntegrationDtoReq {
   apiLogin: string;
+  appId?: string;
+  clientSecret?: string;
   organizationId: string;
   /** @nullable */
   organizationName?: string | null;
@@ -3137,6 +3335,10 @@ export const UpdateIikoIntegrationDtoReqOrderExportServiceType = {
 
 export interface UpdateIikoIntegrationDtoReq {
   apiLogin?: string;
+  /** @nullable */
+  appId?: string | null;
+  /** @nullable */
+  clientSecret?: string | null;
   organizationId?: string;
   /** @nullable */
   organizationName?: string | null;
@@ -3164,6 +3366,8 @@ export interface UpdateIikoIntegrationDtoReq {
 
 export interface TestIikoConnectionDtoReq {
   apiLogin?: string;
+  appId?: string;
+  clientSecret?: string;
 }
 
 export interface IikoOrganizationDto {
@@ -3205,6 +3409,8 @@ export interface IikoTestConnectionDto {
 export interface PreviewIikoImportDtoReq {
   /** Optional apiLogin override. If omitted, saved iiko credentials are used. */
   apiLogin?: string;
+  appId?: string;
+  clientSecret?: string;
   organizationId?: string;
   externalMenuId?: string;
   /** @nullable */
@@ -3339,7 +3545,9 @@ export interface CatalogConfigDto {
   /** @nullable */
   description: string | null;
   currency: string;
+  /** @nullable */
   logoMedia: MediaDto | null;
+  /** @nullable */
   bgMedia: MediaDto | null;
   /** @nullable */
   note: string | null;
@@ -3380,6 +3588,14 @@ export interface CatalogCheckoutConfigDto {
   preorder: CatalogCheckoutPreorderSettingsDto;
 }
 
+export type CatalogSettingsDtoPresentationMode = typeof CatalogSettingsDtoPresentationMode[keyof typeof CatalogSettingsDtoPresentationMode];
+
+
+export const CatalogSettingsDtoPresentationMode = {
+  CATALOG: 'CATALOG',
+  BUSINESS_CARD: 'BUSINESS_CARD',
+} as const;
+
 export type CatalogSettingsDtoDefaultMode = typeof CatalogSettingsDtoDefaultMode[keyof typeof CatalogSettingsDtoDefaultMode];
 
 
@@ -3409,6 +3625,7 @@ export const CatalogSettingsDtoInventoryMode = {
 
 export interface CatalogSettingsDto {
   isActive: boolean;
+  presentationMode: CatalogSettingsDtoPresentationMode;
   defaultMode: CatalogSettingsDtoDefaultMode;
   allowedModes: CatalogSettingsDtoAllowedModesItem[];
   inventoryMode: CatalogSettingsDtoInventoryMode;
@@ -3419,6 +3636,8 @@ export interface CatalogSettingsDto {
   googleVerification: string | null;
   /** @nullable */
   yandexVerification: string | null;
+  /** @nullable */
+  activePriceListId: string | null;
 }
 
 export type CatalogMetricDtoProvider = typeof CatalogMetricDtoProvider[keyof typeof CatalogMetricDtoProvider];
@@ -3474,6 +3693,10 @@ export interface CatalogCurrentFeaturesDto {
   canUseProductVariants: boolean;
   /** Whether the current catalog can use catalog sale units. */
   canUseCatalogSaleUnits: boolean;
+  /** Whether the current catalog can use product modifiers. */
+  canUseCatalogModifiers: boolean;
+  /** Whether the current catalog can use catalog price lists. */
+  canUseCatalogPriceLists: boolean;
   /** Whether the current catalog can use the paid internal inventory feature. */
   canUseInternalInventory: boolean;
   /** Whether the current catalog can use MoySklad integration. */
@@ -3537,11 +3760,14 @@ export interface CatalogCurrentDto {
   updatedAt?: string;
   /** @nullable */
   subscriptionEndsAt?: string | null;
+  /** @nullable */
   config: CatalogConfigDto | null;
+  /** @nullable */
   settings: CatalogSettingsDto | null;
   metrics: CatalogMetricDto[];
   features: CatalogCurrentFeaturesDto;
   contacts: CatalogContactDto[];
+  /** @nullable */
   seo: SeoDto | null;
   type: CatalogTypeDto;
 }
@@ -3563,11 +3789,14 @@ export interface CatalogCurrentShellDto {
   updatedAt?: string;
   /** @nullable */
   subscriptionEndsAt?: string | null;
+  /** @nullable */
   config: CatalogConfigDto | null;
+  /** @nullable */
   settings: CatalogSettingsDto | null;
   metrics: CatalogMetricDto[];
   features: CatalogCurrentFeaturesDto;
   contacts: CatalogContactDto[];
+  /** @nullable */
   seo: SeoDto | null;
 }
 
@@ -3677,7 +3906,9 @@ export interface CatalogDto {
   updatedAt?: string;
   /** @nullable */
   subscriptionEndsAt?: string | null;
+  /** @nullable */
   config: CatalogConfigDto | null;
+  /** @nullable */
   settings: CatalogSettingsDto | null;
   metrics: CatalogMetricDto[];
 }
@@ -4243,6 +4474,7 @@ export interface OneCSyncRunDto {
   imagesImported: number;
   skippedProducts: number;
   failedProducts: number;
+  /** @nullable */
   progress: OneCSyncProgressDto | null;
   /** @nullable */
   durationMs: number | null;
@@ -4257,8 +4489,11 @@ export interface OneCSyncRunDto {
 
 export interface OneCIntegrationStatusDto {
   configured: boolean;
+  /** @nullable */
   integration: OneCIntegrationDto | null;
+  /** @nullable */
   activeRun: OneCSyncRunDto | null;
+  /** @nullable */
   lastRun: OneCSyncRunDto | null;
 }
 
@@ -4402,6 +4637,7 @@ export interface OneCEntityMappingDto {
   /** @nullable */
   options: OneCEntityMappingDtoOptions;
   isActive: boolean;
+  /** @nullable */
   externalObject: OneCExternalObjectDto | null;
   fieldMappings: OneCFieldMappingDto[];
   createdAt: string;
@@ -4413,6 +4649,7 @@ export interface OneCRecommendedProductMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -4423,6 +4660,7 @@ export interface OneCRecommendedVariantMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -4433,6 +4671,7 @@ export interface OneCRecommendedStockMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -4443,6 +4682,7 @@ export interface OneCRecommendedPriceMappingDto {
   ready: boolean;
   /** @nullable */
   mappingId: string | null;
+  /** @nullable */
   mapping: OneCEntityMappingDto | null;
   /** @nullable */
   reason: string | null;
@@ -5622,6 +5862,188 @@ export interface RunOneCPriceSyncDtoReq {
   failOnRowError?: boolean;
 }
 
+export interface CatalogModifierOptionDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  /** @nullable */
+  description: string | null;
+  defaultPrice: string;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+}
+
+export interface CatalogModifierGroupOptionDto {
+  groupId: string;
+  optionId: string;
+  /** @nullable */
+  defaultPrice: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  option: CatalogModifierOptionDto;
+}
+
+export interface CatalogModifierGroupDto {
+  id: string;
+  catalogId: string;
+  code: string;
+  name: string;
+  /** @nullable */
+  description: string | null;
+  isRequired: boolean;
+  minSelected: number;
+  /** @nullable */
+  maxSelected: number | null;
+  isActive: boolean;
+  displayOrder: number;
+  /** @nullable */
+  deleteAt: string | null;
+  options: CatalogModifierGroupOptionDto[];
+}
+
+export interface CatalogModifierStateDto {
+  groups: CatalogModifierGroupDto[];
+  options: CatalogModifierOptionDto[];
+}
+
+export interface CatalogModifierGroupOptionDtoReq {
+  optionId: string;
+  /** @nullable */
+  defaultPrice?: number | null;
+  isDefault?: boolean;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface CreateCatalogModifierGroupDtoReq {
+  name: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  isRequired?: boolean;
+  minSelected?: number;
+  /** @nullable */
+  maxSelected?: number | null;
+  isActive?: boolean;
+  displayOrder?: number;
+  options?: CatalogModifierGroupOptionDtoReq[];
+}
+
+export interface UpdateCatalogModifierGroupDtoReq {
+  name?: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  isRequired?: boolean;
+  minSelected?: number;
+  /** @nullable */
+  maxSelected?: number | null;
+  isActive?: boolean;
+  displayOrder?: number;
+  options?: CatalogModifierGroupOptionDtoReq[];
+}
+
+export interface CreateCatalogModifierOptionDtoReq {
+  name: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  defaultPrice?: number;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface UpdateCatalogModifierOptionDtoReq {
+  name?: string;
+  code?: string;
+  /** @nullable */
+  description?: string | null;
+  defaultPrice?: number;
+  isActive?: boolean;
+  displayOrder?: number;
+}
+
+export interface ProductModifierOptionDto {
+  id: string;
+  productModifierGroupId: string;
+  /** @nullable */
+  catalogModifierOptionId: string | null;
+  code: string;
+  name: string;
+  price: string;
+  /** @nullable */
+  maxQuantity: number | null;
+  isDefault: boolean;
+  isAvailable: boolean;
+  displayOrder: number;
+}
+
+export type ProductModifierGroupDtoScope = typeof ProductModifierGroupDtoScope[keyof typeof ProductModifierGroupDtoScope];
+
+
+export const ProductModifierGroupDtoScope = {
+  PRODUCT: 'PRODUCT',
+  VARIANT: 'VARIANT',
+} as const;
+
+export interface ProductModifierGroupDto {
+  id: string;
+  productId: string;
+  /** @nullable */
+  variantId: string | null;
+  /** @nullable */
+  catalogModifierGroupId: string | null;
+  scope: ProductModifierGroupDtoScope;
+  code: string;
+  name: string;
+  /** @nullable */
+  description: string | null;
+  isRequired: boolean;
+  minSelected: number;
+  /** @nullable */
+  maxSelected: number | null;
+  isActive: boolean;
+  displayOrder: number;
+  options: ProductModifierOptionDto[];
+}
+
+export interface ProductModifierOptionBindingDtoReq {
+  catalogModifierOptionId?: string;
+  code?: string;
+  name?: string;
+  price?: number;
+  /** @nullable */
+  maxQuantity?: number | null;
+  isDefault?: boolean;
+  isAvailable?: boolean;
+  displayOrder?: number;
+}
+
+export interface ProductModifierGroupBindingDtoReq {
+  /** @nullable */
+  variantId?: string | null;
+  catalogModifierGroupId?: string;
+  code?: string;
+  name?: string;
+  /** @nullable */
+  description?: string | null;
+  isRequired?: boolean;
+  minSelected?: number;
+  /** @nullable */
+  maxSelected?: number | null;
+  isActive?: boolean;
+  displayOrder?: number;
+  options?: ProductModifierOptionBindingDtoReq[];
+}
+
+export interface SetProductModifiersDtoReq {
+  groups: ProductModifierGroupBindingDtoReq[];
+}
+
 export interface CategoryDto {
   id: string;
   catalogId: string;
@@ -5630,6 +6052,7 @@ export interface CategoryDto {
   position: number;
   productCount: number;
   name: string;
+  /** @nullable */
   imageMedia: MediaDto | null;
   /** @nullable */
   descriptor: string | null;
@@ -5650,6 +6073,7 @@ export interface CategoryChildDto {
   parentId: string | null;
   position: number;
   name: string;
+  /** @nullable */
   imageMedia: MediaDto | null;
 }
 
@@ -5661,6 +6085,7 @@ export interface CategoryWithRelationsDto {
   position: number;
   productCount: number;
   name: string;
+  /** @nullable */
   imageMedia: MediaDto | null;
   /** @nullable */
   descriptor: string | null;
@@ -5668,6 +6093,7 @@ export interface CategoryWithRelationsDto {
   discount: number | null;
   createdAt: string;
   updatedAt: string;
+  /** @nullable */
   parent: CategoryParentDto | null;
   children: CategoryChildDto[];
 }
@@ -5958,6 +6384,24 @@ export interface CartSaleUnitDto {
   displayOrder: number;
 }
 
+export interface CartItemModifierDto {
+  id: string;
+  /** @nullable */
+  productModifierGroupId: string | null;
+  /** @nullable */
+  productModifierOptionId: string | null;
+  /** @nullable */
+  catalogModifierGroupId: string | null;
+  /** @nullable */
+  catalogModifierOptionId: string | null;
+  groupCode: string;
+  groupName: string;
+  optionCode: string;
+  optionName: string;
+  quantity: number;
+  unitPrice: number;
+}
+
 export interface CartItemDto {
   id: string;
   productId: string;
@@ -5966,14 +6410,28 @@ export interface CartItemDto {
   /** @nullable */
   saleUnitId?: string | null;
   /** @nullable */
+  priceListId?: string | null;
+  /** @nullable */
+  priceListCode?: string | null;
+  /** @nullable */
+  priceListName?: string | null;
+  /** @nullable */
   guestSessionId?: string | null;
   /** @nullable */
   guestName?: string | null;
   quantity: number;
   baseQuantity: number;
+  /**
+     * Снимок цены единицы на момент добавления в корзину
+     * @nullable
+     */
+  unitPriceSnapshot?: number | null;
   product: CartProductShortDto;
+  /** @nullable */
   variant: CartVariantDto | null;
+  /** @nullable */
   saleUnit: CartSaleUnitDto | null;
+  modifiers: CartItemModifierDto[];
   unitPrice: number;
   /** Базовая цена единицы до применения скидки */
   baseUnitPrice: number;
@@ -6089,6 +6547,7 @@ export interface CartDto {
   /** @nullable */
   closedAt: string | null;
   items: CartItemDto[];
+  /** @nullable */
   tableSession: CartTableSessionDto | null;
   totals: CartTotalsDto;
   createdAt: string;
@@ -6140,6 +6599,12 @@ export interface CompletedOrderItemDto {
   /** @nullable */
   saleUnitId: string | null;
   /** @nullable */
+  priceListId: string | null;
+  /** @nullable */
+  priceListCode: string | null;
+  /** @nullable */
+  priceListName: string | null;
+  /** @nullable */
   guestSessionId: string | null;
   /** @nullable */
   guestName: string | null;
@@ -6149,7 +6614,9 @@ export interface CompletedOrderItemDto {
   baseUnitPrice: number;
   discountPercent: number;
   hasDiscount: boolean;
+  /** @nullable */
   variant: CartVariantDto | null;
+  /** @nullable */
   saleUnit: CartSaleUnitDto | null;
 }
 
@@ -6225,7 +6692,9 @@ export interface HallTableOverviewDto {
   tableExternalId: string;
   /** @nullable */
   publicKey: string | null;
+  /** @nullable */
   session: CartTableSessionDto | null;
+  /** @nullable */
   cart: CartDto | null;
   hasItems: boolean;
   needsConfirmation: boolean;
@@ -6265,6 +6734,12 @@ export interface HallTableSessionResponseDto {
   tableSession: HallTableSessionDto;
 }
 
+export interface UpsertCartItemModifierDtoReq {
+  productModifierGroupId: string;
+  productModifierOptionId: string;
+  quantity?: number;
+}
+
 export interface UpsertCartItemDtoReq {
   productId: string;
   variantId?: string;
@@ -6276,6 +6751,7 @@ export interface UpsertCartItemDtoReq {
   guestSessionId?: string;
   /** @maxLength 120 */
   guestName?: string;
+  modifiers?: UpsertCartItemModifierDtoReq[];
 }
 
 export interface PublicUpsertCartItemDtoReq {
@@ -6289,6 +6765,7 @@ export interface PublicUpsertCartItemDtoReq {
   guestSessionId?: string;
   /** @maxLength 120 */
   guestName?: string;
+  modifiers?: UpsertCartItemModifierDtoReq[];
 }
 
 export type ProductTypeAttributeAttributeDtoDataType = typeof ProductTypeAttributeAttributeDtoDataType[keyof typeof ProductTypeAttributeAttributeDtoDataType];
@@ -6671,7 +7148,7 @@ export type AdminControllerCreateCatalogPromoPaymentBody = {
   amount?: number;
   paidAt?: string;
   licenseEndsAt?: string;
-  /** PDF, JPEG, PNG or WebP payment confirmation */
+  /** Подтверждение оплаты в формате PDF, JPEG, PNG или WebP */
   proof: Blob;
 };
 
@@ -6679,7 +7156,7 @@ export type AdminControllerCreateCatalogSubscriptionPaymentBody = {
   amount?: number;
   paidAt?: string;
   licenseEndsAt?: string;
-  /** PDF, JPEG, PNG or WebP payment confirmation */
+  /** Подтверждение оплаты в формате PDF, JPEG, PNG или WebP */
   proof: Blob;
 };
 
@@ -6929,6 +7406,15 @@ export type ProductControllerDiagnoseDefaultVariantsParams = {
 sampleLimit?: number;
 };
 
+export type CatalogPriceListControllerGetAllParams = {
+includeArchived?: string;
+includeInactive?: string;
+};
+
+export type CatalogPriceListControllerGetPricesParams = {
+includeArchived?: string;
+};
+
 export type CatalogAdvancedSettingsControllerListSaleUnitsParams = {
 /**
  * Include disabled, non-archived units.
@@ -7020,16 +7506,31 @@ includeArchived?: boolean;
 includeInactive?: boolean;
 };
 
+export type CatalogModifierControllerGetStateParams = {
+includeArchived?: string;
+includeInactive?: string;
+};
+
+export type CatalogModifierControllerGetGroupsParams = {
+includeArchived: string;
+includeInactive: string;
+};
+
+export type CatalogModifierControllerGetOptionsParams = {
+includeArchived: string;
+includeInactive: string;
+};
+
 export type CategoryControllerGetAllParams = {
 /**
- * Если false, вернет только категории с активными товарами. По умолчанию true.
+ * Для владельца каталога может вернуть пустые категории. Для клиента пустые категории скрываются.
  */
 includeEmpty?: boolean;
 };
 
 export type CategoryControllerRemoveParams = {
 /**
- * Если true, soft-delete всех активных товаров категории
+ * Если true, мягко удаляет все активные товары категории
  */
 deleteProducts?: boolean;
 };
@@ -8013,7 +8514,7 @@ export function useHandoffControllerExchange<TData = Awaited<ReturnType<typeof h
 
 
 /**
- * @summary List domain event outbox rows
+ * @summary Получить записи outbox доменных событий
  */
 export const adminControllerGetDomainEventOutbox = (
     params?: AdminControllerGetDomainEventOutboxParams,
@@ -8085,7 +8586,7 @@ export function useAdminControllerGetDomainEventOutbox<TData = Awaited<ReturnTyp
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary List domain event outbox rows
+ * @summary Получить записи outbox доменных событий
  */
 
 export function useAdminControllerGetDomainEventOutbox<TData = Awaited<ReturnType<typeof adminControllerGetDomainEventOutbox>>, TError = unknown>(
@@ -8107,7 +8608,7 @@ export function useAdminControllerGetDomainEventOutbox<TData = Awaited<ReturnTyp
 
 
 /**
- * @summary Get domain event outbox status counters
+ * @summary Получить счетчики статусов outbox доменных событий
  */
 export const adminControllerGetDomainEventOutboxStats = (
 
@@ -8178,7 +8679,7 @@ export function useAdminControllerGetDomainEventOutboxStats<TData = Awaited<Retu
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get domain event outbox status counters
+ * @summary Получить счетчики статусов outbox доменных событий
  */
 
 export function useAdminControllerGetDomainEventOutboxStats<TData = Awaited<ReturnType<typeof adminControllerGetDomainEventOutboxStats>>, TError = unknown>(
@@ -8200,7 +8701,7 @@ export function useAdminControllerGetDomainEventOutboxStats<TData = Awaited<Retu
 
 
 /**
- * @summary Retry one pending or failed domain event
+ * @summary Повторить одно ожидающее или ошибочное доменное событие
  */
 export const adminControllerRetryDomainEventOutboxItem = (
     id: string,
@@ -8248,7 +8749,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerRetryDomainEventOutboxItemMutationError = unknown
 
     /**
- * @summary Retry one pending or failed domain event
+ * @summary Повторить одно ожидающее или ошибочное доменное событие
  */
 export const useAdminControllerRetryDomainEventOutboxItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRetryDomainEventOutboxItem>>, TError,{id: string}, TContext>, }
@@ -8262,7 +8763,7 @@ export const useAdminControllerRetryDomainEventOutboxItem = <TError = unknown,
     }
 
 /**
- * @summary Retry failed domain events by optional filters
+ * @summary Повторить ошибочные доменные события по фильтрам
  */
 export const adminControllerRetryFailedDomainEvents = (
     adminRetryFailedDomainEventsDtoReq: AdminRetryFailedDomainEventsDtoReq,
@@ -8312,7 +8813,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerRetryFailedDomainEventsMutationError = unknown
 
     /**
- * @summary Retry failed domain events by optional filters
+ * @summary Повторить ошибочные доменные события по фильтрам
  */
 export const useAdminControllerRetryFailedDomainEvents = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRetryFailedDomainEvents>>, TError,{data: AdminRetryFailedDomainEventsDtoReq}, TContext>, }
@@ -8326,7 +8827,7 @@ export const useAdminControllerRetryFailedDomainEvents = <TError = unknown,
     }
 
 /**
- * @summary Manually drain pending/failed domain events
+ * @summary Вручную обработать ожидающие и ошибочные доменные события
  */
 export const adminControllerDrainDomainEventOutbox = (
     adminDrainDomainEventOutboxDtoReq: AdminDrainDomainEventOutboxDtoReq,
@@ -8376,7 +8877,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerDrainDomainEventOutboxMutationError = unknown
 
     /**
- * @summary Manually drain pending/failed domain events
+ * @summary Вручную обработать ожидающие и ошибочные доменные события
  */
 export const useAdminControllerDrainDomainEventOutbox = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDrainDomainEventOutbox>>, TError,{data: AdminDrainDomainEventOutboxDtoReq}, TContext>, }
@@ -8390,7 +8891,7 @@ export const useAdminControllerDrainDomainEventOutbox = <TError = unknown,
     }
 
 /**
- * @summary Delete old processed domain events
+ * @summary Удалить старые обработанные доменные события
  */
 export const adminControllerCleanupDomainEventOutbox = (
     adminCleanupDomainEventOutboxDtoReq: AdminCleanupDomainEventOutboxDtoReq,
@@ -8440,7 +8941,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerCleanupDomainEventOutboxMutationError = unknown
 
     /**
- * @summary Delete old processed domain events
+ * @summary Удалить старые обработанные доменные события
  */
 export const useAdminControllerCleanupDomainEventOutbox = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerCleanupDomainEventOutbox>>, TError,{data: AdminCleanupDomainEventOutboxDtoReq}, TContext>, }
@@ -8548,7 +9049,7 @@ export function useAdminControllerGetCatalogs<TData = Awaited<ReturnType<typeof 
 
 
 /**
- * @summary Create catalog with generated owner credentials
+ * @summary Создать каталог с учетными данными владельца
  */
 export const adminControllerCreateCatalog = (
     adminCreateCatalogDtoReq: AdminCreateCatalogDtoReq,
@@ -8598,7 +9099,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerCreateCatalogMutationError = unknown
 
     /**
- * @summary Create catalog with generated owner credentials
+ * @summary Создать каталог с учетными данными владельца
  */
 export const useAdminControllerCreateCatalog = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerCreateCatalog>>, TError,{data: AdminCreateCatalogDtoReq}, TContext>, }
@@ -8612,7 +9113,7 @@ export const useAdminControllerCreateCatalog = <TError = unknown,
     }
 
 /**
- * @summary Duplicate catalog with generated owner credentials
+ * @summary Дублировать каталог с учетными данными владельца
  */
 export const adminControllerDuplicateCatalog = (
     id: string,
@@ -8663,7 +9164,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerDuplicateCatalogMutationError = unknown
 
     /**
- * @summary Duplicate catalog with generated owner credentials
+ * @summary Дублировать каталог с учетными данными владельца
  */
 export const useAdminControllerDuplicateCatalog = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDuplicateCatalog>>, TError,{id: string;data: AdminDuplicateCatalogDtoReq}, TContext>, }
@@ -8677,7 +9178,7 @@ export const useAdminControllerDuplicateCatalog = <TError = unknown,
     }
 
 /**
- * @summary Reset catalog owner password to default and return credentials
+ * @summary Сбросить пароль владельца каталога и вернуть учетные данные
  */
 export const adminControllerResetCatalogOwnerPassword = (
     id: string,
@@ -8725,7 +9226,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerResetCatalogOwnerPasswordMutationError = unknown
 
     /**
- * @summary Reset catalog owner password to default and return credentials
+ * @summary Сбросить пароль владельца каталога и вернуть учетные данные
  */
 export const useAdminControllerResetCatalogOwnerPassword = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerResetCatalogOwnerPassword>>, TError,{id: string}, TContext>, }
@@ -8804,7 +9305,7 @@ export const useAdminControllerUpdateCatalog = <TError = unknown,
     }
 
 /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 export const adminControllerDeleteCatalog = (
     id: string,
@@ -8852,7 +9353,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerDeleteCatalogMutationError = unknown
 
     /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 export const useAdminControllerDeleteCatalog = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDeleteCatalog>>, TError,{id: string}, TContext>, }
@@ -8866,7 +9367,7 @@ export const useAdminControllerDeleteCatalog = <TError = unknown,
     }
 
 /**
- * @summary Get catalog feature entitlements
+ * @summary Получить доступные функции каталога
  */
 export const adminControllerGetCatalogFeatureEntitlements = (
     id: string,
@@ -8937,7 +9438,7 @@ export function useAdminControllerGetCatalogFeatureEntitlements<TData = Awaited<
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get catalog feature entitlements
+ * @summary Получить доступные функции каталога
  */
 
 export function useAdminControllerGetCatalogFeatureEntitlements<TData = Awaited<ReturnType<typeof adminControllerGetCatalogFeatureEntitlements>>, TError = unknown>(
@@ -8959,7 +9460,7 @@ export function useAdminControllerGetCatalogFeatureEntitlements<TData = Awaited<
 
 
 /**
- * @summary Enable or disable a catalog feature entitlement
+ * @summary Включить или отключить функцию каталога
  */
 export const adminControllerUpdateCatalogFeatureEntitlement = (
     id: string,
@@ -9010,7 +9511,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerUpdateCatalogFeatureEntitlementMutationError = unknown
 
     /**
- * @summary Enable or disable a catalog feature entitlement
+ * @summary Включить или отключить функцию каталога
  */
 export const useAdminControllerUpdateCatalogFeatureEntitlement = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerUpdateCatalogFeatureEntitlement>>, TError,{id: string;data: AdminUpdateCatalogFeatureEntitlementDtoReq}, TContext>, }
@@ -9024,7 +9525,7 @@ export const useAdminControllerUpdateCatalogFeatureEntitlement = <TError = unkno
     }
 
 /**
- * @summary Diagnose legacy default variant consistency for catalog
+ * @summary Проверить технические вариации каталога
  */
 export const adminControllerDiagnoseCatalogDefaultVariants = (
     id: string,
@@ -9102,7 +9603,7 @@ export function useAdminControllerDiagnoseCatalogDefaultVariants<TData = Awaited
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Diagnose legacy default variant consistency for catalog
+ * @summary Проверить технические вариации каталога
  */
 
 export function useAdminControllerDiagnoseCatalogDefaultVariants<TData = Awaited<ReturnType<typeof adminControllerDiagnoseCatalogDefaultVariants>>, TError = unknown>(
@@ -9125,7 +9626,7 @@ export function useAdminControllerDiagnoseCatalogDefaultVariants<TData = Awaited
 
 
 /**
- * @summary Repair missing technical default variants for catalog
+ * @summary Восстановить недостающие технические вариации каталога
  */
 export const adminControllerRepairCatalogMissingDefaultVariants = (
     id: string,
@@ -9173,7 +9674,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerRepairCatalogMissingDefaultVariantsMutationError = unknown
 
     /**
- * @summary Repair missing technical default variants for catalog
+ * @summary Восстановить недостающие технические вариации каталога
  */
 export const useAdminControllerRepairCatalogMissingDefaultVariants = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogMissingDefaultVariants>>, TError,{id: string}, TContext>, }
@@ -9187,7 +9688,7 @@ export const useAdminControllerRepairCatalogMissingDefaultVariants = <TError = u
     }
 
 /**
- * @summary Dry-run or repair legacy product price mirror mismatches
+ * @summary Проверить или исправить расхождения legacy-цен товара
  */
 export const adminControllerRepairCatalogDefaultVariantPriceMismatches = (
     id: string,
@@ -9238,7 +9739,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerRepairCatalogDefaultVariantPriceMismatchesMutationError = unknown
 
     /**
- * @summary Dry-run or repair legacy product price mirror mismatches
+ * @summary Проверить или исправить расхождения legacy-цен товара
  */
 export const useAdminControllerRepairCatalogDefaultVariantPriceMismatches = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRepairCatalogDefaultVariantPriceMismatches>>, TError,{id: string;data: RepairDefaultVariantPriceMismatchDtoReq}, TContext>, }
@@ -9252,7 +9753,7 @@ export const useAdminControllerRepairCatalogDefaultVariantPriceMismatches = <TEr
     }
 
 /**
- * @summary Get MoySklad stock sync diagnostics for catalog
+ * @summary Получить диагностику синхронизации остатков MoySklad
  */
 export const adminControllerGetCatalogMoySkladStockDiagnostics = (
     id: string,
@@ -9323,7 +9824,7 @@ export function useAdminControllerGetCatalogMoySkladStockDiagnostics<TData = Awa
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get MoySklad stock sync diagnostics for catalog
+ * @summary Получить диагностику синхронизации остатков MoySklad
  */
 
 export function useAdminControllerGetCatalogMoySkladStockDiagnostics<TData = Awaited<ReturnType<typeof adminControllerGetCatalogMoySkladStockDiagnostics>>, TError = unknown>(
@@ -9345,7 +9846,7 @@ export function useAdminControllerGetCatalogMoySkladStockDiagnostics<TData = Awa
 
 
 /**
- * @summary Soft-delete контент каталога, не удаляя каталог
+ * @summary Архивировать контент каталога, не удаляя каталог
  */
 export const adminControllerDeleteCatalogContent = (
     id: string,
@@ -9393,7 +9894,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerDeleteCatalogContentMutationError = unknown
 
     /**
- * @summary Soft-delete контент каталога, не удаляя каталог
+ * @summary Архивировать контент каталога, не удаляя каталог
  */
 export const useAdminControllerDeleteCatalogContent = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerDeleteCatalogContent>>, TError,{id: string}, TContext>, }
@@ -9407,7 +9908,7 @@ export const useAdminControllerDeleteCatalogContent = <TError = unknown,
     }
 
 /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 export const adminControllerRestoreCatalog = (
     id: string,
@@ -9455,7 +9956,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerRestoreCatalogMutationError = unknown
 
     /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 export const useAdminControllerRestoreCatalog = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerRestoreCatalog>>, TError,{id: string}, TContext>, }
@@ -9562,7 +10063,7 @@ export function useAdminControllerGetTypes<TData = Awaited<ReturnType<typeof adm
 
 
 /**
- * @summary List geo admins with assigned countries and regions
+ * @summary Получить гео-админов с назначенными странами и регионами
  */
 export const adminControllerGetGeoAdmins = (
 
@@ -9633,7 +10134,7 @@ export function useAdminControllerGetGeoAdmins<TData = Awaited<ReturnType<typeof
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary List geo admins with assigned countries and regions
+ * @summary Получить гео-админов с назначенными странами и регионами
  */
 
 export function useAdminControllerGetGeoAdmins<TData = Awaited<ReturnType<typeof adminControllerGetGeoAdmins>>, TError = unknown>(
@@ -9655,7 +10156,7 @@ export function useAdminControllerGetGeoAdmins<TData = Awaited<ReturnType<typeof
 
 
 /**
- * @summary Create geo admin with assigned countries and regions
+ * @summary Создать гео-админа с назначенными странами и регионами
  */
 export const adminControllerCreateGeoAdmin = (
     adminCreateGeoAdminDtoReq: AdminCreateGeoAdminDtoReq,
@@ -9705,7 +10206,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerCreateGeoAdminMutationError = unknown
 
     /**
- * @summary Create geo admin with assigned countries and regions
+ * @summary Создать гео-админа с назначенными странами и регионами
  */
 export const useAdminControllerCreateGeoAdmin = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerCreateGeoAdmin>>, TError,{data: AdminCreateGeoAdminDtoReq}, TContext>, }
@@ -9719,7 +10220,7 @@ export const useAdminControllerCreateGeoAdmin = <TError = unknown,
     }
 
 /**
- * @summary Get country and region directory for admin catalog binding
+ * @summary Получить справочник стран и регионов для привязки каталога
  */
 export const adminControllerGetRegionalities = (
 
@@ -9790,7 +10291,7 @@ export function useAdminControllerGetRegionalities<TData = Awaited<ReturnType<ty
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get country and region directory for admin catalog binding
+ * @summary Получить справочник стран и регионов для привязки каталога
  */
 
 export function useAdminControllerGetRegionalities<TData = Awaited<ReturnType<typeof adminControllerGetRegionalities>>, TError = unknown>(
@@ -9812,7 +10313,7 @@ export function useAdminControllerGetRegionalities<TData = Awaited<ReturnType<ty
 
 
 /**
- * @summary Create country and region for admin catalog binding
+ * @summary Создать страну и регион для привязки каталога
  */
 export const adminControllerCreateRegionality = (
     adminCreateRegionalityDtoReq: AdminCreateRegionalityDtoReq,
@@ -9862,7 +10363,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerCreateRegionalityMutationError = unknown
 
     /**
- * @summary Create country and region for admin catalog binding
+ * @summary Создать страну и регион для привязки каталога
  */
 export const useAdminControllerCreateRegionality = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerCreateRegionality>>, TError,{data: AdminCreateRegionalityDtoReq}, TContext>, }
@@ -9876,7 +10377,7 @@ export const useAdminControllerCreateRegionality = <TError = unknown,
     }
 
 /**
- * @summary Get country directory for admin catalog binding
+ * @summary Получить справочник стран для привязки каталога
  */
 export const adminControllerGetCountries = (
 
@@ -9947,7 +10448,7 @@ export function useAdminControllerGetCountries<TData = Awaited<ReturnType<typeof
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get country directory for admin catalog binding
+ * @summary Получить справочник стран для привязки каталога
  */
 
 export function useAdminControllerGetCountries<TData = Awaited<ReturnType<typeof adminControllerGetCountries>>, TError = unknown>(
@@ -9969,7 +10470,7 @@ export function useAdminControllerGetCountries<TData = Awaited<ReturnType<typeof
 
 
 /**
- * @summary Create country for admin catalog binding
+ * @summary Создать страну для привязки каталога
  */
 export const adminControllerCreateCountry = (
     adminCreateCountryDtoReq: AdminCreateCountryDtoReq,
@@ -10019,7 +10520,7 @@ const {mutation: mutationOptions} = options ?
     export type AdminControllerCreateCountryMutationError = unknown
 
     /**
- * @summary Create country for admin catalog binding
+ * @summary Создать страну для привязки каталога
  */
 export const useAdminControllerCreateCountry = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adminControllerCreateCountry>>, TError,{data: AdminCreateCountryDtoReq}, TContext>, }
@@ -13394,6 +13895,521 @@ export const useProductControllerSetVariantMatrix = <TError = unknown,
         TContext
       > => {
       return useMutation(getProductControllerSetVariantMatrixMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Список прайс-листов текущего каталога
+ */
+export const catalogPriceListControllerGetAll = (
+    params?: CatalogPriceListControllerGetAllParams,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogPriceListDto[]>(
+      {url: `/catalog-price-lists`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogPriceListControllerGetAllQueryKey = (params?: CatalogPriceListControllerGetAllParams,) => {
+    return [
+    `/catalog-price-lists`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCatalogPriceListControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError = void>(params?: CatalogPriceListControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogPriceListControllerGetAllQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>> = ({ signal }) => catalogPriceListControllerGetAll(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogPriceListControllerGetAllQueryResult = NonNullable<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>>
+export type CatalogPriceListControllerGetAllQueryError = void
+
+
+export function useCatalogPriceListControllerGetAll<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError = void>(
+ params: undefined |  CatalogPriceListControllerGetAllParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogPriceListControllerGetAll<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError = void>(
+ params?: CatalogPriceListControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogPriceListControllerGetAll<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError = void>(
+ params?: CatalogPriceListControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список прайс-листов текущего каталога
+ */
+
+export function useCatalogPriceListControllerGetAll<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError = void>(
+ params?: CatalogPriceListControllerGetAllParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogPriceListControllerGetAllQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Создать прайс-лист в родительском каталоге
+ */
+export const catalogPriceListControllerCreate = (
+    createCatalogPriceListDtoReq: CreateCatalogPriceListDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogPriceListDto>(
+      {url: `/catalog-price-lists`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogPriceListDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogPriceListControllerCreateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerCreate>>, TError,{data: CreateCatalogPriceListDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerCreate>>, TError,{data: CreateCatalogPriceListDtoReq}, TContext> => {
+
+const mutationKey = ['catalogPriceListControllerCreate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogPriceListControllerCreate>>, {data: CreateCatalogPriceListDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogPriceListControllerCreate(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogPriceListControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof catalogPriceListControllerCreate>>>
+    export type CatalogPriceListControllerCreateMutationBody = CreateCatalogPriceListDtoReq
+    export type CatalogPriceListControllerCreateMutationError = void
+
+    /**
+ * @summary Создать прайс-лист в родительском каталоге
+ */
+export const useCatalogPriceListControllerCreate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerCreate>>, TError,{data: CreateCatalogPriceListDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogPriceListControllerCreate>>,
+        TError,
+        {data: CreateCatalogPriceListDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogPriceListControllerCreateMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Обновить прайс-лист родительского каталога
+ */
+export const catalogPriceListControllerUpdate = (
+    id: string,
+    updateCatalogPriceListDtoReq: UpdateCatalogPriceListDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogPriceListDto>(
+      {url: `/catalog-price-lists/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogPriceListDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogPriceListControllerUpdateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerUpdate>>, TError,{id: string;data: UpdateCatalogPriceListDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerUpdate>>, TError,{id: string;data: UpdateCatalogPriceListDtoReq}, TContext> => {
+
+const mutationKey = ['catalogPriceListControllerUpdate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogPriceListControllerUpdate>>, {id: string;data: UpdateCatalogPriceListDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  catalogPriceListControllerUpdate(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogPriceListControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof catalogPriceListControllerUpdate>>>
+    export type CatalogPriceListControllerUpdateMutationBody = UpdateCatalogPriceListDtoReq
+    export type CatalogPriceListControllerUpdateMutationError = void
+
+    /**
+ * @summary Обновить прайс-лист родительского каталога
+ */
+export const useCatalogPriceListControllerUpdate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerUpdate>>, TError,{id: string;data: UpdateCatalogPriceListDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogPriceListControllerUpdate>>,
+        TError,
+        {id: string;data: UpdateCatalogPriceListDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogPriceListControllerUpdateMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Архивировать прайс-лист родительского каталога
+ */
+export const catalogPriceListControllerArchive = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<OkResponseDto>(
+      {url: `/catalog-price-lists/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+export const getCatalogPriceListControllerArchiveMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerArchive>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerArchive>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogPriceListControllerArchive'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogPriceListControllerArchive>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogPriceListControllerArchive(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogPriceListControllerArchiveMutationResult = NonNullable<Awaited<ReturnType<typeof catalogPriceListControllerArchive>>>
+
+    export type CatalogPriceListControllerArchiveMutationError = void
+
+    /**
+ * @summary Архивировать прайс-лист родительского каталога
+ */
+export const useCatalogPriceListControllerArchive = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerArchive>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogPriceListControllerArchive>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogPriceListControllerArchiveMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Список цен прайс-листа
+ */
+export const catalogPriceListControllerGetPrices = (
+    id: string,
+    params?: CatalogPriceListControllerGetPricesParams,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogPriceListPriceDto[]>(
+      {url: `/catalog-price-lists/${id}/prices`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogPriceListControllerGetPricesQueryKey = (id: string,
+    params?: CatalogPriceListControllerGetPricesParams,) => {
+    return [
+    `/catalog-price-lists/${id}/prices`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCatalogPriceListControllerGetPricesQueryOptions = <TData = Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError = void>(id: string,
+    params?: CatalogPriceListControllerGetPricesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogPriceListControllerGetPricesQueryKey(id,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>> = ({ signal }) => catalogPriceListControllerGetPrices(id,params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogPriceListControllerGetPricesQueryResult = NonNullable<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>>
+export type CatalogPriceListControllerGetPricesQueryError = void
+
+
+export function useCatalogPriceListControllerGetPrices<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError = void>(
+ id: string,
+    params: undefined |  CatalogPriceListControllerGetPricesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>,
+          TError,
+          Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogPriceListControllerGetPrices<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError = void>(
+ id: string,
+    params?: CatalogPriceListControllerGetPricesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>,
+          TError,
+          Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogPriceListControllerGetPrices<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError = void>(
+ id: string,
+    params?: CatalogPriceListControllerGetPricesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список цен прайс-листа
+ */
+
+export function useCatalogPriceListControllerGetPrices<TData = Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError = void>(
+ id: string,
+    params?: CatalogPriceListControllerGetPricesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogPriceListControllerGetPrices>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogPriceListControllerGetPricesQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Массово сохранить цены прайс-листа
+ */
+export const catalogPriceListControllerBulkUpsertPrices = (
+    id: string,
+    bulkUpsertCatalogPriceListPricesDtoReq: BulkUpsertCatalogPriceListPricesDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogPriceListPriceDto[]>(
+      {url: `/catalog-price-lists/${id}/prices/bulk`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkUpsertCatalogPriceListPricesDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogPriceListControllerBulkUpsertPricesMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerBulkUpsertPrices>>, TError,{id: string;data: BulkUpsertCatalogPriceListPricesDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerBulkUpsertPrices>>, TError,{id: string;data: BulkUpsertCatalogPriceListPricesDtoReq}, TContext> => {
+
+const mutationKey = ['catalogPriceListControllerBulkUpsertPrices'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogPriceListControllerBulkUpsertPrices>>, {id: string;data: BulkUpsertCatalogPriceListPricesDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  catalogPriceListControllerBulkUpsertPrices(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogPriceListControllerBulkUpsertPricesMutationResult = NonNullable<Awaited<ReturnType<typeof catalogPriceListControllerBulkUpsertPrices>>>
+    export type CatalogPriceListControllerBulkUpsertPricesMutationBody = BulkUpsertCatalogPriceListPricesDtoReq
+    export type CatalogPriceListControllerBulkUpsertPricesMutationError = void
+
+    /**
+ * @summary Массово сохранить цены прайс-листа
+ */
+export const useCatalogPriceListControllerBulkUpsertPrices = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerBulkUpsertPrices>>, TError,{id: string;data: BulkUpsertCatalogPriceListPricesDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogPriceListControllerBulkUpsertPrices>>,
+        TError,
+        {id: string;data: BulkUpsertCatalogPriceListPricesDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogPriceListControllerBulkUpsertPricesMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Выбрать активный прайс-лист текущего каталога
+ */
+export const catalogPriceListControllerSetActivePriceList = (
+    setActivePriceListDtoReq: SetActivePriceListDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<ActiveCatalogPriceListDto>(
+      {url: `/catalog/settings/active-price-list`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: setActivePriceListDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogPriceListControllerSetActivePriceListMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerSetActivePriceList>>, TError,{data: SetActivePriceListDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerSetActivePriceList>>, TError,{data: SetActivePriceListDtoReq}, TContext> => {
+
+const mutationKey = ['catalogPriceListControllerSetActivePriceList'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogPriceListControllerSetActivePriceList>>, {data: SetActivePriceListDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogPriceListControllerSetActivePriceList(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogPriceListControllerSetActivePriceListMutationResult = NonNullable<Awaited<ReturnType<typeof catalogPriceListControllerSetActivePriceList>>>
+    export type CatalogPriceListControllerSetActivePriceListMutationBody = SetActivePriceListDtoReq
+    export type CatalogPriceListControllerSetActivePriceListMutationError = void
+
+    /**
+ * @summary Выбрать активный прайс-лист текущего каталога
+ */
+export const useCatalogPriceListControllerSetActivePriceList = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogPriceListControllerSetActivePriceList>>, TError,{data: SetActivePriceListDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogPriceListControllerSetActivePriceList>>,
+        TError,
+        {data: SetActivePriceListDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogPriceListControllerSetActivePriceListMutationOptions(options), queryClient);
     }
 
 /**
@@ -24806,7 +25822,7 @@ export const useOneCIntegrationControllerSyncOneCPrices = <TError = unknown,
     }
 
 /**
- * @summary List current catalog sale units
+ * @summary Получить единицы продажи текущего каталога
  */
 export const catalogSaleUnitControllerGetAll = (
     params?: CatalogSaleUnitControllerGetAllParams,
@@ -24878,7 +25894,7 @@ export function useCatalogSaleUnitControllerGetAll<TData = Awaited<ReturnType<ty
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary List current catalog sale units
+ * @summary Получить единицы продажи текущего каталога
  */
 
 export function useCatalogSaleUnitControllerGetAll<TData = Awaited<ReturnType<typeof catalogSaleUnitControllerGetAll>>, TError = unknown>(
@@ -24900,7 +25916,7 @@ export function useCatalogSaleUnitControllerGetAll<TData = Awaited<ReturnType<ty
 
 
 /**
- * @summary Create current catalog sale unit
+ * @summary Создать единицу продажи текущего каталога
  */
 export const catalogSaleUnitControllerCreate = (
     createCatalogSaleUnitDtoReq: CreateCatalogSaleUnitDtoReq,
@@ -24950,7 +25966,7 @@ const {mutation: mutationOptions} = options ?
     export type CatalogSaleUnitControllerCreateMutationError = void
 
     /**
- * @summary Create current catalog sale unit
+ * @summary Создать единицу продажи текущего каталога
  */
 export const useCatalogSaleUnitControllerCreate = <TError = void,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogSaleUnitControllerCreate>>, TError,{data: CreateCatalogSaleUnitDtoReq}, TContext>, }
@@ -24964,7 +25980,7 @@ export const useCatalogSaleUnitControllerCreate = <TError = void,
     }
 
 /**
- * @summary Get current catalog sale unit
+ * @summary Получить единицу продажи текущего каталога
  */
 export const catalogSaleUnitControllerGetById = (
     id: string,
@@ -25035,7 +26051,7 @@ export function useCatalogSaleUnitControllerGetById<TData = Awaited<ReturnType<t
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get current catalog sale unit
+ * @summary Получить единицу продажи текущего каталога
  */
 
 export function useCatalogSaleUnitControllerGetById<TData = Awaited<ReturnType<typeof catalogSaleUnitControllerGetById>>, TError = void>(
@@ -25057,7 +26073,7 @@ export function useCatalogSaleUnitControllerGetById<TData = Awaited<ReturnType<t
 
 
 /**
- * @summary Update current catalog sale unit
+ * @summary Обновить единицу продажи текущего каталога
  */
 export const catalogSaleUnitControllerUpdate = (
     id: string,
@@ -25108,7 +26124,7 @@ const {mutation: mutationOptions} = options ?
     export type CatalogSaleUnitControllerUpdateMutationError = void
 
     /**
- * @summary Update current catalog sale unit
+ * @summary Обновить единицу продажи текущего каталога
  */
 export const useCatalogSaleUnitControllerUpdate = <TError = void,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogSaleUnitControllerUpdate>>, TError,{id: string;data: UpdateCatalogSaleUnitDtoReq}, TContext>, }
@@ -25122,7 +26138,7 @@ export const useCatalogSaleUnitControllerUpdate = <TError = void,
     }
 
 /**
- * @summary Archive current catalog sale unit
+ * @summary Архивировать единицу продажи текущего каталога
  */
 export const catalogSaleUnitControllerArchive = (
     id: string,
@@ -25170,7 +26186,7 @@ const {mutation: mutationOptions} = options ?
     export type CatalogSaleUnitControllerArchiveMutationError = void
 
     /**
- * @summary Archive current catalog sale unit
+ * @summary Архивировать единицу продажи текущего каталога
  */
 export const useCatalogSaleUnitControllerArchive = <TError = void,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogSaleUnitControllerArchive>>, TError,{id: string}, TContext>, }
@@ -25181,6 +26197,828 @@ export const useCatalogSaleUnitControllerArchive = <TError = void,
         TContext
       > => {
       return useMutation(getCatalogSaleUnitControllerArchiveMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Состояние модификаторов текущего каталога
+ */
+export const catalogModifierControllerGetState = (
+    params?: CatalogModifierControllerGetStateParams,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogModifierStateDto>(
+      {url: `/catalog-modifier`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogModifierControllerGetStateQueryKey = (params?: CatalogModifierControllerGetStateParams,) => {
+    return [
+    `/catalog-modifier`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCatalogModifierControllerGetStateQueryOptions = <TData = Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError = unknown>(params?: CatalogModifierControllerGetStateParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogModifierControllerGetStateQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogModifierControllerGetState>>> = ({ signal }) => catalogModifierControllerGetState(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogModifierControllerGetStateQueryResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerGetState>>>
+export type CatalogModifierControllerGetStateQueryError = unknown
+
+
+export function useCatalogModifierControllerGetState<TData = Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError = unknown>(
+ params: undefined |  CatalogModifierControllerGetStateParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetState>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetState>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetState<TData = Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError = unknown>(
+ params?: CatalogModifierControllerGetStateParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetState>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetState>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetState<TData = Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError = unknown>(
+ params?: CatalogModifierControllerGetStateParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Состояние модификаторов текущего каталога
+ */
+
+export function useCatalogModifierControllerGetState<TData = Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError = unknown>(
+ params?: CatalogModifierControllerGetStateParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetState>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogModifierControllerGetStateQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Список групп модификаторов текущего каталога
+ */
+export const catalogModifierControllerGetGroups = (
+    params: CatalogModifierControllerGetGroupsParams,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogModifierGroupDto[]>(
+      {url: `/catalog-modifier/groups`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogModifierControllerGetGroupsQueryKey = (params?: CatalogModifierControllerGetGroupsParams,) => {
+    return [
+    `/catalog-modifier/groups`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCatalogModifierControllerGetGroupsQueryOptions = <TData = Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError = unknown>(params: CatalogModifierControllerGetGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogModifierControllerGetGroupsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>> = ({ signal }) => catalogModifierControllerGetGroups(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogModifierControllerGetGroupsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>>
+export type CatalogModifierControllerGetGroupsQueryError = unknown
+
+
+export function useCatalogModifierControllerGetGroups<TData = Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError = unknown>(
+ params: CatalogModifierControllerGetGroupsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetGroups<TData = Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError = unknown>(
+ params: CatalogModifierControllerGetGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetGroups<TData = Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError = unknown>(
+ params: CatalogModifierControllerGetGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список групп модификаторов текущего каталога
+ */
+
+export function useCatalogModifierControllerGetGroups<TData = Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError = unknown>(
+ params: CatalogModifierControllerGetGroupsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetGroups>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogModifierControllerGetGroupsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Создать группу модификаторов текущего каталога
+ */
+export const catalogModifierControllerCreateGroup = (
+    createCatalogModifierGroupDtoReq: CreateCatalogModifierGroupDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogModifierGroupDto>(
+      {url: `/catalog-modifier/groups`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogModifierGroupDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogModifierControllerCreateGroupMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerCreateGroup>>, TError,{data: CreateCatalogModifierGroupDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerCreateGroup>>, TError,{data: CreateCatalogModifierGroupDtoReq}, TContext> => {
+
+const mutationKey = ['catalogModifierControllerCreateGroup'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogModifierControllerCreateGroup>>, {data: CreateCatalogModifierGroupDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogModifierControllerCreateGroup(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogModifierControllerCreateGroupMutationResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerCreateGroup>>>
+    export type CatalogModifierControllerCreateGroupMutationBody = CreateCatalogModifierGroupDtoReq
+    export type CatalogModifierControllerCreateGroupMutationError = void
+
+    /**
+ * @summary Создать группу модификаторов текущего каталога
+ */
+export const useCatalogModifierControllerCreateGroup = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerCreateGroup>>, TError,{data: CreateCatalogModifierGroupDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogModifierControllerCreateGroup>>,
+        TError,
+        {data: CreateCatalogModifierGroupDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogModifierControllerCreateGroupMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Обновить группу модификаторов текущего каталога
+ */
+export const catalogModifierControllerUpdateGroup = (
+    id: string,
+    updateCatalogModifierGroupDtoReq: UpdateCatalogModifierGroupDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogModifierGroupDto>(
+      {url: `/catalog-modifier/groups/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogModifierGroupDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogModifierControllerUpdateGroupMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerUpdateGroup>>, TError,{id: string;data: UpdateCatalogModifierGroupDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerUpdateGroup>>, TError,{id: string;data: UpdateCatalogModifierGroupDtoReq}, TContext> => {
+
+const mutationKey = ['catalogModifierControllerUpdateGroup'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogModifierControllerUpdateGroup>>, {id: string;data: UpdateCatalogModifierGroupDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  catalogModifierControllerUpdateGroup(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogModifierControllerUpdateGroupMutationResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerUpdateGroup>>>
+    export type CatalogModifierControllerUpdateGroupMutationBody = UpdateCatalogModifierGroupDtoReq
+    export type CatalogModifierControllerUpdateGroupMutationError = void
+
+    /**
+ * @summary Обновить группу модификаторов текущего каталога
+ */
+export const useCatalogModifierControllerUpdateGroup = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerUpdateGroup>>, TError,{id: string;data: UpdateCatalogModifierGroupDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogModifierControllerUpdateGroup>>,
+        TError,
+        {id: string;data: UpdateCatalogModifierGroupDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogModifierControllerUpdateGroupMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Архивировать группу модификаторов текущего каталога
+ */
+export const catalogModifierControllerArchiveGroup = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<OkResponseDto>(
+      {url: `/catalog-modifier/groups/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+export const getCatalogModifierControllerArchiveGroupMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerArchiveGroup>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerArchiveGroup>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogModifierControllerArchiveGroup'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogModifierControllerArchiveGroup>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogModifierControllerArchiveGroup(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogModifierControllerArchiveGroupMutationResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerArchiveGroup>>>
+
+    export type CatalogModifierControllerArchiveGroupMutationError = void
+
+    /**
+ * @summary Архивировать группу модификаторов текущего каталога
+ */
+export const useCatalogModifierControllerArchiveGroup = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerArchiveGroup>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogModifierControllerArchiveGroup>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogModifierControllerArchiveGroupMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Список опций модификаторов текущего каталога
+ */
+export const catalogModifierControllerGetOptions = (
+    params: CatalogModifierControllerGetOptionsParams,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogModifierOptionDto[]>(
+      {url: `/catalog-modifier/options`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogModifierControllerGetOptionsQueryKey = (params?: CatalogModifierControllerGetOptionsParams,) => {
+    return [
+    `/catalog-modifier/options`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCatalogModifierControllerGetOptionsQueryOptions = <TData = Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError = unknown>(params: CatalogModifierControllerGetOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogModifierControllerGetOptionsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>> = ({ signal }) => catalogModifierControllerGetOptions(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogModifierControllerGetOptionsQueryResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>>
+export type CatalogModifierControllerGetOptionsQueryError = unknown
+
+
+export function useCatalogModifierControllerGetOptions<TData = Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError = unknown>(
+ params: CatalogModifierControllerGetOptionsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetOptions<TData = Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError = unknown>(
+ params: CatalogModifierControllerGetOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetOptions<TData = Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError = unknown>(
+ params: CatalogModifierControllerGetOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список опций модификаторов текущего каталога
+ */
+
+export function useCatalogModifierControllerGetOptions<TData = Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError = unknown>(
+ params: CatalogModifierControllerGetOptionsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetOptions>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogModifierControllerGetOptionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Создать опцию модификатора текущего каталога
+ */
+export const catalogModifierControllerCreateOption = (
+    createCatalogModifierOptionDtoReq: CreateCatalogModifierOptionDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogModifierOptionDto>(
+      {url: `/catalog-modifier/options`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createCatalogModifierOptionDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogModifierControllerCreateOptionMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerCreateOption>>, TError,{data: CreateCatalogModifierOptionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerCreateOption>>, TError,{data: CreateCatalogModifierOptionDtoReq}, TContext> => {
+
+const mutationKey = ['catalogModifierControllerCreateOption'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogModifierControllerCreateOption>>, {data: CreateCatalogModifierOptionDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogModifierControllerCreateOption(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogModifierControllerCreateOptionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerCreateOption>>>
+    export type CatalogModifierControllerCreateOptionMutationBody = CreateCatalogModifierOptionDtoReq
+    export type CatalogModifierControllerCreateOptionMutationError = void
+
+    /**
+ * @summary Создать опцию модификатора текущего каталога
+ */
+export const useCatalogModifierControllerCreateOption = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerCreateOption>>, TError,{data: CreateCatalogModifierOptionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogModifierControllerCreateOption>>,
+        TError,
+        {data: CreateCatalogModifierOptionDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogModifierControllerCreateOptionMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Обновить опцию модификатора текущего каталога
+ */
+export const catalogModifierControllerUpdateOption = (
+    id: string,
+    updateCatalogModifierOptionDtoReq: UpdateCatalogModifierOptionDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogModifierOptionDto>(
+      {url: `/catalog-modifier/options/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateCatalogModifierOptionDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogModifierControllerUpdateOptionMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerUpdateOption>>, TError,{id: string;data: UpdateCatalogModifierOptionDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerUpdateOption>>, TError,{id: string;data: UpdateCatalogModifierOptionDtoReq}, TContext> => {
+
+const mutationKey = ['catalogModifierControllerUpdateOption'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogModifierControllerUpdateOption>>, {id: string;data: UpdateCatalogModifierOptionDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  catalogModifierControllerUpdateOption(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogModifierControllerUpdateOptionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerUpdateOption>>>
+    export type CatalogModifierControllerUpdateOptionMutationBody = UpdateCatalogModifierOptionDtoReq
+    export type CatalogModifierControllerUpdateOptionMutationError = void
+
+    /**
+ * @summary Обновить опцию модификатора текущего каталога
+ */
+export const useCatalogModifierControllerUpdateOption = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerUpdateOption>>, TError,{id: string;data: UpdateCatalogModifierOptionDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogModifierControllerUpdateOption>>,
+        TError,
+        {id: string;data: UpdateCatalogModifierOptionDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogModifierControllerUpdateOptionMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Архивировать опцию модификатора текущего каталога
+ */
+export const catalogModifierControllerArchiveOption = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<OkResponseDto>(
+      {url: `/catalog-modifier/options/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+export const getCatalogModifierControllerArchiveOptionMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerArchiveOption>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerArchiveOption>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['catalogModifierControllerArchiveOption'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogModifierControllerArchiveOption>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  catalogModifierControllerArchiveOption(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogModifierControllerArchiveOptionMutationResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerArchiveOption>>>
+
+    export type CatalogModifierControllerArchiveOptionMutationError = void
+
+    /**
+ * @summary Архивировать опцию модификатора текущего каталога
+ */
+export const useCatalogModifierControllerArchiveOption = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerArchiveOption>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogModifierControllerArchiveOption>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCatalogModifierControllerArchiveOptionMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Список модификаторов товара
+ */
+export const catalogModifierControllerGetProductModifiers = (
+    productId: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<ProductModifierGroupDto[]>(
+      {url: `/catalog-modifier/products/${productId}`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogModifierControllerGetProductModifiersQueryKey = (productId: string,) => {
+    return [
+    `/catalog-modifier/products/${productId}`
+    ] as const;
+    }
+
+
+export const getCatalogModifierControllerGetProductModifiersQueryOptions = <TData = Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError = unknown>(productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogModifierControllerGetProductModifiersQueryKey(productId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>> = ({ signal }) => catalogModifierControllerGetProductModifiers(productId, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: productId !== null && productId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogModifierControllerGetProductModifiersQueryResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>>
+export type CatalogModifierControllerGetProductModifiersQueryError = unknown
+
+
+export function useCatalogModifierControllerGetProductModifiers<TData = Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError = unknown>(
+ productId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetProductModifiers<TData = Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError = unknown>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>,
+          TError,
+          Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogModifierControllerGetProductModifiers<TData = Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError = unknown>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список модификаторов товара
+ */
+
+export function useCatalogModifierControllerGetProductModifiers<TData = Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError = unknown>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogModifierControllerGetProductModifiers>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogModifierControllerGetProductModifiersQueryOptions(productId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Заменить модификаторы товара
+ */
+export const catalogModifierControllerSetProductModifiers = (
+    productId: string,
+    setProductModifiersDtoReq: SetProductModifiersDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<ProductModifierGroupDto[]>(
+      {url: `/catalog-modifier/products/${productId}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: setProductModifiersDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogModifierControllerSetProductModifiersMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerSetProductModifiers>>, TError,{productId: string;data: SetProductModifiersDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerSetProductModifiers>>, TError,{productId: string;data: SetProductModifiersDtoReq}, TContext> => {
+
+const mutationKey = ['catalogModifierControllerSetProductModifiers'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogModifierControllerSetProductModifiers>>, {productId: string;data: SetProductModifiersDtoReq}> = (props) => {
+          const {productId,data} = props ?? {};
+
+          return  catalogModifierControllerSetProductModifiers(productId,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogModifierControllerSetProductModifiersMutationResult = NonNullable<Awaited<ReturnType<typeof catalogModifierControllerSetProductModifiers>>>
+    export type CatalogModifierControllerSetProductModifiersMutationBody = SetProductModifiersDtoReq
+    export type CatalogModifierControllerSetProductModifiersMutationError = void
+
+    /**
+ * @summary Заменить модификаторы товара
+ */
+export const useCatalogModifierControllerSetProductModifiers = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogModifierControllerSetProductModifiers>>, TError,{productId: string;data: SetProductModifiersDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogModifierControllerSetProductModifiers>>,
+        TError,
+        {productId: string;data: SetProductModifiersDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogModifierControllerSetProductModifiersMutationOptions(options), queryClient);
     }
 
 /**
@@ -26620,7 +28458,7 @@ export const useInventoryControllerAdjustWarehouseStock = <TError = void,
     }
 
 /**
- * @summary Create or return the current cart by cookie token
+ * @summary Создать или вернуть текущую корзину по cookie-токену
  */
 export const cartControllerCreateOrGetCurrent = (
 
@@ -26668,7 +28506,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerCreateOrGetCurrentMutationError = unknown
 
     /**
- * @summary Create or return the current cart by cookie token
+ * @summary Создать или вернуть текущую корзину по cookie-токену
  */
 export const useCartControllerCreateOrGetCurrent = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCreateOrGetCurrent>>, TError,void, TContext>, }
@@ -26682,7 +28520,7 @@ export const useCartControllerCreateOrGetCurrent = <TError = unknown,
     }
 
 /**
- * @summary Get the current cart by cookie token
+ * @summary Получить текущую корзину по cookie-токену
  */
 export const cartControllerGetCurrent = (
 
@@ -26753,7 +28591,7 @@ export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof ca
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get the current cart by cookie token
+ * @summary Получить текущую корзину по cookie-токену
  */
 
 export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof cartControllerGetCurrent>>, TError = unknown>(
@@ -26775,7 +28613,7 @@ export function useCartControllerGetCurrent<TData = Awaited<ReturnType<typeof ca
 
 
 /**
- * @summary Delete or detach the current cart by cookie token
+ * @summary Удалить или отвязать текущую корзину по cookie-токену
  */
 export const cartControllerDeleteCurrent = (
 
@@ -26823,7 +28661,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerDeleteCurrentMutationError = unknown
 
     /**
- * @summary Delete or detach the current cart by cookie token
+ * @summary Удалить или отвязать текущую корзину по cookie-токену
  */
 export const useCartControllerDeleteCurrent = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerDeleteCurrent>>, TError,void, TContext>, }
@@ -26837,7 +28675,7 @@ export const useCartControllerDeleteCurrent = <TError = unknown,
     }
 
 /**
- * @summary Issue a public key for the current cart
+ * @summary Выдать публичный ключ для текущей корзины
  */
 export const cartControllerShareCurrent = (
     shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
@@ -26887,7 +28725,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerShareCurrentMutationError = unknown
 
     /**
- * @summary Issue a public key for the current cart
+ * @summary Выдать публичный ключ для текущей корзины
  */
 export const useCartControllerShareCurrent = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerShareCurrent>>, TError,{data?: ShareCurrentCartDtoReq}, TContext>, }
@@ -26901,7 +28739,7 @@ export const useCartControllerShareCurrent = <TError = unknown,
     }
 
 /**
- * @summary Submit the current cart as a hall table order
+ * @summary Отправить текущую корзину как заказ за столом
  */
 export const cartControllerSubmitCurrentHallOrder = (
     shareCurrentCartDtoReq?: ShareCurrentCartDtoReq,
@@ -26951,7 +28789,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerSubmitCurrentHallOrderMutationError = unknown
 
     /**
- * @summary Submit the current cart as a hall table order
+ * @summary Отправить текущую корзину как заказ за столом
  */
 export const useCartControllerSubmitCurrentHallOrder = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitCurrentHallOrder>>, TError,{data?: ShareCurrentCartDtoReq}, TContext>, }
@@ -26965,7 +28803,7 @@ export const useCartControllerSubmitCurrentHallOrder = <TError = unknown,
     }
 
 /**
- * @summary Resolve a short hall table code for display
+ * @summary Получить данные стола по короткому коду
  */
 export const cartControllerGetHallTableLink = (
     code: string,
@@ -27036,7 +28874,7 @@ export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typ
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Resolve a short hall table code for display
+ * @summary Получить данные стола по короткому коду
  */
 
 export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typeof cartControllerGetHallTableLink>>, TError = unknown>(
@@ -27058,7 +28896,7 @@ export function useCartControllerGetHallTableLink<TData = Awaited<ReturnType<typ
 
 
 /**
- * @summary List iiko hall tables with active cart sessions
+ * @summary Список столов iiko с активными корзинами
  */
 export const cartControllerListHallTables = (
 
@@ -27129,7 +28967,7 @@ export function useCartControllerListHallTables<TData = Awaited<ReturnType<typeo
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary List iiko hall tables with active cart sessions
+ * @summary Список столов iiko с активными корзинами
  */
 
 export function useCartControllerListHallTables<TData = Awaited<ReturnType<typeof cartControllerListHallTables>>, TError = unknown>(
@@ -27151,7 +28989,7 @@ export function useCartControllerListHallTables<TData = Awaited<ReturnType<typeo
 
 
 /**
- * @summary Create or return a shared cart session for a hall table
+ * @summary Создать или вернуть общую сессию корзины для стола
  */
 export const cartControllerJoinHallTableSession = (
     code: string,
@@ -27202,7 +29040,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerJoinHallTableSessionMutationError = unknown
 
     /**
- * @summary Create or return a shared cart session for a hall table
+ * @summary Создать или вернуть общую сессию корзины для стола
  */
 export const useCartControllerJoinHallTableSession = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerJoinHallTableSession>>, TError,{code: string;data?: JoinHallTableSessionDtoReq}, TContext>, }
@@ -27216,7 +29054,7 @@ export const useCartControllerJoinHallTableSession = <TError = unknown,
     }
 
 /**
- * @summary Upsert an item in the current cart
+ * @summary Добавить или обновить позицию в текущей корзине
  */
 export const cartControllerUpsertCurrentItem = (
     upsertCartItemDtoReq: UpsertCartItemDtoReq,
@@ -27266,7 +29104,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerUpsertCurrentItemMutationError = unknown
 
     /**
- * @summary Upsert an item in the current cart
+ * @summary Добавить или обновить позицию в текущей корзине
  */
 export const useCartControllerUpsertCurrentItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerUpsertCurrentItem>>, TError,{data: UpsertCartItemDtoReq}, TContext>, }
@@ -27280,7 +29118,7 @@ export const useCartControllerUpsertCurrentItem = <TError = unknown,
     }
 
 /**
- * @summary Remove an item from the current cart
+ * @summary Удалить позицию из текущей корзины
  */
 export const cartControllerRemoveCurrentItem = (
     itemId: string,
@@ -27328,7 +29166,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerRemoveCurrentItemMutationError = unknown
 
     /**
- * @summary Remove an item from the current cart
+ * @summary Удалить позицию из текущей корзины
  */
 export const useCartControllerRemoveCurrentItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemoveCurrentItem>>, TError,{itemId: string}, TContext>, }
@@ -27342,7 +29180,7 @@ export const useCartControllerRemoveCurrentItem = <TError = unknown,
     }
 
 /**
- * @summary SSE stream for the current cart
+ * @summary SSE-поток текущей корзины
  */
 export const cartControllerSseCurrent = (
 
@@ -27413,7 +29251,7 @@ export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof ca
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary SSE stream for the current cart
+ * @summary SSE-поток текущей корзины
  */
 
 export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof cartControllerSseCurrent>>, TError = unknown>(
@@ -27435,7 +29273,7 @@ export function useCartControllerSseCurrent<TData = Awaited<ReturnType<typeof ca
 
 
 /**
- * @summary Get a public cart by public key
+ * @summary Получить публичную корзину по ключу
  */
 export const cartControllerGetPublicCart = (
     publicKey: string,
@@ -27506,7 +29344,7 @@ export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get a public cart by public key
+ * @summary Получить публичную корзину по ключу
  */
 
 export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof cartControllerGetPublicCart>>, TError = unknown>(
@@ -27528,7 +29366,7 @@ export function useCartControllerGetPublicCart<TData = Awaited<ReturnType<typeof
 
 
 /**
- * @summary Mark a cart as being processed by a manager
+ * @summary Закрепить корзину за менеджером
  */
 export const cartControllerStartManagerSession = (
     publicKey: string,
@@ -27576,7 +29414,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerStartManagerSessionMutationError = unknown
 
     /**
- * @summary Mark a cart as being processed by a manager
+ * @summary Закрепить корзину за менеджером
  */
 export const useCartControllerStartManagerSession = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerStartManagerSession>>, TError,{publicKey: string}, TContext>, }
@@ -27590,7 +29428,7 @@ export const useCartControllerStartManagerSession = <TError = unknown,
     }
 
 /**
- * @summary Refresh manager presence for a cart
+ * @summary Обновить присутствие менеджера в корзине
  */
 export const cartControllerHeartbeatManagerSession = (
     publicKey: string,
@@ -27638,7 +29476,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerHeartbeatManagerSessionMutationError = unknown
 
     /**
- * @summary Refresh manager presence for a cart
+ * @summary Обновить присутствие менеджера в корзине
  */
 export const useCartControllerHeartbeatManagerSession = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerHeartbeatManagerSession>>, TError,{publicKey: string}, TContext>, }
@@ -27652,7 +29490,7 @@ export const useCartControllerHeartbeatManagerSession = <TError = unknown,
     }
 
 /**
- * @summary Move a cart to PAUSED after manager processing
+ * @summary Перевести корзину в PAUSED после работы менеджера
  */
 export const cartControllerReleaseManagerSession = (
     publicKey: string,
@@ -27700,7 +29538,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerReleaseManagerSessionMutationError = unknown
 
     /**
- * @summary Move a cart to PAUSED after manager processing
+ * @summary Перевести корзину в PAUSED после работы менеджера
  */
 export const useCartControllerReleaseManagerSession = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerReleaseManagerSession>>, TError,{publicKey: string}, TContext>, }
@@ -27714,7 +29552,7 @@ export const useCartControllerReleaseManagerSession = <TError = unknown,
     }
 
 /**
- * @summary Convert a shared cart to a completed order
+ * @summary Преобразовать общую корзину в завершенный заказ
  */
 export const cartControllerCompleteManagerOrder = (
     publicKey: string,
@@ -27765,7 +29603,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerCompleteManagerOrderMutationError = unknown
 
     /**
- * @summary Convert a shared cart to a completed order
+ * @summary Преобразовать общую корзину в завершенный заказ
  */
 export const useCartControllerCompleteManagerOrder = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCompleteManagerOrder>>, TError,{publicKey: string;data?: ShareCurrentCartDtoReq}, TContext>, }
@@ -27779,7 +29617,7 @@ export const useCartControllerCompleteManagerOrder = <TError = unknown,
     }
 
 /**
- * @summary Close an open shared hall table cart
+ * @summary Закрыть открытую общую корзину стола
  */
 export const cartControllerCloseHallTableSession = (
     publicKey: string,
@@ -27827,7 +29665,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerCloseHallTableSessionMutationError = unknown
 
     /**
- * @summary Close an open shared hall table cart
+ * @summary Закрыть открытую общую корзину стола
  */
 export const useCartControllerCloseHallTableSession = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerCloseHallTableSession>>, TError,{publicKey: string}, TContext>, }
@@ -27841,7 +29679,7 @@ export const useCartControllerCloseHallTableSession = <TError = unknown,
     }
 
 /**
- * @summary Reset an open shared hall table cart
+ * @summary Сбросить открытую общую корзину стола
  */
 export const cartControllerResetHallTableSession = (
     publicKey: string,
@@ -27889,7 +29727,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerResetHallTableSessionMutationError = unknown
 
     /**
- * @summary Reset an open shared hall table cart
+ * @summary Сбросить открытую общую корзину стола
  */
 export const useCartControllerResetHallTableSession = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerResetHallTableSession>>, TError,{publicKey: string}, TContext>, }
@@ -27903,7 +29741,7 @@ export const useCartControllerResetHallTableSession = <TError = unknown,
     }
 
 /**
- * @summary Confirm a shared hall table cart and send it to iiko
+ * @summary Подтвердить общую корзину стола и отправить заказ в iiko
  */
 export const cartControllerConfirmHallTableOrder = (
     publicKey: string,
@@ -27954,7 +29792,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerConfirmHallTableOrderMutationError = unknown
 
     /**
- * @summary Confirm a shared hall table cart and send it to iiko
+ * @summary Подтвердить общую корзину стола и отправить заказ в iiko
  */
 export const useCartControllerConfirmHallTableOrder = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerConfirmHallTableOrder>>, TError,{publicKey: string;data?: ShareCurrentCartDtoReq}, TContext>, }
@@ -27968,7 +29806,7 @@ export const useCartControllerConfirmHallTableOrder = <TError = unknown,
     }
 
 /**
- * @summary Send a public shared hall table cart to waiter confirmation
+ * @summary Отправить публичную корзину стола на подтверждение официанту
  */
 export const cartControllerSubmitPublicHallOrder = (
     publicKey: string,
@@ -28019,7 +29857,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerSubmitPublicHallOrderMutationError = unknown
 
     /**
- * @summary Send a public shared hall table cart to waiter confirmation
+ * @summary Отправить публичную корзину стола на подтверждение официанту
  */
 export const useCartControllerSubmitPublicHallOrder = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerSubmitPublicHallOrder>>, TError,{publicKey: string;data?: ShareCurrentCartDtoReq}, TContext>, }
@@ -28033,7 +29871,7 @@ export const useCartControllerSubmitPublicHallOrder = <TError = unknown,
     }
 
 /**
- * @summary Upsert an item in a public cart
+ * @summary Добавить или обновить позицию в публичной корзине
  */
 export const cartControllerUpsertPublicItem = (
     publicKey: string,
@@ -28084,7 +29922,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerUpsertPublicItemMutationError = unknown
 
     /**
- * @summary Upsert an item in a public cart
+ * @summary Добавить или обновить позицию в публичной корзине
  */
 export const useCartControllerUpsertPublicItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerUpsertPublicItem>>, TError,{publicKey: string;data: PublicUpsertCartItemDtoReq}, TContext>, }
@@ -28098,7 +29936,7 @@ export const useCartControllerUpsertPublicItem = <TError = unknown,
     }
 
 /**
- * @summary Remove an item from a public cart
+ * @summary Удалить позицию из публичной корзины
  */
 export const cartControllerRemovePublicItem = (
     publicKey: string,
@@ -28147,7 +29985,7 @@ const {mutation: mutationOptions} = options ?
     export type CartControllerRemovePublicItemMutationError = unknown
 
     /**
- * @summary Remove an item from a public cart
+ * @summary Удалить позицию из публичной корзины
  */
 export const useCartControllerRemovePublicItem = <TError = unknown,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cartControllerRemovePublicItem>>, TError,{publicKey: string;itemId: string}, TContext>, }
@@ -28161,7 +29999,7 @@ export const useCartControllerRemovePublicItem = <TError = unknown,
     }
 
 /**
- * @summary SSE stream for a public cart
+ * @summary SSE-поток публичной корзины
  */
 export const cartControllerSsePublic = (
     publicKey: string,
@@ -28232,7 +30070,7 @@ export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof car
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary SSE stream for a public cart
+ * @summary SSE-поток публичной корзины
  */
 
 export function useCartControllerSsePublic<TData = Awaited<ReturnType<typeof cartControllerSsePublic>>, TError = unknown>(

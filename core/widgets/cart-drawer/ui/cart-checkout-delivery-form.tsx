@@ -29,6 +29,7 @@ export const CartCheckoutDeliveryForm: React.FC<
         }
         disabled={disabled}
         placeholder="Москва, Тверская, 1"
+        autoComplete="street-address"
         className="border border-black/10"
         aria-invalid={Boolean(error)}
       />

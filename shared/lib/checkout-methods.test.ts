@@ -8,8 +8,10 @@ import { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import {
   buildCheckoutSummary,
   DEFAULT_PREORDER_SETTINGS,
+  getDeliveryAddressError,
   getCatalogCheckoutConfig,
   getCatalogCheckoutLocation,
+  hasDeliveryAddressHouse,
   normalizeCheckoutData,
   resolveCheckoutContacts,
 } from "./checkout-methods";
@@ -56,7 +58,10 @@ function catalog(
   };
 }
 
-function futureVisit(daysFromNow = 1): { visitDate: string; visitTime: string } {
+function futureVisit(daysFromNow = 1): {
+  visitDate: string;
+  visitTime: string;
+} {
   const date = new Date();
   date.setDate(date.getDate() + daysFromNow);
   date.setHours(19, 30, 0, 0);
@@ -240,6 +245,38 @@ describe("getCatalogCheckoutConfig", () => {
       },
       error: null,
     });
+  });
+
+  it("validates delivery address softly and can require a house for legacy format", () => {
+    expect(hasDeliveryAddressHouse("Москва, Тверская, 1")).toBe(true);
+    expect(hasDeliveryAddressHouse("ул. Ленина 10/2, кв 5")).toBe(true);
+    expect(hasDeliveryAddressHouse("5-я Парковая, д. 12к2")).toBe(true);
+    expect(hasDeliveryAddressHouse("Москва, Тверская")).toBe(false);
+    expect(hasDeliveryAddressHouse("5-я Парковая улица")).toBe(false);
+
+    expect(getDeliveryAddressError("Москва, Тверская")).toBeNull();
+    expect(
+      getDeliveryAddressError("Москва, Тверская", { requireHouse: true }),
+    ).toBe("Укажите номер дома в адресе.");
+    expect(getDeliveryAddressError("Москва, Тверская, 1")).toBeNull();
+  });
+
+  it("requires delivery address for delivery checkout without forcing a house globally", () => {
+    expect(
+      normalizeCheckoutData({
+        data: {},
+        location: { address: null, mapUrl: null },
+        method: "DELIVERY",
+      }),
+    ).toEqual({ data: {}, error: "Укажите адрес доставки." });
+
+    expect(
+      normalizeCheckoutData({
+        data: { address: "Москва, Тверская" },
+        location: { address: null, mapUrl: null },
+        method: "DELIVERY",
+      }),
+    ).toEqual({ data: { address: "Москва, Тверская" }, error: null });
   });
 
   it("requires preorder date and time", () => {

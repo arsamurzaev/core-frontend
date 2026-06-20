@@ -85,6 +85,10 @@ export const CHECKOUT_METHODS: CheckoutMethod[] = [
   "PREORDER",
 ];
 
+export const DELIVERY_ADDRESS_REQUIRED_ERROR = "Укажите адрес доставки.";
+export const DELIVERY_ADDRESS_HOUSE_REQUIRED_ERROR =
+  "Укажите номер дома в адресе.";
+
 const DEFAULT_AVAILABLE_METHODS: CheckoutMethod[] = ["DELIVERY", "PICKUP"];
 export const DEFAULT_PREORDER_SETTINGS: CheckoutPreorderSettings = {
   minLeadTimeMinutes: 30,
@@ -157,9 +161,11 @@ export function getCatalogCheckoutConfig(
     defaultEnabledMethods?: CheckoutMethod[];
   } = {},
 ): CheckoutConfig {
-  const rawCheckout = ((catalog.settings as unknown as {
-    checkout?: Partial<CheckoutConfig>;
-  } | null)?.checkout ?? {}) as Partial<CheckoutConfig>;
+  const rawCheckout = ((
+    catalog.settings as unknown as {
+      checkout?: Partial<CheckoutConfig>;
+    } | null
+  )?.checkout ?? {}) as Partial<CheckoutConfig>;
   const availableMethods = normalizeAvailableMethodList(
     options.availableMethods ?? resolveCheckoutAvailableMethods(),
   );
@@ -189,7 +195,8 @@ export function getCatalogCheckoutLocation(
   catalog: Pick<CatalogCurrentDto, "contacts" | "settings">,
 ): CheckoutLocation {
   const address = normalizeString(
-    (catalog.settings as unknown as { address?: string | null } | null)?.address,
+    (catalog.settings as unknown as { address?: string | null } | null)
+      ?.address,
   );
   const mapContact = normalizeCatalogContacts(catalog.contacts).find(
     (contact) => contact.type === CatalogContactDtoType.MAP,
@@ -249,16 +256,20 @@ export function normalizeCheckoutData(params: {
 
   if (params.method === "DELIVERY") {
     const address = normalizeString(params.data.address);
-    return address
-      ? { data: { ...customerData, address }, error: null }
-      : { data: {}, error: "Укажите адрес доставки." };
+    const addressError = getDeliveryAddressError(address);
+
+    return addressError
+      ? { data: {}, error: addressError }
+      : { data: { ...customerData, address }, error: null };
   }
 
   if (params.method === "PICKUP") {
     return {
       data: {
         ...customerData,
-        ...(params.location.address ? { address: params.location.address } : {}),
+        ...(params.location.address
+          ? { address: params.location.address }
+          : {}),
         ...(params.location.mapUrl ? { mapUrl: params.location.mapUrl } : {}),
       },
       error: null,
@@ -309,7 +320,9 @@ export function normalizeCheckoutData(params: {
       data: {
         ...customerData,
         personsCount,
-        ...(params.location.address ? { address: params.location.address } : {}),
+        ...(params.location.address
+          ? { address: params.location.address }
+          : {}),
         ...(params.location.mapUrl ? { mapUrl: params.location.mapUrl } : {}),
         scheduledAt,
         visitDate,
@@ -320,6 +333,42 @@ export function normalizeCheckoutData(params: {
   }
 
   return { data: {}, error: null };
+}
+
+export function getDeliveryAddressError(
+  value: unknown,
+  options: { requireHouse?: boolean } = {},
+): string | null {
+  const address = normalizeString(value);
+
+  if (!address) {
+    return DELIVERY_ADDRESS_REQUIRED_ERROR;
+  }
+
+  if (options.requireHouse && !hasDeliveryAddressHouse(address)) {
+    return DELIVERY_ADDRESS_HOUSE_REQUIRED_ERROR;
+  }
+
+  return null;
+}
+
+export function hasDeliveryAddressHouse(value: unknown): boolean {
+  const address = normalizeString(value).replace(/\s+/g, " ");
+
+  if (!address) {
+    return false;
+  }
+
+  const addressBeforeFlatDetails = address.replace(
+    /\s*[,;]\s*(?:кв\.?|квартира|подъезд|п\.?|этаж|эт\.?|домофон|код)(?=$|\s|[,;]).*$/i,
+    "",
+  );
+
+  return (
+    hasExplicitHouseMarker(address) ||
+    hasHouseAtSegmentStart(address) ||
+    HOUSE_AT_END_RE.test(addressBeforeFlatDetails)
+  );
 }
 
 export function buildCheckoutSummary(params: {
@@ -398,12 +447,16 @@ function normalizeMethodList(
   const methods = Array.from(
     new Set(value.map(normalizeCheckoutMethod).filter(Boolean)),
   ) as CheckoutMethod[];
-  const filtered = methods.filter((method) => availableMethods.includes(method));
+  const filtered = methods.filter((method) =>
+    availableMethods.includes(method),
+  );
 
   return filtered;
 }
 
-function normalizeMethodContacts(value: unknown): CheckoutConfig["methodContacts"] {
+function normalizeMethodContacts(
+  value: unknown,
+): CheckoutConfig["methodContacts"] {
   if (!isRecord(value)) {
     return {};
   }
@@ -471,7 +524,36 @@ function normalizeIntInRange(
 }
 
 function hasCheckoutContacts(contacts: CheckoutContactValues): boolean {
-  return Object.values(contacts).some((value) => normalizeString(value).length > 0);
+  return Object.values(contacts).some(
+    (value) => normalizeString(value).length > 0,
+  );
+}
+
+const HOUSE_VALUE_PATTERN =
+  "\\d[\\dA-Za-zА-Яа-яЁё]*(?:[/-]\\d[\\dA-Za-zА-Яа-яЁё]*)*(?:\\s*(?:к|корп\\.?|корпус|стр\\.?|строение|с|лит\\.?|литера)\\s*[\\dA-Za-zА-Яа-яЁё/-]+)?";
+const EXPLICIT_HOUSE_RE = new RegExp(
+  `(?:^|[\\s,;])(?:д\\.?|дом|house|h\\.?)\\s*(?:№|#)?\\s*${HOUSE_VALUE_PATTERN}(?=$|[\\s,;])`,
+  "i",
+);
+const HOUSE_AT_SEGMENT_START_RE = new RegExp(
+  `^(?:№|#)?\\s*${HOUSE_VALUE_PATTERN}(?=$|\\s)`,
+  "i",
+);
+const HOUSE_AT_END_RE = new RegExp(
+  `(?:^|\\s)(?:д\\.?\\s*)?${HOUSE_VALUE_PATTERN}$`,
+  "i",
+);
+
+function hasExplicitHouseMarker(address: string): boolean {
+  return EXPLICIT_HOUSE_RE.test(address);
+}
+
+function hasHouseAtSegmentStart(address: string): boolean {
+  return address
+    .split(/[,;\n]/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .some((part) => HOUSE_AT_SEGMENT_START_RE.test(part));
 }
 
 function normalizeString(value: unknown): string {

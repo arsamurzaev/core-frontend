@@ -10,24 +10,19 @@ import {
   type CatalogEditTextareaControllerConfig,
 } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-textarea-controller";
 import { EditCatalogAdvancedSettingsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-advanced-settings-drawer";
-import { EditCatalogCheckoutDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-checkout-drawer";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
-import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
 import { EditCatalogPriceListsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-price-lists-drawer";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
-import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { FieldError } from "@/shared/ui/field";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
 type CatalogEditFormProps = {
   form: UseFormReturn<CatalogEditFormValues>;
-  checkoutConfig?: CheckoutConfig;
   disabled?: boolean;
   isSaving?: boolean;
   logoUrl?: string | null;
   bgUrl?: string | null;
-  onSave?: () => Promise<boolean>;
 };
 
 const CATALOG_EDIT_TEXTAREA_FIELDS: CatalogEditTextareaControllerConfig[] = [
@@ -138,12 +133,10 @@ function CatalogEditTextRow({
 
 export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
   form,
-  checkoutConfig,
   disabled = false,
   isSaving = false,
   logoUrl,
   bgUrl,
-  onSave,
 }) => {
   const features = useCatalogCapabilities();
   const mediaFields = React.useMemo(
@@ -201,36 +194,6 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
             />
           </CatalogEditTextRow>
         ) : null}
-
-        <CatalogEditTextRow
-          label="Способ заказа"
-          required
-          errorMessage={form.formState.errors.checkoutEnabledMethods?.message}
-        >
-          <EditCatalogCheckoutDrawer
-            form={form}
-            checkoutConfig={checkoutConfig}
-            disabled={disabled}
-            isSaving={isSaving}
-            onSave={onSave}
-          />
-        </CatalogEditTextRow>
-
-        <CatalogEditTextRow
-          label="Сценарий заказа"
-          required
-          errorMessage={
-            form.formState.errors.allowedModes?.message ??
-            form.formState.errors.defaultMode?.message
-          }
-        >
-          <EditCatalogExperienceDrawer
-            form={form}
-            disabled={disabled}
-            isSaving={isSaving}
-            onSave={onSave}
-          />
-        </CatalogEditTextRow>
       </div>
 
       <hr className="w-full" />

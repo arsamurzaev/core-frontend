@@ -7,11 +7,20 @@ interface ProductDomBudgetContentProps {
   children: React.ReactNode;
   className?: string;
   enabled: boolean;
+  estimatedHeight?: number;
   forceRender?: boolean;
   rootMargin?: string;
 }
 
 const DEFAULT_ROOT_MARGIN = "1800px 0px";
+
+function normalizeEstimatedHeight(value: number | undefined): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.ceil(value));
+}
 
 export const ProductDomBudgetContent: React.FC<
   ProductDomBudgetContentProps
@@ -19,12 +28,16 @@ export const ProductDomBudgetContent: React.FC<
   children,
   className,
   enabled,
+  estimatedHeight,
   forceRender = false,
   rootMargin = DEFAULT_ROOT_MARGIN,
 }) => {
+  const normalizedEstimatedHeight = normalizeEstimatedHeight(estimatedHeight);
   const [element, setElement] = React.useState<HTMLDivElement | null>(null);
   const [isNearViewport, setIsNearViewport] = React.useState(!enabled);
-  const [measuredHeight, setMeasuredHeight] = React.useState(0);
+  const [measuredHeight, setMeasuredHeight] = React.useState(
+    normalizedEstimatedHeight,
+  );
   const shouldRender =
     !enabled || forceRender || isNearViewport || measuredHeight <= 0;
 
@@ -41,6 +54,16 @@ export const ProductDomBudgetContent: React.FC<
       Math.abs(previousHeight - nextHeight) <= 1 ? previousHeight : nextHeight,
     );
   }, [element, shouldRender]);
+
+  React.useLayoutEffect(() => {
+    if (!enabled || forceRender || isNearViewport) {
+      return;
+    }
+
+    setMeasuredHeight((previousHeight) =>
+      previousHeight > 0 ? previousHeight : normalizedEstimatedHeight,
+    );
+  }, [enabled, forceRender, isNearViewport, normalizedEstimatedHeight]);
 
   React.useEffect(() => {
     if (!enabled) {

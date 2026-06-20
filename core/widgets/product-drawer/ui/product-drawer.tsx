@@ -2,9 +2,8 @@
 
 import { buildProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import {
-  PRODUCT_UNAVAILABLE_STATE,
+  getProductUnavailableState,
   isProductPubliclyAvailable,
-  shouldHideProductFromCustomer,
 } from "@/core/widgets/product-drawer/model/product-availability";
 import { useProductDrawerAfterClose } from "@/core/widgets/product-drawer/model/use-product-drawer-after-close";
 import { ProductPurchaseDetailsPanel } from "@/core/widgets/product-drawer/ui/product-purchase-details-panel";
@@ -74,13 +73,13 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
     !isProductPubliclyAvailable(resolvedProduct) &&
     isSessionLoading;
   const unavailableState =
-    !shouldWaitForProductVisibility &&
-    shouldHideProductFromCustomer({
-      product: resolvedProduct,
-      userRole: user?.role,
-    })
-      ? PRODUCT_UNAVAILABLE_STATE
-      : null;
+    shouldWaitForProductVisibility
+      ? null
+      : getProductUnavailableState({
+          catalog,
+          product: resolvedProduct,
+          userRole: user?.role,
+        });
   const visibleProduct =
     unavailableState || shouldWaitForProductVisibility ? null : resolvedProduct;
   const visiblePreviewProduct =

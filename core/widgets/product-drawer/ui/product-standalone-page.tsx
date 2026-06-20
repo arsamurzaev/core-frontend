@@ -2,9 +2,8 @@
 
 import { buildProductDrawerViewModel } from "@/core/widgets/product-drawer/model/product-drawer-view";
 import {
-  PRODUCT_UNAVAILABLE_STATE,
+  getProductUnavailableState,
   isProductPubliclyAvailable,
-  shouldHideProductFromCustomer,
 } from "@/core/widgets/product-drawer/model/product-availability";
 import { ProductPurchaseDetailsPanel } from "@/core/widgets/product-drawer/ui/product-purchase-details-panel";
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
@@ -39,13 +38,13 @@ export const ProductStandalonePage: React.FC<ProductStandalonePageProps> = ({
     !isProductPubliclyAvailable(product) &&
     isSessionLoading;
   const unavailableState =
-    !shouldWaitForProductVisibility &&
-    shouldHideProductFromCustomer({
-      product,
-      userRole: user?.role,
-    })
-      ? PRODUCT_UNAVAILABLE_STATE
-      : null;
+    shouldWaitForProductVisibility
+      ? null
+      : getProductUnavailableState({
+          catalog,
+          product,
+          userRole: user?.role,
+        });
   const visibleProduct =
     unavailableState || shouldWaitForProductVisibility ? null : product;
   const viewModel = React.useMemo(

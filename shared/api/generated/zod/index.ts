@@ -211,7 +211,7 @@ export const HandoffControllerExchangeResponse = zod.void()
 
 
 /**
- * @summary List domain event outbox rows
+ * @summary Получить записи outbox доменных событий
  */
 export const adminControllerGetDomainEventOutboxQueryLimitDefault = 50;
 export const adminControllerGetDomainEventOutboxQueryLimitMax = 200;
@@ -257,7 +257,7 @@ export const AdminControllerGetDomainEventOutboxResponse = zod.object({
 
 
 /**
- * @summary Get domain event outbox status counters
+ * @summary Получить счетчики статусов outbox доменных событий
  */
 export const AdminControllerGetDomainEventOutboxStatsResponse = zod.object({
   "total": zod.number(),
@@ -280,7 +280,7 @@ export const AdminControllerGetDomainEventOutboxStatsResponse = zod.object({
 
 
 /**
- * @summary Retry one pending or failed domain event
+ * @summary Повторить одно ожидающее или ошибочное доменное событие
  */
 export const AdminControllerRetryDomainEventOutboxItemParams = zod.object({
   "id": zod.string()
@@ -295,7 +295,7 @@ export const AdminControllerRetryDomainEventOutboxItemResponse = zod.object({
 
 
 /**
- * @summary Retry failed domain events by optional filters
+ * @summary Повторить ошибочные доменные события по фильтрам
  */
 export const adminControllerRetryFailedDomainEventsBodyLimitDefault = 50;
 export const adminControllerRetryFailedDomainEventsBodyLimitMax = 500;
@@ -317,7 +317,7 @@ export const AdminControllerRetryFailedDomainEventsResponse = zod.object({
 
 
 /**
- * @summary Manually drain pending/failed domain events
+ * @summary Вручную обработать ожидающие и ошибочные доменные события
  */
 export const adminControllerDrainDomainEventOutboxBodyLimitDefault = 100;
 export const adminControllerDrainDomainEventOutboxBodyLimitMax = 500;
@@ -342,7 +342,7 @@ export const AdminControllerDrainDomainEventOutboxResponse = zod.object({
 
 
 /**
- * @summary Delete old processed domain events
+ * @summary Удалить старые обработанные доменные события
  */
 export const adminControllerCleanupDomainEventOutboxBodyRetentionDaysDefault = 30;
 export const adminControllerCleanupDomainEventOutboxBodyLimitDefault = 5000;
@@ -390,13 +390,17 @@ export const AdminControllerGetCatalogsResponseItem = zod.object({
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.'),
-  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.')
+  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the catalog can use 1C integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -515,7 +519,7 @@ export const AdminControllerGetCatalogsResponse = zod.array(AdminControllerGetCa
 
 
 /**
- * @summary Create catalog with generated owner credentials
+ * @summary Создать каталог с учетными данными владельца
  */
 export const AdminControllerCreateCatalogBody = zod.object({
   "name": zod.string(),
@@ -544,13 +548,17 @@ export const AdminControllerCreateCatalogResponse = zod.object({
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.'),
-  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.')
+  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the catalog can use 1C integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -675,7 +683,7 @@ export const AdminControllerCreateCatalogResponse = zod.object({
 
 
 /**
- * @summary Duplicate catalog with generated owner credentials
+ * @summary Дублировать каталог с учетными данными владельца
  */
 export const AdminControllerDuplicateCatalogParams = zod.object({
   "id": zod.string()
@@ -702,13 +710,17 @@ export const AdminControllerDuplicateCatalogResponse = zod.object({
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.'),
-  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.')
+  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the catalog can use 1C integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -833,7 +845,7 @@ export const AdminControllerDuplicateCatalogResponse = zod.object({
 
 
 /**
- * @summary Reset catalog owner password to default and return credentials
+ * @summary Сбросить пароль владельца каталога и вернуть учетные данные
  */
 export const AdminControllerResetCatalogOwnerPasswordParams = zod.object({
   "id": zod.string()
@@ -853,13 +865,17 @@ export const AdminControllerResetCatalogOwnerPasswordResponse = zod.object({
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.'),
-  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.')
+  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the catalog can use 1C integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -997,6 +1013,7 @@ export const AdminControllerUpdateCatalogBody = zod.object({
   "regionalityIds": zod.array(zod.string()).optional().describe('Full country\/region bindings through the regionality directory. Pass an empty array to clear.'),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']).optional(),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']).optional().describe('Controls storefront presentation: full catalog or contact-only business card.'),
   "slug": zod.string().optional().describe('Catalog domain\/subdomain stored as slug.'),
   "parentId": zod.string().nullish(),
   "promoCodeId": zod.string().nullish(),
@@ -1016,13 +1033,17 @@ export const AdminControllerUpdateCatalogResponse = zod.object({
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.'),
-  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.')
+  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the catalog can use 1C integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -1140,7 +1161,7 @@ export const AdminControllerUpdateCatalogResponse = zod.object({
 
 
 /**
- * @summary Удалить каталог через soft-delete
+ * @summary Удалить каталог мягким удалением
  */
 export const AdminControllerDeleteCatalogParams = zod.object({
   "id": zod.string()
@@ -1159,13 +1180,17 @@ export const AdminControllerDeleteCatalogResponse = zod.object({
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.'),
-  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.')
+  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the catalog can use 1C integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -1283,7 +1308,7 @@ export const AdminControllerDeleteCatalogResponse = zod.object({
 
 
 /**
- * @summary Get catalog feature entitlements
+ * @summary Получить доступные функции каталога
  */
 export const AdminControllerGetCatalogFeatureEntitlementsParams = zod.object({
   "id": zod.string()
@@ -1300,7 +1325,7 @@ export const AdminControllerGetCatalogFeatureEntitlementsResponse = zod.object({
 
 })).describe('Per-capability state with disabled reasons.'),
   "features": zod.array(zod.object({
-  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'catalog.modifiers', 'catalog.price_lists', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
   "enabled": zod.boolean(),
   "expiresAt": zod.iso.datetime({"offset":true}).nullable(),
   "metadata": zod.looseObject({
@@ -1311,14 +1336,14 @@ export const AdminControllerGetCatalogFeatureEntitlementsResponse = zod.object({
 
 
 /**
- * @summary Enable or disable a catalog feature entitlement
+ * @summary Включить или отключить функцию каталога
  */
 export const AdminControllerUpdateCatalogFeatureEntitlementParams = zod.object({
   "id": zod.string()
 })
 
 export const AdminControllerUpdateCatalogFeatureEntitlementBody = zod.object({
-  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'catalog.modifiers', 'catalog.price_lists', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
   "enabled": zod.boolean(),
   "expiresAt": zod.iso.datetime({"offset":true}).nullish().describe('When omitted the entitlement does not expire.'),
   "metadata": zod.looseObject({
@@ -1337,7 +1362,7 @@ export const AdminControllerUpdateCatalogFeatureEntitlementResponse = zod.object
 
 })).describe('Per-capability state with disabled reasons.'),
   "features": zod.array(zod.object({
-  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
+  "feature": zod.enum(['product.types', 'product.variants', 'catalog.sale_units', 'catalog.modifiers', 'catalog.price_lists', 'inventory.internal', 'integration.moysklad', 'integration.iiko', 'integration.one_c']),
   "enabled": zod.boolean(),
   "expiresAt": zod.iso.datetime({"offset":true}).nullable(),
   "metadata": zod.looseObject({
@@ -1348,7 +1373,7 @@ export const AdminControllerUpdateCatalogFeatureEntitlementResponse = zod.object
 
 
 /**
- * @summary Diagnose legacy default variant consistency for catalog
+ * @summary Проверить технические вариации каталога
  */
 export const AdminControllerDiagnoseCatalogDefaultVariantsParams = zod.object({
   "id": zod.string()
@@ -1388,7 +1413,7 @@ export const AdminControllerDiagnoseCatalogDefaultVariantsResponse = zod.object(
 
 
 /**
- * @summary Repair missing technical default variants for catalog
+ * @summary Восстановить недостающие технические вариации каталога
  */
 export const AdminControllerRepairCatalogMissingDefaultVariantsParams = zod.object({
   "id": zod.string()
@@ -1402,7 +1427,7 @@ export const AdminControllerRepairCatalogMissingDefaultVariantsResponse = zod.ob
 
 
 /**
- * @summary Dry-run or repair legacy product price mirror mismatches
+ * @summary Проверить или исправить расхождения legacy-цен товара
  */
 export const AdminControllerRepairCatalogDefaultVariantPriceMismatchesParams = zod.object({
   "id": zod.string()
@@ -1446,7 +1471,7 @@ export const AdminControllerRepairCatalogDefaultVariantPriceMismatchesResponse =
 
 
 /**
- * @summary Get MoySklad stock sync diagnostics for catalog
+ * @summary Получить диагностику синхронизации остатков MoySklad
  */
 export const AdminControllerGetCatalogMoySkladStockDiagnosticsParams = zod.object({
   "id": zod.string()
@@ -1514,7 +1539,7 @@ export const AdminControllerGetCatalogMoySkladStockDiagnosticsResponse = zod.obj
 
 
 /**
- * @summary Soft-delete контент каталога, не удаляя каталог
+ * @summary Архивировать контент каталога, не удаляя каталог
  */
 export const AdminControllerDeleteCatalogContentParams = zod.object({
   "id": zod.string()
@@ -1541,7 +1566,7 @@ export const AdminControllerDeleteCatalogContentResponse = zod.object({
 
 
 /**
- * @summary Восстановить soft-deleted каталог
+ * @summary Восстановить мягко удаленный каталог
  */
 export const AdminControllerRestoreCatalogParams = zod.object({
   "id": zod.string()
@@ -1560,13 +1585,17 @@ export const AdminControllerRestoreCatalogResponse = zod.object({
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
   "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the catalog can use MoySklad integration.'),
-  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.')
+  "canUseIikoIntegration": zod.boolean().describe('Whether the catalog can use iiko integration.'),
+  "canUseOneCIntegration": zod.boolean().describe('Whether the catalog can use 1C integration.')
 }).nullable(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "subscriptionDaysLeft": zod.number().nullish(),
@@ -1705,7 +1734,7 @@ export const AdminControllerGetTypesResponse = zod.array(AdminControllerGetTypes
 
 
 /**
- * @summary List geo admins with assigned countries and regions
+ * @summary Получить гео-админов с назначенными странами и регионами
  */
 export const AdminControllerGetGeoAdminsResponseItem = zod.object({
   "id": zod.string(),
@@ -1742,7 +1771,7 @@ export const AdminControllerGetGeoAdminsResponse = zod.array(AdminControllerGetG
 
 
 /**
- * @summary Create geo admin with assigned countries and regions
+ * @summary Создать гео-админа с назначенными странами и регионами
  */
 export const AdminControllerCreateGeoAdminBody = zod.object({
   "login": zod.string().optional().describe('If omitted, login is generated automatically.'),
@@ -1792,7 +1821,7 @@ export const AdminControllerCreateGeoAdminResponse = zod.object({
 
 
 /**
- * @summary Get country and region directory for admin catalog binding
+ * @summary Получить справочник стран и регионов для привязки каталога
  */
 export const AdminControllerGetRegionalitiesResponseItem = zod.object({
   "id": zod.string(),
@@ -1814,7 +1843,7 @@ export const AdminControllerGetRegionalitiesResponse = zod.array(AdminController
 
 
 /**
- * @summary Create country and region for admin catalog binding
+ * @summary Создать страну и регион для привязки каталога
  */
 export const AdminControllerCreateRegionalityBody = zod.object({
   "countryId": zod.uuid().optional().describe('Existing country id. If provided, countryName\/countryCode are ignored.'),
@@ -1844,7 +1873,7 @@ export const AdminControllerCreateRegionalityResponse = zod.object({
 
 
 /**
- * @summary Get country directory for admin catalog binding
+ * @summary Получить справочник стран для привязки каталога
  */
 export const AdminControllerGetCountriesResponseItem = zod.object({
   "id": zod.string(),
@@ -1856,7 +1885,7 @@ export const AdminControllerGetCountriesResponse = zod.array(AdminControllerGetC
 
 
 /**
- * @summary Create country for admin catalog binding
+ * @summary Создать страну для привязки каталога
  */
 export const AdminControllerCreateCountryBody = zod.object({
   "name": zod.string(),
@@ -2155,6 +2184,7 @@ export const AdminSsoControllerEnterResponse = zod.void()
  */
 export const S3ControllerPresignUploadBody = zod.object({
   "contentType": zod.string().describe('MIME-тип файла'),
+  "contentLength": zod.number().optional().describe('Размер файла в байтах'),
   "path": zod.string().optional().describe('Путь внутри каталога'),
   "folder": zod.string().optional(),
   "entityId": zod.string().optional()
@@ -2395,6 +2425,7 @@ export const ProductControllerGetAllResponseItem = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -2574,7 +2605,17 @@ export const ProductControllerCreateBody = zod.object({
   "isActive": zod.boolean().optional(),
   "displayOrder": zod.number().optional()
 })).optional()
-})).optional()
+})).optional(),
+  "priceListPrices": zod.array(zod.object({
+  "priceListId": zod.string(),
+  "target": zod.enum(['PRODUCT', 'VARIANT', 'SALE_UNIT']),
+  "price": zod.number(),
+  "variantAttributes": zod.array(zod.object({
+  "attributeId": zod.string(),
+  "enumValueId": zod.string()
+})).optional().describe('Variant identity for VARIANT and variant-scoped SALE_UNIT prices during product creation.'),
+  "catalogSaleUnitId": zod.string().optional().describe('Required for SALE_UNIT prices.')
+})).optional().describe('Initial price-list prices. Backend resolves product, variant and sale-unit ids after creation.')
 })
 
 export const ProductControllerCreateResponse = zod.object({
@@ -2592,6 +2633,7 @@ export const ProductControllerCreateResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -2744,6 +2786,7 @@ export const ProductControllerCreateResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -2905,6 +2948,7 @@ export const ProductControllerGetInfiniteCardsResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -3062,6 +3106,7 @@ export const ProductControllerGetInfiniteResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -3219,6 +3264,7 @@ export const ProductControllerGetRecommendationsInfiniteCardsResponse = zod.obje
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -3376,6 +3422,7 @@ export const ProductControllerGetRecommendationsInfiniteResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -3517,6 +3564,7 @@ export const ProductControllerGetPopularCardsResponseItem = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -3662,6 +3710,7 @@ export const ProductControllerGetUncategorizedInfiniteCardsResponse = zod.object
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -3808,6 +3857,7 @@ export const ProductControllerGetUncategorizedInfiniteResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -3948,6 +3998,7 @@ export const ProductControllerGetPopularResponseItem = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -4123,6 +4174,7 @@ export const ProductControllerGetBySlugResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -4275,6 +4327,7 @@ export const ProductControllerGetBySlugResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -4423,6 +4476,7 @@ export const ProductControllerGetByIdResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -4575,6 +4629,7 @@ export const ProductControllerGetByIdResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -4803,6 +4858,7 @@ export const ProductControllerUpdateResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -4955,6 +5011,7 @@ export const ProductControllerUpdateResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -5116,6 +5173,7 @@ export const ProductControllerDuplicateResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -5268,6 +5326,7 @@ export const ProductControllerDuplicateResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -5552,6 +5611,7 @@ export const ProductControllerApplyProductTypeChangeResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -5704,6 +5764,7 @@ export const ProductControllerApplyProductTypeChangeResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -5862,6 +5923,7 @@ export const ProductControllerUpdateCategoryPositionResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -6014,6 +6076,7 @@ export const ProductControllerUpdateCategoryPositionResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -6163,6 +6226,7 @@ export const ProductControllerToggleStatusResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -6315,6 +6379,7 @@ export const ProductControllerToggleStatusResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -6464,6 +6529,7 @@ export const ProductControllerTogglePopularResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -6616,6 +6682,7 @@ export const ProductControllerTogglePopularResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -6787,6 +6854,7 @@ export const ProductControllerSetVariantsResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -6939,6 +7007,7 @@ export const ProductControllerSetVariantsResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -7113,6 +7182,7 @@ export const ProductControllerSetVariantMatrixResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -7265,6 +7335,7 @@ export const ProductControllerSetVariantMatrixResponse = zod.object({
 })),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -7388,6 +7459,150 @@ export const ProductControllerSetVariantMatrixResponse = zod.object({
   "updatedAt": zod.iso.datetime({"offset":true})
 }).nullable(),
   "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Список прайс-листов текущего каталога
+ */
+export const CatalogPriceListControllerGetAllQueryParams = zod.object({
+  "includeArchived": zod.string().optional(),
+  "includeInactive": zod.string().optional()
+})
+
+export const CatalogPriceListControllerGetAllResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+export const CatalogPriceListControllerGetAllResponse = zod.array(CatalogPriceListControllerGetAllResponseItem)
+
+
+/**
+ * @summary Создать прайс-лист в родительском каталоге
+ */
+export const CatalogPriceListControllerCreateBody = zod.object({
+  "name": zod.string(),
+  "code": zod.string().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CatalogPriceListControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+
+
+/**
+ * @summary Обновить прайс-лист родительского каталога
+ */
+export const CatalogPriceListControllerUpdateParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogPriceListControllerUpdateBody = zod.object({
+  "name": zod.string().optional(),
+  "code": zod.string().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CatalogPriceListControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+
+
+/**
+ * @summary Архивировать прайс-лист родительского каталога
+ */
+export const CatalogPriceListControllerArchiveParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogPriceListControllerArchiveResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Список цен прайс-листа
+ */
+export const CatalogPriceListControllerGetPricesParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogPriceListControllerGetPricesQueryParams = zod.object({
+  "includeArchived": zod.string().optional()
+})
+
+export const CatalogPriceListControllerGetPricesResponseItem = zod.object({
+  "id": zod.string(),
+  "priceListId": zod.string(),
+  "target": zod.enum(['PRODUCT', 'VARIANT', 'SALE_UNIT']),
+  "targetId": zod.string(),
+  "productId": zod.string(),
+  "variantId": zod.string().nullable(),
+  "saleUnitId": zod.string().nullable(),
+  "price": zod.string(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+export const CatalogPriceListControllerGetPricesResponse = zod.array(CatalogPriceListControllerGetPricesResponseItem)
+
+
+/**
+ * @summary Массово сохранить цены прайс-листа
+ */
+export const CatalogPriceListControllerBulkUpsertPricesParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogPriceListControllerBulkUpsertPricesBody = zod.object({
+  "prices": zod.array(zod.object({
+  "target": zod.enum(['PRODUCT', 'VARIANT', 'SALE_UNIT']),
+  "targetId": zod.string(),
+  "price": zod.number().nullish().describe('Null удаляет цену из этого прайс-листа.')
+}))
+})
+
+export const CatalogPriceListControllerBulkUpsertPricesResponseItem = zod.object({
+  "id": zod.string(),
+  "priceListId": zod.string(),
+  "target": zod.enum(['PRODUCT', 'VARIANT', 'SALE_UNIT']),
+  "targetId": zod.string(),
+  "productId": zod.string(),
+  "variantId": zod.string().nullable(),
+  "saleUnitId": zod.string().nullable(),
+  "price": zod.string(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+export const CatalogPriceListControllerBulkUpsertPricesResponse = zod.array(CatalogPriceListControllerBulkUpsertPricesResponseItem)
+
+
+/**
+ * @summary Выбрать активный прайс-лист текущего каталога
+ */
+export const CatalogPriceListControllerSetActivePriceListBody = zod.object({
+  "activePriceListId": zod.string().nullish()
+})
+
+export const CatalogPriceListControllerSetActivePriceListResponse = zod.object({
+  "activePriceListId": zod.string().nullable()
 })
 
 
@@ -7923,7 +8138,7 @@ export const UserControllerRegisterBody = zod.object({
   "login": zod.string(),
   "password": zod.string(),
   "name": zod.string(),
-  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN']),
+  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN']).optional(),
   "regionalityIds": zod.array(zod.string()).optional(),
   "countryIds": zod.array(zod.string()).optional()
 })
@@ -8981,6 +9196,8 @@ export const CatalogAdvancedSettingsControllerGetIikoResponse = zod.object({
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -9025,6 +9242,8 @@ export const CatalogAdvancedSettingsControllerGetIikoResponse = zod.object({
  */
 export const CatalogAdvancedSettingsControllerUpsertIikoBody = zod.object({
   "apiLogin": zod.string(),
+  "appId": zod.string().optional(),
+  "clientSecret": zod.string().optional(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullish(),
   "externalMenuId": zod.string().nullish(),
@@ -9055,6 +9274,8 @@ export const CatalogAdvancedSettingsControllerUpsertIikoResponse = zod.object({
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -9099,6 +9320,8 @@ export const CatalogAdvancedSettingsControllerUpsertIikoResponse = zod.object({
  */
 export const CatalogAdvancedSettingsControllerUpdateIikoBody = zod.object({
   "apiLogin": zod.string().optional(),
+  "appId": zod.string().nullish(),
+  "clientSecret": zod.string().nullish(),
   "organizationId": zod.string().optional(),
   "organizationName": zod.string().nullish(),
   "externalMenuId": zod.string().nullish(),
@@ -9129,6 +9352,8 @@ export const CatalogAdvancedSettingsControllerUpdateIikoResponse = zod.object({
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -9195,6 +9420,8 @@ export const CatalogAdvancedSettingsControllerGetIikoStatusResponse = zod.object
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -9571,7 +9798,9 @@ export const CatalogAdvancedSettingsControllerGetIikoRunProgressResponse = zod.o
  * @summary Test advanced settings iiko connection
  */
 export const CatalogAdvancedSettingsControllerTestIikoConnectionBody = zod.object({
-  "apiLogin": zod.string().optional()
+  "apiLogin": zod.string().optional(),
+  "appId": zod.string().optional(),
+  "clientSecret": zod.string().optional()
 })
 
 export const CatalogAdvancedSettingsControllerTestIikoConnectionResponse = zod.object({
@@ -9604,6 +9833,8 @@ export const CatalogAdvancedSettingsControllerTestIikoConnectionResponse = zod.o
  */
 export const CatalogAdvancedSettingsControllerPreviewIikoImportBody = zod.object({
   "apiLogin": zod.string().optional().describe('Optional apiLogin override. If omitted, saved iiko credentials are used.'),
+  "appId": zod.string().optional(),
+  "clientSecret": zod.string().optional(),
   "organizationId": zod.string().optional(),
   "externalMenuId": zod.string().optional(),
   "externalMenuName": zod.string().nullish(),
@@ -9799,6 +10030,7 @@ export const CatalogControllerGetCurrentResponse = zod.object({
 }).nullable(),
   "settings": zod.object({
   "isActive": zod.boolean(),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
@@ -9818,7 +10050,8 @@ export const CatalogControllerGetCurrentResponse = zod.object({
 })
 }),
   "googleVerification": zod.string().nullable(),
-  "yandexVerification": zod.string().nullable()
+  "yandexVerification": zod.string().nullable(),
+  "activePriceListId": zod.string().nullable()
 }).nullable(),
   "metrics": zod.array(zod.object({
   "provider": zod.enum(['YANDEX']),
@@ -9830,6 +10063,8 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the current catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the current catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
@@ -10088,6 +10323,7 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
 }).nullable(),
   "settings": zod.object({
   "isActive": zod.boolean(),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
@@ -10107,7 +10343,8 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
 })
 }),
   "googleVerification": zod.string().nullable(),
-  "yandexVerification": zod.string().nullable()
+  "yandexVerification": zod.string().nullable(),
+  "activePriceListId": zod.string().nullable()
 }).nullable(),
   "metrics": zod.array(zod.object({
   "provider": zod.enum(['YANDEX']),
@@ -10119,6 +10356,8 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the current catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the current catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
@@ -10304,6 +10543,7 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
 }).nullable(),
   "settings": zod.object({
   "isActive": zod.boolean(),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
@@ -10323,7 +10563,8 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
 })
 }),
   "googleVerification": zod.string().nullable(),
-  "yandexVerification": zod.string().nullable()
+  "yandexVerification": zod.string().nullable(),
+  "activePriceListId": zod.string().nullable()
 }).nullable(),
   "metrics": zod.array(zod.object({
   "provider": zod.enum(['YANDEX']),
@@ -10335,6 +10576,8 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
   "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the current catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the current catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
@@ -10509,6 +10752,8 @@ export const CatalogControllerGetCurrentFeaturesResponse = zod.object({
   "canUseProductTypes": zod.boolean().describe('Whether the current catalog can use product type schemas.'),
   "canUseProductVariants": zod.boolean().describe('Whether the current catalog can use product variants.'),
   "canUseCatalogSaleUnits": zod.boolean().describe('Whether the current catalog can use catalog sale units.'),
+  "canUseCatalogModifiers": zod.boolean().describe('Whether the current catalog can use product modifiers.'),
+  "canUseCatalogPriceLists": zod.boolean().describe('Whether the current catalog can use catalog price lists.'),
   "canUseInternalInventory": zod.boolean().describe('Whether the current catalog can use the paid internal inventory feature.'),
   "canUseMoySkladIntegration": zod.boolean().describe('Whether the current catalog can use MoySklad integration.'),
   "canUseIikoIntegration": zod.boolean().describe('Whether the current catalog can use iiko integration.'),
@@ -10590,6 +10835,7 @@ export const CatalogControllerGetAllResponseItem = zod.object({
 }).nullable(),
   "settings": zod.object({
   "isActive": zod.boolean(),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
@@ -10609,7 +10855,8 @@ export const CatalogControllerGetAllResponseItem = zod.object({
 })
 }),
   "googleVerification": zod.string().nullable(),
-  "yandexVerification": zod.string().nullable()
+  "yandexVerification": zod.string().nullable(),
+  "activePriceListId": zod.string().nullable()
 }).nullable(),
   "metrics": zod.array(zod.object({
   "provider": zod.enum(['YANDEX']),
@@ -10711,6 +10958,7 @@ export const CatalogControllerGetByIdResponse = zod.object({
 }).nullable(),
   "settings": zod.object({
   "isActive": zod.boolean(),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
@@ -10730,7 +10978,8 @@ export const CatalogControllerGetByIdResponse = zod.object({
 })
 }),
   "googleVerification": zod.string().nullable(),
-  "yandexVerification": zod.string().nullable()
+  "yandexVerification": zod.string().nullable(),
+  "activePriceListId": zod.string().nullable()
 }).nullable(),
   "metrics": zod.array(zod.object({
   "provider": zod.enum(['YANDEX']),
@@ -10841,6 +11090,7 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
 }).nullable(),
   "settings": zod.object({
   "isActive": zod.boolean(),
+  "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
   "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL'])),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
@@ -10860,7 +11110,8 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
 })
 }),
   "googleVerification": zod.string().nullable(),
-  "yandexVerification": zod.string().nullable()
+  "yandexVerification": zod.string().nullable(),
+  "activePriceListId": zod.string().nullable()
 }).nullable(),
   "metrics": zod.array(zod.object({
   "provider": zod.enum(['YANDEX']),
@@ -11531,6 +11782,8 @@ export const IntegrationControllerGetIikoResponse = zod.object({
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -11575,6 +11828,8 @@ export const IntegrationControllerGetIikoResponse = zod.object({
  */
 export const IntegrationControllerUpsertIikoBody = zod.object({
   "apiLogin": zod.string(),
+  "appId": zod.string().optional(),
+  "clientSecret": zod.string().optional(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullish(),
   "externalMenuId": zod.string().nullish(),
@@ -11605,6 +11860,8 @@ export const IntegrationControllerUpsertIikoResponse = zod.object({
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -11649,6 +11906,8 @@ export const IntegrationControllerUpsertIikoResponse = zod.object({
  */
 export const IntegrationControllerUpdateIikoBody = zod.object({
   "apiLogin": zod.string().optional(),
+  "appId": zod.string().nullish(),
+  "clientSecret": zod.string().nullish(),
   "organizationId": zod.string().optional(),
   "organizationName": zod.string().nullish(),
   "externalMenuId": zod.string().nullish(),
@@ -11679,6 +11938,8 @@ export const IntegrationControllerUpdateIikoResponse = zod.object({
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -11745,6 +12006,8 @@ export const IntegrationControllerGetIikoStatusResponse = zod.object({
   "isActive": zod.boolean(),
   "hasApiLogin": zod.boolean(),
   "apiLoginPreview": zod.string().nullable(),
+  "appId": zod.string().nullable(),
+  "hasClientSecret": zod.boolean(),
   "organizationId": zod.string(),
   "organizationName": zod.string().nullable(),
   "externalMenuId": zod.string().nullable(),
@@ -11955,7 +12218,9 @@ export const IntegrationControllerGetIikoStatusResponse = zod.object({
  * @summary Test iikoCloud connection
  */
 export const IntegrationControllerTestIikoConnectionBody = zod.object({
-  "apiLogin": zod.string().optional()
+  "apiLogin": zod.string().optional(),
+  "appId": zod.string().optional(),
+  "clientSecret": zod.string().optional()
 })
 
 export const IntegrationControllerTestIikoConnectionResponse = zod.object({
@@ -12008,6 +12273,8 @@ export const IntegrationControllerGetIikoTablesResponse = zod.object({
  */
 export const IntegrationControllerPreviewIikoImportBody = zod.object({
   "apiLogin": zod.string().optional().describe('Optional apiLogin override. If omitted, saved iiko credentials are used.'),
+  "appId": zod.string().optional(),
+  "clientSecret": zod.string().optional(),
   "organizationId": zod.string().optional(),
   "externalMenuId": zod.string().optional(),
   "externalMenuName": zod.string().nullish(),
@@ -14556,7 +14823,7 @@ export const OneCIntegrationControllerSyncOneCPricesResponse = zod.object({
 
 
 /**
- * @summary List current catalog sale units
+ * @summary Получить единицы продажи текущего каталога
  */
 export const CatalogSaleUnitControllerGetAllQueryParams = zod.object({
   "includeArchived": zod.boolean().optional(),
@@ -14580,7 +14847,7 @@ export const CatalogSaleUnitControllerGetAllResponse = zod.array(CatalogSaleUnit
 
 
 /**
- * @summary Create current catalog sale unit
+ * @summary Создать единицу продажи текущего каталога
  */
 export const CatalogSaleUnitControllerCreateBody = zod.object({
   "name": zod.string().describe('Название формата продажи внутри текущего каталога.'),
@@ -14606,10 +14873,10 @@ export const CatalogSaleUnitControllerCreateResponse = zod.object({
 
 
 /**
- * @summary Get current catalog sale unit
+ * @summary Получить единицу продажи текущего каталога
  */
 export const CatalogSaleUnitControllerGetByIdParams = zod.object({
-  "id": zod.string().describe('Catalog sale unit ID')
+  "id": zod.string().describe('ID единицы продажи')
 })
 
 export const CatalogSaleUnitControllerGetByIdResponse = zod.object({
@@ -14628,10 +14895,10 @@ export const CatalogSaleUnitControllerGetByIdResponse = zod.object({
 
 
 /**
- * @summary Update current catalog sale unit
+ * @summary Обновить единицу продажи текущего каталога
  */
 export const CatalogSaleUnitControllerUpdateParams = zod.object({
-  "id": zod.string().describe('Catalog sale unit ID')
+  "id": zod.string().describe('ID единицы продажи')
 })
 
 export const CatalogSaleUnitControllerUpdateBody = zod.object({
@@ -14659,10 +14926,10 @@ export const CatalogSaleUnitControllerUpdateResponse = zod.object({
 
 
 /**
- * @summary Archive current catalog sale unit
+ * @summary Архивировать единицу продажи текущего каталога
  */
 export const CatalogSaleUnitControllerArchiveParams = zod.object({
-  "id": zod.string().describe('Catalog sale unit ID')
+  "id": zod.string().describe('ID единицы продажи')
 })
 
 export const CatalogSaleUnitControllerArchiveResponse = zod.object({
@@ -14671,10 +14938,421 @@ export const CatalogSaleUnitControllerArchiveResponse = zod.object({
 
 
 /**
+ * @summary Состояние модификаторов текущего каталога
+ */
+export const CatalogModifierControllerGetStateQueryParams = zod.object({
+  "includeArchived": zod.string().optional(),
+  "includeInactive": zod.string().optional()
+})
+
+export const CatalogModifierControllerGetStateResponse = zod.object({
+  "groups": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isRequired": zod.boolean(),
+  "minSelected": zod.number(),
+  "maxSelected": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable(),
+  "options": zod.array(zod.object({
+  "groupId": zod.string(),
+  "optionId": zod.string(),
+  "defaultPrice": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "option": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+}))
+})),
+  "options": zod.array(zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+}))
+})
+
+
+/**
+ * @summary Список групп модификаторов текущего каталога
+ */
+export const CatalogModifierControllerGetGroupsQueryParams = zod.object({
+  "includeArchived": zod.string(),
+  "includeInactive": zod.string()
+})
+
+export const CatalogModifierControllerGetGroupsResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isRequired": zod.boolean(),
+  "minSelected": zod.number(),
+  "maxSelected": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable(),
+  "options": zod.array(zod.object({
+  "groupId": zod.string(),
+  "optionId": zod.string(),
+  "defaultPrice": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "option": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+}))
+})
+export const CatalogModifierControllerGetGroupsResponse = zod.array(CatalogModifierControllerGetGroupsResponseItem)
+
+
+/**
+ * @summary Создать группу модификаторов текущего каталога
+ */
+export const CatalogModifierControllerCreateGroupBody = zod.object({
+  "name": zod.string(),
+  "code": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "isRequired": zod.boolean().optional(),
+  "minSelected": zod.number().optional(),
+  "maxSelected": zod.number().nullish(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional(),
+  "options": zod.array(zod.object({
+  "optionId": zod.uuid(),
+  "defaultPrice": zod.number().nullish(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
+})
+
+export const CatalogModifierControllerCreateGroupResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isRequired": zod.boolean(),
+  "minSelected": zod.number(),
+  "maxSelected": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable(),
+  "options": zod.array(zod.object({
+  "groupId": zod.string(),
+  "optionId": zod.string(),
+  "defaultPrice": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "option": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+}))
+})
+
+
+/**
+ * @summary Обновить группу модификаторов текущего каталога
+ */
+export const CatalogModifierControllerUpdateGroupParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogModifierControllerUpdateGroupBody = zod.object({
+  "name": zod.string().optional(),
+  "code": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "isRequired": zod.boolean().optional(),
+  "minSelected": zod.number().optional(),
+  "maxSelected": zod.number().nullish(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional(),
+  "options": zod.array(zod.object({
+  "optionId": zod.uuid(),
+  "defaultPrice": zod.number().nullish(),
+  "isDefault": zod.boolean().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
+})
+
+export const CatalogModifierControllerUpdateGroupResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isRequired": zod.boolean(),
+  "minSelected": zod.number(),
+  "maxSelected": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable(),
+  "options": zod.array(zod.object({
+  "groupId": zod.string(),
+  "optionId": zod.string(),
+  "defaultPrice": zod.string().nullable(),
+  "isDefault": zod.boolean(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "option": zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+}))
+})
+
+
+/**
+ * @summary Архивировать группу модификаторов текущего каталога
+ */
+export const CatalogModifierControllerArchiveGroupParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogModifierControllerArchiveGroupResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Список опций модификаторов текущего каталога
+ */
+export const CatalogModifierControllerGetOptionsQueryParams = zod.object({
+  "includeArchived": zod.string(),
+  "includeInactive": zod.string()
+})
+
+export const CatalogModifierControllerGetOptionsResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+export const CatalogModifierControllerGetOptionsResponse = zod.array(CatalogModifierControllerGetOptionsResponseItem)
+
+
+/**
+ * @summary Создать опцию модификатора текущего каталога
+ */
+export const CatalogModifierControllerCreateOptionBody = zod.object({
+  "name": zod.string(),
+  "code": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "defaultPrice": zod.number().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CatalogModifierControllerCreateOptionResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+
+
+/**
+ * @summary Обновить опцию модификатора текущего каталога
+ */
+export const CatalogModifierControllerUpdateOptionParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogModifierControllerUpdateOptionBody = zod.object({
+  "name": zod.string().optional(),
+  "code": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "defaultPrice": zod.number().optional(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})
+
+export const CatalogModifierControllerUpdateOptionResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "defaultPrice": zod.string(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "deleteAt": zod.iso.datetime({"offset":true}).nullable()
+})
+
+
+/**
+ * @summary Архивировать опцию модификатора текущего каталога
+ */
+export const CatalogModifierControllerArchiveOptionParams = zod.object({
+  "id": zod.string()
+})
+
+export const CatalogModifierControllerArchiveOptionResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Список модификаторов товара
+ */
+export const CatalogModifierControllerGetProductModifiersParams = zod.object({
+  "productId": zod.string()
+})
+
+export const CatalogModifierControllerGetProductModifiersResponseItem = zod.object({
+  "id": zod.string(),
+  "productId": zod.string(),
+  "variantId": zod.string().nullable(),
+  "catalogModifierGroupId": zod.string().nullable(),
+  "scope": zod.enum(['PRODUCT', 'VARIANT']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isRequired": zod.boolean(),
+  "minSelected": zod.number(),
+  "maxSelected": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "options": zod.array(zod.object({
+  "id": zod.string(),
+  "productModifierGroupId": zod.string(),
+  "catalogModifierOptionId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "price": zod.string(),
+  "maxQuantity": zod.number().nullable(),
+  "isDefault": zod.boolean(),
+  "isAvailable": zod.boolean(),
+  "displayOrder": zod.number()
+}))
+})
+export const CatalogModifierControllerGetProductModifiersResponse = zod.array(CatalogModifierControllerGetProductModifiersResponseItem)
+
+
+/**
+ * @summary Заменить модификаторы товара
+ */
+export const CatalogModifierControllerSetProductModifiersParams = zod.object({
+  "productId": zod.string()
+})
+
+export const CatalogModifierControllerSetProductModifiersBody = zod.object({
+  "groups": zod.array(zod.object({
+  "variantId": zod.uuid().nullish(),
+  "catalogModifierGroupId": zod.uuid().optional(),
+  "code": zod.string().optional(),
+  "name": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "isRequired": zod.boolean().optional(),
+  "minSelected": zod.number().optional(),
+  "maxSelected": zod.number().nullish(),
+  "isActive": zod.boolean().optional(),
+  "displayOrder": zod.number().optional(),
+  "options": zod.array(zod.object({
+  "catalogModifierOptionId": zod.uuid().optional(),
+  "code": zod.string().optional(),
+  "name": zod.string().optional(),
+  "price": zod.number().optional(),
+  "maxQuantity": zod.number().nullish(),
+  "isDefault": zod.boolean().optional(),
+  "isAvailable": zod.boolean().optional(),
+  "displayOrder": zod.number().optional()
+})).optional()
+}))
+})
+
+export const CatalogModifierControllerSetProductModifiersResponseItem = zod.object({
+  "id": zod.string(),
+  "productId": zod.string(),
+  "variantId": zod.string().nullable(),
+  "catalogModifierGroupId": zod.string().nullable(),
+  "scope": zod.enum(['PRODUCT', 'VARIANT']),
+  "code": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "isRequired": zod.boolean(),
+  "minSelected": zod.number(),
+  "maxSelected": zod.number().nullable(),
+  "isActive": zod.boolean(),
+  "displayOrder": zod.number(),
+  "options": zod.array(zod.object({
+  "id": zod.string(),
+  "productModifierGroupId": zod.string(),
+  "catalogModifierOptionId": zod.string().nullable(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "price": zod.string(),
+  "maxQuantity": zod.number().nullable(),
+  "isDefault": zod.boolean(),
+  "isAvailable": zod.boolean(),
+  "displayOrder": zod.number()
+}))
+})
+export const CatalogModifierControllerSetProductModifiersResponse = zod.array(CatalogModifierControllerSetProductModifiersResponseItem)
+
+
+/**
  * @summary List categories
  */
 export const CategoryControllerGetAllQueryParams = zod.object({
-  "includeEmpty": zod.boolean().optional().describe('Если false, вернет только категории с активными товарами. По умолчанию true.')
+  "includeEmpty": zod.boolean().optional().describe('Для владельца каталога может вернуть пустые категории. Для клиента пустые категории скрываются.')
 })
 
 export const CategoryControllerGetAllResponseItem = zod.object({
@@ -14931,7 +15609,7 @@ export const CategoryControllerRemoveParams = zod.object({
 })
 
 export const CategoryControllerRemoveQueryParams = zod.object({
-  "deleteProducts": zod.boolean().optional().describe('Если true, soft-delete всех активных товаров категории')
+  "deleteProducts": zod.boolean().optional().describe('Если true, мягко удаляет все активные товары категории')
 })
 
 export const CategoryControllerRemoveResponse = zod.object({
@@ -14976,6 +15654,7 @@ export const CategoryControllerGetProductsByCategoryResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -15135,6 +15814,7 @@ export const CategoryControllerGetProductCardsByCategoryResponse = zod.object({
   "defaultVariantId": zod.string().nullable(),
   "saleUnits": zod.array(zod.object({
   "id": zod.string(),
+  "variantId": zod.string(),
   "catalogSaleUnitId": zod.string().nullable(),
   "code": zod.string(),
   "name": zod.string(),
@@ -15629,7 +16309,7 @@ export const InventoryControllerAdjustWarehouseStockResponse = zod.object({
 
 
 /**
- * @summary Create or return the current cart by cookie token
+ * @summary Создать или вернуть текущую корзину по cookie-токену
  */
 export const CartControllerCreateOrGetCurrentResponse = zod.object({
   "ok": zod.boolean(),
@@ -15658,10 +16338,14 @@ export const CartControllerCreateOrGetCurrentResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -15703,6 +16387,19 @@ export const CartControllerCreateOrGetCurrentResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -15743,7 +16440,7 @@ export const CartControllerCreateOrGetCurrentResponse = zod.object({
 
 
 /**
- * @summary Get the current cart by cookie token
+ * @summary Получить текущую корзину по cookie-токену
  */
 export const CartControllerGetCurrentResponse = zod.object({
   "ok": zod.boolean(),
@@ -15772,10 +16469,14 @@ export const CartControllerGetCurrentResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -15817,6 +16518,19 @@ export const CartControllerGetCurrentResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -15857,13 +16571,13 @@ export const CartControllerGetCurrentResponse = zod.object({
 
 
 /**
- * @summary Delete or detach the current cart by cookie token
+ * @summary Удалить или отвязать текущую корзину по cookie-токену
  */
 export const CartControllerDeleteCurrentResponse = zod.void()
 
 
 /**
- * @summary Issue a public key for the current cart
+ * @summary Выдать публичный ключ для текущей корзины
  */
 export const cartControllerShareCurrentBodyCommentMax = 1000;
 
@@ -15904,10 +16618,14 @@ export const CartControllerShareCurrentResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -15949,6 +16667,19 @@ export const CartControllerShareCurrentResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -15990,7 +16721,7 @@ export const CartControllerShareCurrentResponse = zod.object({
 
 
 /**
- * @summary Submit the current cart as a hall table order
+ * @summary Отправить текущую корзину как заказ за столом
  */
 export const cartControllerSubmitCurrentHallOrderBodyCommentMax = 1000;
 
@@ -16023,6 +16754,9 @@ export const CartControllerSubmitCurrentHallOrderResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullable(),
+  "priceListId": zod.uuid().nullable(),
+  "priceListCode": zod.string().nullable(),
+  "priceListName": zod.string().nullable(),
   "guestSessionId": zod.string().nullable(),
   "guestName": zod.string().nullable(),
   "quantity": zod.number(),
@@ -16073,10 +16807,10 @@ export const CartControllerSubmitCurrentHallOrderResponse = zod.object({
 
 
 /**
- * @summary Resolve a short hall table code for display
+ * @summary Получить данные стола по короткому коду
  */
 export const CartControllerGetHallTableLinkParams = zod.object({
-  "code": zod.string().describe('Short backend-stored hall table code')
+  "code": zod.string().describe('Короткий код стола, сохраненный на backend')
 })
 
 export const CartControllerGetHallTableLinkResponse = zod.object({
@@ -16092,7 +16826,7 @@ export const CartControllerGetHallTableLinkResponse = zod.object({
 
 
 /**
- * @summary List iiko hall tables with active cart sessions
+ * @summary Список столов iiko с активными корзинами
  */
 export const CartControllerListHallTablesResponse = zod.object({
   "ok": zod.boolean(),
@@ -16146,10 +16880,14 @@ export const CartControllerListHallTablesResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -16191,6 +16929,19 @@ export const CartControllerListHallTablesResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -16237,10 +16988,10 @@ export const CartControllerListHallTablesResponse = zod.object({
 
 
 /**
- * @summary Create or return a shared cart session for a hall table
+ * @summary Создать или вернуть общую сессию корзины для стола
  */
 export const CartControllerJoinHallTableSessionParams = zod.object({
-  "code": zod.string().describe('Short backend-stored hall table code')
+  "code": zod.string().describe('Короткий код стола, сохраненный на backend')
 })
 
 export const cartControllerJoinHallTableSessionBodyGuestSessionIdMax = 64;
@@ -16301,10 +17052,14 @@ export const CartControllerJoinHallTableSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -16346,6 +17101,19 @@ export const CartControllerJoinHallTableSessionResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -16390,7 +17158,7 @@ export const CartControllerJoinHallTableSessionResponse = zod.object({
 
 
 /**
- * @summary Upsert an item in the current cart
+ * @summary Добавить или обновить позицию в текущей корзине
  */
 export const cartControllerUpsertCurrentItemBodyGuestSessionIdMax = 64;
 
@@ -16404,7 +17172,12 @@ export const CartControllerUpsertCurrentItemBody = zod.object({
   "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
   "quantity": zod.number().describe('0 = удалить позицию из корзины'),
   "guestSessionId": zod.string().max(cartControllerUpsertCurrentItemBodyGuestSessionIdMax).optional(),
-  "guestName": zod.string().max(cartControllerUpsertCurrentItemBodyGuestNameMax).optional()
+  "guestName": zod.string().max(cartControllerUpsertCurrentItemBodyGuestNameMax).optional(),
+  "modifiers": zod.array(zod.object({
+  "productModifierGroupId": zod.uuid(),
+  "productModifierOptionId": zod.uuid(),
+  "quantity": zod.number().optional()
+})).optional()
 })
 
 export const CartControllerUpsertCurrentItemResponse = zod.object({
@@ -16434,10 +17207,14 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -16479,6 +17256,19 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -16519,10 +17309,10 @@ export const CartControllerUpsertCurrentItemResponse = zod.object({
 
 
 /**
- * @summary Remove an item from the current cart
+ * @summary Удалить позицию из текущей корзины
  */
 export const CartControllerRemoveCurrentItemParams = zod.object({
-  "itemId": zod.string().describe('Cart item id')
+  "itemId": zod.string().describe('ID позиции корзины')
 })
 
 export const CartControllerRemoveCurrentItemResponse = zod.object({
@@ -16552,10 +17342,14 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -16597,6 +17391,19 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -16637,21 +17444,21 @@ export const CartControllerRemoveCurrentItemResponse = zod.object({
 
 
 /**
- * @summary SSE stream for the current cart
+ * @summary SSE-поток текущей корзины
  */
 export const CartControllerSseCurrentHeader = zod.object({
   "last-event-id": zod.string(),
-  "Last-Event-ID": zod.string().optional().describe('Last received Redis Stream event id for SSE replay')
+  "Last-Event-ID": zod.string().optional().describe('ID последнего полученного события Redis Stream для SSE-replay')
 })
 
 export const CartControllerSseCurrentResponse = zod.unknown()
 
 
 /**
- * @summary Get a public cart by public key
+ * @summary Получить публичную корзину по ключу
  */
 export const CartControllerGetPublicCartParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerGetPublicCartResponse = zod.object({
@@ -16681,10 +17488,14 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -16726,6 +17537,19 @@ export const CartControllerGetPublicCartResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -16766,10 +17590,10 @@ export const CartControllerGetPublicCartResponse = zod.object({
 
 
 /**
- * @summary Mark a cart as being processed by a manager
+ * @summary Закрепить корзину за менеджером
  */
 export const CartControllerStartManagerSessionParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerStartManagerSessionResponse = zod.object({
@@ -16799,10 +17623,14 @@ export const CartControllerStartManagerSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -16844,6 +17672,19 @@ export const CartControllerStartManagerSessionResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -16884,10 +17725,10 @@ export const CartControllerStartManagerSessionResponse = zod.object({
 
 
 /**
- * @summary Refresh manager presence for a cart
+ * @summary Обновить присутствие менеджера в корзине
  */
 export const CartControllerHeartbeatManagerSessionParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerHeartbeatManagerSessionResponse = zod.object({
@@ -16917,10 +17758,14 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -16962,6 +17807,19 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -17002,10 +17860,10 @@ export const CartControllerHeartbeatManagerSessionResponse = zod.object({
 
 
 /**
- * @summary Move a cart to PAUSED after manager processing
+ * @summary Перевести корзину в PAUSED после работы менеджера
  */
 export const CartControllerReleaseManagerSessionParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerReleaseManagerSessionResponse = zod.object({
@@ -17035,10 +17893,14 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -17080,6 +17942,19 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -17120,10 +17995,10 @@ export const CartControllerReleaseManagerSessionResponse = zod.object({
 
 
 /**
- * @summary Convert a shared cart to a completed order
+ * @summary Преобразовать общую корзину в завершенный заказ
  */
 export const CartControllerCompleteManagerOrderParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const cartControllerCompleteManagerOrderBodyCommentMax = 1000;
@@ -17157,6 +18032,9 @@ export const CartControllerCompleteManagerOrderResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullable(),
+  "priceListId": zod.uuid().nullable(),
+  "priceListCode": zod.string().nullable(),
+  "priceListName": zod.string().nullable(),
   "guestSessionId": zod.string().nullable(),
   "guestName": zod.string().nullable(),
   "quantity": zod.number(),
@@ -17207,10 +18085,10 @@ export const CartControllerCompleteManagerOrderResponse = zod.object({
 
 
 /**
- * @summary Close an open shared hall table cart
+ * @summary Закрыть открытую общую корзину стола
  */
 export const CartControllerCloseHallTableSessionParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerCloseHallTableSessionResponse = zod.object({
@@ -17240,10 +18118,14 @@ export const CartControllerCloseHallTableSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -17285,6 +18167,19 @@ export const CartControllerCloseHallTableSessionResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -17325,10 +18220,10 @@ export const CartControllerCloseHallTableSessionResponse = zod.object({
 
 
 /**
- * @summary Reset an open shared hall table cart
+ * @summary Сбросить открытую общую корзину стола
  */
 export const CartControllerResetHallTableSessionParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerResetHallTableSessionResponse = zod.object({
@@ -17358,10 +18253,14 @@ export const CartControllerResetHallTableSessionResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -17403,6 +18302,19 @@ export const CartControllerResetHallTableSessionResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -17443,10 +18355,10 @@ export const CartControllerResetHallTableSessionResponse = zod.object({
 
 
 /**
- * @summary Confirm a shared hall table cart and send it to iiko
+ * @summary Подтвердить общую корзину стола и отправить заказ в iiko
  */
 export const CartControllerConfirmHallTableOrderParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const cartControllerConfirmHallTableOrderBodyCommentMax = 1000;
@@ -17480,6 +18392,9 @@ export const CartControllerConfirmHallTableOrderResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullable(),
+  "priceListId": zod.uuid().nullable(),
+  "priceListCode": zod.string().nullable(),
+  "priceListName": zod.string().nullable(),
   "guestSessionId": zod.string().nullable(),
   "guestName": zod.string().nullable(),
   "quantity": zod.number(),
@@ -17530,14 +18445,14 @@ export const CartControllerConfirmHallTableOrderResponse = zod.object({
 
 
 /**
- * @summary Send a public shared hall table cart to waiter confirmation
+ * @summary Отправить публичную корзину стола на подтверждение официанту
  */
 export const CartControllerSubmitPublicHallOrderParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerSubmitPublicHallOrderHeader = zod.object({
-  "x-cart-guest-token": zod.string().optional().describe('Required for hall table guest actions')
+  "x-cart-guest-token": zod.string().optional().describe('Нужен для действий гостя за столом')
 })
 
 export const cartControllerSubmitPublicHallOrderBodyCommentMax = 1000;
@@ -17579,10 +18494,14 @@ export const CartControllerSubmitPublicHallOrderResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -17624,6 +18543,19 @@ export const CartControllerSubmitPublicHallOrderResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -17664,14 +18596,14 @@ export const CartControllerSubmitPublicHallOrderResponse = zod.object({
 
 
 /**
- * @summary Upsert an item in a public cart
+ * @summary Добавить или обновить позицию в публичной корзине
  */
 export const CartControllerUpsertPublicItemParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerUpsertPublicItemHeader = zod.object({
-  "x-cart-guest-token": zod.string().optional().describe('Required for hall table guest actions')
+  "x-cart-guest-token": zod.string().optional().describe('Нужен для действий гостя за столом')
 })
 
 export const cartControllerUpsertPublicItemBodyGuestSessionIdMax = 64;
@@ -17686,7 +18618,12 @@ export const CartControllerUpsertPublicItemBody = zod.object({
   "saleUnitId": zod.uuid().optional().describe('Единица продажи выбранной вариации: штука, упаковка, палета.'),
   "quantity": zod.number().describe('0 = удалить позицию из корзины'),
   "guestSessionId": zod.string().max(cartControllerUpsertPublicItemBodyGuestSessionIdMax).optional(),
-  "guestName": zod.string().max(cartControllerUpsertPublicItemBodyGuestNameMax).optional()
+  "guestName": zod.string().max(cartControllerUpsertPublicItemBodyGuestNameMax).optional(),
+  "modifiers": zod.array(zod.object({
+  "productModifierGroupId": zod.uuid(),
+  "productModifierOptionId": zod.uuid(),
+  "quantity": zod.number().optional()
+})).optional()
 })
 
 export const CartControllerUpsertPublicItemResponse = zod.object({
@@ -17716,10 +18653,14 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -17761,6 +18702,19 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -17801,15 +18755,15 @@ export const CartControllerUpsertPublicItemResponse = zod.object({
 
 
 /**
- * @summary Remove an item from a public cart
+ * @summary Удалить позицию из публичной корзины
  */
 export const CartControllerRemovePublicItemParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key'),
-  "itemId": zod.string().describe('Cart item id')
+  "publicKey": zod.string().describe('Публичный ключ корзины'),
+  "itemId": zod.string().describe('ID позиции корзины')
 })
 
 export const CartControllerRemovePublicItemHeader = zod.object({
-  "x-cart-guest-token": zod.string().optional().describe('Required for hall table guest actions')
+  "x-cart-guest-token": zod.string().optional().describe('Нужен для действий гостя за столом')
 })
 
 export const CartControllerRemovePublicItemResponse = zod.object({
@@ -17839,10 +18793,14 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "productId": zod.uuid(),
   "variantId": zod.uuid().nullable(),
   "saleUnitId": zod.uuid().nullish(),
+  "priceListId": zod.uuid().nullish(),
+  "priceListCode": zod.string().nullish(),
+  "priceListName": zod.string().nullish(),
   "guestSessionId": zod.string().nullish(),
   "guestName": zod.string().nullish(),
   "quantity": zod.number(),
   "baseQuantity": zod.number(),
+  "unitPriceSnapshot": zod.number().nullish().describe('Снимок цены единицы на момент добавления в корзину'),
   "product": zod.object({
   "id": zod.uuid(),
   "name": zod.string(),
@@ -17884,6 +18842,19 @@ export const CartControllerRemovePublicItemResponse = zod.object({
   "isActive": zod.boolean(),
   "displayOrder": zod.number()
 }).nullable(),
+  "modifiers": zod.array(zod.object({
+  "id": zod.uuid(),
+  "productModifierGroupId": zod.uuid().nullable(),
+  "productModifierOptionId": zod.uuid().nullable(),
+  "catalogModifierGroupId": zod.uuid().nullable(),
+  "catalogModifierOptionId": zod.uuid().nullable(),
+  "groupCode": zod.string(),
+  "groupName": zod.string(),
+  "optionCode": zod.string(),
+  "optionName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number()
+})),
   "unitPrice": zod.number(),
   "baseUnitPrice": zod.number().describe('Базовая цена единицы до применения скидки'),
   "discountPercent": zod.number().describe('Процент скидки, примененный к строке'),
@@ -17924,15 +18895,15 @@ export const CartControllerRemovePublicItemResponse = zod.object({
 
 
 /**
- * @summary SSE stream for a public cart
+ * @summary SSE-поток публичной корзины
  */
 export const CartControllerSsePublicParams = zod.object({
-  "publicKey": zod.string().describe('Public cart key')
+  "publicKey": zod.string().describe('Публичный ключ корзины')
 })
 
 export const CartControllerSsePublicHeader = zod.object({
   "last-event-id": zod.string(),
-  "Last-Event-ID": zod.string().optional().describe('Last received Redis Stream event id for SSE replay')
+  "Last-Event-ID": zod.string().optional().describe('ID последнего полученного события Redis Stream для SSE-replay')
 })
 
 export const CartControllerSsePublicResponse = zod.unknown()
