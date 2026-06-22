@@ -68,9 +68,11 @@ export const AuthControllerLoginResponse = zod.object({
   "id": zod.string(),
   "login": zod.string(),
   "name": zod.string(),
-  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN'])
+  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN']),
+  "mustChangePassword": zod.boolean()
 }),
-  "catalogId": zod.string().nullish()
+  "catalogId": zod.string().nullish(),
+  "redirectUrl": zod.string().nullish().describe('URL for frontend redirect after platform login. Catalog owners receive their catalog URL.')
 })
 
 
@@ -83,9 +85,11 @@ export const AuthControllerMeResponse = zod.object({
   "id": zod.string(),
   "login": zod.string(),
   "name": zod.string(),
-  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN'])
+  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN']),
+  "mustChangePassword": zod.boolean()
 }),
-  "catalogId": zod.string().nullish()
+  "catalogId": zod.string().nullish(),
+  "redirectUrl": zod.string().nullish().describe('URL for frontend redirect after platform login. Catalog owners receive their catalog URL.')
 })
 
 
@@ -124,7 +128,8 @@ export const CatalogAuthControllerLoginResponse = zod.object({
   "id": zod.string(),
   "login": zod.string(),
   "name": zod.string(),
-  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN'])
+  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN']),
+  "mustChangePassword": zod.boolean()
 }),
   "catalogId": zod.string()
 })
@@ -8145,6 +8150,83 @@ export const UserControllerRegisterBody = zod.object({
 
 export const UserControllerRegisterResponse = zod.object({
   "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Check system catalog domain availability
+ */
+export const CatalogOnboardingControllerCheckSystemDomainQueryParams = zod.object({
+  "slug": zod.string()
+})
+
+export const CatalogOnboardingControllerCheckSystemDomainResponse = zod.object({
+  "ok": zod.boolean(),
+  "slug": zod.string(),
+  "fqdn": zod.string(),
+  "available": zod.boolean(),
+  "reason": zod.string().nullable()
+})
+
+
+/**
+ * @summary Start catalog signup and send verification email
+ */
+export const CatalogOnboardingControllerSignupBody = zod.object({
+  "fullName": zod.string(),
+  "phone": zod.string(),
+  "email": zod.string(),
+  "catalogName": zod.string(),
+  "slug": zod.string(),
+  "typeId": zod.string()
+})
+
+export const CatalogOnboardingControllerSignupResponse = zod.object({
+  "ok": zod.boolean(),
+  "email": zod.string(),
+  "slug": zod.string(),
+  "fqdn": zod.string(),
+  "expiresAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Resend catalog signup verification email
+ */
+export const CatalogOnboardingControllerResendBody = zod.object({
+  "email": zod.string()
+})
+
+export const CatalogOnboardingControllerResendResponse = zod.object({
+  "ok": zod.boolean(),
+  "email": zod.string(),
+  "slug": zod.string(),
+  "fqdn": zod.string(),
+  "expiresAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Confirm catalog signup and create catalog
+ */
+export const CatalogOnboardingControllerConfirmBody = zod.object({
+  "token": zod.string()
+})
+
+export const CatalogOnboardingControllerConfirmResponse = zod.object({
+  "ok": zod.boolean(),
+  "user": zod.object({
+  "id": zod.string(),
+  "login": zod.string(),
+  "name": zod.string(),
+  "role": zod.enum(['CATALOG', 'USER', 'GEO_ADMIN', 'ADMIN']),
+  "mustChangePassword": zod.boolean()
+}),
+  "catalogId": zod.string(),
+  "catalogUrl": zod.string(),
+  "loginUrl": zod.string(),
+  "accessEmailSent": zod.boolean(),
+  "message": zod.string()
 })
 
 

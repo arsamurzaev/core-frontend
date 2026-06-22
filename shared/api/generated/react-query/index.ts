@@ -67,6 +67,7 @@ export interface AuthUserDto {
   login: string;
   name: string;
   role: AuthUserDtoRole;
+  mustChangePassword: boolean;
 }
 
 export interface AuthLoginResponseDto {
@@ -74,6 +75,11 @@ export interface AuthLoginResponseDto {
   user: AuthUserDto;
   /** @nullable */
   catalogId?: string | null;
+  /**
+     * URL for frontend redirect after platform login. Catalog owners receive their catalog URL.
+     * @nullable
+     */
+  redirectUrl?: string | null;
 }
 
 export interface ChangePasswordDtoReq {
@@ -2420,6 +2426,50 @@ export interface CreateUserDtoReq {
   role?: Role;
   regionalityIds?: string[];
   countryIds?: string[];
+}
+
+export interface SystemDomainAvailabilityDto {
+  ok: boolean;
+  slug: string;
+  fqdn: string;
+  available: boolean;
+  /** @nullable */
+  reason: string | null;
+}
+
+export interface CatalogOnboardingSignupDtoReq {
+  fullName: string;
+  phone: string;
+  email: string;
+  catalogName: string;
+  slug: string;
+  typeId: string;
+}
+
+export interface CatalogOnboardingSignupResponseDto {
+  ok: boolean;
+  email: string;
+  slug: string;
+  fqdn: string;
+  expiresAt: string;
+}
+
+export interface CatalogOnboardingResendDtoReq {
+  email: string;
+}
+
+export interface CatalogOnboardingConfirmDtoReq {
+  token: string;
+}
+
+export interface CatalogOnboardingConfirmResponseDto {
+  ok: boolean;
+  user: AuthUserDto;
+  catalogId: string;
+  catalogUrl: string;
+  loginUrl: string;
+  accessEmailSent: boolean;
+  message: string;
 }
 
 export interface CatalogDomainDnsRecordDto {
@@ -7413,6 +7463,10 @@ includeInactive?: string;
 
 export type CatalogPriceListControllerGetPricesParams = {
 includeArchived?: string;
+};
+
+export type CatalogOnboardingControllerCheckSystemDomainParams = {
+slug: string;
 };
 
 export type CatalogAdvancedSettingsControllerListSaleUnitsParams = {
@@ -15811,6 +15865,292 @@ export const useUserControllerRegister = <TError = unknown,
         TContext
       > => {
       return useMutation(getUserControllerRegisterMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Check system catalog domain availability
+ */
+export const catalogOnboardingControllerCheckSystemDomain = (
+    params: CatalogOnboardingControllerCheckSystemDomainParams,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<SystemDomainAvailabilityDto>(
+      {url: `/catalog-onboarding/system-domain/check`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogOnboardingControllerCheckSystemDomainQueryKey = (params?: CatalogOnboardingControllerCheckSystemDomainParams,) => {
+    return [
+    `/catalog-onboarding/system-domain/check`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getCatalogOnboardingControllerCheckSystemDomainQueryOptions = <TData = Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError = unknown>(params: CatalogOnboardingControllerCheckSystemDomainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogOnboardingControllerCheckSystemDomainQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>> = ({ signal }) => catalogOnboardingControllerCheckSystemDomain(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogOnboardingControllerCheckSystemDomainQueryResult = NonNullable<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>>
+export type CatalogOnboardingControllerCheckSystemDomainQueryError = unknown
+
+
+export function useCatalogOnboardingControllerCheckSystemDomain<TData = Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError = unknown>(
+ params: CatalogOnboardingControllerCheckSystemDomainParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>,
+          TError,
+          Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogOnboardingControllerCheckSystemDomain<TData = Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError = unknown>(
+ params: CatalogOnboardingControllerCheckSystemDomainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>,
+          TError,
+          Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogOnboardingControllerCheckSystemDomain<TData = Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError = unknown>(
+ params: CatalogOnboardingControllerCheckSystemDomainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Check system catalog domain availability
+ */
+
+export function useCatalogOnboardingControllerCheckSystemDomain<TData = Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError = unknown>(
+ params: CatalogOnboardingControllerCheckSystemDomainParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogOnboardingControllerCheckSystemDomain>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogOnboardingControllerCheckSystemDomainQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Start catalog signup and send verification email
+ */
+export const catalogOnboardingControllerSignup = (
+    catalogOnboardingSignupDtoReq: CatalogOnboardingSignupDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogOnboardingSignupResponseDto>(
+      {url: `/catalog-onboarding/signup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: catalogOnboardingSignupDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogOnboardingControllerSignupMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerSignup>>, TError,{data: CatalogOnboardingSignupDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerSignup>>, TError,{data: CatalogOnboardingSignupDtoReq}, TContext> => {
+
+const mutationKey = ['catalogOnboardingControllerSignup'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogOnboardingControllerSignup>>, {data: CatalogOnboardingSignupDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogOnboardingControllerSignup(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogOnboardingControllerSignupMutationResult = NonNullable<Awaited<ReturnType<typeof catalogOnboardingControllerSignup>>>
+    export type CatalogOnboardingControllerSignupMutationBody = CatalogOnboardingSignupDtoReq
+    export type CatalogOnboardingControllerSignupMutationError = unknown
+
+    /**
+ * @summary Start catalog signup and send verification email
+ */
+export const useCatalogOnboardingControllerSignup = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerSignup>>, TError,{data: CatalogOnboardingSignupDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogOnboardingControllerSignup>>,
+        TError,
+        {data: CatalogOnboardingSignupDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogOnboardingControllerSignupMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Resend catalog signup verification email
+ */
+export const catalogOnboardingControllerResend = (
+    catalogOnboardingResendDtoReq: CatalogOnboardingResendDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogOnboardingSignupResponseDto>(
+      {url: `/catalog-onboarding/resend`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: catalogOnboardingResendDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogOnboardingControllerResendMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerResend>>, TError,{data: CatalogOnboardingResendDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerResend>>, TError,{data: CatalogOnboardingResendDtoReq}, TContext> => {
+
+const mutationKey = ['catalogOnboardingControllerResend'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogOnboardingControllerResend>>, {data: CatalogOnboardingResendDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogOnboardingControllerResend(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogOnboardingControllerResendMutationResult = NonNullable<Awaited<ReturnType<typeof catalogOnboardingControllerResend>>>
+    export type CatalogOnboardingControllerResendMutationBody = CatalogOnboardingResendDtoReq
+    export type CatalogOnboardingControllerResendMutationError = unknown
+
+    /**
+ * @summary Resend catalog signup verification email
+ */
+export const useCatalogOnboardingControllerResend = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerResend>>, TError,{data: CatalogOnboardingResendDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogOnboardingControllerResend>>,
+        TError,
+        {data: CatalogOnboardingResendDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogOnboardingControllerResendMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Confirm catalog signup and create catalog
+ */
+export const catalogOnboardingControllerConfirm = (
+    catalogOnboardingConfirmDtoReq: CatalogOnboardingConfirmDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogOnboardingConfirmResponseDto>(
+      {url: `/catalog-onboarding/confirm`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: catalogOnboardingConfirmDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getCatalogOnboardingControllerConfirmMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerConfirm>>, TError,{data: CatalogOnboardingConfirmDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerConfirm>>, TError,{data: CatalogOnboardingConfirmDtoReq}, TContext> => {
+
+const mutationKey = ['catalogOnboardingControllerConfirm'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof catalogOnboardingControllerConfirm>>, {data: CatalogOnboardingConfirmDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  catalogOnboardingControllerConfirm(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CatalogOnboardingControllerConfirmMutationResult = NonNullable<Awaited<ReturnType<typeof catalogOnboardingControllerConfirm>>>
+    export type CatalogOnboardingControllerConfirmMutationBody = CatalogOnboardingConfirmDtoReq
+    export type CatalogOnboardingControllerConfirmMutationError = unknown
+
+    /**
+ * @summary Confirm catalog signup and create catalog
+ */
+export const useCatalogOnboardingControllerConfirm = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof catalogOnboardingControllerConfirm>>, TError,{data: CatalogOnboardingConfirmDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof catalogOnboardingControllerConfirm>>,
+        TError,
+        {data: CatalogOnboardingConfirmDtoReq},
+        TContext
+      > => {
+      return useMutation(getCatalogOnboardingControllerConfirmMutationOptions(options), queryClient);
     }
 
 /**

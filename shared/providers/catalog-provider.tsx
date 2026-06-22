@@ -46,6 +46,7 @@ const CatalogContext = createStrictContext<CatalogStateValue>();
 
 type CatalogProviderProps = PropsWithChildren<{
   initialCatalog?: (CatalogControllerGetCurrentQueryResult & CatalogSubscriptionMeta) | null;
+  disableCatalogLookup?: boolean;
 }>;
 
 function isMissingCatalogError(error: unknown): boolean {
@@ -66,6 +67,7 @@ function isMissingCatalogError(error: unknown): boolean {
 export const CatalogProvider: React.FC<CatalogProviderProps> = ({
   children,
   initialCatalog,
+  disableCatalogLookup = false,
 }) => {
   const hasInitialCatalog =
     initialCatalog !== undefined && initialCatalog !== null;
@@ -76,10 +78,11 @@ export const CatalogProvider: React.FC<CatalogProviderProps> = ({
       staleTime: 60_000,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
+      enabled: !disableCatalogLookup,
     },
   });
 
-  const missing = isMissingCatalogError(query.error);
+  const missing = disableCatalogLookup || isMissingCatalogError(query.error);
   const rawCatalog = missing
     ? undefined
     : (query.data as

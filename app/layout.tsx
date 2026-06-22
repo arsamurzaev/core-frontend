@@ -9,6 +9,7 @@ import {
   getCatalogHtmlLang,
   getCatalogStructuredData,
 } from "@/shared/lib/catalog-seo";
+import { isPlatformHost } from "@/shared/platform/platform-host";
 import { AppProvider } from "@/shared/providers/app-provider";
 import { ConfirmationProvider } from "@/shared/ui/confirmation";
 import { Toaster } from "@/shared/ui/sonner";
@@ -29,10 +30,13 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [catalog, forwardedHost] = await Promise.all([
-    getCurrentCatalogServer(),
-    resolveServerForwardedHost(),
-  ]);
+  const forwardedHost = await resolveServerForwardedHost();
+
+  if (isPlatformHost(forwardedHost)) {
+    return fallbackMetadata;
+  }
+
+  const catalog = await getCurrentCatalogServer();
 
   if (!catalog) {
     return fallbackMetadata;
@@ -46,8 +50,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const data = await getCurrentCatalogServer();
-  const initialSession = data ? await getCurrentSessionServer(data.id) : null;
+  const forwardedHost = await resolveServerForwardedHost();
+  const disableCatalogLookup = isPlatformHost(forwardedHost);
+  const data = disableCatalogLookup ? null : await getCurrentCatalogServer();
+  const initialSession =
+    !disableCatalogLookup && data ? await getCurrentSessionServer(data.id) : null;
   const structuredData = data ? getCatalogStructuredData(data) : null;
   const htmlLang = data ? getCatalogHtmlLang(data) : "ru";
   const yandexMetrikaCounterIds =
@@ -66,7 +73,11 @@ export default async function RootLayout({
         ) : null}
       </head>
       <body className={`${sfProText.className} antialiased min-h-svh`}>
-        <AppProvider initialCatalog={data} initialSession={initialSession}>
+        <AppProvider
+          initialCatalog={data}
+          initialSession={initialSession}
+          disableCatalogLookup={disableCatalogLookup}
+        >
           {children}
         </AppProvider>
         <ConfirmationProvider />

@@ -11,12 +11,14 @@ import { SubscriptionAccessGate } from "./subscription-access-gate";
 type AppProviderProps = PropsWithChildren<{
   initialCatalog?: CatalogControllerGetCurrentQueryResult | null;
   initialSession?: SessionBootstrapState | null;
+  disableCatalogLookup?: boolean;
 }>;
 
 export const AppProvider: React.FC<AppProviderProps> = ({
   children,
   initialCatalog,
   initialSession,
+  disableCatalogLookup = false,
 }) => {
   useIOSScrollFix();
   return (
@@ -25,7 +27,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({
         currentCatalogId={initialCatalog?.id ?? null}
         initialSession={initialSession}
       >
-        <CatalogProvider initialCatalog={initialCatalog}>
+        <CatalogProvider
+          initialCatalog={initialCatalog}
+          disableCatalogLookup={disableCatalogLookup}
+        >
           <SubscriptionAccessGate>{children}</SubscriptionAccessGate>
         </CatalogProvider>
       </SessionProvider>
