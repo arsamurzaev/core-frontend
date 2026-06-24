@@ -628,6 +628,7 @@ function HallTableQrDrawer({
 
   return (
     <AppDrawer
+      nested
       open={open}
       onOpenChange={setOpen}
       trigger={
@@ -819,6 +820,7 @@ export const EditCatalogExperienceDrawer: React.FC<
 
   return (
     <AppDrawer
+      nested
       open={open}
       onOpenChange={setOpen}
       dismissible={!disabled && !isSaving}

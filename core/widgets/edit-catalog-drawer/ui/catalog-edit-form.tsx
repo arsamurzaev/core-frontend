@@ -10,17 +10,24 @@ import {
   type CatalogEditTextareaControllerConfig,
 } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-textarea-controller";
 import { EditCatalogAdvancedSettingsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-advanced-settings-drawer";
+import { EditCatalogCheckoutDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-checkout-drawer";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
+import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
 import { EditCatalogPriceListsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-price-lists-drawer";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { isBusinessCardCatalog } from "@/shared/lib/catalog-presentation-mode";
+import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
+import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { FieldError } from "@/shared/ui/field";
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 
 type CatalogEditFormProps = {
   form: UseFormReturn<CatalogEditFormValues>;
+  checkoutConfig?: CheckoutConfig;
   disabled?: boolean;
   isSaving?: boolean;
+  onSave?: () => Promise<boolean>;
   logoUrl?: string | null;
   bgUrl?: string | null;
 };
@@ -133,12 +140,16 @@ function CatalogEditTextRow({
 
 export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
   form,
+  checkoutConfig,
   disabled = false,
   isSaving = false,
+  onSave,
   logoUrl,
   bgUrl,
 }) => {
+  const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
+  const showCatalogOrderSettings = !isBusinessCardCatalog(catalog);
   const mediaFields = React.useMemo(
     () => buildCatalogEditMediaFields({ bgUrl, logoUrl }),
     [bgUrl, logoUrl],
@@ -185,6 +196,35 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
             isSaving={isSaving}
           />
         </CatalogEditTextRow>
+
+        {showCatalogOrderSettings ? (
+          <>
+            <CatalogEditTextRow
+              label="Сценарий"
+              errorMessage={form.formState.errors.allowedModes?.message}
+            >
+              <EditCatalogExperienceDrawer
+                form={form}
+                disabled={disabled || isSaving}
+                isSaving={isSaving}
+                onSave={onSave}
+              />
+            </CatalogEditTextRow>
+
+            <CatalogEditTextRow
+              label="Способы заказа"
+              errorMessage={form.formState.errors.checkoutEnabledMethods?.message}
+            >
+              <EditCatalogCheckoutDrawer
+                form={form}
+                checkoutConfig={checkoutConfig}
+                disabled={disabled || isSaving}
+                isSaving={isSaving}
+                onSave={onSave}
+              />
+            </CatalogEditTextRow>
+          </>
+        ) : null}
 
         {features.canUseCatalogPriceLists ? (
           <CatalogEditTextRow label="Прайс-лист">

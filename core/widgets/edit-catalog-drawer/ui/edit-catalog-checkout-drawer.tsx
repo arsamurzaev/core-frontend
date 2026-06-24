@@ -319,6 +319,7 @@ export const EditCatalogCheckoutDrawer: React.FC<
 
   return (
     <AppDrawer
+      nested
       open={open}
       onOpenChange={handleOpenChange}
       dismissible={!disabled && !isSaving}
