@@ -5,5 +5,5 @@ export function isCatalogManagerRole(role?: string | null): boolean {
 }
 
 export function isGlobalAdminRole(role?: string | null): boolean {
-  return role === AuthUserDtoRole.ADMIN;
+  return role === AuthUserDtoRole.ADMIN || role === AuthUserDtoRole.GEO_ADMIN;
 }

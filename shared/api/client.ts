@@ -4,8 +4,11 @@ import {
   API_BASE_URL,
   applyForwardedHost,
   buildUrl,
+  clearRememberedGlobalAdminCsrf,
   normalizeResponseData,
+  rememberGlobalAdminCsrfFromResponse,
   type ApiHeaders,
+  withAuthSessionScope,
   withCsrf,
   withJsonContentType,
 } from "@/shared/api/client-request";
@@ -27,6 +30,19 @@ axiosClient.interceptors.request.use(async (config) => {
   config.headers = await applyForwardedHost(config.headers);
   return config;
 });
+
+axiosClient.interceptors.response.use(
+  (response) => {
+    rememberGlobalAdminCsrfFromResponse(response.data);
+    return response;
+  },
+  (error) => {
+    if (error?.response?.status === 401) {
+      clearRememberedGlobalAdminCsrf();
+    }
+    return Promise.reject(error);
+  },
+);
 
 async function request<T>(config: AxiosRequestConfig): Promise<T> {
   try {
@@ -62,6 +78,7 @@ export const apiClient = {
     return request<T>({
       url: endpoint,
       method: "GET",
+      headers: withAuthSessionScope(),
     });
   },
 
@@ -115,7 +132,7 @@ export type OrvalMutatorConfig = Omit<
 export async function mutator<T>(config: OrvalMutatorConfig): Promise<T> {
   const { url, method, params, data, headers: configHeaders, ...rest } = config;
   const fullUrl = buildUrl(url, params);
-  const baseHeaders = configHeaders ?? {};
+  const baseHeaders = withAuthSessionScope(configHeaders ?? {});
   const csrfHeaders = method === "GET" ? baseHeaders : withCsrf(baseHeaders);
   const headers = withJsonContentType(csrfHeaders, data);
 

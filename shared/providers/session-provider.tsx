@@ -6,7 +6,14 @@ import {
   useAuthControllerMe,
   type AuthUserDto,
 } from "@/shared/api/generated/react-query";
-import { clearCatalogSession } from "@/shared/api/client-request";
+import {
+  clearCatalogSession,
+  hasReadableAdminCsrfCookie,
+  hasReadableCatalogCsrfCookie,
+  isGlobalAdminModeEnabled,
+  setGlobalAdminMode,
+} from "@/shared/api/client-request";
+import { isGlobalAdminRole } from "@/shared/lib/catalog-role";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { type SessionBootstrapState } from "@/shared/providers/session-bootstrap";
 import React, {
@@ -14,13 +21,12 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
 type SessionStatus = "loading" | "authenticated" | "unauthenticated" | "error";
 
-const CSRF_COOKIE_NAME = "csrf";
-const ADMIN_CSRF_COOKIE_NAME = "acrsf";
 const COOKIE_CHECK_INTERVAL_MS = 30_000;
 const AUTH_MUTATION_KEYS = new Set([
   "authControllerLogin",
@@ -34,27 +40,14 @@ export type SessionValue = {
   isLoading: boolean;
   isAuthenticated: boolean;
   error: unknown;
+  hasGlobalAdminSession: boolean;
+  isGlobalAdminMode: boolean;
+  enterGlobalAdminMode: () => Promise<unknown>;
+  leaveGlobalAdminMode: () => Promise<unknown>;
   refetch: () => Promise<unknown>;
 };
 
 const SessionContext = createStrictContext<SessionValue>();
-
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null;
-  const safeName = name.replace(/[-/\\^$*+?.()|[\\]{}]/g, "\\$&");
-  const match = document.cookie.match(
-    new RegExp(`(?:^|; )${safeName}=([^;]*)`),
-  );
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-function hasCsrfCookie(_currentCatalogId?: string | null): boolean {
-  void _currentCatalogId;
-
-  if (getCookie(CSRF_COOKIE_NAME) !== null) return true;
-  if (getCookie(ADMIN_CSRF_COOKIE_NAME) !== null) return true;
-  return false;
-}
 
 function isUnauthorized(error: unknown): boolean {
   if (!error) return false;
@@ -73,6 +66,15 @@ function readMutationKey(value: unknown): string | null {
   return value[0];
 }
 
+function shouldExposeUser(
+  user: AuthUserDto | null,
+  isGlobalAdminMode: boolean,
+): boolean {
+  if (!user) return false;
+  const userIsGlobalAdmin = isGlobalAdminRole(user.role);
+  return isGlobalAdminMode ? userIsGlobalAdmin : !userIsGlobalAdmin;
+}
+
 type SessionProviderProps = PropsWithChildren<{
   currentCatalogId?: string | null;
   initialSession?: SessionBootstrapState | null;
@@ -80,33 +82,40 @@ type SessionProviderProps = PropsWithChildren<{
 
 export const SessionProvider: React.FC<SessionProviderProps> = ({
   children,
-  currentCatalogId,
   initialSession,
 }) => {
   const queryClient = useQueryClient();
-  const initialCsrfCookiePresent = initialSession?.csrfCookiePresent ?? null;
+  const didRestoreGlobalAdminMode = useRef(false);
   const [deferInitialAuthQuery, setDeferInitialAuthQuery] = useState(false);
-  const [csrfCookiePresent, setCsrfCookiePresent] = useState<boolean | null>(
-    initialCsrfCookiePresent,
-  );
+  const [isGlobalAdminMode, setIsGlobalAdminModeState] = useState(false);
+  const [catalogSessionCookiePresent, setCatalogSessionCookiePresent] =
+    useState<boolean | null>(
+      initialSession?.catalogSessionCookiePresent ??
+        initialSession?.csrfCookiePresent ??
+        null,
+    );
+  const [adminSessionCookiePresent, setAdminSessionCookiePresent] =
+    useState<boolean>(initialSession?.adminSessionCookiePresent ?? false);
 
-  const updateCsrfCookie = useCallback(() => {
-    const hasCookie = hasCsrfCookie(currentCatalogId);
-    setCsrfCookiePresent((prev) => {
-      if (hasCookie) return true;
-      // Don't flip true→false based solely on document.cookie:
-      // in production the csrf cookie may be scoped to the API domain
-      // (cross-domain) or be HttpOnly, making it invisible to JS while
-      // still valid. Rely on actual /me 401 responses to clear the session.
+  const updateSessionCookies = useCallback(() => {
+    const catalogCookiePresent = hasReadableCatalogCsrfCookie();
+    const adminCookiePresent = hasReadableAdminCsrfCookie();
+
+    setCatalogSessionCookiePresent((prev) => {
+      if (catalogCookiePresent) return true;
+      // Production cookies may be scoped to the API domain and stay invisible
+      // to JS while still valid. Clear true only after an actual /me 401.
       if (prev === true) return true;
-      return hasCookie;
+      return false;
     });
-    return hasCookie;
-  }, [currentCatalogId]);
+    setAdminSessionCookiePresent((prev) => adminCookiePresent || prev);
+
+    return { catalogCookiePresent, adminCookiePresent };
+  }, []);
 
   useEffect(() => {
     const update = () => {
-      updateCsrfCookie();
+      updateSessionCookies();
     };
     const handleVisibility = () => {
       if (!document.hidden) update();
@@ -123,9 +132,12 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       document.removeEventListener("visibilitychange", handleVisibility);
       window.clearInterval(intervalId);
     };
-  }, [updateCsrfCookie]);
+  }, [updateSessionCookies]);
 
-  const canRequest = csrfCookiePresent === true;
+  const activeSessionCookiePresent = isGlobalAdminMode
+    ? adminSessionCookiePresent
+    : catalogSessionCookiePresent;
+  const canRequest = activeSessionCookiePresent === true;
   const shouldEnableAuthQuery = canRequest && !deferInitialAuthQuery;
 
   const query = useAuthControllerMe({
@@ -142,6 +154,26 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     },
   });
 
+  useEffect(() => {
+    if (didRestoreGlobalAdminMode.current) return;
+    didRestoreGlobalAdminMode.current = true;
+
+    const storedGlobalAdminMode = isGlobalAdminModeEnabled();
+    queueMicrotask(() => {
+      setIsGlobalAdminModeState(storedGlobalAdminMode);
+      if (!storedGlobalAdminMode) return;
+
+      setDeferInitialAuthQuery(false);
+      void queryClient
+        .invalidateQueries({
+          queryKey: getAuthControllerMeQueryKey(),
+        })
+        .then(() => {
+          void query.refetch();
+        });
+    });
+  }, [query, queryClient]);
+
   const unauthorized = isUnauthorized(query.error);
 
   useEffect(() => {
@@ -149,18 +181,24 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       return;
     }
 
-    clearCatalogSession();
+    clearCatalogSession({ includeAdmin: isGlobalAdminMode });
     queueMicrotask(() => {
-      setCsrfCookiePresent(false);
+      if (isGlobalAdminMode) {
+        setAdminSessionCookiePresent(false);
+        setIsGlobalAdminModeState(false);
+      } else {
+        setCatalogSessionCookiePresent(false);
+      }
       setDeferInitialAuthQuery(false);
     });
-  }, [unauthorized]);
+  }, [isGlobalAdminMode, unauthorized]);
 
-  const user =
+  const rawUser =
     unauthorized || deferInitialAuthQuery ? null : (query.data?.user ?? null);
+  const user = shouldExposeUser(rawUser, isGlobalAdminMode) ? rawUser : null;
 
   const status: SessionStatus =
-    csrfCookiePresent === null
+    activeSessionCookiePresent === null
       ? "loading"
       : deferInitialAuthQuery
         ? "unauthenticated"
@@ -173,13 +211,37 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
               : "unauthenticated";
 
   const syncSession = useCallback(async () => {
-    updateCsrfCookie();
+    updateSessionCookies();
     setDeferInitialAuthQuery(false);
     await queryClient.invalidateQueries({
       queryKey: getAuthControllerMeQueryKey(),
     });
     return query.refetch();
-  }, [query, queryClient, updateCsrfCookie]);
+  }, [query, queryClient, updateSessionCookies]);
+
+  const enterGlobalAdminMode = useCallback(async () => {
+    setGlobalAdminMode(true);
+    setIsGlobalAdminModeState(true);
+    setAdminSessionCookiePresent(true);
+    setDeferInitialAuthQuery(false);
+    await queryClient.invalidateQueries({
+      queryKey: getAuthControllerMeQueryKey(),
+    });
+    return query.refetch();
+  }, [query, queryClient]);
+
+  const leaveGlobalAdminMode = useCallback(async () => {
+    setGlobalAdminMode(false);
+    setIsGlobalAdminModeState(false);
+    setDeferInitialAuthQuery(false);
+    await queryClient.invalidateQueries({
+      queryKey: getAuthControllerMeQueryKey(),
+    });
+    if (catalogSessionCookiePresent !== true) {
+      return null;
+    }
+    return query.refetch();
+  }, [catalogSessionCookiePresent, query, queryClient]);
 
   useEffect(() => {
     const unsubscribe = queryClient.getMutationCache().subscribe((event) => {
@@ -202,20 +264,28 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       user,
       status,
       isLoading:
-        csrfCookiePresent === null ||
+        activeSessionCookiePresent === null ||
         (!deferInitialAuthQuery && query.isLoading && !query.data),
       isAuthenticated: status === "authenticated",
       error: unauthorized || deferInitialAuthQuery ? null : query.error,
+      hasGlobalAdminSession: adminSessionCookiePresent,
+      isGlobalAdminMode,
+      enterGlobalAdminMode,
+      leaveGlobalAdminMode,
       refetch: syncSession,
     }),
     [
       user,
       status,
-      csrfCookiePresent,
+      activeSessionCookiePresent,
       deferInitialAuthQuery,
       query.isLoading,
       query.data,
       query.error,
+      adminSessionCookiePresent,
+      isGlobalAdminMode,
+      enterGlobalAdminMode,
+      leaveGlobalAdminMode,
       syncSession,
       unauthorized,
     ],

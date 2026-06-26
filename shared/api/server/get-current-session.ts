@@ -10,7 +10,9 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 const CSRF_COOKIE_NAME = "csrf";
+const SID_COOKIE_NAME = "sid";
 const ADMIN_CSRF_COOKIE_NAME = "acrsf";
+const ADMIN_SID_COOKIE_NAME = "asid";
 
 async function loadCurrentSessionServer(
   _currentCatalogId?: string | null,
@@ -18,14 +20,21 @@ async function loadCurrentSessionServer(
   void _currentCatalogId;
 
   const cookieStore = await cookies();
+  const catalogSessionCookiePresent =
+    cookieStore.has(SID_COOKIE_NAME) && cookieStore.has(CSRF_COOKIE_NAME);
+  const adminSessionCookiePresent =
+    cookieStore.has(ADMIN_SID_COOKIE_NAME) &&
+    cookieStore.has(ADMIN_CSRF_COOKIE_NAME);
   const csrfCookiePresent =
-    cookieStore.has(CSRF_COOKIE_NAME) || cookieStore.has(ADMIN_CSRF_COOKIE_NAME);
+    catalogSessionCookiePresent || adminSessionCookiePresent;
   const cookieHeader = cookieStore.toString();
 
-  if (!csrfCookiePresent || !cookieHeader) {
+  if (!catalogSessionCookiePresent || !cookieHeader) {
     return {
       authData: null,
       csrfCookiePresent,
+      catalogSessionCookiePresent,
+      adminSessionCookiePresent,
       resolved: true,
     };
   }
@@ -45,6 +54,8 @@ async function loadCurrentSessionServer(
     return {
       authData,
       csrfCookiePresent: true,
+      catalogSessionCookiePresent,
+      adminSessionCookiePresent,
       resolved: true,
     };
   } catch (error) {
@@ -52,6 +63,8 @@ async function loadCurrentSessionServer(
       return {
         authData: null,
         csrfCookiePresent: true,
+        catalogSessionCookiePresent,
+        adminSessionCookiePresent,
         resolved: true,
       };
     }
@@ -59,6 +72,8 @@ async function loadCurrentSessionServer(
     return {
       authData: null,
       csrfCookiePresent: true,
+      catalogSessionCookiePresent,
+      adminSessionCookiePresent,
       resolved: false,
     };
   }

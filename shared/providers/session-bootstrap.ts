@@ -3,5 +3,7 @@ import type { AuthControllerMeQueryResult } from "@/shared/api/generated/react-q
 export interface SessionBootstrapState {
   authData: AuthControllerMeQueryResult | null;
   csrfCookiePresent: boolean;
+  catalogSessionCookiePresent: boolean;
+  adminSessionCookiePresent: boolean;
   resolved: boolean;
 }

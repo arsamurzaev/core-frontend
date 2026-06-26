@@ -55,9 +55,19 @@ export const Header: React.FC<Props> = ({
   const description = config?.description;
   const address =
     typeof settings?.address === "string" ? settings.address.trim() : "";
-  const { isAuthenticated, isLoading, user } = useSession();
+  const {
+    isAuthenticated,
+    isLoading,
+    user,
+    hasGlobalAdminSession,
+    isGlobalAdminMode,
+    enterGlobalAdminMode,
+    leaveGlobalAdminMode,
+  } = useSession();
   const isGlobalAdmin = isGlobalAdminRole(user?.role);
   const canManageContent = canManageCatalogContent(catalog);
+  const canEnterGlobalAdminMode = hasGlobalAdminSession && !isGlobalAdminMode;
+  const showHeaderAuthAction = isAuthenticated || canEnterGlobalAdminMode;
 
   const logoutMutation = useAuthControllerLogout();
 
@@ -96,6 +106,24 @@ export const Header: React.FC<Props> = ({
     });
   };
 
+  const handleEnterGlobalAdminMode = () => {
+    toast.promise(enterGlobalAdminMode(), {
+      loading: "Вход...",
+      success: () => "Режим администратора включен",
+      error: (error) =>
+        error instanceof Error ? error.message : "Ошибка входа",
+    });
+  };
+
+  const handleLeaveGlobalAdminMode = () => {
+    toast.promise(leaveGlobalAdminMode(), {
+      loading: "Переключение...",
+      success: () => "Режим клиента включен",
+      error: (error) =>
+        error instanceof Error ? error.message : "Ошибка переключения",
+    });
+  };
+
   return (
     <header className={cn(className)}>
       <div className="space-y-6">
@@ -117,18 +145,36 @@ export const Header: React.FC<Props> = ({
             <h1
               className={cn(
                 "text-[18px] leading-tight font-bold text-black sm:text-2xl",
-                isAuthenticated && "flex justify-between",
+                showHeaderAuthAction && "flex justify-between gap-3",
               )}
             >
               {name}
-              {isAuthenticated ? (
-                <div className="flex">
-                  <button
-                    onClick={handleLogout}
-                    className="text-primary flex items-center h-fit gap-1 text-xs underline"
-                  >
-                    Выйти <ArrowRight className="size-3" />
-                  </button>
+              {showHeaderAuthAction ? (
+                <div className="flex shrink-0 items-start gap-2">
+                  {canEnterGlobalAdminMode ? (
+                    <button
+                      onClick={handleEnterGlobalAdminMode}
+                      className="text-primary flex h-fit items-center gap-1 text-xs underline"
+                    >
+                      Войти как администратор <ArrowRight className="size-3" />
+                    </button>
+                  ) : null}
+                  {isGlobalAdminMode && isAuthenticated ? (
+                    <button
+                      onClick={handleLeaveGlobalAdminMode}
+                      className="text-primary flex h-fit items-center gap-1 text-xs underline"
+                    >
+                      Клиент
+                    </button>
+                  ) : null}
+                  {isAuthenticated && !canEnterGlobalAdminMode ? (
+                    <button
+                      onClick={handleLogout}
+                      className="text-primary flex h-fit items-center gap-1 text-xs underline"
+                    >
+                      Выйти <ArrowRight className="size-3" />
+                    </button>
+                  ) : null}
                 </div>
               ) : null}
             </h1>
