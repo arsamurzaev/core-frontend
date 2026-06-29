@@ -1,9 +1,10 @@
 "use client";
 import { useQueryClient } from "@tanstack/react-query";
-import { ApiClientError } from "@/shared/api/client";
+import { ApiClientError, mutator } from "@/shared/api/client";
 import {
   getAuthControllerMeQueryKey,
   useAuthControllerMe,
+  type AuthControllerMeQueryResult,
   type AuthUserDto,
 } from "@/shared/api/generated/react-query";
 import {
@@ -28,6 +29,8 @@ import React, {
 type SessionStatus = "loading" | "authenticated" | "unauthenticated" | "error";
 
 const COOKIE_CHECK_INTERVAL_MS = 30_000;
+const SESSION_SCOPE_HEADER_NAME = "X-Auth-Session-Scope";
+const GLOBAL_SESSION_SCOPE = "global";
 const AUTH_MUTATION_KEYS = new Set([
   "authControllerLogin",
   "catalogAuthControllerLogin",
@@ -73,6 +76,23 @@ function shouldExposeUser(
   if (!user) return false;
   const userIsGlobalAdmin = isGlobalAdminRole(user.role);
   return isGlobalAdminMode ? userIsGlobalAdmin : !userIsGlobalAdmin;
+}
+
+async function probeGlobalAdminSession(): Promise<boolean> {
+  try {
+    const data = await mutator<AuthControllerMeQueryResult>({
+      url: "/auth/me",
+      method: "GET",
+      headers: {
+        [SESSION_SCOPE_HEADER_NAME]: GLOBAL_SESSION_SCOPE,
+      },
+    });
+
+    return isGlobalAdminRole(data.user.role);
+  } catch (error) {
+    if (isUnauthorized(error)) return false;
+    throw error;
+  }
 }
 
 type SessionProviderProps = PropsWithChildren<{
@@ -133,6 +153,27 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
       window.clearInterval(intervalId);
     };
   }, [updateSessionCookies]);
+
+  useEffect(() => {
+    if (adminSessionCookiePresent || isGlobalAdminMode) return;
+
+    let cancelled = false;
+
+    void probeGlobalAdminSession()
+      .then((hasGlobalAdminSession) => {
+        if (!cancelled && hasGlobalAdminSession) {
+          setAdminSessionCookiePresent(true);
+        }
+      })
+      .catch(() => {
+        // The storefront can still work as a guest/catalog session if the
+        // global probe fails because of network or CORS conditions.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [adminSessionCookiePresent, isGlobalAdminMode]);
 
   const activeSessionCookiePresent = isGlobalAdminMode
     ? adminSessionCookiePresent
