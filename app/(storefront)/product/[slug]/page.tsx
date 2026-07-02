@@ -1,8 +1,7 @@
-import { ProductPageContent } from "@/core/views/product";
 import {
-  generateProductPageMetadata,
-  normalizeProductSlug,
-} from "@/core/widgets/product-drawer/server";
+  generateProductPageViewMetadata,
+  ProductPageContent,
+} from "@/core/views/product";
 import type { Metadata } from "next";
 
 interface ProductPageProps {
@@ -14,7 +13,7 @@ export async function generateMetadata({
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  return generateProductPageMetadata(normalizeProductSlug(slug));
+  return generateProductPageViewMetadata(slug);
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {

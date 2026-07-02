@@ -72,6 +72,7 @@
 - [x] Обновить public view entrypoint guard под `order`, `product` и `storefront`.
 - [x] Вынести storefront layout shell/providers из `app/(storefront)/layout` в `core/views/storefront`.
 - [x] Вынести intercepted product drawer route wiring из `app/(storefront)/@drawer` в `core/views/product`.
+- [x] Вынести product page metadata facade из `app/(storefront)/product/[slug]` в `core/views/product`.
 
 ### 6. Quality Gate
 
