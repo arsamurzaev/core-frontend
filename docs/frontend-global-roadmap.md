@@ -151,3 +151,4 @@
 - [x] Перевести `edit-catalog-experience-drawer` mode/site/table QR panels, badges и trigger на `AdminPanel` и semantic tokens.
 - [x] Перевести catalog-side `edit-catalog-moysklad-drawer` trigger/panels/error state на `AdminPanel` и semantic tokens.
 - [x] Перевести admin-side `edit-catalog-moysklad-drawer` trigger/status/export/mapping/history states на semantic tokens.
+- [x] Перевести `edit-catalog-iiko-drawer` diagnostics/webhooks/timeline/preview/export states на semantic tokens.

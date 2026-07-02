@@ -130,6 +130,7 @@ Shape/elevation:
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer.tsx`: mode/site/table link panels, QR states, status badges and trigger use `AdminPanel`/semantic tokens.
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-moysklad-drawer-catalog.tsx`: catalog-side MoySklad trigger, status/info panels, webhook shell and error state use `AdminPanel`/semantic tokens.
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-moysklad-drawer-admin.tsx`: admin-side MoySklad trigger, status panels, order export, mapping previews and run history use semantic tokens.
+- `core/widgets/edit-catalog-drawer/ui/edit-catalog-iiko-drawer.tsx`: iiko trigger, diagnostics, webhook events, timeline, terminal-group details, preview stats and order export states use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

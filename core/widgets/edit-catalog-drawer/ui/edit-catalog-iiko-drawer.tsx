@@ -329,14 +329,14 @@ function getIikoDiagnosticIcon(tone: IikoDiagnosticTone): LucideIcon {
 function getIikoDiagnosticToneClassName(tone: IikoDiagnosticTone) {
   switch (tone) {
     case "ok":
-      return "text-emerald-600";
+      return "text-status-success";
     case "warning":
-      return "text-amber-600";
+      return "text-status-warning";
     case "error":
-      return "text-destructive";
+      return "text-status-danger";
     case "pending":
     default:
-      return "text-muted-foreground";
+      return "text-text-muted";
   }
 }
 
@@ -1174,12 +1174,12 @@ export const EditCatalogIikoDrawer: React.FC<{
         <Button
           type="button"
           variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
+          className="h-auto w-full min-w-0 items-start justify-between rounded-panel border border-line-subtle px-4 py-4 text-left whitespace-normal hover:bg-surface-muted/50"
           disabled={disabled}
         >
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">iiko</span>
+              <span className="text-sm font-medium text-text-primary">iiko</span>
               <Badge
                 variant={statusBadge.variant}
                 className="max-w-full break-words text-left whitespace-normal"
@@ -1187,11 +1187,11 @@ export const EditCatalogIikoDrawer: React.FC<{
                 {statusBadge.label}
               </Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               {statusDescription}
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
         </Button>
       }
     >
@@ -1206,7 +1206,7 @@ export const EditCatalogIikoDrawer: React.FC<{
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-5">
-              <div className="rounded-2xl border border-black/10 bg-muted/15 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Статус</span>
                   <Badge
@@ -1216,25 +1216,25 @@ export const EditCatalogIikoDrawer: React.FC<{
                     {statusBadge.label}
                   </Badge>
                 </div>
-                <p className="mt-2 break-words text-sm text-muted-foreground">
+                <p className="mt-2 break-words text-sm text-text-muted">
                   {statusDescription}
                 </p>
                 {integration ? (
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-text-muted">
                     <div>
-                      <span className="block text-foreground">
+                      <span className="block text-text-primary">
                         {integration.totalProducts}
                       </span>
                       товаров
                     </div>
                     <div>
-                      <span className="block text-foreground">
+                      <span className="block text-text-primary">
                         {integration.lastRevision ?? "—"}
                       </span>
                       revision
                     </div>
                     <div>
-                      <span className="block truncate text-foreground">
+                      <span className="block truncate text-text-primary">
                         {integration.externalMenuName ??
                           integration.externalMenuId ??
                           "—"}
@@ -1242,7 +1242,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       меню
                     </div>
                     <div>
-                      <span className="block truncate text-foreground">
+                      <span className="block truncate text-text-primary">
                         {integration.priceCategoryName ??
                           integration.priceCategoryId ??
                           "—"}
@@ -1250,7 +1250,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       цены
                     </div>
                     <div>
-                      <span className="block truncate text-foreground">
+                      <span className="block truncate text-text-primary">
                         {integration.terminalGroupName ??
                           integration.terminalGroupId ??
                           "—"}
@@ -1258,7 +1258,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       stop-list
                     </div>
                     <div>
-                      <span className="block truncate text-foreground">
+                      <span className="block truncate text-text-primary">
                         {formatSyncTimestamp(
                           integration.lastStopListSyncedAt,
                         ) ?? "—"}
@@ -1269,11 +1269,11 @@ export const EditCatalogIikoDrawer: React.FC<{
                 ) : null}
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="text-sm font-medium">Диагностика iiko</div>
-                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                    <p className="mt-1 break-words text-sm text-text-muted">
                       Быстрая проверка всей цепочки: меню, цены, terminal group,
                       stop-list и экспорт заказов.
                     </p>
@@ -1285,14 +1285,14 @@ export const EditCatalogIikoDrawer: React.FC<{
                     {diagnosticSummary.label}
                   </Badge>
                 </div>
-                <div className="mt-3 overflow-hidden rounded-lg border border-black/10">
+                <div className="mt-3 overflow-hidden rounded-control border border-line-subtle">
                   {diagnosticItems.map((item) => {
                     const DiagnosticIcon = getIikoDiagnosticIcon(item.tone);
 
                     return (
                       <div
                         key={item.key}
-                        className="flex items-start gap-3 border-b border-black/10 px-3 py-2.5 text-sm last:border-b-0"
+                        className="flex items-start gap-3 border-b border-line-subtle px-3 py-2.5 text-sm last:border-b-0"
                       >
                         <DiagnosticIcon
                           className={`mt-0.5 size-4 shrink-0 ${getIikoDiagnosticToneClassName(item.tone)}`}
@@ -1301,7 +1301,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                           <div className="break-words font-medium">
                             {item.label}
                           </div>
-                          <div className="mt-0.5 break-words text-xs text-muted-foreground">
+                          <div className="mt-0.5 break-words text-xs text-text-muted">
                             {item.detail}
                           </div>
                         </div>
@@ -1312,17 +1312,17 @@ export const EditCatalogIikoDrawer: React.FC<{
                 {runsQuery.isFetching ||
                 orderExportsQuery.isFetching ||
                 webhookEventsQuery.isFetching ? (
-                  <p className="mt-2 text-xs text-muted-foreground">
+                  <p className="mt-2 text-xs text-text-muted">
                     Обновляем статусы iiko...
                   </p>
                 ) : null}
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm font-medium">Вебхуки iiko</div>
-                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                    <p className="mt-1 break-words text-sm text-text-muted">
                       iiko будет сам присылать изменения stop-list, меню и
                       статусы заказов.
                     </p>
@@ -1342,31 +1342,31 @@ export const EditCatalogIikoDrawer: React.FC<{
                   </Badge>
                 </div>
 
-                <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                  <div className="rounded-lg border border-black/10 bg-muted/10 p-2">
-                    <span className="block truncate text-sm font-medium text-foreground">
+                <div className="mt-3 grid gap-2 text-xs text-text-muted sm:grid-cols-2">
+                  <div className="rounded-control border border-line-subtle bg-surface-subtle p-2">
+                    <span className="block truncate text-sm font-medium text-text-primary">
                       {integration?.webhook.lastEventType ?? "—"}
                     </span>
                     последнее событие
                   </div>
-                  <div className="rounded-lg border border-black/10 bg-muted/10 p-2">
-                    <span className="block truncate text-sm font-medium text-foreground">
+                  <div className="rounded-control border border-line-subtle bg-surface-subtle p-2">
+                    <span className="block truncate text-sm font-medium text-text-primary">
                       {formatSyncTimestamp(
                         integration?.webhook.lastReceivedAt,
                       ) ?? "—"}
                     </span>
                     получено
                   </div>
-                  <div className="rounded-lg border border-black/10 bg-muted/10 p-2">
-                    <span className="block truncate text-sm font-medium text-foreground">
+                  <div className="rounded-control border border-line-subtle bg-surface-subtle p-2">
+                    <span className="block truncate text-sm font-medium text-text-primary">
                       {formatSyncTimestamp(
                         integration?.webhook.lastConfiguredAt,
                       ) ?? "—"}
                     </span>
                     регистрация
                   </div>
-                  <div className="rounded-lg border border-black/10 bg-muted/10 p-2">
-                    <span className="block truncate text-sm font-medium text-foreground">
+                  <div className="rounded-control border border-line-subtle bg-surface-subtle p-2">
+                    <span className="block truncate text-sm font-medium text-text-primary">
                       {integration?.webhook.urlPreview ?? "—"}
                     </span>
                     endpoint
@@ -1374,7 +1374,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                 </div>
 
                 {integration?.webhook.lastError ? (
-                  <p className="mt-3 break-words text-xs text-destructive">
+                  <p className="mt-3 break-words text-xs text-status-danger">
                     {integration.webhook.lastError}
                   </p>
                 ) : null}
@@ -1407,13 +1407,13 @@ export const EditCatalogIikoDrawer: React.FC<{
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm font-medium">
                       Журнал webhook событий
                     </div>
-                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                    <p className="mt-1 break-words text-sm text-text-muted">
                       Последние входящие события от iiko и результат обработки.
                     </p>
                   </div>
@@ -1435,7 +1435,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                 </div>
 
                 {webhookEventsQuery.isError ? (
-                  <p className="mt-3 break-words text-xs text-destructive">
+                  <p className="mt-3 break-words text-xs text-status-danger">
                     {extractApiErrorMessage(webhookEventsQuery.error)}
                   </p>
                 ) : null}
@@ -1459,14 +1459,14 @@ export const EditCatalogIikoDrawer: React.FC<{
                       return (
                         <div
                           key={event.id}
-                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                          className="rounded-panel border border-line-subtle bg-surface-raised/70 p-3"
                         >
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div className="min-w-0">
                               <div className="break-words text-sm font-medium">
                                 {event.eventType}
                               </div>
-                              <p className="mt-1 break-words text-xs text-muted-foreground">
+                              <p className="mt-1 break-words text-xs text-text-muted">
                                 Получено {receivedAt}
                                 {processedAt
                                   ? ` · обработано ${processedAt}`
@@ -1482,13 +1482,13 @@ export const EditCatalogIikoDrawer: React.FC<{
                           </div>
 
                           {detailEntries.length ? (
-                            <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                            <div className="mt-3 grid gap-2 text-xs text-text-muted sm:grid-cols-2">
                               {detailEntries.map(([key, value]) => (
                                 <div
                                   key={key}
-                                  className="min-w-0 rounded-lg border border-black/10 bg-muted/10 p-2"
+                                  className="min-w-0 rounded-control border border-line-subtle bg-surface-subtle p-2"
                                 >
-                                  <span className="block truncate font-medium text-foreground">
+                                  <span className="block truncate font-medium text-text-primary">
                                     {value}
                                   </span>
                                   {key}
@@ -1498,12 +1498,12 @@ export const EditCatalogIikoDrawer: React.FC<{
                           ) : null}
 
                           {event.jobId ? (
-                            <p className="mt-2 break-words text-xs text-muted-foreground">
+                            <p className="mt-2 break-words text-xs text-text-muted">
                               job: {event.jobId}
                             </p>
                           ) : null}
                           {event.error ? (
-                            <p className="mt-2 break-words text-xs text-destructive">
+                            <p className="mt-2 break-words text-xs text-status-danger">
                               {event.error}
                             </p>
                           ) : null}
@@ -1526,7 +1526,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       );
                     })
                   ) : (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-text-muted">
                       Событий пока нет. После регистрации webhook здесь появятся
                       stop-list, меню и статусы заказов.
                     </p>
@@ -1534,13 +1534,13 @@ export const EditCatalogIikoDrawer: React.FC<{
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm font-medium">
                       Лента интеграции iiko
                     </div>
-                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                    <p className="mt-1 break-words text-sm text-text-muted">
                       Sync, webhook и экспорт заказов в одном порядке по
                       времени.
                     </p>
@@ -1554,9 +1554,9 @@ export const EditCatalogIikoDrawer: React.FC<{
                     integrationTimeline.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-start gap-3 rounded-lg border border-black/10 bg-muted/10 p-3"
+                        className="flex items-start gap-3 rounded-control border border-line-subtle bg-surface-subtle p-3"
                       >
-                        <div className="mt-1 size-2 rounded-full bg-foreground/60" />
+                        <div className="mt-1 size-2 rounded-pill bg-line-default" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="break-words text-sm font-medium">
@@ -1565,7 +1565,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                             <Badge variant="secondary">{item.type}</Badge>
                             <Badge variant="outline">{item.status}</Badge>
                           </div>
-                          <p className="mt-1 break-words text-xs text-muted-foreground">
+                          <p className="mt-1 break-words text-xs text-text-muted">
                             {formatSyncTimestamp(item.occurredAt) ?? "нет даты"}
                             {item.detail ? ` · ${item.detail}` : ""}
                           </p>
@@ -1573,7 +1573,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-text-muted">
                       Событий пока нет. После sync, webhook или экспорта заказа
                       здесь появится единая история.
                     </p>
@@ -1826,7 +1826,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                     </SelectContent>
                   </Select>
                   {selectedTerminalGroup ? (
-                    <div className="mt-2 space-y-2 rounded-md border border-black/10 bg-muted/30 p-3 text-xs">
+                    <div className="mt-2 space-y-2 rounded-control border border-line-subtle bg-surface-subtle p-3 text-xs">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">
                           {selectedTerminalGroup.name}
@@ -1858,7 +1858,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                               : "Cloud API: нет данных"}
                         </Badge>
                       </div>
-                      <div className="grid gap-1 text-muted-foreground">
+                      <div className="grid gap-1 text-text-muted">
                         <span className="break-all">
                           Terminal group ID: {selectedTerminalGroup.id}
                         </span>
@@ -1883,7 +1883,7 @@ export const EditCatalogIikoDrawer: React.FC<{
               <div className="space-y-3">
                 <Field
                   orientation="responsive"
-                  className="rounded-2xl border border-black/10 bg-background/70 p-4"
+                  className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4"
                 >
                   <FieldContent>
                     <FieldTitle>Интеграция активна</FieldTitle>
@@ -1902,7 +1902,7 @@ export const EditCatalogIikoDrawer: React.FC<{
 
                 <Field
                   orientation="responsive"
-                  className="rounded-2xl border border-black/10 bg-background/70 p-4"
+                  className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4"
                 >
                   <FieldContent>
                     <FieldTitle>Импортировать изображения</FieldTitle>
@@ -1921,7 +1921,7 @@ export const EditCatalogIikoDrawer: React.FC<{
 
                 <Field
                   orientation="responsive"
-                  className="rounded-2xl border border-black/10 bg-background/70 p-4"
+                  className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4"
                 >
                   <FieldContent>
                     <FieldTitle>Экспорт заказов</FieldTitle>
@@ -1940,7 +1940,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                 </Field>
 
                 {formState.exportOrders ? (
-                  <div className="grid gap-3 rounded-2xl border border-black/10 bg-background/70 p-4 sm:grid-cols-2">
+                  <div className="grid gap-3 rounded-panel border border-line-subtle bg-surface-raised/70 p-4 sm:grid-cols-2">
                     <Field>
                       <FieldLabel htmlFor="iiko-order-service-type">
                         Тип заказа
@@ -2006,11 +2006,11 @@ export const EditCatalogIikoDrawer: React.FC<{
                 ) : null}
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="text-sm font-medium">Preview импорта</div>
-                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                    <p className="mt-1 break-words text-sm text-text-muted">
                       Быстрая проверка меню до сохранения и запуска
                       синхронизации.
                     </p>
@@ -2028,7 +2028,7 @@ export const EditCatalogIikoDrawer: React.FC<{
 
                 {previewStats ? (
                   <>
-                    <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                    <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-text-muted sm:grid-cols-4">
                       {[
                         ["Категории", previewStats.categories],
                         ["Товары", previewStats.visibleItems],
@@ -2041,16 +2041,16 @@ export const EditCatalogIikoDrawer: React.FC<{
                       ].map(([label, value]) => (
                         <div
                           key={String(label)}
-                          className="rounded-lg border border-black/10 bg-muted/10 p-2"
+                          className="rounded-control border border-line-subtle bg-surface-subtle p-2"
                         >
-                          <span className="block text-sm font-medium text-foreground">
+                          <span className="block text-sm font-medium text-text-primary">
                             {formatCounter(Number(value))}
                           </span>
                           {label}
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-text-muted sm:grid-cols-4">
                       {[
                         ["Новые", preview.diff.newItems],
                         ["Связанные", preview.diff.matchedItems],
@@ -2062,16 +2062,16 @@ export const EditCatalogIikoDrawer: React.FC<{
                       ].map(([label, value]) => (
                         <div
                           key={String(label)}
-                          className="rounded-lg border border-black/10 bg-muted/10 p-2"
+                          className="rounded-control border border-line-subtle bg-surface-subtle p-2"
                         >
-                          <span className="block text-sm font-medium text-foreground">
+                          <span className="block text-sm font-medium text-text-primary">
                             {formatCounter(Number(value))}
                           </span>
                           {label}
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 max-h-40 overflow-auto rounded-lg border border-black/10">
+                    <div className="mt-3 max-h-40 overflow-auto rounded-control border border-line-subtle">
                       {preview.items.slice(0, 8).map((item) => (
                         <div
                           key={item.id}
@@ -2082,7 +2082,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                               {item.name}
                             </span>
                             {item.skipReasons.length > 0 ? (
-                              <span className="mt-0.5 block truncate text-muted-foreground">
+                              <span className="mt-0.5 block truncate text-text-muted">
                                 {item.skipReasons
                                   .map(formatIikoPreviewSkipReason)
                                   .join(", ")}
@@ -2090,7 +2090,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                             ) : null}
                             {item.diffStatus &&
                             item.diffStatus !== "skipped" ? (
-                              <span className="mt-0.5 block truncate text-muted-foreground">
+                              <span className="mt-0.5 block truncate text-text-muted">
                                 {formatIikoDiffStatus(item.diffStatus)}
                                 {item.diffStatus.includes("price")
                                   ? `: ${formatMoney(item.localPrice)} → ${formatMoney(item.price)}`
@@ -2124,7 +2124,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       ))}
                     </div>
                     {previewSkippedItems.length > 0 ? (
-                      <p className="mt-2 break-words text-xs text-muted-foreground">
+                      <p className="mt-2 break-words text-xs text-text-muted">
                         Пропущено позиций:{" "}
                         {formatCounter(previewSkippedItems.length)}. Основные
                         причины показаны в строках preview.
@@ -2132,7 +2132,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                     ) : null}
                   </>
                 ) : (
-                  <p className="mt-3 break-words text-sm text-muted-foreground">
+                  <p className="mt-3 break-words text-sm text-text-muted">
                     Preview покажет категории, видимые товары, скрытые позиции,
                     товары без цены, варианты, combo и наличие модификаторов.
                   </p>
@@ -2140,7 +2140,7 @@ export const EditCatalogIikoDrawer: React.FC<{
               </div>
 
               {integration?.capabilities ? (
-                <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+                <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
                   <div className="text-sm font-medium">Возможности MVP</div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {[
@@ -2162,13 +2162,13 @@ export const EditCatalogIikoDrawer: React.FC<{
                 </div>
               ) : null}
 
-              <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">
                     Экспорт заказов iiko
                   </span>
                   {orderExportsQuery.isFetching ? (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-text-muted">
                       Обновляем...
                     </span>
                   ) : null}
@@ -2189,7 +2189,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       return (
                         <div
                           key={orderExport.id}
-                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                          className="rounded-panel border border-line-subtle bg-surface-raised/70 p-3"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <span className="break-words text-sm font-medium">
@@ -2202,17 +2202,17 @@ export const EditCatalogIikoDrawer: React.FC<{
                               {badge.label}
                             </Badge>
                           </div>
-                          <p className="mt-2 break-words text-sm text-muted-foreground">
+                          <p className="mt-2 break-words text-sm text-text-muted">
                             Запрошен {requestedAt} · попыток:{" "}
                             {orderExport.attempts}
                           </p>
                           {orderExport.externalId ? (
-                            <p className="mt-1 break-words text-xs text-muted-foreground">
+                            <p className="mt-1 break-words text-xs text-text-muted">
                               iiko: {orderExport.externalId}
                             </p>
                           ) : null}
                           {orderExport.lastError ? (
-                            <p className="mt-1 break-words text-xs text-destructive">
+                            <p className="mt-1 break-words text-xs text-status-danger">
                               {orderExport.lastError}
                             </p>
                           ) : null}
@@ -2234,7 +2234,7 @@ export const EditCatalogIikoDrawer: React.FC<{
                       );
                     })
                   ) : (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-text-muted">
                       Экспортов заказов пока нет.
                     </p>
                   )}
@@ -2242,7 +2242,7 @@ export const EditCatalogIikoDrawer: React.FC<{
               </div>
 
               {errorMessage || integration?.lastSyncError ? (
-                <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                <div className="rounded-panel border border-status-danger/30 bg-status-danger-surface p-4 text-sm text-status-danger">
                   {errorMessage ?? integration?.lastSyncError}
                 </div>
               ) : null}
