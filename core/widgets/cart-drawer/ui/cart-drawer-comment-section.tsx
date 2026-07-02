@@ -74,7 +74,7 @@ export const CartDrawerCommentSection: React.FC<
           minRows={4}
           value={comment}
           onChange={(event) => onCommentChange(event.target.value)}
-          className="border-muted shadow-custom min-h-25 rounded-lg border p-3"
+          className="border-line-default shadow-surface min-h-25 rounded-control border p-3"
           placeholder={commentPlaceholder}
         />
       </div>

@@ -112,7 +112,7 @@ export const CartDrawerFooter: React.FC<CartDrawerFooterProps> = ({
       >
         <div
           className={cn(
-            "shadow-custom border-muted mx-auto grid w-full max-w-[95%] items-center gap-4 rounded-t-lg border p-5 sm:gap-6",
+            "shadow-surface border-line-default bg-surface-base mx-auto grid w-full max-w-[95%] items-center gap-4 rounded-t-panel border p-5 sm:gap-6",
             action !== "none"
               ? "grid-cols-[minmax(110px,auto)_minmax(0,1fr)]"
               : "grid-cols-1",

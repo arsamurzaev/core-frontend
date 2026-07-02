@@ -29,7 +29,7 @@ export const CartDrawerManagerOrderStartBar: React.FC<
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-180 px-2">
-      <div className="shadow-custom rounded-t-2xl border bg-background px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+      <div className="shadow-surface rounded-t-panel border border-line-default bg-surface-base px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
         <Button
           type="button"
           className="w-full justify-center"

@@ -447,9 +447,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <AppDrawer.Content
             hideOverlay
             handleWrapperClassName="pt-0"
-            handleClassName="mx-auto mt-2 h-1 w-[50px] rounded-full bg-muted"
+            handleClassName="mx-auto mt-2 h-1 w-[50px] rounded-pill bg-surface-muted"
             className={cn(
-              "shadow-custom bg-background fixed inset-x-0 bottom-0 z-30 mx-auto mt-24 flex h-full max-h-[94%] max-w-180 flex-col rounded-t-2xl border pb-0 focus:outline-none",
+              "shadow-surface bg-surface-base fixed inset-x-0 bottom-0 z-30 mx-auto mt-24 flex h-full max-h-[94%] max-w-180 flex-col rounded-t-panel border border-line-default pb-0 focus:outline-none",
               "max-h-[calc(100%-25px)] w-[98%] transition-all",
               snapPoint === 1 && "w-full",
             )}

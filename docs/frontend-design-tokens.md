@@ -113,6 +113,7 @@ Shape/elevation:
 - `core/widgets/footer` и `core/widgets/share-drawer`: UI text/status/surface colors, close icons, pill radii и wordmark currentColor переведены на semantic tokens; brand/support asset colors оставлены как assets.
 - `core/widgets/cart-drawer` checkout primitives: delivery/preorder forms, location display, checkout tabs, locked summary и grouped cart count используют semantic tokens.
 - `core/widgets/cart-drawer/ui/integration-checkout-section.tsx`: integration checkout panels, iiko table states, field errors и policy links используют semantic tokens.
+- `core/widgets/cart-drawer` shell/hall-table UI: drawer surface, footer panel, comment textarea, manager start bar и hall-table orders list используют semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
@@ -129,5 +130,5 @@ Shape/elevation:
 
 1. Принять решение по `shared/ui/smooth-drawer.tsx`: сейчас не используется, выглядит как внешнее demo; лучше удалить/перенести в sandbox или переписать при появлении реального сценария.
 2. Расширить использование `AdminPanel` и `AdminPanelButton` в `edit-catalog-*` и `product-modifier-*` экранах.
-3. Продолжить перенос крупных widgets: `cart-drawer` hall-table/footer shell, `global-admin-drawer`, `category-admin`, `edit-product-drawer`.
+3. Продолжить перенос крупных widgets: оставшиеся `cart-drawer` header/footer action details, `global-admin-drawer`, `category-admin`, `edit-product-drawer`.
 4. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.

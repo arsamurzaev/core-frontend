@@ -172,13 +172,13 @@ export const HallTableOrdersDrawer: React.FC = () => {
       noBodyStyles
       trigger={
         <Button
-          className="fixed right-4 bottom-4 z-20 h-12 rounded-full px-4 shadow-lg"
+          className="fixed right-4 bottom-4 z-20 h-12 rounded-pill px-4 shadow-overlay"
           type="button"
         >
           <Table2 className="size-5" />
           Столы
           {activeCount > 0 ? (
-            <span className="bg-background text-foreground ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs">
+            <span className="bg-surface-base text-text-primary ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-pill px-1.5 text-xs">
               {activeCount}
             </span>
           ) : null}
@@ -194,7 +194,7 @@ export const HallTableOrdersDrawer: React.FC = () => {
 
         <div className="min-h-0 overflow-hidden px-4 pb-4">
           <div className="flex items-center justify-between pb-2">
-            <span className="text-muted-foreground text-xs">
+            <span className="text-text-muted text-xs">
               {tables.length}
             </span>
             <Button
@@ -215,18 +215,18 @@ export const HallTableOrdersDrawer: React.FC = () => {
                 <button
                   key={table.code}
                   className={cn(
-                    "border-muted bg-background hover:bg-accent flex w-full items-center gap-3 rounded-md border p-3 text-left transition-colors",
-                    !table.publicKey && "hover:bg-background",
+                    "border-line-default bg-surface-base hover:bg-surface-muted flex w-full items-center gap-3 rounded-control border p-3 text-left transition-colors",
+                    !table.publicKey && "hover:bg-surface-base",
                   )}
                   type="button"
                   onClick={() => handleOpenTableCart(table)}
                 >
                   <span
                     className={cn(
-                      "flex size-9 items-center justify-center rounded-md border",
+                      "flex size-9 items-center justify-center rounded-control border",
                       table.hasItems
-                        ? "border-primary text-primary"
-                        : "text-muted-foreground",
+                        ? "border-action-primary text-action-primary"
+                        : "border-line-default text-text-muted",
                     )}
                   >
                     {table.hasItems ? (
@@ -239,19 +239,19 @@ export const HallTableOrdersDrawer: React.FC = () => {
                     <span className="block truncate text-sm font-medium">
                       {getTableTitle(table)}
                     </span>
-                    <span className="text-muted-foreground block truncate text-xs">
+                    <span className="text-text-muted block truncate text-xs">
                       {getTableSubtitle(table, currency)}
                     </span>
                   </span>
                   {table.hasItems ? (
-                    <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-[11px]">
+                    <span className="bg-action-primary text-action-primary-foreground rounded-pill px-2 py-0.5 text-[11px]">
                       заказ
                     </span>
                   ) : null}
                 </button>
               ))
             ) : (
-              <div className="text-muted-foreground rounded-md border p-4 text-sm">
+              <div className="text-text-muted rounded-control border border-line-default p-4 text-sm">
                 Столы не найдены.
               </div>
             )}
