@@ -45,14 +45,4 @@ bun run prod:check --skip-api
 
 ## Production Smoke
 
-После автоматических проверок вручную пройти:
-
-- товар без цены;
-- товар с simple hidden default variant;
-- товар с несколькими вариациями;
-- добавление matrix-товара через drawer вариаций;
-- `stock=null`, когда остаток не отслеживается;
-- `stock=0`, когда товара нет в наличии;
-- корзина с неизвестной ценой;
-- отключенные product variants capability;
-- включенные product variants capability.
+После автоматических проверок вручную пройти `docs/frontend-smoke-checklist.md`.
