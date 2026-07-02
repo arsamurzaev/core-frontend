@@ -72,23 +72,23 @@ const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({
   tab,
 }) => {
   return (
-    <TabsList className="relative grid h-10 w-full grid-cols-2 rounded-pill p-0.5">
+    <TabsList className="relative grid h-10 w-full grid-cols-2 rounded-pill border border-line-default p-0.5">
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-y-0 left-0 z-0 w-1/2 rounded-pill bg-surface-base transition-transform duration-300 ease-out",
+          "pointer-events-none absolute inset-y-0.5 left-0.5 z-0 w-[calc(50%-0.125rem)] rounded-pill bg-surface-base transition-transform duration-300 ease-out",
           tab === "categories" && "translate-x-full",
         )}
       />
       <TabsTrigger
         value="catalog"
-        className="relative z-10 rounded-pill text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+        className="relative z-10 rounded-pill border-0 text-sm shadow-none data-[state=active]:!bg-transparent data-[state=active]:!shadow-none"
       >
         {catalogTabLabel}
       </TabsTrigger>
       <TabsTrigger
         value="categories"
-        className="relative z-10 rounded-pill text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+        className="relative z-10 rounded-pill border-0 text-sm shadow-none data-[state=active]:!bg-transparent data-[state=active]:!shadow-none"
       >
         Категории
       </TabsTrigger>
