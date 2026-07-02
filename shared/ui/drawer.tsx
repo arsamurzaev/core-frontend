@@ -67,7 +67,7 @@ function DrawerOverlay({
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         // layout
-        "fixed inset-0 z-50 bg-black/50",
+        "fixed inset-0 z-50 bg-surface-inverse/50",
         className,
       )}
       {...props}
@@ -88,7 +88,7 @@ function DrawerHandle({
       data-slot="drawer-handle"
       className={cn(
         "relative h-8 w-20 rounded-full bg-transparent",
-        "after:absolute after:top-1/2 after:left-1/2 after:h-1.5 after:w-12 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:bg-muted after:content-['']",
+        "after:bg-surface-muted after:absolute after:top-1/2 after:left-1/2 after:h-1.5 after:w-12 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:content-['']",
         className,
       )}
       preventCycle={preventCycle}
@@ -147,7 +147,7 @@ function DrawerContent({
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(
-          "group/drawer-content bg-background fixed z-50 flex flex-col outline-none",
+          "group/drawer-content bg-surface-base text-text-primary fixed z-50 flex flex-col outline-none",
           // iOS height correctness + safe area bottom
           "max-h-[92dvh] pb-[safe-area-inset-bottom]",
 
@@ -231,7 +231,7 @@ function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-foreground font-semibold", className)}
+      className={cn("text-text-primary font-semibold", className)}
       {...props}
     />
   );
@@ -244,7 +244,7 @@ function DrawerDescription({
   return (
     <DrawerPrimitive.Description
       data-slot="drawer-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-text-muted text-sm", className)}
       {...props}
     />
   );

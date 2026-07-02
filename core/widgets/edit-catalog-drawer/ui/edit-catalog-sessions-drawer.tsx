@@ -8,7 +8,7 @@ import {
   useCatalogAdvancedSettingsControllerRevokeSession,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
-import { AdminPanel } from "@/shared/ui/admin-panel";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -248,27 +248,22 @@ export const EditCatalogSessionsDrawer: React.FC<
       onOpenChange={handleOpenChange}
       dismissible={!isMutating}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-text-primary">
                 Сессии
               </span>
               <Badge variant="secondary">
                 {sessions.length > 0 ? `${sessions.length} активн.` : "Доступ"}
               </Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               Посмотрите активные входы и завершите лишние сессии.
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full">

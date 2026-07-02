@@ -17,7 +17,10 @@ import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
-import { Button, type ButtonProps } from "@/shared/ui/button";
+import {
+  AdminPanelButton,
+  type AdminPanelButtonProps,
+} from "@/shared/ui/admin-panel";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { ChevronRight } from "lucide-react";
 import React from "react";
@@ -28,30 +31,27 @@ interface EditCatalogAdvancedSettingsDrawerProps {
 
 const DefaultAdvancedSettingsTrigger = React.forwardRef<
   HTMLButtonElement,
-  ButtonProps
+  AdminPanelButtonProps
 >(({ disabled, ...props }, ref) => {
   return (
-    <Button
+    <AdminPanelButton
       ref={ref}
       {...props}
-      type="button"
-      variant="ghost"
-      className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
       disabled={disabled}
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-text-primary">
             Расширенные настройки
           </span>
           <Badge variant="secondary">Доступ и подключения</Badge>
         </div>
-        <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+        <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
           Пароль входа, сессии, домены, Яндекс Метрика и интеграции каталога.
         </p>
       </div>
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-    </Button>
+      <ChevronRight className="size-4 shrink-0 text-text-muted" />
+    </AdminPanelButton>
   );
 });
 DefaultAdvancedSettingsTrigger.displayName = "DefaultAdvancedSettingsTrigger";

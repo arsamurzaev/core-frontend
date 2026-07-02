@@ -124,3 +124,5 @@
 - [x] Перевести `Button`, `Card` и cart status message на semantic tokens.
 - [x] Перевести `Badge`, `Tabs`, `Input`, `Select`, `Switch`, `Skeleton` на semantic tokens.
 - [x] Добавить первый `AdminPanel` primitive и применить его в sessions drawer.
+- [x] Перевести `Dialog`, `Popover`, `Drawer`, `Textarea`, `Progress`, `Slider` на semantic tokens.
+- [x] Добавить `AdminPanelButton` и применить его в advanced/settings sessions triggers.

@@ -2,6 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 import { cn } from "@/shared/lib/utils";
+import { Button, type ButtonProps } from "@/shared/ui/button";
 
 const adminPanelVariants = cva("rounded-panel border text-text-primary", {
   variants: {
@@ -35,6 +36,26 @@ export interface AdminPanelProps
     React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof adminPanelVariants> {}
 
+const adminPanelButtonVariants = cva(
+  "h-auto w-full min-w-0 items-start justify-between rounded-panel border px-4 py-4 text-left whitespace-normal",
+  {
+    variants: {
+      tone: {
+        default: "border-line-subtle hover:bg-surface-muted/50",
+        muted: "border-line-subtle bg-surface-subtle hover:bg-surface-muted/60",
+      },
+    },
+    defaultVariants: {
+      tone: "default",
+    },
+  },
+);
+
+export interface AdminPanelButtonProps
+  extends
+    Omit<ButtonProps, "variant">,
+    VariantProps<typeof adminPanelButtonVariants> {}
+
 const AdminPanel = React.forwardRef<HTMLDivElement, AdminPanelProps>(
   ({ className, elevation, padding, variant, ...props }, ref) => (
     <div
@@ -49,4 +70,23 @@ const AdminPanel = React.forwardRef<HTMLDivElement, AdminPanelProps>(
 );
 AdminPanel.displayName = "AdminPanel";
 
-export { AdminPanel, adminPanelVariants };
+const AdminPanelButton = React.forwardRef<
+  HTMLButtonElement,
+  AdminPanelButtonProps
+>(({ className, tone, ...props }, ref) => (
+  <Button
+    ref={ref}
+    type="button"
+    variant="ghost"
+    className={cn(adminPanelButtonVariants({ tone }), className)}
+    {...props}
+  />
+));
+AdminPanelButton.displayName = "AdminPanelButton";
+
+export {
+  AdminPanel,
+  AdminPanelButton,
+  adminPanelButtonVariants,
+  adminPanelVariants,
+};

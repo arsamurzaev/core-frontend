@@ -9,7 +9,7 @@ const Textarea = React.forwardRef<
   return (
     <TextareaAutosizeComponent
       className={cn(
-        "bg-background ring-offset-background placeholder:text-muted-foreground flex field-sizing-content w-full resize-none text-sm focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        "bg-surface-base text-text-primary ring-offset-surface-base placeholder:text-text-muted flex field-sizing-content w-full resize-none text-sm focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       ref={ref}
