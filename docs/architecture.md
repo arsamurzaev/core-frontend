@@ -56,6 +56,7 @@ Routes should import screen composition through view entrypoints:
 - `@/core/views/home/browser`
 - `@/core/views/login`
 - `@/core/views/platform`
+- `@/core/views/product`
 
 ## Runtime
 

@@ -65,6 +65,7 @@
 - [ ] Переносить screen composition в `core/views`.
 - [ ] Runtime-aware storefront собирать через `core/catalog-runtime/ui`.
 - [ ] Проверить product page, home page, drawers, header/footer на единый composition pattern.
+- [x] Вынести standalone product page composition из `app/(storefront)/product/[slug]` в `core/views/product`.
 
 ### 6. Quality Gate
 
