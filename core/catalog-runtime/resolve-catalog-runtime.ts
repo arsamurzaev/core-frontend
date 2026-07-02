@@ -11,8 +11,12 @@ import type {
 } from "@/core/modules/product";
 import type { CatalogPresentationConfig } from "./metadata-contracts";
 import { resolveCatalogRuntimeManifest } from "./manifest";
+import { DEFAULT_CATALOG_PRICING } from "./pricing";
 import { CATALOG_EXTENSIONS } from "./registry";
-import type { CatalogExtension, CatalogRuntime } from "./runtime-contracts";
+import type {
+  CatalogExtension,
+  CatalogRuntime,
+} from "./runtime-contracts";
 import { resolveCatalogThemePreset } from "./theme";
 
 const DEFAULT_CART_COMMENT_PLACEHOLDER =
@@ -170,6 +174,10 @@ export function resolveCatalogRuntime(
   const cart = {
     supportsManagerOrder: Boolean(extension?.cart?.supportsManagerOrder),
   };
+  const pricing = {
+    ...DEFAULT_CATALOG_PRICING,
+    ...extension?.pricing,
+  };
   const slots = {
     ...extension?.slots,
   };
@@ -191,6 +199,7 @@ export function resolveCatalogRuntime(
     theme: resolveCatalogThemePreset(extension),
     productCard,
     cart,
+    pricing,
     slots,
   };
 }

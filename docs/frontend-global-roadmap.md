@@ -50,6 +50,7 @@
 - [x] Проверить restaurant/wholesale/business-card extensions на одинаковый контракт.
 - [ ] Перенести типовые различия из scattered conditions в runtime extension.
 - [x] Добавить тесты совместимости slots для новых типов каталогов.
+- [x] Перенести wholesale decimal price mode из shared price formatter в runtime `pricing` contract.
 
 ### 4. Design System And Tokens
 

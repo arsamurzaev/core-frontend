@@ -66,6 +66,7 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.checkout.availableMethods).toEqual(["DELIVERY", "PICKUP"]);
     expect(runtime.checkout.defaultEnabledMethods).toEqual([]);
     expect(runtime.cart.supportsManagerOrder).toBe(false);
+    expect(runtime.pricing.priceFormatMode).toBe("integer");
     expect(runtime.theme.id).toBe("default");
     expect(runtime.manifest).toMatchObject({
       id: "default",
@@ -159,6 +160,7 @@ describe("resolveCatalogRuntime", () => {
 
     expect(runtime.extension).not.toBeNull();
     expect(runtime.cart.supportsManagerOrder).toBe(true);
+    expect(runtime.pricing.priceFormatMode).toBe("decimal");
     expect(runtime.slots.CartCardAction).toBeTruthy();
     expect(runtime.theme.id).toBe("wholesale");
     expect(runtime.manifest.id).toBe("wholesale");
@@ -167,6 +169,16 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.manifest.capabilities.hasCartCardActionSlot).toBe(true);
     expect(runtime.manifest.policies.cartActionMode).toBe("runtime-slot");
     expect(runtime.manifest.analyticsEvents).toContain("manager.orderStart");
+  });
+
+  it("uses decimal price mode for wholesale type aliases", () => {
+    expect(
+      resolveCatalogRuntime(catalogWithType("wholesale")).pricing
+        .priceFormatMode,
+    ).toBe("decimal");
+    expect(
+      resolveCatalogRuntime(catalogWithType("whosale")).pricing.priceFormatMode,
+    ).toBe("decimal");
   });
 
   it("builds checkout config from resolved runtime contract", () => {

@@ -36,7 +36,7 @@ import {
   useCatalogCapabilities,
   useCatalogProductStructureVisibility,
 } from "@/shared/capabilities/catalog-capabilities";
-import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import { confirmDelete } from "@/shared/ui/confirmation";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";

@@ -35,6 +35,10 @@ export {
   resolveCatalogRuntimeCheckoutAvailableMethods,
   resolveCatalogRuntimeProductCard,
 } from "./catalog-runtime-utils";
+export {
+  getCatalogPriceFormatMode,
+  resolveCatalogRuntimePricing,
+} from "./pricing";
 export { resolveCatalogRuntime } from "./resolve-catalog-runtime";
 export { useCatalogRuntimeExtension } from "./use-catalog-runtime-extension";
 export { useCatalogRuntimeSlots } from "./use-catalog-runtime-slots";

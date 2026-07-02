@@ -5,6 +5,7 @@ import {
   getCatalogRuntimeCheckoutConfig,
   useCatalogRuntime,
 } from "@/core/catalog-runtime";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import { CART_CONTEXT_FALLBACK_VALUE } from "@/core/modules/cart/model/cart-context-fallback";
 import { getCartPricingForProduct } from "@/core/modules/cart/model/cart-item-view";
 import {
@@ -38,7 +39,6 @@ import type {
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { useCatalogMode } from "@/shared/lib/catalog-mode";
 import { useHallTableContext } from "@/shared/lib/hall-table";
-import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";

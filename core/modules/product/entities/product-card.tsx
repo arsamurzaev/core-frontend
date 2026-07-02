@@ -4,9 +4,9 @@
 
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import {
   formatCatalogPrice,
-  getCatalogPriceFormatMode,
   type CatalogPriceFormatMode,
 } from "@/shared/lib/price-format";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";

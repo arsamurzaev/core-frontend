@@ -3,7 +3,6 @@ import {
   formatCatalogPriceInputValue,
   formatCatalogPrice,
   getCatalogPriceInputProps,
-  getCatalogPriceFormatMode,
   isCatalogPriceValueCompatible,
   normalizeCatalogPriceValue,
 } from "./price-format";
@@ -13,30 +12,13 @@ describe("price-format", () => {
     expect(formatCatalogPrice(1234.56)).toBe("1\u00a0235");
   });
 
-  it("keeps decimals for wholesale catalog prices", () => {
-    const mode = getCatalogPriceFormatMode({
-      type: {
-        code: "wholesale",
-      },
-    });
-
-    expect(mode).toBe("decimal");
-    expect(formatCatalogPrice(1234.56, mode)).toBe("1\u00a0234,56");
+  it("keeps decimals when the decimal price mode is selected", () => {
+    expect(formatCatalogPrice(1234.56, "decimal")).toBe("1\u00a0234,56");
   });
 
-  it("hides zero cents for wholesale catalog prices", () => {
+  it("hides zero cents in decimal price mode", () => {
     expect(formatCatalogPrice(10, "decimal")).toBe("10");
     expect(formatCatalogPrice(10.5, "decimal")).toBe("10,50");
-  });
-
-  it("supports the legacy wholesale type alias", () => {
-    expect(
-      getCatalogPriceFormatMode({
-        type: {
-          code: "whosale",
-        },
-      }),
-    ).toBe("decimal");
   });
 
   it("returns price input props by catalog price mode", () => {

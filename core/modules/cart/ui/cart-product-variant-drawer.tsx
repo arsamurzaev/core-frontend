@@ -34,10 +34,8 @@ import {
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { toNumberValue } from "@/shared/lib/attributes";
-import {
-  formatCatalogPrice,
-  getCatalogPriceFormatMode,
-} from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
+import { formatCatalogPrice } from "@/shared/lib/price-format";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";

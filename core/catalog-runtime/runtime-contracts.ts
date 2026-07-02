@@ -11,6 +11,11 @@ import type {
   ProductCardPluginConfig,
   ResolvedProductCardPlugin,
 } from "@/core/modules/product";
+import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
+
+export interface CatalogPricingConfig {
+  priceFormatMode: CatalogPriceFormatMode;
+}
 
 export interface CatalogExtension {
   typeCode: string | string[];
@@ -22,6 +27,7 @@ export interface CatalogExtension {
   cart?: {
     supportsManagerOrder?: boolean;
   };
+  pricing?: Partial<CatalogPricingConfig>;
   slots?: CatalogRuntimeSlots;
 }
 
@@ -38,5 +44,6 @@ export interface CatalogRuntime {
   cart: {
     supportsManagerOrder: boolean;
   };
+  pricing: CatalogPricingConfig;
   slots: CatalogRuntimeSlots;
 }

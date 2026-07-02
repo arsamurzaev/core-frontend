@@ -1,9 +1,4 @@
-import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
-import type { CatalogLike } from "@/shared/lib/utils";
-
 export type CatalogPriceFormatMode = "integer" | "decimal";
-
-type PriceFormatCatalog = Pick<CatalogLike, "type"> | null | undefined;
 
 const INTEGER_PRICE_FORMATTER = new Intl.NumberFormat("ru-RU", {
   maximumFractionDigits: 0,
@@ -14,18 +9,8 @@ const DECIMAL_PRICE_FORMATTER = new Intl.NumberFormat("ru-RU", {
   minimumFractionDigits: 2,
 });
 
-const DECIMAL_PRICE_CATALOG_TYPE_CODES = new Set(["wholesale", "whosale"]);
-
 function roundToCents(value: number): number {
   return Math.round((value + Number.EPSILON) * 100);
-}
-
-export function getCatalogPriceFormatMode(
-  catalog: PriceFormatCatalog,
-): CatalogPriceFormatMode {
-  return DECIMAL_PRICE_CATALOG_TYPE_CODES.has(getCatalogTypeCode(catalog))
-    ? "decimal"
-    : "integer";
 }
 
 export function formatCatalogPrice(

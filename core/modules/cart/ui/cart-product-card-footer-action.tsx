@@ -19,7 +19,7 @@ import {
 } from "@/core/modules/product";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
-import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import { getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import React from "react";

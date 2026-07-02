@@ -24,6 +24,7 @@ describe("catalog runtime presets smoke", () => {
       themeId: "default",
       manifestId: "default",
       supportsPreorderCheckout: false,
+      priceFormatMode: "integer",
     },
     {
       code: "restaurant",
@@ -35,6 +36,7 @@ describe("catalog runtime presets smoke", () => {
       themeId: "restaurant",
       manifestId: "restaurant",
       supportsPreorderCheckout: true,
+      priceFormatMode: "integer",
     },
     {
       code: "cafe",
@@ -46,6 +48,7 @@ describe("catalog runtime presets smoke", () => {
       themeId: "restaurant",
       manifestId: "restaurant",
       supportsPreorderCheckout: true,
+      priceFormatMode: "integer",
     },
     {
       code: "wholesale",
@@ -57,6 +60,7 @@ describe("catalog runtime presets smoke", () => {
       themeId: "wholesale",
       manifestId: "wholesale",
       supportsPreorderCheckout: false,
+      priceFormatMode: "decimal",
     },
     {
       code: "whosale",
@@ -68,6 +72,7 @@ describe("catalog runtime presets smoke", () => {
       themeId: "wholesale",
       manifestId: "wholesale",
       supportsPreorderCheckout: false,
+      priceFormatMode: "decimal",
     },
   ])(
     "keeps the $code runtime preset contract stable",
@@ -81,12 +86,14 @@ describe("catalog runtime presets smoke", () => {
       themeId,
       manifestId,
       supportsPreorderCheckout,
+      priceFormatMode,
     }) => {
       const runtime = resolveCatalogRuntime(catalog(code));
 
       expect(runtime.typeCode).toBe(code);
       expect(runtime.theme.id).toBe(themeId);
       expect(runtime.manifest.id).toBe(manifestId);
+      expect(runtime.pricing.priceFormatMode).toBe(priceFormatMode);
       expect(runtime.presentation.catalogTabLabel).toBe(catalogTabLabel);
       expect(runtime.presentation.supportsBrands).toBe(supportsBrands);
       expect(runtime.cart.supportsManagerOrder).toBe(supportsManagerOrder);

@@ -21,7 +21,7 @@ import {
   useCatalogCapabilities,
   useCatalogProductStructureVisibility,
 } from "@/shared/capabilities/catalog-capabilities";
-import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import React from "react";

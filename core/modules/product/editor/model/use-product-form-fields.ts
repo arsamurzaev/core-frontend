@@ -39,7 +39,7 @@ import {
   useProductTypeControllerGetAll,
   useProductTypeControllerGetMatrixEditorSchema,
 } from "@/shared/api/generated/react-query";
-import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 
 import { type DynamicFieldRenderProps } from "@/shared/ui/dynamic-form";

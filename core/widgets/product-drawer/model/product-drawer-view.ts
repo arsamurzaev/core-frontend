@@ -19,9 +19,9 @@ import {
   type ParsedAttributeValue,
   resolveAttributes,
 } from "@/shared/lib/attributes";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import {
   formatCatalogPrice,
-  getCatalogPriceFormatMode,
   type CatalogPriceFormatMode,
 } from "@/shared/lib/price-format";
 import { toOptionalTrimmedString } from "@/shared/lib/text";

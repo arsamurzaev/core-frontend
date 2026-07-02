@@ -2,9 +2,9 @@
 
 import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import { clamp } from "@/shared/lib/math";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import {
   formatCatalogPriceInputValue,
-  getCatalogPriceFormatMode,
   type CatalogPriceFormatMode,
 } from "@/shared/lib/price-format";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";

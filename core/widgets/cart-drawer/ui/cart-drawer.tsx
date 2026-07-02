@@ -40,7 +40,7 @@ import {
   buildHallTableCheckoutData,
   useHallTableContext,
 } from "@/shared/lib/hall-table";
-import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import { cn, getCatalogCurrency } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { useDrawerCoordinator } from "@/shared/providers/drawer-coordinator-provider";

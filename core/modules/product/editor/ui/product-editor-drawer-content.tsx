@@ -14,7 +14,7 @@ import { ProductEditorMainSection } from "@/core/modules/product/editor/ui/produ
 import { ProductEditorResetAction } from "@/core/modules/product/editor/ui/product-editor-reset-action";
 import { type SaleUnitPriceListRelationHint } from "@/core/modules/product/editor/ui/product-sale-units-field";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
-import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { DrawerScrollArea } from "@/shared/ui/drawer";

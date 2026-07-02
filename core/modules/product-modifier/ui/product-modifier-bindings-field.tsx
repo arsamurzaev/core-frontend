@@ -16,10 +16,8 @@ import type {
   ProductVariantDto,
   ProductWithDetailsDto,
 } from "@/shared/api/generated/react-query";
-import {
-  getCatalogPriceFormatMode,
-  getCatalogPriceInputProps,
-} from "@/shared/lib/price-format";
+import { getCatalogPriceFormatMode } from "@/core/catalog-runtime/pricing";
+import { getCatalogPriceInputProps } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { Badge } from "@/shared/ui/badge";
