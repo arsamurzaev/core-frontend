@@ -93,7 +93,14 @@ Shape/elevation:
 Уже переведено:
 - `shared/ui/button.tsx`: `default`, `destructive`, `secondary`, `link` используют action/status tokens;
 - `shared/ui/card.tsx`: использует `surface-raised`, `surface-raised-foreground`, `shadow-surface`, `radius-panel`;
+- `shared/ui/badge.tsx`: использует `status-info`, `status-danger`, `surface-raised`;
+- `shared/ui/tabs.tsx`: использует `surface-muted`, `surface-base`, `text-primary`, `shadow-surface`;
+- `shared/ui/input.tsx` и `shared/ui/select.tsx`: используют `text-*`, `line-*`, `action-primary`, `shadow-control`, `radius-control`;
+- `shared/ui/switch.tsx`: использует `status-success/status-danger` и `radius-pill`;
+- `shared/ui/skeleton.tsx`: использует `surface-subtle`;
+- `shared/ui/admin-panel.tsx`: общий primitive для повторяющихся admin panel/card/empty states;
 - `core/widgets/cart-drawer/ui/cart-drawer-status-message.tsx`: использует `status-warning`.
+- `core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer.tsx`: первый drawer, где карточки/скелетоны/empty states переведены на `AdminPanel`.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
@@ -108,7 +115,7 @@ Shape/elevation:
 
 ## Следующие Шаги
 
-1. Перевести `shared/ui/badge`, `tabs`, `input`, `select`, `switch`, `skeleton` на semantic tokens.
-2. Вынести повторяющийся admin panel style в primitive или domain component.
+1. Продолжить перенос `shared/ui` на semantic tokens: `dialog`, `popover`, `drawer`, `textarea`, `field`, `progress`, `slider`.
+2. Расширить использование `AdminPanel` в `edit-catalog-*` и `product-modifier-*` экранах.
 3. Разобрать `share-drawer/footer` и отделить брендовые SVG colors от UI text/surface colors.
 4. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.

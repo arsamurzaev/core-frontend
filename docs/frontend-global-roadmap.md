@@ -55,7 +55,7 @@
 
 - [x] Инвентаризировать текущие CSS variables, Tailwind tokens и shared UI.
 - [x] Ввести первый слой semantic tokens: surface, text, line, action, status, radius, shadow.
-- [ ] Разделить base primitives и domain components.
+- [ ] Продолжать разделять base primitives и domain components.
 - [ ] Подготовить theme presets под будущий редизайн.
 - [ ] Убрать одноразовые визуальные решения из крупных widgets там, где они должны быть tokens/components.
 
@@ -122,3 +122,5 @@
 - [x] Добавить semantic tokens в `app/globals.css`.
 - [x] Добавить тест `app/design-tokens.test.ts`.
 - [x] Перевести `Button`, `Card` и cart status message на semantic tokens.
+- [x] Перевести `Badge`, `Tabs`, `Input`, `Select`, `Switch`, `Skeleton` на semantic tokens.
+- [x] Добавить первый `AdminPanel` primitive и применить его в sessions drawer.

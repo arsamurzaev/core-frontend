@@ -8,6 +8,7 @@ import {
   useCatalogAdvancedSettingsControllerRevokeSession,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { AdminPanel } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -86,10 +87,7 @@ function formatDate(value: string | null | undefined) {
 const SessionsSkeleton = () => (
   <div className="space-y-3">
     {Array.from({ length: 3 }, (_, index) => (
-      <div
-        key={index}
-        className="rounded-2xl border border-black/10 bg-background p-4"
-      >
+      <AdminPanel key={index}>
         <div className="flex items-start gap-3">
           <Skeleton className="size-10 rounded-full" />
           <div className="min-w-0 flex-1 space-y-2">
@@ -98,7 +96,7 @@ const SessionsSkeleton = () => (
             <Skeleton className="h-4 w-4/5" />
           </div>
         </div>
-      </div>
+      </AdminPanel>
     ))}
   </div>
 );
@@ -113,9 +111,9 @@ function SessionCard({
   onRevoke: (sid: string) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-black/10 bg-background p-4 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+    <AdminPanel elevation="surface">
       <div className="flex items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-foreground">
+        <div className="bg-surface-muted text-text-primary flex size-10 shrink-0 items-center justify-center rounded-pill">
           {renderSessionIcon(session)}
         </div>
 
@@ -177,7 +175,7 @@ function SessionCard({
           </div>
         </div>
       </div>
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -286,17 +284,17 @@ export const EditCatalogSessionsDrawer: React.FC<
             {sessionsQuery.isLoading ? <SessionsSkeleton /> : null}
 
             {sessionsQuery.isError ? (
-              <div className="rounded-2xl border border-black/10 bg-muted/30 p-4 text-sm text-muted-foreground">
+              <AdminPanel variant="muted" className="text-sm text-text-muted">
                 Не удалось загрузить список сессий.
-              </div>
+              </AdminPanel>
             ) : null}
 
             {!sessionsQuery.isLoading &&
             !sessionsQuery.isError &&
             sessions.length === 0 ? (
-              <div className="rounded-2xl border border-black/10 bg-muted/30 p-4 text-sm text-muted-foreground">
+              <AdminPanel variant="muted" className="text-sm text-text-muted">
                 Активных сессий пока не найдено.
-              </div>
+              </AdminPanel>
             ) : null}
 
             {sessions.length > 0 ? (
