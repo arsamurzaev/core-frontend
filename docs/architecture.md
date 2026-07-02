@@ -28,10 +28,12 @@ New cross-layer imports should go through module public entrypoints:
 
 - `@/core/modules/browser`
 - `@/core/modules/cart`
+- `@/core/modules/catalog-price-list`
 - `@/core/modules/category`
 - `@/core/modules/integration`
 - `@/core/modules/product`
 - `@/core/modules/product/editor`
+- `@/core/modules/product-modifier`
 
 Existing deep imports from widgets and runtime code are treated as migration
 debt. The architecture test keeps the current debt from growing while the
@@ -54,6 +56,8 @@ facades and slots.
 ## Import Rules
 
 - `shared/**` must not import `core/**`.
+- `shared/**` must not import `app/**`.
+- `core/**` must not import `app/**`.
 - `core/modules/**` must not import `core/widgets/**` or `core/views/**`.
 - `app/**`, `core/**`, and `shared/**` must not import `sandbox/**`.
 - `core/catalog-runtime/extensions/**` must not import `sandbox/**`.
@@ -73,6 +77,7 @@ Use these checks after architecture changes:
 ```bash
 rg '@/sandbox' app core shared
 rg '@/core' shared
+rg '@/app' core shared
 rg '@/core/(widgets|views)' core/modules
 rg '@/app|@/core|@/sandbox' shared/api/generated
 bun run test:run

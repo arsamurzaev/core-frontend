@@ -33,6 +33,16 @@ const BOUNDARY_RULES: BoundaryRule[] = [
     targetPath: "core",
   },
   {
+    message: "shared must not import app",
+    sourcePath: "shared",
+    targetPath: "app",
+  },
+  {
+    message: "core must not import app",
+    sourcePath: "core",
+    targetPath: "app",
+  },
+  {
     message: "core/modules must not import core/widgets",
     sourcePath: "core/modules",
     targetPath: "core/widgets",
@@ -79,13 +89,15 @@ const PUBLIC_MODULE_IMPORT_SOURCES = [
 const PUBLIC_MODULE_ENTRYPOINT_SPECIFIERS = new Set([
   "@/core/modules/browser",
   "@/core/modules/cart",
+  "@/core/modules/catalog-price-list",
   "@/core/modules/category",
   "@/core/modules/integration",
   "@/core/modules/product",
   "@/core/modules/product/editor",
+  "@/core/modules/product-modifier",
 ]);
 const PUBLIC_MODULE_DEEP_IMPORT_PATTERN =
-  /^@\/core\/modules\/(?:browser|cart|category|integration|product)\/.+/;
+  /^@\/core\/modules\/(?:browser|cart|catalog-price-list|category|integration|product|product-modifier)\/.+/;
 
 function getExtension(filePath: string): string {
   const match = filePath.match(/(\.[^.]+)$/);

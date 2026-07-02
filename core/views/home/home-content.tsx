@@ -5,6 +5,7 @@ import {
   EditProductDrawerHostProviderSlot,
 } from "@/core/catalog-runtime/ui";
 import { BackgroundImage } from "@/core/views/home/_ui/background-image";
+import { HomeCatalogFallback } from "@/core/views/home/home-catalog-fallback";
 import { Footer } from "@/core/widgets/footer/ui/footer";
 import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel/ui/popular-product-carousel";
 import { getCurrentCatalogServer } from "@/shared/api/server/get-current-catalog";
@@ -13,7 +14,6 @@ import { isBusinessCardCatalog } from "@/shared/lib/catalog-presentation-mode";
 import { cn } from "@/shared/lib/utils";
 import { ContentContainer } from "@/shared/ui/layout/content-container";
 import React, { Suspense } from "react";
-import { HomeCatalogFallback } from "./home-catalog-fallback";
 
 interface Props {
   className?: string;

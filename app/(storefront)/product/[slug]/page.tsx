@@ -1,4 +1,4 @@
-import { HomeContent } from "@/app/(storefront)/home-content";
+import { HomeContent } from "@/core/views/home/home-content";
 import {
   generateProductPageMetadata,
   getProductPageDataServer,
