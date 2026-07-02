@@ -9,9 +9,9 @@ import {
 } from "@/shared/api/generated/react-query";
 import { revalidateStorefrontCacheBestEffort } from "@/shared/api/revalidate-storefront-client";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { FieldError } from "@/shared/ui/field";
 import { Input } from "@/shared/ui/input";
@@ -170,27 +170,22 @@ export const EditCatalogMetrikaDrawer: React.FC<
       onOpenChange={handleOpenChange}
       dismissible={!disabled && !isSaving}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-text-primary">
                 Яндекс Метрика
               </span>
               <Badge variant="secondary">
                 {badgeText}
               </Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               Счётчик аналитики для текущего каталога. Можно вставить id или код.
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full">
@@ -215,7 +210,6 @@ export const EditCatalogMetrikaDrawer: React.FC<
                   pattern="[0-9]*"
                   placeholder="12345678"
                   disabled={disabled || isSaving}
-                  className="border border-black/10"
                   onChange={(event) =>
                     handleCounterIdChange(event.target.value)
                   }
