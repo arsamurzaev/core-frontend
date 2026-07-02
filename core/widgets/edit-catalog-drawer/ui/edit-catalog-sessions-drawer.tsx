@@ -89,7 +89,7 @@ const SessionsSkeleton = () => (
     {Array.from({ length: 3 }, (_, index) => (
       <AdminPanel key={index}>
         <div className="flex items-start gap-3">
-          <Skeleton className="size-10 rounded-full" />
+          <Skeleton className="size-10 rounded-pill" />
           <div className="min-w-0 flex-1 space-y-2">
             <Skeleton className="h-5 w-2/3" />
             <Skeleton className="h-4 w-1/2" />
@@ -119,17 +119,17 @@ function SessionCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="min-w-0 break-words text-sm font-semibold text-foreground">
+            <h3 className="min-w-0 break-words text-sm font-semibold text-text-primary">
               {getSessionDeviceLabel(session)}
             </h3>
             {session.isCurrent ? (
-              <Badge className="rounded-full px-2 py-1" variant="default">
+              <Badge className="rounded-pill px-2 py-1" variant="default">
                 Текущая
               </Badge>
             ) : null}
           </div>
 
-          <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
+          <div className="mt-3 grid gap-2 text-sm text-text-muted">
             <div className="flex min-w-0 items-center gap-2">
               <MapPin className="size-4 shrink-0" />
               <span className="min-w-0 truncate">
@@ -309,7 +309,7 @@ export const EditCatalogSessionsDrawer: React.FC<
           <div className="border-t px-5 py-4">
             <Button
               type="button"
-              className="w-full rounded-full"
+              className="w-full rounded-pill"
               disabled={isMutating || otherSessionsCount === 0}
               onClick={() => void handleRevokeOtherSessions()}
             >

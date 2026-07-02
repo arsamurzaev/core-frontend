@@ -139,3 +139,4 @@
 - [x] Перевести `global-admin-drawer` panels, feature flags и danger states на semantic tokens.
 - [x] Перевести `category-admin` action buttons, reorder drawer и delete controls на semantic tokens.
 - [x] Перевести `edit-product-drawer` и `create-product-drawer` states, settings actions и product card actions на semantic tokens.
+- [x] Перевести base `edit-catalog-drawer`, catalog form required marker и sessions drawer остатки на semantic tokens.

@@ -77,10 +77,10 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
               />
 
               {uploadState.phase !== "idle" ? (
-                <div className="mx-5 space-y-2 rounded-2xl border border-black/10 bg-muted/15 p-4">
+                <div className="mx-5 space-y-2 rounded-panel border border-line-default bg-surface-muted/30 p-4">
                   <div className="flex items-center justify-between gap-3 text-sm">
                     <span>{uploadState.message}</span>
-                    <span className="text-muted-foreground">
+                    <span className="text-text-muted">
                       {Math.round(uploadState.progress)}%
                     </span>
                   </div>
@@ -89,7 +89,7 @@ export const EditCatalogDrawer: React.FC<EditCatalogDrawerProps> = ({
               ) : null}
 
               {errorMessage ? (
-                <div className="mx-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                <div className="mx-5 rounded-panel border border-status-danger/30 bg-status-danger-surface p-4 text-sm text-status-danger">
                   {errorMessage}
                 </div>
               ) : null}

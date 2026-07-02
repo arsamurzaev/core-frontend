@@ -118,6 +118,7 @@ Shape/elevation:
 - `core/widgets/global-admin-drawer`: catalog info panel, presentation mode segmented control, feature flags, danger zone and deletion result use semantic tokens.
 - `core/widgets/category-admin`: admin action buttons, edit/delete controls, reorder drawer handles and empty states use semantic tokens.
 - `core/widgets/edit-product-drawer` и `core/widgets/create-product-drawer`: loading/error states, settings action buttons, hidden product overlays and card action buttons use semantic tokens.
+- `core/widgets/edit-catalog-drawer`: base drawer upload/error states, catalog edit form required marker and sessions drawer residual classes use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
@@ -134,5 +135,5 @@ Shape/elevation:
 
 1. Принять решение по `shared/ui/smooth-drawer.tsx`: сейчас не используется, выглядит как внешнее demo; лучше удалить/перенести в sandbox или переписать при появлении реального сценария.
 2. Расширить использование `AdminPanel` и `AdminPanelButton` в `edit-catalog-*` и `product-modifier-*` экранах.
-3. Продолжить перенос крупных widgets: `edit-catalog-*`, `product-modifier-*`, `header/filter-bar/category-products`.
+3. Продолжить перенос крупных widgets: `edit-catalog-*` integration/product-type/sale-unit drawers, `product-modifier-*`, `header/filter-bar/category-products`.
 4. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.
