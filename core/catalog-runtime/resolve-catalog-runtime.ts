@@ -14,6 +14,7 @@ import type {
   CatalogPresentationConfig,
   CatalogRuntime,
 } from "./contracts";
+import { resolveCatalogRuntimeManifest } from "./manifest";
 import { CATALOG_EXTENSIONS } from "./registry";
 import { resolveCatalogThemePreset } from "./theme";
 
@@ -159,26 +160,40 @@ export function resolveCatalogRuntime(
     extension?.checkout?.defaultEnabledMethods,
     [],
   ).filter((method) => availableMethods.includes(method));
+  const presentation = {
+    ...DEFAULT_PRESENTATION,
+    ...extension?.presentation,
+  };
+  const checkout = {
+    availableMethods,
+    defaultEnabledMethods,
+    commentPlaceholder: resolveCartCommentPlaceholder(typeCode, extension),
+  };
+  const productCard = resolveProductCardPlugin(typeCode, extension);
+  const cart = {
+    supportsManagerOrder: Boolean(extension?.cart?.supportsManagerOrder),
+  };
+  const slots = {
+    ...extension?.slots,
+  };
 
   return {
     extension,
     typeCode,
-    presentation: {
-      ...DEFAULT_PRESENTATION,
-      ...extension?.presentation,
-    },
-    checkout: {
-      availableMethods,
-      defaultEnabledMethods,
-      commentPlaceholder: resolveCartCommentPlaceholder(typeCode, extension),
-    },
+    manifest: resolveCatalogRuntimeManifest({
+      cart,
+      checkout,
+      extension,
+      presentation,
+      productCard,
+      slots,
+      typeCode,
+    }),
+    presentation,
+    checkout,
     theme: resolveCatalogThemePreset(extension),
-    productCard: resolveProductCardPlugin(typeCode, extension),
-    cart: {
-      supportsManagerOrder: Boolean(extension?.cart?.supportsManagerOrder),
-    },
-    slots: {
-      ...extension?.slots,
-    },
+    productCard,
+    cart,
+    slots,
   };
 }

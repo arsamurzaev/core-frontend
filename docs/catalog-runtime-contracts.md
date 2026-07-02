@@ -10,7 +10,7 @@
 
 - Runtime выбирается через `resolveCatalogRuntime(catalog)`.
 - Server-only storefront theme scope выбирается через `core/catalog-runtime/server`, чтобы не подтягивать runtime slots в server layout.
-- Расширение описывает только presentation, checkout, theme preset, product card plugin, cart capabilities и slots.
+- Расширение описывает только manifest metadata, presentation, checkout, theme preset, product card plugin, cart capabilities и slots.
 - Расширение не импортирует `sandbox/**`.
 - Product card runtime использует общий `ProductCardWithPlugins`, а базовая карточка сама считает price/availability через sellable/variant model.
 - Slots получают готовые DTO/view models из core-слоя и не должны сами ходить в API за product/cart state без явной необходимости.
@@ -20,6 +20,7 @@
 
 - `CatalogExtension`
 - `CatalogRuntime`
+- `CatalogRuntimeManifest`
 - `CatalogThemePreset`
 - `BrowserSlotProps`
 - `CartCardActionSlotProps`
@@ -31,12 +32,23 @@
 
 ## Extension Rules
 
+- `manifest` задает id, человекочитаемое название и analytics event ids; capabilities, slots и policies внутри runtime manifest выводятся из уже resolved поведения.
 - `presentation` отвечает только за названия вкладок, тексты, поддержку брендов и вид категорий.
 - `checkout` задает доступные и дефолтные методы оформления, но не валидирует заказ.
 - `theme` задает preset для storefront scope и будущих semantic token overrides.
 - `productCard` задает дополнительные строки/бейджи, но не пересчитывает цену и доступность.
 - `slots.Browser` может заменить каталоговый browser для специфичного UX.
 - `slots.CartCardAction` может заменить действие строки корзины, но должно работать с `CartItemView`, а не с сырым `CartItemDto`.
+
+## Runtime Manifest
+
+`runtime.manifest` — это typed summary для будущих мостов, аналитики и админских экранов. Он не является вторым источником поведения: `capabilities`, `slots` и `policies` собираются из `presentation`, `checkout`, `cart`, `productCard` и `slots`, чтобы не разъехаться с фактическим UI.
+
+Текущие manifest ids:
+
+- `default`
+- `restaurant`
+- `wholesale`
 
 ## Quality Gate
 

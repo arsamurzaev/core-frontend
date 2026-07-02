@@ -53,6 +53,7 @@ Cross-domain bridge imports should go through bridge public entrypoints:
 Catalog-specific behavior goes through `core/catalog-runtime`.
 
 - Contracts live in `core/catalog-runtime/contracts.ts`.
+- Runtime manifest metadata is resolved in `core/catalog-runtime/manifest.ts`.
 - New type behavior goes into `core/catalog-runtime/extensions/<type>`.
 - Runtime slot components are exported from `core/catalog-runtime/ui`.
 - Public runtime exports are exposed through `core/catalog-runtime/index.ts`.

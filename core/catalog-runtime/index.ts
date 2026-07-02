@@ -4,6 +4,15 @@ export type {
   CatalogExtension,
   CatalogPlugin,
   CatalogRuntime,
+  CatalogRuntimeAnalyticsEventId,
+  CatalogRuntimeCapabilities,
+  CatalogRuntimeManifest,
+  CatalogRuntimeManifestConfig,
+  CatalogRuntimeManifestId,
+  CatalogRuntimePolicies,
+  CatalogRuntimeProductCardMode,
+  CatalogRuntimeSlotManifest,
+  CatalogRuntimeSlotMode,
   CatalogThemeConfig,
   CatalogThemePreset,
   CatalogThemePresetId,
@@ -12,6 +21,7 @@ export type {
 } from "./contracts";
 export { CATALOG_EXTENSIONS, CATALOG_PLUGINS } from "./registry";
 export { getCatalogRuntimeCheckoutConfig } from "./checkout";
+export { resolveCatalogRuntimeManifest } from "./manifest";
 export {
   CATALOG_THEME_PRESETS,
   getCatalogThemeScopeAttributes,

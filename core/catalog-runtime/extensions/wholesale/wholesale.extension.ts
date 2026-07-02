@@ -14,6 +14,11 @@ const WholesaleCartCardAction = dynamic<CartCardActionSlotProps>(
 
 export const wholesaleExtension: CatalogExtension = {
   typeCode: ["wholesale", "whosale"],
+  manifest: {
+    id: "wholesale",
+    label: "Wholesale storefront",
+    analyticsEvents: ["manager.orderStart"],
+  },
   theme: {
     presetId: "wholesale",
   },

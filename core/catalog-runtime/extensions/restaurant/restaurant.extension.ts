@@ -10,6 +10,11 @@ const RestaurantBrowser = dynamic<BrowserSlotProps>(() =>
 
 export const restaurantExtension: CatalogExtension = {
   typeCode: ["restaurant", "cafe"],
+  manifest: {
+    id: "restaurant",
+    label: "Restaurant storefront",
+    analyticsEvents: ["checkout.preorderStart"],
+  },
   presentation: {
     catalogTabLabel: "Меню",
     categoryAdminCreateDescription:

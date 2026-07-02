@@ -67,6 +67,26 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.checkout.defaultEnabledMethods).toEqual([]);
     expect(runtime.cart.supportsManagerOrder).toBe(false);
     expect(runtime.theme.id).toBe("default");
+    expect(runtime.manifest).toMatchObject({
+      id: "default",
+      typeCodes: ["flowers"],
+      capabilities: {
+        supportsBrands: true,
+        supportsCategoryDetails: true,
+        supportsPreorderCheckout: false,
+        supportsManagerOrder: false,
+        hasBrowserSlot: false,
+        hasCartCardActionSlot: false,
+      },
+      policies: {
+        browserMode: "default",
+        cartActionMode: "default",
+        categoryCardVariant: "default",
+        checkoutMethods: ["DELIVERY", "PICKUP"],
+        defaultCheckoutMethods: [],
+        productCardMode: "default",
+      },
+    });
   });
 
   it("applies restaurant presentation and checkout contract", () => {
@@ -86,6 +106,14 @@ describe("resolveCatalogRuntime", () => {
       "PICKUP",
     ]);
     expect(runtime.theme.id).toBe("restaurant");
+    expect(runtime.manifest.id).toBe("restaurant");
+    expect(runtime.manifest.typeCodes).toEqual(["restaurant", "cafe"]);
+    expect(runtime.manifest.capabilities.supportsPreorderCheckout).toBe(true);
+    expect(runtime.manifest.capabilities.hasBrowserSlot).toBe(true);
+    expect(runtime.manifest.policies.browserMode).toBe("runtime-slot");
+    expect(runtime.manifest.analyticsEvents).toContain(
+      "checkout.preorderStart",
+    );
   });
 
   it("shares extension comment placeholders across catalog type aliases", () => {
@@ -133,6 +161,12 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.cart.supportsManagerOrder).toBe(true);
     expect(runtime.slots.CartCardAction).toBeTruthy();
     expect(runtime.theme.id).toBe("wholesale");
+    expect(runtime.manifest.id).toBe("wholesale");
+    expect(runtime.manifest.typeCodes).toEqual(["wholesale", "whosale"]);
+    expect(runtime.manifest.capabilities.supportsManagerOrder).toBe(true);
+    expect(runtime.manifest.capabilities.hasCartCardActionSlot).toBe(true);
+    expect(runtime.manifest.policies.cartActionMode).toBe("runtime-slot");
+    expect(runtime.manifest.analyticsEvents).toContain("manager.orderStart");
   });
 
   it("builds checkout config from resolved runtime contract", () => {

@@ -88,8 +88,64 @@ export interface CatalogThemeConfig {
   presetId: CatalogThemePresetId;
 }
 
+export type CatalogRuntimeManifestId = "default" | "restaurant" | "wholesale";
+
+export type CatalogRuntimeAnalyticsEventId =
+  | "catalog.view"
+  | "catalog.share"
+  | "catalog.filter"
+  | "product.view"
+  | "product.addToCart"
+  | "checkout.start"
+  | "checkout.submit"
+  | "checkout.preorderStart"
+  | "manager.orderStart";
+
+export type CatalogRuntimeSlotMode = "default" | "runtime-slot";
+export type CatalogRuntimeProductCardMode = "default" | "configured";
+
+export interface CatalogRuntimeCapabilities {
+  supportsBrands: boolean;
+  supportsCategoryDetails: boolean;
+  supportsPreorderCheckout: boolean;
+  supportsManagerOrder: boolean;
+  hasBrowserSlot: boolean;
+  hasCartCardActionSlot: boolean;
+}
+
+export interface CatalogRuntimeSlotManifest {
+  hasBrowser: boolean;
+  hasCartCardAction: boolean;
+}
+
+export interface CatalogRuntimePolicies {
+  browserMode: CatalogRuntimeSlotMode;
+  cartActionMode: CatalogRuntimeSlotMode;
+  categoryCardVariant: CategoryCardVariant;
+  checkoutMethods: CheckoutMethod[];
+  defaultCheckoutMethods: CheckoutMethod[];
+  productCardMode: CatalogRuntimeProductCardMode;
+}
+
+export interface CatalogRuntimeManifestConfig {
+  id: CatalogRuntimeManifestId;
+  label: string;
+  analyticsEvents?: CatalogRuntimeAnalyticsEventId[];
+}
+
+export interface CatalogRuntimeManifest {
+  id: CatalogRuntimeManifestId;
+  label: string;
+  typeCodes: string[];
+  capabilities: CatalogRuntimeCapabilities;
+  slots: CatalogRuntimeSlotManifest;
+  policies: CatalogRuntimePolicies;
+  analyticsEvents: CatalogRuntimeAnalyticsEventId[];
+}
+
 export interface CatalogExtension {
   typeCode: string | string[];
+  manifest?: CatalogRuntimeManifestConfig;
   presentation?: Partial<CatalogPresentationConfig>;
   checkout?: Partial<CatalogCheckoutConfig>;
   theme?: CatalogThemeConfig;
@@ -108,6 +164,7 @@ export type CatalogPlugin = CatalogExtension;
 export interface CatalogRuntime {
   extension: CatalogExtension | null;
   typeCode: string;
+  manifest: CatalogRuntimeManifest;
   presentation: CatalogPresentationConfig;
   checkout: CatalogCheckoutConfig;
   theme: CatalogThemePreset;

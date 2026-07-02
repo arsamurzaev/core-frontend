@@ -3,6 +3,13 @@ export type {
   CatalogThemePresetId,
   CatalogThemeTokenName,
   CatalogThemeTokenOverrides,
+  CatalogRuntimeAnalyticsEventId,
+  CatalogRuntimeCapabilities,
+  CatalogRuntimeManifest,
+  CatalogRuntimeManifestConfig,
+  CatalogRuntimeManifestId,
+  CatalogRuntimePolicies,
+  CatalogRuntimeSlotManifest,
 } from "./contracts";
 export type { CatalogThemeScopeAttributes } from "./theme";
 export {
