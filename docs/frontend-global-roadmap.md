@@ -68,6 +68,8 @@
 - [x] Вынести standalone product page composition из `app/(storefront)/product/[slug]` в `core/views/product`.
 - [x] Вынести iiko order timeline page/access из `app/(storefront)/order/[id]` в `core/views/order`.
 - [x] Вынести storefront entry host resolver из `app/(storefront)/page` в `core/views/storefront`.
+- [x] Вынести login route host/session resolver из `app/auth/login` в `core/views/login`.
+- [x] Обновить public view entrypoint guard под `order`, `product` и `storefront`.
 
 ### 6. Quality Gate
 

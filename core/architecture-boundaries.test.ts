@@ -132,7 +132,10 @@ const PUBLIC_VIEW_ENTRYPOINT_SPECIFIERS = new Set([
   "@/core/views/home",
   "@/core/views/home/browser",
   "@/core/views/login",
+  "@/core/views/order",
   "@/core/views/platform",
+  "@/core/views/product",
+  "@/core/views/storefront",
 ]);
 const PUBLIC_MODULE_DEEP_IMPORT_PATTERN =
   /^@\/core\/modules\/(?:browser|cart|catalog-price-list|category|integration|product|product-modifier)\/.+/;
