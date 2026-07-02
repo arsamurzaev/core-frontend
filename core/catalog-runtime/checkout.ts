@@ -3,7 +3,7 @@ import {
   getCatalogCheckoutConfig,
   type CheckoutConfig,
 } from "@/shared/lib/checkout-methods";
-import type { CatalogRuntime } from "./contracts";
+import type { CatalogCheckoutConfig } from "./metadata-contracts";
 
 export type CatalogCheckoutSource = Pick<
   CatalogCurrentDto,
@@ -12,7 +12,7 @@ export type CatalogCheckoutSource = Pick<
 
 export function getCatalogRuntimeCheckoutConfig(
   catalog: CatalogCheckoutSource,
-  runtime: Pick<CatalogRuntime, "checkout">,
+  runtime: { checkout: CatalogCheckoutConfig },
 ): CheckoutConfig {
   return getCatalogCheckoutConfig(catalog, {
     availableMethods: runtime.checkout.availableMethods,

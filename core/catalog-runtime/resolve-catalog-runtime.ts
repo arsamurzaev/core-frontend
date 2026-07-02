@@ -9,13 +9,10 @@ import type {
   ProductCardPluginConfig,
   ResolvedProductCardPlugin,
 } from "@/core/modules/product";
-import type {
-  CatalogExtension,
-  CatalogPresentationConfig,
-  CatalogRuntime,
-} from "./contracts";
+import type { CatalogPresentationConfig } from "./metadata-contracts";
 import { resolveCatalogRuntimeManifest } from "./manifest";
 import { CATALOG_EXTENSIONS } from "./registry";
+import type { CatalogExtension, CatalogRuntime } from "./runtime-contracts";
 import { resolveCatalogThemePreset } from "./theme";
 
 const DEFAULT_CART_COMMENT_PLACEHOLDER =

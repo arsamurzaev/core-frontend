@@ -1,6 +1,6 @@
 import { restaurantExtension } from "./extensions/restaurant/restaurant.extension";
 import { wholesaleExtension } from "./extensions/wholesale/wholesale.extension";
-import type { CatalogExtension } from "./contracts";
+import type { CatalogExtension } from "./runtime-contracts";
 
 export const CATALOG_EXTENSIONS: CatalogExtension[] = [
   restaurantExtension,

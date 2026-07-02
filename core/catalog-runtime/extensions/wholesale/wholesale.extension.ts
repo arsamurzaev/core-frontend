@@ -1,8 +1,6 @@
 import dynamic from "next/dynamic";
-import type {
-  CartCardActionSlotProps,
-  CatalogExtension,
-} from "@/core/catalog-runtime/contracts";
+import type { CatalogExtension } from "@/core/catalog-runtime/runtime-contracts";
+import type { CartCardActionSlotProps } from "@/core/catalog-runtime/slot-contracts";
 
 const WholesaleCartCardAction = dynamic<CartCardActionSlotProps>(
   () =>

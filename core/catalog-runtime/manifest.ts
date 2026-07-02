@@ -1,12 +1,11 @@
 import type {
   CatalogCheckoutConfig,
-  CatalogExtension,
   CatalogPresentationConfig,
-  CatalogRuntime,
   CatalogRuntimeAnalyticsEventId,
   CatalogRuntimeManifest,
   CatalogRuntimeManifestConfig,
-} from "./contracts";
+} from "./metadata-contracts";
+import type { CatalogRuntimeSlots } from "./slot-contracts";
 import type { ResolvedProductCardPlugin } from "@/core/modules/product";
 
 const DEFAULT_RUNTIME_MANIFEST: CatalogRuntimeManifestConfig = {
@@ -25,18 +24,23 @@ const DEFAULT_ANALYTICS_EVENTS: CatalogRuntimeAnalyticsEventId[] = [
 ];
 
 interface ResolveCatalogRuntimeManifestInput {
-  cart: CatalogRuntime["cart"];
+  cart: {
+    supportsManagerOrder: boolean;
+  };
   checkout: CatalogCheckoutConfig;
-  extension: CatalogExtension | null;
+  extension: {
+    typeCode: string | string[];
+    manifest?: CatalogRuntimeManifestConfig;
+  } | null;
   presentation: CatalogPresentationConfig;
   productCard: ResolvedProductCardPlugin;
-  slots: CatalogRuntime["slots"];
+  slots: CatalogRuntimeSlots;
   typeCode: string;
 }
 
 function getExtensionTypeCodes(
   typeCode: string,
-  extension: CatalogExtension | null,
+  extension: ResolveCatalogRuntimeManifestInput["extension"],
 ): string[] {
   if (!extension) {
     return typeCode ? [typeCode] : ["default"];

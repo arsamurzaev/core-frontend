@@ -1,6 +1,6 @@
 "use client";
 
-import type { BrowserSlotProps } from "@/core/catalog-runtime/contracts";
+import type { BrowserSlotProps } from "@/core/catalog-runtime/slot-contracts";
 import {
   useActiveCategoryIntersection,
   useBrowserQueryState,

@@ -6,7 +6,7 @@ import type {
 } from "@/shared/lib/checkout-methods";
 import type { ResolvedProductCardPlugin } from "@/core/modules/product";
 import { getCatalogRuntimeCheckoutConfig } from "./checkout";
-import type { CatalogPresentationConfig } from "./contracts";
+import type { CatalogPresentationConfig } from "./metadata-contracts";
 import { resolveCatalogRuntime } from "./resolve-catalog-runtime";
 
 export function getCatalogRuntimeCommentPlaceholder(

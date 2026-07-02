@@ -1,16 +1,24 @@
+import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
 import type {
-  CatalogExtension,
-  CatalogRuntime,
+  CatalogThemeConfig,
   CatalogThemePreset,
   CatalogThemePresetId,
-} from "./contracts";
-import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
+} from "./metadata-contracts";
 
 type CatalogThemeSource = {
   type?: {
     code?: string | null;
   } | null;
 } | null | undefined;
+
+type CatalogThemeExtensionSource = {
+  theme?: CatalogThemeConfig;
+};
+
+type CatalogThemeRuntimeSource = {
+  theme: CatalogThemePreset;
+  typeCode: string;
+};
 
 export type CatalogThemeScopeAttributes = {
   "data-catalog-theme": CatalogThemePresetId;
@@ -48,7 +56,7 @@ const CATALOG_THEME_PRESET_BY_TYPE_CODE: Partial<
 };
 
 export function resolveCatalogThemePreset(
-  extension: Pick<CatalogExtension, "theme"> | null,
+  extension: CatalogThemeExtensionSource | null,
 ): CatalogThemePreset {
   return CATALOG_THEME_PRESETS[extension?.theme?.presetId ?? "default"];
 }
@@ -68,7 +76,7 @@ export function resolveCatalogThemePresetForCatalog(
 }
 
 export function getCatalogThemeScopeAttributes(
-  runtime: Pick<CatalogRuntime, "theme" | "typeCode">,
+  runtime: CatalogThemeRuntimeSource,
 ): CatalogThemeScopeAttributes {
   return {
     "data-catalog-theme": runtime.theme.id,

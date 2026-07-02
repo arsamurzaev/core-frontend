@@ -1,16 +1,4 @@
-export type {
-  CatalogThemePreset,
-  CatalogThemePresetId,
-  CatalogThemeTokenName,
-  CatalogThemeTokenOverrides,
-  CatalogRuntimeAnalyticsEventId,
-  CatalogRuntimeCapabilities,
-  CatalogRuntimeManifest,
-  CatalogRuntimeManifestConfig,
-  CatalogRuntimeManifestId,
-  CatalogRuntimePolicies,
-  CatalogRuntimeSlotManifest,
-} from "./contracts";
+export type * from "./metadata-contracts";
 export type { CatalogThemeScopeAttributes } from "./theme";
 export {
   CATALOG_THEME_PRESETS,

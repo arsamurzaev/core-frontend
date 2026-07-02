@@ -46,7 +46,7 @@
 ### 3. Catalog Runtime
 
 - [x] Описать runtime manifest: id, capabilities, slots, policies, analytics events.
-- [ ] Разделить extension contracts и runtime implementation.
+- [x] Разделить extension contracts и runtime implementation.
 - [ ] Проверить restaurant/wholesale/business-card extensions на одинаковый контракт.
 - [ ] Перенести типовые различия из scattered conditions в runtime extension.
 - [ ] Добавить тесты совместимости slots для новых типов каталогов.
@@ -181,3 +181,4 @@
 - [x] Добавить source scanner в `design-tokens.test.ts`, чтобы legacy visual utilities не возвращались в `app/core/shared`.
 - [x] Добавить typed `catalog-runtime` theme presets и body scope attrs для будущих token overrides по типам каталога.
 - [x] Добавить typed `catalog-runtime` manifest с id/capabilities/slots/policies/analytics events без изменения поведения UI.
+- [x] Разделить `catalog-runtime` contracts на metadata/slot/runtime facades без изменения public compatibility export.

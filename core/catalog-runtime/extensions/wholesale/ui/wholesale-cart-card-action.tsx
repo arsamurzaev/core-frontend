@@ -1,6 +1,6 @@
 "use client";
 
-import type { CartCardActionSlotProps } from "@/core/catalog-runtime/contracts";
+import type { CartCardActionSlotProps } from "@/core/catalog-runtime/slot-contracts";
 import { getCartItemMaxQuantity } from "@/core/modules/cart";
 import React from "react";
 import { QuantitySpinbox } from "./quantity-spinbox";

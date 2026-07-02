@@ -30,6 +30,14 @@
 - `useCatalogRuntimeCheckoutConfig`
 - `ProductCardRuntime`
 
+## Contract Files
+
+- `metadata-contracts.ts`: pure presentation, checkout, theme and manifest contracts. This file must not import React, slots, registry or runtime resolver.
+- `slot-contracts.ts`: React slot props and slot component map.
+- `runtime-contracts.ts`: full `CatalogExtension` and `CatalogRuntime` composition contract.
+- `contracts.ts`: compatibility facade for public type exports.
+- `server.ts`: server-safe facade for theme/metadata helpers; it must not pull runtime registry or client hooks.
+
 ## Extension Rules
 
 - `manifest` задает id, человекочитаемое название и analytics event ids; capabilities, slots и policies внутри runtime manifest выводятся из уже resolved поведения.

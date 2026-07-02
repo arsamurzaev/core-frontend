@@ -1,8 +1,6 @@
 import dynamic from "next/dynamic";
-import type {
-  BrowserSlotProps,
-  CatalogExtension,
-} from "@/core/catalog-runtime/contracts";
+import type { BrowserSlotProps } from "@/core/catalog-runtime/slot-contracts";
+import type { CatalogExtension } from "@/core/catalog-runtime/runtime-contracts";
 
 const RestaurantBrowser = dynamic<BrowserSlotProps>(() =>
   import("./ui/restaurant-browser").then((module) => module.RestaurantBrowser),

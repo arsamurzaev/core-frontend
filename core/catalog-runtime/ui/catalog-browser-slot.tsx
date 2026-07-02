@@ -2,7 +2,7 @@
 
 import { Browser } from "@/core/views/home/_ui/browser";
 import type React from "react";
-import type { BrowserSlotProps } from "../contracts";
+import type { BrowserSlotProps } from "../slot-contracts";
 import { useCatalogRuntimeSlots } from "../use-catalog-runtime-slots";
 
 type CatalogBrowserSlotProps = Pick<
