@@ -72,6 +72,7 @@ export const AuthControllerLoginResponse = zod.object({
   "mustChangePassword": zod.boolean()
 }),
   "catalogId": zod.string().nullish(),
+  "csrf": zod.string().nullish().describe('CSRF token for unsafe requests. The same value is also stored in a readable CSRF cookie.'),
   "redirectUrl": zod.string().nullish().describe('URL for frontend redirect after platform login. Catalog owners receive their catalog URL.')
 })
 
@@ -89,6 +90,7 @@ export const AuthControllerMeResponse = zod.object({
   "mustChangePassword": zod.boolean()
 }),
   "catalogId": zod.string().nullish(),
+  "csrf": zod.string().nullish().describe('CSRF token for unsafe requests. The same value is also stored in a readable CSRF cookie.'),
   "redirectUrl": zod.string().nullish().describe('URL for frontend redirect after platform login. Catalog owners receive their catalog URL.')
 })
 
@@ -377,7 +379,7 @@ export const adminControllerGetCatalogsQuerySortOrderDefault = `desc`;
 export const AdminControllerGetCatalogsQueryParams = zod.object({
   "typeIds": zod.array(zod.string()).optional().describe('Type ids. Supports comma separated value.'),
   "promoCodeIds": zod.array(zod.string()).optional().describe('Promo code ids. Supports comma separated value.'),
-  "statuses": zod.array(zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])).optional().describe('Catalog statuses. Supports comma separated value.'),
+  "statuses": zod.array(zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION'])).optional().describe('Catalog statuses. Supports comma separated value.'),
   "sortBy": zod.enum(['createdAt', 'slug', 'name', 'promoCode', 'type', 'subscriptionDaysLeft', 'status']).default(adminControllerGetCatalogsQuerySortByDefault),
   "sortOrder": zod.enum(['asc', 'desc']).default(adminControllerGetCatalogsQuerySortOrderDefault)
 })
@@ -391,10 +393,11 @@ export const AdminControllerGetCatalogsResponseItem = zod.object({
   "parentId": zod.string().nullable(),
   "userId": zod.string().nullable(),
   "promoCodeId": zod.string().nullable(),
+  "phone": zod.string().nullable(),
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
@@ -532,7 +535,7 @@ export const AdminControllerCreateCatalogBody = zod.object({
   "activityIds": zod.array(zod.string()).optional(),
   "regionalityIds": zod.array(zod.string()).optional().describe('Country\/region bindings through the regionality directory.'),
   "metricId": zod.string().optional().describe('Yandex Metrika counter id for MAIN scope.'),
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "slug": zod.string().describe('Catalog domain\/subdomain stored as slug.'),
   "parentId": zod.string().optional(),
   "trialLicenseDays": zod.number().optional().describe('Trial license duration in days.'),
@@ -549,10 +552,11 @@ export const AdminControllerCreateCatalogResponse = zod.object({
   "parentId": zod.string().nullable(),
   "userId": zod.string().nullable(),
   "promoCodeId": zod.string().nullable(),
+  "phone": zod.string().nullable(),
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
@@ -697,7 +701,7 @@ export const AdminControllerDuplicateCatalogParams = zod.object({
 export const AdminControllerDuplicateCatalogBody = zod.object({
   "name": zod.string(),
   "typeId": zod.string(),
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "slug": zod.string().describe('Catalog domain\/subdomain stored as slug.')
 })
 
@@ -711,10 +715,11 @@ export const AdminControllerDuplicateCatalogResponse = zod.object({
   "parentId": zod.string().nullable(),
   "userId": zod.string().nullable(),
   "promoCodeId": zod.string().nullable(),
+  "phone": zod.string().nullable(),
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
@@ -866,10 +871,11 @@ export const AdminControllerResetCatalogOwnerPasswordResponse = zod.object({
   "parentId": zod.string().nullable(),
   "userId": zod.string().nullable(),
   "promoCodeId": zod.string().nullable(),
+  "phone": zod.string().nullable(),
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
@@ -1017,7 +1023,7 @@ export const AdminControllerUpdateCatalogBody = zod.object({
   "activityIds": zod.array(zod.string()).optional(),
   "regionalityIds": zod.array(zod.string()).optional().describe('Full country\/region bindings through the regionality directory. Pass an empty array to clear.'),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']).optional(),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']).optional(),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']).optional().describe('Controls storefront presentation: full catalog or contact-only business card.'),
   "slug": zod.string().optional().describe('Catalog domain\/subdomain stored as slug.'),
   "parentId": zod.string().nullish(),
@@ -1034,10 +1040,11 @@ export const AdminControllerUpdateCatalogResponse = zod.object({
   "parentId": zod.string().nullable(),
   "userId": zod.string().nullable(),
   "promoCodeId": zod.string().nullable(),
+  "phone": zod.string().nullable(),
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
@@ -1181,10 +1188,11 @@ export const AdminControllerDeleteCatalogResponse = zod.object({
   "parentId": zod.string().nullable(),
   "userId": zod.string().nullable(),
   "promoCodeId": zod.string().nullable(),
+  "phone": zod.string().nullable(),
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
@@ -1586,10 +1594,11 @@ export const AdminControllerRestoreCatalogResponse = zod.object({
   "parentId": zod.string().nullable(),
   "userId": zod.string().nullable(),
   "promoCodeId": zod.string().nullable(),
+  "phone": zod.string().nullable(),
   "promoCodePaid": zod.boolean(),
   "metricId": zod.string().nullish().describe('Yandex Metrika counter id for MAIN scope.'),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "presentationMode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
   "inventoryMode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL']),
   "canUseProductTypes": zod.boolean().describe('Whether the catalog can use product type schemas.'),
@@ -7612,6 +7621,622 @@ export const CatalogPriceListControllerSetActivePriceListResponse = zod.object({
 
 
 /**
+ * @summary List seo settings
+ */
+export const SeoControllerGetAllResponseItem = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "faviconMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+export const SeoControllerGetAllResponse = zod.array(SeoControllerGetAllResponseItem)
+
+
+/**
+ * @summary Create seo setting
+ */
+export const SeoControllerCreateBody = zod.object({
+  "entityType": zod.string(),
+  "entityId": zod.string(),
+  "urlPath": zod.string().optional(),
+  "canonicalUrl": zod.string().optional(),
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "keywords": zod.string().optional(),
+  "h1": zod.string().optional(),
+  "seoText": zod.string().optional(),
+  "robots": zod.string().optional(),
+  "isIndexable": zod.boolean().optional(),
+  "isFollowable": zod.boolean().optional(),
+  "ogTitle": zod.string().optional(),
+  "ogDescription": zod.string().optional(),
+  "ogMediaId": zod.string().optional(),
+  "ogType": zod.string().optional(),
+  "ogUrl": zod.string().optional(),
+  "ogSiteName": zod.string().optional(),
+  "ogLocale": zod.string().optional(),
+  "twitterCard": zod.string().optional(),
+  "twitterTitle": zod.string().optional(),
+  "twitterDescription": zod.string().optional(),
+  "twitterMediaId": zod.string().optional(),
+  "faviconMediaId": zod.string().optional(),
+  "twitterSite": zod.string().optional(),
+  "twitterCreator": zod.string().optional(),
+  "hreflang": zod.looseObject({
+
+}).optional(),
+  "structuredData": zod.looseObject({
+
+}).optional(),
+  "extras": zod.looseObject({
+
+}).optional(),
+  "sitemapPriority": zod.number().optional(),
+  "sitemapChangeFreq": zod.string().optional()
+})
+
+export const SeoControllerCreateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "faviconMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Get seo setting by entity
+ */
+export const SeoControllerGetByEntityParams = zod.object({
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']).describe('Тип сущности'),
+  "entityId": zod.string().describe('ID сущности')
+})
+
+export const SeoControllerGetByEntityResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "faviconMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Get seo setting by id
+ */
+export const SeoControllerGetByIdParams = zod.object({
+  "id": zod.string().describe('ID SEO-настройки')
+})
+
+export const SeoControllerGetByIdResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "faviconMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Update seo setting
+ */
+export const SeoControllerUpdateParams = zod.object({
+  "id": zod.string().describe('ID SEO-настройки')
+})
+
+export const SeoControllerUpdateBody = zod.object({
+  "entityType": zod.string().optional(),
+  "entityId": zod.string().optional(),
+  "urlPath": zod.string().optional(),
+  "canonicalUrl": zod.string().optional(),
+  "title": zod.string().optional(),
+  "description": zod.string().optional(),
+  "keywords": zod.string().optional(),
+  "h1": zod.string().optional(),
+  "seoText": zod.string().optional(),
+  "robots": zod.string().optional(),
+  "isIndexable": zod.boolean().optional(),
+  "isFollowable": zod.boolean().optional(),
+  "ogTitle": zod.string().optional(),
+  "ogDescription": zod.string().optional(),
+  "ogMediaId": zod.string().optional(),
+  "ogType": zod.string().optional(),
+  "ogUrl": zod.string().optional(),
+  "ogSiteName": zod.string().optional(),
+  "ogLocale": zod.string().optional(),
+  "twitterCard": zod.string().optional(),
+  "twitterTitle": zod.string().optional(),
+  "twitterDescription": zod.string().optional(),
+  "twitterMediaId": zod.string().optional(),
+  "faviconMediaId": zod.string().optional(),
+  "twitterSite": zod.string().optional(),
+  "twitterCreator": zod.string().optional(),
+  "hreflang": zod.looseObject({
+
+}).optional(),
+  "structuredData": zod.looseObject({
+
+}).optional(),
+  "extras": zod.looseObject({
+
+}).optional(),
+  "sitemapPriority": zod.number().optional(),
+  "sitemapChangeFreq": zod.string().optional()
+})
+
+export const SeoControllerUpdateResponse = zod.object({
+  "id": zod.string(),
+  "catalogId": zod.string(),
+  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
+  "entityId": zod.string(),
+  "urlPath": zod.string().nullable(),
+  "canonicalUrl": zod.string().nullable(),
+  "title": zod.string().nullable(),
+  "description": zod.string().nullable(),
+  "keywords": zod.string().nullable(),
+  "h1": zod.string().nullable(),
+  "seoText": zod.string().nullable(),
+  "robots": zod.string().nullable(),
+  "isIndexable": zod.boolean(),
+  "isFollowable": zod.boolean(),
+  "ogTitle": zod.string().nullable(),
+  "ogDescription": zod.string().nullable(),
+  "ogMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "ogType": zod.string().nullable(),
+  "ogUrl": zod.string().nullable(),
+  "ogSiteName": zod.string().nullable(),
+  "ogLocale": zod.string().nullable(),
+  "twitterCard": zod.string().nullable(),
+  "twitterTitle": zod.string().nullable(),
+  "twitterDescription": zod.string().nullable(),
+  "twitterMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "faviconMedia": zod.object({
+  "id": zod.string(),
+  "originalName": zod.string(),
+  "mimeType": zod.string(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
+  "key": zod.string(),
+  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
+  "mimeType": zod.string().nullable(),
+  "size": zod.number().nullable(),
+  "width": zod.number().nullable(),
+  "height": zod.number().nullable(),
+  "key": zod.string(),
+  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
+})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
+}).nullable(),
+  "twitterSite": zod.string().nullable(),
+  "twitterCreator": zod.string().nullable(),
+  "hreflang": zod.string().nullable(),
+  "structuredData": zod.string().nullable(),
+  "extras": zod.string().nullable(),
+  "sitemapPriority": zod.number().nullable(),
+  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
+  "createdAt": zod.iso.datetime({"offset":true}),
+  "updatedAt": zod.iso.datetime({"offset":true})
+})
+
+
+/**
+ * @summary Delete seo setting
+ */
+export const SeoControllerRemoveParams = zod.object({
+  "id": zod.string().describe('ID SEO-настройки')
+})
+
+export const SeoControllerRemoveResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
  * @summary List attributes by type
  */
 export const AttributeControllerGetByTypeParams = zod.object({
@@ -10062,7 +10687,7 @@ export const CatalogControllerGetCurrentResponse = zod.object({
   "updatedAt": zod.iso.datetime({"offset":true}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -10355,7 +10980,7 @@ export const CatalogControllerUpdateCurrentResponse = zod.object({
   "updatedAt": zod.iso.datetime({"offset":true}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -10575,7 +11200,7 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
   "updatedAt": zod.iso.datetime({"offset":true}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -10780,6 +11405,59 @@ export const CatalogControllerGetCurrentShellResponse = zod.object({
 
 
 /**
+ * @summary Get current catalog runtime contract
+ */
+export const CatalogControllerGetCurrentRuntimeResponse = zod.object({
+  "schemaVersion": zod.number(),
+  "catalog": zod.object({
+  "id": zod.string(),
+  "slug": zod.string(),
+  "domain": zod.string().nullable(),
+  "name": zod.string(),
+  "typeId": zod.string().nullable()
+}),
+  "type": zod.object({
+  "id": zod.string(),
+  "code": zod.string(),
+  "name": zod.string()
+}).nullable(),
+  "presentation": zod.object({
+  "mode": zod.enum(['CATALOG', 'BUSINESS_CARD']),
+  "defaultMode": zod.enum(['DELIVERY', 'BROWSE', 'HALL']),
+  "allowedModes": zod.array(zod.enum(['DELIVERY', 'BROWSE', 'HALL']))
+}),
+  "checkout": zod.object({
+  "availableMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
+  "enabledMethods": zod.array(zod.enum(['DELIVERY', 'PICKUP', 'PREORDER'])),
+  "methodContacts": zod.looseObject({
+
+}),
+  "methodFields": zod.looseObject({
+
+}),
+  "preorder": zod.object({
+  "minLeadTimeMinutes": zod.number(),
+  "maxAdvanceDays": zod.number()
+})
+}),
+  "inventory": zod.object({
+  "mode": zod.enum(['NONE', 'EXTERNAL', 'INTERNAL'])
+}),
+  "capabilities": zod.object({
+  "flags": zod.record(zod.string(), zod.boolean()).describe('Named UI-friendly feature flags derived from capabilities.'),
+  "raw": zod.record(zod.string(), zod.boolean()).describe('Raw admin entitlements before dependency resolution.'),
+  "effective": zod.record(zod.string(), zod.boolean()).describe('Effective capabilities after dependency resolution.'),
+  "definitions": zod.array(zod.looseObject({
+
+})).describe('Capability definitions for UI and admin surfaces.'),
+  "items": zod.array(zod.looseObject({
+
+})).describe('Per-capability state with disabled reasons.')
+})
+})
+
+
+/**
  * @summary Get current catalog type schema
  */
 export const CatalogControllerGetCurrentTypeSchemaResponse = zod.object({
@@ -10867,7 +11545,7 @@ export const CatalogControllerGetAllResponseItem = zod.object({
   "updatedAt": zod.iso.datetime({"offset":true}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -10990,7 +11668,7 @@ export const CatalogControllerGetByIdResponse = zod.object({
   "updatedAt": zod.iso.datetime({"offset":true}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -11122,7 +11800,7 @@ export const CatalogControllerUpdateByIdResponse = zod.object({
   "updatedAt": zod.iso.datetime({"offset":true}).optional(),
   "subscriptionEndsAt": zod.iso.datetime({"offset":true}).nullish(),
   "config": zod.object({
-  "status": zod.enum(['PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
+  "status": zod.enum(['REGISTRATION', 'PROPOSAL', 'IMPLEMENTATION', 'OPERATIONAL', 'REFUSAL', 'DEMO', 'PRESENTATION', 'PROMOTION']),
   "about": zod.string(),
   "description": zod.string().nullable(),
   "currency": zod.string(),
@@ -19475,620 +20153,4 @@ export const ProductTypeControllerCreateFromTemplateResponse = zod.object({
 })).optional(),
   "createdAt": zod.iso.datetime({"offset":true}),
   "updatedAt": zod.iso.datetime({"offset":true})
-})
-
-
-/**
- * @summary List seo settings
- */
-export const SeoControllerGetAllResponseItem = zod.object({
-  "id": zod.string(),
-  "catalogId": zod.string(),
-  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
-  "entityId": zod.string(),
-  "urlPath": zod.string().nullable(),
-  "canonicalUrl": zod.string().nullable(),
-  "title": zod.string().nullable(),
-  "description": zod.string().nullable(),
-  "keywords": zod.string().nullable(),
-  "h1": zod.string().nullable(),
-  "seoText": zod.string().nullable(),
-  "robots": zod.string().nullable(),
-  "isIndexable": zod.boolean(),
-  "isFollowable": zod.boolean(),
-  "ogTitle": zod.string().nullable(),
-  "ogDescription": zod.string().nullable(),
-  "ogMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "ogType": zod.string().nullable(),
-  "ogUrl": zod.string().nullable(),
-  "ogSiteName": zod.string().nullable(),
-  "ogLocale": zod.string().nullable(),
-  "twitterCard": zod.string().nullable(),
-  "twitterTitle": zod.string().nullable(),
-  "twitterDescription": zod.string().nullable(),
-  "twitterMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "faviconMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "twitterSite": zod.string().nullable(),
-  "twitterCreator": zod.string().nullable(),
-  "hreflang": zod.string().nullable(),
-  "structuredData": zod.string().nullable(),
-  "extras": zod.string().nullable(),
-  "sitemapPriority": zod.number().nullable(),
-  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
-  "createdAt": zod.iso.datetime({"offset":true}),
-  "updatedAt": zod.iso.datetime({"offset":true})
-})
-export const SeoControllerGetAllResponse = zod.array(SeoControllerGetAllResponseItem)
-
-
-/**
- * @summary Create seo setting
- */
-export const SeoControllerCreateBody = zod.object({
-  "entityType": zod.string(),
-  "entityId": zod.string(),
-  "urlPath": zod.string().optional(),
-  "canonicalUrl": zod.string().optional(),
-  "title": zod.string().optional(),
-  "description": zod.string().optional(),
-  "keywords": zod.string().optional(),
-  "h1": zod.string().optional(),
-  "seoText": zod.string().optional(),
-  "robots": zod.string().optional(),
-  "isIndexable": zod.boolean().optional(),
-  "isFollowable": zod.boolean().optional(),
-  "ogTitle": zod.string().optional(),
-  "ogDescription": zod.string().optional(),
-  "ogMediaId": zod.string().optional(),
-  "ogType": zod.string().optional(),
-  "ogUrl": zod.string().optional(),
-  "ogSiteName": zod.string().optional(),
-  "ogLocale": zod.string().optional(),
-  "twitterCard": zod.string().optional(),
-  "twitterTitle": zod.string().optional(),
-  "twitterDescription": zod.string().optional(),
-  "twitterMediaId": zod.string().optional(),
-  "faviconMediaId": zod.string().optional(),
-  "twitterSite": zod.string().optional(),
-  "twitterCreator": zod.string().optional(),
-  "hreflang": zod.looseObject({
-
-}).optional(),
-  "structuredData": zod.looseObject({
-
-}).optional(),
-  "extras": zod.looseObject({
-
-}).optional(),
-  "sitemapPriority": zod.number().optional(),
-  "sitemapChangeFreq": zod.string().optional()
-})
-
-export const SeoControllerCreateResponse = zod.object({
-  "id": zod.string(),
-  "catalogId": zod.string(),
-  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
-  "entityId": zod.string(),
-  "urlPath": zod.string().nullable(),
-  "canonicalUrl": zod.string().nullable(),
-  "title": zod.string().nullable(),
-  "description": zod.string().nullable(),
-  "keywords": zod.string().nullable(),
-  "h1": zod.string().nullable(),
-  "seoText": zod.string().nullable(),
-  "robots": zod.string().nullable(),
-  "isIndexable": zod.boolean(),
-  "isFollowable": zod.boolean(),
-  "ogTitle": zod.string().nullable(),
-  "ogDescription": zod.string().nullable(),
-  "ogMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "ogType": zod.string().nullable(),
-  "ogUrl": zod.string().nullable(),
-  "ogSiteName": zod.string().nullable(),
-  "ogLocale": zod.string().nullable(),
-  "twitterCard": zod.string().nullable(),
-  "twitterTitle": zod.string().nullable(),
-  "twitterDescription": zod.string().nullable(),
-  "twitterMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "faviconMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "twitterSite": zod.string().nullable(),
-  "twitterCreator": zod.string().nullable(),
-  "hreflang": zod.string().nullable(),
-  "structuredData": zod.string().nullable(),
-  "extras": zod.string().nullable(),
-  "sitemapPriority": zod.number().nullable(),
-  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
-  "createdAt": zod.iso.datetime({"offset":true}),
-  "updatedAt": zod.iso.datetime({"offset":true})
-})
-
-
-/**
- * @summary Get seo setting by entity
- */
-export const SeoControllerGetByEntityParams = zod.object({
-  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']).describe('Тип сущности'),
-  "entityId": zod.string().describe('ID сущности')
-})
-
-export const SeoControllerGetByEntityResponse = zod.object({
-  "id": zod.string(),
-  "catalogId": zod.string(),
-  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
-  "entityId": zod.string(),
-  "urlPath": zod.string().nullable(),
-  "canonicalUrl": zod.string().nullable(),
-  "title": zod.string().nullable(),
-  "description": zod.string().nullable(),
-  "keywords": zod.string().nullable(),
-  "h1": zod.string().nullable(),
-  "seoText": zod.string().nullable(),
-  "robots": zod.string().nullable(),
-  "isIndexable": zod.boolean(),
-  "isFollowable": zod.boolean(),
-  "ogTitle": zod.string().nullable(),
-  "ogDescription": zod.string().nullable(),
-  "ogMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "ogType": zod.string().nullable(),
-  "ogUrl": zod.string().nullable(),
-  "ogSiteName": zod.string().nullable(),
-  "ogLocale": zod.string().nullable(),
-  "twitterCard": zod.string().nullable(),
-  "twitterTitle": zod.string().nullable(),
-  "twitterDescription": zod.string().nullable(),
-  "twitterMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "faviconMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "twitterSite": zod.string().nullable(),
-  "twitterCreator": zod.string().nullable(),
-  "hreflang": zod.string().nullable(),
-  "structuredData": zod.string().nullable(),
-  "extras": zod.string().nullable(),
-  "sitemapPriority": zod.number().nullable(),
-  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
-  "createdAt": zod.iso.datetime({"offset":true}),
-  "updatedAt": zod.iso.datetime({"offset":true})
-})
-
-
-/**
- * @summary Get seo setting by id
- */
-export const SeoControllerGetByIdParams = zod.object({
-  "id": zod.string().describe('ID SEO-настройки')
-})
-
-export const SeoControllerGetByIdResponse = zod.object({
-  "id": zod.string(),
-  "catalogId": zod.string(),
-  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
-  "entityId": zod.string(),
-  "urlPath": zod.string().nullable(),
-  "canonicalUrl": zod.string().nullable(),
-  "title": zod.string().nullable(),
-  "description": zod.string().nullable(),
-  "keywords": zod.string().nullable(),
-  "h1": zod.string().nullable(),
-  "seoText": zod.string().nullable(),
-  "robots": zod.string().nullable(),
-  "isIndexable": zod.boolean(),
-  "isFollowable": zod.boolean(),
-  "ogTitle": zod.string().nullable(),
-  "ogDescription": zod.string().nullable(),
-  "ogMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "ogType": zod.string().nullable(),
-  "ogUrl": zod.string().nullable(),
-  "ogSiteName": zod.string().nullable(),
-  "ogLocale": zod.string().nullable(),
-  "twitterCard": zod.string().nullable(),
-  "twitterTitle": zod.string().nullable(),
-  "twitterDescription": zod.string().nullable(),
-  "twitterMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "faviconMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "twitterSite": zod.string().nullable(),
-  "twitterCreator": zod.string().nullable(),
-  "hreflang": zod.string().nullable(),
-  "structuredData": zod.string().nullable(),
-  "extras": zod.string().nullable(),
-  "sitemapPriority": zod.number().nullable(),
-  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
-  "createdAt": zod.iso.datetime({"offset":true}),
-  "updatedAt": zod.iso.datetime({"offset":true})
-})
-
-
-/**
- * @summary Update seo setting
- */
-export const SeoControllerUpdateParams = zod.object({
-  "id": zod.string().describe('ID SEO-настройки')
-})
-
-export const SeoControllerUpdateBody = zod.object({
-  "entityType": zod.string().optional(),
-  "entityId": zod.string().optional(),
-  "urlPath": zod.string().optional(),
-  "canonicalUrl": zod.string().optional(),
-  "title": zod.string().optional(),
-  "description": zod.string().optional(),
-  "keywords": zod.string().optional(),
-  "h1": zod.string().optional(),
-  "seoText": zod.string().optional(),
-  "robots": zod.string().optional(),
-  "isIndexable": zod.boolean().optional(),
-  "isFollowable": zod.boolean().optional(),
-  "ogTitle": zod.string().optional(),
-  "ogDescription": zod.string().optional(),
-  "ogMediaId": zod.string().optional(),
-  "ogType": zod.string().optional(),
-  "ogUrl": zod.string().optional(),
-  "ogSiteName": zod.string().optional(),
-  "ogLocale": zod.string().optional(),
-  "twitterCard": zod.string().optional(),
-  "twitterTitle": zod.string().optional(),
-  "twitterDescription": zod.string().optional(),
-  "twitterMediaId": zod.string().optional(),
-  "faviconMediaId": zod.string().optional(),
-  "twitterSite": zod.string().optional(),
-  "twitterCreator": zod.string().optional(),
-  "hreflang": zod.looseObject({
-
-}).optional(),
-  "structuredData": zod.looseObject({
-
-}).optional(),
-  "extras": zod.looseObject({
-
-}).optional(),
-  "sitemapPriority": zod.number().optional(),
-  "sitemapChangeFreq": zod.string().optional()
-})
-
-export const SeoControllerUpdateResponse = zod.object({
-  "id": zod.string(),
-  "catalogId": zod.string(),
-  "entityType": zod.enum(['CATALOG', 'CATEGORY', 'PRODUCT', 'PAGE', 'BRAND', 'ARTICLE', 'OTHER']),
-  "entityId": zod.string(),
-  "urlPath": zod.string().nullable(),
-  "canonicalUrl": zod.string().nullable(),
-  "title": zod.string().nullable(),
-  "description": zod.string().nullable(),
-  "keywords": zod.string().nullable(),
-  "h1": zod.string().nullable(),
-  "seoText": zod.string().nullable(),
-  "robots": zod.string().nullable(),
-  "isIndexable": zod.boolean(),
-  "isFollowable": zod.boolean(),
-  "ogTitle": zod.string().nullable(),
-  "ogDescription": zod.string().nullable(),
-  "ogMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "ogType": zod.string().nullable(),
-  "ogUrl": zod.string().nullable(),
-  "ogSiteName": zod.string().nullable(),
-  "ogLocale": zod.string().nullable(),
-  "twitterCard": zod.string().nullable(),
-  "twitterTitle": zod.string().nullable(),
-  "twitterDescription": zod.string().nullable(),
-  "twitterMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "faviconMedia": zod.object({
-  "id": zod.string(),
-  "originalName": zod.string(),
-  "mimeType": zod.string(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "status": zod.enum(['UPLOADED', 'PROCESSING', 'READY', 'FAILED']),
-  "key": zod.string(),
-  "url": zod.string().describe('Основной URL медиа. Для адаптивной выдачи используйте variants по назначению.'),
-  "variants": zod.array(zod.object({
-  "id": zod.string(),
-  "kind": zod.string().describe('Ключ варианта медиа в формате <role>-<format>. Поддерживаемые role: thumb, card, detail.'),
-  "mimeType": zod.string().nullable(),
-  "size": zod.number().nullable(),
-  "width": zod.number().nullable(),
-  "height": zod.number().nullable(),
-  "key": zod.string(),
-  "url": zod.string().describe('Публичный URL конкретного варианта. Для клиентской выдачи ориентируйтесь на kind.')
-})).describe('Доступные варианты изображения. Обычно используются роли: thumb для корзины\/миниатюр, card для карточек в списках, detail для страницы товара.')
-}).nullable(),
-  "twitterSite": zod.string().nullable(),
-  "twitterCreator": zod.string().nullable(),
-  "hreflang": zod.string().nullable(),
-  "structuredData": zod.string().nullable(),
-  "extras": zod.string().nullable(),
-  "sitemapPriority": zod.number().nullable(),
-  "sitemapChangeFreq": zod.enum(['ALWAYS', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY', 'NEVER']).nullable(),
-  "createdAt": zod.iso.datetime({"offset":true}),
-  "updatedAt": zod.iso.datetime({"offset":true})
-})
-
-
-/**
- * @summary Delete seo setting
- */
-export const SeoControllerRemoveParams = zod.object({
-  "id": zod.string().describe('ID SEO-настройки')
-})
-
-export const SeoControllerRemoveResponse = zod.object({
-  "ok": zod.boolean()
 })

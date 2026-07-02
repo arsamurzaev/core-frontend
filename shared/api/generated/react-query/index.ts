@@ -76,6 +76,11 @@ export interface AuthLoginResponseDto {
   /** @nullable */
   catalogId?: string | null;
   /**
+     * CSRF token for unsafe requests. The same value is also stored in a readable CSRF cookie.
+     * @nullable
+     */
+  csrf?: string | null;
+  /**
      * URL for frontend redirect after platform login. Catalog owners receive their catalog URL.
      * @nullable
      */
@@ -262,6 +267,7 @@ export type AdminCatalogConfigListItemDtoStatus = typeof AdminCatalogConfigListI
 
 
 export const AdminCatalogConfigListItemDtoStatus = {
+  REGISTRATION: 'REGISTRATION',
   PROPOSAL: 'PROPOSAL',
   IMPLEMENTATION: 'IMPLEMENTATION',
   OPERATIONAL: 'OPERATIONAL',
@@ -451,6 +457,8 @@ export interface AdminCatalogListItemDto {
   userId: string | null;
   /** @nullable */
   promoCodeId: string | null;
+  /** @nullable */
+  phone: string | null;
   promoCodePaid: boolean;
   /**
      * Yandex Metrika counter id for MAIN scope.
@@ -483,6 +491,7 @@ export type AdminCreateCatalogDtoReqStatus = typeof AdminCreateCatalogDtoReqStat
 
 
 export const AdminCreateCatalogDtoReqStatus = {
+  REGISTRATION: 'REGISTRATION',
   PROPOSAL: 'PROPOSAL',
   IMPLEMENTATION: 'IMPLEMENTATION',
   OPERATIONAL: 'OPERATIONAL',
@@ -526,6 +535,7 @@ export type AdminDuplicateCatalogDtoReqStatus = typeof AdminDuplicateCatalogDtoR
 
 
 export const AdminDuplicateCatalogDtoReqStatus = {
+  REGISTRATION: 'REGISTRATION',
   PROPOSAL: 'PROPOSAL',
   IMPLEMENTATION: 'IMPLEMENTATION',
   OPERATIONAL: 'OPERATIONAL',
@@ -547,6 +557,7 @@ export type AdminUpdateCatalogDtoReqStatus = typeof AdminUpdateCatalogDtoReqStat
 
 
 export const AdminUpdateCatalogDtoReqStatus = {
+  REGISTRATION: 'REGISTRATION',
   PROPOSAL: 'PROPOSAL',
   IMPLEMENTATION: 'IMPLEMENTATION',
   OPERATIONAL: 'OPERATIONAL',
@@ -2222,6 +2233,99 @@ export interface ActiveCatalogPriceListDto {
   activePriceListId: string | null;
 }
 
+export type SeoEntityType = typeof SeoEntityType[keyof typeof SeoEntityType];
+
+
+export const SeoEntityType = {
+  CATALOG: 'CATALOG',
+  CATEGORY: 'CATEGORY',
+  PRODUCT: 'PRODUCT',
+  PAGE: 'PAGE',
+  BRAND: 'BRAND',
+  ARTICLE: 'ARTICLE',
+  OTHER: 'OTHER',
+} as const;
+
+export type CreateSeoDtoReqHreflang = { [key: string]: unknown };
+
+export type CreateSeoDtoReqStructuredData = { [key: string]: unknown };
+
+export type CreateSeoDtoReqExtras = { [key: string]: unknown };
+
+export interface CreateSeoDtoReq {
+  entityType: string;
+  entityId: string;
+  urlPath?: string;
+  canonicalUrl?: string;
+  title?: string;
+  description?: string;
+  keywords?: string;
+  h1?: string;
+  seoText?: string;
+  robots?: string;
+  isIndexable?: boolean;
+  isFollowable?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogMediaId?: string;
+  ogType?: string;
+  ogUrl?: string;
+  ogSiteName?: string;
+  ogLocale?: string;
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterMediaId?: string;
+  faviconMediaId?: string;
+  twitterSite?: string;
+  twitterCreator?: string;
+  hreflang?: CreateSeoDtoReqHreflang;
+  structuredData?: CreateSeoDtoReqStructuredData;
+  extras?: CreateSeoDtoReqExtras;
+  sitemapPriority?: number;
+  sitemapChangeFreq?: string;
+}
+
+export type UpdateSeoDtoReqHreflang = { [key: string]: unknown };
+
+export type UpdateSeoDtoReqStructuredData = { [key: string]: unknown };
+
+export type UpdateSeoDtoReqExtras = { [key: string]: unknown };
+
+export interface UpdateSeoDtoReq {
+  entityType?: string;
+  entityId?: string;
+  urlPath?: string;
+  canonicalUrl?: string;
+  title?: string;
+  description?: string;
+  keywords?: string;
+  h1?: string;
+  seoText?: string;
+  robots?: string;
+  isIndexable?: boolean;
+  isFollowable?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogMediaId?: string;
+  ogType?: string;
+  ogUrl?: string;
+  ogSiteName?: string;
+  ogLocale?: string;
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterMediaId?: string;
+  faviconMediaId?: string;
+  twitterSite?: string;
+  twitterCreator?: string;
+  hreflang?: UpdateSeoDtoReqHreflang;
+  structuredData?: UpdateSeoDtoReqStructuredData;
+  extras?: UpdateSeoDtoReqExtras;
+  sitemapPriority?: number;
+  sitemapChangeFreq?: string;
+}
+
 export interface AttributeEnumValueAliasDto {
   id: string;
   attributeId: string;
@@ -3580,6 +3684,7 @@ export type CatalogConfigDtoStatus = typeof CatalogConfigDtoStatus[keyof typeof 
 
 
 export const CatalogConfigDtoStatus = {
+  REGISTRATION: 'REGISTRATION',
   PROPOSAL: 'PROPOSAL',
   IMPLEMENTATION: 'IMPLEMENTATION',
   OPERATIONAL: 'OPERATIONAL',
@@ -3848,6 +3953,110 @@ export interface CatalogCurrentShellDto {
   contacts: CatalogContactDto[];
   /** @nullable */
   seo: SeoDto | null;
+}
+
+export interface CatalogRuntimeCatalogDto {
+  id: string;
+  slug: string;
+  /** @nullable */
+  domain: string | null;
+  name: string;
+  /** @nullable */
+  typeId: string | null;
+}
+
+export interface CatalogRuntimeTypeDto {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export type CatalogRuntimePresentationDtoMode = typeof CatalogRuntimePresentationDtoMode[keyof typeof CatalogRuntimePresentationDtoMode];
+
+
+export const CatalogRuntimePresentationDtoMode = {
+  CATALOG: 'CATALOG',
+  BUSINESS_CARD: 'BUSINESS_CARD',
+} as const;
+
+export type CatalogRuntimePresentationDtoDefaultMode = typeof CatalogRuntimePresentationDtoDefaultMode[keyof typeof CatalogRuntimePresentationDtoDefaultMode];
+
+
+export const CatalogRuntimePresentationDtoDefaultMode = {
+  DELIVERY: 'DELIVERY',
+  BROWSE: 'BROWSE',
+  HALL: 'HALL',
+} as const;
+
+export type CatalogRuntimePresentationDtoAllowedModesItem = typeof CatalogRuntimePresentationDtoAllowedModesItem[keyof typeof CatalogRuntimePresentationDtoAllowedModesItem];
+
+
+export const CatalogRuntimePresentationDtoAllowedModesItem = {
+  DELIVERY: 'DELIVERY',
+  BROWSE: 'BROWSE',
+  HALL: 'HALL',
+} as const;
+
+export interface CatalogRuntimePresentationDto {
+  mode: CatalogRuntimePresentationDtoMode;
+  defaultMode: CatalogRuntimePresentationDtoDefaultMode;
+  allowedModes: CatalogRuntimePresentationDtoAllowedModesItem[];
+}
+
+export type CatalogRuntimeInventoryDtoMode = typeof CatalogRuntimeInventoryDtoMode[keyof typeof CatalogRuntimeInventoryDtoMode];
+
+
+export const CatalogRuntimeInventoryDtoMode = {
+  NONE: 'NONE',
+  EXTERNAL: 'EXTERNAL',
+  INTERNAL: 'INTERNAL',
+} as const;
+
+export interface CatalogRuntimeInventoryDto {
+  mode: CatalogRuntimeInventoryDtoMode;
+}
+
+/**
+ * Named UI-friendly feature flags derived from capabilities.
+ */
+export type CatalogRuntimeCapabilitiesDtoFlags = {[key: string]: boolean};
+
+/**
+ * Raw admin entitlements before dependency resolution.
+ */
+export type CatalogRuntimeCapabilitiesDtoRaw = {[key: string]: boolean};
+
+/**
+ * Effective capabilities after dependency resolution.
+ */
+export type CatalogRuntimeCapabilitiesDtoEffective = {[key: string]: boolean};
+
+export type CatalogRuntimeCapabilitiesDtoDefinitionsItem = { [key: string]: unknown };
+
+export type CatalogRuntimeCapabilitiesDtoItemsItem = { [key: string]: unknown };
+
+export interface CatalogRuntimeCapabilitiesDto {
+  /** Named UI-friendly feature flags derived from capabilities. */
+  flags: CatalogRuntimeCapabilitiesDtoFlags;
+  /** Raw admin entitlements before dependency resolution. */
+  raw: CatalogRuntimeCapabilitiesDtoRaw;
+  /** Effective capabilities after dependency resolution. */
+  effective: CatalogRuntimeCapabilitiesDtoEffective;
+  /** Capability definitions for UI and admin surfaces. */
+  definitions: CatalogRuntimeCapabilitiesDtoDefinitionsItem[];
+  /** Per-capability state with disabled reasons. */
+  items: CatalogRuntimeCapabilitiesDtoItemsItem[];
+}
+
+export interface CatalogRuntimeDto {
+  schemaVersion: number;
+  catalog: CatalogRuntimeCatalogDto;
+  /** @nullable */
+  type: CatalogRuntimeTypeDto | null;
+  presentation: CatalogRuntimePresentationDto;
+  checkout: CatalogCheckoutConfigDto;
+  inventory: CatalogRuntimeInventoryDto;
+  capabilities: CatalogRuntimeCapabilitiesDto;
 }
 
 export type UpdateCatalogContactDtoReqType = typeof UpdateCatalogContactDtoReqType[keyof typeof UpdateCatalogContactDtoReqType];
@@ -7004,99 +7213,6 @@ export interface UpdateProductTypeDtoReq {
   isActive?: boolean;
 }
 
-export type SeoEntityType = typeof SeoEntityType[keyof typeof SeoEntityType];
-
-
-export const SeoEntityType = {
-  CATALOG: 'CATALOG',
-  CATEGORY: 'CATEGORY',
-  PRODUCT: 'PRODUCT',
-  PAGE: 'PAGE',
-  BRAND: 'BRAND',
-  ARTICLE: 'ARTICLE',
-  OTHER: 'OTHER',
-} as const;
-
-export type CreateSeoDtoReqHreflang = { [key: string]: unknown };
-
-export type CreateSeoDtoReqStructuredData = { [key: string]: unknown };
-
-export type CreateSeoDtoReqExtras = { [key: string]: unknown };
-
-export interface CreateSeoDtoReq {
-  entityType: string;
-  entityId: string;
-  urlPath?: string;
-  canonicalUrl?: string;
-  title?: string;
-  description?: string;
-  keywords?: string;
-  h1?: string;
-  seoText?: string;
-  robots?: string;
-  isIndexable?: boolean;
-  isFollowable?: boolean;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogMediaId?: string;
-  ogType?: string;
-  ogUrl?: string;
-  ogSiteName?: string;
-  ogLocale?: string;
-  twitterCard?: string;
-  twitterTitle?: string;
-  twitterDescription?: string;
-  twitterMediaId?: string;
-  faviconMediaId?: string;
-  twitterSite?: string;
-  twitterCreator?: string;
-  hreflang?: CreateSeoDtoReqHreflang;
-  structuredData?: CreateSeoDtoReqStructuredData;
-  extras?: CreateSeoDtoReqExtras;
-  sitemapPriority?: number;
-  sitemapChangeFreq?: string;
-}
-
-export type UpdateSeoDtoReqHreflang = { [key: string]: unknown };
-
-export type UpdateSeoDtoReqStructuredData = { [key: string]: unknown };
-
-export type UpdateSeoDtoReqExtras = { [key: string]: unknown };
-
-export interface UpdateSeoDtoReq {
-  entityType?: string;
-  entityId?: string;
-  urlPath?: string;
-  canonicalUrl?: string;
-  title?: string;
-  description?: string;
-  keywords?: string;
-  h1?: string;
-  seoText?: string;
-  robots?: string;
-  isIndexable?: boolean;
-  isFollowable?: boolean;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogMediaId?: string;
-  ogType?: string;
-  ogUrl?: string;
-  ogSiteName?: string;
-  ogLocale?: string;
-  twitterCard?: string;
-  twitterTitle?: string;
-  twitterDescription?: string;
-  twitterMediaId?: string;
-  faviconMediaId?: string;
-  twitterSite?: string;
-  twitterCreator?: string;
-  hreflang?: UpdateSeoDtoReqHreflang;
-  structuredData?: UpdateSeoDtoReqStructuredData;
-  extras?: UpdateSeoDtoReqExtras;
-  sitemapPriority?: number;
-  sitemapChangeFreq?: string;
-}
-
 export type HandoffControllerExchangeParams = {
 /**
  * Handoff-токен
@@ -7151,6 +7267,7 @@ export type AdminControllerGetCatalogsStatusesItem = typeof AdminControllerGetCa
 
 
 export const AdminControllerGetCatalogsStatusesItem = {
+  REGISTRATION: 'REGISTRATION',
   PROPOSAL: 'PROPOSAL',
   IMPLEMENTATION: 'IMPLEMENTATION',
   OPERATIONAL: 'OPERATIONAL',
@@ -14467,6 +14584,483 @@ export const useCatalogPriceListControllerSetActivePriceList = <TError = void,
     }
 
 /**
+ * @summary List seo settings
+ */
+export const seoControllerGetAll = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<SeoDto[]>(
+      {url: `/seo`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getSeoControllerGetAllQueryKey = () => {
+    return [
+    `/seo`
+    ] as const;
+    }
+
+
+export const getSeoControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetAllQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetAll>>> = ({ signal }) => seoControllerGetAll(signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SeoControllerGetAllQueryResult = NonNullable<Awaited<ReturnType<typeof seoControllerGetAll>>>
+export type SeoControllerGetAllQueryError = unknown
+
+
+export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof seoControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof seoControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof seoControllerGetAll>>,
+          TError,
+          Awaited<ReturnType<typeof seoControllerGetAll>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List seo settings
+ */
+
+export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSeoControllerGetAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Create seo setting
+ */
+export const seoControllerCreate = (
+    createSeoDtoReq: CreateSeoDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<SeoDto>(
+      {url: `/seo`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createSeoDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getSeoControllerCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerCreate>>, TError,{data: CreateSeoDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof seoControllerCreate>>, TError,{data: CreateSeoDtoReq}, TContext> => {
+
+const mutationKey = ['seoControllerCreate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerCreate>>, {data: CreateSeoDtoReq}> = (props) => {
+          const {data} = props ?? {};
+
+          return  seoControllerCreate(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SeoControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof seoControllerCreate>>>
+    export type SeoControllerCreateMutationBody = CreateSeoDtoReq
+    export type SeoControllerCreateMutationError = unknown
+
+    /**
+ * @summary Create seo setting
+ */
+export const useSeoControllerCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerCreate>>, TError,{data: CreateSeoDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof seoControllerCreate>>,
+        TError,
+        {data: CreateSeoDtoReq},
+        TContext
+      > => {
+      return useMutation(getSeoControllerCreateMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Get seo setting by entity
+ */
+export const seoControllerGetByEntity = (
+    entityType: SeoEntityType,
+    entityId: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<SeoDto>(
+      {url: `/seo/entity/${entityType}/${entityId}`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getSeoControllerGetByEntityQueryKey = (entityType: SeoEntityType,
+    entityId: string,) => {
+    return [
+    `/seo/entity/${entityType}/${entityId}`
+    ] as const;
+    }
+
+
+export const getSeoControllerGetByEntityQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(entityType: SeoEntityType,
+    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetByEntityQueryKey(entityType,entityId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetByEntity>>> = ({ signal }) => seoControllerGetByEntity(entityType,entityId, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: entityType !== null && entityType !== undefined && entityId !== null && entityId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SeoControllerGetByEntityQueryResult = NonNullable<Awaited<ReturnType<typeof seoControllerGetByEntity>>>
+export type SeoControllerGetByEntityQueryError = unknown
+
+
+export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
+ entityType: SeoEntityType,
+    entityId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof seoControllerGetByEntity>>,
+          TError,
+          Awaited<ReturnType<typeof seoControllerGetByEntity>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
+ entityType: SeoEntityType,
+    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof seoControllerGetByEntity>>,
+          TError,
+          Awaited<ReturnType<typeof seoControllerGetByEntity>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
+ entityType: SeoEntityType,
+    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get seo setting by entity
+ */
+
+export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
+ entityType: SeoEntityType,
+    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSeoControllerGetByEntityQueryOptions(entityType,entityId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Get seo setting by id
+ */
+export const seoControllerGetById = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<SeoDto>(
+      {url: `/seo/${id}`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getSeoControllerGetByIdQueryKey = (id: string,) => {
+    return [
+    `/seo/${id}`
+    ] as const;
+    }
+
+
+export const getSeoControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetByIdQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetById>>> = ({ signal }) => seoControllerGetById(id, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SeoControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof seoControllerGetById>>>
+export type SeoControllerGetByIdQueryError = unknown
+
+
+export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof seoControllerGetById>>,
+          TError,
+          Awaited<ReturnType<typeof seoControllerGetById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof seoControllerGetById>>,
+          TError,
+          Awaited<ReturnType<typeof seoControllerGetById>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get seo setting by id
+ */
+
+export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSeoControllerGetByIdQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Update seo setting
+ */
+export const seoControllerUpdate = (
+    id: string,
+    updateSeoDtoReq: UpdateSeoDtoReq,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<SeoDto>(
+      {url: `/seo/${id}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateSeoDtoReq, signal
+    },
+      );
+    }
+
+
+
+export const getSeoControllerUpdateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerUpdate>>, TError,{id: string;data: UpdateSeoDtoReq}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof seoControllerUpdate>>, TError,{id: string;data: UpdateSeoDtoReq}, TContext> => {
+
+const mutationKey = ['seoControllerUpdate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerUpdate>>, {id: string;data: UpdateSeoDtoReq}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  seoControllerUpdate(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SeoControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof seoControllerUpdate>>>
+    export type SeoControllerUpdateMutationBody = UpdateSeoDtoReq
+    export type SeoControllerUpdateMutationError = unknown
+
+    /**
+ * @summary Update seo setting
+ */
+export const useSeoControllerUpdate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerUpdate>>, TError,{id: string;data: UpdateSeoDtoReq}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof seoControllerUpdate>>,
+        TError,
+        {id: string;data: UpdateSeoDtoReq},
+        TContext
+      > => {
+      return useMutation(getSeoControllerUpdateMutationOptions(options), queryClient);
+    }
+
+/**
+ * @summary Delete seo setting
+ */
+export const seoControllerRemove = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<OkResponseDto>(
+      {url: `/seo/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+export const getSeoControllerRemoveMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerRemove>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof seoControllerRemove>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['seoControllerRemove'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerRemove>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  seoControllerRemove(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SeoControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof seoControllerRemove>>>
+
+    export type SeoControllerRemoveMutationError = unknown
+
+    /**
+ * @summary Delete seo setting
+ */
+export const useSeoControllerRemove = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerRemove>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof seoControllerRemove>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getSeoControllerRemoveMutationOptions(options), queryClient);
+    }
+
+/**
  * @summary List attributes by type
  */
 export const attributeControllerGetByType = (
@@ -19551,6 +20145,99 @@ export function useCatalogControllerGetCurrentShell<TData = Awaited<ReturnType<t
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCatalogControllerGetCurrentShellQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+/**
+ * @summary Get current catalog runtime contract
+ */
+export const catalogControllerGetCurrentRuntime = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return mutator<CatalogRuntimeDto>(
+      {url: `/catalog/current/runtime`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getCatalogControllerGetCurrentRuntimeQueryKey = () => {
+    return [
+    `/catalog/current/runtime`
+    ] as const;
+    }
+
+
+export const getCatalogControllerGetCurrentRuntimeQueryOptions = <TData = Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCatalogControllerGetCurrentRuntimeQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>> = ({ signal }) => catalogControllerGetCurrentRuntime(signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CatalogControllerGetCurrentRuntimeQueryResult = NonNullable<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>>
+export type CatalogControllerGetCurrentRuntimeQueryError = unknown
+
+
+export function useCatalogControllerGetCurrentRuntime<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>,
+          TError,
+          Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogControllerGetCurrentRuntime<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>,
+          TError,
+          Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCatalogControllerGetCurrentRuntime<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get current catalog runtime contract
+ */
+
+export function useCatalogControllerGetCurrentRuntime<TData = Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof catalogControllerGetCurrentRuntime>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCatalogControllerGetCurrentRuntimeQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -31343,481 +32030,4 @@ export const useProductTypeControllerCreateFromTemplate = <TError = void,
         TContext
       > => {
       return useMutation(getProductTypeControllerCreateFromTemplateMutationOptions(options), queryClient);
-    }
-
-/**
- * @summary List seo settings
- */
-export const seoControllerGetAll = (
-
- signal?: AbortSignal
-) => {
-
-
-      return mutator<SeoDto[]>(
-      {url: `/seo`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getSeoControllerGetAllQueryKey = () => {
-    return [
-    `/seo`
-    ] as const;
-    }
-
-
-export const getSeoControllerGetAllQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetAllQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetAll>>> = ({ signal }) => seoControllerGetAll(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type SeoControllerGetAllQueryResult = NonNullable<Awaited<ReturnType<typeof seoControllerGetAll>>>
-export type SeoControllerGetAllQueryError = unknown
-
-
-export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof seoControllerGetAll>>,
-          TError,
-          Awaited<ReturnType<typeof seoControllerGetAll>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof seoControllerGetAll>>,
-          TError,
-          Awaited<ReturnType<typeof seoControllerGetAll>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary List seo settings
- */
-
-export function useSeoControllerGetAll<TData = Awaited<ReturnType<typeof seoControllerGetAll>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetAll>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getSeoControllerGetAllQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-
-
-/**
- * @summary Create seo setting
- */
-export const seoControllerCreate = (
-    createSeoDtoReq: CreateSeoDtoReq,
- signal?: AbortSignal
-) => {
-
-
-      return mutator<SeoDto>(
-      {url: `/seo`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createSeoDtoReq, signal
-    },
-      );
-    }
-
-
-
-export const getSeoControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerCreate>>, TError,{data: CreateSeoDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof seoControllerCreate>>, TError,{data: CreateSeoDtoReq}, TContext> => {
-
-const mutationKey = ['seoControllerCreate'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerCreate>>, {data: CreateSeoDtoReq}> = (props) => {
-          const {data} = props ?? {};
-
-          return  seoControllerCreate(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type SeoControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof seoControllerCreate>>>
-    export type SeoControllerCreateMutationBody = CreateSeoDtoReq
-    export type SeoControllerCreateMutationError = unknown
-
-    /**
- * @summary Create seo setting
- */
-export const useSeoControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerCreate>>, TError,{data: CreateSeoDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof seoControllerCreate>>,
-        TError,
-        {data: CreateSeoDtoReq},
-        TContext
-      > => {
-      return useMutation(getSeoControllerCreateMutationOptions(options), queryClient);
-    }
-
-/**
- * @summary Get seo setting by entity
- */
-export const seoControllerGetByEntity = (
-    entityType: SeoEntityType,
-    entityId: string,
- signal?: AbortSignal
-) => {
-
-
-      return mutator<SeoDto>(
-      {url: `/seo/entity/${entityType}/${entityId}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getSeoControllerGetByEntityQueryKey = (entityType: SeoEntityType,
-    entityId: string,) => {
-    return [
-    `/seo/entity/${entityType}/${entityId}`
-    ] as const;
-    }
-
-
-export const getSeoControllerGetByEntityQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(entityType: SeoEntityType,
-    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetByEntityQueryKey(entityType,entityId);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetByEntity>>> = ({ signal }) => seoControllerGetByEntity(entityType,entityId, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: entityType !== null && entityType !== undefined && entityId !== null && entityId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type SeoControllerGetByEntityQueryResult = NonNullable<Awaited<ReturnType<typeof seoControllerGetByEntity>>>
-export type SeoControllerGetByEntityQueryError = unknown
-
-
-export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
- entityType: SeoEntityType,
-    entityId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof seoControllerGetByEntity>>,
-          TError,
-          Awaited<ReturnType<typeof seoControllerGetByEntity>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
- entityType: SeoEntityType,
-    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof seoControllerGetByEntity>>,
-          TError,
-          Awaited<ReturnType<typeof seoControllerGetByEntity>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
- entityType: SeoEntityType,
-    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Get seo setting by entity
- */
-
-export function useSeoControllerGetByEntity<TData = Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError = unknown>(
- entityType: SeoEntityType,
-    entityId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetByEntity>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getSeoControllerGetByEntityQueryOptions(entityType,entityId,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-
-
-/**
- * @summary Get seo setting by id
- */
-export const seoControllerGetById = (
-    id: string,
- signal?: AbortSignal
-) => {
-
-
-      return mutator<SeoDto>(
-      {url: `/seo/${id}`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getSeoControllerGetByIdQueryKey = (id: string,) => {
-    return [
-    `/seo/${id}`
-    ] as const;
-    }
-
-
-export const getSeoControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getSeoControllerGetByIdQueryKey(id);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof seoControllerGetById>>> = ({ signal }) => seoControllerGetById(id, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type SeoControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof seoControllerGetById>>>
-export type SeoControllerGetByIdQueryError = unknown
-
-
-export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
- id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof seoControllerGetById>>,
-          TError,
-          Awaited<ReturnType<typeof seoControllerGetById>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof seoControllerGetById>>,
-          TError,
-          Awaited<ReturnType<typeof seoControllerGetById>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Get seo setting by id
- */
-
-export function useSeoControllerGetById<TData = Awaited<ReturnType<typeof seoControllerGetById>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof seoControllerGetById>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getSeoControllerGetByIdQueryOptions(id,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-
-
-
-
-
-
-/**
- * @summary Update seo setting
- */
-export const seoControllerUpdate = (
-    id: string,
-    updateSeoDtoReq: UpdateSeoDtoReq,
- signal?: AbortSignal
-) => {
-
-
-      return mutator<SeoDto>(
-      {url: `/seo/${id}`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: updateSeoDtoReq, signal
-    },
-      );
-    }
-
-
-
-export const getSeoControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerUpdate>>, TError,{id: string;data: UpdateSeoDtoReq}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof seoControllerUpdate>>, TError,{id: string;data: UpdateSeoDtoReq}, TContext> => {
-
-const mutationKey = ['seoControllerUpdate'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerUpdate>>, {id: string;data: UpdateSeoDtoReq}> = (props) => {
-          const {id,data} = props ?? {};
-
-          return  seoControllerUpdate(id,data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type SeoControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof seoControllerUpdate>>>
-    export type SeoControllerUpdateMutationBody = UpdateSeoDtoReq
-    export type SeoControllerUpdateMutationError = unknown
-
-    /**
- * @summary Update seo setting
- */
-export const useSeoControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerUpdate>>, TError,{id: string;data: UpdateSeoDtoReq}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof seoControllerUpdate>>,
-        TError,
-        {id: string;data: UpdateSeoDtoReq},
-        TContext
-      > => {
-      return useMutation(getSeoControllerUpdateMutationOptions(options), queryClient);
-    }
-
-/**
- * @summary Delete seo setting
- */
-export const seoControllerRemove = (
-    id: string,
- signal?: AbortSignal
-) => {
-
-
-      return mutator<OkResponseDto>(
-      {url: `/seo/${id}`, method: 'DELETE', signal
-    },
-      );
-    }
-
-
-
-export const getSeoControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerRemove>>, TError,{id: string}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof seoControllerRemove>>, TError,{id: string}, TContext> => {
-
-const mutationKey = ['seoControllerRemove'];
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof seoControllerRemove>>, {id: string}> = (props) => {
-          const {id} = props ?? {};
-
-          return  seoControllerRemove(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type SeoControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof seoControllerRemove>>>
-
-    export type SeoControllerRemoveMutationError = unknown
-
-    /**
- * @summary Delete seo setting
- */
-export const useSeoControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof seoControllerRemove>>, TError,{id: string}, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof seoControllerRemove>>,
-        TError,
-        {id: string},
-        TContext
-      > => {
-      return useMutation(getSeoControllerRemoveMutationOptions(options), queryClient);
     }
