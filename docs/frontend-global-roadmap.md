@@ -127,3 +127,4 @@
 - [x] Перевести `Dialog`, `Popover`, `Drawer`, `Textarea`, `Progress`, `Slider` на semantic tokens.
 - [x] Добавить `AdminPanelButton` и применить его в advanced/settings sessions triggers.
 - [x] Перевести `Field`, `RadioGroup`, `Checkbox`, `Toggle`, `ToggleGroup`, `Calendar` на semantic tokens.
+- [x] Перевести `FieldError`, `Separator`, `InputGroup`, `InputOTP` на semantic tokens.
