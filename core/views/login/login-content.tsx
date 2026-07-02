@@ -81,8 +81,10 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
             </div>
             <div className="space-y-12">
               <div className="space-y-1.5">
-                <h1 className="text-3xl font-semibold">Добро пожаловать!</h1>
-                <p className="text-lg font-light">
+                <h1 className="text-3xl font-semibold text-text-primary">
+                  Добро пожаловать!
+                </h1>
+                <p className="text-lg font-light text-text-muted">
                   вход в административную панель
                 </p>
               </div>
@@ -120,7 +122,7 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
                           autoComplete="username"
                           aria-invalid={fieldState.invalid}
                           placeholder="Логин"
-                          className="h-12.5 rounded-full text-center"
+                          className="h-12.5 rounded-pill text-center"
                         />
                         {fieldState.invalid && (
                           <FieldError
@@ -158,7 +160,7 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
                           autoComplete="current-password"
                           aria-invalid={fieldState.invalid}
                           placeholder="Пароль"
-                          className="h-12.5 rounded-full text-center"
+                          className="h-12.5 rounded-pill text-center"
                         />
                         {fieldState.invalid && (
                           <FieldError
@@ -170,7 +172,7 @@ export const LoginContent: React.FC<Props> = ({ className }) => {
                     )}
                   />
 
-                  <p className="mx-auto max-w-full text-center text-sm text-[#979797] max-sm:text-xs">
+                  <p className="mx-auto max-w-full text-center text-sm text-text-muted max-sm:text-xs">
                     Нажимая кнопку «Войти», вы соглашаетесь с <br />{" "}
                     <a
                       target="_blank"

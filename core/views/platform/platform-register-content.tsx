@@ -105,7 +105,7 @@ function DomainStatus({
 
   if (!isValid) {
     return (
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-text-muted">
         Домен должен быть от 2 до 63 символов: латиница, цифры и дефис.
       </p>
     );
@@ -113,7 +113,7 @@ function DomainStatus({
 
   if (isChecking) {
     return (
-      <p className="inline-flex items-center gap-2 text-sm text-neutral-500">
+      <p className="inline-flex items-center gap-2 text-sm text-text-muted">
         <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
         Проверяем домен
       </p>
@@ -121,12 +121,14 @@ function DomainStatus({
   }
 
   if (error) {
-    return <p className="text-sm text-destructive">{getErrorMessage(error)}</p>;
+    return (
+      <p className="text-sm text-status-danger">{getErrorMessage(error)}</p>
+    );
   }
 
   if (available) {
     return (
-      <p className="inline-flex items-center gap-2 text-sm text-emerald-700">
+      <p className="inline-flex items-center gap-2 text-sm text-status-success">
         <CheckCircle2 className="size-3.5" aria-hidden="true" />
         Свободен: {fqdn}
       </p>
@@ -135,7 +137,7 @@ function DomainStatus({
 
   if (available === false) {
     return (
-      <p className="text-sm text-destructive">{reason ?? "Домен занят"}</p>
+      <p className="text-sm text-status-danger">{reason ?? "Домен занят"}</p>
     );
   }
 
@@ -158,11 +160,11 @@ function SignupDone({
       description={`Мы отправили ссылку подтверждения на ${state.email}. После подтверждения каталог ${state.fqdn} будет создан автоматически.`}
     >
       <div className="space-y-5 text-center">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+        <div className="mx-auto flex size-12 items-center justify-center rounded-pill bg-status-success-surface text-status-success">
           <Mail className="size-6" aria-hidden="true" />
         </div>
 
-        <p className="text-sm leading-6 text-neutral-500">
+        <p className="text-sm leading-6 text-text-muted">
           Ссылка действует до{" "}
           {new Intl.DateTimeFormat("ru-RU", {
             dateStyle: "medium",
@@ -358,7 +360,7 @@ export function PlatformRegisterContent() {
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={field.name}>Домен</FieldLabel>
-                <div className="flex items-center rounded-md border border-neutral-200 shadow-custom focus-within:ring-1 focus-within:ring-ring">
+                <div className="flex items-center rounded-control border border-line-default shadow-control focus-within:ring-1 focus-within:ring-action-primary/50">
                   <Input
                     id={field.name}
                     value={field.value ?? ""}
@@ -370,9 +372,9 @@ export function PlatformRegisterContent() {
                     ref={field.ref}
                     placeholder="flowers"
                     aria-invalid={fieldState.invalid}
-                    className="h-12 rounded-none border-0 shadow-none focus-visible:outline-none"
+                    className="h-12 rounded-none border-0 shadow-none focus-visible:ring-0 focus-visible:outline-none"
                   />
-                  <span className="shrink-0 pr-4 text-sm text-neutral-500">
+                  <span className="shrink-0 pr-4 text-sm text-text-muted">
                     .myctlg.ru
                   </span>
                 </div>

@@ -63,7 +63,7 @@ export function PlatformVerifyEmailContent({
         title="Подтверждаем аккаунт"
         description="Это займет несколько секунд."
       >
-        <div className="flex items-center justify-center py-8 text-neutral-500">
+        <div className="flex items-center justify-center py-8 text-text-muted">
           <Loader2 className="size-7 animate-spin" aria-hidden="true" />
         </div>
       </PlatformShell>
@@ -115,26 +115,26 @@ export function PlatformVerifyEmailContent({
       }
     >
       <div className="space-y-5 text-center">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+        <div className="mx-auto flex size-12 items-center justify-center rounded-pill bg-status-success-surface text-status-success">
           <CheckCircle2 className="size-6" aria-hidden="true" />
         </div>
 
         {result ? (
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-left text-sm leading-6 text-neutral-600">
+          <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4 text-left text-sm leading-6 text-text-muted">
             <div>
-              <span className="text-neutral-500">Каталог:</span>{" "}
+              <span className="text-text-muted">Каталог:</span>{" "}
               <a
                 href={result.catalogUrl}
-                className="font-medium text-neutral-950 underline underline-offset-4"
+                className="font-medium text-text-primary underline underline-offset-4"
               >
                 {result.catalogUrl}
               </a>
             </div>
             <div>
-              <span className="text-neutral-500">Вход:</span>{" "}
+              <span className="text-text-muted">Вход:</span>{" "}
               <a
                 href={result.loginUrl}
-                className="font-medium text-neutral-950 underline underline-offset-4"
+                className="font-medium text-text-primary underline underline-offset-4"
               >
                 {result.loginUrl}
               </a>

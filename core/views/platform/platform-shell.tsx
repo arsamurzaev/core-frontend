@@ -19,32 +19,32 @@ export function PlatformShell({
   footer,
 }: PlatformShellProps) {
   return (
-    <main className="bg-background min-h-svh px-5 py-6">
+    <main className="min-h-svh bg-surface-base px-5 py-6">
       <div className="mx-auto flex min-h-[calc(100svh-48px)] w-full max-w-5xl flex-col">
         <header className="flex items-center justify-between gap-4">
           <KreatiLogo />
           {footer ? (
-            <div className="text-sm text-neutral-500">{footer}</div>
+            <div className="text-sm text-text-muted">{footer}</div>
           ) : null}
         </header>
 
         <div className="flex flex-1 items-center justify-center py-8">
           <section className={cn("w-full max-w-xl", className)}>
             <div className="mb-7 space-y-2 text-center">
-              <p className="text-xs font-medium tracking-[0.18em] text-neutral-500 uppercase">
+              <p className="text-xs font-medium tracking-[0.18em] text-text-muted uppercase">
                 {eyebrow}
               </p>
-              <h1 className="text-3xl leading-tight font-semibold text-neutral-950">
+              <h1 className="text-3xl leading-tight font-semibold text-text-primary">
                 {title}
               </h1>
               {description ? (
-                <p className="mx-auto max-w-md text-sm leading-6 text-neutral-500">
+                <p className="mx-auto max-w-md text-sm leading-6 text-text-muted">
                   {description}
                 </p>
               ) : null}
             </div>
 
-            <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm sm:p-6">
+            <div className="rounded-panel border border-line-subtle bg-surface-raised p-5 shadow-surface sm:p-6">
               {children}
             </div>
           </section>
