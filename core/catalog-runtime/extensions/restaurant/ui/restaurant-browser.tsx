@@ -62,7 +62,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
   return (
     <section
       id="scroll-tab-element"
-      className={cn("space-y-4 rounded-xl", className)}
+      className={cn("space-y-4 rounded-panel", className)}
     >
       <RestaurantFilterBar
         searchTerm={queryState.searchTerm}

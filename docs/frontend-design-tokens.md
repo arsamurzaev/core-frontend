@@ -155,6 +155,7 @@ Shape/elevation:
 - `core/modules/category/ui/category-card.tsx` and `category-card-skeleton.tsx`: category compact/image card surfaces, inverse text, skeleton overlays, radii and elevation use semantic tokens.
 - `core/modules/product/editor` category/brand selection UI and discount date-range controls: list rows, skeletons, delete warnings, selected states, drawer dividers/footers and attribute boolean wrapper use semantic tokens.
 - Shared/runtime residuals: yandex metrika banner, subscription access gate, app drawer footer, drawer handle, carousel arrows, confirmation drawer elevation, wholesale quantity spinbox and popular product action muted state use semantic tokens.
+- `core/catalog-runtime/extensions/restaurant/ui/restaurant-browser.tsx`: restaurant storefront browser shell radius uses semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
