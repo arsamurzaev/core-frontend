@@ -173,3 +173,4 @@
 - [x] Закрыть оставшиеся `edit-catalog` media/required marker/contact icon token хвосты.
 - [x] Перевести lightweight `cart` controls/cards/footer summary на semantic tokens.
 - [x] Перевести `cart-product-variant-drawer` selection flow на semantic tokens.
+- [x] Перевести category cards/skeletons на semantic tokens.

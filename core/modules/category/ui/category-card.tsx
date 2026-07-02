@@ -31,7 +31,7 @@ export const CategoryCard: React.FC<Props> = ({
         >
           <div
             className={cn(
-              "shadow-custom flex min-h-16 w-full items-center rounded-lg border border-black/5 bg-white px-4 py-3 pr-12 text-black",
+              "flex min-h-16 w-full items-center rounded-panel border border-line-subtle bg-surface-base px-4 py-3 pr-12 text-text-primary shadow-surface",
               className,
             )}
           >
@@ -53,7 +53,7 @@ export const CategoryCard: React.FC<Props> = ({
       >
         <div
           className={cn(
-            "shadow-custom flex aspect-2/1 w-full flex-col items-start justify-end rounded-lg bg-cover px-6 py-5 text-white",
+            "flex aspect-2/1 w-full flex-col items-start justify-end rounded-panel bg-cover px-6 py-5 text-text-inverse shadow-surface",
             className,
           )}
           style={{
