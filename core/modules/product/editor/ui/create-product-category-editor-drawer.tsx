@@ -112,10 +112,10 @@ export function CreateProductCategoryEditorDrawer({
             ) : null}
 
             {supportsCategoryDetails && uploadState.phase !== "idle" ? (
-              <div className="space-y-2 rounded-2xl border border-black/10 bg-muted/15 p-4">
+              <div className="space-y-2 rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span>{uploadState.message}</span>
-                  <span className="text-muted-foreground">
+                  <span className="text-text-muted">
                     {Math.round(uploadState.progress)}%
                   </span>
                 </div>

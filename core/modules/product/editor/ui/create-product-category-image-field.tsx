@@ -52,7 +52,7 @@ export const CreateProductCategoryImageField: React.FC<
       <div className="space-y-4">
         <div className="relative">
           <AspectRatio ratio={CATEGORY_IMAGE_ASPECT_RATIO} className="w-full">
-            <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl border bg-muted/20">
+            <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-panel border border-line-subtle bg-surface-subtle">
               <img
                 alt=""
                 src={displaySrc}
@@ -66,7 +66,7 @@ export const CreateProductCategoryImageField: React.FC<
               type="button"
               variant="outline"
               size="icon"
-              className="absolute top-2 right-2 rounded-full bg-background"
+              className="absolute top-2 right-2 rounded-pill bg-surface-base"
               onClick={handleClearFile}
               disabled={isDisabled}
               aria-label="Удалить выбранное изображение категории"
@@ -85,7 +85,7 @@ export const CreateProductCategoryImageField: React.FC<
           >
             Изменить фон категории
           </button>
-          <p className="text-muted-foreground text-center text-xs font-light">
+          <p className="text-text-muted text-center text-xs font-light">
             соотношение 2:1
           </p>
         </div>

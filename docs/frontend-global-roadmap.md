@@ -160,3 +160,4 @@
 - [x] Перевести iiko/MoySklad sync progress toast text layer на semantic tokens.
 - [x] Перевести `product-price-list` price fields/input grid на semantic tokens.
 - [x] Перевести product editor progress/type-change/image/error states на semantic tokens.
+- [x] Перевести product image grid/category image states на semantic tokens.

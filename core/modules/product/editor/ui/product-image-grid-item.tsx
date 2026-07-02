@@ -33,7 +33,7 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
 }) => {
   return (
     <li
-      className="relative overflow-hidden rounded-lg border transition-shadow hover:shadow-lg"
+      className="relative overflow-hidden rounded-control border border-line-subtle transition-shadow hover:shadow-surface"
       data-vaul-no-drag=""
     >
       <button
@@ -42,7 +42,7 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
         disabled={disabled || !isReorderMode}
         data-vaul-no-drag=""
         className={cn(
-          "relative block w-full overflow-hidden bg-muted/10",
+          "relative block w-full overflow-hidden bg-surface-subtle",
           isReorderMode && !disabled ? "cursor-pointer" : "cursor-default",
         )}
       >
@@ -55,17 +55,17 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
           )}
         />
 
-        <span className="absolute bottom-1.5 left-1.5 rounded bg-black/65 px-1.5 py-0.5 text-[10px] font-medium text-white">
+        <span className="absolute bottom-1.5 left-1.5 rounded-control bg-surface-overlay px-1.5 py-0.5 text-[10px] font-medium text-surface-overlay-foreground">
           {index + 1}
         </span>
 
         {isReorderMode ? (
           <span
             className={cn(
-              "absolute left-1.5 top-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium",
+              "absolute left-1.5 top-1.5 rounded-control px-1.5 py-0.5 text-[10px] font-medium",
               isSwapCandidate
-                ? "bg-primary text-primary-foreground"
-                : "bg-background/90 text-foreground",
+                ? "bg-action-primary text-action-primary-foreground"
+                : "bg-surface-base/90 text-text-primary",
             )}
           >
             {isSwapCandidate ? "1/2 выбрано" : "выбрать"}
@@ -73,7 +73,7 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
         ) : null}
 
         {isSwapCandidate ? (
-          <span className="pointer-events-none absolute inset-0 ring-2 ring-primary ring-offset-2" />
+          <span className="pointer-events-none absolute inset-0 ring-2 ring-action-primary ring-offset-2" />
         ) : null}
       </button>
 
@@ -81,7 +81,7 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
         type="button"
         variant="ghost"
         disabled={disabled || isReorderMode}
-        className="shadow-custom absolute right-1.5 top-1.5 z-10 size-6 rounded-full bg-white text-black"
+        className="absolute right-1.5 top-1.5 z-10 size-6 rounded-pill bg-surface-base text-status-danger shadow-surface hover:bg-status-danger-surface"
         onClick={(event) => {
           event.stopPropagation();
           onRemove();
@@ -96,7 +96,7 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute bottom-1.5 right-1.5 z-10 size-6 rounded-full bg-black/55 text-white hover:bg-black/70"
+        className="absolute bottom-1.5 right-1.5 z-10 size-6 rounded-pill bg-surface-overlay text-surface-overlay-foreground hover:bg-surface-overlay/80"
         onClick={(event) => {
           event.stopPropagation();
           onEdit();
@@ -109,7 +109,7 @@ export const ProductImageGridItem: React.FC<ProductImageGridItemProps> = ({
       </Button>
 
       <div className="px-1.5 pb-1.5 pt-1">
-        <p className="truncate text-[11px] text-muted-foreground">{label}</p>
+        <p className="truncate text-[11px] text-text-muted">{label}</p>
       </div>
     </li>
   );
