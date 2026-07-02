@@ -58,6 +58,7 @@ Routes should import screen composition through view entrypoints:
 - `@/core/views/order`
 - `@/core/views/platform`
 - `@/core/views/product`
+- `@/core/views/storefront`
 
 ## Runtime
 

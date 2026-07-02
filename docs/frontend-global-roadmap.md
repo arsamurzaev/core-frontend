@@ -67,6 +67,7 @@
 - [ ] Проверить product page, home page, drawers, header/footer на единый composition pattern.
 - [x] Вынести standalone product page composition из `app/(storefront)/product/[slug]` в `core/views/product`.
 - [x] Вынести iiko order timeline page/access из `app/(storefront)/order/[id]` в `core/views/order`.
+- [x] Вынести storefront entry host resolver из `app/(storefront)/page` в `core/views/storefront`.
 
 ### 6. Quality Gate
 
