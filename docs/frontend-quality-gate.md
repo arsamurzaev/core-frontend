@@ -36,6 +36,7 @@ bun run prod:check --skip-api
 В режиме `--fast` вместо полного test suite запускаются только архитектурные проверки:
 
 - `architecture-boundaries`
+- `design-tokens`
 - `text-encoding`
 
 ## Production Smoke

@@ -26,6 +26,7 @@
 - [x] Синхронизировать `docs/architecture.md` с текущими backend-инвариантами.
 - [x] Оставить `core/architecture-boundaries.test.ts` обязательным quality gate.
 - [x] Оставить `core/text-encoding.test.ts` обязательным quality gate.
+- [x] Оставить `app/design-tokens.test.ts` обязательным fast quality gate.
 - [x] Добавить report по deep imports из widgets в domain modules.
 - [x] Зафиксировать публичные entrypoints:
   - `core/modules/product`;

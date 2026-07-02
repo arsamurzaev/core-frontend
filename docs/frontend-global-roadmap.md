@@ -53,8 +53,8 @@
 
 ### 4. Design System And Tokens
 
-- [ ] Инвентаризировать текущие CSS variables, Tailwind tokens и shared UI.
-- [ ] Ввести semantic tokens: surface, text, border, action, status, spacing, radius, shadow.
+- [x] Инвентаризировать текущие CSS variables, Tailwind tokens и shared UI.
+- [x] Ввести первый слой semantic tokens: surface, text, line, action, status, radius, shadow.
 - [ ] Разделить base primitives и domain components.
 - [ ] Подготовить theme presets под будущий редизайн.
 - [ ] Убрать одноразовые визуальные решения из крупных widgets там, где они должны быть tokens/components.
@@ -105,7 +105,7 @@
 
 - [x] Описать public surface каждого `core/modules/*/index.ts`: что является контрактом, что остается internal.
 - [x] Начать выделение bridge modules для связок `product/cart` и будущих runtime-specific сценариев.
-- [ ] Инвентаризировать shared UI и текущие CSS/Tailwind tokens перед design tokens.
+- [x] Инвентаризировать shared UI и текущие CSS/Tailwind tokens перед design tokens.
 
 ## Текущий Третий Блок
 
@@ -115,3 +115,10 @@
 - [x] Добавить первый bridge `@/core/bridges/product-cart`.
 - [x] Перенести product/cart line matching из `product-drawer` в bridge.
 - [x] Вывести `CartLineModifierSelection` через public API `@/core/modules/cart`.
+
+## Текущий Четвертый Блок
+
+- [x] Создать `docs/frontend-design-tokens.md`.
+- [x] Добавить semantic tokens в `app/globals.css`.
+- [x] Добавить тест `app/design-tokens.test.ts`.
+- [x] Перевести `Button`, `Card` и cart status message на semantic tokens.

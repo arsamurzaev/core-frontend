@@ -48,6 +48,7 @@ function buildSteps(options: GateOptions): GateStep[] {
         "test:run",
         "--",
         "architecture-boundaries",
+        "design-tokens",
         "text-encoding",
       ]),
     );

@@ -42,7 +42,45 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --shadow-custom: 0 0 6px 0 rgba(0, 0, 0, 0.25);
+  --color-surface-base: var(--surface-base);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-raised-foreground: var(--surface-raised-foreground);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-overlay-foreground: var(--surface-overlay-foreground);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+  --color-line-default: var(--line-default);
+  --color-line-subtle: var(--line-subtle);
+  --color-line-strong: var(--line-strong);
+  --color-action-primary: var(--action-primary);
+  --color-action-primary-foreground: var(--action-primary-foreground);
+  --color-action-secondary: var(--action-secondary);
+  --color-action-secondary-foreground: var(--action-secondary-foreground);
+  --color-action-link: var(--action-link);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-foreground: var(--status-danger-foreground);
+  --color-status-danger-surface: var(--status-danger-surface);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-foreground: var(--status-warning-foreground);
+  --color-status-warning-surface: var(--status-warning-surface);
+  --color-status-success: var(--status-success);
+  --color-status-success-foreground: var(--status-success-foreground);
+  --color-status-success-surface: var(--status-success-surface);
+  --color-status-info: var(--status-info);
+  --color-status-info-foreground: var(--status-info-foreground);
+  --color-status-info-surface: var(--status-info-surface);
+  --radius-panel: var(--semantic-radius-panel);
+  --radius-control: var(--semantic-radius-control);
+  --radius-pill: var(--semantic-radius-pill);
+  --shadow-custom: var(--elevation-surface);
+  --shadow-surface: var(--elevation-surface);
+  --shadow-control: var(--elevation-control);
+  --shadow-overlay: var(--elevation-overlay);
 }
 
 :root {
@@ -72,6 +110,44 @@
   --chart-3: oklch(35% 0.08 197);
   --chart-4: oklch(75% 0.18 43);
   --chart-5: oklch(72% 0.22 27);
+  --surface-base: var(--background);
+  --surface-raised: var(--card);
+  --surface-raised-foreground: var(--card-foreground);
+  --surface-overlay: var(--popover);
+  --surface-overlay-foreground: var(--popover-foreground);
+  --surface-muted: var(--secondary);
+  --surface-subtle: color-mix(in oklch, var(--muted) 22%, transparent);
+  --surface-inverse: var(--foreground);
+  --text-primary: var(--foreground);
+  --text-secondary: color-mix(in oklch, var(--foreground) 64%, var(--background));
+  --text-muted: var(--muted-foreground);
+  --text-inverse: var(--background);
+  --line-default: var(--border);
+  --line-subtle: color-mix(in oklch, var(--border) 62%, transparent);
+  --line-strong: color-mix(in oklch, var(--foreground) 18%, var(--background));
+  --action-primary: var(--primary);
+  --action-primary-foreground: var(--primary-foreground);
+  --action-secondary: var(--secondary);
+  --action-secondary-foreground: var(--secondary-foreground);
+  --action-link: var(--primary);
+  --status-danger: var(--destructive);
+  --status-danger-foreground: var(--destructive-foreground);
+  --status-danger-surface: color-mix(in oklch, var(--destructive) 10%, var(--background));
+  --status-warning: oklch(72% 0.16 80);
+  --status-warning-foreground: oklch(24% 0.04 80);
+  --status-warning-surface: oklch(96% 0.04 90);
+  --status-success: oklch(58% 0.15 145);
+  --status-success-foreground: oklch(98% 0 0);
+  --status-success-surface: oklch(96% 0.04 145);
+  --status-info: var(--tertiary);
+  --status-info-foreground: oklch(98% 0 0);
+  --status-info-surface: color-mix(in oklch, var(--tertiary) 10%, var(--background));
+  --semantic-radius-panel: var(--radius);
+  --semantic-radius-control: calc(var(--radius) - 2px);
+  --semantic-radius-pill: 9999px;
+  --elevation-surface: 0 0 6px 0 rgba(0, 0, 0, 0.25);
+  --elevation-control: 0 0 4px 0 rgba(0, 0, 0, 0.25);
+  --elevation-overlay: 0 12px 30px -16px rgba(0, 0, 0, 0.35);
 }
 
 .dark {
@@ -100,6 +176,16 @@
   --chart-3: oklch(65% 0.16 30);
   --chart-4: oklch(70% 0.14 280);
   --chart-5: oklch(65% 0.18 340);
+  --status-warning: oklch(78% 0.14 80);
+  --status-warning-foreground: oklch(95% 0.02 90);
+  --status-warning-surface: color-mix(in oklch, var(--status-warning) 16%, var(--background));
+  --status-success: oklch(66% 0.14 145);
+  --status-success-foreground: oklch(96% 0.02 145);
+  --status-success-surface: color-mix(in oklch, var(--status-success) 16%, var(--background));
+  --status-info-surface: color-mix(in oklch, var(--tertiary) 18%, var(--background));
+  --elevation-surface: 0 0 6px 0 rgba(0, 0, 0, 0.5);
+  --elevation-control: 0 0 4px 0 rgba(0, 0, 0, 0.45);
+  --elevation-overlay: 0 14px 36px -18px rgba(0, 0, 0, 0.7);
 }
 
 @layer base {
