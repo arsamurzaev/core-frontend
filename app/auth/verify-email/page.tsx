@@ -1,4 +1,4 @@
-import { PlatformVerifyEmailContent } from "@/core/views/platform/platform-verify-email-content";
+import { PlatformVerifyEmailContent } from "@/core/views/platform";
 
 type VerifyEmailPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

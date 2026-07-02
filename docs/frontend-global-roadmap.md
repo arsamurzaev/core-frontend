@@ -188,3 +188,4 @@
 - [x] Добавить slot compatibility guard: explicit props, no direct generated/server API, no module deep imports from runtime extensions.
 - [x] Добавить widget public entrypoints для runtime/storefront composition и guard против `core/widgets/*/ui|model|lib` imports.
 - [x] Добавить `architecture:report` для топовых источников deep import debt перед следующими public API выносами.
+- [x] Добавить view public entrypoints для storefront/auth routes и runtime Browser fallback.

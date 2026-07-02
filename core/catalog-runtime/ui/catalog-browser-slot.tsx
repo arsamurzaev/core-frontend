@@ -1,6 +1,6 @@
 "use client";
 
-import { Browser } from "@/core/views/home/_ui/browser";
+import { Browser } from "@/core/views/home/browser";
 import type React from "react";
 import type { BrowserSlotProps } from "../slot-contracts";
 import { useCatalogRuntimeSlots } from "../use-catalog-runtime-slots";

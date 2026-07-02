@@ -1,5 +1,5 @@
-import { LoginContent } from "@/core/views/login/login-content";
-import { PlatformLoginContent } from "@/core/views/platform/platform-login-content";
+import { LoginContent } from "@/core/views/login";
+import { PlatformLoginContent } from "@/core/views/platform";
 import { getCurrentCatalogServer } from "@/shared/api/server/get-current-catalog";
 import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import { getCurrentSessionServer } from "@/shared/api/server/get-current-session";

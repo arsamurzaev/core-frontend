@@ -127,6 +127,12 @@ const PUBLIC_MODULE_ENTRYPOINT_SPECIFIERS = new Set([
   "@/core/modules/product/editor",
   "@/core/modules/product-modifier",
 ]);
+const PUBLIC_VIEW_ENTRYPOINT_SPECIFIERS = new Set([
+  "@/core/views/home",
+  "@/core/views/home/browser",
+  "@/core/views/login",
+  "@/core/views/platform",
+]);
 const PUBLIC_MODULE_DEEP_IMPORT_PATTERN =
   /^@\/core\/modules\/(?:browser|cart|catalog-price-list|category|integration|product|product-modifier)\/.+/;
 const DEEP_IMPORT_REPORT_LIMIT = 10;
@@ -337,7 +343,12 @@ function getReportableTarget(specifier: string): {
     };
   }
 
-  if (parts[0] === "core" && parts[1] === "views" && parts.length > 3) {
+  if (
+    parts[0] === "core" &&
+    parts[1] === "views" &&
+    parts.length > 3 &&
+    !PUBLIC_VIEW_ENTRYPOINT_SPECIFIERS.has(specifier)
+  ) {
     const owner = `core/views/${parts[2] ?? "unknown"}`;
 
     return {

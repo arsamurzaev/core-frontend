@@ -1,6 +1,8 @@
-import { HomeContent } from "@/core/views/home/home-content";
-import { PlatformLoginContent } from "@/core/views/platform/platform-login-content";
-import { PlatformRegisterContent } from "@/core/views/platform/platform-register-content";
+import { HomeContent } from "@/core/views/home";
+import {
+  PlatformLoginContent,
+  PlatformRegisterContent,
+} from "@/core/views/platform";
 import { resolveServerForwardedHost } from "@/shared/api/server/get-current-catalog";
 import { getPlatformHostKind } from "@/shared/platform/platform-host";
 

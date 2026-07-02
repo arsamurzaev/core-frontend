@@ -1,4 +1,4 @@
-import { HomeContent } from "@/core/views/home/home-content";
+import { HomeContent } from "@/core/views/home";
 import { canOpenStorefrontProductPage } from "@/core/catalog-runtime/server";
 import {
   generateProductPageMetadata,

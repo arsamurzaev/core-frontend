@@ -48,6 +48,15 @@ Cross-domain bridge imports should go through bridge public entrypoints:
 
 - `@/core/bridges/product-cart`
 
+## View Entrypoints
+
+Routes should import screen composition through view entrypoints:
+
+- `@/core/views/home`
+- `@/core/views/home/browser`
+- `@/core/views/login`
+- `@/core/views/platform`
+
 ## Runtime
 
 Catalog-specific behavior goes through `core/catalog-runtime`.
