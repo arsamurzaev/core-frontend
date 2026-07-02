@@ -50,7 +50,7 @@ export const EditCatalogContactFieldRow: React.FC<
     <Field className="gap-0">
       <FieldContent>
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4">
-          <span className="text-muted-foreground shadow-custom inline-flex size-10 items-center justify-center rounded-full">
+          <span className="text-text-muted shadow-surface inline-flex size-10 items-center justify-center rounded-pill">
             <Icon className="size-[22px]" />
           </span>
 
@@ -66,7 +66,7 @@ export const EditCatalogContactFieldRow: React.FC<
               readOnly={readOnly}
               aria-invalid={errorMessage ? true : undefined}
               placeholder={fieldConfig.placeholder}
-              className="border-muted-foreground h-fit rounded-none border-0 border-b px-0 pt-4 pb-4 shadow-none"
+              className="border-line-default h-fit rounded-none border-0 border-b px-0 pt-4 pb-4 shadow-none"
               {...inputProps}
             />
           ) : (
@@ -98,7 +98,7 @@ export const EditCatalogContactFieldRow: React.FC<
                     }
                   : undefined
               }
-              className="border-muted-foreground h-fit rounded-none border-0 border-b px-0 pt-4 pb-4 shadow-none"
+              className="border-line-default h-fit rounded-none border-0 border-b px-0 pt-4 pb-4 shadow-none"
               {...inputProps}
             />
           )}

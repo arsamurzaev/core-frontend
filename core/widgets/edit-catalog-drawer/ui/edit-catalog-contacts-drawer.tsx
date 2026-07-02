@@ -37,7 +37,7 @@ export const EditCatalogContactsDrawer: React.FC<
         <Button
           type="button"
           variant="ghost"
-          className="text-muted-foreground h-auto w-full min-w-0 items-start justify-between px-0 py-0 text-left whitespace-normal hover:bg-transparent"
+          className="text-text-muted h-auto w-full min-w-0 items-start justify-between px-0 py-0 text-left whitespace-normal hover:bg-transparent"
           disabled={disabled}
         >
           {hasContacts ? (

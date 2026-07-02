@@ -12,9 +12,9 @@ import {
   type CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
 import { useCatalog } from "@/shared/providers/catalog-provider";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import { FieldError } from "@/shared/ui/field";
 import { Input } from "@/shared/ui/input";
@@ -85,10 +85,10 @@ function MethodContactsEditor({
   method: CheckoutMethod;
 }) {
   return (
-    <div className="space-y-3 rounded-xl border border-black/10 p-3">
+    <AdminPanel padding="sm" className="space-y-3">
       <div className="space-y-1">
         <p className="text-sm font-medium">Контакты для способа</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-text-muted">
           Если оставить пустыми, будут использоваться контакты каталога.
         </p>
       </div>
@@ -104,7 +104,7 @@ function MethodContactsEditor({
 
               return (
                 <label className="grid gap-1 text-sm">
-                  <span className="text-muted-foreground">
+                  <span className="text-text-muted">
                     {getContactLabel(type)}
                   </span>
                   {isPhoneContactType(type) ? (
@@ -115,7 +115,7 @@ function MethodContactsEditor({
                       ref={field.ref}
                       disabled={disabled}
                       placeholder={getContactPlaceholder(type)}
-                      className="border border-black/10"
+                      className="border border-line-default"
                     />
                   ) : (
                     <Input
@@ -125,7 +125,7 @@ function MethodContactsEditor({
                       ref={field.ref}
                       disabled={disabled}
                       placeholder={getContactPlaceholder(type)}
-                      className="border border-black/10"
+                      className="border border-line-default"
                     />
                   )}
                 </label>
@@ -134,7 +134,7 @@ function MethodContactsEditor({
           />
         ))}
       </div>
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -152,7 +152,7 @@ function PreorderSettingsEditor({
         name="preorderMinLeadTimeMinutes"
         render={({ field }) => (
           <label className="grid gap-1 text-sm">
-            <span className="text-muted-foreground">
+            <span className="text-text-muted">
               Минимум до визита, мин
             </span>
             <Input
@@ -169,7 +169,7 @@ function PreorderSettingsEditor({
               onBlur={field.onBlur}
               ref={field.ref}
               disabled={disabled}
-              className="border border-black/10"
+              className="border border-line-default"
             />
             <FieldError>
               {form.formState.errors.preorderMinLeadTimeMinutes?.message}
@@ -183,7 +183,7 @@ function PreorderSettingsEditor({
         name="preorderMaxAdvanceDays"
         render={({ field }) => (
           <label className="grid gap-1 text-sm">
-            <span className="text-muted-foreground">
+            <span className="text-text-muted">
               Окно предзаказа, дней
             </span>
             <Input
@@ -200,7 +200,7 @@ function PreorderSettingsEditor({
               onBlur={field.onBlur}
               ref={field.ref}
               disabled={disabled}
-              className="border border-black/10"
+              className="border border-line-default"
             />
             <FieldError>
               {form.formState.errors.preorderMaxAdvanceDays?.message}
@@ -324,12 +324,7 @@ export const EditCatalogCheckoutDrawer: React.FC<
       onOpenChange={handleOpenChange}
       dismissible={!disabled && !isSaving}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <Badge
@@ -339,12 +334,12 @@ export const EditCatalogCheckoutDrawer: React.FC<
                 {summary}
               </Badge>
             </div>
-            <p className="mt-1 wrap-break-word text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 wrap-break-word text-sm text-text-muted whitespace-normal">
               {summaryDescription}
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full">
@@ -367,9 +362,9 @@ export const EditCatalogCheckoutDrawer: React.FC<
                   );
 
                   return (
-                    <div
+                    <AdminPanel
                       key={method}
-                      className="space-y-3 rounded-2xl border border-black/10 p-4"
+                      className="space-y-3"
                     >
                       <div className="flex items-start gap-3">
                         <Switch
@@ -384,11 +379,11 @@ export const EditCatalogCheckoutDrawer: React.FC<
                           <p className="text-sm font-semibold">
                             {CHECKOUT_METHOD_LABELS[method]}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-text-muted">
                             {CHECKOUT_METHOD_DESCRIPTIONS[method]}
                           </p>
                           {customContactsCount > 0 ? (
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <p className="mt-1 text-xs text-text-muted">
                               Кастомных контактов: {customContactsCount}
                             </p>
                           ) : null}
@@ -409,7 +404,7 @@ export const EditCatalogCheckoutDrawer: React.FC<
                           method={method}
                         />
                       ) : null}
-                    </div>
+                    </AdminPanel>
                   );
                 })}
               </section>
