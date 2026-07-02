@@ -1,1 +1,6 @@
-export * from "@/core/modules/product/editor/lib/select-field-utils";
+export {
+  areStringSetsEqual,
+  EMPTY_FIELD_OPTIONS,
+  getFieldOptionText,
+  normalizeSingleLineText,
+} from "@/core/modules/product/editor";

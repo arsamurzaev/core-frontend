@@ -1,4 +1,4 @@
-﻿import { useProductCardViewMode } from "@/core/modules/product/model/use-product-card-view-mode";
+import { useProductCardViewMode } from "@/core/modules/product";
 import {
   type CatalogFilterValuePatch,
   useFilterBar,

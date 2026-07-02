@@ -1,1 +1,1 @@
-export { CreateProductBrandField } from "@/core/modules/product/editor/ui";
+export { CreateProductBrandField } from "@/core/modules/product/editor";

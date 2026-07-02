@@ -31,7 +31,8 @@
 - [x] Запретить `core/**` и `shared/**` импортировать `app/**`.
 - [x] Расширить public-entrypoint контроль на `catalog-price-list` и `product-modifier`.
 - [x] Снизить первый baseline глубоких module imports: `131 -> 113`.
-- [ ] Продолжать снижать baseline глубоких module imports отдельными маленькими PR/коммитами.
+- [x] Закрыть production deep import debt из `app`, `catalog-runtime`, `core/views` и `core/widgets`: `113 -> 0`.
+- [ ] Поддерживать нулевой baseline глубоких module imports через architecture guard.
 - [ ] Добавить отчет по топовым источникам deep import debt.
 
 ### 2. Module Public API
@@ -97,3 +98,11 @@
 - [x] Перевести `core/views/home` imports на `@/core/modules/browser` и `@/core/modules/category`.
 - [x] Перевести очевидные `edit-catalog/global-admin` imports на `product`, `integration`, `product-modifier` entrypoints.
 - [x] Снизить `PUBLIC_MODULE_IMPORT_DEBT_BASELINE` до `113`.
+- [x] Перевести `create-product-drawer`, `edit-product-drawer`, `product-editor`, `product-drawer`, `cart-drawer` и `filter-bar` на module public entrypoints.
+- [x] Снизить `PUBLIC_MODULE_IMPORT_DEBT_BASELINE` до `0`.
+
+## Следующий Фронтовый Блок
+
+- [ ] Описать public surface каждого `core/modules/*/index.ts`: что является контрактом, что остается internal.
+- [ ] Начать выделение bridge modules для связок `product/cart` и будущих runtime-specific сценариев.
+- [ ] Инвентаризировать shared UI и текущие CSS/Tailwind tokens перед design tokens.

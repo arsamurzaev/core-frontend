@@ -79,7 +79,7 @@ const BOUNDARY_RULES: BoundaryRule[] = [
   },
 ];
 
-const PUBLIC_MODULE_IMPORT_DEBT_BASELINE = 113;
+const PUBLIC_MODULE_IMPORT_DEBT_BASELINE = 0;
 const PUBLIC_MODULE_IMPORT_SOURCES = [
   "app",
   "core/catalog-runtime",

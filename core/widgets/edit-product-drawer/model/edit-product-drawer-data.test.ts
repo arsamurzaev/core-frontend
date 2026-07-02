@@ -15,7 +15,7 @@ import {
   type ProductWithDetailsDto,
 } from "@/shared/api/generated/react-query";
 import { describe, expect, it, vi } from "vitest";
-import { CREATE_PRODUCT_FORM_DEFAULT_VALUES } from "@/core/modules/product/editor/model/form-config";
+import { CREATE_PRODUCT_FORM_DEFAULT_VALUES } from "@/core/modules/product/editor";
 import {
   buildEditProductFormValues,
   parseEditProductUpdatePayload,

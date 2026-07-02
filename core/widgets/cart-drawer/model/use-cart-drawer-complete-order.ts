@@ -1,6 +1,6 @@
 "use client";
 
-import type { PrepareShareOrderInput } from "@/core/modules/cart/model/cart-context.types";
+import type { PrepareShareOrderInput } from "@/core/modules/cart";
 import type { CompletedOrderDto } from "@/shared/api/generated/react-query";
 import { confirm } from "@/shared/ui/confirmation";
 import React from "react";

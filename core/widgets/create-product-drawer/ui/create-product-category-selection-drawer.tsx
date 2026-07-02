@@ -1,1 +1,1 @@
-export { CreateProductCategorySelectionDrawer } from "@/core/modules/product/editor/ui";
+export { CreateProductCategorySelectionDrawer } from "@/core/modules/product/editor";

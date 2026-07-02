@@ -6,9 +6,11 @@ import {
   getCartItemMaxQuantity,
   useCart,
 } from "@/core/modules/cart";
-import { CART_PRODUCT_CONTROL_MESSAGES } from "@/core/modules/cart/model/cart-product-controls";
-import { CartProductDrawerFooterAction } from "@/core/modules/cart/ui/cart-product-drawer-footer-action";
-import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
+import {
+  CART_PRODUCT_CONTROL_MESSAGES,
+  CartProductDrawerFooterAction,
+  useCartProductControls,
+} from "@/core/modules/cart";
 import {
   buildCartModifierSelectionPayload,
   buildDefaultProductModifierSelection,

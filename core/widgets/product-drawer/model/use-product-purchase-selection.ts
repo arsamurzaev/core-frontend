@@ -1,10 +1,10 @@
 "use client";
 
-import type { CartProductSnapshot } from "@/core/modules/cart/model/cart-context.types";
+import type { CartProductSnapshot } from "@/core/modules/cart";
 import {
   findProductSaleUnit,
   type ProductSaleUnit,
-} from "@/core/modules/product/model/sale-units";
+} from "@/core/modules/product";
 import {
   buildProductPurchaseCartSnapshot,
   getAvailableProductSaleUnits,

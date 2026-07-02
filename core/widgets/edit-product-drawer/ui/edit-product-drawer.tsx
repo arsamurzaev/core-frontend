@@ -4,7 +4,7 @@ import { useEditProductDrawer } from "@/core/widgets/edit-product-drawer/model/u
 import {
   ProductEditorDrawerContent,
   ProductImagesSection,
-} from "@/core/modules/product/editor/ui";
+} from "@/core/modules/product/editor";
 import {
   ProductPriceListInlineFields,
   ProductPriceListPricesField,

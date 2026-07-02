@@ -1,1 +1,1 @@
-export { ToggleProductPopularAction } from "@/core/modules/product/actions/ui";
+export { ToggleProductPopularAction } from "@/core/modules/product";

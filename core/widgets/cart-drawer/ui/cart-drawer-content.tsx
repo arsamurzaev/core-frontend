@@ -1,6 +1,6 @@
 "use client";
 
-import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import type { CartItemView } from "@/core/modules/cart";
 import { resolveCartDrawerContentState } from "@/core/widgets/cart-drawer/model/cart-drawer-content-state";
 import { CartCardList } from "@/core/widgets/cart-drawer/ui/cart-card-list";
 import { CartDrawerCommentSection } from "@/core/widgets/cart-drawer/ui/cart-drawer-comment-section";

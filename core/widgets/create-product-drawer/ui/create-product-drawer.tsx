@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductEditorDrawerContent } from "@/core/modules/product/editor/ui";
+import { ProductEditorDrawerContent } from "@/core/modules/product/editor";
 import {
   ProductPriceListCreateInlineFields,
   ProductPriceListCreatePricesField,

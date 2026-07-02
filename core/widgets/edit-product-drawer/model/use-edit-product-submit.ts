@@ -1,14 +1,14 @@
 "use client";
 
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
-import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
 import {
   type AttributeFormValue,
+  type CreateProductFormValues,
+  REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE,
   type UploadState,
-} from "@/core/modules/product/editor/model/types";
-import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
-import { UploadProgressToast } from "@/core/modules/product/editor/ui/upload-progress-toast";
-import { waitForProductImagesProcessing } from "@/core/modules/product/editor/lib";
+  UploadProgressToast,
+  validateProductFormValues,
+  waitForProductImagesProcessing,
+} from "@/core/modules/product/editor";
 import {
   bulkUpsertCatalogPriceListPrices,
   catalogPriceListQueryKeys,

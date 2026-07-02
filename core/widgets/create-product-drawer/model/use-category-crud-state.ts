@@ -1,1 +1,1 @@
-export * from "@/core/modules/product/editor/model/use-category-crud-state";
+export { useCategoryCrudState } from "@/core/modules/product/editor";

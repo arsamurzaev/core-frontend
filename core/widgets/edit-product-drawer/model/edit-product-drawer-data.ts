@@ -1,6 +1,6 @@
 "use client";
 
-import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
+import { invalidateProductQueries } from "@/core/modules/product";
 import {
   getProductControllerGetByIdQueryKey,
   type ProductWithDetailsDto,

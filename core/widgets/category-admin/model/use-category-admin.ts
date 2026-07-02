@@ -2,14 +2,12 @@
 
 import { arrayMove } from "@dnd-kit/sortable";
 import {
+  IDLE_CATEGORY_IMAGE_UPLOAD_STATE,
   parseCategoryEditorDraft,
   toCategoryUploadErrorState,
-} from "@/core/modules/product/editor/lib/category-editor";
-import {
-  IDLE_CATEGORY_IMAGE_UPLOAD_STATE,
-  uploadCategoryImage,
   type CategoryImageUploadState,
-} from "@/core/modules/product/editor/lib/upload-category-image";
+  uploadCategoryImage,
+} from "@/core/modules/product/editor";
 import {
   getCategoryControllerGetAllQueryKey,
   getCategoryControllerGetByIdQueryKey,
@@ -18,7 +16,7 @@ import {
   useCategoryControllerUpdate,
   type CategoryDto,
 } from "@/shared/api/generated/react-query";
-import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
+import { invalidateProductQueries } from "@/core/modules/product";
 import { apiClient } from "@/shared/api/client";
 import { revalidateStorefrontCacheBestEffort } from "@/shared/api/revalidate-storefront-client";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";

@@ -1,1 +1,5 @@
-export * from "@/core/modules/product/editor/lib/upload-product-images";
+export {
+  enqueueProductImages,
+  uploadProductImages,
+  waitForProductImagesProcessing,
+} from "@/core/modules/product/editor";

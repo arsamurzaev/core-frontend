@@ -1,16 +1,17 @@
 "use client";
 
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
-import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
-import { useProductEditorForm } from "@/core/modules/product/editor/model/use-product-editor-form";
 import {
   getProductIntegrationProviderLabel,
+  invalidateProductQueries,
   isIntegratedProduct,
-} from "@/core/modules/product/model/moysklad-product";
+} from "@/core/modules/product";
 import {
   buildVariantsFormValueFromExisting,
   normalizeVariantsFormValue,
-} from "@/core/modules/product/editor/model/product-variants";
+  useProductEditorForm,
+  useProductFormFields,
+} from "@/core/modules/product/editor";
 import {
   buildProductModifierBindingsPayload,
   type ProductModifierGroupBindingDraft,
@@ -25,7 +26,6 @@ import { buildPersistedEditableAttributeValues } from "@/core/widgets/edit-produ
 import { useEditProductDrawerState } from "@/core/widgets/edit-product-drawer/model/use-edit-product-drawer-state";
 import { useEditProductImageEditor } from "@/core/widgets/edit-product-drawer/model/use-edit-product-image-editor";
 import { useEditProductSubmit } from "@/core/widgets/edit-product-drawer/model/use-edit-product-submit";
-import { invalidateProductQueries } from "@/core/modules/product/actions/model";
 import {
   useProductControllerGetById,
   useProductControllerRemove,

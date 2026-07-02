@@ -1,8 +1,10 @@
 "use client";
 
-import { useProductFormFields } from "@/core/modules/product/editor/model/use-product-form-fields";
-import { useProductEditorForm } from "@/core/modules/product/editor/model/use-product-editor-form";
-import { useProductImageEditor } from "@/core/modules/product/editor/model/use-product-image-editor";
+import {
+  useProductEditorForm,
+  useProductFormFields,
+  useProductImageEditor,
+} from "@/core/modules/product/editor";
 import {
   buildProductModifierBindingsPayload,
   type ProductModifierGroupBindingDraft,

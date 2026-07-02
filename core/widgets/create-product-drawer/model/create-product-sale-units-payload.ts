@@ -1,12 +1,10 @@
 import {
   type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
-import {
   buildCreateVariantsPayload,
   normalizeSaleUnitsForPayload,
   type PayloadWithSaleUnits,
   type SaleUnitPayload,
-} from "@/core/modules/product/editor/model/product-variants";
+} from "@/core/modules/product/editor";
 import {
   type AttributeDto,
   type CreateProductDtoReq,

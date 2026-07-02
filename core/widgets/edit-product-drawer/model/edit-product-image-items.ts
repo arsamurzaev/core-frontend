@@ -1,5 +1,7 @@
-import { type FilePreviewEntry } from "@/core/modules/product/editor/model/types";
-import { type ProductImageSectionItem } from "@/core/modules/product/editor/ui/product-images-section";
+import {
+  type FilePreviewEntry,
+  type ProductImageSectionItem,
+} from "@/core/modules/product/editor";
 import { type ProductMediaDto } from "@/shared/api/generated/react-query";
 
 export type EditProductImageItem =

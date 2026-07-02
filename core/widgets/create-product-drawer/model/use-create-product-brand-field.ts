@@ -1,1 +1,4 @@
-export * from "@/core/modules/product/editor/model/use-create-product-brand-field";
+export {
+  type BrandListItem,
+  useCreateProductBrandField,
+} from "@/core/modules/product/editor";

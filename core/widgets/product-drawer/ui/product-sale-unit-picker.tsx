@@ -3,7 +3,7 @@
 import {
   getProductSaleUnitContainsText,
   type ProductSaleUnit,
-} from "@/core/modules/product/model/sale-units";
+} from "@/core/modules/product";
 import {
   formatCatalogPrice,
   type CatalogPriceFormatMode,

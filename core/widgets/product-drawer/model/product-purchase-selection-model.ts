@@ -3,10 +3,10 @@ import {
   getProductSaleUnits,
   getSaleUnitMaxQuantity,
   type ProductSaleUnit,
-} from "@/core/modules/product/model/sale-units";
-import { filterActivePriceListVisibleItems } from "@/core/modules/product/model/product-price-list-visibility";
+  filterActivePriceListVisibleItems,
+  sortProductVariants,
+} from "@/core/modules/product";
 import { isProductVariantPurchasable } from "@/core/widgets/product-drawer/model/product-variant-picker-model";
-import { sortProductVariants } from "@/core/modules/product";
 import type {
   ProductVariantDto,
   ProductWithDetailsDto,

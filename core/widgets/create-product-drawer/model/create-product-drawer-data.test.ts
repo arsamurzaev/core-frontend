@@ -5,8 +5,10 @@ import {
   type AttributeEnumValueDto,
 } from "@/shared/api/generated/react-query";
 import { describe, expect, it } from "vitest";
-import { CREATE_PRODUCT_FORM_DEFAULT_VALUES } from "@/core/modules/product/editor/model/form-config";
-import { buildVariantCombinationKey } from "@/core/modules/product/editor/model/product-variants";
+import {
+  buildVariantCombinationKey,
+  CREATE_PRODUCT_FORM_DEFAULT_VALUES,
+} from "@/core/modules/product/editor";
 import { parseCreateProductPayload } from "./create-product-drawer-data";
 
 const NOW = "2026-05-13T00:00:00.000Z";

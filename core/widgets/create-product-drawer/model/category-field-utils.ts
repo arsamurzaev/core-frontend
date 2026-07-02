@@ -1,1 +1,5 @@
-export * from "@/core/modules/product/editor/model/category-field-utils";
+export {
+  buildCategoryList,
+  buildSelectedCategories,
+  type CategoryListItem,
+} from "@/core/modules/product/editor";

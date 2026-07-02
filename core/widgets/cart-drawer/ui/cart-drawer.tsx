@@ -1,7 +1,6 @@
 "use client";
 
-import { useCart } from "@/core/modules/cart/model/cart-context";
-import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import { useCart, type CartItemView } from "@/core/modules/cart";
 import {
   CART_DRAWER_SNAP_POINTS,
   isCheckoutCartStatus,

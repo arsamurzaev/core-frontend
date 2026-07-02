@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateProductCategoryEditorDrawer } from "@/core/modules/product/editor/ui/create-product-category-editor-drawer";
+import { CreateProductCategoryEditorDrawer } from "@/core/modules/product/editor";
 import { type UseCategoryAdminResult } from "@/core/widgets/category-admin/model/use-category-admin";
 import { CategoryReorderDrawer } from "@/core/widgets/category-admin/ui/category-reorder-drawer";
 import { ConfirmationDrawer } from "@/shared/ui/confirmation-drawer";

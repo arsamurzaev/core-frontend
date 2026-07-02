@@ -1,8 +1,8 @@
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
 import {
+  type CreateProductFormValues,
   normalizeSaleUnitsForPayload,
   type SaleUnitPayload,
-} from "@/core/modules/product/editor/model/product-variants";
+} from "@/core/modules/product/editor";
 import { type ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 
 function hasArrayItems(value: unknown): boolean {

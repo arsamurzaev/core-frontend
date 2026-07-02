@@ -1,10 +1,10 @@
 "use client";
 
 import {
+  buildInitialAttributeValues,
   createProductEditorFormDefaultValues,
   type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
-import { buildInitialAttributeValues } from "@/core/modules/product/editor/model/product-attributes";
+} from "@/core/modules/product/editor";
 import {
   type AttributeDto,
 } from "@/shared/api/generated/react-query";

@@ -4,14 +4,14 @@ import {
   ChangeProductCategoryPositionAction,
   SyncIikoProductAction,
   SyncMoySkladProductAction,
-} from "@/core/modules/product/actions/ui";
+} from "@/core/modules/product";
 import { useEditProductDrawerHost } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
   canManageCatalogContent,
   isChildCatalog,
 } from "@/shared/lib/catalog-content-access";
-import { invalidateProductQueries } from "@/core/modules/product/actions/model";
+import { invalidateProductQueries } from "@/core/modules/product";
 import {
   ProductWithAttributesDtoStatus,
   useProductControllerDuplicate,

@@ -1,12 +1,10 @@
 import {
   createProductEditorFormDefaultValues,
-  type CreateProductFormValues,
-} from "@/core/modules/product/editor/model/form-config";
-import { normalizeProductCategoryIds } from "@/core/modules/product/editor/model/product-category-payload";
-import {
   buildSaleUnitsFormValueFromUnknown,
   buildVariantsFormValueFromExisting,
-} from "@/core/modules/product/editor/model/product-variants";
+  type CreateProductFormValues,
+  normalizeProductCategoryIds,
+} from "@/core/modules/product/editor";
 import {
   type AttributeDto,
   type ProductWithDetailsDto,

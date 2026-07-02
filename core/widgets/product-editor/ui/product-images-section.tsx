@@ -1,1 +1,1 @@
-export { ProductImagesSection, type ProductImagesSectionProps } from "@/core/modules/product/editor/ui";
+export { ProductImagesSection, type ProductImagesSectionProps } from "@/core/modules/product/editor";

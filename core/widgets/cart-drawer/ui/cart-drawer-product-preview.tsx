@@ -1,6 +1,6 @@
 "use client";
 
-import type { CartItemView } from "@/core/modules/cart/model/cart-item-view";
+import type { CartItemView } from "@/core/modules/cart";
 import { ProductDrawer } from "@/core/widgets/product-drawer/ui/product-drawer";
 import React from "react";
 

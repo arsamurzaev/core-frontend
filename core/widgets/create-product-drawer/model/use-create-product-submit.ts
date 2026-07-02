@@ -2,13 +2,13 @@
 
 import {
   enqueueProductImages,
+  type CreateProductFormValues,
+  REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE,
+  type UploadState,
+  UploadProgressToast,
+  validateProductFormValues,
   waitForProductImagesProcessing,
-} from "@/core/modules/product/editor/lib";
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
-import { REQUIRED_PRODUCT_IMAGE_CROP_MESSAGE } from "@/core/modules/product/editor/model/product-image-editor-shared";
-import { type UploadState } from "@/core/modules/product/editor/model/types";
-import { validateProductFormValues } from "@/core/modules/product/editor/model/validate-product-form-values";
-import { UploadProgressToast } from "@/core/modules/product/editor/ui/upload-progress-toast";
+} from "@/core/modules/product/editor";
 import {
   invalidateCreateProductQueries,
   parseCreateProductPayload,

@@ -1,12 +1,14 @@
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
-import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
-import { isDiscountAttribute } from "@/core/modules/product/editor/model/product-discount";
+import {
+  buildProductEditorBasePayloadFields,
+  type CreateProductFormValues,
+  isDiscountAttribute,
+  type SaleUnitPayload,
+} from "@/core/modules/product/editor";
 import {
   type AttributeDto,
   type CreateProductDtoReq,
 } from "@/shared/api/generated/react-query";
 import { type CreateProductPriceListPricePayload } from "@/core/modules/catalog-price-list";
-import { type SaleUnitPayload } from "@/core/modules/product/editor/model/product-sale-units";
 import {
   resolveCreateProductBaseSaleUnitsPayload,
   resolveCreateProductVariantsPayload,

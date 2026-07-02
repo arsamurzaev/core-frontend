@@ -9,16 +9,16 @@ import {
   resolveEditProductMediaIds,
   type EditProductImageItem,
 } from "@/core/widgets/edit-product-drawer/model/edit-product-image-items";
-import { enqueueProductImages } from "@/core/modules/product/editor/lib/upload-product-images";
 import {
+  clampNumber,
+  enqueueProductImages,
+  getProductImageCropperCopy,
   IDLE_PRODUCT_IMAGE_UPLOAD_STATE,
   MAX_PRODUCT_IMAGES,
-  clampNumber,
-  getProductImageCropperCopy,
-} from "@/core/modules/product/editor/model/product-image-editor-shared";
-import { type UploadState } from "@/core/modules/product/editor/model/types";
-import { useFilePreviewEntries } from "@/core/modules/product/editor/model/use-file-preview-entries";
-import { useProductImageReorderState } from "@/core/modules/product/editor/model/use-product-image-reorder-state";
+  type UploadState,
+  useFilePreviewEntries,
+  useProductImageReorderState,
+} from "@/core/modules/product/editor";
 import { type ProductMediaDto } from "@/shared/api/generated/react-query";
 import React from "react";
 import { toast } from "sonner";

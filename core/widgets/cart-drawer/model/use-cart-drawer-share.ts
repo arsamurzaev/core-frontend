@@ -3,7 +3,7 @@
 import type {
   CartSharePayload,
   PrepareShareOrderInput,
-} from "@/core/modules/cart/model/cart-context.types";
+} from "@/core/modules/cart";
 import React from "react";
 import { toast } from "sonner";
 

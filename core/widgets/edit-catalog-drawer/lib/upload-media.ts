@@ -7,7 +7,7 @@ import {
   pollQueueStatus,
   streamQueueStatus,
 } from "@/shared/lib/upload-queue";
-import { type UploadState } from "@/core/modules/product/editor/model/types";
+import { type UploadState } from "@/core/modules/product/editor";
 import { clamp } from "@/shared/lib/math";
 import {
   s3ControllerEnqueueFromS3,

@@ -1,1 +1,1 @@
-export * from "@/core/modules/product/editor/ui";
+export * from "@/core/modules/product/editor";

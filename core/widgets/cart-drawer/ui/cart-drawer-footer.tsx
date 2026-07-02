@@ -3,7 +3,7 @@
 import type {
   CartSharePayload,
   PrepareShareOrderInput,
-} from "@/core/modules/cart/model/cart-context.types";
+} from "@/core/modules/cart";
 import { resolveCartDrawerFooterAction } from "@/core/widgets/cart-drawer/model/cart-drawer-footer-state";
 import { useCartDrawerShare } from "@/core/widgets/cart-drawer/model/use-cart-drawer-share";
 import { CartDrawerFooterAction } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-action";

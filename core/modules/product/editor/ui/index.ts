@@ -20,3 +20,4 @@ export * from "./product-variant-combination-card";
 export * from "./product-variant-combinations-panel";
 export * from "./product-type-select-field";
 export * from "./product-type-change-preview";
+export * from "./upload-progress-toast";

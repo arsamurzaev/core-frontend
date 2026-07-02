@@ -1,10 +1,12 @@
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
-import { buildProductEditorBasePayloadFields } from "@/core/modules/product/editor/model/product-editor-payload";
-import { buildRemovedProductAttributeIds } from "@/core/modules/product/editor/model/product-attributes";
-import { isDiscountAttribute } from "@/core/modules/product/editor/model/product-discount";
-import { buildCreateVariantsPayload } from "@/core/modules/product/editor/model/product-variants";
-import { type SaleUnitPayload } from "@/core/modules/product/editor/model/product-sale-units";
-import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
+import {
+  type AttributeFormValue,
+  buildCreateVariantsPayload,
+  buildProductEditorBasePayloadFields,
+  buildRemovedProductAttributeIds,
+  type CreateProductFormValues,
+  isDiscountAttribute,
+  type SaleUnitPayload,
+} from "@/core/modules/product/editor";
 import {
   type AttributeDto,
   type ProductWithDetailsDto,

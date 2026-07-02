@@ -1,1 +1,1 @@
-export * from "@/core/modules/product/editor/lib/brand-slug";
+export { buildUniqueBrandSlug } from "@/core/modules/product/editor";

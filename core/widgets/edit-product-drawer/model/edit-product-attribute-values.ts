@@ -1,8 +1,8 @@
 import {
+  type AttributeFormValue,
   buildInitialAttributeValues,
   hasPersistedAttributeValue,
-} from "@/core/modules/product/editor/model/product-attributes";
-import { type AttributeFormValue } from "@/core/modules/product/editor/model/types";
+} from "@/core/modules/product/editor";
 import {
   type AttributeDto,
   ProductAttributeRefDtoDataType,

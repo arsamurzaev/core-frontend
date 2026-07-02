@@ -8,7 +8,7 @@ import {
   type ProductDrawerInstantOpenDetail,
   type ProductDrawerRouteCloseDetail,
   type ProductDrawerRouteOpenDetail,
-} from "@/core/modules/product/model/product-drawer-instant-events";
+} from "@/core/modules/product";
 import type {
   ProductWithAttributesDto,
   ProductWithDetailsDto,

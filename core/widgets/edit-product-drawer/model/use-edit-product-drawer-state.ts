@@ -1,6 +1,6 @@
 "use client";
 
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
+import { type CreateProductFormValues } from "@/core/modules/product/editor";
 import { buildEditProductFormValues } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-data";
 import {
   type AttributeDto,
