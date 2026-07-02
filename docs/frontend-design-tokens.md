@@ -123,6 +123,7 @@ Shape/elevation:
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-product-types-drawer.tsx`: product type trigger, panels, chips, nested value cards and empty states use `AdminPanel`/semantic tokens.
 - `core/widgets/edit-catalog-drawer` integrations/metrika/password triggers use `AdminPanelButton`; metrika input inherits shared input tokens.
 - `core/widgets/edit-catalog-drawer` checkout/contact drawers use semantic panels, contact icons, helper text and field borders.
+- `core/widgets/edit-catalog-drawer/ui/edit-catalog-domains-drawer.tsx`: domain trigger, DNS records, domain cards, skeletons and empty/error states use `AdminPanel`/semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

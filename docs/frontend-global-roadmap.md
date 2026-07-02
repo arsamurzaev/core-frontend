@@ -144,3 +144,4 @@
 - [x] Перевести `edit-catalog-product-types-drawer` trigger/panels/chips/nested cards на `AdminPanel` и semantic tokens.
 - [x] Перевести `edit-catalog` integrations/metrika/password triggers на `AdminPanelButton` и semantic tokens.
 - [x] Перевести `edit-catalog-checkout` и contact row/drawer visual layer на `AdminPanel` и semantic tokens.
+- [x] Перевести `edit-catalog-domains-drawer` DNS/domain cards, trigger и states на `AdminPanel` и semantic tokens.

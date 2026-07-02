@@ -13,6 +13,7 @@ import {
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
 import { cn } from "@/shared/lib/utils";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -49,7 +50,7 @@ const STATUS_META: Record<string, DomainStatusMeta> = {
   [CatalogDomainDtoStatus.PENDING_DNS]: {
     label: "Ждет DNS",
     badgeVariant: "secondary",
-    className: "text-amber-700",
+    className: "text-status-warning",
   },
   [CatalogDomainDtoStatus.DNS_VERIFIED]: {
     label: "DNS проверен",
@@ -106,7 +107,7 @@ async function copyValue(value: string) {
 
 function DomainRecordRow({ record }: { record: CatalogDomainDnsRecordDto }) {
   return (
-    <div className="grid gap-2 rounded-lg border border-black/10 bg-background p-3 text-sm">
+    <AdminPanel padding="sm" className="grid gap-2 text-sm">
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <Badge variant={record.required ? "default" : "secondary"}>
           {record.type}
@@ -117,9 +118,9 @@ function DomainRecordRow({ record }: { record: CatalogDomainDnsRecordDto }) {
       </div>
 
       <div className="grid gap-1">
-        <div className="text-xs text-muted-foreground">Имя</div>
+        <div className="text-xs text-text-muted">Имя</div>
         <div className="flex min-w-0 items-center gap-2">
-          <code className="min-w-0 flex-1 break-all rounded-md bg-muted px-2 py-1 text-xs">
+          <code className="min-w-0 flex-1 break-all rounded-control bg-surface-muted px-2 py-1 text-xs">
             {record.name}
           </code>
           <Button
@@ -135,9 +136,9 @@ function DomainRecordRow({ record }: { record: CatalogDomainDnsRecordDto }) {
       </div>
 
       <div className="grid gap-1">
-        <div className="text-xs text-muted-foreground">Значение</div>
+        <div className="text-xs text-text-muted">Значение</div>
         <div className="flex min-w-0 items-center gap-2">
-          <code className="min-w-0 flex-1 break-all rounded-md bg-muted px-2 py-1 text-xs">
+          <code className="min-w-0 flex-1 break-all rounded-control bg-surface-muted px-2 py-1 text-xs">
             {record.value}
           </code>
           <Button
@@ -153,11 +154,11 @@ function DomainRecordRow({ record }: { record: CatalogDomainDnsRecordDto }) {
       </div>
 
       {record.description ? (
-        <p className="break-words text-xs leading-5 text-muted-foreground">
+        <p className="break-words text-xs leading-5 text-text-muted">
           {record.description}
         </p>
       ) : null}
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -170,11 +171,15 @@ function DomainRecords({ domain }: { domain: CatalogDomainDto }) {
 
   return (
     <div className="grid gap-3">
-      <div className="rounded-lg border border-black/10 bg-muted/30 p-3 text-sm text-muted-foreground">
+      <AdminPanel
+        padding="sm"
+        variant="muted"
+        className="text-sm text-text-muted"
+      >
         Сначала добавьте TXT для подтверждения владения. Для маршрутизации
         выберите один подходящий вариант: A/AAAA на IP сервера или
         ALIAS/ANAME/CNAME на платформенный target.
-      </div>
+      </AdminPanel>
 
       <div className="grid gap-3">
         {records.map((record) => (
@@ -209,9 +214,9 @@ function DomainCard({
   const isDisabled = domain.status === CatalogDomainDtoStatus.DISABLED;
 
   return (
-    <div className="rounded-lg border border-black/10 bg-background p-4 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+    <AdminPanel elevation="surface">
       <div className="flex min-w-0 items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-foreground">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-pill bg-surface-muted text-text-primary">
           {domain.status === CatalogDomainDtoStatus.ACTIVE ? (
             <CircleCheck className="size-5" />
           ) : (
@@ -221,33 +226,33 @@ function DomainCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="min-w-0 break-all text-sm font-semibold text-foreground">
+            <h3 className="min-w-0 break-all text-sm font-semibold text-text-primary">
               {domain.hostname}
             </h3>
             <Badge
               variant={statusMeta.badgeVariant}
-              className={cn("rounded-full px-2 py-1", statusMeta.className)}
+              className={cn("rounded-pill px-2 py-1", statusMeta.className)}
             >
               {statusMeta.label}
             </Badge>
             {domain.includeWww ? (
-              <Badge variant="secondary" className="rounded-full px-2 py-1">
+              <Badge variant="secondary" className="rounded-pill px-2 py-1">
                 www
               </Badge>
             ) : null}
           </div>
 
-          <p className="mt-2 break-words text-sm leading-5 text-muted-foreground">
+          <p className="mt-2 break-words text-sm leading-5 text-text-muted">
             {domain.message}
           </p>
 
           {domain.lastError ? (
-            <p className="mt-2 break-words rounded-lg bg-destructive/10 p-2 text-xs leading-5 text-destructive">
+            <p className="mt-2 break-words rounded-control bg-status-danger-surface p-2 text-xs leading-5 text-status-danger">
               {domain.lastError}
             </p>
           ) : null}
 
-          <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 text-xs text-text-muted">
             <Clock3 className="size-4" />
             <span>Последняя проверка: {formatDate(domain.lastCheckedAt)}</span>
             <span>
@@ -294,26 +299,23 @@ function DomainCard({
           Отключить
         </Button>
       </div>
-    </div>
+    </AdminPanel>
   );
 }
 
 const DomainsSkeleton = () => (
   <div className="space-y-3">
     {Array.from({ length: 2 }, (_, index) => (
-      <div
-        key={index}
-        className="rounded-lg border border-black/10 bg-background p-4"
-      >
+      <AdminPanel key={index}>
         <div className="flex items-start gap-3">
-          <Skeleton className="size-10 rounded-full" />
+          <Skeleton className="size-10 rounded-pill" />
           <div className="min-w-0 flex-1 space-y-2">
             <Skeleton className="h-5 w-2/3" />
             <Skeleton className="h-4 w-1/2" />
             <Skeleton className="h-24 w-full" />
           </div>
         </div>
-      </div>
+      </AdminPanel>
     ))}
   </div>
 );
@@ -425,27 +427,22 @@ export const EditCatalogDomainsDrawer: React.FC<{
       onOpenChange={handleOpenChange}
       dismissible={!isMutating}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-text-primary">
                 Домены
               </span>
               <Badge variant="secondary">
                 {activeCount > 0 ? `${activeCount} активн.` : "Не подключено"}
               </Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               Подключите собственный домен к текущему каталогу и проверьте DNS.
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full">
@@ -459,7 +456,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-4">
-              <div className="rounded-lg border border-black/10 bg-background p-4">
+              <AdminPanel>
                 <div className="grid gap-3">
                   <Input
                     value={hostname}
@@ -469,7 +466,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
                     onChange={(event) => setHostname(event.target.value)}
                   />
 
-                  <label className="flex min-w-0 items-start gap-3 text-sm leading-5 text-muted-foreground">
+                  <label className="flex min-w-0 items-start gap-3 text-sm leading-5 text-text-muted">
                     <Checkbox
                       checked={includeWww}
                       disabled={isMutating}
@@ -484,7 +481,7 @@ export const EditCatalogDomainsDrawer: React.FC<{
 
                   <Button
                     type="button"
-                    className="w-full rounded-full"
+                    className="w-full rounded-pill"
                     disabled={isMutating}
                     onClick={() => void handleCreate()}
                   >
@@ -496,22 +493,22 @@ export const EditCatalogDomainsDrawer: React.FC<{
                     Добавить домен
                   </Button>
                 </div>
-              </div>
+              </AdminPanel>
 
               {domainsQuery.isLoading ? <DomainsSkeleton /> : null}
 
               {domainsQuery.isError ? (
-                <div className="rounded-lg border border-black/10 bg-muted/30 p-4 text-sm text-muted-foreground">
+                <AdminPanel variant="muted" className="text-sm text-text-muted">
                   Не удалось загрузить домены.
-                </div>
+                </AdminPanel>
               ) : null}
 
               {!domainsQuery.isLoading &&
               !domainsQuery.isError &&
               domains.length === 0 ? (
-                <div className="rounded-lg border border-black/10 bg-muted/30 p-4 text-sm text-muted-foreground">
+                <AdminPanel variant="muted" className="text-sm text-text-muted">
                   К каталогу пока не привязан ни один собственный домен.
-                </div>
+                </AdminPanel>
               ) : null}
 
               {domains.length > 0 ? (
