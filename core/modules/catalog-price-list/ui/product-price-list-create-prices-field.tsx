@@ -281,7 +281,7 @@ export const ProductPriceListCreatePricesField: React.FC<
     return (
       <section className="space-y-3">
         <Skeleton className="h-5 w-36" />
-        <Skeleton className="h-24 w-full rounded-lg" />
+        <Skeleton className="h-24 w-full rounded-control" />
       </section>
     );
   }
@@ -293,7 +293,7 @@ export const ProductPriceListCreatePricesField: React.FC<
       {rows.map((row) => (
         <div
           key={row.key}
-          className="grid grid-cols-1 gap-2 rounded-md border border-border/70 bg-background p-2.5 sm:grid-cols-[minmax(140px,0.8fr)_minmax(0,1.2fr)]"
+          className="grid grid-cols-1 gap-2 rounded-control border border-line-subtle bg-surface-base p-2.5 sm:grid-cols-[minmax(140px,0.8fr)_minmax(0,1.2fr)]"
         >
           <div className="min-w-0 text-sm font-medium">{row.label}</div>
           <ProductPriceListPriceInputGrid
@@ -372,7 +372,7 @@ export const ProductPriceListCreateInlineFields: React.FC<
   );
 
   if (priceListsQuery.isLoading) {
-    return <Skeleton className={cn("h-9 w-full rounded-md", className)} />;
+    return <Skeleton className={cn("h-9 w-full rounded-control", className)} />;
   }
 
   if (!priceLists.length) {

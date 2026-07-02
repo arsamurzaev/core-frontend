@@ -158,3 +158,4 @@
 - [x] Перевести `product-modifier-bindings-field` panels/empty/nested option states на semantic tokens.
 - [x] Перевести `product-price-list-settings-drawer` rows/trigger/empty states на semantic tokens.
 - [x] Перевести iiko/MoySklad sync progress toast text layer на semantic tokens.
+- [x] Перевести `product-price-list` price fields/input grid на semantic tokens.

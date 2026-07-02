@@ -122,15 +122,15 @@ export const ProductPriceListPriceInputGrid: React.FC<
               className={cn(
                 "flex min-w-0 items-center gap-1",
                 isCompact
-                  ? "text-xs text-muted-foreground"
-                  : "text-sm text-foreground",
+                  ? "text-xs text-text-muted"
+                  : "text-sm text-text-primary",
               )}
             >
               <span className="min-w-0 truncate">
                 {labelPrefix}({priceList.name})
               </span>
               {hint ? (
-                <span className="shrink-0 text-muted-foreground">({hint})</span>
+                <span className="shrink-0 text-text-muted">({hint})</span>
               ) : null}
             </span>
 
