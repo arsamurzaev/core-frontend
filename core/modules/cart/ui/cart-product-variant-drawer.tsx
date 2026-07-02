@@ -224,7 +224,7 @@ function PurchaseQuantityControl({
     disabled || (maxQuantity !== undefined && value >= maxQuantity);
 
   return (
-    <div className="flex h-11 items-center overflow-hidden rounded-full border bg-background">
+    <div className="flex h-11 items-center overflow-hidden rounded-pill border border-line-default bg-surface-base">
       <Button
         type="button"
         variant="ghost"
@@ -291,8 +291,8 @@ function SaleUnitButton({
         onClick();
       }}
       className={cn(
-        "h-auto min-h-16 flex-col items-start justify-center gap-0.5 rounded-lg px-3 py-2 text-left",
-        isSelected && "shadow-custom",
+        "h-auto min-h-16 flex-col items-start justify-center gap-0.5 rounded-control px-3 py-2 text-left",
+        isSelected && "shadow-surface",
       )}
     >
       <span className="max-w-full truncate text-xs font-normal">
@@ -329,7 +329,7 @@ function PurchaseSummaryCard({
   const title = saleUnit?.label ?? variantLabel ?? productName;
 
   return (
-    <div className="w-full rounded-lg border bg-background px-3 py-2 text-left shadow-sm">
+    <div className="w-full rounded-control border border-line-subtle bg-surface-base px-3 py-2 text-left shadow-control">
       <div className="max-w-full truncate text-xs font-normal">{title}</div>
       {unitPrice !== null ? (
         <div className="mt-0.5 text-sm font-semibold">
@@ -337,11 +337,11 @@ function PurchaseSummaryCard({
         </div>
       ) : null}
       {containsText ? (
-        <div className="mt-0.5 max-w-full truncate text-[10px] text-muted-foreground">
+        <div className="mt-0.5 max-w-full truncate text-[10px] text-text-muted">
           {containsText}
         </div>
       ) : variantLabel && !saleUnit ? (
-        <div className="mt-0.5 max-w-full truncate text-[10px] text-muted-foreground">
+        <div className="mt-0.5 max-w-full truncate text-[10px] text-text-muted">
           {productName}
         </div>
       ) : null}
@@ -813,7 +813,7 @@ export function CartProductVariantDrawer({
 
                       handleVariantClick(item);
                     }}
-                    className="h-auto min-h-10 flex-col gap-0.5 rounded-full px-4 py-2"
+                    className="h-auto min-h-10 flex-col gap-0.5 rounded-pill px-4 py-2"
                   >
                     <span>{option.label}</span>
                     {disabledReason ? (
@@ -828,14 +828,14 @@ export function CartProductVariantDrawer({
           ) : null}
 
           {step === "loading" ? (
-            <div className="flex justify-center py-6 text-sm text-muted-foreground">
+            <div className="flex justify-center py-6 text-sm text-text-muted">
               {loadingLabel}
             </div>
           ) : null}
 
           {step === "error" ? (
             <div className="space-y-3 py-4 text-center">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-text-muted">
                 Проверьте соединение и попробуйте еще раз.
               </p>
               <Button
@@ -851,7 +851,7 @@ export function CartProductVariantDrawer({
           {step === "saleUnit" ? (
             <div className="space-y-3">
               {variantLabel ? (
-                <div className="text-center text-sm text-muted-foreground">
+                <div className="text-center text-sm text-text-muted">
                   {variantLabel}
                 </div>
               ) : null}
@@ -908,7 +908,7 @@ export function CartProductVariantDrawer({
 
           {step === "modifier" ? (
             <div className="space-y-4">
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-sm text-text-muted">
                 Можно выбрать несколько штук у одной опции.
               </p>
 
@@ -924,7 +924,7 @@ export function CartProductVariantDrawer({
 
               <Button
                 type="button"
-                className="h-11 w-full rounded-full"
+                className="h-11 w-full rounded-pill"
                 disabled={isBusy}
                 onClick={(event) => {
                   event.preventDefault();
@@ -958,7 +958,7 @@ export function CartProductVariantDrawer({
                 <div>
                   <div className="text-sm font-medium">Количество</div>
                   {quantityHint ? (
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-text-muted">
                       {quantityHint}
                     </div>
                   ) : null}
@@ -973,7 +973,7 @@ export function CartProductVariantDrawer({
 
               <Button
                 type="button"
-                className="h-11 w-full rounded-full"
+                className="h-11 w-full rounded-pill"
                 disabled={isBusy || !canSubmit}
                 onClick={(event) => {
                   event.preventDefault();

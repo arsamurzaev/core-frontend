@@ -151,6 +151,7 @@ Shape/elevation:
 - `core/views/platform` and `core/views/login`: onboarding/auth shells, domain status states, success confirmations, verification details card, login inputs and helper text use semantic tokens.
 - `core/widgets/edit-catalog-drawer/ui/catalog-edit-media-field.tsx`, `catalog-edit-textarea-controller.tsx` and `edit-catalog-contact-icons-preview.tsx`: remaining media preview shell, required markers, captions and contact icon previews use semantic tokens.
 - `core/modules/cart/ui` lightweight controls/cards: product add/action buttons, drawer footer quantity control, cart cards, footer summary/quantity pills and crossed prices use semantic tokens.
+- `core/modules/cart/ui/cart-product-variant-drawer.tsx`: variant/sale-unit/modifier/quantity selection shell, summary card, helper states and action buttons use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

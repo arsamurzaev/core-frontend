@@ -172,3 +172,4 @@
 - [x] Перевести `platform` onboarding/verify и `login` auth shell на semantic tokens.
 - [x] Закрыть оставшиеся `edit-catalog` media/required marker/contact icon token хвосты.
 - [x] Перевести lightweight `cart` controls/cards/footer summary на semantic tokens.
+- [x] Перевести `cart-product-variant-drawer` selection flow на semantic tokens.
