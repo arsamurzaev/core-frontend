@@ -13,7 +13,7 @@ import {
   formatPriceListRelationHint,
   ProductPriceListPriceInputGrid,
 } from "@/core/modules/catalog-price-list/ui/product-price-list-price-input-grid";
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
+import { type CreateProductFormValues } from "@/core/modules/product/editor";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import { type CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";

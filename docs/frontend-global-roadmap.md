@@ -190,3 +190,4 @@
 - [x] Добавить `architecture:report` для топовых источников deep import debt перед следующими public API выносами.
 - [x] Добавить view public entrypoints для storefront/auth routes и runtime Browser fallback.
 - [x] Перевести `core/modules/cart` с product internals на `@/core/modules/product` public entrypoint.
+- [x] Перевести `core/modules/catalog-price-list` с product editor internals на `@/core/modules/product/editor`.

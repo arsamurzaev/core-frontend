@@ -2,9 +2,9 @@
 
 import {
   buildVariantMatrixRows,
+  type CreateProductFormValues,
   type SaleUnitFormValue,
-} from "@/core/modules/product/editor/model/product-variants";
-import { type CreateProductFormValues } from "@/core/modules/product/editor/model/form-config";
+} from "@/core/modules/product/editor";
 import { apiClient } from "@/shared/api/client";
 import { type AttributeDto } from "@/shared/api/generated/react-query";
 import {
