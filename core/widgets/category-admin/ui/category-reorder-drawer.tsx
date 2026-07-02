@@ -82,14 +82,14 @@ const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
     <Card
       className={cn(
         "transition-shadow",
-        isDragging && "shadow-2xl ring-1 ring-black/10",
+        isDragging && "shadow-overlay ring-1 ring-line-default",
       )}
     >
       <CardContent className="p-3">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             {isOverlay ? (
-              <div className="text-muted-foreground rounded-full p-2">
+              <div className="text-text-muted rounded-pill p-2">
                 <GripVertical className="size-5" />
               </div>
             ) : (
@@ -104,7 +104,7 @@ const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
                   touchAction: "none",
                   WebkitTapHighlightColor: "transparent",
                 }}
-                className="text-muted-foreground flex size-11 touch-none items-center justify-center rounded-full transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring active:cursor-grabbing disabled:pointer-events-none disabled:opacity-40"
+                className="text-text-muted flex size-11 touch-none items-center justify-center rounded-pill transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-action-primary active:cursor-grabbing disabled:pointer-events-none disabled:opacity-40"
                 aria-label={`Переместить категорию ${category.name}`}
               >
                 <GripVertical className="size-5" />
@@ -113,7 +113,7 @@ const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
 
             <Badge
               variant="secondary"
-              className="min-w-7 rounded-full px-2 py-1 text-xs"
+              className="min-w-7 rounded-pill px-2 py-1 text-xs"
             >
               {index + 1}
             </Badge>
@@ -124,11 +124,11 @@ const CategoryReorderItem: React.FC<CategoryReorderItemProps> = ({
               {category.name}
             </h4>
             {supportsCategoryDetails && category.descriptor ? (
-              <p className="text-muted-foreground truncate text-xs sm:text-sm">
+              <p className="text-text-muted truncate text-xs sm:text-sm">
                 {category.descriptor}
               </p>
             ) : null}
-            <p className="text-muted-foreground truncate text-xs sm:text-sm">
+            <p className="text-text-muted truncate text-xs sm:text-sm">
               {formatCategoryProductCount(category.productCount ?? 0)}
             </p>
           </div>
@@ -371,7 +371,7 @@ export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
                 supportsCategoryDetails={supportsCategoryDetails}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-text-muted">
                 Категории пока не добавлены.
               </p>
             )}
@@ -381,7 +381,7 @@ export const CategoryReorderDrawer: React.FC<CategoryReorderDrawerProps> = ({
             <Button
               type="button"
               size="full"
-              className="rounded-full"
+              className="rounded-pill"
               disabled={isSaving || !hasChanges}
               onClick={onSave}
             >

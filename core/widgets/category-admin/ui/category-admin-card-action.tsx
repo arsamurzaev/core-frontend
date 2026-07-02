@@ -16,7 +16,7 @@ export const CategoryAdminCardAction: React.FC<CategoryAdminCardActionProps> = (
       type="button"
       variant="ghost"
       size="icon"
-      className="shadow-custom absolute top-3 right-3 z-10 size-[30px] rounded-full bg-white/90 text-foreground opacity-70 backdrop-blur-sm hover:bg-white hover:opacity-100"
+      className="shadow-surface absolute top-3 right-3 z-10 size-[30px] rounded-pill bg-surface-base/90 text-text-primary opacity-70 backdrop-blur-sm hover:bg-surface-base hover:opacity-100"
       onClick={onClick}
       onPointerDown={(event) => {
         event.stopPropagation();

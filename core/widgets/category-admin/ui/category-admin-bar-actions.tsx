@@ -22,7 +22,7 @@ export const CategoryAdminBarActions: React.FC<CategoryAdminBarActionsProps> = (
       <Button
         type="button"
         variant="ghost"
-        className="shadow-custom h-auto rounded-lg bg-white px-3 py-3 text-sm hover:bg-white/95 sm:text-base"
+        className="shadow-surface h-auto rounded-control bg-surface-base px-3 py-3 text-sm hover:bg-surface-muted sm:text-base"
         disabled={disabled}
         onClick={onCreateClick}
       >
@@ -33,7 +33,7 @@ export const CategoryAdminBarActions: React.FC<CategoryAdminBarActionsProps> = (
       <Button
         type="button"
         variant="ghost"
-        className="shadow-custom h-auto rounded-lg bg-white px-3 py-3 text-sm hover:bg-white/95 sm:text-base"
+        className="shadow-surface h-auto rounded-control bg-surface-base px-3 py-3 text-sm hover:bg-surface-muted sm:text-base"
         disabled={disabled || !canReorder}
         onClick={onReorderClick}
       >

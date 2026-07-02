@@ -137,3 +137,4 @@
 - [x] Перевести `cart-drawer` shell/hall-table/footer panels на semantic tokens.
 - [x] Дочистить `cart-drawer` header/skeleton/status/footer details от legacy UI tokens.
 - [x] Перевести `global-admin-drawer` panels, feature flags и danger states на semantic tokens.
+- [x] Перевести `category-admin` action buttons, reorder drawer и delete controls на semantic tokens.
