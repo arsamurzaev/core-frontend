@@ -103,21 +103,21 @@ function MoySkladSyncProgressToast({
     <div className="w-[320px] max-w-[calc(100vw-48px)] space-y-2">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-foreground">
+          <div className="truncate text-sm font-semibold text-text-primary">
             {title}
           </div>
-          <div className="line-clamp-2 text-xs text-muted-foreground">
+          <div className="line-clamp-2 text-xs text-text-muted">
             {progress.message}
           </div>
         </div>
-        <div className="shrink-0 text-xs font-medium text-muted-foreground">
+        <div className="shrink-0 text-xs font-medium text-text-muted">
           {formatCounter(progress)}
         </div>
       </div>
       <div className="flex items-center gap-2">
         <Progress value={resolveProgressValue(progress)} className="h-1.5" />
         {percentLabel ? (
-          <span className="w-9 shrink-0 text-right text-xs text-muted-foreground">
+          <span className="w-9 shrink-0 text-right text-xs text-text-muted">
             {percentLabel}
           </span>
         ) : null}
