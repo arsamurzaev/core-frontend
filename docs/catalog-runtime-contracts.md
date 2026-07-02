@@ -9,7 +9,8 @@
 ## Инварианты
 
 - Runtime выбирается через `resolveCatalogRuntime(catalog)`.
-- Расширение описывает только presentation, checkout, product card plugin, cart capabilities и slots.
+- Server-only storefront theme scope выбирается через `core/catalog-runtime/server`, чтобы не подтягивать runtime slots в server layout.
+- Расширение описывает только presentation, checkout, theme preset, product card plugin, cart capabilities и slots.
 - Расширение не импортирует `sandbox/**`.
 - Product card runtime использует общий `ProductCardWithPlugins`, а базовая карточка сама считает price/availability через sellable/variant model.
 - Slots получают готовые DTO/view models из core-слоя и не должны сами ходить в API за product/cart state без явной необходимости.
@@ -19,6 +20,7 @@
 
 - `CatalogExtension`
 - `CatalogRuntime`
+- `CatalogThemePreset`
 - `BrowserSlotProps`
 - `CartCardActionSlotProps`
 - `resolveCatalogRuntime`
@@ -31,6 +33,7 @@
 
 - `presentation` отвечает только за названия вкладок, тексты, поддержку брендов и вид категорий.
 - `checkout` задает доступные и дефолтные методы оформления, но не валидирует заказ.
+- `theme` задает preset для storefront scope и будущих semantic token overrides.
 - `productCard` задает дополнительные строки/бейджи, но не пересчитывает цену и доступность.
 - `slots.Browser` может заменить каталоговый browser для специфичного UX.
 - `slots.CartCardAction` может заменить действие строки корзины, но должно работать с `CartItemView`, а не с сырым `CartItemDto`.

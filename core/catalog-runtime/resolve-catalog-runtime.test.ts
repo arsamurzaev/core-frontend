@@ -6,6 +6,7 @@ import type {
 import { DEFAULT_PREORDER_SETTINGS } from "@/shared/lib/checkout-methods";
 import { getCatalogRuntimeCheckoutConfig } from "./checkout";
 import { resolveCatalogRuntime } from "./resolve-catalog-runtime";
+import { resolveCatalogThemePresetByTypeCode } from "./theme";
 
 function catalogType(code: string): CatalogCurrentDto["type"] {
   return {
@@ -65,6 +66,7 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.checkout.availableMethods).toEqual(["DELIVERY", "PICKUP"]);
     expect(runtime.checkout.defaultEnabledMethods).toEqual([]);
     expect(runtime.cart.supportsManagerOrder).toBe(false);
+    expect(runtime.theme.id).toBe("default");
   });
 
   it("applies restaurant presentation and checkout contract", () => {
@@ -83,6 +85,7 @@ describe("resolveCatalogRuntime", () => {
       "DELIVERY",
       "PICKUP",
     ]);
+    expect(runtime.theme.id).toBe("restaurant");
   });
 
   it("shares extension comment placeholders across catalog type aliases", () => {
@@ -129,6 +132,7 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.extension).not.toBeNull();
     expect(runtime.cart.supportsManagerOrder).toBe(true);
     expect(runtime.slots.CartCardAction).toBeTruthy();
+    expect(runtime.theme.id).toBe("wholesale");
   });
 
   it("builds checkout config from resolved runtime contract", () => {
@@ -151,4 +155,14 @@ describe("resolveCatalogRuntime", () => {
     ]);
     expect(checkoutConfig.enabledMethods).toEqual(["PREORDER"]);
   });
+
+  it.each(["flowers", "restaurant", "cafe", "wholesale", "whosale"])(
+    "keeps server theme preset lookup aligned for %s",
+    (code) => {
+      const runtime = resolveCatalogRuntime(catalogWithType(code));
+      const serverTheme = resolveCatalogThemePresetByTypeCode(code);
+
+      expect(serverTheme.id).toBe(runtime.theme.id);
+    },
+  );
 });

@@ -15,6 +15,7 @@ import type {
   CatalogRuntime,
 } from "./contracts";
 import { CATALOG_EXTENSIONS } from "./registry";
+import { resolveCatalogThemePreset } from "./theme";
 
 const DEFAULT_CART_COMMENT_PLACEHOLDER =
   "Укажите пожелания к заказу: характеристики, замену, упаковку, доставку или другие важные детали.";
@@ -171,6 +172,7 @@ export function resolveCatalogRuntime(
       defaultEnabledMethods,
       commentPlaceholder: resolveCartCommentPlaceholder(typeCode, extension),
     },
+    theme: resolveCatalogThemePreset(extension),
     productCard: resolveProductCardPlugin(typeCode, extension),
     cart: {
       supportsManagerOrder: Boolean(extension?.cart?.supportsManagerOrder),

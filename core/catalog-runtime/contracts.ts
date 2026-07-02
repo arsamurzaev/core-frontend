@@ -41,10 +41,58 @@ export interface CatalogCheckoutConfig {
   defaultEnabledMethods: CheckoutMethod[];
 }
 
+export type CatalogThemePresetId = "default" | "restaurant" | "wholesale";
+
+export type CatalogThemeTokenName =
+  | "--surface-base"
+  | "--surface-raised"
+  | "--surface-overlay"
+  | "--surface-muted"
+  | "--surface-subtle"
+  | "--text-primary"
+  | "--text-secondary"
+  | "--text-muted"
+  | "--line-default"
+  | "--line-subtle"
+  | "--line-strong"
+  | "--action-primary"
+  | "--action-secondary"
+  | "--action-link"
+  | "--status-danger"
+  | "--status-danger-surface"
+  | "--status-warning"
+  | "--status-warning-surface"
+  | "--status-success"
+  | "--status-success-surface"
+  | "--status-info"
+  | "--status-info-surface"
+  | "--semantic-radius-panel"
+  | "--semantic-radius-control"
+  | "--semantic-radius-pill"
+  | "--elevation-surface"
+  | "--elevation-control"
+  | "--elevation-overlay";
+
+export type CatalogThemeTokenOverrides = Partial<
+  Record<CatalogThemeTokenName, string>
+>;
+
+export interface CatalogThemePreset {
+  id: CatalogThemePresetId;
+  label: string;
+  scopeClassName: `catalog-theme-${CatalogThemePresetId}`;
+  tokenOverrides: CatalogThemeTokenOverrides;
+}
+
+export interface CatalogThemeConfig {
+  presetId: CatalogThemePresetId;
+}
+
 export interface CatalogExtension {
   typeCode: string | string[];
   presentation?: Partial<CatalogPresentationConfig>;
   checkout?: Partial<CatalogCheckoutConfig>;
+  theme?: CatalogThemeConfig;
   productCard?: ProductCardPluginConfig;
   cart?: {
     supportsManagerOrder?: boolean;
@@ -62,6 +110,7 @@ export interface CatalogRuntime {
   typeCode: string;
   presentation: CatalogPresentationConfig;
   checkout: CatalogCheckoutConfig;
+  theme: CatalogThemePreset;
   productCard: ResolvedProductCardPlugin;
   cart: {
     supportsManagerOrder: boolean;

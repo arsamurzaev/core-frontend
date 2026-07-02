@@ -26,6 +26,9 @@ export const restaurantExtension: CatalogExtension = {
     availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
     defaultEnabledMethods: ["DELIVERY", "PICKUP"],
   },
+  theme: {
+    presetId: "restaurant",
+  },
   slots: {
     Browser: RestaurantBrowser,
   },

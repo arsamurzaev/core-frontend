@@ -56,7 +56,7 @@
 - [x] Инвентаризировать текущие CSS variables, Tailwind tokens и shared UI.
 - [x] Ввести первый слой semantic tokens: surface, text, line, action, status, radius, shadow.
 - [ ] Продолжать разделять base primitives и domain components.
-- [ ] Подготовить theme presets под будущий редизайн.
+- [x] Подготовить theme presets под будущий редизайн.
 - [ ] Убрать одноразовые визуальные решения из крупных widgets там, где они должны быть tokens/components.
 
 ### 5. Storefront Composition
@@ -179,3 +179,4 @@
 - [x] Удалить неиспользуемый внешне-демонстрационный `shared/ui/smooth-drawer.tsx` и зависимость `motion`.
 - [x] Перевести restaurant runtime browser shell radius на semantic tokens.
 - [x] Добавить source scanner в `design-tokens.test.ts`, чтобы legacy visual utilities не возвращались в `app/core/shared`.
+- [x] Добавить typed `catalog-runtime` theme presets и body scope attrs для будущих token overrides по типам каталога.

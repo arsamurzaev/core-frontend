@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
+import { CATALOG_THEME_PRESETS } from "@/core/catalog-runtime/theme";
 import { describe, expect, it } from "vitest";
 
 const GLOBALS_CSS = readFileSync("app/globals.css", "utf8");
@@ -180,5 +181,22 @@ describe("design tokens", () => {
     );
 
     expect(violations).toEqual([]);
+  });
+
+  it("keeps catalog theme presets on semantic token overrides", () => {
+    const semanticTokens = new Set(ROOT_TOKENS);
+    const unknownTokens = Object.values(CATALOG_THEME_PRESETS).flatMap(
+      (preset) =>
+        Object.keys(preset.tokenOverrides).filter(
+          (token) => !semanticTokens.has(token as (typeof ROOT_TOKENS)[number]),
+        ),
+    );
+
+    expect(Object.keys(CATALOG_THEME_PRESETS)).toEqual([
+      "default",
+      "restaurant",
+      "wholesale",
+    ]);
+    expect(unknownTokens).toEqual([]);
   });
 });

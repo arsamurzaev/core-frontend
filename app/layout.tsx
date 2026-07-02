@@ -3,6 +3,7 @@ import {
   getCurrentCatalogServer,
   resolveServerForwardedHost,
 } from "@/shared/api/server/get-current-catalog";
+import { getCatalogThemeScopeAttributesForCatalog } from "@/core/catalog-runtime/server";
 import { getCurrentSessionServer } from "@/shared/api/server/get-current-session";
 import {
   buildCatalogMetadata,
@@ -57,6 +58,9 @@ export default async function RootLayout({
     !disableCatalogLookup && data ? await getCurrentSessionServer(data.id) : null;
   const structuredData = data ? getCatalogStructuredData(data) : null;
   const htmlLang = data ? getCatalogHtmlLang(data) : "ru";
+  const catalogThemeAttributes = data
+    ? getCatalogThemeScopeAttributesForCatalog(data)
+    : undefined;
   const yandexMetrikaCounterIds =
     data?.metrics
       .filter((metric) => metric.provider === "YANDEX")
@@ -72,7 +76,10 @@ export default async function RootLayout({
           />
         ) : null}
       </head>
-      <body className={`${sfProText.className} antialiased min-h-svh`}>
+      <body
+        {...catalogThemeAttributes}
+        className={`${sfProText.className} antialiased min-h-svh`}
+      >
         <AppProvider
           initialCatalog={data}
           initialSession={initialSession}

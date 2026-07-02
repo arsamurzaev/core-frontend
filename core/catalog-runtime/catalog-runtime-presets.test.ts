@@ -21,6 +21,7 @@ describe("catalog runtime presets smoke", () => {
       supportsManagerOrder: false,
       hasBrowserSlot: false,
       hasCartCardActionSlot: false,
+      themeId: "default",
     },
     {
       code: "restaurant",
@@ -29,6 +30,7 @@ describe("catalog runtime presets smoke", () => {
       supportsManagerOrder: false,
       hasBrowserSlot: true,
       hasCartCardActionSlot: false,
+      themeId: "restaurant",
     },
     {
       code: "cafe",
@@ -37,6 +39,7 @@ describe("catalog runtime presets smoke", () => {
       supportsManagerOrder: false,
       hasBrowserSlot: true,
       hasCartCardActionSlot: false,
+      themeId: "restaurant",
     },
     {
       code: "wholesale",
@@ -45,6 +48,7 @@ describe("catalog runtime presets smoke", () => {
       supportsManagerOrder: true,
       hasBrowserSlot: false,
       hasCartCardActionSlot: true,
+      themeId: "wholesale",
     },
     {
       code: "whosale",
@@ -53,6 +57,7 @@ describe("catalog runtime presets smoke", () => {
       supportsManagerOrder: true,
       hasBrowserSlot: false,
       hasCartCardActionSlot: true,
+      themeId: "wholesale",
     },
   ])(
     "keeps the $code runtime preset contract stable",
@@ -63,10 +68,12 @@ describe("catalog runtime presets smoke", () => {
       supportsManagerOrder,
       hasBrowserSlot,
       hasCartCardActionSlot,
+      themeId,
     }) => {
       const runtime = resolveCatalogRuntime(catalog(code));
 
       expect(runtime.typeCode).toBe(code);
+      expect(runtime.theme.id).toBe(themeId);
       expect(runtime.presentation.catalogTabLabel).toBe(catalogTabLabel);
       expect(runtime.presentation.supportsBrands).toBe(supportsBrands);
       expect(runtime.cart.supportsManagerOrder).toBe(supportsManagerOrder);

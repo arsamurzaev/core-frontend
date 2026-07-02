@@ -4,9 +4,19 @@ export type {
   CatalogExtension,
   CatalogPlugin,
   CatalogRuntime,
+  CatalogThemeConfig,
+  CatalogThemePreset,
+  CatalogThemePresetId,
+  CatalogThemeTokenName,
+  CatalogThemeTokenOverrides,
 } from "./contracts";
 export { CATALOG_EXTENSIONS, CATALOG_PLUGINS } from "./registry";
 export { getCatalogRuntimeCheckoutConfig } from "./checkout";
+export {
+  CATALOG_THEME_PRESETS,
+  getCatalogThemeScopeAttributes,
+  resolveCatalogThemePreset,
+} from "./theme";
 export {
   catalogRuntimeSupportsBrands,
   getCatalogRuntimeCheckoutConfigForCatalog,

@@ -14,6 +14,9 @@ const WholesaleCartCardAction = dynamic<CartCardActionSlotProps>(
 
 export const wholesaleExtension: CatalogExtension = {
   typeCode: ["wholesale", "whosale"],
+  theme: {
+    presetId: "wholesale",
+  },
   cart: {
     supportsManagerOrder: true,
   },

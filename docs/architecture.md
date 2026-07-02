@@ -56,6 +56,8 @@ Catalog-specific behavior goes through `core/catalog-runtime`.
 - New type behavior goes into `core/catalog-runtime/extensions/<type>`.
 - Runtime slot components are exported from `core/catalog-runtime/ui`.
 - Public runtime exports are exposed through `core/catalog-runtime/index.ts`.
+- Server-safe runtime/theme exports are exposed through
+  `core/catalog-runtime/server.ts` and must not pull slot components.
 
 Runtime extensions are internal monolith extensions, not external plugins or
 microfrontends. They can compose existing modules/widgets when implementing a

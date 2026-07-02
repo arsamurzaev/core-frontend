@@ -156,6 +156,7 @@ Shape/elevation:
 - `core/modules/product/editor` category/brand selection UI and discount date-range controls: list rows, skeletons, delete warnings, selected states, drawer dividers/footers and attribute boolean wrapper use semantic tokens.
 - Shared/runtime residuals: yandex metrika banner, subscription access gate, app drawer footer, drawer handle, carousel arrows, confirmation drawer elevation, wholesale quantity spinbox and popular product action muted state use semantic tokens.
 - `core/catalog-runtime/extensions/restaurant/ui/restaurant-browser.tsx`: restaurant storefront browser shell radius uses semantic tokens.
+- `core/catalog-runtime/theme.ts` и `core/catalog-runtime/server.ts`: добавлена typed theme preset registry для `default`, `restaurant`, `wholesale`; сейчас presets не меняют значения токенов, но дают стабильный server-safe storefront scope для будущего редизайна.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
@@ -172,5 +173,5 @@ Shape/elevation:
 ## Следующие Шаги
 
 1. Расширить использование `AdminPanel` и `AdminPanelButton` там, где остались повторяющиеся admin panel patterns.
-2. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.
+2. Начать наполнять theme preset overrides после утверждения визуальных направлений для типов каталога.
 3. Расширять scanner постепенно: при появлении нового semantic alias сначала добавить правило/исключение, затем мигрировать production UI.
