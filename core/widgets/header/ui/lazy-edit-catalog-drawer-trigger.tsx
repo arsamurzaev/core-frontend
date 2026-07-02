@@ -40,10 +40,10 @@ export const LazyEditCatalogDrawerTrigger: React.FC<
         onClick={handleClick}
         className={
           className ??
-          "shadow-custom absolute right-0 bottom-0 h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+          "absolute right-0 bottom-0 h-[30px] w-[30px] rounded-pill border-0 bg-surface-base shadow-surface hover:bg-surface-base"
         }
       >
-        <Pencil className="fill-muted-foreground size-4" />
+        <Pencil className="size-4 text-text-muted" />
       </Button>
       {isMounted ? (
         <EditCatalogDrawerDynamic

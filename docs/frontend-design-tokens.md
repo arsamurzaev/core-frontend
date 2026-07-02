@@ -147,6 +147,7 @@ Shape/elevation:
 - `core/widgets/product-drawer`: drawer shell, standalone page, overview metadata, image carousel dots, share actions, purchase footer, variant/sale-unit pickers and required-selection highlights use semantic tokens.
 - `core/widgets/filter-bar` and `core/widgets/catalog-filter`: sticky search/filter shell, category pills, search controls, filter trigger badge and drawer dividers/empty states use semantic tokens.
 - `core/views/home`, `core/widgets/catalog-products`, `category-products`, `filter-products` and `popular-product-carousel`: home browser tabs/fallback, catalog list empty states, section skeletons, carousel focus rings and pagination dots use semantic tokens.
+- `core/widgets/header`: logo shell, catalog text placeholders, admin/auth links, address text, avatar edit trigger and account stats placeholder use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

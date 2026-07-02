@@ -168,3 +168,4 @@
 - [x] Перевести `product-drawer` shell/page/overview/pickers/footer/highlights на semantic tokens.
 - [x] Перевести `filter-bar` и `catalog-filter` search/category/filter controls на semantic tokens.
 - [x] Перевести home browser/fallback, catalog list empty states и popular carousel dots/focus rings на semantic tokens.
+- [x] Перевести storefront `header` logo shell/text/action links/avatar edit trigger на semantic tokens.

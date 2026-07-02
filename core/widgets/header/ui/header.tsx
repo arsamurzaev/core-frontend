@@ -129,7 +129,7 @@ export const Header: React.FC<Props> = ({
       <div className="space-y-6">
         <div className="-mt-5 flex items-start gap-5">
           <div className="relative">
-            <div className="size-27.5 relative overflow-hidden rounded-full border-[0.5px] border-white bg-white shadow-[0_0_6px_0] shadow-black/50 sm:size-35">
+            <div className="relative size-27.5 overflow-hidden rounded-pill border-[0.5px] border-line-subtle bg-surface-base shadow-surface sm:size-35">
               <img
                 alt=""
                 src={logoMedia?.url || "/default-avatar.png"}
@@ -144,7 +144,7 @@ export const Header: React.FC<Props> = ({
           <div className="pt-6 flex-1">
             <h1
               className={cn(
-                "text-[18px] leading-tight font-bold text-black sm:text-2xl",
+                "text-[18px] leading-tight font-bold text-text-primary sm:text-2xl",
                 showHeaderAuthAction && "flex justify-between gap-3",
               )}
             >
@@ -154,7 +154,7 @@ export const Header: React.FC<Props> = ({
                   {canEnterGlobalAdminMode ? (
                     <button
                       onClick={handleEnterGlobalAdminMode}
-                      className="text-primary flex h-fit items-center gap-1 text-xs underline"
+                      className="flex h-fit items-center gap-1 text-xs text-action-primary underline"
                     >
                       Войти как администратор <ArrowRight className="size-3" />
                     </button>
@@ -162,7 +162,7 @@ export const Header: React.FC<Props> = ({
                   {isGlobalAdminMode && isAuthenticated ? (
                     <button
                       onClick={handleLeaveGlobalAdminMode}
-                      className="text-primary flex h-fit items-center gap-1 text-xs underline"
+                      className="flex h-fit items-center gap-1 text-xs text-action-primary underline"
                     >
                       Клиент
                     </button>
@@ -170,7 +170,7 @@ export const Header: React.FC<Props> = ({
                   {isAuthenticated && !canEnterGlobalAdminMode ? (
                     <button
                       onClick={handleLogout}
-                      className="text-primary flex h-fit items-center gap-1 text-xs underline"
+                      className="flex h-fit items-center gap-1 text-xs text-action-primary underline"
                     >
                       Выйти <ArrowRight className="size-3" />
                     </button>
@@ -178,21 +178,23 @@ export const Header: React.FC<Props> = ({
                 </div>
               ) : null}
             </h1>
-            <h2 className="text-[12px] leading-tight whitespace-pre-line text-black sm:text-base">
+            <h2 className="text-[12px] leading-tight whitespace-pre-line text-text-primary sm:text-base">
               {about || (
-                <span className="text-muted">Расскажи, чем занимаешься</span>
+                <span className="text-text-muted">
+                  Расскажи, чем занимаешься
+                </span>
               )}
             </h2>
             <p className="text-[10px] whitespace-pre-line sm:text-sm">
               {description || (
-                <span className="text-muted">
+                <span className="text-text-muted">
                   Опиши услуги или товары подробнее. <br />
                   Укажи свои сильные стороны и добавь график работы.
                 </span>
               )}
             </p>
             {address ? (
-              <p className="text-muted-foreground mt-1 text-[10px] leading-tight whitespace-pre-line sm:text-sm">
+              <p className="mt-1 text-[10px] leading-tight whitespace-pre-line text-text-muted sm:text-sm">
                 {address}
               </p>
             ) : null}
@@ -225,7 +227,7 @@ export const Header: React.FC<Props> = ({
                     Данная функция находится в разработке.
                   </DialogDescription>
                 </DialogHeader>
-                <p className="text-center text-xl font-bold leading-tight uppercase text-foreground">
+                <p className="text-center text-xl leading-tight font-bold text-text-primary uppercase">
                   СКОРО ТУТ БУДЕТ МНОГО ИНТЕРЕСНОГО
                 </p>
                 <DialogFooter>
