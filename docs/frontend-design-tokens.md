@@ -145,6 +145,7 @@ Shape/elevation:
 - `core/modules/product/actions/ui/sync-iiko-product-action.tsx`, `sync-moysklad-product-action.tsx` and `change-product-category-position-action.tsx`: floating product action buttons and icons use semantic surface/text/elevation tokens.
 - `core/modules/product/entities/product-card.tsx`, `product-card-skeleton.tsx` and `product-card-with-plugins.tsx`: storefront product card shell, image overlays, integration markers, skeletons and plugin metadata use semantic tokens.
 - `core/widgets/product-drawer`: drawer shell, standalone page, overview metadata, image carousel dots, share actions, purchase footer, variant/sale-unit pickers and required-selection highlights use semantic tokens.
+- `core/widgets/filter-bar` and `core/widgets/catalog-filter`: sticky search/filter shell, category pills, search controls, filter trigger badge and drawer dividers/empty states use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

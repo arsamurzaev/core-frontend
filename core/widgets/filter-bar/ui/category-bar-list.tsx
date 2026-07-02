@@ -208,7 +208,7 @@ export const CategoryBarList: React.FC<Props> = ({
           {skeletonWidths.map((widthClass, index) => (
             <Skeleton
               key={`category-skeleton-${index}`}
-              className={cn("h-9 rounded-full", widthClass)}
+              className={cn("h-9 rounded-pill", widthClass)}
             />
           ))}
         </div>
@@ -264,7 +264,7 @@ export const CategoryBarList: React.FC<Props> = ({
                 onCategoryClick?.(item, index);
               }}
               className={cn(
-                "h-9 min-w-0 shrink-0 grow-0 basis-auto rounded-full px-4 py-2 text-sm duration-200 ease-out",
+                "h-9 min-w-0 shrink-0 grow-0 basis-auto rounded-pill px-4 py-2 text-sm duration-200 ease-out",
                 !isActive && "shadow-none",
               )}
             >

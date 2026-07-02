@@ -36,7 +36,7 @@ export const CatalogSearchField: React.FC<CatalogSearchFieldProps> = ({
   return (
     <div
       className={cn(
-        "shadow-custom relative w-full flex-1 rounded-full",
+        "relative w-full flex-1 rounded-pill shadow-surface",
         className,
       )}
     >
@@ -52,13 +52,13 @@ export const CatalogSearchField: React.FC<CatalogSearchFieldProps> = ({
         onKeyDown={handleKeyDown}
         placeholder="Поиск"
         aria-label="Поиск"
-        className={cn("h-10 rounded-full pr-11 pl-4", inputClassName)}
+        className={cn("h-10 rounded-pill pr-11 pl-4", inputClassName)}
       />
       <button
         type="button"
         onClick={onSubmit}
         aria-label="Применить поиск"
-        className="absolute top-1/2 right-3.5 -translate-y-1/2 rounded-full p-0.5"
+        className="absolute top-1/2 right-3.5 -translate-y-1/2 rounded-pill p-0.5 text-text-muted transition-colors hover:bg-surface-muted hover:text-text-primary"
       >
         <Search className="h-5 w-5" />
       </button>

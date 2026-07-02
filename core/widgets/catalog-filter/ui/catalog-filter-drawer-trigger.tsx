@@ -18,8 +18,9 @@ export const CatalogFilterDrawerTrigger = React.forwardRef<
       ref={ref}
       type={type ?? "button"}
       className={cn(
-        "shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full bg-background",
-        activeFiltersCount > 0 && "bg-primary text-primary-foreground",
+        "relative flex h-10 w-10 items-center justify-center rounded-pill bg-surface-base shadow-surface",
+        activeFiltersCount > 0 &&
+          "bg-action-primary text-action-primary-foreground",
         className,
       )}
       aria-label="Открыть фильтр"
@@ -28,7 +29,7 @@ export const CatalogFilterDrawerTrigger = React.forwardRef<
       {activeFiltersCount > 0 ? (
         <Badge
           variant="secondary"
-          className="shadow-custom absolute top-0 -right-1 h-4 min-w-4 rounded-full px-1 text-[10px]"
+          className="absolute top-0 -right-1 h-4 min-w-4 rounded-pill px-1 text-[10px] shadow-surface"
         >
           {activeFiltersCount}
         </Badge>

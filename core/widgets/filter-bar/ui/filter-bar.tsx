@@ -91,10 +91,10 @@ export const FilterBar: React.FC<Props> = ({
       ref={stickyRef}
       style={{ minHeight: "var(--catalog-filter-bar-height, 120px)" }}
       className={cn(
-        "sticky top-0 z-30 rounded-b-2xl border border-transparent bg-white",
+        "sticky top-0 z-30 rounded-b-panel border border-transparent bg-surface-base",
         "transition-[margin,padding,border-color,border-radius,box-shadow,background-color,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
         isSticky &&
-          "-mx-2.5 translate-y-0 rounded-b-3xl border-black/5 bg-white/95 px-4 py-3 shadow-custom backdrop-blur",
+          "-mx-2.5 translate-y-0 rounded-b-panel border-line-subtle bg-surface-base/95 px-4 py-3 shadow-surface backdrop-blur",
         className,
       )}
     >
@@ -115,7 +115,7 @@ export const FilterBar: React.FC<Props> = ({
                 <Button
                   type="button"
                   variant="ghost"
-                  className="shadow-custom flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
+                  className="flex h-10 w-10 items-center justify-center rounded-pill bg-surface-base shadow-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
                   aria-label="Открыть поиск"
                 >
                   <Search size={20} />
@@ -123,7 +123,7 @@ export const FilterBar: React.FC<Props> = ({
               </DialogTrigger>
               <DialogContent
                 showCloseButton={false}
-                className="top-4 translate-y-0 rounded-full border-none bg-transparent p-0 px-2 shadow-none sm:max-w-[calc(100%-1rem)]"
+                className="top-4 translate-y-0 rounded-pill border-none bg-transparent p-0 px-2 shadow-none sm:max-w-[calc(100%-1rem)]"
               >
                 <DialogTitle className="sr-only">Поиск по каталогу</DialogTitle>
                 <DialogDescription className="sr-only">
@@ -132,7 +132,7 @@ export const FilterBar: React.FC<Props> = ({
                 <CatalogSearchField
                   value={searchValue}
                   autoFocus
-                  className="bg-white"
+                  className="bg-surface-base"
                   onChange={setSearchValue}
                   onSubmit={handleApplyFilters}
                 />
@@ -152,7 +152,7 @@ export const FilterBar: React.FC<Props> = ({
           <Button
             variant="ghost"
             className={cn(
-              "shadow-custom flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95",
+              "flex h-10 w-10 items-center justify-center rounded-pill bg-surface-base shadow-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95",
               isFilterActive && "hidden sm:flex",
             )}
             aria-label={
@@ -174,7 +174,7 @@ export const FilterBar: React.FC<Props> = ({
           ) : (
             <Button
               variant="ghost"
-              className="shadow-custom relative flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
+              className="relative flex h-10 w-10 items-center justify-center rounded-pill bg-surface-base shadow-surface transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-95"
               onClick={handleApplyFilters}
             >
               <SlidersVertical size={20} />

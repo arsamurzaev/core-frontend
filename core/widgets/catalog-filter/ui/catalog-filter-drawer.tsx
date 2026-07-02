@@ -67,7 +67,7 @@ const FilterList: React.FC<FilterListProps> = ({
   }
 
   if (items.length === 0) {
-    return <p className="text-muted-foreground text-sm">Нет данных</p>;
+    return <p className="text-sm text-text-muted">Нет данных</p>;
   }
 
   return (
@@ -184,7 +184,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
               </Button>
             }
           />
-          <hr />
+          <hr className="border-line-subtle" />
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-6">
@@ -210,7 +210,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
                     />
                   </FilterSection>
 
-                  <hr />
+                  <hr className="border-line-subtle" />
                 </>
               ) : null}
 
@@ -231,7 +231,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
                 </div>
               </FilterSection>
 
-              <hr />
+              <hr className="border-line-subtle" />
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -267,7 +267,7 @@ export const CatalogFilterDrawer: React.FC<CatalogFilterDrawerProps> = ({
           </DrawerScrollArea>
 
           <AppDrawer.Footer
-            className="border-t"
+            className="border-t border-line-default"
             isAutoClose={false}
             btnText="Сохранить и найти"
             handleClick={handleSubmit}
