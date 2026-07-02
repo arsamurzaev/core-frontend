@@ -18,9 +18,9 @@ export const CartCheckoutLockedSummary: React.FC<
   const lines = buildCheckoutSummary({ data, method });
 
   return (
-    <section className="space-y-2 rounded-lg border border-black/10 p-3">
+    <section className="space-y-2 rounded-control border border-line-default p-3">
       <h3 className="text-base font-semibold">Способ заказа</h3>
-      <div className="space-y-1 text-sm text-muted-foreground">
+      <div className="space-y-1 text-sm text-text-muted">
         {lines.map((line) => (
           <p key={line} className="whitespace-pre-wrap">
             {line}

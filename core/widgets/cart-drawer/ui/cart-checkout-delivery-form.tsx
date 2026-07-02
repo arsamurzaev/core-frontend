@@ -30,10 +30,10 @@ export const CartCheckoutDeliveryForm: React.FC<
         disabled={disabled}
         placeholder="Москва, Тверская, 1"
         autoComplete="street-address"
-        className="border border-black/10"
+        className="border border-line-default"
         aria-invalid={Boolean(error)}
       />
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error ? <p className="text-sm text-status-danger">{error}</p> : null}
     </div>
   );
 };

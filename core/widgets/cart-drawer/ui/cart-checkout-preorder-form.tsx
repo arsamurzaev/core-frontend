@@ -47,11 +47,11 @@ export const CartCheckoutPreorderForm: React.FC<
           }
           disabled={disabled}
           placeholder="4"
-          className="border border-black/10"
+          className="border border-line-default"
           aria-invalid={Boolean(fieldErrors.personsCount)}
         />
         {fieldErrors.personsCount ? (
-          <p className="text-sm text-destructive">
+          <p className="text-sm text-status-danger">
             {fieldErrors.personsCount}
           </p>
         ) : null}
@@ -70,11 +70,11 @@ export const CartCheckoutPreorderForm: React.FC<
               onChange(updateCheckoutData(data, "visitDate", event.target.value))
             }
             disabled={disabled}
-            className="border border-black/10"
+            className="border border-line-default"
             aria-invalid={Boolean(fieldErrors.visitDate)}
           />
           {fieldErrors.visitDate ? (
-            <p className="text-sm text-destructive">
+            <p className="text-sm text-status-danger">
               {fieldErrors.visitDate}
             </p>
           ) : null}
@@ -90,11 +90,11 @@ export const CartCheckoutPreorderForm: React.FC<
               onChange(updateCheckoutData(data, "visitTime", event.target.value))
             }
             disabled={disabled}
-            className="border border-black/10"
+            className="border border-line-default"
             aria-invalid={Boolean(fieldErrors.visitTime)}
           />
           {fieldErrors.visitTime ? (
-            <p className="text-sm text-destructive">
+            <p className="text-sm text-status-danger">
               {fieldErrors.visitTime}
             </p>
           ) : null}

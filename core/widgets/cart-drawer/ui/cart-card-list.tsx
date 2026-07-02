@@ -144,7 +144,7 @@ export const CartCardList: React.FC<CartCardListProps> = ({
               <h3 className="text-base font-semibold sm:text-lg">
                 {group.title}
               </h3>
-              <span className="text-muted-foreground text-sm">
+              <span className="text-text-muted text-sm">
                 {group.items.reduce((sum, item) => sum + item.quantity, 0)}
               </span>
             </div>

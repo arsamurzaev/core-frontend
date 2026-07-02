@@ -50,7 +50,7 @@ export const CartCheckoutTabs: React.FC<CartCheckoutTabsProps> = ({
   }
 
   return (
-    <section className="space-y-3 rounded-lg border border-black/10 p-3">
+    <section className="space-y-3 rounded-control border border-line-default p-3">
       <h3 className="text-base font-semibold">Способ заказа</h3>
       <Tabs
         value={method}
