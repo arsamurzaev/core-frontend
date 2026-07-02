@@ -343,7 +343,7 @@ function buildAttributeBaseField(
       return {
         ...baseField,
         kind: "switch",
-        className: "rounded-lg border p-2.5",
+        className: "rounded-control border border-line-default p-2.5",
       };
     case AttributeDtoDataType.ENUM:
       return {

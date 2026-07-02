@@ -54,12 +54,12 @@ export function CreateProductCategorySelectionDrawer({
           />
 
           <DrawerScrollArea className="px-0 py-0">
-            <hr />
+            <hr className="border-line-subtle" />
 
             <div className="p-5">
               <button
                 type="button"
-                className="shadow-custom w-full rounded-lg px-3 py-3 text-center text-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-control bg-surface-base px-3 py-3 text-center text-sm shadow-surface transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={onRequestCreate}
                 disabled={isControlDisabled}
               >
@@ -67,7 +67,7 @@ export function CreateProductCategorySelectionDrawer({
               </button>
             </div>
 
-            <hr />
+            <hr className="border-line-subtle" />
 
             <div className="px-5 py-7">
               <div className="grid grid-cols-[90px_1fr] gap-3">
@@ -77,11 +77,11 @@ export function CreateProductCategorySelectionDrawer({
                     Array.from({ length: 4 }).map((_, index) => (
                       <li
                         key={index}
-                        className="bg-muted h-6 w-full animate-pulse rounded"
+                        className="h-6 w-full animate-pulse rounded-control bg-surface-muted"
                       />
                     ))
                   ) : categoryList.length === 0 ? (
-                    <li className="text-sm text-muted-foreground">
+                    <li className="text-sm text-text-muted">
                       Список категорий пуст.
                     </li>
                   ) : (
@@ -92,13 +92,15 @@ export function CreateProductCategorySelectionDrawer({
                         <li
                           key={category.id}
                           className={cn(
-                            "flex gap-3 border-b pb-4",
-                            isSelected ? "text-black" : "text-muted-foreground",
+                            "flex gap-3 border-b border-line-subtle pb-4",
+                            isSelected
+                              ? "text-text-primary"
+                              : "text-text-muted",
                           )}
                         >
                           <Button
                             type="button"
-                            className="size-7 rounded-full"
+                            className="size-7 rounded-pill"
                             variant="ghost"
                             size="icon"
                             disabled={isControlDisabled}
@@ -109,7 +111,7 @@ export function CreateProductCategorySelectionDrawer({
                           </Button>
                           <Button
                             type="button"
-                            className="size-7 rounded-full"
+                            className="size-7 rounded-pill"
                             variant="ghost"
                             size="icon"
                             disabled={isControlDisabled}
@@ -137,7 +139,7 @@ export function CreateProductCategorySelectionDrawer({
           </DrawerScrollArea>
 
           <AppDrawer.Footer
-            className="border-t"
+            className="border-t border-line-default"
             isAutoClose={false}
             isFooterBtnDisabled={!hasChanges || isControlDisabled}
             btnText="Сохранить изменения"

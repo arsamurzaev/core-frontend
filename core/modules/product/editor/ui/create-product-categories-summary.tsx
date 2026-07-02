@@ -19,14 +19,14 @@ export function CreateProductCategoriesSummary({
   selectedCategories,
 }: CreateProductCategoriesSummaryProps) {
   return (
-    <div className="w-full border-b text-muted-foreground">
+    <div className="w-full border-b border-line-subtle text-text-muted">
       {selectedCategories.length > 0 ? (
         selectedCategories.map((category, index) => (
-          <div key={category.id} className="w-full text-black">
+          <div key={category.id} className="w-full text-text-primary">
             <div className="flex min-h-11 items-center justify-between gap-3 py-2">
               <button
                 type="button"
-                className="flex min-w-0 items-center gap-1.5 rounded-md py-1 pr-2 text-left transition-colors hover:text-foreground disabled:opacity-50"
+                className="flex min-w-0 items-center gap-1.5 rounded-control py-1 pr-2 text-left transition-colors hover:text-text-primary disabled:opacity-50"
                 onClick={onOpen}
                 disabled={disabled}
               >
@@ -36,7 +36,7 @@ export function CreateProductCategoriesSummary({
 
               <button
                 type="button"
-                className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-muted/30 hover:text-foreground disabled:opacity-50"
+                className="flex size-8 shrink-0 items-center justify-center rounded-control text-text-muted transition-colors hover:bg-surface-muted/30 hover:text-text-primary disabled:opacity-50"
                 onClick={(event) => {
                   event.stopPropagation();
                   onRemove(category.id);
@@ -48,7 +48,9 @@ export function CreateProductCategoriesSummary({
               </button>
             </div>
 
-            {index < selectedCategories.length - 1 ? <hr /> : null}
+            {index < selectedCategories.length - 1 ? (
+              <hr className="border-line-subtle" />
+            ) : null}
           </div>
         ))
       ) : (

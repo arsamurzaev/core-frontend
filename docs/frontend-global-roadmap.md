@@ -174,3 +174,4 @@
 - [x] Перевести lightweight `cart` controls/cards/footer summary на semantic tokens.
 - [x] Перевести `cart-product-variant-drawer` selection flow на semantic tokens.
 - [x] Перевести category cards/skeletons на semantic tokens.
+- [x] Перевести product editor category/brand selection и discount date-range controls на semantic tokens.

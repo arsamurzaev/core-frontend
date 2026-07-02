@@ -153,6 +153,7 @@ Shape/elevation:
 - `core/modules/cart/ui` lightweight controls/cards: product add/action buttons, drawer footer quantity control, cart cards, footer summary/quantity pills and crossed prices use semantic tokens.
 - `core/modules/cart/ui/cart-product-variant-drawer.tsx`: variant/sale-unit/modifier/quantity selection shell, summary card, helper states and action buttons use semantic tokens.
 - `core/modules/category/ui/category-card.tsx` and `category-card-skeleton.tsx`: category compact/image card surfaces, inverse text, skeleton overlays, radii and elevation use semantic tokens.
+- `core/modules/product/editor` category/brand selection UI and discount date-range controls: list rows, skeletons, delete warnings, selected states, drawer dividers/footers and attribute boolean wrapper use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

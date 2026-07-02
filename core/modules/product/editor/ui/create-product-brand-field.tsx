@@ -45,12 +45,12 @@ export function CreateProductBrandField<TValues extends FieldValues>(
 
   return (
     <>
-      <div className="w-full border-b text-muted-foreground">
+      <div className="w-full border-b border-line-subtle text-text-muted">
         {selectedBrand ? (
           <div className="flex items-center justify-between gap-2 pb-4">
             <button
               type="button"
-              className="flex min-w-0 items-center gap-1 text-black"
+              className="flex min-w-0 items-center gap-1 text-text-primary"
               onClick={openDrawer}
               disabled={isControlDisabled}
             >
@@ -60,7 +60,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
 
             <button
               type="button"
-              className="text-muted transition-colors hover:text-foreground disabled:opacity-50"
+              className="text-text-muted transition-colors hover:text-text-primary disabled:opacity-50"
               onClick={(event) => {
                 event.stopPropagation();
                 field.onChange("");
@@ -104,7 +104,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
             />
 
             <DrawerScrollArea className="px-0 py-0">
-              <hr />
+              <hr className="border-line-subtle" />
 
               <form
                 className="px-5 py-7"
@@ -126,7 +126,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                     type="submit"
                     variant="ghost"
                     size="icon"
-                    className="rounded-full"
+                    className="rounded-pill"
                     disabled={createBrand.isPending || isControlDisabled}
                     aria-label="Добавить бренд"
                   >
@@ -139,7 +139,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                 </div>
               </form>
 
-              <hr />
+              <hr className="border-line-subtle" />
 
               <div className="px-5 py-7">
                 <div className="grid grid-cols-[90px_1fr] gap-3">
@@ -149,11 +149,11 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                       Array.from({ length: 4 }).map((_, index) => (
                         <li
                           key={index}
-                          className="bg-muted h-6 w-full animate-pulse rounded"
+                          className="h-6 w-full animate-pulse rounded-control bg-surface-muted"
                         />
                       ))
                     ) : brandList.length === 0 ? (
-                      <li className="text-sm text-muted-foreground">
+                      <li className="text-sm text-text-muted">
                         Список брендов пуст.
                       </li>
                     ) : (
@@ -164,15 +164,15 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                           <li
                             key={brand.id}
                             className={cn(
-                              "flex items-center gap-3 border-b pb-4",
+                              "flex items-center gap-3 border-b border-line-subtle pb-4",
                               isSelected
-                                ? "text-black"
-                                : "text-muted-foreground",
+                                ? "text-text-primary"
+                                : "text-text-muted",
                             )}
                           >
                             <Button
                               type="button"
-                              className="size-7 rounded-full"
+                              className="size-7 rounded-pill"
                               variant="ghost"
                               size="icon"
                               disabled={isControlDisabled}
@@ -183,7 +183,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
                             </Button>
                             <Button
                               type="button"
-                              className="size-7 rounded-full"
+                              className="size-7 rounded-pill"
                               variant="ghost"
                               size="icon"
                               disabled={isControlDisabled}
@@ -218,7 +218,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
             </DrawerScrollArea>
 
             <AppDrawer.Footer
-              className="border-t"
+              className="border-t border-line-default"
               isAutoClose={false}
               isFooterBtnDisabled={!hasChanges || isControlDisabled}
               btnText="Сохранить изменения"
@@ -242,7 +242,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
               description="Измените название бренда. Обновление сразу попадет в список выбора товара."
               withCloseButton={!updateBrand.isPending}
             />
-            <hr />
+            <hr className="border-line-subtle" />
 
             <div className="space-y-6 px-6 py-6">
               <div className="space-y-2">
@@ -258,7 +258,7 @@ export function CreateProductBrandField<TValues extends FieldValues>(
             </div>
 
             <AppDrawer.Footer
-              className="border-t"
+              className="border-t border-line-default"
               isAutoClose={false}
               loading={updateBrand.isPending}
               buttonType="button"

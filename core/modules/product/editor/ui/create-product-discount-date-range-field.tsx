@@ -134,7 +134,7 @@ export function CreateProductDiscountDateRangeField({
             disabled={disabled || readOnly}
             className={cn(
               "min-w-0 flex-1 justify-start text-left font-normal",
-              !range && "text-muted-foreground",
+              !range && "text-text-muted",
               fieldConfig.controlClassName,
             )}
           >
@@ -152,13 +152,13 @@ export function CreateProductDiscountDateRangeField({
             event.preventDefault();
           }}
         >
-          <div className="flex items-center justify-between border-b px-3 py-2">
+          <div className="flex items-center justify-between border-b border-line-subtle px-3 py-2">
             <p className="text-sm font-medium">Период скидки</p>
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7 rounded-full"
+              className="size-7 rounded-pill"
               onClick={handleClose}
               aria-label="Закрыть"
             >
@@ -173,7 +173,7 @@ export function CreateProductDiscountDateRangeField({
             onSelect={handleSelect}
             numberOfMonths={2}
           />
-          <div className="flex justify-end gap-2 border-t px-3 py-2">
+          <div className="flex justify-end gap-2 border-t border-line-subtle px-3 py-2">
             <Button
               type="button"
               variant="outline"

@@ -169,7 +169,7 @@ export function CreateProductCategoriesField(
         {deletingCategory ? (
           <label
             htmlFor={deleteProductsCheckboxId}
-            className="flex cursor-pointer items-start gap-3 rounded-md border border-destructive/20 bg-destructive/5 p-3 text-sm"
+            className="flex cursor-pointer items-start gap-3 rounded-control border border-status-danger/20 bg-status-danger-surface p-3 text-sm"
           >
             <Checkbox
               id={deleteProductsCheckboxId}
@@ -180,7 +180,7 @@ export function CreateProductCategoriesField(
               }
               className="mt-0.5"
             />
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-text-primary">
               Удалить товары (кол-во: {deletingProductCount})
             </span>
           </label>
