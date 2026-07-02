@@ -110,6 +110,7 @@ Shape/elevation:
 - `core/widgets/cart-drawer/ui/cart-drawer-status-message.tsx`: использует `status-warning`.
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer.tsx`: первый drawer, где карточки/скелетоны/empty states переведены на `AdminPanel`.
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-advanced-settings-drawer.tsx` и sessions trigger используют `AdminPanelButton`.
+- `core/widgets/footer` и `core/widgets/share-drawer`: UI text/status/surface colors, close icons, pill radii и wordmark currentColor переведены на semantic tokens; brand/support asset colors оставлены как assets.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
@@ -126,5 +127,5 @@ Shape/elevation:
 
 1. Принять решение по `shared/ui/smooth-drawer.tsx`: сейчас не используется, выглядит как внешнее demo; лучше удалить/перенести в sandbox или переписать при появлении реального сценария.
 2. Расширить использование `AdminPanel` и `AdminPanelButton` в `edit-catalog-*` и `product-modifier-*` экранах.
-3. Разобрать `share-drawer/footer` и отделить брендовые SVG colors от UI text/surface colors.
+3. Начать перенос крупных widgets: `cart-drawer`, `global-admin-drawer`, `category-admin`, `edit-product-drawer`.
 4. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.

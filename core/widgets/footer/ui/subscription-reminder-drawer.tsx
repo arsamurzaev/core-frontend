@@ -18,7 +18,7 @@ import React from "react";
 
 const SubscriptionPlanCard: React.FC<{ plan: SubscriptionPlan }> = ({ plan }) => {
   return (
-    <article className="bg-muted/20 flex h-full flex-col justify-between gap-6 rounded-xl px-9 py-5 text-left select-none">
+    <article className="bg-surface-muted/30 flex h-full flex-col justify-between gap-6 rounded-panel px-9 py-5 text-left select-none">
       <div className="space-y-2">
         <h3 className="flex items-center gap-2 text-[clamp(14px,7cqw,25px)] leading-none font-bold">
           <plan.Icon className={plan.iconClassName} />
@@ -35,7 +35,7 @@ const SubscriptionPlanCard: React.FC<{ plan: SubscriptionPlan }> = ({ plan }) =>
               key={benefit}
               className="text-[clamp(10px,5cqw,12px)] flex items-center gap-3 leading-none"
             >
-              <Checkbox className="bg-primary" checked />
+              <Checkbox checked />
               {benefit}
             </li>
           ))}
@@ -86,12 +86,12 @@ export const SubscriptionReminderDrawer: React.FC<SubscriptionReminderDrawerProp
               <DrawerTitle className="text-base font-normal">
                 До конца вашей подписки осталось
               </DrawerTitle>
-              <DrawerDescription className="text-foreground text-6xl font-semibold">
+              <DrawerDescription className="text-text-primary text-6xl font-semibold">
                 {message}
               </DrawerDescription>
             </div>
             <div className="flex justify-end">
-              <DrawerClose className="text-muted-foreground inline-flex items-center justify-center">
+              <DrawerClose className="text-text-muted inline-flex items-center justify-center">
                 <X className="size-4" />
                 <span className="sr-only">Закрыть</span>
               </DrawerClose>
@@ -122,7 +122,7 @@ export const SubscriptionReminderDrawer: React.FC<SubscriptionReminderDrawerProp
 
           <div className="px-4">
             <Button
-              className="rounded-full"
+              className="rounded-pill"
               size="full"
               onClick={onRenewClick}
             >

@@ -30,25 +30,25 @@ const SubscriptionStatusCard: React.FC<{
 
   return (
     <div className="text-center">
-      <p className="text-muted-foreground text-sm">
+      <p className="text-text-muted text-sm">
         {isExpired ? "Статус лицензии" : "До конца подписки"}
       </p>
       <div
         className={cn(
           "text-2xl font-medium",
           isExpired
-            ? "text-red-500"
+            ? "text-status-danger"
             : daysRemaining <= 3
-              ? "text-red-500"
+              ? "text-status-danger"
               : daysRemaining <= 7
-                ? "text-orange-500"
-                : "text-foreground",
+                ? "text-status-warning"
+                : "text-text-primary",
         )}
       >
         {formatSubscriptionDaysText(daysRemaining)}
       </div>
       {subscriptionEndsAt ? (
-        <div className="text-muted-foreground mt-1 text-xs">
+        <div className="text-text-muted mt-1 text-xs">
           до {subscriptionEndsAt.toLocaleDateString("ru-RU")}
         </div>
       ) : null}

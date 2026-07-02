@@ -18,7 +18,7 @@ export function ShareDrawerSocialList({
 
   return (
     <nav>
-      <ul className="flex justify-center gap-8 text-[#8C8C8C]">
+      <ul className="flex justify-center gap-8 text-text-muted">
         {items.map((item) => {
           const Icon = item.icon;
 

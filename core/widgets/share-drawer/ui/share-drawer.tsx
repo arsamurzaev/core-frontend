@@ -84,7 +84,7 @@ export const ShareDrawer: React.FC<ShareDrawerProps> = ({
       open={resolvedOpen}
       onOpenChange={handleOpenChange}
     >
-      <AppDrawer.Content className="bg-[#F2F2F7] text-center">
+      <AppDrawer.Content className="bg-surface-muted text-center">
         <ShareDrawerHeader title={resolvedDrawerTitle} />
 
         <div className="space-y-8">
