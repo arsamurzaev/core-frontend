@@ -12,7 +12,7 @@ import type { CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query"
 import { cn } from "@/shared/lib/utils";
 import React from "react";
 
-interface CatalogProductsPanelProps {
+export interface CatalogProductsPanelProps {
   className?: string;
   contentClassName?: string;
   collapsed?: boolean;

@@ -186,3 +186,4 @@
 - [x] Вынести business-card storefront decisions из home/product route/edit form в `catalog-runtime/storefront-composition`.
 - [x] Вынести preorder/manager-order/cart-action решения в `catalog-runtime/order-policies`.
 - [x] Добавить slot compatibility guard: explicit props, no direct generated/server API, no module deep imports from runtime extensions.
+- [x] Добавить widget public entrypoints для runtime/storefront composition и guard против `core/widgets/*/ui|model|lib` imports.

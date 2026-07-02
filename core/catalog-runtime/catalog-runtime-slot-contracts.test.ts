@@ -2,7 +2,10 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+const CATALOG_RUNTIME_ROOT = "core/catalog-runtime";
+const CORE_VIEWS_ROOT = "core/views";
 const EXTENSION_ROOT = "core/catalog-runtime/extensions";
+const STOREFRONT_APP_ROOT = "app/(storefront)";
 const SOURCE_EXTENSIONS = new Set([".ts", ".tsx"]);
 const PUBLIC_MODULE_ENTRYPOINTS = new Set([
   "@/core/modules/browser",
@@ -16,6 +19,8 @@ const PUBLIC_MODULE_ENTRYPOINTS = new Set([
 ]);
 const MODULE_DEEP_IMPORT_PATTERN =
   /@\/core\/modules\/(?:browser|cart|catalog-price-list|category|integration|product|product-modifier)\/[^"']+/;
+const WIDGET_DEEP_IMPORT_PATTERN =
+  /@\/core\/widgets\/[^"']+\/(?:ui|model|lib)\/[^"']+/;
 const IMPORT_SPECIFIER_PATTERN =
   /\b(?:import|export)\s+(?:type\s+)?(?:[^"']*?\s+from\s+)?["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
 
@@ -174,6 +179,27 @@ describe("catalog runtime slot contracts", () => {
         return [];
       });
     });
+
+    expect(violations).toEqual([]);
+  });
+
+  it("keeps runtime, views and storefront app on widget public entrypoints", () => {
+    const violations = [
+      CATALOG_RUNTIME_ROOT,
+      CORE_VIEWS_ROOT,
+      STOREFRONT_APP_ROOT,
+    ].flatMap((root) =>
+      collectSourceFiles(root).flatMap((file) => {
+        const source = readFileSync(file, "utf8");
+        const imports = extractImportSpecifiers(source);
+
+        return imports.flatMap((specifier) =>
+          WIDGET_DEEP_IMPORT_PATTERN.test(specifier)
+            ? [`${file} imports widget internal ${specifier}`]
+            : [],
+        );
+      }),
+    );
 
     expect(violations).toEqual([]);
   });

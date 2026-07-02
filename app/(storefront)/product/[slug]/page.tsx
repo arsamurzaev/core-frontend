@@ -5,8 +5,8 @@ import {
   getProductPageDataServer,
   getProductPageStructuredData,
   normalizeProductSlug,
-} from "@/core/widgets/product-drawer/lib/product-page.server";
-import { ProductDrawerRoute } from "@/core/widgets/product-drawer/ui/product-drawer-route";
+} from "@/core/widgets/product-drawer/server";
+import { ProductDrawerRoute } from "@/core/widgets/product-drawer";
 import { getCurrentCatalogServer } from "@/shared/api/server/get-current-catalog";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";

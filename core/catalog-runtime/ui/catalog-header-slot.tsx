@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "@/core/widgets/header/ui/header";
+import { Header } from "@/core/widgets/header";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import type React from "react";
 import { useCatalogRuntimeCheckoutConfig } from "../use-catalog-runtime-checkout-config";

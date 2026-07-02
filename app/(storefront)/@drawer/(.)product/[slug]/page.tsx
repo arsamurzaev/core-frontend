@@ -1,5 +1,5 @@
-import { normalizeProductSlug } from "@/core/widgets/product-drawer/lib/product-page.server";
-import { ProductDrawerRoute } from "@/core/widgets/product-drawer/ui/product-drawer-route";
+import { ProductDrawerRoute } from "@/core/widgets/product-drawer";
+import { normalizeProductSlug } from "@/core/widgets/product-drawer/server";
 
 interface ProductDrawerRoutePageProps {
   params: Promise<{ slug: string }>;

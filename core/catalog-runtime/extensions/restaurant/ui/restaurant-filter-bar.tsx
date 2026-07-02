@@ -1,7 +1,9 @@
 "use client";
 
-import { type CatalogFilterValuePatch } from "@/core/widgets/filter-bar/model/use-filter-bar";
-import { FilterBar } from "@/core/widgets/filter-bar/ui/filter-bar";
+import {
+  type CatalogFilterValuePatch,
+  FilterBar,
+} from "@/core/widgets/filter-bar";
 import React, { type ReactNode } from "react";
 
 interface RestaurantFilterBarProps {

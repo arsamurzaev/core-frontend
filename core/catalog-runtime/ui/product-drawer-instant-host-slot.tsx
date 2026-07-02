@@ -1,6 +1,6 @@
 "use client";
 
-import { ProductDrawerInstantHost } from "@/core/widgets/product-drawer/ui/product-drawer-instant-host";
+import { ProductDrawerInstantHost } from "@/core/widgets/product-drawer";
 import type React from "react";
 import { useCatalogRuntime } from "../use-catalog-runtime";
 

@@ -1,8 +1,10 @@
 "use client";
 
-import { CartDrawer } from "@/core/widgets/cart-drawer/ui/cart-drawer";
-import { HallTableOrdersDrawer } from "@/core/widgets/cart-drawer/ui/hall-table-orders-drawer";
-import { HallTableGuestNameDialog } from "@/core/widgets/cart-drawer/ui/hall-table-guest-name-dialog";
+import {
+  CartDrawer,
+  HallTableGuestNameDialog,
+  HallTableOrdersDrawer,
+} from "@/core/widgets/cart-drawer";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import type React from "react";
 import { shouldUseCatalogRuntimeCartCardAction } from "../order-policies";

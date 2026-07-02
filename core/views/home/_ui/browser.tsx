@@ -1,18 +1,19 @@
 ﻿"use client";
 
-import { CatalogProductsPanel } from "@/core/widgets/catalog-products/ui/catalog-products-panel";
+import { CatalogProductsPanel } from "@/core/widgets/catalog-products";
+import {
+  CategoryAdminBarActions,
+  CategoryAdminCardAction,
+  useCategoryAdmin,
+} from "@/core/widgets/category-admin";
+import { LazyCatalogFilterDrawer } from "@/core/widgets/catalog-filter";
 import {
   buildCategoryDisplayList,
   CategoryCard,
   type CategoryCardVariant,
   CategoryCardSkeleton,
 } from "@/core/modules/category";
-import { useCategoryAdmin } from "@/core/widgets/category-admin/model/use-category-admin";
-import { CategoryAdminBarActions } from "@/core/widgets/category-admin/ui/category-admin-bar-actions";
-import { CategoryAdminCardAction } from "@/core/widgets/category-admin/ui/category-admin-card-action";
-import { LazyCatalogFilterDrawer } from "@/core/widgets/catalog-filter/ui/lazy-catalog-filter-drawer";
-import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
-import { FilterBar } from "@/core/widgets/filter-bar/ui/filter-bar";
+import { CategoryBarList, FilterBar } from "@/core/widgets/filter-bar";
 import {
   type CategoryDto,
   useCategoryControllerGetAll,
@@ -38,7 +39,7 @@ import {
 
 const CategoryAdminDrawersDynamic = dynamic(
   () =>
-    import("@/core/widgets/category-admin/ui/category-admin-drawers").then(
+    import("@/core/widgets/category-admin").then(
       (module) => module.CategoryAdminDrawers,
     ),
   {

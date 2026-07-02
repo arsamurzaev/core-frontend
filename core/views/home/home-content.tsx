@@ -6,8 +6,8 @@ import {
 } from "@/core/catalog-runtime/ui";
 import { BackgroundImage } from "@/core/views/home/_ui/background-image";
 import { HomeCatalogFallback } from "@/core/views/home/home-catalog-fallback";
-import { Footer } from "@/core/widgets/footer/ui/footer";
-import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel/ui/popular-product-carousel";
+import { Footer } from "@/core/widgets/footer";
+import { PopularProductCarousel } from "@/core/widgets/popular-product-carousel";
 import { getCatalogStorefrontComposition } from "@/core/catalog-runtime/server";
 import { getCurrentCatalogServer } from "@/shared/api/server/get-current-catalog";
 import { getHomePageDataServer } from "@/shared/api/server/get-home-page-data";

@@ -15,6 +15,7 @@
 - Product card runtime использует общий `ProductCardWithPlugins`, а базовая карточка сама считает price/availability через sellable/variant model.
 - Slots получают готовые DTO/view models из core-слоя и не должны сами ходить в API за product/cart state без явной необходимости.
 - Runtime extension slots must not import generated/server API directly; they receive data via slot props or compose public module/widget contracts.
+- Runtime UI and extensions import widgets through widget public entrypoints, not `ui/model/lib` internals.
 - `variantPickerOptions` достаточно для легкой карточки: runtime не обязан требовать `ProductWithDetailsDto`, чтобы показать варианты.
 
 ## Public Surface

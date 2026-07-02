@@ -1,6 +1,6 @@
 "use client";
 
-import { EditProductDrawerHostProvider } from "@/core/widgets/edit-product-drawer/model/edit-product-drawer-host";
+import { EditProductDrawerHostProvider } from "@/core/widgets/edit-product-drawer";
 import React from "react";
 import { useCatalogRuntime } from "../use-catalog-runtime";
 

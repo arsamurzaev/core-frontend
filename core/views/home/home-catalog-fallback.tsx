@@ -1,7 +1,7 @@
 "use client";
 
-import { CatalogProductsSectionsSkeleton } from "@/core/widgets/catalog-products/ui/catalog-products-skeleton";
-import { PopularProductCarouselSkeleton } from "@/core/widgets/popular-product-carousel/ui/skeleton/popular-product-carousel-skeleton";
+import { CatalogProductsSectionsSkeleton } from "@/core/widgets/catalog-products";
+import { PopularProductCarouselSkeleton } from "@/core/widgets/popular-product-carousel";
 import { Skeleton } from "@/shared/ui/skeleton";
 import React from "react";
 

@@ -7,8 +7,8 @@ import {
   useCategoryClickActivationDelay,
 } from "@/core/modules/browser";
 import { buildCategoryDisplayList } from "@/core/modules/category";
-import { CatalogProductsPanel } from "@/core/widgets/catalog-products/ui/catalog-products-panel";
-import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
+import { CatalogProductsPanel } from "@/core/widgets/catalog-products";
+import { CategoryBarList } from "@/core/widgets/filter-bar";
 import { cn } from "@/shared/lib/utils";
 import React from "react";
 import { RestaurantFilterBar } from "./restaurant-filter-bar";
