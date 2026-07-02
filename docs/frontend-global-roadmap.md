@@ -126,3 +126,4 @@
 - [x] Добавить первый `AdminPanel` primitive и применить его в sessions drawer.
 - [x] Перевести `Dialog`, `Popover`, `Drawer`, `Textarea`, `Progress`, `Slider` на semantic tokens.
 - [x] Добавить `AdminPanelButton` и применить его в advanced/settings sessions triggers.
+- [x] Перевести `Field`, `RadioGroup`, `Checkbox`, `Toggle`, `ToggleGroup`, `Calendar` на semantic tokens.
