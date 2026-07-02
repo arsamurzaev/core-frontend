@@ -662,7 +662,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       {getRefOptionLabel(option)}
                     </span>
                     {meta ? (
-                      <span className="truncate text-xs text-muted-foreground">
+                      <span className="truncate text-xs text-text-muted">
                         {meta}
                       </span>
                     ) : null}
@@ -687,12 +687,12 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
         <Button
           type="button"
           variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
+          className="h-auto w-full min-w-0 items-start justify-between rounded-panel border border-line-subtle px-4 py-4 text-left whitespace-normal hover:bg-surface-muted/50"
           disabled={disabled}
         >
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-text-primary">
                 MoySklad
               </span>
               <Badge
@@ -702,11 +702,11 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                 {statusBadge.label}
               </Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               {statusDescription}
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
         </Button>
       }
     >
@@ -721,7 +721,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-5">
-              <div className="rounded-2xl border border-black/10 bg-muted/15 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Статус</span>
                   <Badge
@@ -731,23 +731,23 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     {statusBadge.label}
                   </Badge>
                 </div>
-                <p className="mt-2 break-words text-sm text-muted-foreground">
+                <p className="mt-2 break-words text-sm text-text-muted">
                   {statusDescription}
                 </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+                <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
                   <div className="text-sm font-medium">Текущий запуск</div>
-                  <p className="mt-2 break-words text-sm text-muted-foreground">
+                  <p className="mt-2 break-words text-sm text-text-muted">
                     {status?.activeRun
                       ? getRunMeta(status.activeRun)
                       : "Сейчас активного запуска нет."}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+                <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
                   <div className="text-sm font-medium">Последний результат</div>
-                  <p className="mt-2 break-words text-sm text-muted-foreground">
+                  <p className="mt-2 break-words text-sm text-text-muted">
                     {status?.lastRun
                       ? getRunSummary(status.lastRun)
                       : "История запусков пока пустая."}
@@ -756,7 +756,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
               </div>
 
               {integration?.capabilities ? (
-                <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+                <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                   <div className="text-sm font-medium">
                     Возможности provider
                   </div>
@@ -858,7 +858,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                 </Field>
               </div>
 
-              <div className="space-y-3 rounded-2xl border border-black/10 bg-muted/10 p-4">
+              <div className="space-y-3 rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 {(
                   [
                     {
@@ -933,7 +933,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
               </div>
 
               {integration?.stockWebhook ? (
-                <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+                <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <span className="text-sm font-medium">
                       Webhook остатков
@@ -955,7 +955,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                           : "выключен"}
                     </Badge>
                   </div>
-                  <div className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+                  <div className="mt-3 grid gap-2 text-sm text-text-muted sm:grid-cols-2">
                     <span>
                       Тип отчета: {integration.stockWebhook.reportType || "all"}
                     </span>
@@ -976,7 +976,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     </span>
                   </div>
                   {integration.stockWebhook.lastError ? (
-                    <p className="mt-3 break-words text-sm text-destructive">
+                    <p className="mt-3 break-words text-sm text-status-danger">
                       {integration.stockWebhook.lastError}
                     </p>
                   ) : null}
@@ -984,13 +984,13 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
               ) : null}
 
               {formState.exportOrders ? (
-                <div className="space-y-4 rounded-2xl border border-black/10 bg-muted/10 p-4">
+                <div className="space-y-4 rounded-panel border border-line-subtle bg-surface-subtle p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium">
                         Куда создавать заказы
                       </div>
-                      <p className="mt-1 break-words text-sm text-muted-foreground">
+                      <p className="mt-1 break-words text-sm text-text-muted">
                         Эти значения берём из MoySklad. После сохранения новый
                         завершённый заказ появится в разделе «Заказы
                         покупателей».
@@ -1009,13 +1009,13 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                   </div>
 
                   {orderExportRefsQuery.isFetching ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-text-muted">
                       Загружаем данные из MoySklad…
                     </p>
                   ) : null}
 
                   {orderExportRefsQuery.isError ? (
-                    <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                    <div className="rounded-panel border border-status-danger/30 bg-status-danger-surface p-3 text-sm text-status-danger">
                       {extractApiErrorMessage(orderExportRefsQuery.error)}
                     </div>
                   ) : null}
@@ -1045,7 +1045,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                   (!organizationOptions.length ||
                     !counterpartyOptions.length ||
                     !storeOptions.length) ? (
-                    <p className="break-words text-sm text-muted-foreground">
+                    <p className="break-words text-sm text-text-muted">
                       Если какой-то список пустой, проверьте права токена и
                       наличие организации, контрагента и склада в MoySklad.
                     </p>
@@ -1054,7 +1054,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
               ) : null}
 
               {formState.scheduleEnabled ? (
-                <div className="space-y-4 rounded-2xl border border-black/10 bg-muted/10 p-4">
+                <div className="space-y-4 rounded-panel border border-line-subtle bg-surface-subtle p-4">
                   <Field>
                     <FieldLabel>Частота синхронизации</FieldLabel>
                     <FieldContent>
@@ -1112,9 +1112,9 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                     </Field>
                   ) : null}
 
-                  <div className="rounded-2xl border border-black/10 bg-background/70 p-3">
+                  <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-3">
                     <div className="text-sm font-medium">Часовой пояс</div>
-                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                    <p className="mt-1 break-words text-sm text-text-muted">
                       {formState.scheduleTimezone}. Определяем автоматически по
                       браузеру, а если это недоступно, используем Москву.
                     </p>
@@ -1122,7 +1122,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
                   {formState.legacySchedulePattern &&
                   !formState.scheduleTouched ? (
-                    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-700">
+                    <div className="rounded-panel border border-status-warning/30 bg-status-warning-surface p-3 text-sm text-status-warning-foreground">
                       Сейчас у интеграции сохранено нестандартное расписание:{" "}
                       <span className="font-medium">
                         {formState.legacySchedulePattern}
@@ -1133,13 +1133,13 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                 </div>
               ) : null}
 
-              <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="text-sm font-medium">
                       Mapping характеристик
                     </div>
-                    <p className="mt-1 break-words text-sm text-muted-foreground">
+                    <p className="mt-1 break-words text-sm text-text-muted">
                       {getMappingPreviewSummary(mappingPreview)}
                     </p>
                   </div>
@@ -1174,7 +1174,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                 </div>
 
                 {mappingReportSummary ? (
-                  <div className="mt-3 rounded-2xl border border-black/10 bg-background/70 p-3 text-sm text-muted-foreground">
+                  <div className="mt-3 rounded-panel border border-line-subtle bg-surface-raised/70 p-3 text-sm text-text-muted">
                     Последнее применение: {mappingReportSummary}
                   </div>
                 ) : null}
@@ -1186,7 +1186,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       .map((item) => (
                         <div
                           key={item.externalName}
-                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                          className="rounded-panel border border-line-subtle bg-surface-raised/70 p-3"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="break-words text-sm font-medium">
@@ -1196,11 +1196,11 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                               {item.occurrences} шт.
                             </Badge>
                           </div>
-                          <p className="mt-1 break-words text-sm text-muted-foreground">
+                          <p className="mt-1 break-words text-sm text-text-muted">
                             Новый ключ: {item.suggestedKey}
                           </p>
                           {item.suggestedExistingAttributes.length ? (
-                            <p className="mt-1 break-words text-xs text-muted-foreground">
+                            <p className="mt-1 break-words text-xs text-text-muted">
                               Похожие:{" "}
                               {item.suggestedExistingAttributes
                                 .slice(0, 3)
@@ -1216,7 +1216,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       .map((item) => (
                         <div
                           key={`${item.externalAttributeName}:${item.externalValue}`}
-                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                          className="rounded-panel border border-line-subtle bg-surface-raised/70 p-3"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="break-words text-sm font-medium">
@@ -1226,7 +1226,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                               {item.occurrences} шт.
                             </Badge>
                           </div>
-                          <p className="mt-1 break-words text-sm text-muted-foreground">
+                          <p className="mt-1 break-words text-sm text-text-muted">
                             Значение: {item.externalValue}
                           </p>
                         </div>
@@ -1234,7 +1234,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
 
                     {!mappingPreview.unknownAttributes.length &&
                     !mappingPreview.unknownEnumValues.length ? (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-text-muted">
                         Неизвестных характеристик и значений нет.
                       </p>
                     ) : null}
@@ -1242,11 +1242,11 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                 ) : null}
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Последние запуски</span>
                   {runsQuery.isFetching ? (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-text-muted">
                       Обновляем…
                     </span>
                   ) : null}
@@ -1259,7 +1259,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       return (
                         <div
                           key={run.id}
-                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                          className="rounded-panel border border-line-subtle bg-surface-raised/70 p-3"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <span className="break-words text-sm font-medium">
@@ -1272,10 +1272,10 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                               {badge.label}
                             </Badge>
                           </div>
-                          <p className="mt-2 break-words text-sm text-muted-foreground">
+                          <p className="mt-2 break-words text-sm text-text-muted">
                             {getRunSummary(run)}
                           </p>
-                          <div className="mt-2 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
+                          <div className="mt-2 grid gap-2 text-xs text-text-muted sm:grid-cols-3">
                             <span>
                               Товары: {run.products.created}/
                               {run.products.updated}/{run.products.skipped}
@@ -1290,7 +1290,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                             </span>
                           </div>
                           {run.warnings.length || run.errors.length ? (
-                            <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                            <div className="mt-2 space-y-1 text-xs text-text-muted">
                               {[...run.errors, ...run.warnings]
                                 .slice(0, 3)
                                 .map((issue) => (
@@ -1308,18 +1308,18 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       );
                     })
                   ) : (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-text-muted">
                       История запусков пока пустая.
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-black/10 bg-muted/10 p-4">
+              <div className="rounded-panel border border-line-subtle bg-surface-subtle p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Экспорт заказов</span>
                   {orderExportsQuery.isFetching ? (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-text-muted">
                       Обновляем…
                     </span>
                   ) : null}
@@ -1334,7 +1334,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       return (
                         <div
                           key={orderExport.id}
-                          className="rounded-2xl border border-black/10 bg-background/70 p-3"
+                          className="rounded-panel border border-line-subtle bg-surface-raised/70 p-3"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <span className="break-words text-sm font-medium">
@@ -1347,17 +1347,17 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                               {badge.label}
                             </Badge>
                           </div>
-                          <p className="mt-2 break-words text-sm text-muted-foreground">
+                          <p className="mt-2 break-words text-sm text-text-muted">
                             Запрошен {formatDateTime(orderExport.requestedAt)} ·
                             попыток: {orderExport.attempts}
                           </p>
                           {orderExport.externalId ? (
-                            <p className="mt-1 break-words text-xs text-muted-foreground">
+                            <p className="mt-1 break-words text-xs text-text-muted">
                               MoySklad: {orderExport.externalId}
                             </p>
                           ) : null}
                           {orderExport.lastError ? (
-                            <p className="mt-1 break-words text-xs text-destructive">
+                            <p className="mt-1 break-words text-xs text-status-danger">
                               {orderExport.lastError}
                             </p>
                           ) : null}
@@ -1379,7 +1379,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
                       );
                     })
                   ) : (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-text-muted">
                       Экспортов заказов пока нет.
                     </p>
                   )}
@@ -1387,7 +1387,7 @@ export const EditCatalogMoySkladDrawerAdmin: React.FC<{
               </div>
 
               {errorMessage ? (
-                <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                <div className="rounded-panel border border-status-danger/30 bg-status-danger-surface p-4 text-sm text-status-danger">
                   {errorMessage}
                 </div>
               ) : null}
