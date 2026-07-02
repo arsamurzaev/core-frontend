@@ -184,3 +184,4 @@
 - [x] Разделить `catalog-runtime` contracts на metadata/slot/runtime facades без изменения public compatibility export.
 - [x] Добавить compatibility matrix для default/restaurant/cafe/wholesale/whosale/business-card runtime contracts.
 - [x] Вынести business-card storefront decisions из home/product route/edit form в `catalog-runtime/storefront-composition`.
+- [x] Вынести preorder/manager-order/cart-action решения в `catalog-runtime/order-policies`.

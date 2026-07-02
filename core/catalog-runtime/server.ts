@@ -1,4 +1,5 @@
 export type * from "./metadata-contracts";
+export type { CatalogRuntimeOrderPolicy } from "./order-policies";
 export type {
   CatalogStorefrontComposition,
   CatalogStorefrontCompositionSource,

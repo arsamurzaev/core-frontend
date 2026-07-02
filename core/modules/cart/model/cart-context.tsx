@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  catalogRuntimeSupportsManagerOrder,
   getCatalogRuntimeCheckoutConfig,
   useCatalogRuntime,
 } from "@/core/catalog-runtime";
@@ -109,7 +110,7 @@ const CartProviderInner: React.FC<React.PropsWithChildren> = ({ children }) => {
   } = useCartStorageFlags(catalog.id);
   const isCatalogManager = Boolean(user && isCatalogManagerRole(user.role));
   const canCreateManagerOrder =
-    isCatalogManager && runtime.cart.supportsManagerOrder;
+    isCatalogManager && catalogRuntimeSupportsManagerOrder(runtime);
   const {
     activeCart,
     activeCartError,

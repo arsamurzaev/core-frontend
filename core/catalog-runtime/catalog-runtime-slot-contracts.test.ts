@@ -38,6 +38,10 @@ describe("catalog runtime slot contracts", () => {
       "core/catalog-runtime/storefront-composition.ts",
       "utf8",
     );
+    const orderPoliciesSource = readFileSync(
+      "core/catalog-runtime/order-policies.ts",
+      "utf8",
+    );
 
     expect(metadataContractsSource).not.toContain("React");
     expect(metadataContractsSource).not.toContain("next/dynamic");
@@ -52,5 +56,9 @@ describe("catalog runtime slot contracts", () => {
     expect(storefrontCompositionSource).not.toContain(
       "./resolve-catalog-runtime",
     );
+    expect(orderPoliciesSource).not.toContain("React");
+    expect(orderPoliciesSource).not.toContain("next/dynamic");
+    expect(orderPoliciesSource).not.toContain("./registry");
+    expect(orderPoliciesSource).not.toContain("./resolve-catalog-runtime");
   });
 });

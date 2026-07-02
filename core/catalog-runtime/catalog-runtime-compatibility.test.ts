@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import {
+  catalogRuntimeSupportsManagerOrder,
+  catalogRuntimeSupportsPreorderCheckout,
+  getCatalogRuntimeOrderPolicy,
+  shouldUseCatalogRuntimeCartCardAction,
+} from "./order-policies";
 import { resolveCatalogRuntime } from "./resolve-catalog-runtime";
 import {
   canOpenStorefrontProductPage,
@@ -269,6 +275,22 @@ describe("catalog runtime compatibility matrix", () => {
       );
       expect(runtime.manifest.policies.productCardMode).toBe(
         expected.productCardMode,
+      );
+      expect(getCatalogRuntimeOrderPolicy(runtime)).toEqual({
+        checkoutMethods: expected.checkoutMethods,
+        defaultCheckoutMethods: expected.defaultCheckoutMethods,
+        supportsPreorderCheckout: expected.supportsPreorderCheckout,
+        supportsManagerOrder: expected.supportsManagerOrder,
+        usesCustomCartCardAction: expected.hasCartCardActionSlot,
+      });
+      expect(catalogRuntimeSupportsPreorderCheckout(runtime)).toBe(
+        expected.supportsPreorderCheckout,
+      );
+      expect(catalogRuntimeSupportsManagerOrder(runtime)).toBe(
+        expected.supportsManagerOrder,
+      );
+      expect(shouldUseCatalogRuntimeCartCardAction(runtime)).toBe(
+        expected.hasCartCardActionSlot,
       );
       for (const eventId of expected.analyticsEvents ?? []) {
         expect(runtime.manifest.analyticsEvents).toContain(eventId);

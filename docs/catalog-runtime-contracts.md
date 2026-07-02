@@ -35,6 +35,7 @@
 - `metadata-contracts.ts`: pure presentation, checkout, theme and manifest contracts. This file must not import React, slots, registry or runtime resolver.
 - `slot-contracts.ts`: React slot props and slot component map.
 - `runtime-contracts.ts`: full `CatalogExtension` and `CatalogRuntime` composition contract.
+- `order-policies.ts`: pure runtime order policy helpers for preorder, manager orders and custom cart card actions.
 - `storefront-composition.ts`: server/client-safe presentation mode helpers for storefront composition decisions.
 - `contracts.ts`: compatibility facade for public type exports.
 - `server.ts`: server-safe facade for theme/metadata helpers; it must not pull runtime registry or client hooks.

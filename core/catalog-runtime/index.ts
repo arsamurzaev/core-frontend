@@ -7,6 +7,12 @@ export { CATALOG_EXTENSIONS, CATALOG_PLUGINS } from "./registry";
 export { getCatalogRuntimeCheckoutConfig } from "./checkout";
 export { resolveCatalogRuntimeManifest } from "./manifest";
 export {
+  catalogRuntimeSupportsManagerOrder,
+  catalogRuntimeSupportsPreorderCheckout,
+  getCatalogRuntimeOrderPolicy,
+  shouldUseCatalogRuntimeCartCardAction,
+} from "./order-policies";
+export {
   canOpenStorefrontProductPage,
   getCatalogStorefrontComposition,
   shouldLoadStorefrontHomePageData,
