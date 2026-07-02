@@ -11,7 +11,7 @@ import {
   type CategoryImageUploadState,
 } from "@/core/modules/product/editor/lib/upload-category-image";
 import { type CategoryListItem } from "@/core/modules/product/editor/model/category-field-utils";
-import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
+import { invalidateProductQueries } from "@/core/modules/product";
 import {
   getCategoryControllerGetAllQueryKey,
   getCategoryControllerGetByIdQueryKey,

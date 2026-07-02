@@ -1,6 +1,6 @@
 "use client";
 
-import { startMoySkladSyncProgressToast } from "@/core/modules/integration/model/start-moysklad-sync-progress-toast";
+import { startMoySkladSyncProgressToast } from "@/core/modules/integration";
 import { invalidateMoySkladIntegrationQueries } from "@/core/modules/product/actions/model/invalidate-moysklad-integration-queries";
 import { invalidateProductQueries } from "@/core/modules/product/actions/model/invalidate-product-queries";
 import { useIntegrationControllerSyncMoySkladProduct } from "@/shared/api/generated/react-query";

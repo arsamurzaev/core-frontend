@@ -1,6 +1,6 @@
 "use client";
 
-import { formatProductVariantLabel } from "@/core/modules/product/model/product-variant-label";
+import { formatProductVariantLabel } from "@/core/modules/product";
 import {
   useCatalogModifierState,
   useProductModifiers,

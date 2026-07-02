@@ -192,3 +192,4 @@
 - [x] Перевести `core/modules/cart` с product internals на `@/core/modules/product` public entrypoint.
 - [x] Перевести `core/modules/catalog-price-list` с product editor internals на `@/core/modules/product/editor`.
 - [x] Добавить public entrypoints для соседних widgets и убрать основные cross-widget deep imports из отчета.
+- [x] Закрыть оставшиеся cross-owner deep imports и закрепить нулевой baseline в architecture guard.

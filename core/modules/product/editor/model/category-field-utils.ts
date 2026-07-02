@@ -1,6 +1,6 @@
 "use client";
 
-import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
+import { buildCategoryDisplayList } from "@/core/modules/category";
 import { getFieldOptionText } from "@/core/modules/product/editor/lib/select-field-utils";
 import { type CategoryDto } from "@/shared/api/generated/react-query";
 import { type FieldOption } from "@/shared/ui/dynamic-form";

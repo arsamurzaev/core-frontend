@@ -90,6 +90,9 @@ facades and slots.
   `sandbox/**`.
 - `app/**`, `core/widgets/**`, `core/views/**`, and `core/catalog-runtime/**`
   should prefer module public entrypoints over deep module imports.
+- Cross-owner imports between modules, widgets, views, and runtime extensions
+  should use public entrypoints instead of another owner's `ui/model/lib`
+  internals.
 - App routes should prefer `core/catalog-runtime/ui` for runtime-aware
   storefront composition.
 - Widgets and views should use `core/bridges/*` when a workflow joins multiple

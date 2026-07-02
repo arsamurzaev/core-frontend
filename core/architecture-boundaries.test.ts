@@ -110,6 +110,7 @@ const BOUNDARY_RULES: BoundaryRule[] = [
 ];
 
 const PUBLIC_MODULE_IMPORT_DEBT_BASELINE = 0;
+const CROSS_OWNER_DEEP_IMPORT_DEBT_BASELINE = 0;
 const PUBLIC_MODULE_IMPORT_SOURCES = [
   "app",
   "core/catalog-runtime",
@@ -381,6 +382,12 @@ function getDeepImportReportItems(edges: ImportEdge[]): DeepImportReportItem[] {
   });
 }
 
+function getCrossOwnerDeepImportDebt(edges: ImportEdge[]): string[] {
+  return getDeepImportReportItems(edges).map(
+    (item) => `${item.filePath} -> ${item.specifier}`,
+  );
+}
+
 function formatDeepImportReport(edges: ImportEdge[]): string {
   const groups = Array.from(
     getDeepImportReportItems(edges)
@@ -452,6 +459,23 @@ describe("architecture boundaries", () => {
     }
 
     expect(debt.length).toBeLessThanOrEqual(PUBLIC_MODULE_IMPORT_DEBT_BASELINE);
+  });
+
+  it("does not increase cross-owner deep import debt", () => {
+    const debt = getCrossOwnerDeepImportDebt(edges);
+
+    if (process.env.ARCHITECTURE_REPORT === "1" && debt.length > 0) {
+      console.info(
+        [
+          "Cross-owner deep import debt:",
+          ...debt.map((violation) => `- ${violation}`),
+        ].join("\n"),
+      );
+    }
+
+    expect(debt.length).toBeLessThanOrEqual(
+      CROSS_OWNER_DEEP_IMPORT_DEBT_BASELINE,
+    );
   });
 
   it("can report top deep import debt sources", () => {

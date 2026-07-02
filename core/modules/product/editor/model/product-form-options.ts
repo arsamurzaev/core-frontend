@@ -4,7 +4,7 @@ import type {
   ProductTypeDto,
 } from "@/shared/api/generated/react-query";
 import type { FieldOption } from "@/shared/ui/dynamic-form";
-import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
+import { buildCategoryDisplayList } from "@/core/modules/category";
 
 function sortByName<TItem extends { name: string }>(items: TItem[]): TItem[] {
   return [...items].sort((left, right) =>
