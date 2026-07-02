@@ -24,7 +24,7 @@ export const CartDrawerFooterSummary: React.FC<
         {formatCatalogPrice(price, priceFormatMode)} {currency}
       </h4>
       {hasDiscount ? (
-        <p className="text-muted text-xs line-through">
+        <p className="text-text-muted text-xs line-through">
           {formatCatalogPrice(totalPrice, priceFormatMode)} {currency}
         </p>
       ) : null}

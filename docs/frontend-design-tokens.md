@@ -114,6 +114,7 @@ Shape/elevation:
 - `core/widgets/cart-drawer` checkout primitives: delivery/preorder forms, location display, checkout tabs, locked summary и grouped cart count используют semantic tokens.
 - `core/widgets/cart-drawer/ui/integration-checkout-section.tsx`: integration checkout panels, iiko table states, field errors и policy links используют semantic tokens.
 - `core/widgets/cart-drawer` shell/hall-table UI: drawer surface, footer panel, comment textarea, manager start bar и hall-table orders list используют semantic tokens.
+- `core/widgets/cart-drawer` header/skeleton/status/footer-summary details: radii, muted text and elevation use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
@@ -130,5 +131,5 @@ Shape/elevation:
 
 1. Принять решение по `shared/ui/smooth-drawer.tsx`: сейчас не используется, выглядит как внешнее demo; лучше удалить/перенести в sandbox или переписать при появлении реального сценария.
 2. Расширить использование `AdminPanel` и `AdminPanelButton` в `edit-catalog-*` и `product-modifier-*` экранах.
-3. Продолжить перенос крупных widgets: оставшиеся `cart-drawer` header/footer action details, `global-admin-drawer`, `category-admin`, `edit-product-drawer`.
+3. Продолжить перенос крупных widgets: `global-admin-drawer`, `category-admin`, `edit-product-drawer`, `edit-catalog-*`.
 4. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.

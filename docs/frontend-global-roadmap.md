@@ -135,3 +135,4 @@
 - [x] Перевести `cart-drawer` checkout primitives на semantic tokens.
 - [x] Перевести `cart-drawer` integration checkout section на semantic tokens.
 - [x] Перевести `cart-drawer` shell/hall-table/footer panels на semantic tokens.
+- [x] Дочистить `cart-drawer` header/skeleton/status/footer details от legacy UI tokens.

@@ -63,7 +63,7 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
             setSnapPoint(1);
           }}
           className={cn(
-            "relative flex h-11 w-full justify-between overflow-hidden rounded-full font-light transition-all",
+            "relative flex h-11 w-full justify-between overflow-hidden rounded-pill font-light transition-all",
             snapPoint === 1 && "h-0 p-0",
           )}
         >
@@ -107,7 +107,7 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
             size="icon"
             aria-label={isExitAction ? "Выйти из корзины" : "Удалить корзину"}
           >
-            <HeaderActionIcon className="text-muted" />
+            <HeaderActionIcon className="text-text-muted" />
           </Button>
 
           <h3 className="sm:text-2xl">Корзина</h3>
@@ -120,7 +120,7 @@ export const CartDrawerHeader: React.FC<CartDrawerHeaderProps> = ({
             onClick={() => setSnapPoint(collapsedSnapPoint)}
             aria-label="Свернуть корзину"
           >
-            <X className="text-muted" />
+            <X className="text-text-muted" />
           </Button>
         </div>
       </div>
