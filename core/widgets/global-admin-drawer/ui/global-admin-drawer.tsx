@@ -294,22 +294,22 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
 
             <DrawerScrollArea className="px-5 py-5">
               <div className="space-y-4">
-                <section className="space-y-3 rounded-lg border border-black/10 p-4">
+                <section className="space-y-3 rounded-panel border border-line-default p-4">
                   <div className="flex items-center gap-2">
-                    <DatabaseZap className="size-5 text-primary" />
+                    <DatabaseZap className="size-5 text-action-primary" />
                     <h3 className="text-base font-semibold">Текущий каталог</h3>
                   </div>
 
                   <dl className="grid grid-cols-[88px_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
-                    <dt className="text-muted-foreground">Название</dt>
+                    <dt className="text-text-muted">Название</dt>
                     <dd className="min-w-0 break-words font-medium">
                       {catalog.name}
                     </dd>
-                    <dt className="text-muted-foreground">Slug</dt>
+                    <dt className="text-text-muted">Slug</dt>
                     <dd className="min-w-0 break-words font-mono text-xs">
                       {catalog.slug}
                     </dd>
-                    <dt className="text-muted-foreground">ID</dt>
+                    <dt className="text-text-muted">ID</dt>
                     <dd className="min-w-0 break-all font-mono text-xs">
                       {catalog.id}
                     </dd>
@@ -317,7 +317,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
 
                   <div className="space-y-2">
                     <div className="text-sm font-medium">Режим каталога</div>
-                    <div className="grid grid-cols-2 gap-1 rounded-md border border-black/10 bg-muted/40 p-1">
+                    <div className="grid grid-cols-2 gap-1 rounded-control border border-line-default bg-surface-muted/40 p-1">
                       {CATALOG_PRESENTATION_MODE_OPTIONS.map(
                         ({ Icon, label, value }) => {
                           const isActive = selectedPresentationMode === value;
@@ -331,8 +331,8 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                               className={cn(
                                 "flex min-h-10 items-center justify-center gap-2 rounded-[5px] px-2 text-sm font-medium transition disabled:cursor-wait disabled:opacity-70",
                                 isActive
-                                  ? "bg-background text-foreground shadow-sm"
-                                  : "text-muted-foreground hover:text-foreground",
+                                  ? "bg-surface-base text-text-primary shadow-control"
+                                  : "text-text-muted hover:text-text-primary",
                               )}
                               onClick={() =>
                                 handlePresentationModeChange(value)
@@ -351,14 +351,14 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                   </div>
                 </section>
 
-                <section className="space-y-4 rounded-lg border border-black/10 p-4">
+                <section className="space-y-4 rounded-panel border border-line-default p-4">
                   <div className="flex items-start gap-3">
-                    <SlidersHorizontal className="mt-0.5 size-5 shrink-0 text-primary" />
+                    <SlidersHorizontal className="mt-0.5 size-5 shrink-0 text-action-primary" />
                     <div className="min-w-0 space-y-1">
                       <h3 className="text-base font-semibold">
                         Бета-функции каталога
                       </h3>
-                      <p className="text-sm leading-5 text-muted-foreground">
+                      <p className="text-sm leading-5 text-text-muted">
                         Включайте новые возможности точечно. Если флаг выключен,
                         данные не удаляются, но интерфейс и backend не дают
                         использовать эту функцию.
@@ -373,11 +373,11 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                       <Skeleton className="h-14 w-full" />
                     </div>
                   ) : featureQuery.isError ? (
-                    <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                    <div className="rounded-control border border-status-danger/30 bg-status-danger-surface p-3 text-sm text-status-danger">
                       {extractApiErrorMessage(featureQuery.error)}
                     </div>
                   ) : (
-                    <div className="divide-y divide-black/10 rounded-md border border-black/10">
+                    <div className="divide-y divide-line-default rounded-control border border-line-default">
                       {CATALOG_FEATURES.map((feature) => {
                         const entitlement = featuresByKey.get(feature);
                         const state = capabilityItemsByKey.get(feature);
@@ -401,11 +401,11 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                           >
                             <div className="min-w-0 space-y-1">
                               <div className="font-medium">{copy.title}</div>
-                              <div className="text-sm leading-5 text-muted-foreground">
+                              <div className="text-sm leading-5 text-text-muted">
                                 {copy.description}
                               </div>
                               {entitlement?.expiresAt ? (
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-text-muted">
                                   До{" "}
                                   {new Date(
                                     entitlement.expiresAt,
@@ -413,7 +413,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                                 </div>
                               ) : null}
                               {state?.raw && !state.effective ? (
-                                <div className="text-xs text-destructive">
+                                <div className="text-xs text-status-danger">
                                   Недоступно:{" "}
                                   {state.disabledReason ??
                                     "проверьте зависимости"}
@@ -421,7 +421,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                               ) : null}
                             </div>
                             <div className="flex shrink-0 items-center gap-2">
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-text-muted">
                                 {state?.effective ? "доступно" : "выкл"}
                               </span>
                               <Switch
@@ -443,14 +443,14 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                   )}
                 </section>
 
-                <section className="space-y-4 rounded-lg border border-destructive/35 bg-destructive/5 p-4">
+                <section className="space-y-4 rounded-panel border border-status-danger/35 bg-status-danger-surface p-4">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="mt-0.5 size-5 shrink-0 text-destructive" />
+                    <AlertTriangle className="mt-0.5 size-5 shrink-0 text-status-danger" />
                     <div className="min-w-0 space-y-1">
-                      <h3 className="text-base font-semibold text-destructive">
+                      <h3 className="text-base font-semibold text-status-danger">
                         Очистка контента
                       </h3>
-                      <p className="text-sm leading-5 text-muted-foreground">
+                      <p className="text-sm leading-5 text-text-muted">
                         Будут скрыты товары, категории, бренды, SEO контента и
                         технические связи. Профиль каталога, настройки, заказы,
                         корзины и оплаты останутся на месте.
@@ -471,12 +471,12 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                 </section>
 
                 {lastResult ? (
-                  <section className="space-y-3 rounded-lg border border-black/10 p-4">
+                  <section className="space-y-3 rounded-panel border border-line-default p-4">
                     <div>
                       <h3 className="text-base font-semibold">
                         Последняя очистка
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-text-muted">
                         Затронуто строк: {getDeletedTotal(lastResult)}
                       </p>
                     </div>
@@ -487,7 +487,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                           key={item.key}
                           className="flex items-center justify-between gap-3"
                         >
-                          <span className="text-muted-foreground">
+                          <span className="text-text-muted">
                             {item.label}
                           </span>
                           <span className="font-medium">
