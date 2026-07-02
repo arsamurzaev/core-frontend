@@ -17,7 +17,7 @@ export const UploadProgressToast: React.FC<UploadProgressToastProps> = ({
     <div className="flex w-full min-w-64 flex-col gap-2">
       <div className="flex items-center justify-between gap-3 text-sm">
         <span className="font-medium">{label}</span>
-        <span className="shrink-0 text-muted-foreground tabular-nums">
+        <span className="shrink-0 text-text-muted tabular-nums">
           {normalizedProgress}%
         </span>
       </div>

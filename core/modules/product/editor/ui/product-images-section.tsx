@@ -58,7 +58,7 @@ export const ProductImagesSection: React.FC<ProductImagesSectionProps> = ({
       <h3 className="text-sm font-semibold">
         Добавьте фото товара или услуги (от 1* до 12)
       </h3>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-text-muted">
         Для публикации необходимо хотя бы одно фото.
         <br />
         Главное фото для карточки стоит первым.
@@ -106,7 +106,7 @@ export const ProductImagesSection: React.FC<ProductImagesSectionProps> = ({
       ) : null}
 
       {isReorderMode ? (
-        <div className="rounded-lg border border-primary/30 bg-primary/5 px-2.5 py-2 text-left text-xs text-primary">
+        <div className="rounded-control border border-action-primary/30 bg-action-primary/5 px-2.5 py-2 text-left text-xs text-action-primary">
           {pendingSwapIndex === null
             ? "Режим изменения порядка включен: выберите первую фотографию."
             : `Выбрана фотография ${pendingSwapIndex + 1}. Выберите вторую, чтобы поменять местами.`}
@@ -114,7 +114,7 @@ export const ProductImagesSection: React.FC<ProductImagesSectionProps> = ({
       ) : null}
 
       {items.length > 0 && isInitialCropRequired ? (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-left text-xs text-amber-700">
+        <div className="rounded-control border border-status-warning/30 bg-status-warning-surface px-2.5 py-2 text-left text-xs text-status-warning-foreground">
           Первичное добавление: обязательная последовательная обрезка фотографий
           (1, 2, 3 ...).
         </div>
@@ -140,13 +140,13 @@ export const ProductImagesSection: React.FC<ProductImagesSectionProps> = ({
           })}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">Файлы не выбраны.</p>
+        <p className="text-sm text-text-muted">Файлы не выбраны.</p>
       )}
 
       {uploadState.phase !== "idle" ? (
-        <div className="space-y-2 rounded-lg border p-2.5 text-left">
+        <div className="space-y-2 rounded-control border border-line-subtle p-2.5 text-left">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-text-muted">
               {uploadState.message}
             </span>
             <span className="text-xs font-medium">
@@ -158,7 +158,7 @@ export const ProductImagesSection: React.FC<ProductImagesSectionProps> = ({
       ) : null}
 
       {uploadedMediaIds.length > 0 ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-text-muted">
           Загружено mediaId: {uploadedMediaIds.length}
         </p>
       ) : null}

@@ -226,7 +226,7 @@ export const ProductEditorDrawerContent: React.FC<
               ) : null}
 
               {errorMessage ? (
-                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                <div className="rounded-control border border-status-danger/30 bg-status-danger-surface p-3 text-sm text-status-danger">
                   {errorMessage}
                 </div>
               ) : null}

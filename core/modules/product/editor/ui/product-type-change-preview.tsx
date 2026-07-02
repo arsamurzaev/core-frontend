@@ -25,7 +25,7 @@ function renderIssueList(issues: ProductTypeCompatibilityIssueDto[]) {
   }
 
   return (
-    <ul className="space-y-1 text-xs text-muted-foreground">
+    <ul className="space-y-1 text-xs text-text-muted">
       {issues.slice(0, 5).map((issue) => (
         <li key={`${issue.attributeId}-${issue.reason}`}>
           {issue.displayName} ({issue.key})
@@ -67,14 +67,14 @@ export const ProductTypeChangePreview: React.FC<
   }
 
   return (
-    <div className="space-y-3 rounded-lg border bg-muted/20 p-3">
+    <div className="space-y-3 rounded-control border border-line-subtle bg-surface-subtle p-3">
       <div className="space-y-1">
         <p className="text-sm font-medium">
           {isWorking
             ? "Применяем тип товара"
             : "Тип товара не применился автоматически"}
         </p>
-        <p className="text-xs leading-5 text-muted-foreground">
+        <p className="text-xs leading-5 text-text-muted">
           {isWorking
             ? "Система сама подготовит выбранный тип. Если данные подходят, вариации откроются без дополнительных действий."
             : "В товаре уже есть характеристики или варианты, которые не подходят выбранному типу. Верните прежний тип или выберите другой."}
@@ -83,7 +83,7 @@ export const ProductTypeChangePreview: React.FC<
 
       <div className="flex flex-wrap items-center gap-2">
         {isWorking ? (
-          <div className="inline-flex min-h-8 items-center gap-2 rounded-md border bg-background px-3 text-sm text-muted-foreground">
+          <div className="inline-flex min-h-8 items-center gap-2 rounded-control border border-line-subtle bg-surface-base px-3 text-sm text-text-muted">
             <Loader2 className="size-3.5 animate-spin" />
             {isApplying ? "Применяем..." : "Подготавливаем..."}
           </div>
@@ -117,13 +117,13 @@ export const ProductTypeChangePreview: React.FC<
       {!isWorking && preview ? (
         <div className="space-y-2 text-sm">
           {preview.blockingReason ? (
-            <p className="text-destructive">{preview.blockingReason}</p>
+            <p className="text-status-danger">{preview.blockingReason}</p>
           ) : preview.compatible ? (
-            <p className="text-green-700">
+            <p className="text-status-success">
               Тип можно применить без потери данных.
             </p>
           ) : (
-            <p className="text-amber-700">
+            <p className="text-status-warning">
               Выбранный тип не совпадает с текущими характеристиками товара.
             </p>
           )}

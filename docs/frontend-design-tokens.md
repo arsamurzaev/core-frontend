@@ -138,6 +138,7 @@ Shape/elevation:
 - `core/modules/catalog-price-list/ui/product-price-list-settings-drawer.tsx`: price-list settings skeletons, draggable rows, trigger, empty/error states and delete controls use semantic tokens.
 - `core/modules/integration/model/start-iiko-sync-progress-toast.tsx` and `start-moysklad-sync-progress-toast.tsx`: sync progress toast title, message, counters and percent labels use semantic tokens.
 - `core/modules/catalog-price-list/ui/product-price-list-prices-field.tsx`, `product-price-list-create-prices-field.tsx` and `product-price-list-price-input-grid.tsx`: price row panels, loading skeletons, labels and hints use semantic tokens.
+- `core/modules/product/editor/ui/upload-progress-toast.tsx`, `product-type-change-preview.tsx`, `product-editor-drawer-content.tsx` and `product-images-section.tsx`: editor progress, type-change, image helper and error states use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
