@@ -161,7 +161,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
+                  className="h-8 shrink-0 border-line-default bg-transparent px-2.5 text-text-muted shadow-none hover:border-line-default hover:bg-surface-muted hover:text-text-primary"
                   disabled={isSubmitting || isProductTypeSchemaResolving}
                   title="Настроить прайс-листы"
                 >
@@ -258,7 +258,7 @@ export const CreateProductDrawer: React.FC<CreateProductDrawerProps> = ({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
+                  className="h-8 shrink-0 border-line-default bg-transparent px-2.5 text-text-muted shadow-none hover:border-line-default hover:bg-surface-muted hover:text-text-primary"
                   disabled={isSubmitting || isProductTypeSchemaResolving}
                   title="Добавить/изменить единицы продажи"
                 >

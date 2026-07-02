@@ -139,16 +139,16 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
             <DrawerScrollArea className="px-5 py-6">
               <div className="space-y-4">
                 {isLoadingProduct ? (
-                  <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-text-muted">
                     <Loader2 className="size-4 animate-spin" />
                     Загрузка товара...
                   </div>
                 ) : errorMessage ? (
-                  <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                  <div className="rounded-control border border-status-danger/30 bg-status-danger-surface p-4 text-sm text-status-danger">
                     {errorMessage}
                   </div>
                 ) : (
-                  <div className="rounded-lg border p-4 text-sm text-muted-foreground">
+                  <div className="rounded-control border border-line-default p-4 text-sm text-text-muted">
                     Не удалось подготовить товар к редактированию.
                   </div>
                 )}
@@ -172,7 +172,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
                 type="button"
                 onClick={handleDelete}
                 disabled={isBusy || isCropperOpen}
-                className="rounded p-1 text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                className="rounded-control p-1 text-status-danger transition-colors hover:bg-status-danger-surface disabled:opacity-50"
                 title="Удалить товар"
               >
                 <Trash2 className="size-5" />
@@ -242,7 +242,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
+                    className="h-8 shrink-0 border-line-default bg-transparent px-2.5 text-text-muted shadow-none hover:border-line-default hover:bg-surface-muted hover:text-text-primary"
                     disabled={isBusy || isCropperOpen}
                     title="Настроить прайс-листы"
                   >
@@ -348,7 +348,7 @@ export const EditProductDrawer: React.FC<EditProductDrawerProps> = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
+                    className="h-8 shrink-0 border-line-default bg-transparent px-2.5 text-text-muted shadow-none hover:border-line-default hover:bg-surface-muted hover:text-text-primary"
                     disabled={isBusy || isCropperOpen}
                     title="Добавить/изменить единицы продажи"
                   >

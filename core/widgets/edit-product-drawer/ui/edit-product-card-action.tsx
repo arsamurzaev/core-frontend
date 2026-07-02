@@ -165,7 +165,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
             variant="ghost"
             disabled={isActionPending}
             onClick={handleToggleStatusClick}
-            className="absolute inset-0 z-10 flex h-full rounded-lg bg-black/50 text-center text-white hover:bg-black/60"
+            className="absolute inset-0 z-10 flex h-full rounded-control bg-surface-inverse/50 text-center text-text-inverse hover:bg-surface-inverse/60"
           >
             <span className="text-sm leading-tight underline underline-offset-2">
               Показать
@@ -176,7 +176,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
         ) : (
           <div
             className={cn(
-              "absolute inset-0 z-10 flex h-full items-center justify-center rounded-lg bg-black/50 px-3 text-center text-white",
+              "absolute inset-0 z-10 flex h-full items-center justify-center rounded-control bg-surface-inverse/50 px-3 text-center text-text-inverse",
               isHiddenByParentCatalog
                 ? "pointer-events-auto cursor-not-allowed"
                 : "pointer-events-none",
@@ -185,7 +185,7 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
             onClick={handleReadOnlyHiddenInteraction}
             onPointerDown={handleReadOnlyHiddenInteraction}
           >
-            <span className="rounded-md bg-black/20 px-3 py-2 text-sm font-semibold leading-tight shadow-sm">
+            <span className="rounded-control bg-surface-inverse/20 px-3 py-2 text-sm font-semibold leading-tight shadow-control">
               {hiddenStatusLabel}
             </span>
           </div>
@@ -230,13 +230,13 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
               size="icon"
               disabled={isActionPending}
               onClick={handleToggleStatusClick}
-              className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+              className="shadow-surface h-[30px] w-[30px] rounded-pill border-0 bg-surface-base hover:bg-surface-base"
               aria-label={isStatusActive ? "Скрыть товар" : "Показать товар"}
             >
               {isStatusActive ? (
-                <EyeOff className="text-muted-foreground size-4" />
+                <EyeOff className="text-text-muted size-4" />
               ) : (
-                <Eye className="text-muted-foreground size-4" />
+                <Eye className="text-text-muted size-4" />
               )}
             </Button>
           ) : null}
@@ -246,10 +246,10 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
               size="icon"
               disabled={isActionPending}
               onClick={handleDuplicateClick}
-              className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+              className="shadow-surface h-[30px] w-[30px] rounded-pill border-0 bg-surface-base hover:bg-surface-base"
               aria-label="Дублировать товар"
             >
-              <Copy className="text-muted-foreground size-4" />
+              <Copy className="text-text-muted size-4" />
             </Button>
           ) : null}
           <Button
@@ -257,10 +257,10 @@ export const EditProductCardAction: React.FC<EditProductCardActionProps> = ({
             size="icon"
             disabled={isActionPending}
             onClick={handleTriggerClick}
-            className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+            className="shadow-surface h-[30px] w-[30px] rounded-pill border-0 bg-surface-base hover:bg-surface-base"
             aria-label="Редактировать товар"
           >
-            <Pencil className="text-muted-foreground size-4" />
+            <Pencil className="text-text-muted size-4" />
           </Button>
         </div>
       ) : null}
