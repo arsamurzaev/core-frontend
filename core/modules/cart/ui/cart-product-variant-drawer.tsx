@@ -12,9 +12,9 @@ import {
   getProductSaleUnitContainsText,
   getProductSaleUnits,
   getSaleUnitMaxQuantity,
+  resolveProductCardVariantState,
   type ProductSaleUnit,
-} from "@/core/modules/product/model/sale-units";
-import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
+} from "@/core/modules/product";
 import {
   buildCartModifierSelectionPayload,
   buildDefaultProductModifierSelection,

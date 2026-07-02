@@ -13,8 +13,10 @@ import { CartProductCardFooterPrice } from "@/core/modules/cart/ui/cart-product-
 import { CartProductCardFooterQuantity } from "@/core/modules/cart/ui/cart-product-card-footer-quantity";
 import { CartProductCardFooterSummary } from "@/core/modules/cart/ui/cart-product-card-footer-summary";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
-import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
-import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
+import {
+  buildProductCardView,
+  resolveProductCardVariantState,
+} from "@/core/modules/product";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { getCatalogPriceFormatMode } from "@/shared/lib/price-format";

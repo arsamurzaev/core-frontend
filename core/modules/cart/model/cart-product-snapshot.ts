@@ -1,5 +1,5 @@
 import type { CartProductSnapshot } from "@/core/modules/cart/model/cart-context.types";
-import { buildProductCardView } from "@/core/modules/product/model/product-card-view";
+import { buildProductCardView } from "@/core/modules/product";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { toNumberValue } from "@/shared/lib/attributes";
 

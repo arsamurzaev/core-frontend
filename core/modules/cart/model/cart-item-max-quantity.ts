@@ -3,7 +3,7 @@ import {
   findProductSaleUnit,
   getProductSaleUnits,
   getSaleUnitMaxQuantity,
-} from "@/core/modules/product/model/sale-units";
+} from "@/core/modules/product";
 import type { ProductVariantDto } from "@/shared/api/generated/react-query";
 
 function findDefaultProductVariant(

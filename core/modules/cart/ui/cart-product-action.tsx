@@ -11,8 +11,10 @@ import { resolveCartProductCardSelection } from "@/core/modules/cart/model/cart-
 import { CartProductActionButton } from "@/core/modules/cart/ui/cart-product-action-button";
 import { CartProductVariantDrawer } from "@/core/modules/cart/ui/cart-product-variant-drawer";
 import { useCartProductControls } from "@/core/modules/cart/ui/use-cart-product-controls";
-import { filterActivePriceListVisibleItems } from "@/core/modules/product";
-import { resolveProductCardVariantState } from "@/core/modules/product/model/product-card-variant";
+import {
+  filterActivePriceListVisibleItems,
+  resolveProductCardVariantState,
+} from "@/core/modules/product";
 import type { ProductWithAttributesDto } from "@/shared/api/generated/react-query";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
 import { getCatalogCurrency } from "@/shared/lib/utils";
