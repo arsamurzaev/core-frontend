@@ -9,6 +9,11 @@ import {
 } from "@/core/modules/cart/model/cart-line-key";
 import { normalizeCartGuestSessionId } from "./cart-guest";
 
+export type {
+  CartLineModifierSelection,
+  NormalizedCartLineModifierSelection,
+} from "@/core/modules/cart/model/cart-line-key";
+
 export interface CartLineSelection {
   guestName?: string | null;
   guestSessionId?: string | null;

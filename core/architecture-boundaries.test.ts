@@ -53,6 +53,21 @@ const BOUNDARY_RULES: BoundaryRule[] = [
     targetPath: "core/views",
   },
   {
+    message: "core/bridges must not import core/widgets",
+    sourcePath: "core/bridges",
+    targetPath: "core/widgets",
+  },
+  {
+    message: "core/bridges must not import core/views",
+    sourcePath: "core/bridges",
+    targetPath: "core/views",
+  },
+  {
+    message: "core/bridges must not import core/catalog-runtime",
+    sourcePath: "core/bridges",
+    targetPath: "core/catalog-runtime",
+  },
+  {
     message: "production source must not import sandbox",
     sourcePath: ".",
     targetPath: "sandbox",
@@ -83,6 +98,7 @@ const PUBLIC_MODULE_IMPORT_DEBT_BASELINE = 0;
 const PUBLIC_MODULE_IMPORT_SOURCES = [
   "app",
   "core/catalog-runtime",
+  "core/bridges",
   "core/views",
   "core/widgets",
 ] as const;

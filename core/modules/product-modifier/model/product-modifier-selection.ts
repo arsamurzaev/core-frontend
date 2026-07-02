@@ -1,4 +1,4 @@
-import type { CartLineModifierSelection } from "@/core/modules/cart/model/cart-line-key";
+import type { CartLineModifierSelection } from "@/core/modules/cart";
 import { toNumberValue } from "@/shared/lib/attributes";
 import type {
   ProductModifierGroup,

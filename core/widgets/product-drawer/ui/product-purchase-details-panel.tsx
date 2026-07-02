@@ -1,14 +1,13 @@
 "use client";
 
 import {
-  buildCartLineSelectionKey,
-  buildCartProductSelection,
-  getCartItemMaxQuantity,
-  useCart,
-} from "@/core/modules/cart";
+  buildProductCartSelection,
+  getProductCartLineMaxQuantity,
+} from "@/core/bridges/product-cart";
 import {
   CART_PRODUCT_CONTROL_MESSAGES,
   CartProductDrawerFooterAction,
+  useCart,
   useCartProductControls,
 } from "@/core/modules/cart";
 import {
@@ -341,7 +340,7 @@ export function ProductPurchaseDetailsPanel({
       : undefined;
   const cartSelection = React.useMemo(
     () =>
-      buildCartProductSelection({
+      buildProductCartSelection({
         modifiers: selectedModifiers,
         productId: product?.id ?? "",
         saleUnitId: selectedSaleUnitId,
@@ -349,31 +348,16 @@ export function ProductPurchaseDetailsPanel({
       }),
     [product?.id, selectedModifiers, selectedSaleUnitId, selectedVariantId],
   );
-  const cartSelectionKey = React.useMemo(
-    () => buildCartLineSelectionKey(cartSelection),
-    [cartSelection],
-  );
   const cartLineMaxQuantity = React.useMemo(() => {
-    if (
-      purchaseSelection.isVariantSelectionRequired ||
-      purchaseSelection.isSaleUnitSelectionRequired
-    ) {
-      return undefined;
-    }
-
-    const line = items.find(
-      (item) =>
-        buildCartLineSelectionKey({
-          productId: item.productId,
-          modifiers: item.modifiers ?? [],
-          saleUnitId: item.saleUnitId,
-          variantId: item.variantId,
-        }) === cartSelectionKey,
-    );
-
-    return line ? getCartItemMaxQuantity(line) : undefined;
+    return getProductCartLineMaxQuantity({
+      isSelectionRequired:
+        purchaseSelection.isVariantSelectionRequired ||
+        purchaseSelection.isSaleUnitSelectionRequired,
+      items,
+      selection: cartSelection,
+    });
   }, [
-    cartSelectionKey,
+    cartSelection,
     items,
     purchaseSelection.isSaleUnitSelectionRequired,
     purchaseSelection.isVariantSelectionRequired,

@@ -12,6 +12,10 @@ layer has a clear responsibility and import boundary.
 - `core/modules`: domain modules. They own cart, product, browser, category,
   integration, and other business logic. Modules may import `shared` and other
   modules, but not `core/widgets` or `core/views`.
+- `core/bridges`: narrow cross-domain glue. Bridges connect modules when a
+  scenario should not belong to either module, for example product-to-cart
+  purchase selection. Bridges may import module public entrypoints and shared
+  code, but not widgets, views, runtime extensions, or app routes.
 - `core/widgets`: composed UI scenarios. Widgets may import modules and shared
   code.
 - `core/views`: screen-level view composition.
@@ -35,9 +39,14 @@ New cross-layer imports should go through module public entrypoints:
 - `@/core/modules/product/editor`
 - `@/core/modules/product-modifier`
 
-Existing deep imports from widgets and runtime code are treated as migration
-debt. The architecture test keeps the current debt from growing while the
-frontend is gradually moved to public entrypoints.
+Production imports from app, runtime, bridges, views, and widgets to modules
+must use these entrypoints. The architecture test keeps this debt at zero.
+
+## Bridge Entrypoints
+
+Cross-domain bridge imports should go through bridge public entrypoints:
+
+- `@/core/bridges/product-cart`
 
 ## Runtime
 
@@ -59,6 +68,8 @@ facades and slots.
 - `shared/**` must not import `app/**`.
 - `core/**` must not import `app/**`.
 - `core/modules/**` must not import `core/widgets/**` or `core/views/**`.
+- `core/bridges/**` must not import `core/widgets/**`, `core/views/**`, or
+  `core/catalog-runtime/**`.
 - `app/**`, `core/**`, and `shared/**` must not import `sandbox/**`.
 - `core/catalog-runtime/extensions/**` must not import `sandbox/**`.
 - `shared/api/generated/**` must not import `app/**`, `core/**`, or
@@ -67,6 +78,8 @@ facades and slots.
   should prefer module public entrypoints over deep module imports.
 - App routes should prefer `core/catalog-runtime/ui` for runtime-aware
   storefront composition.
+- Widgets and views should use `core/bridges/*` when a workflow joins multiple
+  modules and does not naturally belong to one module.
 
 These rules are enforced by ESLint and Vitest boundary tests.
 
@@ -79,6 +92,7 @@ rg '@/sandbox' app core shared
 rg '@/core' shared
 rg '@/app' core shared
 rg '@/core/(widgets|views)' core/modules
+rg '@/core/(widgets|views|catalog-runtime)' core/bridges
 rg '@/app|@/core|@/sandbox' shared/api/generated
 bun run test:run
 bun run lint

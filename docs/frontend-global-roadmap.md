@@ -32,16 +32,16 @@
 - [x] Расширить public-entrypoint контроль на `catalog-price-list` и `product-modifier`.
 - [x] Снизить первый baseline глубоких module imports: `131 -> 113`.
 - [x] Закрыть production deep import debt из `app`, `catalog-runtime`, `core/views` и `core/widgets`: `113 -> 0`.
-- [ ] Поддерживать нулевой baseline глубоких module imports через architecture guard.
+- [x] Поддерживать нулевой baseline глубоких module imports через architecture guard.
 - [ ] Добавить отчет по топовым источникам deep import debt.
 
 ### 2. Module Public API
 
-- [ ] Проверить exports в `core/modules/*/index.ts`.
-- [ ] Для каждого модуля описать public surface: model, ui, actions, contracts.
-- [ ] Запретить новым widgets/views импортировать module internals напрямую.
-- [ ] Вынести общие helper-типы из deep paths в module entrypoints.
-- [ ] Сделать bridge modules для связок, которые не должны жить внутри одного домена.
+- [x] Проверить exports в `core/modules/*/index.ts`.
+- [x] Для каждого модуля описать public surface: model, ui, actions, contracts.
+- [x] Запретить новым widgets/views/bridges импортировать module internals напрямую.
+- [ ] Продолжать выносить общие helper-типы из deep paths в module entrypoints.
+- [x] Начать bridge modules для связок, которые не должны жить внутри одного домена.
 
 ### 3. Catalog Runtime
 
@@ -103,6 +103,15 @@
 
 ## Следующий Фронтовый Блок
 
-- [ ] Описать public surface каждого `core/modules/*/index.ts`: что является контрактом, что остается internal.
-- [ ] Начать выделение bridge modules для связок `product/cart` и будущих runtime-specific сценариев.
+- [x] Описать public surface каждого `core/modules/*/index.ts`: что является контрактом, что остается internal.
+- [x] Начать выделение bridge modules для связок `product/cart` и будущих runtime-specific сценариев.
 - [ ] Инвентаризировать shared UI и текущие CSS/Tailwind tokens перед design tokens.
+
+## Текущий Третий Блок
+
+- [x] Создать `docs/frontend-module-public-api.md`.
+- [x] Добавить слой `core/bridges` в архитектурное описание.
+- [x] Добавить boundary rules для `core/bridges`.
+- [x] Добавить первый bridge `@/core/bridges/product-cart`.
+- [x] Перенести product/cart line matching из `product-drawer` в bridge.
+- [x] Вывести `CartLineModifierSelection` через public API `@/core/modules/cart`.
