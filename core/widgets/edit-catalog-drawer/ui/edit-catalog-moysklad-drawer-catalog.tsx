@@ -20,9 +20,9 @@ import {
   useCatalogAdvancedSettingsControllerUpsertMoySklad,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
 import {
   Field,
@@ -207,15 +207,10 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
       onOpenChange={handleOpenChange}
       dismissible={!isBusy}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-text-primary">
                 MoySklad
               </span>
               <Badge
@@ -225,12 +220,12 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
                 {statusBadge.label}
               </Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               {statusDescription}
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full">
@@ -244,7 +239,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="space-y-5">
-              <div className="rounded-2xl border border-black/10 bg-muted/15 p-4">
+              <AdminPanel variant="muted">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-sm font-medium">Статус</span>
                   <Badge
@@ -254,25 +249,25 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
                     {statusBadge.label}
                   </Badge>
                 </div>
-                <p className="mt-2 break-words text-sm text-muted-foreground">
+                <p className="mt-2 break-words text-sm text-text-muted">
                   {statusDescription}
                 </p>
-              </div>
+              </AdminPanel>
 
-              <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+              <AdminPanel variant="translucent">
                 <div className="text-sm font-medium">
                   Что включится по умолчанию
                 </div>
-                <p className="mt-2 break-words text-sm text-muted-foreground">
+                <p className="mt-2 break-words text-sm text-text-muted">
                   Импорт изображений, синхронизация остатков и ежедневный sync.
                   Часовой пояс берём из браузера, а если он недоступен,
                   используем Москву.
                 </p>
-              </div>
+              </AdminPanel>
 
               <Field
                 orientation="responsive"
-                className="rounded-2xl border border-black/10 bg-background/70 p-4"
+                className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4"
               >
                 <FieldContent>
                   <FieldTitle>Быстрые остатки через webhook</FieldTitle>
@@ -318,7 +313,7 @@ export const EditCatalogMoySkladDrawerCatalog: React.FC<{
               </Field>
 
               {errorMessage ? (
-                <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+                <div className="rounded-panel border border-status-danger/30 bg-status-danger-surface p-4 text-sm text-status-danger">
                   {errorMessage}
                 </div>
               ) : null}
