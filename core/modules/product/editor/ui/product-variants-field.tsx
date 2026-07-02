@@ -231,7 +231,7 @@ export const ProductVariantsField: React.FC<ProductVariantsFieldProps> = ({
 
       {selectedAttributes.length === 0 ? (
         <div className="pl-0 sm:pl-[200px]">
-          <div className="rounded-lg border border-dashed border-border px-3 py-3 text-sm leading-5 text-muted-foreground">
+          <div className="rounded-control border border-dashed border-line-subtle px-3 py-3 text-sm leading-5 text-text-muted">
             Добавьте свойство, например размер или цвет, затем отметьте нужные
             значения. Комбинации появятся ниже.
           </div>

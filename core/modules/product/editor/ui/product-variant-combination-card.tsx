@@ -116,16 +116,16 @@ export const ProductVariantCombinationCard: React.FC<
   return (
     <div
       className={cn(
-        "space-y-3 rounded-lg border p-3",
+        "space-y-3 rounded-control border p-3",
         item.status === "DISABLED"
-          ? "border-border bg-muted/20"
-          : "border-border bg-background",
+          ? "border-line-subtle bg-surface-subtle"
+          : "border-line-subtle bg-surface-base",
       )}
     >
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="break-words text-sm font-medium">{row.label}</div>
-          <div className="mt-1 text-xs text-muted-foreground">
+          <div className="mt-1 text-xs text-text-muted">
             {row.attributes
               .map((attributeValue) => {
                 const attribute = variantAttributes.find(
@@ -152,7 +152,7 @@ export const ProductVariantCombinationCard: React.FC<
               disabled={disabled}
               onClick={() => handleStatusChange(status)}
               className={cn(
-                "h-8 rounded-full px-3 text-xs",
+                "h-8 rounded-pill px-3 text-xs",
                 item.status === status && VARIANT_STATUS_CLASS[status],
               )}
             >
@@ -163,7 +163,7 @@ export const ProductVariantCombinationCard: React.FC<
       </div>
 
       {item.status === "DISABLED" ? (
-        <div className="rounded-md border border-dashed border-border px-3 py-3 text-sm leading-5 text-muted-foreground">
+        <div className="rounded-control border border-dashed border-line-subtle px-3 py-3 text-sm leading-5 text-text-muted">
           Комбинация выключена и не будет показана покупателю.
         </div>
       ) : (
@@ -171,7 +171,7 @@ export const ProductVariantCombinationCard: React.FC<
           {!hideBasePrices ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               <label className="block max-w-44 space-y-1">
-                <span className="text-xs text-muted-foreground">Цена</span>
+                <span className="text-xs text-text-muted">Цена</span>
                 <Input
                   type="number"
                   min={0}
@@ -186,10 +186,10 @@ export const ProductVariantCombinationCard: React.FC<
               </label>
 
               {preview ? (
-                <div className="rounded-md border border-border/70 px-3 py-2 text-xs leading-5 text-muted-foreground">
+                <div className="rounded-control border border-line-subtle px-3 py-2 text-xs leading-5 text-text-muted">
                   {formatVariantMoney(preview.basePrice, priceFormatMode)}
                   {" -> "}
-                  <span className="font-medium text-foreground">
+                  <span className="font-medium text-text-primary">
                     {formatVariantMoney(preview.finalPrice, priceFormatMode)}
                   </span>{" "}
                   (-{discountPercent}%)
@@ -203,7 +203,7 @@ export const ProductVariantCombinationCard: React.FC<
           {item.status === "ACTIVE" ? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               <label className="block max-w-44 space-y-1">
-                <span className="text-xs text-muted-foreground">Остаток</span>
+                <span className="text-xs text-text-muted">Остаток</span>
                 <Input
                   type="number"
                   min={0}
@@ -218,7 +218,7 @@ export const ProductVariantCombinationCard: React.FC<
               </label>
             </div>
           ) : (
-            <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            <div className="rounded-control border border-status-warning/30 bg-status-warning-surface px-3 py-2 text-sm text-status-warning-foreground">
               Покупатель увидит комбинацию как временно недоступную.
             </div>
           )}

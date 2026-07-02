@@ -31,7 +31,7 @@ export const ProductVariantAttributeSelector: React.FC<
 }) => {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-      <span className="shrink-0 text-sm font-medium text-muted-foreground sm:min-w-[200px]">
+      <span className="shrink-0 text-sm font-medium text-text-muted sm:min-w-[200px]">
         Варианты
       </span>
 

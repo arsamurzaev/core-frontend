@@ -18,9 +18,12 @@ export const VARIANT_STATUS_LABEL: Record<VariantStatus, string> = {
 };
 
 export const VARIANT_STATUS_CLASS: Record<VariantStatus, string> = {
-  DISABLED: "border-border bg-background text-muted-foreground hover:bg-muted",
-  ACTIVE: "border-green-500 bg-green-50 text-green-700 hover:bg-green-100",
-  OUT_OF_STOCK: "border-amber-400 bg-amber-50 text-amber-700 hover:bg-amber-100",
+  DISABLED:
+    "border-line-subtle bg-surface-base text-text-muted hover:bg-surface-muted",
+  ACTIVE:
+    "border-status-success/40 bg-status-success-surface text-status-success hover:bg-status-success-surface/80",
+  OUT_OF_STOCK:
+    "border-status-warning/40 bg-status-warning-surface text-status-warning hover:bg-status-warning-surface/80",
 };
 
 export const VARIANT_STATUS_OPTIONS: VariantStatus[] = [

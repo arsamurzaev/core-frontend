@@ -54,13 +54,13 @@ export const ProductVariantCombinationsPanel: React.FC<
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm font-medium">Комбинации</div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-text-muted">
           {enabledCount}/{matrixRows.length} включено
         </div>
       </div>
 
       {missingValueAttributes.length > 0 ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm leading-5 text-amber-800">
+        <div className="rounded-control border border-status-warning/30 bg-status-warning-surface px-3 py-3 text-sm leading-5 text-status-warning-foreground">
           Выберите значения для:{" "}
           {missingValueAttributes
             .map((attribute) => attribute.displayName)
@@ -68,7 +68,7 @@ export const ProductVariantCombinationsPanel: React.FC<
           .
         </div>
       ) : matrixRows.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border px-3 py-3 text-sm leading-5 text-muted-foreground">
+        <div className="rounded-control border border-dashed border-line-subtle px-3 py-3 text-sm leading-5 text-text-muted">
           Выберите значения в карточках выше.
         </div>
       ) : (
