@@ -1,5 +1,10 @@
 import { spawn } from "node:child_process";
 import process from "node:process";
+import { assertOpenApiSourceAvailable } from "./openapi-preflight";
+import {
+  formatOpenApiSource,
+  resolveOpenApiSource,
+} from "./openapi-source";
 
 type GateOptions = {
   fast: boolean;
@@ -7,11 +12,21 @@ type GateOptions = {
   skipBuild: boolean;
 };
 
-type GateStep = {
+type CommandGateStep = {
+  kind: "command";
   name: string;
   command: string;
   args: string[];
 };
+
+type TaskGateStep = {
+  kind: "task";
+  name: string;
+  command: string;
+  run: () => Promise<void>;
+};
+
+type GateStep = CommandGateStep | TaskGateStep;
 
 const BUN_BIN = process.platform === "win32" ? "bun.exe" : "bun";
 
@@ -36,7 +51,14 @@ function buildSteps(options: GateOptions): GateStep[] {
   const steps: GateStep[] = [];
 
   if (!options.skipApi) {
-    steps.push(bunStep("Generated API", ["run", "api:gen"]));
+    steps.push(openApiPreflightStep());
+    steps.push(bunStep("Generated API", ["run", "api:gen:raw"]));
+    steps.push(gitStep("Generated API clean diff", [
+      "diff",
+      "--exit-code",
+      "--",
+      "shared/api/generated",
+    ]));
   }
 
   steps.push(bunStep("Lint", ["run", "lint"]));
@@ -65,16 +87,47 @@ function buildSteps(options: GateOptions): GateStep[] {
 
 function bunStep(name: string, args: string[]): GateStep {
   return {
+    kind: "command",
     name,
     command: BUN_BIN,
     args,
   };
 }
 
+function gitStep(name: string, args: string[]): GateStep {
+  return {
+    kind: "command",
+    name,
+    command: "git",
+    args,
+  };
+}
+
+function openApiPreflightStep(): GateStep {
+  const source = resolveOpenApiSource();
+
+  return {
+    kind: "task",
+    name: "OpenAPI preflight",
+    command: formatOpenApiSource(source),
+    run: () => assertOpenApiSourceAvailable(source),
+  };
+}
+
 async function runStep(number: string, step: GateStep): Promise<void> {
   const startedAt = Date.now();
   console.log(`\n[${number}] ${step.name}`);
-  console.log(`$ ${[step.command, ...step.args].join(" ")}`);
+  console.log(`$ ${formatStepCommand(step)}`);
+
+  if (step.kind === "task") {
+    await step.run();
+    console.log(
+      `[${number}] ${step.name} passed in ${formatDuration(
+        Date.now() - startedAt,
+      )}`,
+    );
+    return;
+  }
 
   const code = await spawnStep(step);
   const duration = formatDuration(Date.now() - startedAt);
@@ -87,7 +140,7 @@ async function runStep(number: string, step: GateStep): Promise<void> {
   throw new Error(`${step.name} failed with exit code ${code} after ${duration}`);
 }
 
-function spawnStep(step: GateStep): Promise<number | null> {
+function spawnStep(step: CommandGateStep): Promise<number | null> {
   return new Promise((resolve, reject) => {
     const child = spawn(step.command, step.args, {
       cwd: process.cwd(),
@@ -99,6 +152,14 @@ function spawnStep(step: GateStep): Promise<number | null> {
     child.on("error", reject);
     child.on("close", (code) => resolve(code));
   });
+}
+
+function formatStepCommand(step: GateStep): string {
+  if (step.kind === "task") {
+    return step.command;
+  }
+
+  return [step.command, ...step.args].join(" ");
 }
 
 function parseOptions(args: string[]): GateOptions {

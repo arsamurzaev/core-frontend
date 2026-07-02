@@ -1,28 +1,8 @@
-import { existsSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { defineConfig } from "orval";
-
-const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  process.env.API_BASE_URL ??
-  "http://localhost:4000"
-).replace(/\/$/, "");
-const configDir = dirname(fileURLToPath(import.meta.url));
-const localOpenApiPath = resolve(configDir, "runtime/openapi.json");
-const backendOpenApiPath = resolve(
-  configDir,
-  "../backend/runtime/openapi.json",
-);
-const remoteOpenApiUrl =
-  process.env.ORVAL_OPENAPI_URL ?? `${apiBaseUrl}/openapi.yaml`;
+import { resolveOpenApiSource } from "./scripts/openapi-source";
 
 const input = {
-  target: existsSync(localOpenApiPath)
-    ? localOpenApiPath
-    : existsSync(backendOpenApiPath)
-      ? backendOpenApiPath
-      : remoteOpenApiUrl,
+  target: resolveOpenApiSource().target,
 };
 
 export default defineConfig({

@@ -10,7 +10,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "architecture:report": "bun run scripts/architecture-report.ts",
-    "api:gen": "orval --config orval.config.ts",
+    "api:preflight": "bun run scripts/openapi-preflight.ts",
+    "api:gen:raw": "orval --config orval.config.ts",
+    "api:gen": "bun run api:preflight && bun run api:gen:raw",
     "prod:check": "bun run scripts/prod-quality-gate.ts"
   },
   "dependencies": {

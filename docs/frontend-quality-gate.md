@@ -28,7 +28,9 @@ bun run prod:check --skip-api
 
 ## Что входит
 
-- `bun run api:gen`
+- OpenAPI preflight: проверяет `ORVAL_OPENAPI_URL`, локальный `runtime/openapi.json`, соседний `../backend/runtime/openapi.json` или remote `/openapi.yaml`;
+- `bun run api:gen:raw`
+- `git diff --exit-code -- shared/api/generated`
 - `bun run lint`
 - `bun run test:run`
 - `bun run build`
@@ -38,6 +40,8 @@ bun run prod:check --skip-api
 - `architecture-boundaries`
 - `design-tokens`
 - `text-encoding`
+
+`bun run api:gen` тоже запускает preflight перед Orval. Внутренний `bun run api:gen:raw` нужен quality gate после отдельного preflight step.
 
 ## Production Smoke
 
