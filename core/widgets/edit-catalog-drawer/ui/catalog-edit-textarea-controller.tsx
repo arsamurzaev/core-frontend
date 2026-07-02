@@ -44,7 +44,7 @@ function CatalogEditTextRow({
     <div className="grid w-full grid-cols-1 gap-x-5 gap-y-2 px-5 sm:grid-cols-[180px_minmax(0,1fr)]">
       <div className="min-w-0 pt-1 text-sm leading-6">
         {label}
-        {required ? <span className="text-destructive">*</span> : null}
+        {required ? <span className="text-status-danger">*</span> : null}
       </div>
       <div className="min-w-0">{children}</div>
       {error?.message ? (

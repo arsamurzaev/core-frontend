@@ -31,7 +31,7 @@ export const EditCatalogContactIconsPreview: React.FC<
         return (
           <span
             key={field.name}
-            className="text-muted-foreground inline-flex items-center justify-center"
+            className="inline-flex items-center justify-center text-text-muted"
             title={field.label}
           >
             <Icon className="size-[18px]" />

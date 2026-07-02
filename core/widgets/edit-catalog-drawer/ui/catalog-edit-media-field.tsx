@@ -64,11 +64,11 @@ export const CatalogEditMediaField: React.FC<CatalogEditMediaFieldProps> = ({
     <>
       <div className="flex w-full flex-col items-center gap-4">
         {shape === "circle" ? (
-          <div className="h-[90px] w-[90px] rounded-full bg-white shadow-[0_0_6px_0] shadow-black/50">
+          <div className="h-[90px] w-[90px] rounded-pill bg-surface-base shadow-surface">
             <img
               alt=""
               src={displaySrc}
-              className="h-full w-full rounded-full object-contain"
+              className="h-full w-full rounded-pill object-contain"
             />
           </div>
         ) : (
@@ -91,10 +91,10 @@ export const CatalogEditMediaField: React.FC<CatalogEditMediaFieldProps> = ({
             className="text-sm font-medium underline underline-offset-2 disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50"
           >
             {triggerText}
-            <span className="text-destructive">*</span>
+            <span className="text-status-danger">*</span>
           </button>
           {caption ? (
-            <p className="text-muted-foreground text-center text-xs font-light">
+            <p className="text-center text-xs font-light text-text-muted">
               {caption}
             </p>
           ) : null}
