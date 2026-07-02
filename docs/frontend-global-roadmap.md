@@ -153,3 +153,4 @@
 - [x] Перевести admin-side `edit-catalog-moysklad-drawer` trigger/status/export/mapping/history states на semantic tokens.
 - [x] Перевести `edit-catalog-iiko-drawer` diagnostics/webhooks/timeline/preview/export states на semantic tokens.
 - [x] Перевести order export timeline storefront page на semantic tokens.
+- [x] Перевести app-level error/not-found shells на semantic tokens.

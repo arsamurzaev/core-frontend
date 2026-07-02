@@ -4,16 +4,16 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="bg-background flex min-h-svh items-center justify-center px-5 py-10">
+    <main className="flex min-h-svh items-center justify-center bg-surface-base px-5 py-10 text-text-primary">
       <section className="flex w-full max-w-md flex-col items-center text-center">
-        <div className="mb-6 flex size-14 items-center justify-center rounded-full border bg-secondary text-foreground">
+        <div className="mb-6 flex size-14 items-center justify-center rounded-pill border border-line-subtle bg-surface-muted text-text-primary">
           <SearchX className="size-7" aria-hidden="true" />
         </div>
-        <p className="mb-3 text-xs font-medium uppercase text-muted-foreground">
+        <p className="mb-3 text-xs font-medium uppercase text-text-muted">
           404
         </p>
         <h1 className="text-3xl leading-tight font-bold">Каталог не найден</h1>
-        <p className="mt-4 max-w-sm text-sm leading-6 text-neutral-500">
+        <p className="mt-4 max-w-sm text-sm leading-6 text-text-muted">
           Возможно, каталог был удален, домен еще не подключен или в ссылке есть
           ошибка.
         </p>
