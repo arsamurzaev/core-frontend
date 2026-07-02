@@ -155,3 +155,4 @@
 - [x] Перевести order export timeline storefront page на semantic tokens.
 - [x] Перевести app-level error/not-found shells на semantic tokens.
 - [x] Перевести `product-modifier-picker` list/chip states на semantic tokens.
+- [x] Перевести `product-modifier-bindings-field` panels/empty/nested option states на semantic tokens.

@@ -377,10 +377,10 @@ function buildRequiredDraftPatch(
 
 function BindingsSkeleton() {
   return (
-    <section className="space-y-3 rounded-2xl border border-black/10 p-4">
+    <section className="space-y-3 rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
       <Skeleton className="h-5 w-44" />
       <Skeleton className="h-9 w-full" />
-      <Skeleton className="h-32 w-full rounded-xl" />
+      <Skeleton className="h-32 w-full rounded-panel" />
     </section>
   );
 }
@@ -681,8 +681,8 @@ export const ProductModifierBindingsField: React.FC<
 
   if (hasLoadError) {
     return (
-      <section className="rounded-2xl border border-black/10 p-4">
-        <div className="text-sm text-muted-foreground">
+      <section className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
+        <div className="text-sm text-text-muted">
           Не удалось загрузить модификаторы товара.
         </div>
       </section>
@@ -690,14 +690,14 @@ export const ProductModifierBindingsField: React.FC<
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-black/10 p-4">
+    <section className="space-y-4 rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-sm font-medium">Модификаторы товара</h3>
             <Badge variant="secondary">Бета</Badge>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-text-muted">
             Назначьте группы добавок для всего товара или отдельных вариантов.
           </p>
         </div>
@@ -722,7 +722,7 @@ export const ProductModifierBindingsField: React.FC<
                 <span className="block truncate text-sm font-medium">
                   {scope.label}
                 </span>
-                <span className="block truncate text-xs text-muted-foreground">
+                <span className="block truncate text-xs text-text-muted">
                   {count > 0 ? `${count} групп` : scope.subtitle}
                 </span>
               </span>
@@ -755,7 +755,7 @@ export const ProductModifierBindingsField: React.FC<
             </SelectContent>
           </Select>
         ) : (
-          <div className="rounded-md border border-dashed border-black/15 px-3 py-2 text-sm text-muted-foreground">
+          <div className="rounded-control border border-dashed border-line-subtle px-3 py-2 text-sm text-text-muted">
             Все доступные группы уже добавлены в выбранную область.
           </div>
         )}
@@ -772,7 +772,7 @@ export const ProductModifierBindingsField: React.FC<
       </div>
 
       {selectedScopeGroups.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-black/15 p-3 text-sm text-muted-foreground">
+        <div className="rounded-panel border border-dashed border-line-subtle p-3 text-sm text-text-muted">
           Для выбранной области модификаторы пока не назначены.
         </div>
       ) : (
@@ -788,7 +788,7 @@ export const ProductModifierBindingsField: React.FC<
             return (
               <div
                 key={group.localId}
-                className="space-y-3 rounded-xl border border-black/10 p-3"
+                className="space-y-3 rounded-panel border border-line-subtle bg-surface-subtle p-3"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -805,7 +805,7 @@ export const ProductModifierBindingsField: React.FC<
                         <Badge variant="outline">Отключена</Badge>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs text-text-muted">
                       {options.length} опций
                     </p>
                   </div>
@@ -852,7 +852,7 @@ export const ProductModifierBindingsField: React.FC<
                       type="button"
                       size="icon"
                       variant="outline"
-                      className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="size-8 text-text-muted hover:bg-status-danger-surface hover:text-status-danger"
                       disabled={isBusy}
                       title="Убрать группу"
                       onClick={() => handleRemoveGroup(group.localId)}
@@ -942,7 +942,7 @@ export const ProductModifierBindingsField: React.FC<
                 <div className="space-y-2">
                   <div className="text-sm font-medium">Опции</div>
                   {options.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-black/15 p-3 text-sm text-muted-foreground">
+                    <div className="rounded-control border border-dashed border-line-subtle p-3 text-sm text-text-muted">
                       В группе нет опций.
                     </div>
                   ) : (
@@ -951,7 +951,7 @@ export const ProductModifierBindingsField: React.FC<
                         <div
                           key={option.localId}
                           className={cn(
-                            "grid gap-2 rounded-lg border border-black/10 p-2.5",
+                            "grid gap-2 rounded-control border border-line-subtle bg-surface-raised/70 p-2.5",
                             !option.isAvailable && "opacity-70",
                           )}
                         >
@@ -961,7 +961,7 @@ export const ProductModifierBindingsField: React.FC<
                                 {option.name}
                               </div>
                               {option.catalogModifierOptionId ? (
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-text-muted">
                                   Опция справочника
                                 </div>
                               ) : null}
@@ -1297,8 +1297,8 @@ export const ProductModifierCreateBindingsField: React.FC<
 
   if (catalogStateQuery.isError) {
     return (
-      <section className="rounded-2xl border border-black/10 p-4">
-        <div className="text-sm text-muted-foreground">
+      <section className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
+        <div className="text-sm text-text-muted">
           Не удалось загрузить модификаторы.
         </div>
       </section>
@@ -1306,13 +1306,13 @@ export const ProductModifierCreateBindingsField: React.FC<
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-black/10 p-4">
+    <section className="space-y-4 rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-sm font-medium">Модификаторы товара</h3>
           <Badge variant="secondary">Бета</Badge>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-sm text-text-muted">
           При создании можно назначить группы для всего товара. Для отдельных
           вариантов используйте редактор после сохранения.
         </p>
@@ -1337,7 +1337,7 @@ export const ProductModifierCreateBindingsField: React.FC<
             </SelectContent>
           </Select>
         ) : (
-          <div className="rounded-md border border-dashed border-black/15 px-3 py-2 text-sm text-muted-foreground">
+          <div className="rounded-control border border-dashed border-line-subtle px-3 py-2 text-sm text-text-muted">
             Все доступные группы уже добавлены.
           </div>
         )}
@@ -1354,7 +1354,7 @@ export const ProductModifierCreateBindingsField: React.FC<
       </div>
 
       {productScopeGroups.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-black/15 p-3 text-sm text-muted-foreground">
+        <div className="rounded-panel border border-dashed border-line-subtle p-3 text-sm text-text-muted">
           Модификаторы пока не назначены.
         </div>
       ) : (
@@ -1370,7 +1370,7 @@ export const ProductModifierCreateBindingsField: React.FC<
             return (
               <div
                 key={group.localId}
-                className="space-y-3 rounded-xl border border-black/10 p-3"
+                className="space-y-3 rounded-panel border border-line-subtle bg-surface-subtle p-3"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -1385,7 +1385,7 @@ export const ProductModifierCreateBindingsField: React.FC<
                         <Badge variant="outline">Отключена</Badge>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs text-text-muted">
                       {options.length} опций
                     </p>
                   </div>
@@ -1432,7 +1432,7 @@ export const ProductModifierCreateBindingsField: React.FC<
                       type="button"
                       size="icon"
                       variant="outline"
-                      className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="size-8 text-text-muted hover:bg-status-danger-surface hover:text-status-danger"
                       disabled={isBusy}
                       title="Убрать группу"
                       onClick={() => handleRemoveGroup(group.localId)}
@@ -1524,7 +1524,7 @@ export const ProductModifierCreateBindingsField: React.FC<
                       <div
                         key={option.localId}
                         className={cn(
-                          "grid gap-2 rounded-lg border border-black/10 p-2.5",
+                          "grid gap-2 rounded-control border border-line-subtle bg-surface-raised/70 p-2.5",
                           !option.isAvailable && "opacity-70",
                         )}
                       >
