@@ -109,3 +109,9 @@ For a deploy-oriented check, use:
 ```bash
 bun run prod:check
 ```
+
+To inspect the next public API cleanup targets, use:
+
+```bash
+bun run architecture:report
+```

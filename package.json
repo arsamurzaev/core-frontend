@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest",
     "test:run": "vitest run",
+    "architecture:report": "bun run scripts/architecture-report.ts",
     "api:gen": "orval --config orval.config.ts",
     "prod:check": "bun run scripts/prod-quality-gate.ts"
   },

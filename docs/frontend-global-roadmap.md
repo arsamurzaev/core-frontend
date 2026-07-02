@@ -33,7 +33,7 @@
 - [x] Снизить первый baseline глубоких module imports: `131 -> 113`.
 - [x] Закрыть production deep import debt из `app`, `catalog-runtime`, `core/views` и `core/widgets`: `113 -> 0`.
 - [x] Поддерживать нулевой baseline глубоких module imports через architecture guard.
-- [ ] Добавить отчет по топовым источникам deep import debt.
+- [x] Добавить отчет по топовым источникам deep import debt.
 
 ### 2. Module Public API
 
@@ -187,3 +187,4 @@
 - [x] Вынести preorder/manager-order/cart-action решения в `catalog-runtime/order-policies`.
 - [x] Добавить slot compatibility guard: explicit props, no direct generated/server API, no module deep imports from runtime extensions.
 - [x] Добавить widget public entrypoints для runtime/storefront composition и guard против `core/widgets/*/ui|model|lib` imports.
+- [x] Добавить `architecture:report` для топовых источников deep import debt перед следующими public API выносами.
