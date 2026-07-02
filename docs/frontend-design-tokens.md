@@ -105,6 +105,7 @@ Shape/elevation:
 - `shared/ui/app-drawer-header.tsx`, `button.tsx`, `character-limited-textarea.tsx`, `slot-error-boundary.tsx`, `icons/cart-icon.tsx`: убраны старые hardcoded/legacy UI colors в пользу semantic tokens;
 - `shared/ui/phone-input.tsx`: не хранит локальных styles и наследует semantic оформление от `Input`;
 - `shared/ui/image-cropper-drawer*.tsx` и `chart.tsx`: используют surface/line/text/action/status semantic tokens для panels, tooltips, navigation, states;
+- `shared/ui/dynamic-form.tsx`: option descriptions, optional/required markers, slider value и date placeholder используют text/status semantic tokens;
 - `shared/ui/admin-panel.tsx`: общий primitive для повторяющихся admin panel/card/empty states и admin trigger buttons;
 - `core/widgets/cart-drawer/ui/cart-drawer-status-message.tsx`: использует `status-warning`.
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-sessions-drawer.tsx`: первый drawer, где карточки/скелетоны/empty states переведены на `AdminPanel`.
@@ -123,7 +124,7 @@ Shape/elevation:
 
 ## Следующие Шаги
 
-1. Продолжить перенос оставшихся `shared/ui`: dynamic form helpers, smooth drawer, specialized generated/legacy helpers.
+1. Принять решение по `shared/ui/smooth-drawer.tsx`: сейчас не используется, выглядит как внешнее demo; лучше удалить/перенести в sandbox или переписать при появлении реального сценария.
 2. Расширить использование `AdminPanel` и `AdminPanelButton` в `edit-catalog-*` и `product-modifier-*` экранах.
 3. Разобрать `share-drawer/footer` и отделить брендовые SVG colors от UI text/surface colors.
 4. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.

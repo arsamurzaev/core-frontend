@@ -512,9 +512,9 @@ function DynamicFormField<TValues extends FieldValues>({
           <>
             <span>{field.label}</span>
             {required ? (
-              <span className="text-destructive"> *</span>
+              <span className="text-status-danger"> *</span>
             ) : showOptionalLabel ? (
-              <span className="text-muted-foreground text-xs">
+              <span className="text-text-muted text-xs">
                 {" "}
                 (опционально)
               </span>
@@ -689,7 +689,7 @@ function renderDefaultControl<TValues extends FieldValues>(
               <span className="flex flex-col">
                 <span>{option.label}</span>
                 {option.description ? (
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-text-muted text-xs">
                     {option.description}
                   </span>
                 ) : null}
@@ -812,7 +812,7 @@ function renderDefaultControl<TValues extends FieldValues>(
               <span className="flex flex-col text-sm font-medium">
                 <span>{option.label}</span>
                 {option.description ? (
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-text-muted text-xs">
                     {option.description}
                   </span>
                 ) : null}
@@ -844,7 +844,7 @@ function renderDefaultControl<TValues extends FieldValues>(
           {...fieldConfig.sliderProps}
         />
         {fieldConfig.showValue ? (
-          <span className="text-muted-foreground w-10 text-right text-sm">
+          <span className="text-text-muted w-10 text-right text-sm">
             {value}
           </span>
         ) : null}
@@ -935,7 +935,7 @@ function renderDefaultControl<TValues extends FieldValues>(
             disabled={disabled || readOnly}
             className={cn(
               "w-full justify-start text-left font-normal",
-              !value && "text-muted-foreground",
+              !value && "text-text-muted",
               fieldConfig.controlClassName,
             )}
             aria-invalid={ariaInvalid}
