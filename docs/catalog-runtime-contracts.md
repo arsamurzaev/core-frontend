@@ -14,6 +14,7 @@
 - Расширение не импортирует `sandbox/**`.
 - Product card runtime использует общий `ProductCardWithPlugins`, а базовая карточка сама считает price/availability через sellable/variant model.
 - Slots получают готовые DTO/view models из core-слоя и не должны сами ходить в API за product/cart state без явной необходимости.
+- Runtime extension slots must not import generated/server API directly; they receive data via slot props or compose public module/widget contracts.
 - `variantPickerOptions` достаточно для легкой карточки: runtime не обязан требовать `ProductWithDetailsDto`, чтобы показать варианты.
 
 ## Public Surface
@@ -67,6 +68,7 @@ Storefront decisions for this mode live in `core/catalog-runtime/storefront-comp
 
 - `core/catalog-runtime/sandbox-boundary.test.ts`
 - `core/catalog-runtime/catalog-runtime-compatibility.test.ts`
+- `core/catalog-runtime/catalog-runtime-slot-contracts.test.ts`
 - `core/catalog-runtime/resolve-catalog-runtime.test.ts`
 - `core/catalog-runtime/catalog-runtime-utils.test.ts`
 - `core/modules/product/plugins/build-model.test.ts`

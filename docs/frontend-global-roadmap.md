@@ -49,7 +49,7 @@
 - [x] Разделить extension contracts и runtime implementation.
 - [x] Проверить restaurant/wholesale/business-card extensions на одинаковый контракт.
 - [ ] Перенести типовые различия из scattered conditions в runtime extension.
-- [ ] Добавить тесты совместимости slots для новых типов каталогов.
+- [x] Добавить тесты совместимости slots для новых типов каталогов.
 
 ### 4. Design System And Tokens
 
@@ -185,3 +185,4 @@
 - [x] Добавить compatibility matrix для default/restaurant/cafe/wholesale/whosale/business-card runtime contracts.
 - [x] Вынести business-card storefront decisions из home/product route/edit form в `catalog-runtime/storefront-composition`.
 - [x] Вынести preorder/manager-order/cart-action решения в `catalog-runtime/order-policies`.
+- [x] Добавить slot compatibility guard: explicit props, no direct generated/server API, no module deep imports from runtime extensions.

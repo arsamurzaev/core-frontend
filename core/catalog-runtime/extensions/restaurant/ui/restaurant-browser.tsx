@@ -9,7 +9,6 @@ import {
 import { buildCategoryDisplayList } from "@/core/modules/category";
 import { CatalogProductsPanel } from "@/core/widgets/catalog-products/ui/catalog-products-panel";
 import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
-import { useCategoryControllerGetAll } from "@/shared/api/generated/react-query";
 import { cn } from "@/shared/lib/utils";
 import React from "react";
 import { RestaurantFilterBar } from "./restaurant-filter-bar";
@@ -22,22 +21,9 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
 }) => {
   const { queryState, isFilterActive, handleFilterToggle } =
     useBrowserQueryState();
-  const categoriesQuery = useCategoryControllerGetAll(undefined, {
-    query: {
-      initialData: initialCategories,
-      staleTime: 60_000,
-    },
-  });
-  const categories = React.useMemo(
-    () => categoriesQuery.data ?? [],
-    [categoriesQuery.data],
-  );
-  const isCategoriesInitialLoading =
-    categories.length === 0 &&
-    (categoriesQuery.isLoading || categoriesQuery.isFetching);
   const storefrontCategories = React.useMemo(
-    () => buildCategoryDisplayList(categories, { hideEmpty: true }),
-    [categories],
+    () => buildCategoryDisplayList(initialCategories, { hideEmpty: true }),
+    [initialCategories],
   );
   const { activeCategoryId } = useActiveCategoryIntersection({
     categories: storefrontCategories,
@@ -53,7 +39,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
   const bottomRow = !isFilterActive ? (
     <CategoryBarList
       items={storefrontCategories}
-      isLoading={isCategoriesInitialLoading}
+      isLoading={false}
       activeCategoryId={visibleActiveCategoryId}
       onCategoryClick={categoryClickActivation.handleCategoryClick}
     />
@@ -73,7 +59,7 @@ export const RestaurantBrowser: React.FC<BrowserSlotProps> = ({
       <CatalogProductsPanel
         className="m-1 space-y-7.5"
         categories={storefrontCategories}
-        isCategoriesLoading={isCategoriesInitialLoading}
+        isCategoriesLoading={false}
         isFilterActive={isFilterActive}
         queryState={queryState}
         activationBlockedCategoryId={

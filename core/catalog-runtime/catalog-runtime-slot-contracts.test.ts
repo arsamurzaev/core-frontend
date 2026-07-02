@@ -1,7 +1,83 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { extname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+const EXTENSION_ROOT = "core/catalog-runtime/extensions";
+const SOURCE_EXTENSIONS = new Set([".ts", ".tsx"]);
+const PUBLIC_MODULE_ENTRYPOINTS = new Set([
+  "@/core/modules/browser",
+  "@/core/modules/cart",
+  "@/core/modules/catalog-price-list",
+  "@/core/modules/category",
+  "@/core/modules/integration",
+  "@/core/modules/product",
+  "@/core/modules/product/editor",
+  "@/core/modules/product-modifier",
+]);
+const MODULE_DEEP_IMPORT_PATTERN =
+  /@\/core\/modules\/(?:browser|cart|catalog-price-list|category|integration|product|product-modifier)\/[^"']+/;
+const IMPORT_SPECIFIER_PATTERN =
+  /\b(?:import|export)\s+(?:type\s+)?(?:[^"']*?\s+from\s+)?["']([^"']+)["']|import\(\s*["']([^"']+)["']\s*\)/g;
+
+function collectSourceFiles(path: string): string[] {
+  if (!existsSync(path)) {
+    return [];
+  }
+
+  return readdirSync(path).flatMap((entry) => {
+    const entryPath = join(path, entry);
+    const stat = statSync(entryPath);
+
+    if (stat.isDirectory()) {
+      return collectSourceFiles(entryPath);
+    }
+
+    return SOURCE_EXTENSIONS.has(extname(entryPath)) ? [entryPath] : [];
+  });
+}
+
+function extractImportSpecifiers(source: string): string[] {
+  return Array.from(source.matchAll(IMPORT_SPECIFIER_PATTERN))
+    .map((match) => match[1] ?? match[2])
+    .filter((specifier): specifier is string => Boolean(specifier));
+}
+
+function getInterfacePropertyNames(source: string, interfaceName: string) {
+  const match = source.match(
+    new RegExp(`export interface ${interfaceName} \\{([\\s\\S]*?)\\n\\}`),
+  );
+  const body = match?.[1] ?? "";
+
+  return Array.from(body.matchAll(/^\s+([A-Za-z][A-Za-z0-9]*)\??:/gm)).map(
+    (propertyMatch) => propertyMatch[1],
+  );
+}
+
 describe("catalog runtime slot contracts", () => {
+  it("keeps slot prop surfaces explicit", () => {
+    const slotContractsSource = readFileSync(
+      "core/catalog-runtime/slot-contracts.ts",
+      "utf8",
+    );
+
+    expect(getInterfacePropertyNames(slotContractsSource, "BrowserSlotProps")).toEqual([
+      "className",
+      "initialCategories",
+      "catalogTabLabel",
+      "categoryAdminCreateDescription",
+      "categoryAdminEditDescription",
+      "categoryCardVariant",
+      "supportsBrands",
+      "supportsCategoryDetails",
+    ]);
+    expect(
+      getInterfacePropertyNames(slotContractsSource, "CartCardActionSlotProps"),
+    ).toEqual(["productId", "item"]);
+    expect(
+      getInterfacePropertyNames(slotContractsSource, "CatalogRuntimeSlots"),
+    ).toEqual(["Browser", "CartCardAction"]);
+  });
+
   it("keeps cart action slots on the cart view model public contract", () => {
     const slotContractsSource = readFileSync(
       "core/catalog-runtime/slot-contracts.ts",
@@ -60,5 +136,45 @@ describe("catalog runtime slot contracts", () => {
     expect(orderPoliciesSource).not.toContain("next/dynamic");
     expect(orderPoliciesSource).not.toContain("./registry");
     expect(orderPoliciesSource).not.toContain("./resolve-catalog-runtime");
+  });
+
+  it("keeps runtime extensions on slot contracts and public module entrypoints", () => {
+    const violations = collectSourceFiles(EXTENSION_ROOT).flatMap((file) => {
+      const source = readFileSync(file, "utf8");
+      const imports = extractImportSpecifiers(source);
+
+      return imports.flatMap((specifier) => {
+        if (
+          specifier.startsWith("@/shared/api/generated") ||
+          specifier.startsWith("@/shared/api/server")
+        ) {
+          return [`${file} imports direct API ${specifier}`];
+        }
+
+        if (
+          MODULE_DEEP_IMPORT_PATTERN.test(specifier) &&
+          !PUBLIC_MODULE_ENTRYPOINTS.has(specifier)
+        ) {
+          return [`${file} imports module internal ${specifier}`];
+        }
+
+        if (
+          specifier === "@/core/catalog-runtime/registry" ||
+          specifier === "@/core/catalog-runtime/resolve-catalog-runtime" ||
+          specifier === "@/core/catalog-runtime/use-catalog-runtime" ||
+          specifier === "@/core/catalog-runtime/use-catalog-runtime-slots"
+        ) {
+          return [`${file} imports runtime implementation ${specifier}`];
+        }
+
+        if (specifier.includes("sandbox")) {
+          return [`${file} imports sandbox ${specifier}`];
+        }
+
+        return [];
+      });
+    });
+
+    expect(violations).toEqual([]);
   });
 });
