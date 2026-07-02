@@ -151,7 +151,10 @@ export function ConfirmationDrawer({
       <DrawerContent
         onAnimationEnd={handleCloseAnimationEnd}
         onTransitionEnd={handleCloseAnimationEnd}
-        className={cn("mx-auto w-full max-w-md shadow-xl", contentClassName)}
+        className={cn(
+          "mx-auto w-full max-w-md shadow-overlay",
+          contentClassName,
+        )}
       >
         <div className="flex min-h-0 flex-1 flex-col">
           <DrawerHeader className={cn("space-y-2", headerClassName)}>

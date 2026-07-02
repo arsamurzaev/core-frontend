@@ -87,8 +87,8 @@ function DrawerHandle({
     <DrawerPrimitive.Handle
       data-slot="drawer-handle"
       className={cn(
-        "relative h-8 w-20 rounded-full bg-transparent",
-        "after:bg-surface-muted after:absolute after:top-1/2 after:left-1/2 after:h-1.5 after:w-12 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:content-['']",
+        "relative h-8 w-20 rounded-pill bg-transparent",
+        "after:bg-surface-muted after:absolute after:top-1/2 after:left-1/2 after:h-1.5 after:w-12 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-pill after:content-['']",
         className,
       )}
       preventCycle={preventCycle}

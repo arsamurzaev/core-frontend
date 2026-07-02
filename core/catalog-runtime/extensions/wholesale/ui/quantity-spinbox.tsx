@@ -183,7 +183,7 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
       onTouchEnd={handleInteractiveEvent}
       onTouchStart={handleInteractiveEvent}
       className={cn(
-        "bg-secondary flex cursor-default items-center justify-center rounded-full",
+        "flex cursor-default items-center justify-center rounded-pill bg-surface-muted",
         className,
       )}
     >
@@ -217,7 +217,7 @@ export const QuantitySpinbox: React.FC<QuantitySpinboxProps> = ({
         onTouchEnd={handleInteractiveEvent}
         onTouchStart={handleInteractiveEvent}
         disabled={isBusy}
-        className="h-7 w-[2.75rem] rounded-sm bg-white text-center text-sm font-medium outline-none"
+        className="h-7 w-[2.75rem] rounded-control bg-surface-base text-center text-sm font-medium text-text-primary outline-none"
         aria-label="Количество товара"
       />
 

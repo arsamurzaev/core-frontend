@@ -58,7 +58,7 @@ export const ToggleProductPopularAction: React.FC<
     >
       <Star
         className={cn(
-          "text-muted",
+          "text-text-muted",
           isPopular && "fill-tertiary text-tertiary",
           togglePopularMutation.isPending && "animate-spin",
         )}

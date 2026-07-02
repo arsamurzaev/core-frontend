@@ -27,7 +27,7 @@ function isSubscriptionExpired(catalog: unknown): boolean {
 
 function SubscriptionForbiddenScreen() {
   return (
-    <main className="z-[9999] bg-white">
+    <main className="z-[9999] bg-surface-base">
       <Image
         src="/403.png"
         alt="Доступ ограничен"

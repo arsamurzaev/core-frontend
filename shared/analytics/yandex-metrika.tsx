@@ -108,11 +108,11 @@ function YandexMetrikaNoticeBanner({
 }) {
   return (
     <div
-      className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-lg rounded-lg border bg-background/95 p-3 shadow-custom backdrop-blur"
+      className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-lg rounded-panel border border-line-subtle bg-surface-base/95 p-3 shadow-surface backdrop-blur"
       role="status"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <p className="text-foreground flex-1 text-xs leading-5">
+        <p className="flex-1 text-xs leading-5 text-text-primary">
           Используем cookie для стабильной работы сайта и аналитики.
         </p>
         <Button
