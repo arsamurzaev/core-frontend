@@ -17,6 +17,10 @@ export interface CatalogPricingConfig {
   priceFormatMode: CatalogPriceFormatMode;
 }
 
+export interface CatalogExperienceRuntimeConfig {
+  supportsHallMode: boolean;
+}
+
 export interface CatalogExtension {
   typeCode: string | string[];
   manifest?: CatalogRuntimeManifestConfig;
@@ -28,6 +32,7 @@ export interface CatalogExtension {
     supportsManagerOrder?: boolean;
   };
   pricing?: Partial<CatalogPricingConfig>;
+  experience?: Partial<CatalogExperienceRuntimeConfig>;
   slots?: CatalogRuntimeSlots;
 }
 
@@ -45,5 +50,6 @@ export interface CatalogRuntime {
     supportsManagerOrder: boolean;
   };
   pricing: CatalogPricingConfig;
+  experience: CatalogExperienceRuntimeConfig;
   slots: CatalogRuntimeSlots;
 }

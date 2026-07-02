@@ -10,6 +10,7 @@ import type {
   ResolvedProductCardPlugin,
 } from "@/core/modules/product";
 import type { CatalogPresentationConfig } from "./metadata-contracts";
+import { DEFAULT_CATALOG_EXPERIENCE } from "./experience";
 import { resolveCatalogRuntimeManifest } from "./manifest";
 import { DEFAULT_CATALOG_PRICING } from "./pricing";
 import { CATALOG_EXTENSIONS } from "./registry";
@@ -178,6 +179,10 @@ export function resolveCatalogRuntime(
     ...DEFAULT_CATALOG_PRICING,
     ...extension?.pricing,
   };
+  const experience = {
+    ...DEFAULT_CATALOG_EXPERIENCE,
+    ...extension?.experience,
+  };
   const slots = {
     ...extension?.slots,
   };
@@ -200,6 +205,7 @@ export function resolveCatalogRuntime(
     productCard,
     cart,
     pricing,
+    experience,
     slots,
   };
 }

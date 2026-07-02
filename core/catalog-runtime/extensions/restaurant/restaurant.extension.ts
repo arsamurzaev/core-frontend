@@ -1,13 +1,17 @@
 import dynamic from "next/dynamic";
 import type { BrowserSlotProps } from "@/core/catalog-runtime/slot-contracts";
 import type { CatalogExtension } from "@/core/catalog-runtime/runtime-contracts";
+import {
+  RESTAURANT_EXPERIENCE,
+  RESTAURANT_TYPE_CODES,
+} from "./restaurant.metadata";
 
 const RestaurantBrowser = dynamic<BrowserSlotProps>(() =>
   import("./ui/restaurant-browser").then((module) => module.RestaurantBrowser),
 );
 
 export const restaurantExtension: CatalogExtension = {
-  typeCode: ["restaurant", "cafe"],
+  typeCode: RESTAURANT_TYPE_CODES,
   manifest: {
     id: "restaurant",
     label: "Restaurant storefront",
@@ -29,6 +33,7 @@ export const restaurantExtension: CatalogExtension = {
     availableMethods: ["DELIVERY", "PICKUP", "PREORDER"],
     defaultEnabledMethods: ["DELIVERY", "PICKUP"],
   },
+  experience: RESTAURANT_EXPERIENCE,
   theme: {
     presetId: "restaurant",
   },

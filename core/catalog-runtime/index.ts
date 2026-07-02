@@ -39,7 +39,12 @@ export {
   getCatalogPriceFormatMode,
   resolveCatalogRuntimePricing,
 } from "./pricing";
+export {
+  canUseHallCatalogExperience,
+  resolveCatalogRuntimeExperience,
+} from "./experience";
 export { resolveCatalogRuntime } from "./resolve-catalog-runtime";
+export { useCatalogMode } from "./use-catalog-mode";
 export { useCatalogRuntimeExtension } from "./use-catalog-runtime-extension";
 export { useCatalogRuntimeSlots } from "./use-catalog-runtime-slots";
 export { useCatalogRuntimeCheckoutConfig } from "./use-catalog-runtime-checkout-config";

@@ -23,3 +23,7 @@ export {
   getCatalogPriceFormatMode,
   resolveCatalogRuntimePricing,
 } from "./pricing";
+export {
+  canUseHallCatalogExperience,
+  resolveCatalogRuntimeExperience,
+} from "./experience";

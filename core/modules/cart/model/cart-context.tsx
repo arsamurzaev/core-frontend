@@ -37,7 +37,7 @@ import type {
   ProductWithAttributesDto,
 } from "@/shared/api/generated/react-query";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
-import { useCatalogMode } from "@/shared/lib/catalog-mode";
+import { useCatalogMode } from "@/core/catalog-runtime/use-catalog-mode";
 import { useHallTableContext } from "@/shared/lib/hall-table";
 import { createStrictContext, useStrictContext } from "@/shared/lib/react";
 import { getCatalogCurrency } from "@/shared/lib/utils";

@@ -5,7 +5,9 @@ import {
   UpdateCatalogDtoReqAllowedModesItem,
   UpdateCatalogDtoReqDefaultMode,
 } from "@/shared/api/generated/react-query";
-import { getCatalogTypeCode } from "@/shared/lib/catalog-type";
+import {
+  canUseHallCatalogExperience as canUseHallCatalogExperienceRuntime,
+} from "@/core/catalog-runtime/experience";
 
 export type CatalogExperienceMode =
   (typeof UpdateCatalogDtoReqDefaultMode)[keyof typeof UpdateCatalogDtoReqDefaultMode];
@@ -16,13 +18,14 @@ export interface CatalogExperienceOption {
   description: string;
 }
 
-type CatalogExperienceSource = Pick<CatalogCurrentDto, "type"> | null | undefined;
+type CatalogExperienceSource =
+  | Pick<CatalogCurrentDto, "type">
+  | null
+  | undefined;
 
 export const DEFAULT_CATALOG_EXPERIENCE_MODE =
   UpdateCatalogDtoReqDefaultMode.DELIVERY;
 const HALL_CATALOG_EXPERIENCE_MODE = UpdateCatalogDtoReqDefaultMode.HALL;
-const CATALOG_EXPERIENCE_HALL_TYPE_CODES = new Set(["restaurant", "cafe"]);
-
 export const CATALOG_EXPERIENCE_OPTIONS: CatalogExperienceOption[] = [
   {
     value: UpdateCatalogDtoReqDefaultMode.DELIVERY,
@@ -56,7 +59,7 @@ export function isCatalogExperienceMode(
 export function canUseHallCatalogExperience(
   catalog: CatalogExperienceSource,
 ): boolean {
-  return CATALOG_EXPERIENCE_HALL_TYPE_CODES.has(getCatalogTypeCode(catalog));
+  return canUseHallCatalogExperienceRuntime(catalog);
 }
 
 export function getCatalogExperienceOptions(

@@ -51,6 +51,7 @@
 - [ ] Перенести типовые различия из scattered conditions в runtime extension.
 - [x] Добавить тесты совместимости slots для новых типов каталогов.
 - [x] Перенести wholesale decimal price mode из shared price formatter в runtime `pricing` contract.
+- [x] Перенести restaurant/cafe hall mode из shared/edit-catalog conditions в runtime `experience` contract.
 
 ### 4. Design System And Tokens
 

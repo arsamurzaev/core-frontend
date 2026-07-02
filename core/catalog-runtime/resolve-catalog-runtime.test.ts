@@ -67,6 +67,7 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.checkout.defaultEnabledMethods).toEqual([]);
     expect(runtime.cart.supportsManagerOrder).toBe(false);
     expect(runtime.pricing.priceFormatMode).toBe("integer");
+    expect(runtime.experience.supportsHallMode).toBe(false);
     expect(runtime.theme.id).toBe("default");
     expect(runtime.manifest).toMatchObject({
       id: "default",
@@ -109,6 +110,7 @@ describe("resolveCatalogRuntime", () => {
     expect(runtime.theme.id).toBe("restaurant");
     expect(runtime.manifest.id).toBe("restaurant");
     expect(runtime.manifest.typeCodes).toEqual(["restaurant", "cafe"]);
+    expect(runtime.experience.supportsHallMode).toBe(true);
     expect(runtime.manifest.capabilities.supportsPreorderCheckout).toBe(true);
     expect(runtime.manifest.capabilities.hasBrowserSlot).toBe(true);
     expect(runtime.manifest.policies.browserMode).toBe("runtime-slot");
