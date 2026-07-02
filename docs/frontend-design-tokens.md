@@ -159,6 +159,7 @@ Shape/elevation:
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.
+- `app/design-tokens.test.ts` сканирует `app/core/shared` source files и блокирует возврат legacy visual utilities вроде `text-muted-foreground`, `shadow-custom`, `rounded-full`, `bg-white` и прямых hex text colors.
 
 ## Правила Дальнейшей Миграции
 
@@ -172,4 +173,4 @@ Shape/elevation:
 
 1. Расширить использование `AdminPanel` и `AdminPanelButton` там, где остались повторяющиеся admin panel patterns.
 2. Подготовить theme preset structure для будущих типов каталога, не меняя runtime behavior.
-3. Уточнить allowlist для token scanner, чтобы он не поднимал semantic false positives из `app/globals.css`, `chart.tsx` и generated asset selectors.
+3. Расширять scanner постепенно: при появлении нового semantic alias сначала добавить правило/исключение, затем мигрировать production UI.

@@ -178,3 +178,4 @@
 - [x] Перевести shared/runtime residual UI controls and banners на semantic tokens.
 - [x] Удалить неиспользуемый внешне-демонстрационный `shared/ui/smooth-drawer.tsx` и зависимость `motion`.
 - [x] Перевести restaurant runtime browser shell radius на semantic tokens.
+- [x] Добавить source scanner в `design-tokens.test.ts`, чтобы legacy visual utilities не возвращались в `app/core/shared`.
