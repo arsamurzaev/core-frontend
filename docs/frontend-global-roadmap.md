@@ -61,10 +61,10 @@
 
 ### 5. Storefront Composition
 
-- [ ] Держать route files в `app` тонкими.
-- [ ] Переносить screen composition в `core/views`.
-- [ ] Runtime-aware storefront собирать через `core/catalog-runtime/ui`.
-- [ ] Проверить product page, home page, drawers, header/footer на единый composition pattern.
+- [x] Держать route files в `app` тонкими.
+- [x] Переносить screen composition в `core/views`.
+- [x] Runtime-aware storefront собирать через `core/catalog-runtime/ui`.
+- [x] Проверить product page, home page, drawers, header/footer на единый composition pattern.
 - [x] Вынести standalone product page composition из `app/(storefront)/product/[slug]` в `core/views/product`.
 - [x] Вынести iiko order timeline page/access из `app/(storefront)/order/[id]` в `core/views/order`.
 - [x] Вынести storefront entry host resolver из `app/(storefront)/page` в `core/views/storefront`.
@@ -73,6 +73,7 @@
 - [x] Вынести storefront layout shell/providers из `app/(storefront)/layout` в `core/views/storefront`.
 - [x] Вынести intercepted product drawer route wiring из `app/(storefront)/@drawer` в `core/views/product`.
 - [x] Вынести product page metadata facade из `app/(storefront)/product/[slug]` в `core/views/product`.
+- [x] Оставить `app/layout` и `app/api` как Next infrastructure слой: metadata/providers/revalidation, не screen composition.
 
 ### 6. Quality Gate
 
