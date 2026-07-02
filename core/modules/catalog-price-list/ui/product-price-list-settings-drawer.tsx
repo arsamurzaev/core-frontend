@@ -147,12 +147,15 @@ function PriceListSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 3 }, (_, index) => (
-        <div key={index} className="rounded-md border border-border p-2.5">
+        <div
+          key={index}
+          className="rounded-control border border-line-subtle p-2.5"
+        >
           <div className="flex items-center gap-2">
-            <Skeleton className="size-9 rounded-md" />
+            <Skeleton className="size-9 rounded-control" />
             <Skeleton className="h-5 flex-1" />
-            <Skeleton className="size-8 rounded-md" />
-            <Skeleton className="size-8 rounded-md" />
+            <Skeleton className="size-8 rounded-control" />
+            <Skeleton className="size-8 rounded-control" />
           </div>
         </div>
       ))}
@@ -202,13 +205,13 @@ const PriceListItem: React.FC<PriceListItemProps> = ({
   return (
     <div
       className={cn(
-        "rounded-md border border-border bg-background p-2.5 transition-shadow",
-        isDragging && "shadow-xl ring-1 ring-black/10",
+        "rounded-control border border-line-subtle bg-surface-base p-2.5 transition-shadow",
+        isDragging && "shadow-surface ring-1 ring-line-default",
       )}
     >
       <div className="flex min-w-0 items-start gap-2">
         {isOverlay ? (
-          <div className="flex size-8 items-center justify-center rounded-md text-muted-foreground">
+          <div className="flex size-8 items-center justify-center rounded-control text-text-muted">
             <GripVertical className="size-4" />
           </div>
         ) : (
@@ -223,7 +226,7 @@ const PriceListItem: React.FC<PriceListItemProps> = ({
               touchAction: "none",
               WebkitTapHighlightColor: "transparent",
             }}
-            className="flex size-8 touch-none items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none active:cursor-grabbing disabled:pointer-events-none disabled:opacity-40"
+            className="flex size-8 touch-none items-center justify-center rounded-control text-text-muted transition-colors hover:bg-surface-muted focus-visible:ring-1 focus-visible:ring-action-primary focus-visible:outline-none active:cursor-grabbing disabled:pointer-events-none disabled:opacity-40"
             aria-label={`Переместить ${priceList.name}`}
           >
             <GripVertical className="size-4" />
@@ -255,7 +258,7 @@ const PriceListItem: React.FC<PriceListItemProps> = ({
                   }
                 }}
               />
-              <label className="flex w-fit items-center gap-2 text-xs text-muted-foreground">
+              <label className="flex w-fit items-center gap-2 text-xs text-text-muted">
                 <Switch
                   checked={draft.isActive}
                   disabled={disabled}
@@ -327,7 +330,7 @@ const PriceListItem: React.FC<PriceListItemProps> = ({
               size="icon"
               variant="ghost"
               disabled={disabled}
-              className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              className="size-8 text-text-muted hover:bg-status-danger-surface hover:text-status-danger"
               title="Удалить"
               onClick={onDelete}
             >
@@ -811,7 +814,7 @@ export const ProductPriceListSettingsDrawer: React.FC<
       type="button"
       variant="outline"
       size="sm"
-      className="h-8 shrink-0 border-muted-foreground/55 bg-transparent px-2.5 text-muted-foreground shadow-none hover:border-muted-foreground hover:bg-muted/30 hover:text-muted-foreground"
+      className="h-8 shrink-0 border-line-default bg-transparent px-2.5 text-text-muted shadow-none hover:border-line-default hover:bg-surface-muted hover:text-text-primary"
       disabled={disabled}
       title="Настроить прайс-листы"
     >
@@ -885,7 +888,7 @@ export const ProductPriceListSettingsDrawer: React.FC<
                   <div className="min-w-0 text-sm font-medium">
                     Справочник
                     {priceLists.length > 0 ? (
-                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      <span className="ml-2 text-xs font-normal text-text-muted">
                         {activeCount} активн.
                       </span>
                     ) : null}
@@ -912,7 +915,7 @@ export const ProductPriceListSettingsDrawer: React.FC<
                 {priceListsQuery.isLoading ? <PriceListSkeleton /> : null}
 
                 {priceListsQuery.isError ? (
-                  <div className="rounded-md border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                  <div className="rounded-control border border-line-subtle bg-surface-muted/30 p-3 text-sm text-text-muted">
                     Не удалось загрузить прайс-листы.
                   </div>
                 ) : null}
@@ -920,7 +923,7 @@ export const ProductPriceListSettingsDrawer: React.FC<
                 {!priceListsQuery.isLoading &&
                 !priceListsQuery.isError &&
                 priceLists.length === 0 ? (
-                  <div className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
+                  <div className="rounded-control border border-dashed border-line-subtle p-3 text-sm text-text-muted">
                     Прайс-листов пока нет.
                   </div>
                 ) : null}

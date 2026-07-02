@@ -156,3 +156,4 @@
 - [x] Перевести app-level error/not-found shells на semantic tokens.
 - [x] Перевести `product-modifier-picker` list/chip states на semantic tokens.
 - [x] Перевести `product-modifier-bindings-field` panels/empty/nested option states на semantic tokens.
+- [x] Перевести `product-price-list-settings-drawer` rows/trigger/empty states на semantic tokens.
