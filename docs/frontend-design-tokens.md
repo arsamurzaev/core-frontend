@@ -126,6 +126,7 @@ Shape/elevation:
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-domains-drawer.tsx`: domain trigger, DNS records, domain cards, skeletons and empty/error states use `AdminPanel`/semantic tokens.
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-inventory-drawer.tsx`: inventory trigger, operation form, stock/reservation/movement rows and warehouse states use semantic tokens.
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-modifiers-drawer.tsx`: modifiers trigger, option/group panels, nested rows, empty states and archive actions use `AdminPanel`/semantic tokens.
+- `core/widgets/edit-catalog-drawer/ui/edit-catalog-price-lists-drawer.tsx`: selector trigger, loading state, radio rows and empty state use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

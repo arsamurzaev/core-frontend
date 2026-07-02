@@ -7,6 +7,7 @@ import {
 import { type CatalogEditFormValues } from "@/core/widgets/edit-catalog-drawer/model/form-config";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
+import { AdminPanel } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";
@@ -105,12 +106,12 @@ export const EditCatalogPriceListsDrawer: React.FC<
           type="button"
           variant="ghost"
           disabled={disabled}
-          className="h-12 min-w-0 flex-1 justify-between rounded-2xl border border-black/10 px-4 text-left hover:bg-muted/30"
+          className="h-12 min-w-0 flex-1 justify-between rounded-panel border border-line-subtle px-4 text-left hover:bg-surface-muted/50"
         >
           <span className="min-w-0 truncate text-sm font-medium">
             {selectedLabel}
           </span>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
         </Button>
       }
     >
@@ -129,7 +130,7 @@ export const EditCatalogPriceListsDrawer: React.FC<
 
           <DrawerScrollArea className="px-5 py-5">
             {priceListsQuery.isLoading ? (
-              <div className="flex min-h-32 items-center justify-center gap-2 text-sm text-muted-foreground">
+              <div className="flex min-h-32 items-center justify-center gap-2 text-sm text-text-muted">
                 <Loader2 className="size-4 animate-spin" />
                 Загрузка...
               </div>
@@ -145,8 +146,8 @@ export const EditCatalogPriceListsDrawer: React.FC<
                     key={priceList.id}
                     htmlFor={`catalog-active-price-list-${priceList.id}`}
                     className={cn(
-                      "flex cursor-pointer items-start gap-3 rounded-xl border border-black/10 p-3 transition-colors",
-                      selectedValue === priceList.id && "bg-muted/50",
+                      "flex cursor-pointer items-start gap-3 rounded-control border border-line-default p-3 transition-colors",
+                      selectedValue === priceList.id && "bg-surface-muted",
                     )}
                   >
                     <RadioGroupItem
@@ -166,9 +167,9 @@ export const EditCatalogPriceListsDrawer: React.FC<
             )}
 
             {!priceListsQuery.isLoading && selectablePriceLists.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-black/10 p-3 text-sm text-muted-foreground">
+              <AdminPanel padding="sm" variant="dashed" className="text-sm">
                 {EMPTY_PRICE_LISTS_LABEL}
-              </div>
+              </AdminPanel>
             ) : null}
           </DrawerScrollArea>
         </div>
