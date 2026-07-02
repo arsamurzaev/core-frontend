@@ -119,6 +119,7 @@ Shape/elevation:
 - `core/widgets/category-admin`: admin action buttons, edit/delete controls, reorder drawer handles and empty states use semantic tokens.
 - `core/widgets/edit-product-drawer` и `core/widgets/create-product-drawer`: loading/error states, settings action buttons, hidden product overlays and card action buttons use semantic tokens.
 - `core/widgets/edit-catalog-drawer`: base drawer upload/error states, catalog edit form required marker and sessions drawer residual classes use semantic tokens.
+- `core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer.tsx`: list items, drag handles, trigger, skeletons and empty/error states use `AdminPanel`/semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

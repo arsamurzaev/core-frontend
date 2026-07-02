@@ -11,6 +11,7 @@ import {
 import { type CatalogSaleUnitDto } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { cn } from "@/shared/lib/utils";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -145,14 +146,14 @@ function SaleUnitSkeleton() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 3 }, (_, index) => (
-        <div key={index} className="rounded-md border border-border p-2.5">
+        <AdminPanel key={index} padding="sm">
           <div className="flex items-center gap-2">
-            <Skeleton className="size-9 rounded-md" />
+            <Skeleton className="size-9 rounded-control" />
             <Skeleton className="h-5 flex-1" />
-            <Skeleton className="size-8 rounded-md" />
-            <Skeleton className="size-8 rounded-md" />
+            <Skeleton className="size-8 rounded-control" />
+            <Skeleton className="size-8 rounded-control" />
           </div>
-        </div>
+        </AdminPanel>
       ))}
     </div>
   );
@@ -196,15 +197,16 @@ const SaleUnitListItem: React.FC<SaleUnitListItemProps> = ({
   onSave,
 }) => {
   return (
-    <div
+    <AdminPanel
+      padding="sm"
       className={cn(
-        "rounded-md border border-border bg-background p-2.5 transition-shadow",
-        isDragging && "shadow-xl ring-1 ring-black/10",
+        "transition-shadow",
+        isDragging && "shadow-overlay ring-1 ring-line-default",
       )}
     >
       <div className="flex min-w-0 items-center gap-2">
         {isOverlay ? (
-          <div className="flex size-8 items-center justify-center rounded-md text-muted-foreground">
+          <div className="flex size-8 items-center justify-center rounded-control text-text-muted">
             <GripVertical className="size-4" />
           </div>
         ) : (
@@ -219,7 +221,7 @@ const SaleUnitListItem: React.FC<SaleUnitListItemProps> = ({
               touchAction: "none",
               WebkitTapHighlightColor: "transparent",
             }}
-            className="flex size-8 touch-none items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring active:cursor-grabbing disabled:pointer-events-none disabled:opacity-40"
+            className="flex size-8 touch-none items-center justify-center rounded-control text-text-muted transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-action-primary active:cursor-grabbing disabled:pointer-events-none disabled:opacity-40"
             aria-label={`Переместить ${unit.name}`}
           >
             <GripVertical className="size-4" />
@@ -308,7 +310,7 @@ const SaleUnitListItem: React.FC<SaleUnitListItemProps> = ({
               size="icon"
               variant="ghost"
               disabled={disabled}
-              className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              className="size-8 text-text-muted hover:bg-status-danger-surface hover:text-status-danger"
               title="Удалить"
               onClick={onDelete}
             >
@@ -317,7 +319,7 @@ const SaleUnitListItem: React.FC<SaleUnitListItemProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </AdminPanel>
   );
 };
 
@@ -775,27 +777,22 @@ export const EditCatalogSaleUnitsDrawer: React.FC<
   );
 
   const defaultTrigger = (
-    <Button
-      type="button"
-      variant="ghost"
-      className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-      disabled={disabled}
-    >
+    <AdminPanelButton disabled={disabled}>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-text-primary">
             Единицы продажи
           </span>
           <Badge variant="secondary">
             {activeCount > 0 ? `${activeCount} активн.` : "Не настроено"}
           </Badge>
         </div>
-        <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+        <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
           Глобальный список единиц продажи: штука, упаковка, ящик и другие.
         </p>
       </div>
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-    </Button>
+      <ChevronRight className="size-4 shrink-0 text-text-muted" />
+    </AdminPanelButton>
   );
 
   return (
@@ -876,17 +873,25 @@ export const EditCatalogSaleUnitsDrawer: React.FC<
                 {saleUnitsQuery.isLoading ? <SaleUnitSkeleton /> : null}
 
                 {saleUnitsQuery.isError ? (
-                  <div className="rounded-md border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                  <AdminPanel
+                    padding="sm"
+                    variant="muted"
+                    className="text-sm text-text-muted"
+                  >
                     Не удалось загрузить единицы измерения.
-                  </div>
+                  </AdminPanel>
                 ) : null}
 
                 {!saleUnitsQuery.isLoading &&
                 !saleUnitsQuery.isError &&
                 saleUnits.length === 0 ? (
-                  <div className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
+                  <AdminPanel
+                    padding="sm"
+                    variant="dashed"
+                    className="text-sm"
+                  >
                     Единиц пока нет.
-                  </div>
+                  </AdminPanel>
                 ) : null}
 
                 {saleUnits.length > 0 ? (
