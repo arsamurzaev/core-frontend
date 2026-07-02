@@ -70,6 +70,7 @@
 - [x] Вынести storefront entry host resolver из `app/(storefront)/page` в `core/views/storefront`.
 - [x] Вынести login route host/session resolver из `app/auth/login` в `core/views/login`.
 - [x] Обновить public view entrypoint guard под `order`, `product` и `storefront`.
+- [x] Вынести storefront layout shell/providers из `app/(storefront)/layout` в `core/views/storefront`.
 
 ### 6. Quality Gate
 
