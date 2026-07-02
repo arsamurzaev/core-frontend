@@ -68,7 +68,7 @@ export const CartProductDrawerFooterAction: React.FC<
   return (
     <CartQuantityControl
       className={cn(
-        "bg-primary flex min-w-[104px] cursor-default items-center gap-2.5 rounded-full px-2.5 py-3 text-white",
+        "flex min-w-[104px] cursor-default items-center gap-2.5 rounded-pill bg-action-primary px-2.5 py-3 text-action-primary-foreground",
         isBusy && "animate-pulse",
         className,
       )}

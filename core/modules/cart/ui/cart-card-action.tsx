@@ -63,7 +63,7 @@ export const CartCardAction = React.memo(function CartCardAction({
       buttonSize="icon"
       buttonVariant="ghost"
       className={cn(
-        "bg-secondary flex cursor-default items-center justify-center rounded-full",
+        "flex cursor-default items-center justify-center rounded-pill bg-surface-muted",
         className,
       )}
       decrementContent="-"

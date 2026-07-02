@@ -42,7 +42,7 @@ export const CartCard: React.FC<CartCardProps> = ({
         }
       }}
       className={cn(
-        "shadow-custom relative grid grid-flow-col grid-cols-[auto_1fr] items-center gap-2 overflow-hidden rounded-lg pl-0 sm:grid-cols-[auto_1fr]",
+        "relative grid grid-flow-col grid-cols-[auto_1fr] items-center gap-2 overflow-hidden rounded-panel pl-0 shadow-surface sm:grid-cols-[auto_1fr]",
         isInteractive && "cursor-pointer",
         className,
       )}

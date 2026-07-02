@@ -29,7 +29,7 @@ export function CartProductActionButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "shadow-custom absolute top-[10px] right-[10px] z-20 cursor-default bg-secondary/70 disabled:opacity-100",
+        "absolute top-[10px] right-[10px] z-20 cursor-default bg-surface-muted/70 shadow-surface disabled:opacity-100",
         isBusy && "animate-pulse",
         className,
       )}

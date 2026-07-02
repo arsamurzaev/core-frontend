@@ -53,7 +53,7 @@ export const CartCardPrice: React.FC<CartCardPriceProps> = ({
       </p>
       {shouldShowDiscount ? (
         <>
-          <p className="text-muted text-xs leading-none font-bold line-through">
+          <p className="text-xs leading-none font-bold text-text-muted line-through">
             {formatNullableCatalogPrice(
               item.originalLineTotal,
               priceFormatMode,

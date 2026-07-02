@@ -30,7 +30,7 @@ export function CartProductCardFooterSummary({
     <div
       onClick={onClick}
       className={cn(
-        "bg-secondary mt-1 cursor-default rounded-lg px-2.5 py-2 text-right",
+        "mt-1 cursor-default rounded-control bg-surface-muted px-2.5 py-2 text-right",
         isDetailed ? "ml-auto w-fit max-w-full shrink-0" : "w-full",
         className,
       )}
@@ -39,7 +39,7 @@ export function CartProductCardFooterSummary({
         {formatCatalogPrice(summary.totalPrice, priceFormatMode)}{" "}
         <span className="font-normal">{summary.currency}</span>
       </p>
-      <p className="text-muted-foreground mt-1 text-xs leading-none font-medium whitespace-nowrap">
+      <p className="mt-1 text-xs leading-none font-medium whitespace-nowrap text-text-muted">
         {QUANTITY_NUMBER_FORMAT.format(summary.totalQuantity)} {PIECE_LABEL},{" "}
         {summary.linesCount} {summary.variantLabel}
       </p>

@@ -29,7 +29,7 @@ export function CartProductDrawerAddButton({
         void onAdd();
       }}
       className={cn(
-        "shadow-custom cursor-default bg-secondary/70 disabled:opacity-100",
+        "cursor-default bg-surface-muted/70 shadow-surface disabled:opacity-100",
         isBusy && "animate-pulse",
         className,
       )}

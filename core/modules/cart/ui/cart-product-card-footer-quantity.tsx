@@ -40,7 +40,7 @@ export function CartProductCardFooterQuantity({
         isDetailed ? "h-4 w-4 shrink-0" : "flex-1",
       )}
       className={cn(
-        "bg-secondary mt-1 cursor-default items-center justify-between gap-2.5 rounded-lg px-2.5 py-2",
+        "mt-1 cursor-default items-center justify-between gap-2.5 rounded-control bg-surface-muted px-2.5 py-2",
         isDetailed
           ? "ml-auto inline-flex w-fit max-w-full shrink-0"
           : "flex w-full",
