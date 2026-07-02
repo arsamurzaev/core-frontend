@@ -47,7 +47,7 @@
 
 - [x] Описать runtime manifest: id, capabilities, slots, policies, analytics events.
 - [x] Разделить extension contracts и runtime implementation.
-- [ ] Проверить restaurant/wholesale/business-card extensions на одинаковый контракт.
+- [x] Проверить restaurant/wholesale/business-card extensions на одинаковый контракт.
 - [ ] Перенести типовые различия из scattered conditions в runtime extension.
 - [ ] Добавить тесты совместимости slots для новых типов каталогов.
 
@@ -182,3 +182,4 @@
 - [x] Добавить typed `catalog-runtime` theme presets и body scope attrs для будущих token overrides по типам каталога.
 - [x] Добавить typed `catalog-runtime` manifest с id/capabilities/slots/policies/analytics events без изменения поведения UI.
 - [x] Разделить `catalog-runtime` contracts на metadata/slot/runtime facades без изменения public compatibility export.
+- [x] Добавить compatibility matrix для default/restaurant/cafe/wholesale/whosale/business-card runtime contracts.

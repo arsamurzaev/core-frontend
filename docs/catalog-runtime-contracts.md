@@ -58,9 +58,12 @@
 - `restaurant`
 - `wholesale`
 
+`BUSINESS_CARD` сейчас является `settings.presentationMode`, а не runtime extension. Такой каталог использует default runtime contract, но storefront composition скрывает каталоговую часть и корзину.
+
 ## Quality Gate
 
 - `core/catalog-runtime/sandbox-boundary.test.ts`
+- `core/catalog-runtime/catalog-runtime-compatibility.test.ts`
 - `core/catalog-runtime/resolve-catalog-runtime.test.ts`
 - `core/catalog-runtime/catalog-runtime-utils.test.ts`
 - `core/modules/product/plugins/build-model.test.ts`
