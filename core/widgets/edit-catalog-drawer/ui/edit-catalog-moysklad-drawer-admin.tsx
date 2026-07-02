@@ -8,7 +8,7 @@ import {
   type MoySkladFormState,
   type ValidationErrors,
 } from "@/core/widgets/edit-catalog-drawer/lib/moysklad-form-state";
-import { startMoySkladSyncProgressToast } from "@/core/modules/integration/model/start-moysklad-sync-progress-toast";
+import { startMoySkladSyncProgressToast } from "@/core/modules/integration";
 import {
   buildSchedulePattern,
   getSchedulePresetDescription,

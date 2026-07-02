@@ -11,12 +11,12 @@ import {
   updateCatalogModifierOption,
   useCatalogModifierState,
   type CatalogModifierGroupOptionPayload,
-} from "@/core/modules/product-modifier/model/product-modifier-api";
+} from "@/core/modules/product-modifier";
 import {
   type CatalogModifierGroup,
   type CatalogModifierGroupOption,
   type CatalogModifierOption,
-} from "@/core/modules/product-modifier/model/product-modifier-types";
+} from "@/core/modules/product-modifier";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
   getCatalogPriceFormatMode,

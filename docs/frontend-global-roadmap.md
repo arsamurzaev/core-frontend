@@ -30,7 +30,8 @@
 - [x] Убрать обратную зависимость `core -> app`.
 - [x] Запретить `core/**` и `shared/**` импортировать `app/**`.
 - [x] Расширить public-entrypoint контроль на `catalog-price-list` и `product-modifier`.
-- [ ] Снижать baseline глубоких module imports отдельными маленькими PR/коммитами.
+- [x] Снизить первый baseline глубоких module imports: `131 -> 113`.
+- [ ] Продолжать снижать baseline глубоких module imports отдельными маленькими PR/коммитами.
 - [ ] Добавить отчет по топовым источникам deep import debt.
 
 ### 2. Module Public API
@@ -88,3 +89,11 @@
 - [x] Обновить app routes на импорт из `core/views/home/home-content`.
 - [x] Добавить boundary rule против `core/shared -> app`.
 - [x] Расширить public module entrypoint guard.
+
+## Текущий Второй Блок
+
+- [x] Добавить `category-display` в public API `@/core/modules/category`.
+- [x] Перевести `core/catalog-runtime` production imports на module public entrypoints.
+- [x] Перевести `core/views/home` imports на `@/core/modules/browser` и `@/core/modules/category`.
+- [x] Перевести очевидные `edit-catalog/global-admin` imports на `product`, `integration`, `product-modifier` entrypoints.
+- [x] Снизить `PUBLIC_MODULE_IMPORT_DEBT_BASELINE` до `113`.

@@ -26,7 +26,7 @@ import {
   useProductTypeControllerGetById,
   useProductTypeControllerUpdate,
 } from "@/shared/api/generated/react-query";
-import { invalidateProductQueries } from "@/core/modules/product/actions/model";
+import { invalidateProductQueries } from "@/core/modules/product";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";

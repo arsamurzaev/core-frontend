@@ -8,7 +8,7 @@ import type { CatalogLike } from "@/shared/lib/utils";
 import type {
   ProductCardPluginConfig,
   ResolvedProductCardPlugin,
-} from "@/core/modules/product/plugins/contracts";
+} from "@/core/modules/product";
 import type {
   CatalogExtension,
   CatalogPresentationConfig,

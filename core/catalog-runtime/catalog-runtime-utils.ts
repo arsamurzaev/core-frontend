@@ -4,7 +4,7 @@ import type {
   CheckoutConfig,
   CheckoutMethod,
 } from "@/shared/lib/checkout-methods";
-import type { ResolvedProductCardPlugin } from "@/core/modules/product/plugins/contracts";
+import type { ResolvedProductCardPlugin } from "@/core/modules/product";
 import { getCatalogRuntimeCheckoutConfig } from "./checkout";
 import type { CatalogPresentationConfig } from "./contracts";
 import { resolveCatalogRuntime } from "./resolve-catalog-runtime";

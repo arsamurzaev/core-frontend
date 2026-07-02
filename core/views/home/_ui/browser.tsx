@@ -1,10 +1,12 @@
 ﻿"use client";
 
 import { CatalogProductsPanel } from "@/core/widgets/catalog-products/ui/catalog-products-panel";
-import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
-import type { CategoryCardVariant } from "@/core/modules/category/model/category-card";
-import { CategoryCard } from "@/core/modules/category/ui/category-card";
-import { CategoryCardSkeleton } from "@/core/modules/category/ui/category-card-skeleton";
+import {
+  buildCategoryDisplayList,
+  CategoryCard,
+  type CategoryCardVariant,
+  CategoryCardSkeleton,
+} from "@/core/modules/category";
 import { useCategoryAdmin } from "@/core/widgets/category-admin/model/use-category-admin";
 import { CategoryAdminBarActions } from "@/core/widgets/category-admin/ui/category-admin-bar-actions";
 import { CategoryAdminCardAction } from "@/core/widgets/category-admin/ui/category-admin-card-action";
@@ -28,9 +30,11 @@ import { Button } from "@/shared/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import dynamic from "next/dynamic";
 import React from "react";
-import { useActiveCategoryIntersection } from "@/core/modules/browser/model/use-active-category-intersection";
-import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
-import { useCategoryClickActivationDelay } from "@/core/modules/browser/model/use-category-click-activation-delay";
+import {
+  useActiveCategoryIntersection,
+  useBrowserQueryState,
+  useCategoryClickActivationDelay,
+} from "@/core/modules/browser";
 
 const CategoryAdminDrawersDynamic = dynamic(
   () =>

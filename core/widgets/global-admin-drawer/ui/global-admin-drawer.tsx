@@ -1,6 +1,6 @@
 "use client";
 
-import { invalidateProductQueries } from "@/core/modules/product/actions/model";
+import { invalidateProductQueries } from "@/core/modules/product";
 import {
   CATALOG_FEATURE_LABELS,
   CATALOG_FEATURES,

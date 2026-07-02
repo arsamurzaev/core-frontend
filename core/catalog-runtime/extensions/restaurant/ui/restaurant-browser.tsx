@@ -1,10 +1,12 @@
 "use client";
 
 import type { BrowserSlotProps } from "@/core/catalog-runtime/contracts";
-import { buildCategoryDisplayList } from "@/core/modules/category/model/category-display";
-import { useActiveCategoryIntersection } from "@/core/modules/browser/model/use-active-category-intersection";
-import { useBrowserQueryState } from "@/core/modules/browser/model/use-browser-query-state";
-import { useCategoryClickActivationDelay } from "@/core/modules/browser/model/use-category-click-activation-delay";
+import {
+  useActiveCategoryIntersection,
+  useBrowserQueryState,
+  useCategoryClickActivationDelay,
+} from "@/core/modules/browser";
+import { buildCategoryDisplayList } from "@/core/modules/category";
 import { CatalogProductsPanel } from "@/core/widgets/catalog-products/ui/catalog-products-panel";
 import { CategoryBarList } from "@/core/widgets/filter-bar/ui/category-bar-list";
 import { useCategoryControllerGetAll } from "@/shared/api/generated/react-query";

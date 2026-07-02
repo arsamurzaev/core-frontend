@@ -2,7 +2,7 @@
 
 import {
   ProductCardWithPlugins as CoreProductCardWithPlugins,
-} from "@/core/modules/product/entities/product-card-with-plugins";
+} from "@/core/modules/product";
 import React from "react";
 import { useCatalogRuntime } from "../use-catalog-runtime";
 
