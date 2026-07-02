@@ -7,7 +7,7 @@ import { LazyEditCatalogDrawerTrigger } from "@/core/widgets/header/ui/lazy-edit
 import { LazyGlobalAdminDrawerTrigger } from "@/core/widgets/header/ui/lazy-global-admin-drawer-trigger";
 import { LazyShareDrawerTrigger } from "@/core/widgets/share-drawer";
 import { useAuthControllerLogout } from "@/shared/api/generated/react-query";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import { canManageCatalogContent } from "@/core/catalog-runtime/content-access";
 import { isGlobalAdminRole } from "@/shared/lib/catalog-role";
 import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { cn } from "@/shared/lib/utils";

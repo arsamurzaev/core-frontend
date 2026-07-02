@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import { canManageCatalogContent } from "./content-access";
 import {
   catalogRuntimeSupportsManagerOrder,
   catalogRuntimeSupportsPreorderCheckout,

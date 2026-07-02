@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   getCatalogPresentationMode,
   isBusinessCardCatalog,
-} from "./catalog-presentation-mode";
+} from "./presentation-mode";
 
-describe("catalog presentation mode", () => {
+describe("catalog runtime presentation mode", () => {
   it("defaults to full catalog mode", () => {
     expect(getCatalogPresentationMode(null)).toBe("CATALOG");
     expect(getCatalogPresentationMode({ settings: {} })).toBe("CATALOG");

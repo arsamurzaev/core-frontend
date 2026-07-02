@@ -1,7 +1,8 @@
 import {
+  CATALOG_PRESENTATION_MODE,
   getCatalogPresentationMode,
   type CatalogPresentationMode,
-} from "@/shared/lib/catalog-presentation-mode";
+} from "./presentation-mode";
 
 export type CatalogStorefrontCompositionSource =
   | {
@@ -26,7 +27,8 @@ export function getCatalogStorefrontComposition(
   catalog?: CatalogStorefrontCompositionSource,
 ): CatalogStorefrontComposition {
   const presentationMode = getCatalogPresentationMode(catalog);
-  const isBusinessCard = presentationMode === "BUSINESS_CARD";
+  const isBusinessCard =
+    presentationMode === CATALOG_PRESENTATION_MODE.BUSINESS_CARD;
   const canUseCatalogCommerce = !isBusinessCard;
 
   return {

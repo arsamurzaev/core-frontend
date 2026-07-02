@@ -1,6 +1,6 @@
 import type { ProductWithDetailsDto } from "@/shared/api/generated/react-query";
 import { ProductWithDetailsDtoStatus } from "@/shared/api/generated/react-query";
-import { isChildCatalog } from "@/shared/lib/catalog-content-access";
+import { isChildCatalog } from "@/core/catalog-runtime/content-access";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 
 export interface ProductUnavailableState {

@@ -21,9 +21,10 @@ import {
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
+  CATALOG_PRESENTATION_MODE,
   getCatalogPresentationMode,
   type CatalogPresentationMode,
-} from "@/shared/lib/catalog-presentation-mode";
+} from "@/core/catalog-runtime/presentation-mode";
 import { cn } from "@/shared/lib/utils";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
@@ -69,8 +70,16 @@ const COUNT_LABELS: Array<{
 ];
 
 const CATALOG_PRESENTATION_MODE_OPTIONS = [
-  { value: "CATALOG" as const, label: "Каталог", Icon: LayoutGrid },
-  { value: "BUSINESS_CARD" as const, label: "Визитка", Icon: Contact },
+  {
+    value: CATALOG_PRESENTATION_MODE.CATALOG,
+    label: "Каталог",
+    Icon: LayoutGrid,
+  },
+  {
+    value: CATALOG_PRESENTATION_MODE.BUSINESS_CARD,
+    label: "Визитка",
+    Icon: Contact,
+  },
 ];
 
 function getDeletedTotal(result: AdminDeleteCatalogContentResultDto): number {

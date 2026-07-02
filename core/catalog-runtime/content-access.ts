@@ -1,4 +1,4 @@
-import { isBusinessCardCatalog } from "@/shared/lib/catalog-presentation-mode";
+import { isBusinessCardCatalog } from "./presentation-mode";
 
 type CatalogContentAccessRef = {
   parentId?: string | null;

@@ -62,13 +62,20 @@
 - `restaurant`
 - `wholesale`
 
-`BUSINESS_CARD` сейчас является `settings.presentationMode`, а не runtime extension. Такой каталог использует default runtime contract, но storefront composition скрывает каталоговую часть и корзину.
-Storefront decisions for this mode live in `core/catalog-runtime/storefront-composition.ts`, so route/view/form code does not check `isBusinessCardCatalog` directly.
+`BUSINESS_CARD` сейчас является `settings.presentationMode`, а не runtime extension. Такой каталог использует default runtime contract, но presentation/content-access policy живет в `core/catalog-runtime`, поэтому route/view/form code не проверяет `settings.presentationMode` напрямую.
+
+Runtime entrypoints:
+
+- `core/catalog-runtime/presentation-mode.ts` нормализует `settings.presentationMode`.
+- `core/catalog-runtime/storefront-composition.ts` решает, какие части storefront доступны.
+- `core/catalog-runtime/content-access.ts` решает, можно ли управлять контентом каталога.
 
 ## Quality Gate
 
 - `core/catalog-runtime/sandbox-boundary.test.ts`
 - `core/catalog-runtime/catalog-runtime-compatibility.test.ts`
+- `core/catalog-runtime/content-access.test.ts`
+- `core/catalog-runtime/presentation-mode.test.ts`
 - `core/catalog-runtime/catalog-runtime-slot-contracts.test.ts`
 - `core/catalog-runtime/resolve-catalog-runtime.test.ts`
 - `core/catalog-runtime/catalog-runtime-utils.test.ts`

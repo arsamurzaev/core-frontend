@@ -13,7 +13,7 @@ import {
   useCatalogCapabilities,
   useCatalogProductStructureVisibility,
 } from "@/shared/capabilities/catalog-capabilities";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import { canManageCatalogContent } from "@/core/catalog-runtime/content-access";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";

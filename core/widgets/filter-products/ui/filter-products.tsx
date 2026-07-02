@@ -35,7 +35,7 @@ import type { CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query"
 import {
   canManageCatalogContent,
   isChildCatalog,
-} from "@/shared/lib/catalog-content-access";
+} from "@/core/catalog-runtime/content-access";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { useSession } from "@/shared/providers/session-provider";

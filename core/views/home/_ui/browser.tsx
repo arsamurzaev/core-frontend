@@ -22,7 +22,7 @@ import {
   getCatalogActiveFiltersCount,
   type CatalogFilterQueryState,
 } from "@/shared/lib/catalog-filter-query";
-import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
+import { canManageCatalogContent } from "@/core/catalog-runtime/content-access";
 import { isCatalogManagerRole } from "@/shared/lib/catalog-role";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";

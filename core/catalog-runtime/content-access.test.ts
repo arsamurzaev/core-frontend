@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { canManageCatalogContent } from "./catalog-content-access";
+import { canManageCatalogContent } from "./content-access";
 
-describe("catalog content access", () => {
+describe("catalog runtime content access", () => {
   it("allows full root catalogs to manage content", () => {
     expect(
       canManageCatalogContent({

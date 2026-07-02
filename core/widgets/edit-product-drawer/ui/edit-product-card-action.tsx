@@ -10,7 +10,7 @@ import { extractApiErrorMessage } from "@/shared/lib/api-errors";
 import {
   canManageCatalogContent,
   isChildCatalog,
-} from "@/shared/lib/catalog-content-access";
+} from "@/core/catalog-runtime/content-access";
 import { invalidateProductQueries } from "@/core/modules/product";
 import {
   ProductWithAttributesDtoStatus,

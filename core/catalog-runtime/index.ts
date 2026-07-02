@@ -7,6 +7,18 @@ export { CATALOG_EXTENSIONS, CATALOG_PLUGINS } from "./registry";
 export { getCatalogRuntimeCheckoutConfig } from "./checkout";
 export { resolveCatalogRuntimeManifest } from "./manifest";
 export {
+  canManageCatalogContent,
+  isChildCatalog,
+} from "./content-access";
+export {
+  CATALOG_PRESENTATION_MODE,
+  DEFAULT_CATALOG_PRESENTATION_MODE,
+  getCatalogPresentationMode,
+  isBusinessCardCatalog,
+  isCatalogPresentationMode,
+} from "./presentation-mode";
+export type { CatalogPresentationMode } from "./presentation-mode";
+export {
   catalogRuntimeSupportsManagerOrder,
   catalogRuntimeSupportsPreorderCheckout,
   getCatalogRuntimeOrderPolicy,

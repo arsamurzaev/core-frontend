@@ -48,10 +48,11 @@
 - [x] Описать runtime manifest: id, capabilities, slots, policies, analytics events.
 - [x] Разделить extension contracts и runtime implementation.
 - [x] Проверить restaurant/wholesale/business-card extensions на одинаковый контракт.
-- [ ] Перенести типовые различия из scattered conditions в runtime extension.
+- [x] Перенести типовые различия из scattered conditions в runtime extension/policies.
 - [x] Добавить тесты совместимости slots для новых типов каталогов.
 - [x] Перенести wholesale decimal price mode из shared price formatter в runtime `pricing` contract.
 - [x] Перенести restaurant/cafe hall mode из shared/edit-catalog conditions в runtime `experience` contract.
+- [x] Перенести business-card presentation/content access из shared helpers в runtime policies.
 
 ### 4. Design System And Tokens
 

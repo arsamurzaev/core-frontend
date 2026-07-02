@@ -4,7 +4,19 @@ export type {
   CatalogStorefrontComposition,
   CatalogStorefrontCompositionSource,
 } from "./storefront-composition";
+export type { CatalogPresentationMode } from "./presentation-mode";
 export type { CatalogThemeScopeAttributes } from "./theme";
+export {
+  canManageCatalogContent,
+  isChildCatalog,
+} from "./content-access";
+export {
+  CATALOG_PRESENTATION_MODE,
+  DEFAULT_CATALOG_PRESENTATION_MODE,
+  getCatalogPresentationMode,
+  isBusinessCardCatalog,
+  isCatalogPresentationMode,
+} from "./presentation-mode";
 export {
   canOpenStorefrontProductPage,
   getCatalogStorefrontComposition,
