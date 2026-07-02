@@ -151,10 +151,10 @@ export const ChangeProductCategoryPositionAction: React.FC<
           size="icon"
           variant="ghost"
           disabled={disabled || updateCategoryPosition.isPending}
-          className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+          className="h-[30px] w-[30px] rounded-pill border-0 bg-surface-base shadow-surface hover:bg-surface-muted"
           aria-label="Сменить позицию товара в категории"
         >
-          <ArrowUpDown className="text-muted-foreground size-4" />
+          <ArrowUpDown className="text-text-muted size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -174,7 +174,7 @@ export const ChangeProductCategoryPositionAction: React.FC<
             event.stopPropagation();
             setOpen(false);
           }}
-          className="absolute top-2 right-2 size-7 rounded-full p-0"
+          className="absolute top-2 right-2 size-7 rounded-pill p-0"
           aria-label="Закрыть"
         >
           <X className="size-4" />

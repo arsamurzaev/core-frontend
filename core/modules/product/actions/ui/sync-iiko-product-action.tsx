@@ -81,14 +81,14 @@ export const SyncIikoProductAction: React.FC<SyncIikoProductActionProps> = ({
       size="icon"
       disabled={disabled || syncProductMutation.isPending}
       onClick={handleClick}
-      className="shadow-custom h-[30px] w-[30px] rounded-full border-0 bg-white hover:bg-white"
+      className="h-[30px] w-[30px] rounded-pill border-0 bg-surface-base shadow-surface hover:bg-surface-muted"
       aria-label="Синхронизировать блюдо с iiko"
     >
       <RefreshCcw
         className={
           syncProductMutation.isPending
-            ? "text-muted-foreground size-4 animate-spin"
-            : "text-muted-foreground size-4"
+            ? "text-text-muted size-4 animate-spin"
+            : "text-text-muted size-4"
         }
       />
     </Button>
