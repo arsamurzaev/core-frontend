@@ -45,7 +45,7 @@ export function OrderExportTimelinePage({ orderId }: { orderId: string }) {
           <h1 className="break-words text-2xl font-semibold">
             Заказ {orderId}
           </h1>
-          <p className="mt-1 break-words text-sm text-muted-foreground">
+          <p className="mt-1 break-words text-sm text-text-muted">
             Timeline экспорта заказа в iiko.
           </p>
         </div>
@@ -61,25 +61,25 @@ export function OrderExportTimelinePage({ orderId }: { orderId: string }) {
       </div>
 
       {timelineQuery.isError ? (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <div className="rounded-panel border border-status-danger/30 bg-status-danger-surface p-4 text-sm text-status-danger">
           {extractApiErrorMessage(timelineQuery.error)}
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-black/10 bg-background/70 p-4">
+      <div className="rounded-panel border border-line-subtle bg-surface-raised/70 p-4">
         <div className="space-y-3">
           {items.length ? (
             items.map((item) => (
               <div
                 key={item.id}
-                className="rounded-2xl border border-black/10 bg-muted/10 p-3"
+                className="rounded-panel border border-line-subtle bg-surface-subtle p-3"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="break-words text-sm font-medium">
                       {item.title}
                     </div>
-                    <p className="mt-1 break-words text-xs text-muted-foreground">
+                    <p className="mt-1 break-words text-xs text-text-muted">
                       {formatDate(item.occurredAt)}
                       {item.detail ? ` · ${item.detail}` : ""}
                     </p>
@@ -92,19 +92,19 @@ export function OrderExportTimelinePage({ orderId }: { orderId: string }) {
                   </Badge>
                 </div>
                 {item.externalId ? (
-                  <p className="mt-2 break-words text-xs text-muted-foreground">
+                  <p className="mt-2 break-words text-xs text-text-muted">
                     iiko: {item.externalId}
                   </p>
                 ) : null}
                 {item.error ? (
-                  <p className="mt-2 break-words text-xs text-destructive">
+                  <p className="mt-2 break-words text-xs text-status-danger">
                     {item.error}
                   </p>
                 ) : null}
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-text-muted">
               Экспорт заказа в iiko пока не запускался или недоступен для этого
               заказа.
             </p>

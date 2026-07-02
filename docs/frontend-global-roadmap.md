@@ -152,3 +152,4 @@
 - [x] Перевести catalog-side `edit-catalog-moysklad-drawer` trigger/panels/error state на `AdminPanel` и semantic tokens.
 - [x] Перевести admin-side `edit-catalog-moysklad-drawer` trigger/status/export/mapping/history states на semantic tokens.
 - [x] Перевести `edit-catalog-iiko-drawer` diagnostics/webhooks/timeline/preview/export states на semantic tokens.
+- [x] Перевести order export timeline storefront page на semantic tokens.
