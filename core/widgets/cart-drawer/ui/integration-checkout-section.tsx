@@ -293,14 +293,14 @@ export const IntegrationCheckoutSection: React.FC<
   return (
     <section className="space-y-4">
       {isHallOrder ? (
-        <section className="rounded-lg border border-black/10 bg-muted/30 p-3">
-          <p className="text-xs font-medium uppercase text-muted-foreground">
+        <section className="rounded-control border border-line-default bg-surface-muted/30 p-3">
+          <p className="text-xs font-medium uppercase text-text-muted">
             Заказ в зале
           </p>
           <p className="mt-1 text-base font-semibold">{hallTableLabel}</p>
           {checkoutData.iikoRestaurantSectionName ||
           checkoutData.hallSectionName ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-text-muted">
               {checkoutData.iikoRestaurantSectionName ??
                 checkoutData.hallSectionName}
             </p>
@@ -322,10 +322,10 @@ export const IntegrationCheckoutSection: React.FC<
                   }
                   disabled={disabled}
                   placeholder="Иван"
-                  className="border border-black/10"
+                  className="border border-line-default"
                 />
                 {fieldErrors.customerName ? (
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-status-danger">
                     {fieldErrors.customerName}
                   </p>
                 ) : null}
@@ -341,10 +341,12 @@ export const IntegrationCheckoutSection: React.FC<
                   onValueChange={(value) => updateDraftData("phone", value)}
                   disabled={disabled}
                   placeholder="+7 999 000-00-00"
-                  className="border border-black/10"
+                  className="border border-line-default"
                 />
                 {fieldErrors.phone ? (
-                  <p className="text-sm text-red-600">{fieldErrors.phone}</p>
+                  <p className="text-sm text-status-danger">
+                    {fieldErrors.phone}
+                  </p>
                 ) : null}
               </div>
             ) : null}
@@ -362,11 +364,13 @@ export const IntegrationCheckoutSection: React.FC<
             disabled={disabled}
             placeholder="Москва, Тверская, 1"
             autoComplete="street-address"
-            className="border border-black/10"
+            className="border border-line-default"
             aria-invalid={Boolean(fieldErrors.address)}
           />
           {fieldErrors.address ? (
-            <p className="text-sm text-red-600">{fieldErrors.address}</p>
+            <p className="text-sm text-status-danger">
+              {fieldErrors.address}
+            </p>
           ) : null}
         </section>
       ) : null}
@@ -399,7 +403,7 @@ export const IntegrationCheckoutSection: React.FC<
           >
             <SelectTrigger
               id="integration-checkout-table-id"
-              className="border border-black/10"
+              className="border border-line-default"
             >
               <SelectValue
                 placeholder={
@@ -420,26 +424,30 @@ export const IntegrationCheckoutSection: React.FC<
             </SelectContent>
           </Select>
           {selectedIikoTable && getIikoTableDetails(selectedIikoTable) ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-text-muted">
               {getIikoTableDetails(selectedIikoTable)}
             </p>
           ) : !isIikoTablesLoading ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-text-muted">
               Обновите список и выберите стол из iiko.
             </p>
           ) : null}
           {fieldErrors.hallTable ? (
-            <p className="text-sm text-red-600">{fieldErrors.hallTable}</p>
+            <p className="text-sm text-status-danger">
+              {fieldErrors.hallTable}
+            </p>
           ) : null}
         </section>
       ) : shouldShowHallTable ? (
         <section className="space-y-2">
-          <p className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-700">
+          <p className="rounded-control border border-status-danger/30 bg-status-danger-surface p-3 text-sm text-status-danger">
             Откройте каталог по QR-коду конкретного стола. Для iiko нужен UUID
             стола, поэтому обычной ссылки режима зала недостаточно.
           </p>
           {fieldErrors.hallTable ? (
-            <p className="text-sm text-red-600">{fieldErrors.hallTable}</p>
+            <p className="text-sm text-status-danger">
+              {fieldErrors.hallTable}
+            </p>
           ) : null}
         </section>
       ) : null}
@@ -461,16 +469,18 @@ export const IntegrationCheckoutSection: React.FC<
             }
             disabled={disabled}
             placeholder="2"
-            className="border border-black/10"
+            className="border border-line-default"
           />
           {fieldErrors.personsCount ? (
-            <p className="text-sm text-red-600">{fieldErrors.personsCount}</p>
+            <p className="text-sm text-status-danger">
+              {fieldErrors.personsCount}
+            </p>
           ) : null}
         </section>
       ) : null}
 
       {shouldShowMethod ? (
-        <section className="space-y-3 rounded-lg border border-black/10 p-3">
+        <section className="space-y-3 rounded-control border border-line-default p-3">
           <h3 className="text-base font-semibold">Способ заказа</h3>
           <Tabs
             value={method}
@@ -495,7 +505,9 @@ export const IntegrationCheckoutSection: React.FC<
             </TabsList>
           </Tabs>
           {fieldErrors.checkoutMethod ? (
-            <p className="text-sm text-red-600">{fieldErrors.checkoutMethod}</p>
+            <p className="text-sm text-status-danger">
+              {fieldErrors.checkoutMethod}
+            </p>
           ) : null}
         </section>
       ) : null}
@@ -519,7 +531,7 @@ export const IntegrationCheckoutSection: React.FC<
               href={INTEGRATION_PRIVACY_POLICY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary underline underline-offset-2"
+              className="text-action-link underline underline-offset-2"
             >
               политику конфиденциальности
             </a>{" "}
@@ -530,7 +542,7 @@ export const IntegrationCheckoutSection: React.FC<
               href={INTEGRATION_PERSONAL_DATA_POLICY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary underline underline-offset-2"
+              className="text-action-link underline underline-offset-2"
             >
               политику обработки персональных данных
             </a>

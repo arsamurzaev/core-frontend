@@ -133,3 +133,4 @@
 - [x] Перевести `DynamicForm` visual helpers на semantic tokens.
 - [x] Перевести `footer` и `share-drawer` UI colors/surfaces/radii на semantic tokens, оставив asset colors отдельно.
 - [x] Перевести `cart-drawer` checkout primitives на semantic tokens.
+- [x] Перевести `cart-drawer` integration checkout section на semantic tokens.
