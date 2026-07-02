@@ -9,9 +9,9 @@ import {
 } from "@/shared/api/generated/react-query";
 import {
   clearCatalogSession,
+  getStoredGlobalAdminModePreference,
   hasReadableAdminCsrfCookie,
   hasReadableCatalogCsrfCookie,
-  isGlobalAdminModeEnabled,
   setGlobalAdminMode,
 } from "@/shared/api/client-request";
 import { isGlobalAdminRole } from "@/shared/lib/catalog-role";
@@ -106,6 +106,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const didRestoreGlobalAdminMode = useRef(false);
+  const didAutoEnterGlobalAdminMode = useRef(false);
   const [deferInitialAuthQuery, setDeferInitialAuthQuery] = useState(false);
   const [isGlobalAdminMode, setIsGlobalAdminModeState] = useState(false);
   const [catalogSessionCookiePresent, setCatalogSessionCookiePresent] =
@@ -199,11 +200,17 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
     if (didRestoreGlobalAdminMode.current) return;
     didRestoreGlobalAdminMode.current = true;
 
-    const storedGlobalAdminMode = isGlobalAdminModeEnabled();
+    const storedGlobalAdminMode = getStoredGlobalAdminModePreference();
+    const restoredGlobalAdminMode =
+      storedGlobalAdminMode ?? adminSessionCookiePresent;
+    if (storedGlobalAdminMode === null && restoredGlobalAdminMode) {
+      didAutoEnterGlobalAdminMode.current = true;
+    }
     queueMicrotask(() => {
-      setIsGlobalAdminModeState(storedGlobalAdminMode);
-      if (!storedGlobalAdminMode) return;
+      setIsGlobalAdminModeState(restoredGlobalAdminMode);
+      if (!restoredGlobalAdminMode) return;
 
+      setGlobalAdminMode(true);
       setDeferInitialAuthQuery(false);
       void queryClient
         .invalidateQueries({
@@ -213,7 +220,35 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({
           void query.refetch();
         });
     });
-  }, [query, queryClient]);
+  }, [adminSessionCookiePresent, query, queryClient]);
+
+  useEffect(() => {
+    if (
+      didAutoEnterGlobalAdminMode.current ||
+      isGlobalAdminMode ||
+      !adminSessionCookiePresent
+    ) {
+      return;
+    }
+
+    if (getStoredGlobalAdminModePreference() !== null) {
+      return;
+    }
+
+    didAutoEnterGlobalAdminMode.current = true;
+    setGlobalAdminMode(true);
+    queueMicrotask(() => {
+      setIsGlobalAdminModeState(true);
+      setDeferInitialAuthQuery(false);
+      void queryClient
+        .invalidateQueries({
+          queryKey: getAuthControllerMeQueryKey(),
+        })
+        .then(() => {
+          void query.refetch();
+        });
+    });
+  }, [adminSessionCookiePresent, isGlobalAdminMode, query, queryClient]);
 
   const unauthorized = isUnauthorized(query.error);
 

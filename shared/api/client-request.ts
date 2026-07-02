@@ -81,7 +81,11 @@ export function getStoredCatalogId(): string | null {
 }
 
 export function isGlobalAdminModeEnabled(): boolean {
-  if (typeof window === "undefined") return false;
+  return getStoredGlobalAdminModePreference() === true;
+}
+
+export function getStoredGlobalAdminModePreference(): boolean | null {
+  if (typeof window === "undefined") return null;
 
   const hostStorageKey = getGlobalAdminModeStorageKeyForCurrentHost();
   if (hostStorageKey) {
@@ -89,7 +93,8 @@ export function isGlobalAdminModeEnabled(): boolean {
     if (hostValue !== null) return hostValue === "true";
   }
 
-  return localStorage.getItem(GLOBAL_ADMIN_MODE_STORAGE_KEY) === "true";
+  const globalValue = localStorage.getItem(GLOBAL_ADMIN_MODE_STORAGE_KEY);
+  return globalValue === null ? null : globalValue === "true";
 }
 
 export function setGlobalAdminMode(enabled: boolean): void {
