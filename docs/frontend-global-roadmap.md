@@ -71,6 +71,7 @@
 - [x] Вынести login route host/session resolver из `app/auth/login` в `core/views/login`.
 - [x] Обновить public view entrypoint guard под `order`, `product` и `storefront`.
 - [x] Вынести storefront layout shell/providers из `app/(storefront)/layout` в `core/views/storefront`.
+- [x] Вынести intercepted product drawer route wiring из `app/(storefront)/@drawer` в `core/views/product`.
 
 ### 6. Quality Gate
 
