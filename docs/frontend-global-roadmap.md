@@ -162,3 +162,4 @@
 - [x] Перевести product editor progress/type-change/image/error states на semantic tokens.
 - [x] Перевести product image grid/category image states на semantic tokens.
 - [x] Перевести product variant status/attribute/combination states на semantic tokens.
+- [x] Перевести product sale-units field на semantic tokens.

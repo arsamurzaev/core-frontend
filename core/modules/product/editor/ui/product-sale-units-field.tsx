@@ -451,7 +451,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
   ) : null;
 
   return (
-    <div className="w-full min-w-0 space-y-3 overflow-hidden rounded-md border border-border bg-muted/10 p-2 sm:p-3">
+    <div className="w-full min-w-0 space-y-3 overflow-hidden rounded-control border border-line-subtle bg-surface-subtle p-2 sm:p-3">
       <div className="flex min-w-0 items-center justify-between gap-3">
         <div className="min-w-0 flex-1 truncate text-sm font-medium">
           {title}
@@ -516,14 +516,14 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
             return (
               <div
                 key={`${unit.id ?? unit.catalogSaleUnitId ?? "new"}-${index}`}
-                className="relative w-full min-w-0 space-y-2 overflow-hidden rounded-md border border-border/70 bg-background p-2.5 lg:pt-8"
+                className="relative w-full min-w-0 space-y-2 overflow-hidden rounded-control border border-line-subtle bg-surface-base p-2.5 lg:pt-8"
               >
                 <button
                   type="button"
                   disabled={disabled}
                   title="Удалить единицу"
                   onClick={() => void handleConfirmRemove(index)}
-                  className="absolute top-1 right-2 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                  className="absolute top-1 right-2 inline-flex size-8 items-center justify-center rounded-control text-text-muted transition-colors hover:bg-status-danger-surface hover:text-status-danger disabled:opacity-50"
                 >
                   <Trash2 className="size-4" />
                 </button>
@@ -538,7 +538,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                   }
                 >
                   <div className="min-w-0 space-y-2">
-                    <span className="text-xs text-foreground">
+                    <span className="text-xs text-text-primary">
                       Единицы продажи
                     </span>
                     <div className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -546,14 +546,14 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                         <button
                           type="button"
                           disabled={disabled}
-                          className="min-h-8 rounded-full border border-primary bg-primary/10 px-2.5 text-xs font-medium text-primary disabled:opacity-50"
+                          className="min-h-8 rounded-pill border border-action-primary bg-action-primary/10 px-2.5 text-xs font-medium text-action-primary disabled:opacity-50"
                         >
                           {selectedName}
                         </button>
                       ) : null}
 
                       {catalogUnitsQuery.isLoading ? (
-                        <span className="min-h-8 rounded-full border px-2.5 text-xs leading-8 text-muted-foreground">
+                        <span className="min-h-8 rounded-pill border border-line-subtle px-2.5 text-xs leading-8 text-text-muted">
                           Загрузка...
                         </span>
                       ) : (
@@ -573,10 +573,10 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                                 handleSelectCatalogUnit(index, catalogUnit.id)
                               }
                               className={[
-                                "min-h-8 rounded-full border px-2.5 text-xs transition-colors disabled:opacity-40",
+                                "min-h-8 rounded-pill border px-2.5 text-xs transition-colors disabled:opacity-40",
                                 isSelected
-                                  ? "border-primary bg-primary/10 font-medium text-primary"
-                                  : "border-border text-muted-foreground hover:bg-muted/30 hover:text-foreground",
+                                  ? "border-action-primary bg-action-primary/10 font-medium text-action-primary"
+                                  : "border-line-subtle text-text-muted hover:bg-surface-muted/30 hover:text-text-primary",
                               ].join(" ")}
                             >
                               {catalogUnit.name}
@@ -589,7 +589,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
 
                   {!hidePrices ? (
                     <label className="min-w-0 space-y-1">
-                      <span className="flex min-w-0 items-center gap-1 text-xs text-foreground">
+                      <span className="flex min-w-0 items-center gap-1 text-xs text-text-primary">
                         <span className="shrink-0">Цена</span>
                         {relationCalculatedPrice ? (
                           <span className="min-w-0 truncate">
@@ -611,13 +611,13 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                         className="h-8 min-w-0 px-2.5 text-sm"
                       />
                       {preview ? (
-                        <span className="block text-xs text-muted-foreground">
+                        <span className="block text-xs text-text-muted">
                           {formatSaleUnitMoney(
                             preview.basePrice,
                             priceFormatMode,
                           )}
                           {" -> "}
-                          <span className="font-medium text-foreground">
+                          <span className="font-medium text-text-primary">
                             {formatSaleUnitMoney(
                               preview.finalPrice,
                               priceFormatMode,
@@ -634,7 +634,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                 {parentOptions.length > 0 ? (
                   hasRelationDraft ? (
                     <div className="flex min-w-0 flex-col gap-1">
-                      <span className="text-xs text-foreground">Содержит</span>
+                      <span className="text-xs text-text-primary">Содержит</span>
                       <div className="flex min-w-0 flex-wrap items-center gap-2">
                         <Input
                           value={relation.multiplier}
@@ -686,7 +686,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                           variant="ghost"
                           size="icon"
                           disabled={disabled}
-                          className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          className="size-8 text-text-muted hover:bg-status-danger-surface hover:text-status-danger"
                           title="Сбросить связь"
                           onClick={() => handleRelationClear(index)}
                         >
@@ -700,7 +700,7 @@ export const ProductSaleUnitsField: React.FC<ProductSaleUnitsFieldProps> = ({
                         type="button"
                         variant="ghost"
                         disabled={disabled}
-                        className="h-8 border border-border bg-background px-2.5 text-xs text-foreground shadow-none hover:border-foreground/30 hover:bg-muted/30 hover:text-foreground"
+                        className="h-8 border border-line-subtle bg-surface-base px-2.5 text-xs text-text-primary shadow-none hover:border-line-default hover:bg-surface-muted/30 hover:text-text-primary"
                         title="Связать с другой единицей"
                         onClick={() => handleRelationEnable(index)}
                       >
