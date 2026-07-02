@@ -71,23 +71,23 @@ const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({
   tab,
 }) => {
   return (
-    <TabsList className="relative grid h-10 w-full grid-cols-2 rounded-full p-0.5">
+    <TabsList className="relative grid h-10 w-full grid-cols-2 rounded-pill p-0.5">
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-y-0 left-0 z-0 w-1/2 rounded-full bg-background shadow-custom transition-transform duration-300 ease-out",
+          "pointer-events-none absolute inset-y-0 left-0 z-0 w-1/2 rounded-pill bg-surface-base shadow-surface transition-transform duration-300 ease-out",
           tab === "categories" && "translate-x-full",
         )}
       />
       <TabsTrigger
         value="catalog"
-        className="relative z-10 rounded-full text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+        className="relative z-10 rounded-pill text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none"
       >
         {catalogTabLabel}
       </TabsTrigger>
       <TabsTrigger
         value="categories"
-        className="relative z-10 rounded-full text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+        className="relative z-10 rounded-pill text-sm data-[state=active]:bg-transparent data-[state=active]:shadow-none"
       >
         Категории
       </TabsTrigger>
@@ -235,7 +235,7 @@ export const Browser: React.FC<BrowserProps> = ({
   return (
     <section
       id="scroll-tab-element"
-      className={cn("space-y-4 rounded-xl", className)}
+      className={cn("space-y-4 rounded-panel", className)}
     >
       <Tabs
         value={effectiveQueryState.tab}
@@ -261,7 +261,7 @@ export const Browser: React.FC<BrowserProps> = ({
               {effectiveIsFilterActive ? (
                 <Button
                   type="button"
-                  className="h-10 rounded-full px-4 whitespace-nowrap"
+                  className="h-10 rounded-pill px-4 whitespace-nowrap"
                   onClick={() => handleFilterToggle()}
                 >
                   Сбросить фильтр
@@ -281,7 +281,7 @@ export const Browser: React.FC<BrowserProps> = ({
           bottomRow={filterBottomRow}
         />
 
-        <div className="overflow-hidden rounded-lg">
+        <div className="overflow-hidden rounded-panel">
           <div
             className="flex w-[200%] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
             style={{ transform: `translateX(-${swipeTranslatePercent}%)` }}

@@ -167,3 +167,4 @@
 - [x] Перевести storefront product card shell/skeleton/plugin metadata на semantic tokens.
 - [x] Перевести `product-drawer` shell/page/overview/pickers/footer/highlights на semantic tokens.
 - [x] Перевести `filter-bar` и `catalog-filter` search/category/filter controls на semantic tokens.
+- [x] Перевести home browser/fallback, catalog list empty states и popular carousel dots/focus rings на semantic tokens.

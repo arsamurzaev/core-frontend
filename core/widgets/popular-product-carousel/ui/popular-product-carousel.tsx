@@ -171,12 +171,12 @@ export const PopularProductCarousel: React.FC<Props> = ({
               <CarouselItem key={product.id}>
                 <article className="relative">
                   {shouldShowParentHiddenStatus ? (
-                    <div className="m-1 block rounded-lg">{card}</div>
+                    <div className="m-1 block rounded-panel">{card}</div>
                   ) : (
                     <ProductLink
                       slug={product.slug}
                       product={product}
-                      className="m-1 block rounded-lg outline-none ring-offset-2 transition focus-visible:ring-2"
+                      className="m-1 block rounded-panel ring-offset-surface-base transition outline-none focus-visible:ring-2 focus-visible:ring-action-primary/50 focus-visible:ring-offset-2"
                     >
                       {card}
                     </ProductLink>
@@ -204,7 +204,7 @@ export const PopularProductCarousel: React.FC<Props> = ({
               <li
                 key={index}
                 className={cn(
-                  "bg-primary h-1 w-2 rounded-full transition-all",
+                  "h-1 w-2 rounded-pill bg-action-primary transition-all",
                   currentIndex === index && "w-24",
                 )}
               />

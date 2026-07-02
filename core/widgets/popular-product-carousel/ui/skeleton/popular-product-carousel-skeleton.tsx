@@ -18,7 +18,7 @@ export const PopularProductCarouselSkeleton: React.FC<Props> = ({
           {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton
               key={index}
-              className={cn(index === 0 && "w-24", "h-1 rounded-full w-2")}
+              className={cn(index === 0 && "w-24", "h-1 w-2 rounded-pill")}
             />
           ))}
         </div>

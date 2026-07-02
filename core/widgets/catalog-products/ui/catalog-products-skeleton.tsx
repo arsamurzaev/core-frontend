@@ -43,7 +43,7 @@ export const CatalogProductsSectionSkeleton: React.FC<
 
   return (
     <div className={cn("space-y-4", className)}>
-      {showTitle ? <Skeleton className="h-7 w-40 rounded-md" /> : null}
+      {showTitle ? <Skeleton className="h-7 w-40 rounded-control" /> : null}
       <div className={listClassName}>
         {Array.from({ length: skeletonCount }).map((_, index) => (
           <ProductCardSkeleton

@@ -12,22 +12,22 @@ export function HomeCatalogFallback() {
     <div className="space-y-8" aria-hidden>
       <PopularProductCarouselSkeleton />
 
-      <section className="space-y-4 rounded-xl">
-        <div className="grid h-10 grid-cols-2 rounded-full bg-muted p-0.5">
-          <Skeleton className="h-full rounded-full" />
+      <section className="space-y-4 rounded-panel">
+        <div className="grid h-10 grid-cols-2 rounded-pill bg-surface-muted p-0.5">
+          <Skeleton className="h-full rounded-pill" />
           <div />
         </div>
 
-        <div className="space-y-3 rounded-2xl bg-background/95 p-3 shadow-custom">
+        <div className="space-y-3 rounded-panel bg-surface-base/95 p-3 shadow-surface">
           <div className="flex items-center gap-3">
-            <Skeleton className="h-10 flex-1 rounded-full" />
-            <Skeleton className="size-10 rounded-full" />
-            <Skeleton className="size-10 rounded-full" />
+            <Skeleton className="h-10 flex-1 rounded-pill" />
+            <Skeleton className="size-10 rounded-pill" />
+            <Skeleton className="size-10 rounded-pill" />
           </div>
           <div className="flex gap-2 overflow-hidden">
-            <Skeleton className="h-9 w-24 shrink-0 rounded-full" />
-            <Skeleton className="h-9 w-28 shrink-0 rounded-full" />
-            <Skeleton className="h-9 w-20 shrink-0 rounded-full" />
+            <Skeleton className="h-9 w-24 shrink-0 rounded-pill" />
+            <Skeleton className="h-9 w-28 shrink-0 rounded-pill" />
+            <Skeleton className="h-9 w-20 shrink-0 rounded-pill" />
           </div>
         </div>
 

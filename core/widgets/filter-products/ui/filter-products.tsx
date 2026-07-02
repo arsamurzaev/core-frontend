@@ -302,7 +302,7 @@ const FilterProductSection: React.FC<FilterProductSectionProps> = ({
           />
         </div>
       ) : products.length === 0 ? (
-        <p className="text-muted-foreground flex min-h-18 items-center justify-center px-4 text-center text-sm">
+        <p className="flex min-h-18 items-center justify-center px-4 text-center text-sm text-text-muted">
           {emptyText}
         </p>
       ) : (

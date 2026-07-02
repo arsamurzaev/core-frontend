@@ -517,14 +517,14 @@ const ProductSection: React.FC<ProductSectionProps> = ({
         className="px-1 text-left"
         style={{ scrollMarginTop: CATEGORY_SECTION_SCROLL_MARGIN_TOP }}
       >
-        <span className="line-clamp-2 text-lg leading-tight font-bold text-foreground [overflow-wrap:anywhere] sm:text-xl">
+        <span className="line-clamp-2 text-lg leading-tight font-bold text-text-primary [overflow-wrap:anywhere] sm:text-xl">
           {section.title}
         </span>
       </h2>
 
       <div className="space-y-3">
         {isKnownEmpty ? (
-          <div className="text-muted-foreground flex min-h-40 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm">
+          <div className="flex min-h-40 items-center justify-center rounded-panel border border-dashed border-line-subtle px-4 text-center text-sm text-text-muted">
             В этой категории пока нет товаров
           </div>
         ) : loadedProductCount > 0 ? (
@@ -566,7 +566,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({
             />
           </ProductDomBudgetContent>
         ) : (
-          <div className="text-muted-foreground flex min-h-40 items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm">
+          <div className="flex min-h-40 items-center justify-center rounded-panel border border-dashed border-line-subtle px-4 text-center text-sm text-text-muted">
             В этой категории пока нет товаров
           </div>
         )}
