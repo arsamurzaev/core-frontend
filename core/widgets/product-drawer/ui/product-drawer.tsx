@@ -120,7 +120,7 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
         onAnimationEnd={handleCloseAnimationEnd}
         onTransitionEnd={handleCloseAnimationEnd}
         className={cn(
-          "mx-auto w-full data-[vaul-drawer-direction=bottom]:max-w-120 rounded-t-2xl border bg-background shadow-custom",
+          "mx-auto w-full rounded-t-panel border border-line-default bg-surface-base shadow-surface data-[vaul-drawer-direction=bottom]:max-w-120",
           className,
         )}
       >

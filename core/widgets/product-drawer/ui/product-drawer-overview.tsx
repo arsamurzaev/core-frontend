@@ -42,16 +42,18 @@ export function ProductDrawerOverviewHeader({
       ) : (
         <>
           {brandName ? (
-            <p className="text-sm font-semibold text-black">{brandName}</p>
+            <p className="text-sm font-semibold text-text-primary">
+              {brandName}
+            </p>
           ) : null}
           <h2 className="text-2xl font-bold sm:text-3xl">{displayName}</h2>
           {variantsSummary ? (
-            <p className="text-muted-foreground text-xs leading-tight sm:text-sm">
+            <p className="text-text-muted text-xs leading-tight sm:text-sm">
               {variantsSummary}
             </p>
           ) : null}
           {subtitle ? (
-            <p className="text-left text-base font-light text-foreground sm:text-lg">
+            <p className="text-left text-base font-light text-text-primary sm:text-lg">
               {subtitle}
             </p>
           ) : null}
@@ -64,7 +66,7 @@ export function ProductDrawerOverviewHeader({
       )}
 
       {hasError ? (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+        <div className="rounded-control border border-status-danger/30 bg-status-danger-surface p-3 text-sm text-status-danger">
           Не удалось загрузить товар. Попробуйте снова.
         </div>
       ) : null}
@@ -94,9 +96,9 @@ export function ProductDrawerOverviewMeta({
       {attributeRows.map((attribute) => (
         <p
           key={attribute.id}
-          className="text-muted-foreground text-xs sm:text-sm"
+          className="text-text-muted text-xs sm:text-sm"
         >
-          <span className="text-foreground font-medium">
+          <span className="text-text-primary font-medium">
             {attribute.label}:
           </span>{" "}
           {attribute.value}

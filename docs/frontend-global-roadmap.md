@@ -165,3 +165,4 @@
 - [x] Перевести product sale-units field на semantic tokens.
 - [x] Перевести product floating action buttons на semantic tokens.
 - [x] Перевести storefront product card shell/skeleton/plugin metadata на semantic tokens.
+- [x] Перевести `product-drawer` shell/page/overview/pickers/footer/highlights на semantic tokens.

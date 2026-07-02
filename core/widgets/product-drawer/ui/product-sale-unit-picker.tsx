@@ -33,7 +33,7 @@ export function ProductSaleUnitPicker({
 
   return (
     <div className="space-y-2 px-4 pb-4">
-      <div className="text-sm font-medium text-muted-foreground">
+      <div className="text-sm font-medium text-text-muted">
         Единица продажи
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -49,8 +49,8 @@ export function ProductSaleUnitPicker({
               variant={isSelected ? "default" : "outline"}
               onClick={() => onChange(unit.id)}
               className={cn(
-                "h-auto min-h-16 flex-col items-start justify-center gap-0.5 rounded-lg px-3 py-2 text-left",
-                isSelected && "shadow-custom",
+                "h-auto min-h-16 flex-col items-start justify-center gap-0.5 rounded-control px-3 py-2 text-left",
+                isSelected && "shadow-surface",
               )}
             >
               <span className="max-w-full truncate text-xs font-normal">

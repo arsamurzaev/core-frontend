@@ -42,7 +42,7 @@ export function ProductDrawerPrice({
   return (
     <div className="flex gap-4">
       {hasDiscount && hasOriginalPrice ? (
-        <div className="text-muted text-xl line-through">
+        <div className="text-xl text-text-muted line-through">
           {discount > 0 ? (
             <Badge className="absolute top-3 left-0">-{discount}%</Badge>
           ) : null}

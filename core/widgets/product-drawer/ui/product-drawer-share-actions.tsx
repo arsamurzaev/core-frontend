@@ -59,7 +59,7 @@ function ProductDrawerNativeShareButton({
       type="button"
       variant="secondary"
       size="icon"
-      className="shadow-custom opacity-70"
+      className="shadow-surface opacity-70"
       onClick={handleShare}
       aria-label="Поделиться товаром"
     >
@@ -83,7 +83,7 @@ export function ProductDrawerShareActions({
             type="button"
             variant="secondary"
             size="icon"
-            className="shadow-custom opacity-70"
+            className="shadow-surface opacity-70"
             aria-label="Открыть способы отправки"
           >
             <CircleHelp className="size-5" />

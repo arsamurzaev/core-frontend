@@ -103,9 +103,9 @@ export function ProductDrawerImageCarousel({
       <div className="space-y-3">
         <Skeleton className="aspect-[3/4] w-full rounded-none" />
         <div className="flex justify-center gap-1">
-          <Skeleton className="h-2 w-2 rounded-full" />
-          <Skeleton className="h-2 w-2 rounded-full" />
-          <Skeleton className="h-2 w-2 rounded-full" />
+          <Skeleton className="h-2 w-2 rounded-pill" />
+          <Skeleton className="h-2 w-2 rounded-pill" />
+          <Skeleton className="h-2 w-2 rounded-pill" />
         </div>
       </div>
     );
@@ -138,8 +138,8 @@ export function ProductDrawerImageCarousel({
           <li
             key={index}
             className={cn(
-              "bg-secondary size-2 rounded-full transition-colors",
-              currentIndex === index && "bg-primary",
+              "size-2 rounded-pill bg-surface-muted transition-colors",
+              currentIndex === index && "bg-action-primary",
             )}
           />
         ))}

@@ -80,11 +80,11 @@ export function ProductDetailsPanel({
     return (
       <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
         <div className="flex min-h-[22rem] flex-1 flex-col items-center justify-center px-6 py-14 text-center">
-          <div className="bg-secondary mb-4 flex size-12 items-center justify-center rounded-full">
+          <div className="mb-4 flex size-12 items-center justify-center rounded-pill bg-surface-muted">
             <PackageX className="size-6" aria-hidden="true" />
           </div>
           <h2 className="text-2xl font-bold">{unavailableState.title}</h2>
-          <p className="text-muted-foreground mt-2 max-w-80 text-sm leading-6">
+          <p className="mt-2 max-w-80 text-sm leading-6 text-text-muted">
             {unavailableState.description}
           </p>
         </div>
@@ -132,7 +132,7 @@ export function ProductDetailsPanel({
 
       <div
         className={cn(
-          "shadow-custom relative mx-2 flex min-h-[84px] flex-row items-center justify-between rounded-t-2xl px-6 py-0",
+          "relative mx-2 flex min-h-[84px] flex-row items-center justify-between rounded-t-panel bg-surface-base px-6 py-0 shadow-surface",
           footerClassName,
         )}
       >

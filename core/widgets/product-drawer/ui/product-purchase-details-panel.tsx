@@ -518,9 +518,9 @@ export function ProductPurchaseDetailsPanel({
           <div
             ref={variantPickerRef}
             className={cn(
-              "scroll-mt-8 rounded-2xl transition-shadow",
+              "scroll-mt-8 rounded-panel transition-shadow",
               isVariantPickerHighlighted &&
-                "ring-primary/45 ring-2 ring-offset-2 ring-offset-background",
+                "ring-2 ring-action-primary/45 ring-offset-2 ring-offset-surface-base",
             )}
           >
             <ProductVariantPicker
@@ -538,9 +538,9 @@ export function ProductPurchaseDetailsPanel({
           <div
             ref={saleUnitPickerRef}
             className={cn(
-              "scroll-mt-8 rounded-2xl transition-shadow",
+              "scroll-mt-8 rounded-panel transition-shadow",
               isSaleUnitPickerHighlighted &&
-                "ring-primary/45 ring-2 ring-offset-2 ring-offset-background",
+                "ring-2 ring-action-primary/45 ring-offset-2 ring-offset-surface-base",
             )}
           >
             <ProductSaleUnitPicker
@@ -560,7 +560,7 @@ export function ProductPurchaseDetailsPanel({
         canUseCatalogModifiers &&
         product &&
         modifiersQuery.isLoading ? (
-          <div className="px-4 pb-4 text-sm text-muted-foreground">
+          <div className="px-4 pb-4 text-sm text-text-muted">
             Загружаем добавки...
           </div>
         ) : !unavailableState &&
@@ -570,9 +570,9 @@ export function ProductPurchaseDetailsPanel({
           <div
             ref={modifierPickerRef}
             className={cn(
-              "scroll-mt-8 rounded-2xl transition-shadow",
+              "scroll-mt-8 rounded-panel transition-shadow",
               isModifierPickerHighlighted &&
-                "ring-primary/45 ring-2 ring-offset-2 ring-offset-background",
+                "ring-2 ring-action-primary/45 ring-offset-2 ring-offset-surface-base",
             )}
           >
             <div className="px-4 pb-2">

@@ -59,20 +59,20 @@ export const ProductStandalonePage: React.FC<ProductStandalonePageProps> = ({
   );
 
   return (
-    <main className="min-h-svh bg-background">
+    <main className="min-h-svh bg-surface-base">
       <ContentContainer className="px-2.5 py-3 sm:py-5">
         <div className="mx-auto flex max-w-[30rem] flex-col gap-3">
-          <Button asChild variant="outline" className="w-fit rounded-full px-4">
+          <Button asChild variant="outline" className="w-fit rounded-pill px-4">
             <Link href={homeHref} scroll={false}>
               <ArrowLeft className="size-4" />
               Назад к каталогу
             </Link>
           </Button>
 
-          <section className="shadow-custom flex min-h-[calc(100svh-6rem)] flex-col overflow-hidden rounded-2xl border bg-background">
+          <section className="flex min-h-[calc(100svh-6rem)] flex-col overflow-hidden rounded-panel border border-line-default bg-surface-base shadow-surface">
             <ProductPurchaseDetailsPanel
               className="min-h-0 flex-1"
-              footerClassName="mx-0 rounded-none border-t bg-background px-6 py-4 shadow-none"
+              footerClassName="mx-0 rounded-none border-t border-line-default bg-surface-base px-6 py-4 shadow-none"
               isLoading={shouldWaitForProductVisibility}
               product={visibleProduct}
               productKey={productSlug}

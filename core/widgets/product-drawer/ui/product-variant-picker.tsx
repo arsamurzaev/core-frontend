@@ -68,7 +68,7 @@ export function ProductVariantPicker({
     <div className="space-y-4 px-4 pb-4">
       {groups.map((group) => (
         <div key={group.id} className="space-y-2">
-          <div className="text-sm font-medium text-muted-foreground">
+          <div className="text-sm font-medium text-text-muted">
             {group.label}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -89,8 +89,8 @@ export function ProductVariantPicker({
                   disabled={isDisabled}
                   onClick={() => handleValueClick(group.id, value.id)}
                   className={cn(
-                    "h-9 min-w-12 rounded-full px-3 text-sm",
-                    isSelected && "shadow-custom",
+                    "h-9 min-w-12 rounded-pill px-3 text-sm",
+                    isSelected && "shadow-surface",
                   )}
                 >
                   {value.label}
