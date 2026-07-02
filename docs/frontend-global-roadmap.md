@@ -146,3 +146,4 @@
 - [x] Перевести `edit-catalog-checkout` и contact row/drawer visual layer на `AdminPanel` и semantic tokens.
 - [x] Перевести `edit-catalog-domains-drawer` DNS/domain cards, trigger и states на `AdminPanel` и semantic tokens.
 - [x] Перевести `edit-catalog-inventory-drawer` trigger, operation form и inventory rows/states на semantic tokens.
+- [x] Перевести `edit-catalog-modifiers-drawer` option/group panels, rows, trigger и archive actions на `AdminPanel` и semantic tokens.

@@ -24,6 +24,7 @@ import {
 } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -261,10 +262,10 @@ function ModifiersSkeleton() {
     <div className="grid gap-3 lg:grid-cols-[minmax(240px,320px)_1fr]">
       <div className="space-y-2">
         {Array.from({ length: 4 }, (_, index) => (
-          <Skeleton key={index} className="h-16 rounded-xl" />
+          <Skeleton key={index} className="h-16 rounded-panel" />
         ))}
       </div>
-      <Skeleton className="h-80 rounded-xl" />
+      <Skeleton className="h-80 rounded-panel" />
     </div>
   );
 }
@@ -803,28 +804,23 @@ export const EditCatalogModifiersDrawer: React.FC<
   );
 
   const defaultTrigger = (
-    <Button
-      type="button"
-      variant="ghost"
-      className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-      disabled={disabled}
-    >
+    <AdminPanelButton disabled={disabled}>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-text-primary">
             Модификаторы товаров
           </span>
           <Badge variant="secondary">
             {groups.length > 0 ? `${groups.length} групп` : "Бета"}
           </Badge>
         </div>
-        <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+        <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
           Глобальные добавки и группы выбора: сыр, соусы, топпинги и другие
           опции к товару.
         </p>
       </div>
-      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-    </Button>
+      <ChevronRight className="size-4 shrink-0 text-text-muted" />
+    </AdminPanelButton>
   );
 
   return (
@@ -849,7 +845,7 @@ export const EditCatalogModifiersDrawer: React.FC<
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="text-sm font-medium">Справочник каталога</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-text-muted">
                     Опции общие для каталога, а группы задают правила выбора и
                     порядок показа.
                   </p>
@@ -876,17 +872,21 @@ export const EditCatalogModifiersDrawer: React.FC<
               {stateQuery.isLoading ? <ModifiersSkeleton /> : null}
 
               {stateQuery.isError ? (
-                <div className="rounded-xl border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                <AdminPanel
+                  padding="sm"
+                  variant="muted"
+                  className="text-sm text-text-muted"
+                >
                   Не удалось загрузить модификаторы.
-                </div>
+                </AdminPanel>
               ) : null}
 
               {!stateQuery.isLoading && !stateQuery.isError ? (
                 <div className="grid gap-4 lg:grid-cols-[minmax(260px,340px)_1fr]">
-                  <section className="space-y-3 rounded-2xl border border-black/10 p-4">
+                  <AdminPanel className="space-y-3">
                     <div>
                       <h3 className="text-sm font-medium">Опции</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="mt-1 text-sm text-text-muted">
                         То, что покупатель добавляет к товару.
                       </p>
                     </div>
@@ -947,9 +947,13 @@ export const EditCatalogModifiersDrawer: React.FC<
                       </div>
 
                       {options.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-black/15 p-3 text-sm text-muted-foreground">
+                        <AdminPanel
+                          padding="sm"
+                          variant="dashed"
+                          className="text-sm"
+                        >
                           Модификаторов пока нет.
-                        </div>
+                        </AdminPanel>
                       ) : null}
 
                       {options.map((option, index) => {
@@ -957,9 +961,10 @@ export const EditCatalogModifiersDrawer: React.FC<
                           optionDraftsById[option.id] ?? toOptionDraft(option);
 
                         return (
-                          <div
+                          <AdminPanel
                             key={option.id}
-                            className="space-y-2 rounded-xl border border-black/10 p-3"
+                            padding="sm"
+                            className="space-y-2"
                           >
                             <div className="flex min-w-0 items-center justify-between gap-2">
                               <div className="min-w-0">
@@ -971,7 +976,7 @@ export const EditCatalogModifiersDrawer: React.FC<
                                     <Badge variant="outline">Отключен</Badge>
                                   ) : null}
                                 </div>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-text-muted">
                                   #{index + 1}
                                 </p>
                               </div>
@@ -1063,7 +1068,7 @@ export const EditCatalogModifiersDrawer: React.FC<
                                 type="button"
                                 size="icon"
                                 variant="outline"
-                                className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                className="size-8 text-text-muted hover:bg-status-danger-surface hover:text-status-danger"
                                 disabled={isBusy}
                                 title="Архивировать"
                                 onClick={() => void handleArchiveOption(option)}
@@ -1071,17 +1076,17 @@ export const EditCatalogModifiersDrawer: React.FC<
                                 <Archive className="size-4" />
                               </Button>
                             </div>
-                          </div>
+                          </AdminPanel>
                         );
                       })}
                     </div>
-                  </section>
+                  </AdminPanel>
 
                   <section className="space-y-4">
-                    <div className="space-y-3 rounded-2xl border border-black/10 p-4">
+                    <AdminPanel className="space-y-3">
                       <div>
                         <h3 className="text-sm font-medium">Группы</h3>
-                        <p className="mt-1 text-sm text-muted-foreground">
+                        <p className="mt-1 text-sm text-text-muted">
                           Например: добавки к пицце, соусы, начинка.
                         </p>
                       </div>
@@ -1121,17 +1126,22 @@ export const EditCatalogModifiersDrawer: React.FC<
                       </div>
 
                       {groups.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-black/15 p-3 text-sm text-muted-foreground">
+                        <AdminPanel
+                          padding="sm"
+                          variant="dashed"
+                          className="text-sm"
+                        >
                           Групп пока нет.
-                        </div>
+                        </AdminPanel>
                       ) : (
                         <div className="grid gap-2">
                           {groups.map((group, index) => (
                             <div
                               key={group.id}
                               className={cn(
-                                "flex min-w-0 items-center gap-2 rounded-xl border border-black/10 p-2",
-                                selectedGroupId === group.id && "bg-muted/40",
+                                "flex min-w-0 items-center gap-2 rounded-control border border-line-default p-2",
+                                selectedGroupId === group.id &&
+                                  "bg-surface-muted",
                               )}
                             >
                               <Button
@@ -1145,7 +1155,7 @@ export const EditCatalogModifiersDrawer: React.FC<
                                   <span className="block truncate text-sm font-medium">
                                     {group.name}
                                   </span>
-                                  <span className="block truncate text-xs text-muted-foreground">
+                                  <span className="block truncate text-xs text-text-muted">
                                     {group.options.length} опций
                                   </span>
                                 </span>
@@ -1176,7 +1186,7 @@ export const EditCatalogModifiersDrawer: React.FC<
                                 type="button"
                                 size="icon"
                                 variant="ghost"
-                                className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                className="size-8 text-text-muted hover:bg-status-danger-surface hover:text-status-danger"
                                 disabled={isBusy}
                                 title="Архивировать"
                                 onClick={() => void handleArchiveGroup(group)}
@@ -1187,16 +1197,16 @@ export const EditCatalogModifiersDrawer: React.FC<
                           ))}
                         </div>
                       )}
-                    </div>
+                    </AdminPanel>
 
                     {selectedGroup ? (
-                      <div className="space-y-4 rounded-2xl border border-black/10 p-4">
+                      <AdminPanel className="space-y-4">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="text-sm font-medium">
                               {selectedGroup.name}
                             </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
+                            <p className="mt-1 text-sm text-text-muted">
                               Правила выбора и список опций внутри группы.
                             </p>
                           </div>
@@ -1337,16 +1347,20 @@ export const EditCatalogModifiersDrawer: React.FC<
                             <h4 className="text-sm font-medium">
                               Опции в группе
                             </h4>
-                            <p className="mt-1 text-sm text-muted-foreground">
+                            <p className="mt-1 text-sm text-text-muted">
                               Цена в группе может переопределять цену из
                               справочника. Пустое поле использует базовую цену.
                             </p>
                           </div>
 
                           {options.length === 0 ? (
-                            <div className="rounded-xl border border-dashed border-black/15 p-3 text-sm text-muted-foreground">
+                            <AdminPanel
+                              padding="sm"
+                              variant="dashed"
+                              className="text-sm"
+                            >
                               Сначала добавьте хотя бы одну опцию.
-                            </div>
+                            </AdminPanel>
                           ) : (
                             <div className="grid gap-2">
                               {options.map((option) => {
@@ -1364,10 +1378,11 @@ export const EditCatalogModifiersDrawer: React.FC<
                                   : -1;
 
                                 return (
-                                  <div
+                                  <AdminPanel
                                     key={option.id}
+                                    padding="sm"
                                     className={cn(
-                                      "grid gap-3 rounded-xl border border-black/10 p-3",
+                                      "grid gap-3",
                                       !option.isActive && "opacity-70",
                                     )}
                                   >
@@ -1398,7 +1413,7 @@ export const EditCatalogModifiersDrawer: React.FC<
                                             </Badge>
                                           ) : null}
                                         </div>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-text-muted">
                                           База:{" "}
                                           {priceToInput(option.defaultPrice) ||
                                             0}{" "}
@@ -1520,13 +1535,13 @@ export const EditCatalogModifiersDrawer: React.FC<
                                         </div>
                                       </div>
                                     ) : null}
-                                  </div>
+                                  </AdminPanel>
                                 );
                               })}
                             </div>
                           )}
                         </div>
-                      </div>
+                      </AdminPanel>
                     ) : null}
                   </section>
                 </div>
