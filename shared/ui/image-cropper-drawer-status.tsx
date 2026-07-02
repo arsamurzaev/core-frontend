@@ -31,8 +31,8 @@ export const ImageCropperDrawerStatus: React.FC<
 }) => {
   return (
     <>
-      <div className="flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5">
-        <div className="text-xs text-muted-foreground">
+      <div className="flex items-center justify-between gap-3 rounded-panel border border-line-default px-3 py-2.5">
+        <div className="text-xs text-text-muted">
           {totalItems > 0
             ? `Изображение ${activeIndex + 1} из ${totalItems}. Соотношение ${aspectRatio.toFixed(2)}`
             : "Нет изображения"}
@@ -53,7 +53,7 @@ export const ImageCropperDrawerStatus: React.FC<
       </div>
 
       {errorMessage ? (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+        <div className="rounded-control border border-status-danger/30 bg-status-danger-surface p-3 text-sm text-status-danger">
           {errorMessage}
         </div>
       ) : null}

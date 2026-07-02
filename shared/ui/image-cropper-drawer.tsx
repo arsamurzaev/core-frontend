@@ -112,7 +112,7 @@ export const ImageCropperDrawer: React.FC<ImageCropperDrawerProps> = ({
 
           <DrawerScrollArea className="px-4 pb-4">
             {sourceItems.length === 0 ? (
-              <div className="rounded-xl border p-4 text-sm text-muted-foreground">
+              <div className="rounded-panel border border-line-default p-4 text-sm text-text-muted">
                 Изображения не выбраны.
               </div>
             ) : (
@@ -128,7 +128,7 @@ export const ImageCropperDrawer: React.FC<ImageCropperDrawerProps> = ({
                 />
 
                 {activeItem ? (
-                  <div className="rounded-xl border bg-muted/20 p-2">
+                  <div className="rounded-panel border border-line-default bg-surface-muted/30 p-2">
                     <Cropper
                       key={cropperKey}
                       ref={cropperRef}

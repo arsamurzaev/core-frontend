@@ -36,7 +36,7 @@ export const ImageCropperDrawerNavigation: React.FC<
 
   if (isRequiredSequential) {
     return (
-      <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
+      <div className="rounded-control border border-status-info/30 bg-status-info-surface px-3 py-2 text-xs text-status-info">
         {`Шаг ${activeIndex + 1} из ${sourceItems.length}: обрежьте текущее изображение и продолжайте.`}
       </div>
     );
@@ -68,10 +68,10 @@ export const ImageCropperDrawerNavigation: React.FC<
                   type="button"
                   onClick={() => void onSelectItem(index)}
                   className={cn(
-                    "relative flex h-16 w-12 overflow-hidden rounded-md border",
+                    "relative flex h-16 w-12 overflow-hidden rounded-control border",
                     isActive
-                      ? "border-primary ring-2 ring-primary/40"
-                      : "border-border",
+                      ? "border-action-primary ring-2 ring-action-primary/40"
+                      : "border-line-default",
                   )}
                   disabled={isApplying || isSwitching}
                   aria-label={`Выбрать изображение ${index + 1}`}
@@ -82,7 +82,7 @@ export const ImageCropperDrawerNavigation: React.FC<
                     className="h-full w-full object-cover"
                   />
                   {isEdited ? (
-                    <span className="absolute inset-x-0 bottom-0 bg-black/60 px-1 py-0.5 text-center text-[10px] uppercase tracking-wide text-white">
+                    <span className="absolute inset-x-0 bottom-0 bg-surface-inverse/60 px-1 py-0.5 text-center text-[10px] uppercase tracking-wide text-text-inverse">
                       Обрезано
                     </span>
                   ) : null}
