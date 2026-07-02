@@ -164,3 +164,4 @@
 - [x] Перевести product variant status/attribute/combination states на semantic tokens.
 - [x] Перевести product sale-units field на semantic tokens.
 - [x] Перевести product floating action buttons на semantic tokens.
+- [x] Перевести storefront product card shell/skeleton/plugin metadata на semantic tokens.

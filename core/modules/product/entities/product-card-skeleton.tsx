@@ -16,7 +16,7 @@ export const ProductCardSkeleton: React.FC<Props> = ({
   return (
     <article
       className={cn(
-        "bg-card shadow-custom relative flex h-full flex-col gap-2 overflow-hidden rounded-lg",
+        "relative flex h-full flex-col gap-2 overflow-hidden rounded-panel bg-surface-raised shadow-surface",
         isDetailed && "min-h-[160px] flex-row",
         className,
       )}
@@ -30,7 +30,7 @@ export const ProductCardSkeleton: React.FC<Props> = ({
           <Skeleton className="h-full w-full rounded-none" />
           <Skeleton
             className={cn(
-              "absolute top-2 right-2 rounded-lg shadow-sm",
+              "absolute top-2 right-2 rounded-control shadow-control",
               isDetailed ? "size-9" : "size-10",
             )}
           />
@@ -43,11 +43,15 @@ export const ProductCardSkeleton: React.FC<Props> = ({
         )}
       >
         <div className="space-y-2 text-left">
-          <Skeleton className="h-5 w-11/12 rounded-md" />
-          <Skeleton className="h-5 w-2/3 rounded-md" />
-          <Skeleton className="h-4 w-3/4 rounded-md" />
-          {isDetailed ? <Skeleton className="h-4 w-5/6 rounded-md" /> : null}
-          {isDetailed ? <Skeleton className="h-4 w-2/3 rounded-md" /> : null}
+          <Skeleton className="h-5 w-11/12 rounded-control" />
+          <Skeleton className="h-5 w-2/3 rounded-control" />
+          <Skeleton className="h-4 w-3/4 rounded-control" />
+          {isDetailed ? (
+            <Skeleton className="h-4 w-5/6 rounded-control" />
+          ) : null}
+          {isDetailed ? (
+            <Skeleton className="h-4 w-2/3 rounded-control" />
+          ) : null}
         </div>
         <div
           className={cn(
@@ -55,10 +59,10 @@ export const ProductCardSkeleton: React.FC<Props> = ({
             isDetailed ? "justify-between pt-4" : "justify-between",
           )}
         >
-          <Skeleton className="size-6 rounded-md" />
+          <Skeleton className="size-6 rounded-control" />
           <div className="flex flex-col items-end gap-2">
-            <Skeleton className="h-3 w-16 rounded-md" />
-            <Skeleton className="h-6 w-24 rounded-md" />
+            <Skeleton className="h-3 w-16 rounded-control" />
+            <Skeleton className="h-6 w-24 rounded-control" />
           </div>
         </div>
       </div>

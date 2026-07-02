@@ -96,8 +96,10 @@ export const ProductCardWithPlugins: React.FC<ProductCardWithPluginsProps> = ({
             </div>
           )}
           {visibleLines.map((line) => (
-            <p key={line.id} className="text-muted text-xs">
-              <span className="text-foreground font-medium">{line.label}:</span>{" "}
+            <p key={line.id} className="text-text-muted text-xs">
+              <span className="text-text-primary font-medium">
+                {line.label}:
+              </span>{" "}
               {line.value}
             </p>
           ))}

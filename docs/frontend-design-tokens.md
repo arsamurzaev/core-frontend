@@ -143,6 +143,7 @@ Shape/elevation:
 - `core/modules/product/editor/model/product-variants-field-model.ts` and variant UI files: variant status chips, attribute cards, combination cards, empty states and warning panels use semantic tokens.
 - `core/modules/product/editor/ui/product-sale-units-field.tsx`: sale-unit shell, unit cards, chips, relation controls and delete actions use semantic tokens.
 - `core/modules/product/actions/ui/sync-iiko-product-action.tsx`, `sync-moysklad-product-action.tsx` and `change-product-category-position-action.tsx`: floating product action buttons and icons use semantic surface/text/elevation tokens.
+- `core/modules/product/entities/product-card.tsx`, `product-card-skeleton.tsx` and `product-card-with-plugins.tsx`: storefront product card shell, image overlays, integration markers, skeletons and plugin metadata use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

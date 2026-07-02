@@ -56,7 +56,7 @@ const ProductCardLayout: React.FC<ProductCardLayoutProps> = ({
   return (
     <Card
       className={cn(
-        "relative flex flex-col gap-2 overflow-hidden rounded-lg",
+        "relative flex flex-col gap-2 overflow-hidden rounded-panel",
         isDetailed && "flex-row",
         className,
       )}
@@ -152,7 +152,7 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
             onError={handleImageError}
           />
           {isImageProcessing || isImageFailed ? (
-            <div className="absolute inset-x-2 bottom-2 rounded-md bg-background/95 px-2 py-1 text-center text-[11px] font-medium shadow-custom">
+            <div className="absolute inset-x-2 bottom-2 rounded-control bg-surface-base/95 px-2 py-1 text-center text-[11px] font-medium shadow-surface">
               {isImageFailed ? "Фото не обработано" : "Фото обрабатывается"}
             </div>
           ) : null}
@@ -160,7 +160,7 @@ const ProductCardContent: React.FC<ProductCardContentProps> = ({
       </div>
       {integrationMarker ? (
         <div
-          className="pointer-events-none absolute top-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 shadow-custom"
+          className="pointer-events-none absolute top-2 left-2 z-10 flex h-7 w-7 items-center justify-center rounded-pill bg-surface-base/95 shadow-surface"
           title={integrationMarker.label}
           aria-label={integrationMarker.label}
         >
@@ -205,7 +205,7 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
         {name}
       </CardTitle>
       {headerMeta ? (
-        <div className="line-clamp-2 text-xs leading-tight text-muted-foreground">
+        <div className="line-clamp-2 text-xs leading-tight text-text-muted">
           {headerMeta}
         </div>
       ) : null}
@@ -219,7 +219,7 @@ const ProductCardHeaderSection: React.FC<ProductCardHeaderProps> = ({
         {subtitle}
       </CardSubTitle>
       {saleUnitsSummary ? (
-        <div className="line-clamp-1 text-xs leading-tight text-muted-foreground">
+        <div className="line-clamp-1 text-xs leading-tight text-text-muted">
           {saleUnitsSummary}
         </div>
       ) : null}
@@ -279,7 +279,7 @@ const ProductCardFooterSection: React.FC<ProductCardFooterProps> = ({
           <>
             <p
               className={cn(
-                "text-muted text-[10px] font-bold line-through",
+                "text-text-muted text-[10px] font-bold line-through",
                 isDetailed && "pl-6 text-sm",
               )}
             >
