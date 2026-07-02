@@ -141,3 +141,4 @@
 - [x] Перевести `edit-product-drawer` и `create-product-drawer` states, settings actions и product card actions на semantic tokens.
 - [x] Перевести base `edit-catalog-drawer`, catalog form required marker и sessions drawer остатки на semantic tokens.
 - [x] Перевести `edit-catalog-sale-units-drawer` list/trigger/empty states на `AdminPanel` и semantic tokens.
+- [x] Перевести `edit-catalog-product-types-drawer` trigger/panels/chips/nested cards на `AdminPanel` и semantic tokens.

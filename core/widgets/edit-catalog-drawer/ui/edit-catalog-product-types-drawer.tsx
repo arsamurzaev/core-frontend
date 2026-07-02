@@ -28,6 +28,7 @@ import {
 } from "@/shared/api/generated/react-query";
 import { invalidateProductQueries } from "@/core/modules/product";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -1030,25 +1031,20 @@ export const EditCatalogProductTypesDrawer: React.FC<{
       dismissible={!disabled}
       onOpenChange={handleOpenChange}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-text-primary">
                 Типы товаров и свойства выбора
               </span>
               <Badge variant="secondary">{summary.badge}</Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               {summary.description}
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full max-w-5xl">
@@ -1062,10 +1058,10 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
           <DrawerScrollArea className="px-5 py-5">
             <div className="grid gap-4">
-              <section className="space-y-4 rounded-2xl border border-black/10 bg-muted/20 p-4">
+              <AdminPanel variant="muted" className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium">Быстрое создание</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-text-muted">
                     Достаточно указать название типа, что покупатель выбирает, и
                     собрать значения простыми кнопками ниже.
                   </p>
@@ -1110,7 +1106,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <Label htmlFor="variant-value-draft">Значения</Label>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-text-muted">
                       Добавляйте значения по одному: введите текст и нажмите
                       Enter или плюс. Запятые не нужны.
                     </p>
@@ -1151,12 +1147,12 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         <Badge
                           key={value}
                           variant="secondary"
-                          className="max-w-full min-w-0 gap-2 rounded-full border border-black/10 py-1 pl-3 pr-1 text-sm"
+                          className="max-w-full min-w-0 gap-2 rounded-pill border border-line-default py-1 pl-3 pr-1 text-sm"
                         >
                           <span className="min-w-0 break-words">{value}</span>
                           <button
                             type="button"
-                            className="inline-flex size-6 items-center justify-center rounded-full text-muted-foreground hover:bg-black/5 hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                            className="inline-flex size-6 items-center justify-center rounded-pill text-text-muted hover:bg-surface-muted hover:text-text-primary disabled:pointer-events-none disabled:opacity-50"
                             disabled={isBusy}
                             title="Убрать значение"
                             aria-label={`Убрать значение ${value}`}
@@ -1167,15 +1163,19 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         </Badge>
                       ))
                     ) : (
-                      <div className="w-full rounded-xl border border-dashed border-black/15 px-3 py-3 text-sm text-muted-foreground">
+                      <AdminPanel
+                        padding="sm"
+                        variant="dashed"
+                        className="w-full text-sm"
+                      >
                         Пока пусто. Добавьте размер, цвет или другой вариант,
                         который должен выбрать покупатель.
-                      </div>
+                      </AdminPanel>
                     )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-text-muted">
                       Можно заполнить сразу:
                     </span>
                     {QUICK_VALUE_PRESETS.map((preset) => (
@@ -1184,7 +1184,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         type="button"
                         size="sm"
                         variant="outline"
-                        className="h-8 rounded-full px-3"
+                        className="h-8 rounded-pill px-3"
                         disabled={isBusy}
                         onClick={() =>
                           addQuickVariantValues([...preset.values])
@@ -1199,7 +1199,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <details className="space-y-2">
-                    <summary className="cursor-pointer text-sm text-muted-foreground">
+                    <summary className="cursor-pointer text-sm text-text-muted">
                       Дополнительно
                     </summary>
                     <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -1241,13 +1241,13 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                     Создать тип
                   </Button>
                 </div>
-              </section>
+              </AdminPanel>
 
               <section className="grid gap-4 lg:grid-cols-[minmax(220px,280px)_1fr]">
-                <div className="space-y-3 rounded-2xl border border-black/10 p-4">
+                <AdminPanel className="space-y-3">
                   <div>
                     <h3 className="text-sm font-medium">Типы в каталоге</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-sm text-text-muted">
                       Выберите тип, чтобы редактировать свойства выбора и
                       значения.
                     </p>
@@ -1255,7 +1255,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
                   <div className="grid gap-2">
                     {typesQuery.isLoading ? (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-text-muted">
                         Загрузка...
                       </p>
                     ) : null}
@@ -1275,7 +1275,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                           <span className="block truncate text-sm font-medium">
                             {type.name}
                           </span>
-                          <span className="block truncate text-xs text-muted-foreground">
+                          <span className="block truncate text-xs text-text-muted">
                             {(type.attributes ?? []).filter(
                               (item) => item.isVariant,
                             ).length || 0}{" "}
@@ -1286,7 +1286,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                     ))}
 
                     {!activeTypes.length && !typesQuery.isLoading ? (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-text-muted">
                         Типов пока нет. Создайте первый тип выше.
                       </p>
                     ) : null}
@@ -1294,7 +1294,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
                   {archivedTypes.length ? (
                     <details className="space-y-2">
-                      <summary className="cursor-pointer text-sm text-muted-foreground">
+                      <summary className="cursor-pointer text-sm text-text-muted">
                         Архив: {archivedTypes.length}
                       </summary>
                       <div className="grid gap-2 pt-2">
@@ -1317,18 +1317,18 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                       </div>
                     </details>
                   ) : null}
-                </div>
+                </AdminPanel>
 
                 <div className="space-y-4">
                   {selectedType ? (
                     <>
-                      <section className="space-y-3 rounded-2xl border border-black/10 p-4">
+                      <AdminPanel className="space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="text-sm font-medium">
                               Настройки типа
                             </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
+                            <p className="mt-1 text-sm text-text-muted">
                               Название видно администратору при создании товара.
                             </p>
                           </div>
@@ -1353,7 +1353,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         </div>
 
                         <details className="space-y-2">
-                          <summary className="cursor-pointer text-sm text-muted-foreground">
+                          <summary className="cursor-pointer text-sm text-text-muted">
                             Дополнительно
                           </summary>
                           <div className="space-y-2">
@@ -1410,14 +1410,14 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                             <span>В архив</span>
                           </Button>
                         </div>
-                      </section>
+                      </AdminPanel>
 
-                      <section className="space-y-3 rounded-2xl border border-black/10 p-4">
+                      <AdminPanel className="space-y-3">
                         <div>
                           <h3 className="text-sm font-medium">
                             Свойства выбора
                           </h3>
-                          <p className="mt-1 text-sm text-muted-foreground">
+                          <p className="mt-1 text-sm text-text-muted">
                             Например: размер, цвет, объем. У каждого свойства
                             свой список значений.
                           </p>
@@ -1446,7 +1446,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                         </div>
 
                         <details className="space-y-2">
-                          <summary className="cursor-pointer text-sm text-muted-foreground">
+                          <summary className="cursor-pointer text-sm text-text-muted">
                             Дополнительно
                           </summary>
                           <div className="grid gap-3 pt-2">
@@ -1509,9 +1509,10 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                               );
 
                               return (
-                                <div
+                                <AdminPanel
                                   key={item.attributeId}
-                                  className="space-y-3 rounded-xl border border-black/10 p-3"
+                                  padding="sm"
+                                  className="space-y-3"
                                 >
                                   <div className="flex flex-wrap items-start justify-between gap-3">
                                     <button
@@ -1526,7 +1527,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                         {attribute?.displayName ??
                                           item.attribute.displayName}
                                       </span>
-                                      <span className="block truncate text-xs text-muted-foreground">
+                                      <span className="block truncate text-xs text-text-muted">
                                         Свойство выбора
                                       </span>
                                     </button>
@@ -1663,25 +1664,25 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                       <Trash2 className="size-4" />
                                     </Button>
                                   </div>
-                                </div>
+                                </AdminPanel>
                               );
                             })}
 
                           {!typeAttributes.length ? (
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-text-muted">
                               У этого типа пока нет свойств выбора.
                             </p>
                           ) : null}
                         </div>
-                      </section>
+                      </AdminPanel>
 
-                      <section className="space-y-3 rounded-2xl border border-black/10 p-4">
+                      <AdminPanel className="space-y-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <h3 className="text-sm font-medium">
                               Значения свойства
                             </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
+                            <p className="mt-1 text-sm text-text-muted">
                               Эти значения увидит пользователь при выборе
                               товара.
                             </p>
@@ -1763,9 +1764,10 @@ export const EditCatalogProductTypesDrawer: React.FC<{
 
                             <div className="grid gap-2">
                               {enumValues.map((value, index) => (
-                                <div
+                                <AdminPanel
                                   key={value.id}
-                                  className="space-y-3 rounded-xl border border-black/10 p-3"
+                                  padding="sm"
+                                  className="space-y-3"
                                 >
                                   <div className="flex flex-wrap items-center justify-between gap-2">
                                     <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -1781,7 +1783,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                         </Badge>
                                       ) : null}
                                     </div>
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="text-xs text-text-muted">
                                       #{value.displayOrder}
                                     </span>
                                   </div>
@@ -1864,7 +1866,7 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                   {!value.mergedIntoId &&
                                   !isImportedEnumValue(value) ? (
                                     <details className="space-y-2">
-                                      <summary className="cursor-pointer text-sm text-muted-foreground">
+                                      <summary className="cursor-pointer text-sm text-text-muted">
                                         Объединить с другим значением
                                       </summary>
                                       <div className="flex gap-2 pt-2">
@@ -1924,28 +1926,32 @@ export const EditCatalogProductTypesDrawer: React.FC<{
                                       </div>
                                     </details>
                                   ) : null}
-                                </div>
+                                </AdminPanel>
                               ))}
 
                               {!enumValues.length ? (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-text-muted">
                                   Значений для выбранного фильтра нет.
                                 </p>
                               ) : null}
                             </div>
                           </>
                         ) : (
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-sm text-text-muted">
                             Выберите свойство или добавьте новое выше.
                           </p>
                         )}
-                      </section>
+                      </AdminPanel>
                     </>
                   ) : (
-                    <section className="rounded-2xl border border-dashed border-black/10 p-6 text-sm text-muted-foreground">
+                    <AdminPanel
+                      padding="lg"
+                      variant="dashed"
+                      className="text-sm"
+                    >
                       Создайте первый тип товара, чтобы открыть настройки
                       свойств выбора.
-                    </section>
+                    </AdminPanel>
                   )}
                 </div>
               </section>
