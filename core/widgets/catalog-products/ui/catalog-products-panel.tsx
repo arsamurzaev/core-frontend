@@ -4,9 +4,9 @@ import {
   CATALOG_PRODUCTS_SECTION_ID,
   CATEGORY_SECTION_SCROLL_MARGIN_TOP,
 } from "@/core/modules/browser";
-import { CategoryProducts } from "@/core/widgets/category-products/ui/category-products";
+import { CategoryProducts } from "@/core/widgets/category-products";
 import { CatalogProductsSectionsSkeleton } from "@/core/widgets/catalog-products/ui/catalog-products-skeleton";
-import { FilterProducts } from "@/core/widgets/filter-products/ui/filter-products";
+import { FilterProducts } from "@/core/widgets/filter-products";
 import type { CategoryDto } from "@/shared/api/generated/react-query";
 import type { CatalogFilterQueryState } from "@/shared/lib/catalog-filter-query";
 import { cn } from "@/shared/lib/utils";

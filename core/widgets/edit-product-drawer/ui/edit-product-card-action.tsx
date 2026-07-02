@@ -17,7 +17,7 @@ import {
   useProductControllerDuplicate,
   useProductControllerToggleStatus,
 } from "@/shared/api/generated/react-query";
-import { PRODUCT_HIDDEN_BY_PARENT_CATALOG_STATE } from "@/core/widgets/product-drawer/model/product-availability";
+import { PRODUCT_HIDDEN_BY_PARENT_CATALOG_STATE } from "@/core/widgets/product-drawer";
 import { useSession } from "@/shared/providers/session-provider";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { cn } from "@/shared/lib/utils";

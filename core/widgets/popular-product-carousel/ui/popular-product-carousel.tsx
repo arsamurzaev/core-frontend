@@ -12,7 +12,7 @@ import {
   ProductLink,
   ToggleProductPopularAction,
 } from "@/core/modules/product";
-import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
+import { EditProductCardAction } from "@/core/widgets/edit-product-drawer";
 import {
   ProductWithAttributesDtoStatus,
   type ProductWithAttributesDto,

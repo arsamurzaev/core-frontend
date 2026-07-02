@@ -8,7 +8,7 @@ import {
 } from "@/core/modules/catalog-price-list";
 import { ProductModifierCreateBindingsField } from "@/core/modules/product-modifier";
 import { useCreateProductDrawer } from "@/core/widgets/create-product-drawer/model/use-create-product-drawer";
-import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
+import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer";
 import { cn } from "@/shared/lib/utils";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";

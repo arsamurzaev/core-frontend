@@ -8,7 +8,7 @@ import React from "react";
 
 const EditCatalogDrawerDynamic = dynamic(
   () =>
-    import("@/core/widgets/edit-catalog-drawer/ui/edit-catalog-drawer").then(
+    import("@/core/widgets/edit-catalog-drawer").then(
       (module) => module.EditCatalogDrawer,
     ),
   {

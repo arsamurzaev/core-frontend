@@ -13,7 +13,7 @@ import {
 import {
   type CatalogEditFormValues,
 } from "@/core/widgets/edit-catalog-drawer/model/form-config";
-import { resolveCurrentAbsoluteUrl } from "@/core/widgets/share-drawer/model/share-drawer-helpers";
+import { resolveCurrentAbsoluteUrl } from "@/core/widgets/share-drawer";
 import { apiClient } from "@/shared/api/client";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
 import { useCatalogState } from "@/shared/providers/catalog-provider";

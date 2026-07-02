@@ -21,7 +21,7 @@ import {
   ToggleProductPopularAction,
   useProductCardViewMode,
 } from "@/core/modules/product";
-import { EditProductCardAction } from "@/core/widgets/edit-product-drawer/ui/edit-product-card-action";
+import { EditProductCardAction } from "@/core/widgets/edit-product-drawer";
 import {
   DETAILED_FILTER_PRODUCTS_INITIAL_SKELETON_COUNT,
   DETAILED_FILTER_PRODUCTS_NEXT_PAGE_SKELETON_COUNT,

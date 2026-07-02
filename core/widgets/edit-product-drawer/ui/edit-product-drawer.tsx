@@ -11,7 +11,7 @@ import {
   ProductPriceListSettingsDrawer,
 } from "@/core/modules/catalog-price-list";
 import { ProductModifierBindingsField } from "@/core/modules/product-modifier";
-import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-sale-units-drawer";
+import { EditCatalogSaleUnitsDrawer } from "@/core/widgets/edit-catalog-drawer";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
 import { DrawerScrollArea } from "@/shared/ui/drawer";

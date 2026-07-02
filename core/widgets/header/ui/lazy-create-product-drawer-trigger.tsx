@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 const CreateProductDrawerDynamic = dynamic(
   () =>
-    import("@/core/widgets/create-product-drawer/ui/create-product-drawer").then(
+    import("@/core/widgets/create-product-drawer").then(
       (module) => module.CreateProductDrawer,
     ),
   {

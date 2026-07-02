@@ -7,7 +7,7 @@ import React from "react";
 
 const GlobalAdminDrawerDynamic = dynamic(
   () =>
-    import("@/core/widgets/global-admin-drawer/ui/global-admin-drawer").then(
+    import("@/core/widgets/global-admin-drawer").then(
       (module) => module.GlobalAdminDrawer,
     ),
   {

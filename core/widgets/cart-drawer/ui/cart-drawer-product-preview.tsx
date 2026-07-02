@@ -1,7 +1,7 @@
 "use client";
 
 import type { CartItemView } from "@/core/modules/cart";
-import { ProductDrawer } from "@/core/widgets/product-drawer/ui/product-drawer";
+import { ProductDrawer } from "@/core/widgets/product-drawer";
 import React from "react";
 
 interface CartDrawerProductPreviewProps {

@@ -8,7 +8,7 @@ import { resolveCartDrawerFooterAction } from "@/core/widgets/cart-drawer/model/
 import { useCartDrawerShare } from "@/core/widgets/cart-drawer/model/use-cart-drawer-share";
 import { CartDrawerFooterAction } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-action";
 import { CartDrawerFooterSummary } from "@/core/widgets/cart-drawer/ui/cart-drawer-footer-summary";
-import { ShareDrawer } from "@/core/widgets/share-drawer/ui/share-drawer";
+import { ShareDrawer } from "@/core/widgets/share-drawer";
 import type { CatalogContactDtoType } from "@/shared/api/generated/react-query";
 import type { CatalogPriceFormatMode } from "@/shared/lib/price-format";
 import { cn } from "@/shared/lib/utils";
