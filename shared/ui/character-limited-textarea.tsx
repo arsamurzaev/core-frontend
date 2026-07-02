@@ -39,8 +39,8 @@ export const CharacterLimitedTextarea = forwardRef<
     return (
       <div
         className={cn(
-          "border-muted-foreground relative border-b pb-5",
-          isLimitReached && "border-red-500 focus-visible:ring-red-500",
+          "border-line-default relative border-b pb-5",
+          isLimitReached && "border-status-danger focus-visible:ring-status-danger",
           containerClassName,
         )}
       >
@@ -56,10 +56,10 @@ export const CharacterLimitedTextarea = forwardRef<
             className={cn(
               "pointer-events-none absolute right-2 bottom-2 text-xs font-medium transition-colors",
               isLimitReached
-                ? "text-red-500"
+                ? "text-status-danger"
                 : isNearLimit
-                  ? "text-yellow-600"
-                  : "text-muted-foreground",
+                  ? "text-status-warning"
+                  : "text-text-muted",
               counterClassName,
             )}
             aria-live="polite"

@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "../lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex rounded-md items-center justify-center gap-2 whitespace-nowrap text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex rounded-control items-center justify-center gap-2 whitespace-nowrap text-base font-medium transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-action-primary/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -13,7 +13,7 @@ const buttonVariants = cva(
         destructive:
           "bg-status-danger text-status-danger-foreground hover:bg-status-danger/90",
         outline:
-          "border border-black bg-background shadow-[0_0_4px_0] shadow-black/50 hover:bg-accent hover:text-accent-foreground",
+          "border border-line-default bg-surface-base shadow-control hover:bg-surface-muted hover:text-text-primary",
         secondary:
           "bg-action-secondary text-action-secondary-foreground hover:bg-action-secondary/80",
         ghost: "bg-transparent",
@@ -21,9 +21,9 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-10  px-3 py-3",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        full: "w-full !rounded-full h-12.5 py-3 px-4",
+        sm: "h-8 rounded-control px-3 text-xs",
+        lg: "h-10 rounded-control px-8",
+        full: "w-full !rounded-pill h-12.5 py-3 px-4",
         icon: "h-9 w-9",
       },
     },

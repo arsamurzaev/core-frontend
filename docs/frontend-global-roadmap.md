@@ -128,3 +128,4 @@
 - [x] Добавить `AdminPanelButton` и применить его в advanced/settings sessions triggers.
 - [x] Перевести `Field`, `RadioGroup`, `Checkbox`, `Toggle`, `ToggleGroup`, `Calendar` на semantic tokens.
 - [x] Перевести `FieldError`, `Separator`, `InputGroup`, `InputOTP` на semantic tokens.
+- [x] Дочистить `Button`, `AppDrawerHeader`, `CharacterLimitedTextarea`, `SlotErrorBoundary`, `CartIcon` от legacy UI colors.

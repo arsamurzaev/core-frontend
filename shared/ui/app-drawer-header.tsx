@@ -22,7 +22,7 @@ export type AppDrawerHeaderProps = {
 
 const DEFAULT_APP_DRAWER_DESCRIPTION = (
   <>
-    <span className="text-red-600">*</span> - отмечены обязательные поля к
+    <span className="text-status-danger">*</span> - отмечены обязательные поля к
     заполнению
   </>
 );
@@ -39,7 +39,7 @@ export const AppDrawerHeader: React.FC<AppDrawerHeaderProps> = ({
   return (
     <DrawerHeader
       className={cn(
-        "[&_svg]:text-muted-foreground gap-y-5 [&_svg]:size-6",
+        "[&_svg]:text-text-muted gap-y-5 [&_svg]:size-6",
         className,
       )}
     >
@@ -57,7 +57,7 @@ export const AppDrawerHeader: React.FC<AppDrawerHeaderProps> = ({
           {withCloseButton ? (
             <DrawerClose
               className={cn(
-                "text-muted-foreground inline-flex size-8 shrink-0 items-center justify-center rounded-full",
+                "text-text-muted inline-flex size-8 shrink-0 items-center justify-center rounded-pill",
                 closeButtonClassName,
               )}
             >

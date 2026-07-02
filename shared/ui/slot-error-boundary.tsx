@@ -34,9 +34,9 @@ export class SlotErrorBoundary extends Component<Props, State> {
 
       return (
         this.props.fallback || (
-          <div className="rounded-md border bg-secondary/60 p-3 text-sm">
+          <div className="rounded-control border border-status-danger/30 bg-status-danger-surface p-3 text-sm text-text-primary">
             <p className="font-medium">{userFacingError.title}</p>
-            <p className="mt-1 text-xs leading-5 text-neutral-500">
+            <p className="mt-1 text-xs leading-5 text-text-muted">
               {userFacingError.description}
             </p>
           </div>
