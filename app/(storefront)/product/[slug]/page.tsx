@@ -1,4 +1,5 @@
 import { HomeContent } from "@/core/views/home/home-content";
+import { canOpenStorefrontProductPage } from "@/core/catalog-runtime/server";
 import {
   generateProductPageMetadata,
   getProductPageDataServer,
@@ -7,7 +8,6 @@ import {
 } from "@/core/widgets/product-drawer/lib/product-page.server";
 import { ProductDrawerRoute } from "@/core/widgets/product-drawer/ui/product-drawer-route";
 import { getCurrentCatalogServer } from "@/shared/api/server/get-current-catalog";
-import { isBusinessCardCatalog } from "@/shared/lib/catalog-presentation-mode";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -26,7 +26,7 @@ export async function generateMetadata({
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const catalog = await getCurrentCatalogServer();
-  if (isBusinessCardCatalog(catalog)) {
+  if (!canOpenStorefrontProductPage(catalog)) {
     notFound();
   }
 

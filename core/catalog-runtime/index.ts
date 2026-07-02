@@ -1,7 +1,19 @@
 export type * from "./contracts";
+export type {
+  CatalogStorefrontComposition,
+  CatalogStorefrontCompositionSource,
+} from "./storefront-composition";
 export { CATALOG_EXTENSIONS, CATALOG_PLUGINS } from "./registry";
 export { getCatalogRuntimeCheckoutConfig } from "./checkout";
 export { resolveCatalogRuntimeManifest } from "./manifest";
+export {
+  canOpenStorefrontProductPage,
+  getCatalogStorefrontComposition,
+  shouldLoadStorefrontHomePageData,
+  shouldRenderStorefrontCartDrawer,
+  shouldRenderStorefrontCatalogContent,
+  shouldShowCatalogOrderSettings,
+} from "./storefront-composition";
 export {
   CATALOG_THEME_PRESETS,
   getCatalogThemeScopeAttributes,

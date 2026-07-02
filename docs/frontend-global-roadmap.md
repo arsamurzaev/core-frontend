@@ -183,3 +183,4 @@
 - [x] Добавить typed `catalog-runtime` manifest с id/capabilities/slots/policies/analytics events без изменения поведения UI.
 - [x] Разделить `catalog-runtime` contracts на metadata/slot/runtime facades без изменения public compatibility export.
 - [x] Добавить compatibility matrix для default/restaurant/cafe/wholesale/whosale/business-card runtime contracts.
+- [x] Вынести business-card storefront decisions из home/product route/edit form в `catalog-runtime/storefront-composition`.

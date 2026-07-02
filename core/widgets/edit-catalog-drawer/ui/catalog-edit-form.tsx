@@ -9,13 +9,13 @@ import {
   CatalogEditTextareaController,
   type CatalogEditTextareaControllerConfig,
 } from "@/core/widgets/edit-catalog-drawer/ui/catalog-edit-textarea-controller";
+import { shouldShowCatalogOrderSettings } from "@/core/catalog-runtime/storefront-composition";
 import { EditCatalogAdvancedSettingsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-advanced-settings-drawer";
 import { EditCatalogCheckoutDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-checkout-drawer";
 import { EditCatalogContactsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-contacts-drawer";
 import { EditCatalogExperienceDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-experience-drawer";
 import { EditCatalogPriceListsDrawer } from "@/core/widgets/edit-catalog-drawer/ui/edit-catalog-price-lists-drawer";
 import { useCatalogCapabilities } from "@/shared/capabilities/catalog-capabilities";
-import { isBusinessCardCatalog } from "@/shared/lib/catalog-presentation-mode";
 import type { CheckoutConfig } from "@/shared/lib/checkout-methods";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
 import { FieldError } from "@/shared/ui/field";
@@ -149,7 +149,7 @@ export const CatalogEditForm: React.FC<CatalogEditFormProps> = ({
 }) => {
   const { catalog } = useCatalogState();
   const features = useCatalogCapabilities();
-  const showCatalogOrderSettings = !isBusinessCardCatalog(catalog);
+  const showCatalogOrderSettings = shouldShowCatalogOrderSettings(catalog);
   const mediaFields = React.useMemo(
     () => buildCatalogEditMediaFields({ bgUrl, logoUrl }),
     [bgUrl, logoUrl],

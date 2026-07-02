@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { canManageCatalogContent } from "@/shared/lib/catalog-content-access";
-import { isBusinessCardCatalog } from "@/shared/lib/catalog-presentation-mode";
 import { resolveCatalogRuntime } from "./resolve-catalog-runtime";
+import {
+  canOpenStorefrontProductPage,
+  getCatalogStorefrontComposition,
+  shouldShowCatalogOrderSettings,
+} from "./storefront-composition";
 import type {
   CatalogRuntimeManifestId,
   CatalogThemePresetId,
@@ -279,11 +283,39 @@ describe("catalog runtime compatibility matrix", () => {
   it("keeps business-card as presentation mode over the default runtime", () => {
     const sourceCatalog = catalog("flowers", "BUSINESS_CARD");
     const runtime = resolveCatalogRuntime(sourceCatalog);
+    const composition = getCatalogStorefrontComposition(sourceCatalog);
 
-    expect(isBusinessCardCatalog(sourceCatalog)).toBe(true);
+    expect(composition).toEqual({
+      presentationMode: "BUSINESS_CARD",
+      isBusinessCard: true,
+      shouldLoadHomePageData: false,
+      shouldRenderCatalogContent: false,
+      shouldRenderCartDrawer: false,
+      canOpenProductPage: false,
+      shouldShowCatalogOrderSettings: false,
+    });
+    expect(canOpenStorefrontProductPage(sourceCatalog)).toBe(false);
+    expect(shouldShowCatalogOrderSettings(sourceCatalog)).toBe(false);
     expect(canManageCatalogContent(sourceCatalog)).toBe(false);
     expect(runtime.extension).toBeNull();
     expect(runtime.manifest.id).toBe("default");
     expect(runtime.theme.id).toBe("default");
+  });
+
+  it("keeps full catalog presentation open for storefront commerce", () => {
+    const sourceCatalog = catalog("flowers", "CATALOG");
+    const composition = getCatalogStorefrontComposition(sourceCatalog);
+
+    expect(composition).toEqual({
+      presentationMode: "CATALOG",
+      isBusinessCard: false,
+      shouldLoadHomePageData: true,
+      shouldRenderCatalogContent: true,
+      shouldRenderCartDrawer: true,
+      canOpenProductPage: true,
+      shouldShowCatalogOrderSettings: true,
+    });
+    expect(canOpenStorefrontProductPage(sourceCatalog)).toBe(true);
+    expect(shouldShowCatalogOrderSettings(sourceCatalog)).toBe(true);
   });
 });

@@ -35,6 +35,7 @@
 - `metadata-contracts.ts`: pure presentation, checkout, theme and manifest contracts. This file must not import React, slots, registry or runtime resolver.
 - `slot-contracts.ts`: React slot props and slot component map.
 - `runtime-contracts.ts`: full `CatalogExtension` and `CatalogRuntime` composition contract.
+- `storefront-composition.ts`: server/client-safe presentation mode helpers for storefront composition decisions.
 - `contracts.ts`: compatibility facade for public type exports.
 - `server.ts`: server-safe facade for theme/metadata helpers; it must not pull runtime registry or client hooks.
 
@@ -59,6 +60,7 @@
 - `wholesale`
 
 `BUSINESS_CARD` сейчас является `settings.presentationMode`, а не runtime extension. Такой каталог использует default runtime contract, но storefront composition скрывает каталоговую часть и корзину.
+Storefront decisions for this mode live in `core/catalog-runtime/storefront-composition.ts`, so route/view/form code does not check `isBusinessCardCatalog` directly.
 
 ## Quality Gate
 
