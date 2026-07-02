@@ -133,6 +133,7 @@ Shape/elevation:
 - `core/widgets/edit-catalog-drawer/ui/edit-catalog-iiko-drawer.tsx`: iiko trigger, diagnostics, webhook events, timeline, terminal-group details, preview stats and order export states use semantic tokens.
 - `app/(storefront)/order/[id]/order-export-timeline-page.tsx`: order export timeline shell, rows, empty state and errors use semantic tokens.
 - `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`: app-level error shells, icons and helper text use semantic tokens.
+- `core/modules/product-modifier/ui/product-modifier-picker.tsx`: list and chip picker rows, counters, action controls and group labels use semantic tokens.
 
 Проверка токенов:
 - `app/design-tokens.test.ts` гарантирует, что ключевые semantic tokens присутствуют в `@theme inline`, `:root` и `.dark`.

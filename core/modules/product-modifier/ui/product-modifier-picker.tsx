@@ -166,19 +166,19 @@ function ProductModifierOptionRow({
         }
       }}
       className={cn(
-        "flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 transition-colors",
+        "flex min-h-14 cursor-pointer items-center gap-3 rounded-control border px-3 py-2 transition-colors",
         isSelected
-          ? "border-primary bg-primary/5"
-          : "border-black/10 bg-background hover:bg-muted/30",
+          ? "border-action-primary bg-action-primary/5"
+          : "border-line-subtle bg-surface-base hover:bg-surface-muted/30",
         disabled && "pointer-events-none opacity-60",
       )}
     >
       <span
         className={cn(
-          "flex size-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold",
+          "flex size-5 shrink-0 items-center justify-center rounded-pill border text-[11px] font-semibold",
           isSelected
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-muted-foreground/40",
+            ? "border-action-primary bg-action-primary text-action-primary-foreground"
+            : "border-text-muted/40",
         )}
       >
         {isSelected ? quantity : null}
@@ -188,7 +188,7 @@ function ProductModifierOptionRow({
         <span className="block truncate text-sm font-medium">
           {option.name}
         </span>
-        <span className="block text-xs text-muted-foreground">
+        <span className="block text-xs text-text-muted">
           {priceLabel}
         </span>
       </span>
@@ -199,7 +199,7 @@ function ProductModifierOptionRow({
             type="button"
             size="icon"
             variant="outline"
-            className="size-8 rounded-full"
+            className="size-8 rounded-pill"
             disabled={!canDecrement}
             aria-label="Уменьшить"
             onClick={(event) => {
@@ -214,7 +214,7 @@ function ProductModifierOptionRow({
             type="button"
             size="icon"
             variant="outline"
-            className="size-8 rounded-full"
+            className="size-8 rounded-pill"
             disabled={!canIncrement}
             aria-label="Увеличить"
             onClick={(event) => {
@@ -342,11 +342,11 @@ function ProductModifierOptionChip({
       onClick={handleActivate}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group inline-flex min-h-12 max-w-full cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 text-left shadow-sm transition-all duration-150",
+        "group inline-flex min-h-12 max-w-full cursor-pointer items-center gap-2 rounded-pill border px-3 py-1.5 text-left shadow-control transition-all duration-150",
         isSelected
-          ? "border-foreground/80 bg-background text-foreground shadow-black/5"
-          : "border-black/10 bg-background text-foreground/85 hover:border-foreground/35 hover:bg-muted/20",
-        isActive && "border-foreground bg-background shadow-md shadow-black/10",
+          ? "border-action-primary/80 bg-surface-base text-text-primary"
+          : "border-line-subtle bg-surface-base text-text-primary/85 hover:border-line-default hover:bg-surface-muted/30",
+        isActive && "border-action-primary bg-surface-base shadow-surface",
         disabled && "pointer-events-none opacity-60",
       )}
     >
@@ -354,18 +354,18 @@ function ProductModifierOptionChip({
         <span className="block truncate text-[13px] font-semibold leading-4">
           {option.name}
         </span>
-        <span className="block truncate text-[11px] leading-3 text-muted-foreground">
+        <span className="block truncate text-[11px] leading-3 text-text-muted">
           {priceLabel}
         </span>
       </span>
 
       {isSelected && isActive ? (
-        <span className="flex shrink-0 items-center gap-1 rounded-full bg-muted/70 p-0.5">
+        <span className="flex shrink-0 items-center gap-1 rounded-pill bg-surface-muted p-0.5">
           <Button
             type="button"
             size="icon"
             variant="ghost"
-            className="size-7 rounded-full text-foreground hover:bg-background"
+            className="size-7 rounded-pill text-text-primary hover:bg-surface-base"
             disabled={!canDecrement}
             aria-label="Уменьшить"
             onClick={(event) => {
@@ -376,14 +376,14 @@ function ProductModifierOptionChip({
           >
             <Minus className="size-3" />
           </Button>
-          <span className="flex size-6 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background tabular-nums">
+          <span className="flex size-6 items-center justify-center rounded-pill bg-action-primary text-xs font-bold text-action-primary-foreground tabular-nums">
             {quantity}
           </span>
           <Button
             type="button"
             size="icon"
             variant="ghost"
-            className="size-7 rounded-full text-foreground hover:bg-background"
+            className="size-7 rounded-pill text-text-primary hover:bg-surface-base"
             disabled={!canIncrement}
             aria-label="Увеличить"
             onClick={(event) => {
@@ -399,14 +399,14 @@ function ProductModifierOptionChip({
 
       {isSelected && !isActive ? (
         <span className="flex shrink-0 items-center gap-1.5">
-          <span className="flex size-6 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background tabular-nums">
+          <span className="flex size-6 items-center justify-center rounded-pill bg-action-primary text-xs font-bold text-action-primary-foreground tabular-nums">
             {quantity}
           </span>
           <Button
             type="button"
             size="icon"
             variant="ghost"
-            className="size-6 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="size-6 rounded-pill text-text-muted hover:bg-surface-muted hover:text-text-primary"
             disabled={!canDecrement}
             aria-label="Убрать"
             onClick={handleClear}
@@ -464,7 +464,7 @@ export function ProductModifierPicker({
             <div className="flex items-center justify-between gap-3">
               <div
                 className={cn(
-                  "min-w-0 font-medium text-muted-foreground",
+                  "min-w-0 font-medium text-text-muted",
                   variant === "chips" ? "text-xs" : "text-sm",
                 )}
               >
