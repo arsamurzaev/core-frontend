@@ -76,7 +76,7 @@ const CatalogTabsToggle: React.FC<CatalogTabsToggleProps> = ({
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-y-0 left-0 z-0 w-1/2 rounded-pill bg-surface-base shadow-surface transition-transform duration-300 ease-out",
+          "pointer-events-none absolute inset-y-0 left-0 z-0 w-1/2 rounded-pill bg-surface-base transition-transform duration-300 ease-out",
           tab === "categories" && "translate-x-full",
         )}
       />
