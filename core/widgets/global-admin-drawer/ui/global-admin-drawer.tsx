@@ -26,6 +26,13 @@ import {
   type CatalogPresentationMode,
 } from "@/core/catalog-runtime/presentation-mode";
 import { cn } from "@/shared/lib/utils";
+import {
+  AdminPanelDescription,
+  AdminPanelHeader,
+  AdminPanelHeaderContent,
+  AdminPanelSection,
+  AdminPanelTitle,
+} from "@/shared/ui/admin-panel";
 import { useCatalog } from "@/shared/providers/catalog-provider";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Button } from "@/shared/ui/button";
@@ -303,11 +310,11 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
 
             <DrawerScrollArea className="px-5 py-5">
               <div className="space-y-4">
-                <section className="space-y-3 rounded-panel border border-line-default p-4">
-                  <div className="flex items-center gap-2">
+                <AdminPanelSection variant="plain" className="space-y-3">
+                  <AdminPanelHeader className="items-center gap-2">
                     <DatabaseZap className="size-5 text-action-primary" />
-                    <h3 className="text-base font-semibold">Текущий каталог</h3>
-                  </div>
+                    <AdminPanelTitle>Текущий каталог</AdminPanelTitle>
+                  </AdminPanelHeader>
 
                   <dl className="grid grid-cols-[88px_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
                     <dt className="text-text-muted">Название</dt>
@@ -358,22 +365,22 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                       <span className="sr-only">Сохраняем режим каталога</span>
                     ) : null}
                   </div>
-                </section>
+                </AdminPanelSection>
 
-                <section className="space-y-4 rounded-panel border border-line-default p-4">
-                  <div className="flex items-start gap-3">
+                <AdminPanelSection variant="plain" className="space-y-4">
+                  <AdminPanelHeader>
                     <SlidersHorizontal className="mt-0.5 size-5 shrink-0 text-action-primary" />
-                    <div className="min-w-0 space-y-1">
-                      <h3 className="text-base font-semibold">
+                    <AdminPanelHeaderContent>
+                      <AdminPanelTitle>
                         Бета-функции каталога
-                      </h3>
-                      <p className="text-sm leading-5 text-text-muted">
+                      </AdminPanelTitle>
+                      <AdminPanelDescription>
                         Включайте новые возможности точечно. Если флаг выключен,
                         данные не удаляются, но интерфейс и backend не дают
                         использовать эту функцию.
-                      </p>
-                    </div>
-                  </div>
+                      </AdminPanelDescription>
+                    </AdminPanelHeaderContent>
+                  </AdminPanelHeader>
 
                   {featureQuery.isLoading ? (
                     <div className="space-y-3">
@@ -450,22 +457,22 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                       })}
                     </div>
                   )}
-                </section>
+                </AdminPanelSection>
 
-                <section className="space-y-4 rounded-panel border border-status-danger/35 bg-status-danger-surface p-4">
-                  <div className="flex items-start gap-3">
+                <AdminPanelSection variant="danger" className="space-y-4">
+                  <AdminPanelHeader>
                     <AlertTriangle className="mt-0.5 size-5 shrink-0 text-status-danger" />
-                    <div className="min-w-0 space-y-1">
-                      <h3 className="text-base font-semibold text-status-danger">
+                    <AdminPanelHeaderContent>
+                      <AdminPanelTitle className="text-status-danger">
                         Очистка контента
-                      </h3>
-                      <p className="text-sm leading-5 text-text-muted">
+                      </AdminPanelTitle>
+                      <AdminPanelDescription>
                         Будут скрыты товары, категории, бренды, SEO контента и
                         технические связи. Профиль каталога, настройки, заказы,
                         корзины и оплаты останутся на месте.
-                      </p>
-                    </div>
-                  </div>
+                      </AdminPanelDescription>
+                    </AdminPanelHeaderContent>
+                  </AdminPanelHeader>
 
                   <Button
                     type="button"
@@ -477,17 +484,17 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                     <Trash2 className="size-4" />
                     Удалить контент каталога
                   </Button>
-                </section>
+                </AdminPanelSection>
 
                 {lastResult ? (
-                  <section className="space-y-3 rounded-panel border border-line-default p-4">
+                  <AdminPanelSection variant="plain" className="space-y-3">
                     <div>
-                      <h3 className="text-base font-semibold">
+                      <AdminPanelTitle>
                         Последняя очистка
-                      </h3>
-                      <p className="text-sm text-text-muted">
+                      </AdminPanelTitle>
+                      <AdminPanelDescription>
                         Затронуто строк: {getDeletedTotal(lastResult)}
-                      </p>
+                      </AdminPanelDescription>
                     </div>
 
                     <div className="grid gap-2 text-sm">
@@ -505,7 +512,7 @@ export const GlobalAdminDrawer: React.FC<GlobalAdminDrawerProps> = ({
                         </div>
                       ))}
                     </div>
-                  </section>
+                  </AdminPanelSection>
                 ) : null}
               </div>
             </DrawerScrollArea>

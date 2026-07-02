@@ -61,6 +61,7 @@
 - [ ] Продолжать разделять base primitives и domain components.
 - [x] Подготовить theme presets под будущий редизайн.
 - [ ] Убрать одноразовые визуальные решения из крупных widgets там, где они должны быть tokens/components.
+- [x] Расширить `shared/ui/admin-panel` секционными primitives и перевести первый крупный drawer.
 
 ### 5. Storefront Composition
 
