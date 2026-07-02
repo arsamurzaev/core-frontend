@@ -79,6 +79,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated API is protected by api:gen, generated diff checks, and
+    // architecture tests. Linting it is slow and does not protect hand code.
+    "shared/api/generated/**",
     // Legacy archive, excluded from active maintenance.
     "w-old/**",
     // Local utility script for counting source lines, not app code.

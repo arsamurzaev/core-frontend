@@ -79,7 +79,7 @@
 
 - [x] Добавить OpenAPI preflight перед `api:gen`, как в dashboard.
 - [x] Проверять, что generated API не меняется неожиданно после генерации.
-- [ ] Держать `prod:check --fast --skip-build` быстрым для архитектурных итераций.
+- [x] Держать `prod:check --fast --skip-build` быстрым для архитектурных итераций.
 - [x] Расширить smoke checklist под клиент/admin/global-admin режимы.
 
 ### 7. Migration Order

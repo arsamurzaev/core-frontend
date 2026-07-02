@@ -35,6 +35,8 @@ bun run prod:check --skip-api
 - `bun run test:run`
 - `bun run build`
 
+`shared/api/generated/**` исключен из ESLint: это не hand-written code, его защищают `api:gen`, generated diff check и architecture tests.
+
 В режиме `--fast` вместо полного test suite запускаются только архитектурные проверки:
 
 - `architecture-boundaries`
