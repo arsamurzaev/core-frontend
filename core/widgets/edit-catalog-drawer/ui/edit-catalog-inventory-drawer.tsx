@@ -16,6 +16,7 @@ import {
   useInventoryControllerGetWarehouses,
 } from "@/shared/api/generated/react-query";
 import { extractApiErrorMessage } from "@/shared/lib/api-errors";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -218,7 +219,10 @@ function InventoryOperationPanel({
   }
 
   return (
-    <form className="grid gap-3 rounded-lg border px-3 py-3" onSubmit={handleSubmit}>
+    <form
+      className="grid gap-3 rounded-panel border border-line-subtle bg-surface-raised px-3 py-3 text-text-primary"
+      onSubmit={handleSubmit}
+    >
       <div className="flex flex-wrap gap-2">
         {(["receipt", "writeOff", "adjustment"] as const).map((item) => (
           <Button
@@ -249,7 +253,7 @@ function InventoryOperationPanel({
           </SelectContent>
         </Select>
         {balancesQuery.isError ? (
-          <p className="text-xs text-destructive">
+          <p className="text-xs text-status-danger">
             Не удалось загрузить варианты из остатков.
           </p>
         ) : null}
@@ -339,44 +343,46 @@ function InventoryDetailPanel({
 
   if (activeView === "balances") {
     if (balancesQuery.isLoading) {
-      return <p className="text-sm text-muted-foreground">Загружаем остатки...</p>;
+      return <p className="text-sm text-text-muted">Загружаем остатки...</p>;
     }
 
     if (balancesQuery.isError) {
       return (
-        <p className="text-sm text-destructive">Не удалось загрузить остатки.</p>
+        <p className="text-sm text-status-danger">
+          Не удалось загрузить остатки.
+        </p>
       );
     }
 
     const balances = balancesQuery.data ?? [];
 
     if (!balances.length) {
-      return <p className="text-sm text-muted-foreground">Остатков пока нет.</p>;
+      return <p className="text-sm text-text-muted">Остатков пока нет.</p>;
     }
 
     return (
       <div className="grid gap-2">
         {balances.map((balance) => (
-          <div key={balance.id} className="rounded-lg border px-3 py-2 text-sm">
+          <AdminPanel key={balance.id} padding="sm" className="text-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="truncate font-medium">
                   {getBalanceName(balance)}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-text-muted">
                   {balance.variant?.sku ?? balance.variantId}
                 </div>
               </div>
               <div className="shrink-0 text-right">
                 <div>{formatQuantity(balance.quantityAvailable)}</div>
-                <div className="text-xs text-muted-foreground">доступно</div>
+                <div className="text-xs text-text-muted">доступно</div>
               </div>
             </div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+            <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-text-muted">
               <span>На складе: {formatQuantity(balance.quantityOnHand)}</span>
               <span>Резерв: {formatQuantity(balance.quantityReserved)}</span>
             </div>
-          </div>
+          </AdminPanel>
         ))}
       </div>
     );
@@ -384,31 +390,33 @@ function InventoryDetailPanel({
 
   if (activeView === "reservations") {
     if (reservationsQuery.isLoading) {
-      return <p className="text-sm text-muted-foreground">Загружаем резервы...</p>;
+      return <p className="text-sm text-text-muted">Загружаем резервы...</p>;
     }
 
     if (reservationsQuery.isError) {
       return (
-        <p className="text-sm text-destructive">Не удалось загрузить резервы.</p>
+        <p className="text-sm text-status-danger">
+          Не удалось загрузить резервы.
+        </p>
       );
     }
 
     const reservations = reservationsQuery.data ?? [];
 
     if (!reservations.length) {
-      return <p className="text-sm text-muted-foreground">Резервов пока нет.</p>;
+      return <p className="text-sm text-text-muted">Резервов пока нет.</p>;
     }
 
     return (
       <div className="grid gap-2">
         {reservations.map((reservation) => (
-          <div key={reservation.id} className="rounded-lg border px-3 py-2 text-sm">
+          <AdminPanel key={reservation.id} padding="sm" className="text-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="truncate font-medium">
                   {getReservationTitle(reservation)}
                 </div>
-                <div className="truncate text-xs text-muted-foreground">
+                <div className="truncate text-xs text-text-muted">
                   {getReservationMeta(reservation)}
                 </div>
               </div>
@@ -417,7 +425,7 @@ function InventoryDetailPanel({
                 <Badge variant="secondary">{reservation.status}</Badge>
               </div>
             </div>
-            <div className="mt-2 grid gap-1 text-xs text-muted-foreground">
+            <div className="mt-2 grid gap-1 text-xs text-text-muted">
               {reservation.expiresAt ? (
                 <span>Истекает: {formatDateTime(reservation.expiresAt)}</span>
               ) : null}
@@ -428,38 +436,40 @@ function InventoryDetailPanel({
                 <span>Списан: {formatDateTime(reservation.consumedAt)}</span>
               ) : null}
             </div>
-          </div>
+          </AdminPanel>
         ))}
       </div>
     );
   }
 
   if (movementsQuery.isLoading) {
-    return <p className="text-sm text-muted-foreground">Загружаем движения...</p>;
+    return <p className="text-sm text-text-muted">Загружаем движения...</p>;
   }
 
   if (movementsQuery.isError) {
     return (
-      <p className="text-sm text-destructive">Не удалось загрузить движения.</p>
+      <p className="text-sm text-status-danger">
+        Не удалось загрузить движения.
+      </p>
     );
   }
 
   const movements = movementsQuery.data ?? [];
 
   if (!movements.length) {
-    return <p className="text-sm text-muted-foreground">Движений пока нет.</p>;
+    return <p className="text-sm text-text-muted">Движений пока нет.</p>;
   }
 
   return (
     <div className="grid gap-2">
       {movements.map((movement) => (
-        <div key={movement.id} className="rounded-lg border px-3 py-2 text-sm">
+        <AdminPanel key={movement.id} padding="sm" className="text-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="truncate font-medium">
                 {getMovementTitle(movement)}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-text-muted">
                 {formatDateTime(movement.occurredAt)}
               </div>
             </div>
@@ -469,11 +479,11 @@ function InventoryDetailPanel({
             </div>
           </div>
           {movement.quantityAfter != null ? (
-            <div className="mt-2 text-xs text-muted-foreground">
+            <div className="mt-2 text-xs text-text-muted">
               После движения: {formatQuantity(movement.quantityAfter)}
             </div>
           ) : null}
-        </div>
+        </AdminPanel>
       ))}
     </div>
   );
@@ -513,23 +523,20 @@ export const EditCatalogInventoryDrawer: React.FC<{
       onOpenChange={setOpen}
       dismissible={!disabled}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Склад</span>
+              <span className="text-sm font-medium text-text-primary">
+                Склад
+              </span>
               <Badge variant="secondary">Внутренний учет</Badge>
             </div>
-            <p className="mt-1 break-words text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 break-words text-sm text-text-muted whitespace-normal">
               Склады, остатки, резервы и журнал движений текущего каталога.
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full">
@@ -543,11 +550,11 @@ export const EditCatalogInventoryDrawer: React.FC<{
 
           <DrawerScrollArea className="px-5 py-5">
             {warehousesQuery.isLoading ? (
-              <p className="text-sm text-muted-foreground">Загружаем склады...</p>
+              <p className="text-sm text-text-muted">Загружаем склады...</p>
             ) : null}
 
             {warehousesQuery.isError ? (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-status-danger">
                 Не удалось загрузить склады.
               </p>
             ) : null}
@@ -555,7 +562,7 @@ export const EditCatalogInventoryDrawer: React.FC<{
             {!warehousesQuery.isLoading &&
             !warehousesQuery.isError &&
             !warehouses.length ? (
-              <p className="text-sm text-muted-foreground">Складов пока нет.</p>
+              <p className="text-sm text-text-muted">Складов пока нет.</p>
             ) : null}
 
             {warehouses.length ? (
@@ -568,7 +575,7 @@ export const EditCatalogInventoryDrawer: React.FC<{
                       <button
                         key={warehouse.id}
                         type="button"
-                        className="rounded-lg border px-3 py-2 text-left transition-colors hover:bg-muted/30 data-[selected=true]:border-primary"
+                        className="rounded-control border border-line-default px-3 py-2 text-left transition-colors hover:bg-surface-muted data-[selected=true]:border-action-primary"
                         data-selected={isSelected}
                         onClick={() => setSelectedWarehouseId(warehouse.id)}
                       >
@@ -577,7 +584,7 @@ export const EditCatalogInventoryDrawer: React.FC<{
                             <div className="truncate text-sm font-medium">
                               {warehouse.name}
                             </div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-text-muted">
                               {warehouse.code}
                             </div>
                           </div>
@@ -586,7 +593,7 @@ export const EditCatalogInventoryDrawer: React.FC<{
                           </Badge>
                         </div>
                         {warehouse.address ? (
-                          <div className="mt-1 text-xs text-muted-foreground">
+                          <div className="mt-1 text-xs text-text-muted">
                             {warehouse.address}
                           </div>
                         ) : null}
