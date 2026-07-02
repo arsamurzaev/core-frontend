@@ -17,6 +17,7 @@ import { resolveCurrentAbsoluteUrl } from "@/core/widgets/share-drawer/model/sha
 import { apiClient } from "@/shared/api/client";
 import { copyTextToClipboard } from "@/shared/lib/clipboard";
 import { useCatalogState } from "@/shared/providers/catalog-provider";
+import { AdminPanel, AdminPanelButton } from "@/shared/ui/admin-panel";
 import { AppDrawer } from "@/shared/ui/app-drawer";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -162,7 +163,7 @@ function QrPngDownloadButton({
   return (
     <button
       type="button"
-      className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted"
+      className="mt-3 flex w-full items-center justify-center gap-2 rounded-control border border-line-default px-3 py-2 text-sm font-medium transition-colors hover:bg-surface-muted"
       onPointerDown={(event) => event.stopPropagation()}
       onClick={handleDownload}
     >
@@ -246,33 +247,41 @@ function ModeLinkRow({
   }, [isEnabled, url]);
 
   return (
-    <div className="rounded-2xl border border-black/10 px-4 py-3">
+    <AdminPanel>
       <div className="flex items-start gap-3">
         <Switch
           checked={isEnabled}
           disabled={disabled || isLastSelected}
-          className="mt-0.5 shrink-0 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+          className="mt-0.5 shrink-0 data-[state=checked]:bg-status-success data-[state=unchecked]:bg-status-danger"
           onCheckedChange={onToggle}
         />
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-medium text-foreground">{option.title}</p>
+            <p className="text-sm font-medium text-text-primary">
+              {option.title}
+            </p>
             {isDefaultMode ? (
-              <Badge variant="secondary" className="bg-green-500/10 text-green-700">
+              <Badge
+                variant="secondary"
+                className="bg-status-success-surface text-status-success"
+              >
                 По умолчанию
               </Badge>
             ) : null}
             {!isEnabled ? (
-              <Badge variant="secondary" className="bg-red-500/10 text-red-700">
+              <Badge
+                variant="secondary"
+                className="bg-status-danger-surface text-status-danger"
+              >
                 Выключен
               </Badge>
             ) : null}
           </div>
-          <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
+          <p className="mt-1 wrap-break-word text-sm text-text-muted">
             {option.description}
           </p>
-          <p className="mt-1 truncate text-xs text-muted-foreground">{url}</p>
+          <p className="mt-1 truncate text-xs text-text-muted">{url}</p>
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
@@ -285,7 +294,7 @@ function ModeLinkRow({
             title="Скопировать ссылку"
           >
             {copied ? (
-              <Check className="size-4 text-green-500" />
+              <Check className="size-4 text-status-success" />
             ) : (
               <Copy className="size-4" />
             )}
@@ -321,7 +330,7 @@ function ModeLinkRow({
                   <Image
                     src={qrDataUrl}
                     alt={`QR-код для режима ${option.title}`}
-                    className="size-48 rounded-lg"
+                    className="size-48 rounded-control"
                     width={192}
                     height={192}
                     unoptimized
@@ -332,7 +341,7 @@ function ModeLinkRow({
                   />
                 </>
               ) : (
-                <div className="flex size-48 items-center justify-center text-muted-foreground">
+                <div className="flex size-48 items-center justify-center text-text-muted">
                   <QrCode className="size-8 animate-pulse" />
                 </div>
               )}
@@ -346,24 +355,24 @@ function ModeLinkRow({
         aria-pressed={isDefaultMode}
         disabled={disabled || !isEnabled}
         onClick={onDefaultChange}
-        className="mt-3 flex w-full items-center gap-2 rounded-xl border border-black/10 px-3 py-2 text-left text-sm transition-colors hover:bg-muted/30 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-3 flex w-full items-center gap-2 rounded-control border border-line-default px-3 py-2 text-left text-sm transition-colors hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-50"
       >
         <span
           aria-hidden="true"
-          className="flex size-4 shrink-0 items-center justify-center rounded-full border border-primary"
+          className="flex size-4 shrink-0 items-center justify-center rounded-pill border border-action-primary"
         >
           {isDefaultMode ? (
-            <span className="size-2 rounded-full bg-primary" />
+            <span className="size-2 rounded-pill bg-action-primary" />
           ) : null}
         </span>
-        <span className="font-medium text-foreground">
+        <span className="font-medium text-text-primary">
           Открывать по умолчанию
         </span>
-        <span className="min-w-0 flex-1 truncate text-muted-foreground">
+        <span className="min-w-0 flex-1 truncate text-text-muted">
           ссылка на сайт
         </span>
       </button>
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -394,19 +403,22 @@ function SiteLinkRow({
   }, [url]);
 
   return (
-    <div className="rounded-2xl border border-black/10 px-4 py-3">
+    <AdminPanel>
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-medium text-foreground">Сайт</p>
-            <Badge variant="secondary" className="bg-blue-500/10 text-blue-700">
+            <p className="text-sm font-medium text-text-primary">Сайт</p>
+            <Badge
+              variant="secondary"
+              className="bg-status-info-surface text-status-info"
+            >
               {defaultModeTitle}
             </Badge>
           </div>
-          <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
+          <p className="mt-1 wrap-break-word text-sm text-text-muted">
             Обычная ссылка на каталог. Открывает сценарий по умолчанию.
           </p>
-          <p className="mt-1 truncate text-xs text-muted-foreground">{url}</p>
+          <p className="mt-1 truncate text-xs text-text-muted">{url}</p>
         </div>
 
         <div className="flex shrink-0 items-center gap-1">
@@ -419,7 +431,7 @@ function SiteLinkRow({
             title="Скопировать ссылку"
           >
             {copied ? (
-              <Check className="size-4 text-green-500" />
+              <Check className="size-4 text-status-success" />
             ) : (
               <Copy className="size-4" />
             )}
@@ -455,7 +467,7 @@ function SiteLinkRow({
                   <Image
                     src={qrDataUrl}
                     alt="QR-код для сайта"
-                    className="size-48 rounded-lg"
+                    className="size-48 rounded-control"
                     width={192}
                     height={192}
                     unoptimized
@@ -463,7 +475,7 @@ function SiteLinkRow({
                   <QrPngDownloadButton dataUrl={qrDataUrl} fileName="qr-site.png" />
                 </>
               ) : (
-                <div className="flex size-48 items-center justify-center text-muted-foreground">
+                <div className="flex size-48 items-center justify-center text-text-muted">
                   <QrCode className="size-8 animate-pulse" />
                 </div>
               )}
@@ -471,7 +483,7 @@ function SiteLinkRow({
           </Popover>
         </div>
       </div>
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -511,11 +523,11 @@ function HallTableCard({
   }, [url]);
 
   return (
-    <div className="rounded-lg border border-black/10 px-3 py-2 text-sm">
+    <AdminPanel padding="sm" className="text-sm">
       <div className="flex min-w-0 items-start gap-3">
         <div className="min-w-0 flex-1">
           <span className="block font-medium">{label}</span>
-          <span className="mt-0.5 block text-xs text-muted-foreground">
+          <span className="mt-0.5 block text-xs text-text-muted">
             {details.join(" · ") ||
               (tableCode ? "Без секции" : "Нет короткого кода")}
           </span>
@@ -532,7 +544,7 @@ function HallTableCard({
             className="size-8"
           >
             {copied ? (
-              <Check className="size-4 text-green-500" />
+              <Check className="size-4 text-status-success" />
             ) : (
               <Copy className="size-4" />
             )}
@@ -570,7 +582,7 @@ function HallTableCard({
                   <Image
                     src={qrDataUrl}
                     alt={`QR-код для ${label}`}
-                    className="size-52 rounded-lg border bg-white p-2"
+                    className="size-52 rounded-control border border-line-default bg-surface-base p-2"
                     width={208}
                     height={208}
                     unoptimized
@@ -581,7 +593,7 @@ function HallTableCard({
                   />
                 </>
               ) : (
-                <div className="flex size-52 items-center justify-center rounded-lg border text-muted-foreground">
+                <div className="flex size-52 items-center justify-center rounded-control border border-line-default text-text-muted">
                   <QrCode className="size-8 animate-pulse" />
                 </div>
               )}
@@ -589,7 +601,7 @@ function HallTableCard({
           </Popover>
         </div>
       </div>
-    </div>
+    </AdminPanel>
   );
 }
 
@@ -655,7 +667,7 @@ function HallTableQrDrawer({
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h3 className="text-sm font-semibold">Столы iiko</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-text-muted">
                     Берем список из настроенной группы терминалов.
                   </p>
                 </div>
@@ -667,7 +679,9 @@ function HallTableQrDrawer({
                   onClick={() => void loadTables()}
                   title="Обновить столы"
                 >
-                  <RefreshCw className={isLoading ? "size-4 animate-spin" : "size-4"} />
+                  <RefreshCw
+                    className={isLoading ? "size-4 animate-spin" : "size-4"}
+                  />
                 </Button>
               </div>
 
@@ -678,9 +692,14 @@ function HallTableQrDrawer({
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-black/10 p-3 text-sm text-muted-foreground">
-                  Столы не загрузились. Проверьте выбранную группу терминалов iiko и обновите список.
-                </div>
+                <AdminPanel
+                  padding="sm"
+                  variant="muted"
+                  className="text-sm text-text-muted"
+                >
+                  Столы не загрузились. Проверьте выбранную группу терминалов
+                  iiko и обновите список.
+                </AdminPanel>
               )}
             </section>
           </div>
@@ -825,12 +844,7 @@ export const EditCatalogExperienceDrawer: React.FC<
       onOpenChange={setOpen}
       dismissible={!disabled && !isSaving}
       trigger={
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto w-full min-w-0 items-start justify-between rounded-2xl border border-black/10 px-4 py-4 text-left whitespace-normal hover:bg-muted/30"
-          disabled={disabled}
-        >
+        <AdminPanelButton disabled={disabled}>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <Badge
@@ -840,12 +854,12 @@ export const EditCatalogExperienceDrawer: React.FC<
                 {summary.badge}
               </Badge>
             </div>
-            <p className="mt-1 wrap-break-word text-sm text-muted-foreground whitespace-normal">
+            <p className="mt-1 wrap-break-word text-sm text-text-muted whitespace-normal">
               {summary.description}
             </p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-        </Button>
+          <ChevronRight className="size-4 shrink-0 text-text-muted" />
+        </AdminPanelButton>
       }
     >
       <AppDrawer.Content className="w-full">
@@ -866,7 +880,7 @@ export const EditCatalogExperienceDrawer: React.FC<
               <section className="space-y-3">
                 <div className="space-y-1">
                   <h3 className="text-sm font-semibold">Режимы заказа</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-text-muted">
                     Включайте нужные сценарии и выберите, что открывать по ссылке на сайт.
                   </p>
                 </div>

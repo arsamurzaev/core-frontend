@@ -148,3 +148,4 @@
 - [x] Перевести `edit-catalog-inventory-drawer` trigger, operation form и inventory rows/states на semantic tokens.
 - [x] Перевести `edit-catalog-modifiers-drawer` option/group panels, rows, trigger и archive actions на `AdminPanel` и semantic tokens.
 - [x] Перевести `edit-catalog-price-lists-drawer` selector, loading, radio rows и empty state на semantic tokens.
+- [x] Перевести `edit-catalog-experience-drawer` mode/site/table QR panels, badges и trigger на `AdminPanel` и semantic tokens.
